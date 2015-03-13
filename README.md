@@ -40,5 +40,6 @@ These are the features an IoT Agent is supposed to expose:
 
 
 
+
 ## License ##
 IoT Agent software is licensed under Affero General Public License (GPL) version 3.
