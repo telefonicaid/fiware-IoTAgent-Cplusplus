@@ -659,7 +659,6 @@ int iota::UL20Service::transform_response(const std::string& str_command_resp,
                        std::string& command_response,
                        std::string& id_command) {
   int code = pion::http::types::RESPONSE_CODE_OK;
-  if (!str_command_resp.empty()) {
     std::string response;
     response.assign(pion::algorithm::url_decode(str_command_resp));
     boost::trim(response);
@@ -671,7 +670,6 @@ int iota::UL20Service::transform_response(const std::string& str_command_resp,
       errSTR.append(response);
       command_response.assign(errSTR);
     }
-  }
   return code;
 }
 
