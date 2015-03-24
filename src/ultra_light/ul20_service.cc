@@ -666,7 +666,12 @@ int iota::UL20Service::transform_response(const std::string& str_command_resp,
     boost::erase_all(response, "\n");
     boost::erase_all(response, "\r");
     int code = isCommandResp(response, cmd_status, command_response, id_command);
-
+    if (code < 0) {
+      std::string errSTR = "no ul20 response command:";
+      errSTR.append(response);
+      PION_LOG_ERROR(m_logger, "command response from " << destino << " " << errSTR);
+      command_response.assign(errSTR);
+    }
   }
 }
 
