@@ -32,6 +32,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
+#include <boost/algorithm/string/trim.hpp>
 #include <pion/process.hpp>
 #include "version.h"
 #include "util/device_collection.h"
@@ -493,6 +494,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
 
     if (method.compare(pion::http::types::REQUEST_METHOD_POST) == 0) {
       std::string content = http_request_ptr->get_content();
+      boost::trim(content);
       code = post_device_json(service,  service_path,
                               content, http_response, response);
     }
@@ -613,6 +615,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
 
     if (method.compare(pion::http::types::REQUEST_METHOD_PUT) == 0) {
       std::string content = http_request_ptr->get_content();
+      boost::trim(content);
       code = put_device_json(service,  service_path, device_in_url,
                              content, http_response, response);
     }
@@ -690,6 +693,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
     service_in_url = service;
     if (method.compare(pion::http::types::REQUEST_METHOD_POST) == 0) {
       std::string content = http_request_ptr->get_content();
+      boost::trim(content);
       code = post_service_json(service,  service_path,
                                content, http_response, response);
     }
@@ -754,6 +758,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       }
       else {
         std::string content = http_request_ptr->get_content();
+        boost::trim(content);
         std::multimap<std::string,std::string>::iterator it;
         std::string apikey, resource;
         it = query_parameters.find(iota::store::types::APIKEY);
@@ -914,6 +919,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
     if (method.compare(pion::http::types::REQUEST_METHOD_PUT) == 0) {
 
       std::string content = http_request_ptr->get_content();
+      boost::trim(content);
       std::multimap<std::string,std::string>::iterator it;
       std::string apikey, resource;
       it = query_parameters.find(iota::store::types::APIKEY);
@@ -1307,7 +1313,11 @@ int iota::AdminService::post_device_json(
   std::string device_to_post;
   std::string service_exists = get_service_json(service, service_path);
 
-  if (service_exists.empty()) {
+  if (body.empty()){
+    error_details.assign("empty body");
+    reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+    code = types::RESPONSE_CODE_BAD_REQUEST;
+  }else if (service_exists.empty()) {
     error_details.assign("|service:");
     error_details.append(service);
     error_details.append("|service_path:");
@@ -1382,7 +1392,11 @@ int iota::AdminService::put_device_json(
   std::string reason;
   std::string error_details;
 
-  if (validate_json_schema(body, iota::store::types::DEVICE_TABLE,
+  if (body.empty()){
+    error_details.assign("empty body");
+    reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+    code = types::RESPONSE_CODE_BAD_REQUEST;
+  }else if (validate_json_schema(body, iota::store::types::DEVICE_TABLE,
                            "PUT", error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
     mongo::BSONObj query =  BSON(iota::store::types::SERVICE << service <<
@@ -1576,7 +1590,11 @@ int iota::AdminService::post_service_json(
   std::string error_details;
   ServiceCollection table;
 
-  if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
+  if (body.empty()){
+    error_details.assign("empty body");
+    reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+    code = types::RESPONSE_CODE_BAD_REQUEST;
+  }else if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
                            "POST", error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
@@ -1627,8 +1645,11 @@ int iota::AdminService::put_service_json(
   std::string reason;
   std::string error_details;
 
-
-  if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
+  if (body.empty()){
+    error_details.assign("empty body");
+    reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+    code = types::RESPONSE_CODE_BAD_REQUEST;
+  }else if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
                            "PUT", error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
     mongo::BSONObj query = BSON(iota::store::types::SERVICE_ID << id

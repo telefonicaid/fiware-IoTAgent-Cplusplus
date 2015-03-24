@@ -1139,6 +1139,45 @@ void AdminTest::testBADPostDevice() {
             !=
             std::string::npos);
 
+  std::cout << "@UT@10PUT  body empty" << std::endl;
+  code_res = http_test("/iot/devices/nodev", "PUT", "badservice", "/badservice",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@response " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+    "{\"reason\":\"The request is not well formed\",\"details\":\"empty body\"}")
+        == 0);
+
+  std::cout << "@UT@10POST  body empty" << std::endl;
+  code_res = http_test("/iot/devices", "POST", "badservice", "/badservice",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@response " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+      "{\"reason\":\"The request is not well formed\",\"details\":\"empty body\"}")
+            == 0);
+
+  std::cout << "@UT@10PUT  body empty" << std::endl;
+  code_res = http_test("/iot/services?resource=noresource", "PUT", "badservice", "/badservice",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@response " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+     "{\"reason\":\"The request is not well formed\",\"details\":\"empty body\"}")
+            == 0);
+
+  std::cout << "@UT@10POST  body empty" << std::endl;
+  code_res = http_test("/iot/services", "POST", "badservice", "/badservice",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@response " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+      "{\"reason\":\"The request is not well formed\",\"details\":\"empty body\"}")
+            == 0);
 
   std::cout << "END@UT@ testBADPostDevice" << std::endl;
 }
