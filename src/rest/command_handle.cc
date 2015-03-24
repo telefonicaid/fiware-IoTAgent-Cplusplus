@@ -1427,7 +1427,7 @@ void iota::CommandHandle::receive_command_response(
   boost::shared_ptr<iota::HttpClient> http_client,
   pion::http::response_ptr http_response,
   const boost::system::error_code& error) {
-
+  PION_LOG_DEBUG(m_logger, "command response from " << http_client->getRemoteEndpoint());
   int res_code;
   std::string command_response;
   if (error || http_response.get() == NULL) {
