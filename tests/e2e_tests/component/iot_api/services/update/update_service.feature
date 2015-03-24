@@ -27,14 +27,16 @@ Feature: Update Service
         And the service data NOT contains attribute "<attribute>" with value "<value>"
 		
 		Examples:
-			|srv_name	|srv_path		|resource	|apikey			|cbroker			|attribute		|value				|HTTP_status	|exceptionText 												|
-			|void		|void			|/iot/d		|srv_putkey		|http://myurl2:200	|cbroker		|http://myurl2:2000	|400			|Fiware-Service/Fiware-ServicePath not present or invalid	|
-			|void		|/path_srv_put	|/iot/d		|srv_putkey		|http://myurl2:200	|cbroker		|http://myurl2:2000	|400			|Fiware-Service/Fiware-ServicePath not present or invalid	|
-			|void		|path_srv_put	|/iot/d		|srv_putkey		|http://myurl2:200	|cbroker		|http://myurl2:2000	|400			|Fiware-Service/Fiware-ServicePath not present or invalid	|
-			|srv_put	|/path_srv_put	|/iot/tt	|srv_putkey		|http://myurl2:200	|cbroker		|http://myurl2:2000	|204			|															|
-			|srv_put	|/path_srv_put	|/iot/d		|srv_putkey2	|http://myurl2:200	|cbroker		|http://myurl2:2000	|204			|															|
-			|srv_put	|/path_srv_put	|			|srv_putkey		|http://myurl2:200	|cbroker		|http://myurl2:2000	|400			|resource parameter is mandatory in PUT operation			|
-			|srv_put	|/path_srv_put	|/iot/tt	|				|http://myurl2:200	|cbroker		|http://myurl2:2000	|204			|															|
-			|srv_put	|/path_srv_put2	|/iot/d		|srv_putkey2	|http://myurl:80	|resource		|/iot/tt			|409			|duplicate key error										|
-			|srv_put	|void			|/iot/d		|				|http://myurl:80	|resource		|/iot/tt			|409			|duplicate key error										|
+			|srv_name	|srv_path		|resource	|apikey			|cbroker			|attribute	|value				|HTTP_status	|exceptionText 												|
+			|void		|void			|/iot/d		|srv_putkey		|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-Service/Fiware-ServicePath not present or invalid	|
+			|void		|/path_srv_put	|/iot/d		|srv_putkey		|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-Service/Fiware-ServicePath not present or invalid	|
+			|void		|path_srv_put	|/iot/d		|srv_putkey		|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-Service/Fiware-ServicePath not present or invalid	|
+			|srv_put	|/path_srv_put	|/iot/tt	|srv_putkey		|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist									|
+			|srv_put	|/path_srv_put	|/iot/d		|srv_putkey2	|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist									|
+			|srv_put	|/path_srv_put	|			|srv_putkey		|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|resource parameter is mandatory in PUT operation			|
+			|srv_put	|/path_srv_put	|/iot/tt	|				|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist									|
+			|srv_put	|/path_srv_put2	|/iot/d		|srv_putkey2	|http://myurl:80	|resource	|/iot/tt			|409			|duplicate key: iot.SERVICE									|
+			|srv_put	|void			|/iot/d		|				|http://myurl:80	|resource	|/iot/tt			|409			|duplicate key: iot.SERVICE									|
+			|srv_put	|/path_srv_put2	|/iot/d		|srv_putkey2	|http://myurl:80	|			|					|400			|Additional properties not allowed. [/]						|
+			|srv_put	|/path_srv_put2	|/iot/d		|srv_putkey2	|http://myurl:80	|empty_json	|					|400			|Additional properties not allowed							|
 			

@@ -73,6 +73,7 @@ def service_created(step, service_name, service_path):
 @step('I try to create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)" and cbroker "([^"]*)"')
 def create_service_failed(step,srv_name,srv_path,resource,apikey,cbroker):
     world.srv_path = srv_path
+    world.srv_name = srv_name
     world.resource = resource
     world.apikey = apikey
     world.cbroker = cbroker
@@ -84,6 +85,12 @@ def create_service_failed(step,srv_name,srv_path,resource,apikey,cbroker):
 def assert_service_created_failed(step, http_status, error_text):
     assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
 #    assert world.req.json()['details'] == str(error_text.format("{ \"id\" ","\""+world.cbroker_id+"\"}")), 'ERROR: ' + world.req.text
+    if http_status=="409":
+        assert world.apikey in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.resource in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.cbroker in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.srv_name in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.srv_path in world.req.text, 'ERROR: ' + world.req.text        
     assert str(error_text.format(world.cbroker)) in world.req.text, 'ERROR: ' + world.req.text
     
     

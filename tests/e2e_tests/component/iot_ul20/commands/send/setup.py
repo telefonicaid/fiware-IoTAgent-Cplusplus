@@ -137,6 +137,8 @@ def send_wrong_command(step, service, device_id, cmd_name, value, field):
     entityData['attributes'] = commands
     print "Comando: " + str(entityData)
     req = cb.entity_update(service,entityData,'path_'+world.service_name)
+    if field == 'unreachable_dest':
+        time.sleep(TIMEOUT_COMMAND)
     ts = time.time()
     st = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
     world.st=st

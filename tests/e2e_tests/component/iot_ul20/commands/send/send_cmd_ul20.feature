@@ -45,14 +45,14 @@ Feature: Send UL20 Command
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received or NOT by context broker
 		
 		Examples:
-            |device_id	|device_name |service		|protocol	|command		|value		|cmd_value	|endpoint												|status		|wrong_field			|response																						|
-            |dev2		|room2		 |serviceul20	|IoTUL2		|attr_1_dev_2	|ping2		|dev2@%s	|http://10.95.213.159:5371/simulaClient/lightCommand	|OK			|simulator_type			|no ul20 response command:																		|
-            |dev3		|room3		 |serviceul20	|IoTUL2		|attr_1_dev_3	|ping3		|dev3@%s	|http://192.168.1.1:9001								|error		|nonexist_destination	|no ul20 response command:This seems to be like an error connection to 192.168.1.1:9001//path	|
-            |dev4		|room4		 |serviceul20	|IoTUL2		|attr_1_dev_4	|ping4		|dev4@%s	|http://192.0.0.1:9001									|error		|unreachable_dest		|no ul20 response command:This seems to be like an error connection to 192.0.0.1:9001//path		|         
-            |dev2_1		|room2_1	 |serviceul20	|IoTUL2		|attr_2_dev_2_1	|ping2_1	|%s			|														|fail		|wrong_command_format	|this is not a valid command																	|
-            |dev2		|room2	 	 |serviceul20	|IoTUL2		|attr_2_dev_2	|ping2_1	|			|														|fail		|nonexistent_command	|the device does not have implemented this command												|         
-            |dev11		|room11	 	 |serviceul20	|IoTUL2		|attr_1_dev_11	|ping11		|			|														|fail		|nonexistent_device		|The device does not exist																		| 
-            |dev5		|room5		 |serviceMqtt	|			|attr_1_dev_5	|ping5		|			|														|fail		|nonexistent_service	|The service does not exist																		|        
+            |device_id	|device_name |service		|protocol	|command		|value		|cmd_value	|endpoint												|status		|wrong_field			|response											|
+            |dev2		|room2		 |serviceul20	|IoTUL2		|attr_1_dev_2	|ping2		|dev2@%s	|http://10.95.213.159:5371/simulaClient/lightCommand	|OK			|simulator_type			|no ul20 response command:							|
+            |dev3		|room3		 |serviceul20	|IoTUL2		|attr_1_dev_3	|ping3		|dev3@%s	|http://192.168.1.1:9001								|error		|nonexist_destination	|http://192.168.1.1:9001/  [No route to host]		|
+            |dev4		|room4		 |serviceul20	|IoTUL2		|attr_1_dev_4	|ping4		|dev4@%s	|http://192.0.0.1:9001									|error		|unreachable_dest		|http://192.0.0.1:9001/  [Connection timed out]		|         
+            |dev2_1		|room2_1	 |serviceul20	|IoTUL2		|attr_2_dev_2_1	|ping2_1	|%s			|														|fail		|wrong_command_format	|this is not a valid command						|
+            |dev2		|room2	 	 |serviceul20	|IoTUL2		|attr_2_dev_2	|ping2_1	|			|														|fail		|nonexistent_command	|the device does not have implemented this command	|         
+            |dev11		|room11	 	 |serviceul20	|IoTUL2		|attr_1_dev_11	|ping11		|			|														|fail		|nonexistent_device		|The device does not exist							| 
+            |dev5		|room5		 |serviceMqtt	|			|attr_1_dev_5	|ping5		|			|														|fail		|nonexistent_service	|The service does not exist							|        
 
 
     	@iot_cmd_ul20 @IDAS-20171

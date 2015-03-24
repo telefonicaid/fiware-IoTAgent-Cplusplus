@@ -70,4 +70,21 @@ Feature: Send UL20 Observation
             |device_ul14	|serviceul20	|IoTUL2		|t		|80			|			|room14		|			|
             |device_ul15	|serviceul20	|IoTUL2		|t		|90			|thing9		|			|			|
             |device_ul16	|serviceul20	|IoTUL2		|t		|100		|			|			|			|
+
+
+    	@iot_ul20 @IDAS-20172
+    	Scenario Outline: Send a single observation for provisioned device with attributes
+		Given a service with name "<service>" and protocol "<protocol>" created
+		And a device with device id "<device_id>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
+		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
+		Then the measure of asset "<device_id>" with phenom "<alias>" and value "<value>" and attributes are received by context broker
+		
+		Examples:
+            |device_id 		|service		|protocol	|alias	|value	|typ	|name	|type	|value1	|typ2	|name2		|type2	|value2		|timestamp	|
+            |device_ul17	|serviceul20	|IoTUL2		|t		|10		|attr	|temp1	|int	|t1		|attr	|hum		|int2	|h			|			|
+            |device_ul17	|serviceul20	|IoTUL2		|t1		|20		|attr	|temp1	|int	|t1		|attr	|hum		|int2	|h			|			|
+            |device_ul17	|serviceul20	|IoTUL2		|h		|90		|attr	|temp1	|int	|t1		|attr	|hum		|int2	|h			|			|
+            |device_ul18	|serviceul20	|IoTUL2		|t		|11		|attr	|temp1	|int	|t1		|st_att	|h			|int2	|100		|			|
+            |device_ul18	|serviceul20	|IoTUL2		|t1		|21		|attr	|temp1	|int	|t1		|st_att	|h			|int2	|100		|			|
+            |device_ul19	|serviceul20	|IoTUL2		|t		|12		|st_att	|t1		|int	|30		|st_att	|h			|int2	|100		|			|
                                     

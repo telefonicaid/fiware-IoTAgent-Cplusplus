@@ -141,10 +141,6 @@ def send_measures(step, device_id, protocol):
         obs_value = measures_dict['obs_value']
         if obs_type:
             measure += ",#"+str(num_measure)+ ","
-            if measure2:
-                measure2 += ",#"+str(num_measure)+ ","
-            else:
-                measure2 += "#"+str(num_measure)+ ","                
         else:
             break
         if obs_type == "GM":
@@ -152,10 +148,18 @@ def send_measures(step, device_id, protocol):
             obs1 = obs_value.split('/')[0]
             obs2 = obs_value.split('/')[1]
             measure += "GM,"+obs1.split('#')[0]+","+obs1.split('#')[1]+","
-            measure2 += "GM,"+obs1.split('#')[0]+","
             fill_metadatas(obs2)
             measure += world.measure       
-            measure2 += world.measure2       
+            if obs1.split('#')[1]:
+                if measure2:
+                    measure2 += ",#"+str(num_measure)+ ","
+                else:
+                    measure2 += "#"+str(num_measure)+ ","                
+                measure2 += "GM,"+obs1.split('#')[0]+","
+                measure2 += world.measure2       
+                world.are_measures=True
+            else:
+                world.are_measures=False                      
         elif obs_type == "GC":
             world.types.append('')
             if "/" in obs_value:
@@ -165,57 +169,86 @@ def send_measures(step, device_id, protocol):
                 obs1 = obs_value
                 obs2= ''
             measure += "GC,"+obs1.split('#')[0]+","
-            measure2 += "GC,"+obs1.split('#')[0]+","
-            obs1_2 = obs1.split('#')[1]
-            if ':' in obs1_2:
-                measure += obs1_2.split(':')[0]+","
-                measure2 += obs1_2.split(':')[1]+","
-            else:
-                measure += obs1_2+","
-                measure2 += obs1_2+","
             fill_metadatas(obs2)
+            if obs1.split('#')[1]:
+                if measure2:
+                    measure2 += ",#"+str(num_measure)+ ","
+                else:
+                    measure2 += "#"+str(num_measure)+ ","                
+                measure2 += "GC,"+obs1.split('#')[0]+","
+                obs1_2 = obs1.split('#')[1]
+                if ':' in obs1_2:
+                    measure += obs1_2.split(':')[0]+","
+                    measure2 += obs1_2.split(':')[1]+","
+                else:
+                    measure += obs1_2+","
+                    measure2 += obs1_2+","
+                measure2 += world.measure2       
             measure += world.measure       
-            measure2 += world.measure2       
+            world.are_measures=True      
         elif obs_type == "P1":
             world.types.append(obs_type)
             obs1 = obs_value.split('/')[0]
             obs2 = obs_value.split('/')[1]
             measure += str(obs_type)+ ","
-            measure2 += str(obs_type)+ ","
             for i in obs1.split('#'):
                 measure += i +","
                 world.values.append(i)
             fill_metadatas(obs2)
             measure += world.measure       
-            measure2 += world.measure2       
+            if obs1.split('#')[3]:
+                if measure2:
+                    measure2 += ",#"+str(num_measure)+ ","
+                else:
+                    measure2 += "#"+str(num_measure)+ ","                
+                measure2 += str(obs_type)+ ","
+                measure2 += world.measure2       
+                world.are_measures=True      
         elif obs_type == "B":
             world.types.append('B')
             obs1 = obs_value.split('/')[0]
             obs2 = obs_value.split('/')[1]
             measure += "B,"
-            measure2 += "B,"
             for i in obs1.split('#'):
                 measure += i +","
                 world.values.append(i)
-            measure2 += obs1.split('#')[1]+","+obs1.split('#')[4]+","+obs1.split('#')[5]+","
             fill_metadatas(obs2)
             measure += world.measure       
-            measure2 += world.measure2       
+            if obs1.split('#')[5]:
+                if measure2:
+                    measure2 += ",#"+str(num_measure)+ ","
+                else:
+                    measure2 += "#"+str(num_measure)+ ","                
+                measure2 += "B,"
+                measure2 += obs1.split('#')[1]+","+obs1.split('#')[4]+","+obs1.split('#')[5]+","
+                measure2 += world.measure2       
+                world.are_measures=True      
         elif obs_type == "K1":
             measure += "K1,"+obs_value.split('&')[0]+"$"+obs_value.split('&')[1]
+            if measure2:
+                measure2 += ",#"+str(num_measure)+ ","
+            else:
+                measure2 += "#"+str(num_measure)+ ","                
             measure2 += "K1,"+obs_value.split('&')[0]+"$"+obs_value.split('&')[1]
+            world.are_measures=True      
         elif obs_type == "GPS":
             world.types.append(obs_type)
             obs1 = obs_value.split('/')[0]
             obs2 = obs_value.split('/')[1]
             measure += str(obs_type)+ ","
-            measure2 += str(obs_type)+ ","
             for i in obs1.split('#'):
                 measure += i +","
             world.metadatas.append("WGS84")
             fill_metadatas(obs2)
             measure += world.measure       
-            measure2 += world.measure2       
+            if obs1.split('#')[1]:
+                if measure2:
+                    measure2 += ",#"+str(num_measure)+ ","
+                else:
+                    measure2 += "#"+str(num_measure)+ ","                
+                measure2 += str(obs_type)+ ","
+                measure2 += world.measure2       
+                world.are_measures=True      
         num_measure=num_measure+1
     world.ts=ts
     world.st=st
@@ -226,21 +259,27 @@ def send_measures(step, device_id, protocol):
     requests.post(CBROKER_URL+"/reset")
     req = gw.sendMeasure(protocol,"",device_id,measures)
     #print req.status_code + req.ok
-    assert req.ok, 'ERROR: ' + req.text
-    print 'Respuesta Esperada: ' + measure2
-    print 'Respuesta Obtenida: ' + req.text
-    assert measure2 == req.text, 'ERROR: ' + measure2 + ' response expected, ' + req.text + ' received'
+    if world.are_measures:
+        assert req.ok, 'ERROR: ' + req.text
+        print 'Respuesta Esperada: ' + measure2
+        print 'Respuesta Obtenida: ' + req.text
+        assert measure2 == req.text, 'ERROR: ' + measure2 + ' response expected, ' + req.text + ' received'
+    else:
+        assert not req.ok, 'ERROR: ' + req.text
+        print req      
+    world.req_text=req.text
         
 @step('I send a measure to the GW with name "([^"]*)", protocol "([^"]*)", type "([^"]*)", value "([^"]*)" and with wrong field "([^"]*)"')
 def send_incorrect_measure(step, device_id, protocol, obs_type, value, field):
     measures= []
+    world.are_measures=False                      
     world.values= []
     world.metadatas= []
     world.types = []
     if not field=='stack_id':
         measure = "#"+device_id+","
     else:
-        measure = "#"
+        measure = ""
     ts = time.time()
     st = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
     num_measure=0
@@ -259,10 +298,13 @@ def send_incorrect_measure(step, device_id, protocol, obs_type, value, field):
             obs1 = value
             obs2= ''
         measure += "GM,"+obs1.split('#')[0]+","+obs1.split('#')[1]+","
-        measure2 += "GM,"+obs1.split('#')[0]+","
         fill_metadatas(obs2)
         measure += world.measure       
-        measure2 += world.measure2       
+        if len(obs1.split('#')) > 1:
+            if obs1.split('#')[1]:
+                measure2 += "GM,"+obs1.split('#')[0]+","
+                measure2 += world.measure2       
+                world.are_measures=True
     elif obs_type == "GC":
         world.types.append('')
         if "/" in value:
@@ -272,42 +314,51 @@ def send_incorrect_measure(step, device_id, protocol, obs_type, value, field):
             obs1 = value
             obs2= ''
         measure += "GC,"+obs1.split('#')[0]+","
-        measure2 += "GC,"+obs1.split('#')[0]+","
-        obs1_2 = obs1.split('#')[1]
-        if ':' in obs1_2:
-            measure += obs1_2.split(':')[0]+","
-            measure2 += obs1_2.split(':')[1]+","
-        else:
-            measure += obs1_2+","
-            measure2 += obs1_2+","
         fill_metadatas(obs2)
+        if len(obs1.split('#')) > 1:
+            if obs1.split('#')[1]:
+                measure2 += "GC,"+obs1.split('#')[0]+","
+                obs1_2 = obs1.split('#')[1]
+                if ':' in obs1_2:
+                    measure += obs1_2.split(':')[0]+","
+                    measure2 += obs1_2.split(':')[1]+","
+                else:
+                    measure += obs1_2+","
+                    measure2 += obs1_2+","
+                measure2 += world.measure2       
+                world.are_measures=True
         measure += world.measure       
-        measure2 += world.measure2       
     elif obs_type == "P1":
         world.types.append(obs_type)
         obs1 = value.split('/')[0]
         obs2 = value.split('/')[1]
         measure += str(obs_type)+ ","
-        measure2 += str(obs_type)+ ","
         for i in obs1.split('#'):
             measure += i +","
             world.values.append(i)
         fill_metadatas(obs2)
         measure += world.measure       
-        measure2 += world.measure2       
+        if len(obs1.split('#')) > 3:
+            if obs1.split('#')[3]:
+                measure2 += str(obs_type)+ ","
+                measure2 += world.measure2       
+                world.are_measures=True      
     elif obs_type == "B":
         world.types.append('B')
         obs1 = value.split('/')[0]
         obs2 = value.split('/')[1]
         measure += "B,"
-        measure2 += "B,"
         for i in obs1.split('#'):
             measure += i +","
             world.values.append(i)
-#        measure2 += obs1.split('#')[1]+","+obs1.split('#')[4]+","+obs1.split('#')[5]+","
         fill_metadatas(obs2)
-        measure += world.measure       
-        measure2 += world.measure2       
+        measure += world.measure
+        if len(obs1.split('#')) > 5:
+            if obs1.split('#')[5]:
+                measure2 += "B,"
+                measure2 += obs1.split('#')[1]+","+obs1.split('#')[4]+","+obs1.split('#')[5]+","
+                measure2 += world.measure2       
+                world.are_measures=True      
     elif obs_type == "K1":
         world.types.append(obs_type)
         measure += "K1,"+value.split('&')[0]+"$"+value.split('&')[1]
@@ -317,13 +368,16 @@ def send_incorrect_measure(step, device_id, protocol, obs_type, value, field):
         obs1 = value.split('/')[0]
         obs2 = value.split('/')[1]
         measure += str(obs_type)+ ","
-        measure2 += str(obs_type)+ ","
         for i in obs1.split('#'):
             measure += i +","
         world.metadatas.append("WGS84")
         fill_metadatas(obs2)
         measure += world.measure       
-        measure2 += world.measure2       
+        if len(obs1.split('#')) > 1:
+            if obs1.split('#')[1]:
+                measure2 += str(obs_type)+ ","
+                measure2 += world.measure2       
+                world.are_measures=True      
     world.ts=ts
     world.st=st
     print 'Medida original: ' + measure
@@ -334,8 +388,13 @@ def send_incorrect_measure(step, device_id, protocol, obs_type, value, field):
     requests.post(CBROKER_URL+"/reset")
     req = gw.sendMeasure(protocol,"",device_id,measures)
     #print req.status_code + req.ok
-    assert not req.ok, 'ERROR: ' + str(req)
+    if not field == "stack_id": 
+        assert req.ok, 'ERROR: ' + str(req)
+    else:
+        assert not req.ok, 'ERROR: ' + str(req)
     world.req_text=req.text
+    if '_id' in field:
+        world.are_measures=False
 #    print 'Respuesta Esperada: ' + measure2
 #    print 'Respuesta Obtenida: ' + req.text
 #    assert measure2 == req.text, 'ERROR: ' + measure2 + ' response expected, ' + req.text + ' received'
@@ -462,9 +521,9 @@ def check_measures_cbroker(step, num_measures, asset, measures):
 def check_NOT_measures_cbroker(step, num_measures, asset_name, measures, error):
     time.sleep(1)
     measures_count =  requests.get(CBROKER_URL+"/countMeasure")
-    assert measures_count.text == str(num_measures), 'ERROR: ' + str(num_measures) + ' measures expected, ' + measures_count.text + ' received'
     req =  requests.get(CBROKER_URL+"/last")
     response = req.json()
+    assert measures_count.text == str(num_measures), 'ERROR: ' + str(num_measures) + ' measures expected, ' + measures_count.text + ' received'
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + str(req.headers[CBROKER_HEADER])
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
     #print 'Ultima medida recibida {}'.format(response)
@@ -472,61 +531,13 @@ def check_NOT_measures_cbroker(step, num_measures, asset_name, measures, error):
     assetElement = contextElement['id']
     typeElement = contextElement['type']
     assert typeElement == "thing", 'ERROR: ' + str(contextElement)
-#   if (world.field=="PA1") | ("ID5" in world.field) | ("EA1" in world.field):
     if world.are_measures:
-        contextElement = response['contextElements'][0]
-        assetElement = contextElement['id']
-        #print 'Dispositivo {}'.format(assetElement)
-        typeElement = contextElement['type']
-        #print 'Dispositivo {}'.format(typeElement)
-        d = dict([measures.split(':')]) 
-        measure_name=str(d.items()[0][0])
-        if d.items()[0][1] == "timestamp":
-            measure_value=str(world.st)
-        else:
-            measure_value=str(d.items()[0][1])
-        metadata_value=""
-        if  "/" in measure_value:
-            print measure_value
-            d2 = dict([measure_value.split('/')])
-            print d2
-            num_metadatas=len(world.value)-1
-            measure_value=""
-            for i in d2.items()[0][0].split('#'):
-                print i
-                measure_value+=world.st2+" - "+world.value[num_metadatas]+":"+str(i)
-                if num_metadatas>0:
-                    measure_value+="\n"
-                num_metadatas = num_metadatas-1
-        attr_matches=False
-        for attr in contextElement['attributes']:
-            if str(measure_name) == attr['name']:
-                print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
-                assert attr['value'] == str(measure_value), 'ERROR: value: ' + str(measure_value) + " not found in: " + str(attr)
-                attr_matches = True
-                for metadata_value in world.value:
-                    metadata_matches = False
-                    for metadata in attr['metadatas']:
-                        if metadata['value'] == str(metadata_value):
-                            print 'Compruebo metadata EvadtsAlarm y {} en {}'.format(metadata_value,metadata)
-                            assert metadata['name'] == "EvadtsAlarm", 'ERROR: EvadtsAlarm not found in' + str(metadata)
-                            metadata_matches = True
-                            break
-                    assert metadata_matches, 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'])
-                assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
-                assert str(world.st) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
-                break
-        assert attr_matches, 'ERROR: attribute: ' + str(measure_name) + " not found in: " + str(contextElement['attributes'])
-        print 'Compruebo atributo TimeInstant y {} en {}'.format(contextElement['attributes'][0]['value'],str(contextElement['attributes'][0]))
-        assert contextElement['attributes'][0]['name'] == "TimeInstant", 'ERROR: ' + str(contextElement['attributes'][0])
-        assert str(world.st) == contextElement['attributes'][0]['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][0])
-        assert assetElement == "{}".format(asset_name), 'ERROR: ' + str(contextElement)
+        check_measures_cbroker(step, num_measures, asset_name, measures)
     else:
         if not world.field=="device":
             assert assetElement != "{}".format(asset_name), 'ERROR: device: ' + str(asset_name) + " found in: " + str(contextElement)
             print "Measure is NOT received"
-    if world.req_text:
-        assert error in str(world.req_text), 'ERROR: text error: ' + error + " not found in: " + str(world.req_text)
+        assert error == str(world.req_text), 'ERROR: text error: ' + error + " not found in: " + str(world.req_text)
 
 def check_timestamp (timestamp):
     st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')

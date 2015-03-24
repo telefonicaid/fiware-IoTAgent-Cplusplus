@@ -141,27 +141,3 @@ def check_devices_data(step, devices, service_name, service_path, service_path2)
                 world.remember[service_name][world.service_path2]['device'].remove(world.device_name2)
         else:
             assert user_steps.device_created(service_name, world.device_name2, world.service_path2)       
-
-@step('I try to retrieve the service data of "([^"]*)", path "([^"]*)", resource "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
-def get_wrong_service_data(step,service_name, service_path, resource, limit, offset):
-    headers = {}
-    params = {}
-    if not service_name == 'void':
-        headers[CBROKER_HEADER] = service_name
-    if not service_path == 'void':
-            headers[CBROKER_PATH_HEADER] = str(service_path)
-    if resource:
-        params['resource']= resource
-    if limit:
-        params['limit']= limit
-    if offset:
-        params['offset']= offset
-    world.req =  api.get_service('', headers, params)
-    assert world.req.status_code != 200, 'ERROR: ' + world.req.text + "El servicio {} se ha podido recuperar".format(service_name)
-
-@step('user receives the "([^"]*)" and the "([^"]*)"')
-def assert_service_created_failed(step, http_status, error_text):
-    assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
-#    assert world.req.json()['details'] == str(error_text.format("{ \"id\" ","\""+world.cbroker_id+"\"}")), 'ERROR: ' + world.req.text
-    assert str(error_text) in world.req.text, 'ERROR: ' + world.req.text
-    

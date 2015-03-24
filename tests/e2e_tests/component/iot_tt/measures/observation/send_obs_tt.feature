@@ -59,24 +59,45 @@ Feature: Send TT Observation
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device name "<device_name>" created
 		When I send a measure to the GW with name "<device_name>", protocol "<protocol>", type "<obs_type>", value "<obs_value>" and with wrong field "<field>"
+		Then "<num_meas>" measures of asset "<device_name>" with measures "<gen_meas>" and error "<error_text>" are received or NOT by context broker
+		
+		Examples:
+            |service	|device_name |obs_type	|obs_value					|protocol  	|field 		|error_text									|num_meas	|gen_meas	|
+            |servicett	|devicett10	 |GM		|temp#						|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett10	 |GM		|temp#/20&wakeUP			|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett11	 |GC		|temp#						|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett11	 |GC		|temp#/20&wakeUP			|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett12	 |P1		|11#22#33#/					|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett12	 |P1		|11#22#33#/40&wakeUP		|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett13	 |B			|12#23#34#45#56/			|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett13	 |B			|12#23#34#45#56/40&wakeUP	|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett13	 |B			|12#23#34#45#56#/			|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett13	 |B			|12#23#34#45#56#/40&wakeUP	|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett14	 |GPS		|14#/						|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett14	 |GPS		|141#/40&wakeUP				|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett14	 |GPS		|142/						|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett14	 |GPS		|143/40&wakeUP				|IoTTT		|value		|											|0			|			|
+            |servicett	|devicett15	 |GM		|temp#88/20&wakeUP			|IoTTT		|stack_id	|Error: TT message not properly formatted	|0			|			|
+            |servicett	|devicett16	 |GM		|temp#99/20&wakeUP			|IoTTT		|bus_id		|											|0			|			|
+
+    	@iot_tt @IDAS-20235
+    	Scenario Outline: Send a wrong multiple observation
+		Given a service with name "<service>" and protocol "<protocol>" created
+		And a device with device name "<device_name>" created
+		When I send several measures to the GW with name "<device_name>", protocol "<protocol>" 
+			|obs_type		|obs_value		|
+			|<obs_type1>	|<obs_value1>	|
+			|<obs_type2>	|<obs_value2>	|
 		Then "<num_measures>" measures of asset "<device_name>" with measures "<generated_measures>" and error "<error_text>" are received or NOT by context broker
 		
 		Examples:
-            |service	|device_name |obs_type	|obs_value					|protocol  	|field 		|generated_measures						|error_text							|num_measures	|
-            |servicett	|devicett10	 |GM		|temp#						|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett10	 |GM		|temp#/20&wakeUP			|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett11	 |GC		|temp#						|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett11	 |GC		|temp#/20&wakeUP			|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett12	 |P1		|11#22#33#/					|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett12	 |P1		|11#22#33#/40&wakeUP		|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett13	 |B			|12#23#34#45#56/			|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett13	 |B			|12#23#34#45#56/40&wakeUP	|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett13	 |B			|12#23#34#45#56#/			|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett13	 |B			|12#23#34#45#56#/40&wakeUP	|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett14	 |GPS		|14#/						|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett14	 |GPS		|141#/40&wakeUP				|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett14	 |GPS		|142/						|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett14	 |GPS		|143/40&wakeUP				|IoTTT		|value		|										|Error While processing TT message	|0				|
-            |servicett	|devicett15	 |GM		|temp#88/20&wakeUP			|IoTTT		|stack_id	|										|Error While processing TT message	|0				|
-            |servicett	|devicett16	 |GM		|temp#99/20&wakeUP			|IoTTT		|bus_id		|										|Error While processing TT message	|0				|
+            |service	|device_name |obs_type1	|obs_value1						|obs_type2	|obs_value2					|protocol  |generated_measures									|num_measures	|error_text							|
+            |servicett	|devicett17	 |GM		|temp#15/10&wakeUP				|GM			|hum#/40&wakeUP4			|IoTTT	   |temp:25/sleeptime#sleepcondition					|0				|Error While processing TT message	|
+            |servicett	|devicett17	 |GC		|temp#25/20&wakeUP				|GM			|temp#/50&wakeUP5			|IoTTT	   |_TTcurrent_temp:25/sleeptime#sleepcondition			|2				|									|
+            |servicett	|devicett17	 |P1		|11#22#33#44#55/40&wakeUP		|GM			|temp#/50&wakeUP5			|IoTTT	   |mcc#mnc#cell-id#lac#dbm/sleeptime#sleepcondition	|2				|									|
+            |servicett	|devicett17	 |GM		|temp#35/30&wakeUP				|GC			|temp#/60&wakeUP6			|IoTTT	   |temp:35/sleeptime#sleepcondition					|2				|									|
+            |servicett	|devicett17	 |GC		|hum#35/33&wakeUP3				|GC			|temp#/50&wakeUP5			|IoTTT	   |_TTcurrent_hum:35/sleeptime#sleepcondition			|1				|									|
+            |servicett	|devicett18	 |GM		|temp#45/40&wakeUP2				|P1			|11#22#33#/70&wakeUP7		|IoTTT	   |temp:45/sleeptime#sleepcondition					|2				|									|
+            |servicett	|devicett18	 |GM		|temp#55/50:40&wakeUP3:wakeUP2	|B			|12#23#34#45#56#/80&wakeUP8	|IoTTT	   |temp:55/sleeptime#sleepcondition					|1				|            						|
+            |servicett	|devicett18	 |GM		|temp#65/60:50&wakeUP4:wakeUP3	|GPS		|11#/90&wakeUP9				|IoTTT	   |temp:65/sleeptime#sleepcondition					|1				|									|
             

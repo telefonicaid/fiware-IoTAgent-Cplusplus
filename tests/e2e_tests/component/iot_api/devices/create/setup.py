@@ -21,9 +21,10 @@ def service_created_precond(step, service_name, service_path):
 @step('a Device with name "([^"]*)" and path "([^"]*)" not created')
 def device_not_created(step, device_name, service_path):
     world.service_path = service_path
-    if (world.service_name == 'void') | ('/' in service_path):
-        return
-    if user_steps.device_created(device_name, world.service_name, service_path):
+    if (world.service_name == 'void'):
+        if  (not '/' in service_path) and (not service_path=='void'):
+            return
+    if user_steps.device_created(world.service_name, device_name, service_path):
         print 'ERROR: El device {} ya existe'.format(device_name)
         if service_path=='void':
             service_path2='/'
@@ -42,6 +43,7 @@ def create_device(step, dev_name, entity_name, entity_type, endpoint):
     world.endpoint = endpoint
     req=user_steps.create_device(world.service_name, dev_name, world.service_path, endpoint, {}, entity_name, entity_type)
     assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
+    assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
     print 'Se ha creado el device {}'.format(dev_name)
     if world.service_path=='void':
         service_path='/'
@@ -116,6 +118,7 @@ def create_device_with_attrs_cmds(step, dev_name, typ1, typ2, name1, name2, type
         commands.append(command)
     req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes)
     assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
+    assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
     print 'Se ha creado el device {}'.format(dev_name)
     if world.service_path=='void':
         service_path='/'
@@ -130,6 +133,7 @@ def create_device_failed(step, dev_name, typ, name, type1, value):
     commands=[]
     attributes=[]
     st_attributes=[]
+    world.device_name = dev_name
     if typ=='attr':
         attributes=[
              {
@@ -181,8 +185,11 @@ def create_device_failed(step, dev_name, typ, name, type1, value):
             if value=='void':
                 value=""
             commands[0]['value']=value
-
-    world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes)
+    if typ=='ent_name':
+        world.entity_name=name
+        world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, name, {}, attributes, st_attributes)
+    else:        
+        world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes)
     assert world.req.status_code != 201, 'ERROR: ' + world.req.text + "El device {} se ha podido crear".format(dev_name)
     print 'No se ha creado el device {}'.format(dev_name)
 
@@ -248,5 +255,15 @@ def assert_device_created_failed(step, http_status, error_text):
     assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
 #    assert world.req.json()['details'] == str(error_text.format("{ \"id\" ","\""+world.cbroker_id+"\"}")), 'ERROR: ' + world.req.text
     assert str(error_text.format(world.service_name)) in world.req.text, 'ERROR: ' + world.req.text
+    if http_status=="409":
+        if 'duplicate' in error_text:
+            assert world.device_name in world.req.text, 'ERROR: ' + world.req.text        
+            assert world.service_name in world.req.text, 'ERROR: ' + world.req.text
+            if world.service_path=='void':
+                world.service_path='/'        
+            assert world.service_path in world.req.text, 'ERROR: ' + world.req.text
+        else:
+            assert world.entity_name in world.req.text, 'ERROR: ' + world.req.text        
+                    
     
     

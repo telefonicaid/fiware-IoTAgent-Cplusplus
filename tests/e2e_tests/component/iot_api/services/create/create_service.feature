@@ -43,7 +43,7 @@ Feature: Create Service
 			|void		|void				|/iot/d		|srv_postkey6	|http://myurl:80	| 400		|Fiware-Service/Fiware-ServicePath not present or invalid	|
 			|srv_post6	|path_srv_post6		|/iot/d		|srv_postkey6	|http://myurl:80	| 400		|Fiware-Service/Fiware-ServicePath not present or invalid	|
 #			|srv_post7	|/path_srv_post7	|/iot/d		|srv_postkey1	|http://myurl:80	| 409		|Invalid parameter value: config.cbroker					|
-			|srv_post5	|/path_srv_post5	|/iot/d		|				|http://myurl:80	| 409		|duplicate key error										|
-			|srv_post1	|/path_srv_post1	|/iot/d		|srv_postkey1	|http://myurl:80	| 409		|duplicate key error										|
-			|srv_post2	|/path_srv_post2	|/iot/d		|srv_postkey2_3	|http://myurl:80	| 409		|duplicate key error										|
+			|srv_post5	|/path_srv_post5	|/iot/d		|				|http://myurl:80	| 409		|duplicate key: iot.SERVICE 								|
+			|srv_post1	|/path_srv_post1	|/iot/d		|srv_postkey1	|http://myurl:80	| 409		|duplicate key: iot.SERVICE 								|
+			|srv_post2	|/path_srv_post2	|/iot/d		|srv_postkey2_3	|http://myurl:80	| 409		|duplicate key: iot.SERVICE 								|
 			

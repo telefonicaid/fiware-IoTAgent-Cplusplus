@@ -120,7 +120,9 @@ def update_service_data_failed(step, attribute, value, service_name, service_pat
         world.service_name = service_name
     if not service_path == 'void':
         headers[CBROKER_PATH_HEADER] = str(service_path)
-    world.service_path = service_path
+        world.service_path = service_path
+    else:
+        world.service_path = "/"
     if resource:
         params['resource']= resource
     if apikey:
@@ -128,6 +130,8 @@ def update_service_data_failed(step, attribute, value, service_name, service_pat
     json={
         attribute: value
         }
+    if attribute=='empty_json':
+        json = {}
     world.req =  api.put_service('', json, headers, params)
     assert world.req.status_code != 201, 'ERROR: ' + world.req.text + "El servicio {} se ha podido actualizar".format(service_name)
     print 'No se ha actualizado el servicio {}'.format(service_name)
@@ -137,10 +141,15 @@ def assert_service_created_failed(step, http_status, error_text):
     assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
 #    assert world.req.json()['details'] == str(error_text.format("{ \"id\" ","\""+world.cbroker_id+"\"}")), 'ERROR: ' + world.req.text
     assert str(error_text) in world.req.text, 'ERROR: ' + world.req.text
+    if http_status=="409":
+        assert world.apikey in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.resource in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.service_name in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.service_path in world.req.text, 'ERROR: ' + world.req.text        
 
 @step('the service data NOT contains attribute "([^"]*)" with value "([^"]*)"')
 def check_NOT_service_data(step, attribute, value):
-    if (world.req.status_code == 400) | (world.req.status_code == 204):
+    if (world.req.status_code == 400) | (world.req.status_code == 404):
         print 'No se comprueba el servicio'
         return
     headers = {}
