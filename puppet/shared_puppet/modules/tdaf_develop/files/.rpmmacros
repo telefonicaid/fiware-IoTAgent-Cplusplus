@@ -1,0 +1,75 @@
+%_do_check ERROR_VALUE=`echo $?`;if [ $ERROR_VALUE != "0" ]; then exit -1;fi
+
+%_rpm_name %{name}-%{version}-%{release}
+
+%_debug_dir /var/tmp/rpm/%{_rpm_name}
+
+# START: MACROS DE LOGS
+%_default_log_color_pre \\033[47m\\033[1;34m
+
+%_default_log_color_suffix \\033[0m\\\\n
+
+%_error_color \\033[47m\\033[1;31m
+
+%_log _message(){\
+  [[ "\$1" =~ "[ERROR]" ]] && messageColor="%{_error_color}" || messageColor="%{_default_log_color_pre}"\
+  echo -en "${messageColor}\$1%{_default_log_color_suffix}\n"\
+}\
+_log(){\
+   _message "[`date '+%Y-%m-%d %X'`] \$1"\
+}
+
+%_log_init %{_log}\
+_log "==== Init ====[env -->%{_debug_dir}/env_${logPhase}] [script --> %{_debug_dir}/${logPhase}]"\
+%{__mkdir_p} %{_debug_dir}\
+  env >%{_debug_dir}/env_${logPhase}\
+  %{__cp} $0 %{_debug_dir}/${logPhase}
+
+%_log_prep logPhase="PREP"
+
+%_log_prep_init %{_log_prep}\
+  %{_log_init}
+
+%_log_clean logPhase="CLEAN"
+
+%_log_clean_init %{_log_clean}\
+  %{_log_init}
+
+%_log_build logPhase="BUILD"
+
+%_log_build_init %{_log_build}\
+  %{_log_init}
+
+%_log_install logPhase="INSTALL"
+
+%_log_install_init %{_log_install}\
+  %{_log_init}
+
+%_log_pre logPhase="PRE-INSTALL"
+
+%_log_pre_init %{_log_pre}\
+  %{_log_init}
+
+%_log_post logPhase="POST-INSTALL"
+
+%_log_post_init %{_log_post}\
+  %{_log_init}
+
+%_log_preun logPhase="PRE-UNINSTALL"
+
+%_log_preun_init %{_log_preun}\
+  %{_log_init}
+
+%_log_postun logPhase="POST-UNINSTALL"
+
+%_log_postun_init %{_log_postun}\
+  %{_log_init}
+
+%_default_exclude_files \
+cd $RPM_BUILD_ROOT\
+exludeFiles=".svn .svnignore .cvs .cvsignore .hg .hgignore .git .gitignore .classpath .settings .project *.bak *.pyc *.*~"\
+for excludeFile in $exludeFiles; do\
+   rm -rf `find . -name "$excludeFile"`\
+done;\
+cd -
+

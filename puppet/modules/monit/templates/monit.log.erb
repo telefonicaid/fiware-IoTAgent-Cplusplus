@@ -1,0 +1,13 @@
+########################
+# File Managed By Puppet
+########################
+
+<%= @logfile %> {
+	missingok
+	compress
+	copytruncate
+	daily
+	rotate 31
+	minsize 2048
+	notifempty
+}

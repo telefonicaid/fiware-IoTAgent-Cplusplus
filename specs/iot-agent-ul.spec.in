@@ -1,0 +1,34 @@
+Name:          @CPACK_PACKAGE_NAME@-ul
+Version:       @CPACK_PACKAGE_VERSION@
+Release:       @CPACK_PACKAGE_RELEASE@
+Summary:       IoT - IoTAgent UltraLight 2.0
+Group:         PDI-IoT
+License:       PDI
+BuildArch:     x86_64
+BuildRoot:     @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM/%{name}
+AutoReqProv:   no
+Prefix: /usr/local/iot
+Requires: @CPACK_PACKAGE_NAME@-base
+%define _rpmdir @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM
+%define _rpmfilename %{name}-@CPACK_PACKAGE_FILE_NAME@.rpm
+%define _unpackaged_files_terminate_build 0
+%define _topdir @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM
+
+%description
+IoT - IoTAgent UltraLight 2.0
+%install
+pwd
+mkdir -p %{buildroot}/usr/local/iot/lib
+cp @CMAKE_CURRENT_SOURCE_DIR@/lib/@CMAKE_BUILD_TYPE@/UL20Service.so %{buildroot}/usr/local/iot/lib
+
+mkdir -p %{buildroot}/etc/iot
+
+%clean
+rm -rf %{buildroot}
+%pre
+%post
+%preun
+%files
+/usr/local/iot/lib/*
+#/usr/local/dca/certs/*
+#/etc/iot/*

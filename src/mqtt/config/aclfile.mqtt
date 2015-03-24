@@ -1,0 +1,6 @@
+#ESP user must be "admin"
+user admin
+topic #
+
+#Pattern applied to all users.
+pattern %u/#

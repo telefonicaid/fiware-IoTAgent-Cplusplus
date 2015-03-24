@@ -1,0 +1,14 @@
+[default]
+host = <%= @fqdn %>
+
+[monitor:///var/log/httpd/api/error_log]
+sourcetype = API_ERROR - Ojos
+index = tugoindex
+
+[monitor:///var/log/httpd/api/access_log]
+sourcetype = API_ACCESS - Ojos
+index = tugoindex
+
+[monitor:///opt/splunkforwarder/var/log/splunk]
+disabled = true
+

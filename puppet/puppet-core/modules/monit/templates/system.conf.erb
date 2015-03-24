@@ -1,0 +1,23 @@
+check system <%= @host %>
+<% if @load1 -%>
+  if loadavg (1min) > <%= @load1 %> then <%= @action %>
+<% end -%>
+<% if @load5 -%>
+  if loadavg (5min) > <%= @load5 %> then <%= @action %>
+<% end -%>
+<% if @memory -%>
+  if memory usage > <%= @memory %>% then <%= @action %>
+<% end -%>
+<% if @swap -%>
+  if swap usage > <%= @swap %>% then <%= @action %>
+<% end -%>
+<% if @cpu_user -%>
+  if cpu usage (user) > <%= @cpu_user %>% then <%= @action %>
+<% end -%>
+<% if @cpu_system -%>
+  if cpu usage (system) > <%= @cpu_system %>% then <%= @action %>
+<% end -%>
+<% if @cpu_wait -%>
+  if cpu usage (wait) > <%= @cpu_wait %>% then <%= @action %>
+<% end -%>
+

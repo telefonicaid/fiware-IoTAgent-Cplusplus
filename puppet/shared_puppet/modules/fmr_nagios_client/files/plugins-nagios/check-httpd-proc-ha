@@ -1,0 +1,31 @@
+#!/bin/bash
+REVISION=1
+PROGNAME="check-heartbeat-master"
+PROGPATH=`echo $0 | /bin/sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+
+NODE_NAME=`uname -n`
+CL_ST='/usr/bin/cl_status'
+
+#nagios error codes
+#. $PROGPATH/utils.sh 
+OK=0
+WARNING=1
+CRITICAL=2
+UNKNOWN=3
+
+/usr/local/nagios/plugins/check-heartbeat-master >/dev/null
+IS_MASTER=$?
+
+if [[ $IS_MASTER -eq  $OK ]]; then
+valor=`/usr/local/nagios/plugins/check_procs -c 1:30 -C httpd`
+
+res=$?
+else
+valor="WARNING:check ISMASTER=$IS_MASTER"
+res=$WARNING
+fi
+
+echo $valor
+exit $res
+
+

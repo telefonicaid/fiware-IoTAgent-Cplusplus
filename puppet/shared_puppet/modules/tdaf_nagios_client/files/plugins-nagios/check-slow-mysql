@@ -1,0 +1,42 @@
+#!/bin/bash
+
+RES_OK=0
+RES_WARN=1
+RES_CRIT=2
+RES_UNK=3
+
+
+function usage {
+    echo "Usage: ./$0 host user pass crit_per crit_slow crit_threads"
+    exit $RES_UNK
+}
+
+
+if [ $# -ne 6 ]
+then
+    usage
+fi
+
+
+slow_queries=$(mysql -h$1 -u$2 -p$3 -e"show status like 'slow_queries';" | tail -n1 | awk '{ print $2}')
+Qcache_hits=$(mysql -h$1 -u$2 -p$3 -e"show status like 'Qcache_hits';" | tail -n1 | awk '{ print $2}')
+Com_select=$(mysql -h$1 -u$2 -p$3 -e"show status like 'Com_select';" | tail -n1 |  awk '{ print $2}')
+percent=$(echo "100*$Qcache_hits/($Qcache_hits + $Com_select)" | bc -l | head -c5)
+parteentera=$(echo $percent | cut -d'.' -f1)
+Threads_running=$(mysql -h$1 -u$2 -p$3 -e"show status like 'Threads_running';" | tail -n1 | awk '{ print $2}')
+Threads_connected=$(mysql -h$1 -u$2 -p$3 -e"show status like 'Threads_connected';" | tail -n1 | awk '{ print $2}')
+
+#echo $parteentera $4
+#echo $slow_queries,$5
+#echo $Threads_connected $6
+
+
+if [ $parteentera -lt $4 ] || [ $slow_queries -gt $5 ] || [ $Threads_connected -gt $6 ]
+then
+    echo "MySQL CRITICAL: slow_queries=$slow_queries, Qcache_hit(%)=$percent ,Threads run/con=$Threads_running/$Threads_connected"
+    exit $RES_CRIT
+else
+    echo "MySQL OK: slow_queries=$slow_queries, Qcache_hit(%)=$percent ,Threads run/con=$Threads_running/$Threads_connected"
+    exit $RES_OK
+fi
+

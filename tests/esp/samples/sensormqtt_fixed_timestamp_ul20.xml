@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<espsensor name="dcasensor" vendor="ios">
+        <!-- ADDONS TO ADD CAPABILITIES -->
+        <plugins>
+                <plugininput name="mqtt"/>
+                <pluginparser name="binaryparser"/>
+                <pluginoutput name="file"/>
+                <pluginoutput name="sbc"/>
+                <pluginpreprocessor name="lua"/>
+                <pluginpostprocessor name="sensorml"/>
+		<pluginpostprocessor name="ul20" />
+        </plugins>
+
+        <!-- PREPROCESSORS -->
+        <preprocessors>
+
+        </preprocessors>
+
+        <!-- INPUT -->
+        <inputs>
+                <!-- input type="mqttbroker" mode="server" path="mosquitto" config="mosquitto.conf" -->
+                <!--input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="10.95.106.50" port="11883"/-->
+				<input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="localhost" port="1883" user="admin" password="1234" name="mqttrunner"/>
+        </inputs>
+
+        <!-- POSTPROCESSOR -->
+        <postprocessors>
+			<postprocessor type="ul20" name="post-ul20-multi">
+				<measure ref="payload"/>
+				<bypass ref="type" value="m" />
+				<alias ref="type" />
+			</postprocessor>
+			<postprocessor type="sensorml" name="post1">
+					<keyword value="temperature" />
+					<sensorid  ref="sensorid"  />
+					<procedure ref="sensorid" />
+					<samplingtime value="2014-08-01T13:35:26Z"  frame="urn:x-ogc:def:trs:IDAS:1.0:ISO8601" />
+					<observedproperty value="urn:x-ogc:def:phenomenon:IDAS:1.0:temperature" />
+					<result>
+							<transformer type="Quantity" ref="temperature" definition="urn:x-ogc:def:phenomenon:IDAS:1.0:temperature"  uom="celsius" />
+					</result>
+
+			</postprocessor>
+			<postprocessor type="sensorml" name="post2">
+					<keyword value="presence" />
+					<sensorid  ref="sensorid"  />
+					<procedure ref="sensorid" />
+					<samplingtime value="2014-08-01T13:35:26Z" frame="urn:x-ogc:def:trs:IDAS:1.0:ISO8601" />
+					<observedproperty value="urn:x-ogc:def:phenomenon:IDAS:1.0:presence" />
+					<result>
+							<transformer type="Boolean" ref="presence" definition="urn:x-ogc:def:phenomenon:IDAS:1.0:presence"  uom="Unknown" />
+					</result>
+			</postprocessor>
+			<postprocessor type="sensorml" name="post3">
+					<keyword value="location" />
+					<sensorid  ref="sensorid"  />
+					<procedure ref="sensorid" />
+					<samplingtime value="2014-08-01T13:35:26Z" frame="urn:x-ogc:def:trs:IDAS:1.0:ISO8601" />
+					<observedproperty value="urn:x-ogc:def:phenomenon:IDAS:1.0:location" />
+					<result>
+						<transformer type="position">
+							<location definition="urn:x-ogc:def:phenomenon:IDAS:1.0:location">
+								<transformer name="latitude" type="Coordinate" ref="latitude" definition="urn:x-ogc:def:phenomenon:IDAS:1.0:latitude" uom="urn:x-ogc:def:uom:IDAS:1.0:degree"/>
+								<transformer name="longitude" type="Coordinate" ref="longitude" definition="urn:x-ogc:def:phenomenon:IDAS:1.0:longitude" uom="urn:x-ogc:def:uom:IDAS:1.0:degree"/>
+								<transformer name="altitude" type="Coordinate" ref="altitude" definition="urn:x-ogc:def:phenomenon:IDAS:1.0:altitude" uom="urn:x-ogc:def:uom:IDAS:1.0:meter"/>
+							</location>
+							<orientation/>
+						</transformer>
+					</result>
+			</postprocessor>
+			<postprocessor type="sensorml" name="post4">
+					<keyword value="alarm" />
+					<sensorid  ref="sensorid"  />
+					<procedure ref="sensorid" />
+					<samplingtime value="2014-08-01T13:35:26Z"  frame="urn:x-ogc:def:trs:IDAS:1.0:ISO8601" />
+					<observedproperty value="urn:x-ogc:def:phenomenon:IDAS:1.0:alarm" />
+					<result>
+							<transformer type="Text" ref="alarm" definition="urn:x-ogc:def:phenomenon:IDAS:1.0:alarm"  uom="Unknown" />
+					</result>
+			</postprocessor>
+			<postprocessor type="sensorml" name="post5">
+					<keyword value="temperaturainterior" />
+					<sensorid  ref="sensorid"  />
+					<procedure ref="sensorid" />
+					<samplingtime value="2014-08-01T13:35:26Z"  frame="urn:x-ogc:def:trs:IDAS:1.0:ISO8601" />
+					<observedproperty value="urn:x-ogc:def:phenomenon:losper:1.0:temperaturainterior" />
+					<result>
+							<transformer type="Quantity" ref="temperaturainterior" definition="urn:x-ogc:def:phenomenon:IDAS:1.0:temperature"  uom="celsius" />
+					</result>
+			</postprocessor>
+			
+			<postprocessor type="sensorml_cmd" name="postcmd">
+				<keyword value="cmdname-res" />
+				<commandresponse refname="cmdname-res" ref="cmdid">	
+					<transformer type="resultCommand" name="result">
+						<transformer type="Text" ref="resultcommand"/>
+					</transformer>
+				</commandresponse>		
+			</postprocessor>				
+		</postprocessors>
+
+        <!-- OUTPUT -->
+        <outputs>
+                <output type="sbc" postprocessors="post1,post2,post3,post4,post5,postcmd,post-ul20-multi" apikeyref="apikey" sensoridref="sensorid"/>
+        </outputs>
+
+        <!-- COMMANDS -->
+        <commands>
+			<command name="sendcmd">
+				<parser>
+					<tag type="body">
+						<tag type="write" valueref="apikey"/>
+						<tag type="write" valuestring="/"/>
+						<tag type="write" valueref="sensorid"/>
+						<tag type="write" valuestring="/cmd/"/>
+						<tag type="write" valueref="cmdname"/>
+						<tag type="write" valuestring="//"/>
+						<tag type="write" valueref="cmdparams"/>
+					</tag>
+				</parser>
+			</command>
+			<!-- Test command-->
+			<command name="main">
+					<params>
+					</params>
+					<parser>
+							<!-- Header -->
+							<tag type="header">
+							</tag>
+
+							<!-- Body -->
+							<tag type="body">
+								<!-- Read Topic -->
+								<tag type="value" datatype="string" datacode="stringdelim" name="apikey" valuestring="/"/>
+								<tag type="value" datatype="string" datacode="stringdelim" name="sensorid" valuestring="/"/>
+								<tag type="value" datatype="string" datacode="stringdelim" name="type" valuestring="/"/>
+
+								<!-- Command -->
+								<tag type="switch" valueref="type">
+									<tag type="option" valuestring="cmd">
+											<tag type="value" datatype="string" datacode="stringdelim" name="cmdname" valuestring="//"/>
+											<tag type="loop" iterations="-1" breakonempty="true">
+												<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
+												<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
+												<tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/>
+											</tag>											
+											<!--
+											<tag type="write" valueref="apikey"/>
+											<tag type="write" valuestring="/"/>
+											<tag type="write" valueref="sensorid"/>
+											<tag type="write" valuestring="/cmdexe/"/>
+											<tag type="write" valueref="cmdname"/>
+											<tag type="write" valuestring="//"/>
+											<tag type="write" valueref="status"/>
+											<tag type="clear"/>
+											-->
+									</tag>
+									<!-- GetCommands -->
+									<tag type="option" valuestring="cmdget">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="params" valuestring=""/>
+									</tag>
+									<!-- CommandExe -->
+									<tag type="option" valuestring="cmdexe">
+										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname-res" valuestring="//"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="resultcommand" valuestring="" resetend="true"/>
+										<tag type="loop" iterations="-1" breakonempty="true">
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
+											<tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/>
+										</tag>
+									</tag>
+									<!-- Single Observation -->
+									<tag type="option" valuestring="presence">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="presence" valuestring=""/>
+									</tag>
+									<tag type="option" valuestring="temperature">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="temperature" valuestring=""/>
+										
+									</tag>
+									<tag type="option" valuestring="temperaturainterior">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="temperaturainterior" valuestring=""/>
+									</tag>
+									<tag type="option" valuestring="location">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="location" valuestring=""/>
+									</tag>
+									<tag type="option" valuestring="alarm">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="alarm" valuestring=""/>
+									</tag>
+									<!-- Multi Observation -->
+									<tag type="option" valuestring="multi">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="loop" iterations="-1" breakonempty="true">
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
+											<tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/>
+										</tag>
+									</tag>
+									<tag type="option" valuestring="m">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="payload" valuestring=""/>
+									</tag>
+									<!-- UL2.0 -->
+									<tag type="option">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="payload" valuestring=""/>
+									</tag>
+								</tag>
+							</tag>
+
+							<!-- Footer -->
+							<tag type="footer">
+							</tag>
+					</parser>
+			</command>
+			<command name="measuresend">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/temperature//"/>
+						<tag type="write" valueref="_temperature"/>
+					</tag>
+				</parser>
+			</command>	
+			<command name="cmdexe">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/cmdexe/"/>
+						<tag type="write" valueref="cmdname"/>
+						<tag type="write" valuestring="//"/>
+						<tag type="write" valueref="cmdparams"/>
+					</tag>
+				</parser>
+			</command>	
+			<command name="cmdget">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/cmdget//0000"/>
+						<!--tag type="write" valueref="cmdparams"/-->
+					</tag>
+				</parser>
+			</command>				
+        </commands>
+</espsensor>

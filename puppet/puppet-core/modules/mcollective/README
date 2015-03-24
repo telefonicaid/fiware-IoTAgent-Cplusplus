@@ -1,0 +1,4 @@
+==== Mcollective module by Xavi Carrillo (xavi.carrillo@gmail.com) ====
+
+ - Use the server class to configure the agents  (I know it's confusing but this is how it works)
+ - Use the client class to configure the client that will manage all the others (to be configured on your puppet master or a mcollective host)

@@ -1,0 +1,75 @@
+## YAML Template.
+---
+dbname: DCA
+dcarepo: http://artifactory.hi.inet/artifactory/simple/yum-sbc/2.5/pre/
+dcarepocommon: http://artifactory.hi.inet/artifactory/simple/yum-sbc/common/
+repoproxy: http://proxy2pdi.service.dsn.inet:6666
+authhost: 10.25.144.201:8022
+popboxhost: 10.25.144.57
+tracelevel:
+    text: Error
+    number: 4
+
+maxpermsize: 1152
+
+zem2all:
+  -
+    name: "dcaTest"
+    value: "10.25.144.48:5371"
+  -
+    name: "ictpf4OBU"
+    value: "http://10.32.228.36:80"        
+  -
+    name: "ictpf4KIOSK"
+    value: "http://10.32.193.1:16200"    
+  -
+    name: "ictpf4KIOSKHOSHU"
+    value: "http://10.32.193.1:11200" 
+  -
+    name: "gwHTTP"
+    value: "http://10.95.14.240:18002"
+  -
+    name: "gwHTTPS-SSL"
+    value: "https://10.95.14.240:18003"       
+    
+rulescarduri: http://10.25.144.204:5371/m2m/v2/mgmt/rules
+
+dbhosts:
+  -
+    name: "idasbebd1:37019"
+  -
+    name: "idasbebd2:37019"
+  -
+    name: "idasbebd3:37019"
+    
+shards:
+  -
+    name: "idasbebd1:37018"
+  -
+    name: "idasbebd2:37018"
+  -
+    name: "idasbebd3:37018" 
+  -
+    name: "idasbebd4:37018" 
+
+
+kermitenv:
+  debug: false
+  theme: 'movistar'
+  productUrl: 'https://m2m.telefonica.com/discover-m2m/managed-connectivity'
+  companyUrl: 'https://m2m.telefonica.com/discover-m2m/managed-connectivity'
+  environment:
+   -
+    debug: true
+    name: 'localhost'
+    theme: 'movistar'
+   -
+    debug: false
+    name: 'm2m-movistar-es.telefonica.com'
+    theme: 'movistar'
+
+run_services: true
+smpp_phonenumber: 638444191
+
+monit_advices: true
+mail_server: ESJC-DSND-MX01P.service.dsn.inet

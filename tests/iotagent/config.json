@@ -1,0 +1,117 @@
+{
+    "ngsi_url": {
+        "updateContext": "/NGSI10/updateContext",
+        "registerContext": "/NGSI9/registerContext",
+        "queryContext": "/NGSI10/queryContext"
+    },
+    "timeout": 20,
+    "dir_log": "/tmp/",
+    "timezones": "/etc/iot/date_time_zonespec.csv",
+    "storage": {
+        "host": "127.0.0.1",
+        "type": "file",
+        "port": "27017",
+        "dbname": "iot",
+        "file": "../../tests/iotagent/devices.json"
+    },
+    "resources": [
+        {
+            "resource": "/iot/d",
+            "options": {
+                "FileName": "UL20Service"
+            },
+            "services": [
+                {
+                    "apikey": "apikey3",
+                    "service": "service2",
+                    "service_path": "/ssrv2",
+                    "token": "token2",
+                    "cbroker": "http://127.0.0.1:1026",
+                    "entity_type": "thing"
+                }
+            ]
+        },
+        {
+            "resource": "/iot/evadts",
+            "services": [
+                {
+                    "apikey": "apikey3",
+                    "cbroker": "http:://0.0.0.0:1026",
+                    "service": "6664",
+                    "entity_type": "thing",
+                    "service_path": "servicepath3",
+                    "token": "token3"
+                }
+            ]
+        },
+        {
+            "resource": "/iot/mqtt",
+            "options": {
+                "ConfigFile": "MqttService.xml",
+                "FileName": "IoTAgent-mqtt"
+            },
+            "services": [
+                {
+                    "apikey": "1234",
+                    "service": "service2",
+                    "service_path": "/ssrv2",
+                    "token": "token6",
+                    "entity_type": "thing",
+                    "cbroker": "http://127.0.0.1:1026"
+                }
+            ]
+        },
+        {
+            "resource": "/iot/repsol",
+            "statistics": true,
+            "options": {
+                "ConfigFile": "../../tests/iotagent/repsol.xml",
+                "FileName": "RepsolService"
+            },
+            "services": [
+                {
+                    "apikey": "",
+                    "service": "service5",
+                    "service_path": "/srvpath5",
+                    "token": "token5",
+                    "cbroker": "http://127.0.0.1:1026",
+                    "statistics": true,
+                    "entity_type": ""
+                }
+            ]
+        },
+        {
+            "resource": "/iot/sp",
+            "options": {
+                "FileName": "SPService"
+            },
+            "services": [
+                {
+                    "apikey": "apikey1",
+                    "service": "service7",
+                    "service_path": "/srvpath7",
+                    "token": "token7",
+                    "cbroker": "http://127.0.0.1:1026",
+                    "entity_type": "thing"
+                }
+            ]
+        },
+        {
+            "resource": "/iot/tt",
+            "options": {
+                "ConfigFile": "TTService.xml",
+                "FileName": "IoTAgent-tt"
+            },
+            "services": [
+                {
+                    "apikey": "",
+                    "service": "serviceTT",
+                    "service_path": "/subservice",
+                    "token": "token2",
+                    "entity_type": "thing",
+                    "cbroker": "http://10.95.213.159:6500"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,49 @@
+##########################################################################
+# This file is centrally managed, any manual changes will be OVERWRITTEN #
+##########################################################################
+
+:backends:
+  - yaml
+  - json
+  - postgres
+:yaml:
+  :datadir:  /var/lib/puppet/initiatives/%{::environment}/hieradata/
+  # the nodes/development, etc stuff is required by M2M
+  # $tier is a custom fact. Used by GVP (Raul Macian)
+:json:
+  :datadir: /var/lib/puppet/initiatives/%{::environment}/hiera/
+:postgres:
+  :datadir: /var/lib/puppet/initiatives/%{::environment}/hiera/
+  :host: 127.0.0.1
+  :user: monitoring
+  :pass: auto@monitoringPSQL
+  :database: monitoring
+:hierarchy:
+  - nodes/%{::clientcert}
+  - nodes/development/%{::clientcert}
+  - nodes/preproduction/%{::clientcert}
+  - nodes/production/%{::clientcert}
+  - nodes/%{::environment}/%{::clientcert}
+  - nodes/%{::tier}/%{::clientcert}
+  - environments/%{::tier}
+  - environments/%{::environment}
+  ###################################
+  ## Hierarchies puppet monitoring ##
+  ###################################
+  # JSON backend
+  - "%{::osfamily}"
+  - "%{::env}/icinga"
+  - "%{::env}/repos"
+  # Postgres backend
+  # For VIPs
+  - vips
+  # For Icinga
+  - icinga
+  # For hosts
+  - host
+  - hostgroup
+  - project
+  # Common also needed by puppet-monitoring in this order
+  ##################################
+  - common
+  - default

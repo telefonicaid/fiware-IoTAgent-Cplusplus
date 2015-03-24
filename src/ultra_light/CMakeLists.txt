@@ -1,0 +1,13 @@
+file(GLOB SRC_FILES *.cc)
+include_directories(../ ./)
+add_library(ul20_objs OBJECT ${SRC_FILES})
+add_library(UL20Service MODULE $<TARGET_OBJECTS:ul20_objs>)
+add_library(sul20 STATIC $<TARGET_OBJECTS:ul20_objs>)
+add_library(ul20 SHARED $<TARGET_OBJECTS:ul20_objs>)
+set_target_properties(sul20 PROPERTIES OUTPUT_NAME UL20Service)
+set_target_properties(ul20 PROPERTIES OUTPUT_NAME UL20Service)
+target_link_libraries(UL20Service iota ${IOTAGENT_LIBS})
+target_link_libraries(sul20 iota_a)
+target_link_libraries(ul20 iota_a)
+
+install(TARGETS UL20Service sul20 ul20 DESTINATION lib/${CMAKE_BUILD_TYPE})

@@ -1,0 +1,21 @@
+; This stunnel config is managed by Puppet.
+
+; Workaround for Eudora bug
+options = DONT_INSERT_EMPTY_FRAGMENTS
+
+cert = <%= certificate %>
+key = <%= private_key %>
+
+pid = <%= pid_file %>
+
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
+
+debug = <%= debug_level %>
+output = <%= log_dest %>
+
+client = <%= client_on %>
+
+[<%= name -%>]
+accept = <%= accept %>
+connect = <%= connect %>
