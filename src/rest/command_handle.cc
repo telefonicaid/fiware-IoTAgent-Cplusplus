@@ -1448,6 +1448,7 @@ void iota::CommandHandle::receive_command_response(
     }
 
   }
+  PION_LOG_DEBUG(m_logger, "|response=" + command_response);
   process_command_response(cmd_data, res_code, command_response);
 }
 
@@ -1455,6 +1456,7 @@ int iota::CommandHandle::transform_response(const std::string& str_command_resp,
     const int& cmd_status,
     std::string& command_response,
     std::string& id_command) {
+  std::cout << "TRANSFORM " << std::endl;
   command_response.assign(str_command_resp);
   id_command.assign("");
 }
