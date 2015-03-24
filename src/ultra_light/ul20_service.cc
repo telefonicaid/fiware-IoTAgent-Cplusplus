@@ -658,21 +658,21 @@ int iota::UL20Service::transform_response(const std::string& str_command_resp,
                        const int& cmd_status,
                        std::string& command_response,
                        std::string& id_command) {
-  std::cout << "TRANSFOR " << str_command_resp << std::endl;
+  int code = pion::http::types::RESPONSE_CODE_OK;
   if (!str_command_resp.empty()) {
     std::string response;
     response.assign(pion::algorithm::url_decode(str_command_resp));
     boost::trim(response);
     boost::erase_all(response, "\n");
     boost::erase_all(response, "\r");
-    int code = isCommandResp(response, cmd_status, command_response, id_command);
+    code = isCommandResp(response, cmd_status, command_response, id_command);
     if (code < 0) {
       std::string errSTR = "no ul20 response command:";
       errSTR.append(response);
-      PION_LOG_ERROR(m_logger, "command response from " << destino << " " << errSTR);
       command_response.assign(errSTR);
     }
   }
+  return code;
 }
 
 

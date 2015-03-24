@@ -1443,7 +1443,10 @@ void iota::CommandHandle::receive_command_response(
     res_code = http_response->get_status_code();
     std::string resp_cmd = http_response->get_content();
     std::string id_command;
-    transform_response(resp_cmd, res_code, command_response, id_command);
+    if (transform_response(resp_cmd, res_code, command_response, id_command) < 0) {
+      PION_LOG_ERROR(m_logger, "command response from " << http_client->getRemoteEndpoint() << " " << resp_cmd);
+    }
+
   }
   process_command_response(cmd_data, res_code, command_response);
 }
