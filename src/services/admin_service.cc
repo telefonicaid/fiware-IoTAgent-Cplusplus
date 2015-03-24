@@ -1649,8 +1649,7 @@ int iota::AdminService::put_service_json(
     error_details.assign("empty body");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
-  }
-  if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
+  }else if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
                            "PUT", error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
     mongo::BSONObj query = BSON(iota::store::types::SERVICE_ID << id

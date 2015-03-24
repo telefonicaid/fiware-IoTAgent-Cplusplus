@@ -1318,6 +1318,7 @@ void Ul20Test::testPUSHCommand() {
 
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
+  ul20serv.set_async_commands();
 
   // updateContext
   std::string querySTR = "";
