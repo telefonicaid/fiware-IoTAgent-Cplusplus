@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<espsensor name="dcasensor" vendor="ios">
+        <!-- ADDONS TO ADD CAPABILITIES -->
+        <plugins>
+                <plugininput name="mqtt"/>
+                <pluginparser name="binaryparser"/>
+                <pluginoutput name="file"/>
+                <pluginoutput name="iot"/>
+                <pluginpreprocessor name="lua"/>
+		<pluginpostprocessor name="json"/>
+		<pluginpostprocessor name="ul20"/>
+                
+        </plugins>
+
+        <!-- PREPROCESSORS -->
+        <preprocessors>
+
+        </preprocessors>
+
+        <!-- INPUT -->
+        <inputs>
+                <!-- input type="mqttbroker" mode="server" path="mosquitto" config="mosquitto.conf"/ -->
+                <!--input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="10.95.106.50" port="11883"/-->
+
+		<!-- WARNING: names of input matter to Tests, that is to say a change of name below and tests break -->
+		<input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwriter"/>				
+		<input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="localhost" port="1883" user="admin" password="1234" name="mqttrunner"/>
+				
+        </inputs>
+
+        <!-- POSTPROCESSOR -->
+        <postprocessors>
+			
+			<postprocessor type="json" name="post-json-multi">
+					<measure ref="measurevalue"/>
+					<alias ref="measurename" />
+					<apikey ref="apikey" />	
+			</postprocessor>	
+
+			<postprocessor type="json" name="post-json">
+				<measure ref="payload"/>
+				<alias ref="type"/>
+				<apikey ref="apikey" />	
+				<bypass_cmdexe ref="resultcommand" /> <!-- This is used when processing mqtt command response -->
+				<bypass_cmdget ref="cmdget-payload" /> <!-- This is used for cmdget requests -->
+			</postprocessor>
+
+					
+	</postprocessors>
+
+        <!-- OUTPUT -->
+        <outputs>
+                <output type="iot" postprocessors="post-json,post-json-multi" name="IoT" apikeyref="apikey" sensoridref="sensorid" typeref="type" />
+        </outputs>
+
+        <!-- COMMANDS -->
+        <commands>
+			<command name="sendcmd">
+				<parser>
+					<tag type="body">
+						<tag type="write" valueref="apikey"/>
+						<tag type="write" valuestring="/"/>
+						<tag type="write" valueref="sensorid"/>
+						<tag type="write" valuestring="/cmd/"/>
+						<tag type="write" valueref="cmdname"/>
+						<tag type="write" valuestring="//"/>
+						<tag type="write" valueref="cmdparams"/>
+					</tag>
+				</parser>
+			</command>
+			<!-- Test command-->
+			<command name="main">
+					<params>
+					</params>
+					<parser>
+							<!-- Header -->
+							<tag type="header">
+							</tag>
+
+							<!-- Body -->
+							<tag type="body">
+								<!-- Read Topic -->
+								<tag type="value" datatype="string" datacode="stringdelim" name="apikey" valuestring="/"/>
+								<tag type="value" datatype="string" datacode="stringdelim" name="sensorid" valuestring="/"/>
+								<tag type="value" datatype="string" datacode="stringdelim" name="type" valuestring="/"/>
+
+								<!-- Command -->
+								<tag type="switch" valueref="type">
+									
+									<tag type="option" operation="equal" valueref="type" valuestring="mul20">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="loop" iterations="-1" breakonempty="true">
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
+											<!--tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/-->
+											<tag type="result"/>
+											
+										</tag>
+										<tag type="clear"/>
+									</tag>
+									<tag type="option" valuestring="cmd">
+										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname" valuestring="//"/>
+										<tag type="loop" iterations="-1" breakonempty="true">
+												<tag type="value" datatype="string" datacode="stringdelim" name="measure_name" valuestring="|"/>
+												<tag type="value" datatype="string" datacode="stringdelim" name="measure_value" valuestring="#"/>
+												<tag type="value" datatype="string" datacode="string" nameref="measure_name" valueref="measure_value"/>
+										</tag>											
+											
+									</tag>
+									<tag type="option" valuestring="cmdget">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="cmdget-payload" valuestring=""/>
+									</tag>
+									<!-- CommandExe -->
+									<tag type="option" valuestring="cmdexe">
+										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname-res" valuestring="//"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="resultcommand" valuestring="" resetend="true"/>
+										
+									</tag>
+
+									<tag type="option">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tat type="value" datatype="string" datacode="stringdelim" name="payload" valuestring=""/>
+									</tag>
+								</tag>
+								
+								
+							</tag>
+
+							<!-- Footer -->
+							<tag type="footer">
+							</tag>
+					</parser>
+			</command>
+			<command name="measuresend">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/temperature//"/>
+						<tag type="write" valueref="_temperature"/>
+					</tag>
+				</parser>
+			</command>	
+			<command name="cmdexe">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/cmdexe/"/>
+						<tag type="write" valueref="cmdname"/>
+						<tag type="write" valuestring="//"/>
+						<tag type="write" valueref="cmdparams"/>
+					</tag>
+				</parser>
+			</command>	
+			<command name="cmdget">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/cmdget//0000"/>
+						<!--tag type="write" valueref="cmdparams"/-->
+					</tag>
+				</parser>
+			</command>				
+        </commands>
+</espsensor>

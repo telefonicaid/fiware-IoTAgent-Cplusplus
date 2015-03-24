@@ -1,0 +1,5 @@
+config = {_id: 'rs0', members: [
+<% @db_template_nodes.each_with_index do |node, i| -%>
+        {_id: <%= i %>, host: '<%= node[0] %>:<%= node[1] %>'<%= node[2] %>}, 
+<% end -%>]}
+rs.initiate(config)

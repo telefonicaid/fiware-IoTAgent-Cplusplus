@@ -1,0 +1,37 @@
+
+##########################################################################
+# This file is centrally managed, any manual changes will be OVERWRITTEN #
+##########################################################################
+
+upstream puppetmaster_unicorn {
+  server unix:/var/run/puppet/puppetmaster_unicorn.sock fail_timeout=0;
+}
+    
+server {
+  listen 8140;
+
+  client_max_body_size 20M; # In order to avoid Error - 413 Request Entity Too Large
+
+  ssl on;
+  ssl_session_timeout 5m;
+  ssl_certificate /var/lib/puppet/ssl/certs/<%= @puppet_server %>.pem;
+  ssl_certificate_key /var/lib/puppet/ssl/private_keys/<%= @puppet_server %>.pem; 
+  ssl_client_certificate /var/lib/puppet/ssl/ca/ca_crt.pem; 
+  ssl_ciphers SSLv2:-LOW:-EXPORT:RC4+RSA; 
+  ssl_verify_client optional; # Important to keep it like this, otherwise it gives a Forbidden request: localhost(127.0.0.1)
+    
+  root /usr/share/empty;
+    
+  proxy_set_header Host $host;
+  proxy_set_header X-Real-IP $remote_addr;
+  proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  proxy_set_header X-Client-Verify $ssl_client_verify; 
+  proxy_set_header X-Client-DN $ssl_client_s_dn;
+  proxy_set_header X-SSL-Issuer $ssl_client_i_dn;
+  proxy_read_timeout 120;
+    
+  location / { 
+    proxy_pass http://puppetmaster_unicorn;
+    proxy_redirect off; 
+  } 
+}

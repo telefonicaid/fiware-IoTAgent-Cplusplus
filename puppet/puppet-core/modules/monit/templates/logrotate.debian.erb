@@ -1,0 +1,12 @@
+<%= @logfile_real %> {
+        rotate 4
+        weekly
+        missingok
+        create 640 root adm
+        notifempty
+        compress
+        delaycompress
+        postrotate
+        invoke-rc.d monit restart > /dev/null
+        endscript
+}

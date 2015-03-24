@@ -1,0 +1,9 @@
+[tcpout]
+defaultGroup = default-autolb-group
+maxQueueSize = <%= @max_queue_size %>MB
+useACK = true
+
+[tcpout:default-autolb-group]
+server = <%= @server_ipport %>
+useACK = true
+

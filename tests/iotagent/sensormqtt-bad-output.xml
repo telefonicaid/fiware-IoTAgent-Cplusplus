@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<espsensor name="dcasensor" vendor="ios">
+        <!-- ADDONS TO ADD CAPABILITIES -->
+        <plugins>
+                <plugininput name="mqtt"/>
+                <pluginparser name="binaryparser"/>
+                <pluginoutput name="file"/>
+                <pluginoutput name="iot"/>
+                <pluginpreprocessor name="lua"/>
+		<pluginpostprocessor name="json"/>
+		<pluginpostprocessor name="ul20"/>
+                
+        </plugins>
+
+        <!-- PREPROCESSORS -->
+        <preprocessors>
+
+        </preprocessors>
+
+        <!-- INPUT -->
+        <inputs>
+                <!-- input type="mqttbroker" mode="server" path="mosquitto" config="mosquitto.conf"/ -->
+                <!--input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="10.95.106.50" port="11883"/-->
+
+		<!-- WARNING: names of input matter to Tests, that is to say a change of name below and tests break -->
+		<!-- input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwritter"/ -->				
+		<input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="localhost" port="1883" user="admin" password="1234" name="mqttrunner"/>
+				
+        </inputs>
+
+        <!-- POSTPROCESSOR -->
+        <postprocessors>
+			
+			<postprocessor type="ul20" name="post-ul20">
+					<measure ref="payload"/>
+					<bypass ref="type" value="mul20"/>
+					<alias ref="type" />
+			</postprocessor>
+
+			<postprocessor type="json" name="post-json">
+				<measure ref="payload"/>
+				<alias ref="type"/>
+				<apikey ref="apikey" />	
+			</postprocessor>
+
+					
+	</postprocessors>
+
+        <!-- OUTPUT -->
+        <outputs>
+                <output type="iot" postprocessors="post-json" name="IoT" apikeyref="apikey" sensoridref="sensorid" />
+        </outputs>
+
+        <!-- COMMANDS -->
+        <commands>
+			<command name="sendcmd">
+				<parser>
+					<tag type="body">
+						<tag type="write" valueref="apikey"/>
+						<tag type="write" valuestring="/"/>
+						<tag type="write" valueref="sensorid"/>
+						<tag type="write" valuestring="/cmd/"/>
+						<tag type="write" valueref="cmdname"/>
+						<tag type="write" valuestring="//"/>
+						<tag type="write" valueref="cmdparams"/>
+					</tag>
+				</parser>
+			</command>
+			<!-- Test command-->
+			<command name="main">
+					<params>
+					</params>
+					<parser>
+							<!-- Header -->
+							<tag type="header">
+							</tag>
+
+							<!-- Body -->
+							<tag type="body">
+								<!-- Read Topic -->
+								<tag type="value" datatype="string" datacode="stringdelim" name="apikey" valuestring="/"/>
+								<tag type="value" datatype="string" datacode="stringdelim" name="sensorid" valuestring="/"/>
+								<tag type="value" datatype="string" datacode="stringdelim" name="type" valuestring="/"/>
+
+								<!-- Command -->
+								<tag type="switch" valueref="type">
+									<tag type="option" valuestring="cmd">
+											<tag type="value" datatype="string" datacode="stringdelim" name="cmdname" valuestring="//"/>
+											<tag type="loop" iterations="-1" breakonempty="true">
+												<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
+												<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
+												<tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/>
+											</tag>											
+											<!--
+											<tag type="write" valueref="apikey"/>
+											<tag type="write" valuestring="/"/>
+											<tag type="write" valueref="sensorid"/>
+											<tag type="write" valuestring="/cmdexe/"/>
+											<tag type="write" valueref="cmdname"/>
+											<tag type="write" valuestring="//"/>
+											<tag type="write" valueref="status"/>
+											<tag type="clear"/>
+											-->
+									</tag>
+									<!-- GetCommands -->
+									<tag type="option" valuestring="cmdget">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="params" valuestring=""/>
+									</tag>
+									<!-- CommandExe -->
+									<tag type="option" valuestring="cmdexe">
+										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname-res" valuestring="//"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="resultcommand" valuestring="" resetend="true"/>
+										<tag type="loop" iterations="-1" breakonempty="true">
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
+											<tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/>
+										</tag>
+									</tag>
+									<!-- Single Observation -->
+									<tag type="option" valuestring="presence">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="presence" valuestring=""/>
+									</tag>
+									<tag type="option" valuestring="temperature">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="temperature" valuestring=""/>
+									</tag>
+									<tag type="option" valuestring="temperaturainterior">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="temperaturainterior" valuestring=""/>
+									</tag>
+									<tag type="option" valuestring="location">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="location" valuestring=""/>
+									</tag>
+									<tag type="option" valuestring="alarm">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="alarm" valuestring=""/>
+									</tag>
+									<!-- Multi Observation -->
+									<tag type="option" valuestring="multi">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="loop" iterations="-1" breakonempty="true">
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
+											<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
+											<tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/>
+										</tag>
+									</tag>
+									<tag type="option" valuestring="mul20">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tag type="value" datatype="string" datacode="stringdelim" name="payload" valuestring=""/>
+									</tag>
+									<tag type="option">
+										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+										<tat type="value" datatype="string" datacode="stringdelim" name="payload" valuestring=""/>
+									</tag>
+								</tag>
+							</tag>
+
+							<!-- Footer -->
+							<tag type="footer">
+							</tag>
+					</parser>
+			</command>
+			<command name="measuresend">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/temperature//"/>
+						<tag type="write" valueref="_temperature"/>
+					</tag>
+				</parser>
+			</command>	
+			<command name="cmdexe">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/cmdexe/"/>
+						<tag type="write" valueref="cmdname"/>
+						<tag type="write" valuestring="//"/>
+						<tag type="write" valueref="cmdparams"/>
+					</tag>
+				</parser>
+			</command>	
+			<command name="cmdget">
+				<parser>
+					<tag type="body">
+						<tag type="write" valuestring="7qqa9uvkgketabc8ui4knu1onv/mqtt_asset/cmdget//0000"/>
+						<!--tag type="write" valueref="cmdparams"/-->
+					</tag>
+				</parser>
+			</command>				
+        </commands>
+</espsensor>

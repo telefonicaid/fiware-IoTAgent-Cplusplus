@@ -1,0 +1,5 @@
+Host pdihub.hi.inet
+IdentityFile ~/.ssh/id_dsa_contint
+
+Host *.compute.amazonaws.com
+IdentityFile ~/.ssh/tdafDEV-key.pem

@@ -1,0 +1,25 @@
+<% if @pidfile -%>
+check process <%= @name %> with pidfile <%= @pidfile %>
+<% elsif @matching -%>
+check process <%= @name %> matching <%= @matching %>
+<% end -%>
+  start program = "<%= @start_script %>"<%= " as uid \"#{uid}\" and gid \"#{gid}\"" if @uid != '' and @gid != '' %>
+<% if @start_timeout -%>
+    with timeout <%= @start_timeout %> seconds
+<% end -%>
+  stop program  = "<%= @stop_script %>"
+<% if @stop_timeout -%>
+    with timeout <%= @stop_timeout %> seconds
+<% end -%>
+<% if @ip_port.to_i > 0 -%>
+  if failed port <%= @ip_port %> then restart
+<% elsif @socket -%>
+  if failed unixsocket <%= @socket %> then restart
+<% end -%>
+<% @checks.each do |check| -%>
+  <%= check %>
+<% end -%>
+<% @alerts.each do |alert| -%>
+  alert <%= alert %>
+<% end -%>
+  group <%= @group %>

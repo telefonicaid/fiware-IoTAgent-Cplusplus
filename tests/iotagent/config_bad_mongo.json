@@ -1,0 +1,33 @@
+{
+    "ngsi_url": {
+        "updateContext": "/NGSI10/updateContext",
+        "registerContext": "/NGSI9/registerContext",
+        "queryContext": "/NGSI10/queryContext"
+    },
+    "timeout": 1,
+    "dir_log": "/tmp/",
+    "timezones": "/etc/iot/date_time_zonespec.csv",
+    "storage": {
+        "host": "nohost",
+        "type": "mongodb",
+        "dbname": "iotest"
+    },
+    "resources": [
+        {
+            "resource": "/iot/d",
+            "options": {
+                "FileName": "UL20Service"
+            },
+            "services": [
+                {
+                    "apikey": "apikey3",
+                    "service": "service2",
+                    "service_path": "/ssrv2",
+                    "token": "token2",
+                    "cbroker": "http://127.0.0.1:1026",
+                    "entity_type": "thing"
+                }
+            ]
+        }
+    ]
+}

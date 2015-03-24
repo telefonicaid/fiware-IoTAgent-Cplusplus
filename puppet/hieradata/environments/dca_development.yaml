@@ -1,0 +1,11 @@
+## YAML Template.
+---
+dbname: DCA
+authhost: 127.0.0.1:5371/m2mauth
+tracelevel:
+    text: Error
+    number: 4
+
+maxpermsize: 500
+squidhost: 10.95.16.39
+run_services: true

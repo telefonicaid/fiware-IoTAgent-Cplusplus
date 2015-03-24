@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<espsensor name="dcasensor" vendor="tid">
+	<!-- ADDONS TO ADD CAPABILITIES -->
+	<plugins>
+		<pluginparser name="binaryparser"/>
+		<pluginpostprocessor name="text"/>
+		
+	</plugins>
+	
+	<!-- PREPROCESSORS -->
+	<preprocessors>
+	</preprocessors>	
+	
+    	<postprocessors>
+		<postprocessor type="text" name="post"/>
+	</postprocessors>
+	
+	<!-- INPUT -->
+	<inputs>		
+	</inputs>
+	
+	<!-- OUTPUT FORMAT -->
+	<outputs>
+	</outputs>
+
+	<!-- COMMANDS -->	
+	<commands>
+		
+		<!-- BINARY -->
+		<command name="binary">
+			<params>			
+			</params>
+			
+			<parser>
+				<tag type="header">
+				</tag>
+				<tag type="body">
+					<tag type="constraint" byteoffset="4" datatype="string" valuestring="data" />
+					<tag type="value" byteoffset="2" datatype="int" datacode="int" name="value"/>
+				</tag>
+			
+				<tag type="footer">
+				</tag>
+			</parser>
+		</command>
+		
+		<!-- ASCII -->
+		<command name="ascii">
+			<params>			
+			</params>
+			
+			<parser>
+				<tag type="header">
+				</tag>				
+				<tag type="body">		
+					<tag type="constraint" byteoffset="4" datatype="string" valuestring="data" />
+					<tag type="value" byteoffset="2" datatype="string" datacode="stringdelim" name="value" valuestring=""/>
+				</tag>
+			
+				<tag type="footer">
+				</tag>
+			</parser>
+		</command>
+		
+		<!-- LOOP -->
+		<command name="loop">
+			<params>			
+			</params>
+			
+			<parser>
+				<tag type="header">
+				</tag>				
+				<tag type="body">		
+					<tag type="constraint" byteoffset="4" datatype="string" valuestring="data" />
+					<tag type="loop" iterations="2" breakonempty="true">
+						<tag type="value" datatype="string" datacode="stringdelim" name="value" valuestring="#"/>
+					</tag>
+				</tag>
+			
+				<tag type="footer">
+				</tag>
+			</parser>
+		</command>	
+		
+		<!-- CONDITION -->
+		<command name="conditionclear">
+			<params>			
+			</params>
+			
+			<parser>
+				<tag type="header">
+				</tag>				
+				<tag type="body">		
+					<tag type="constraint" byteoffset="4" datatype="string" valuestring="data" />
+					<tag type="value" byteoffset="1" datatype="string" datacode="string" name="valuecheck"/>
+					<tag type="condition" operation="equal" valueref="valuecheck" valuestring="#">
+						<tag type="clear"/>
+						<tag type="value" datatype="string" datacode="stringdelim" name="value" valuestring=""/>
+					</tag>
+				</tag>
+			
+				<tag type="footer">
+				</tag>
+			</parser>
+		</command>
+		<command name="multiple_conditions">
+			<params>			
+			</params>
+			
+			<parser>
+				<tag type="header">
+				</tag>				
+				<tag type="body">
+						<tag type="value" datatype="string" datacode="stringdelim" name="apikey" valuestring="/"/>
+						<tag type="value" datatype="string" datacode="stringdelim" name="sensorid" valuestring="/"/>
+						<tag type="value" datatype="string" datacode="stringdelim" name="type" valuestring="/"/>
+		
+					
+						<tag type="condition" operation="equal" valueref="type" valuestring="multi">
+							<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+							<tag type="value" datatype="string" datacode="stringdelim" name="payload" valuestring=""/>
+						</tag>
+
+						<tag type="condition" operation="equal" valueref="type" valuestring="multi">
+							<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+							<tag type="value" datatype="string" datacode="stringdelim" name="other-payload" valuestring=""/>
+						</tag>
+
+				</tag>
+			
+				<tag type="footer">
+				</tag>
+			</parser>
+		</command>	
+
+		<command name="mqtt-test">
+			<params>			
+			</params>
+			
+			<parser>
+				<tag type="header">
+				</tag>				
+				<tag type="body">
+						<tag type="value" datatype="string" datacode="stringdelim" name="apikey" valuestring="/"/>
+						<tag type="value" datatype="string" datacode="stringdelim" name="sensorid" valuestring="/"/>
+						<tag type="value" datatype="string" datacode="stringdelim" name="type" valuestring="/"/>
+		
+					
+						<tag type="condition" operation="equal" valueref="type" valuestring="temperature">
+							<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
+							<tag type="value" datatype="string" datacode="stringdelim" name="temperature" valuestring=""/>
+						</tag>
+
+				</tag>
+			
+				<tag type="footer">
+				</tag>
+			</parser>
+		</command>
+
+		
+		<!-- WRITE -->
+		<command name="write">
+			<params>			
+			</params>
+			
+			<parser>
+				<tag type="header">
+				</tag>				
+				<tag type="body">		
+					<tag type="constraint" byteoffset="4" datatype="string" valuestring="data" />
+					<tag type="write" valuestring="#"/>
+					<tag type="value" byteoffset="1" datatype="string" datacode="string" name="value"/>
+				</tag>
+			
+				<tag type="footer">
+				</tag>
+			</parser>
+		</command>			
+		
+	</commands>	
+</espsensor>

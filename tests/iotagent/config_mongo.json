@@ -1,0 +1,15 @@
+{
+    "ngsi_url": {
+        "updateContext": "/NGSI10/updateContext",
+        "registerContext": "/NGSI9/registerContext",
+        "queryContext": "/NGSI10/queryContext"
+    },
+    "timeout": 1,
+    "dir_log": "/tmp/",
+    "timezones": "/etc/iot/date_time_zonespec.csv",
+    "storage": {
+        "host": "ci-sbc-build-01",
+        "type": "mongodb",
+        "dbname": "iotest"
+    }
+}

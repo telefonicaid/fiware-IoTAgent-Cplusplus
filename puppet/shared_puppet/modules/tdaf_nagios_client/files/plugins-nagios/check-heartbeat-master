@@ -1,0 +1,46 @@
+#!/bin/bash
+REVISION=1
+PROGNAME="check-heartbeat-master"
+PROGPATH=`echo $0 | /bin/sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+
+NODE_NAME=`uname -n`
+CL_ST='/usr/bin/cl_status'
+
+#nagios error codes
+#. $PROGPATH/utils.sh 
+OK=0
+WARNING=1
+CRITICAL=2
+UNKNOWN=3
+
+usage () {
+    echo "\
+Nagios plugin to heartbeat.
+
+Usage:
+  $PROGNAME 
+  $PROGNAME [--help | -h]
+  $PROGNAME [--version | -v]
+
+Options:
+  --help -l	Print this help information
+  --version -v  Print version of plugin
+"
+}
+
+$CL_ST hbstatus > /dev/null
+res=$?
+if [ $res -ne 0 ]
+then
+  echo "Heartbeat CRITICAL: Heartbeat is not running on this node"
+  exit $CRITICAL
+fi
+virtual_up=`ifconfig |grep eth|awk '{print $1}'|grep :|wc -l`
+if [ $virtual_up -eq 0 ]
+then
+  echo "Heartbeat WARNING. DONT CHECK HTTP RELATED"
+  exit $WARNING
+else
+  echo "Heartbeat MASTER.Interface is Up"
+  exit $OK
+fi

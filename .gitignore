@@ -1,0 +1,11 @@
+CMakeFiles
+.dep.inc
+build
+dist
+target
+BUILD
+RPMS
+SRPMS
+bin
+lib
+

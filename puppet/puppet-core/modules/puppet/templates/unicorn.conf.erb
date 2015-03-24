@@ -1,0 +1,30 @@
+##########################################################################
+# This file is centrally managed, any manual changes will be OVERWRITTEN #
+##########################################################################
+
+worker_processes <%= @unicorn_workers %>
+working_directory "/etc/puppet"
+listen '/var/run/puppet/puppetmaster_unicorn.sock', :backlog => 512
+timeout <%= @unicorn_workers_timeout %>
+pid "/var/run/puppet/puppetmaster_unicorn.pid"
+
+preload_app true
+if GC.respond_to?(:copy_on_write_friendly=)
+  GC.copy_on_write_friendly = true
+end
+
+before_fork do |server, worker|
+  old_pid = "#{server.config[:pid]}.oldbin"
+  if File.exists?(old_pid) && server.pid != old_pid
+    begin
+      Process.kill("QUIT", File.read(old_pid).to_i)
+    rescue Errno::ENOENT, Errno::ESRCH
+      # someone else did our job for us
+    end
+  end
+end
+
+if RACKUP[:daemonized]
+  #stdout_path "/var/log/puppet/unicorn.log"
+  #stderr_path "/var/log/puppet/unicorn_error.log"
+end

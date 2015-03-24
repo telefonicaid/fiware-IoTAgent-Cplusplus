@@ -1,0 +1,7 @@
+#!/bin/bash
+
+export LD_LIBRARY_PATH=<%= @iotagent_librarydir %>
+mkdir -p <%= @iotagent_piddir %>
+<%= @iotagent_start %> -v <%= @iota_log_level %> -i <%= @iota_server_address %> -p <%= @iota_server_port %> -d <%= @iotagent_librarydir %> -c <%= @iotagent_configdir %>/<%= @iotagent_configfile %> &
+pid=$!
+echo $pid > <%= @iotagent_pidfile %>

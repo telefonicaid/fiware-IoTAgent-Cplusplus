@@ -1,0 +1,55 @@
+{
+    "ngsi_url": {
+        "updateContext": "/NGSI10/updateContext",
+        "registerContext": "/NGSI9/registerContext",
+        "queryContext": "/NGSI10/queryContext"
+    },
+    "timeout": 1,
+    "dir_log": "/tmp/",
+    "timezones": "/etc/iot/date_time_zonespec.csv",
+    "storage": {
+        "host": "127.0.0.1",
+        "type": "file",
+        "port": "27017",
+        "dbname": "iot",
+        "file": "../../tests/iotagent/devices.json"
+    },
+    "oauth": {
+        "on_behalf_trust_url":"http://127.0.0.1:7010/v3/auth/tokens",
+        "validate_token_url": "http://127.0.0.1:7010/v3/auth/tokens",
+        "get_roles_url": "http://127.0.0.1:7010/v3/role_assignments",
+        "retrieve_subservices_url": "http://127.0.0.1:7010/v3/projects",
+        "access_control_url": "http://127.0.0.1:7010",
+        "pep_user": "pep",
+        "pep_password": "pep",
+        "pep_domain": "admin_domain",
+        "on_behalf_trust":"http://127.0.0.1:7010/v3/auth/tokens",
+        "on_behalf_user": "iotagent",
+        "on_behalf_password": "iotagent",
+        "timeout": 5
+    },
+    "resources": [
+        {
+            "resource": "/iot/test",
+            "options": {
+                "FileName": "TestService"
+            },
+            "services": [
+                {
+                    "apikey": "apikey-test",
+                    "service": "srvtest",
+                    "service_path": "/srvpathtest",
+                    "token": "token-test",
+                    "cbroker": "http://127.0.0.1:1026",
+                    "entity_type": "thing"
+                }
+            ]
+        },
+        {
+            "resource": "/iot/test1",
+            "options": {
+                "FileName": "TestService"
+            }
+        }
+    ]
+}

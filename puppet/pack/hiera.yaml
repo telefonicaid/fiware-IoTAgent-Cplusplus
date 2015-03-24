@@ -1,0 +1,8 @@
+:backends:
+  - yaml
+:yaml:
+  :datadir:  /usr/local/iot/puppet/hieradata/
+:hierarchy:
+  - nodes/%{::clientcert}
+  - environments/%{::environment}
+  - common

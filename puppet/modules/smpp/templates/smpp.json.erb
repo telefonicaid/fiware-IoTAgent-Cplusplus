@@ -1,0 +1,31 @@
+{
+    "port_mt": <%= @adapter_port %>,
+    "port_mgmt": <%= @mgmt_port %>,
+    "host_interface_mt": "0.0.0.0",
+    "host_interface_mgmt": "0.0.0.0",
+    "timeout": 30000,
+    "instances": 1,  
+    "useKeepAlive": true,
+    "maxPoolSize": 10,
+    "mode": "mixed",
+    "dataCoding": 0,
+    "smsc": {
+        "host": "<%= @smpp_host %>",
+        "port": <%= @smpp_port %>,		
+        "systemId": "dcasmpp",
+        "password": "dcasmpp",
+        "windowSize": 10,
+        "nrSessionsAsTransceiver": 1,
+        "nrSessionsAsReceiver": 1,
+        "nrSessionsAsTransmitter": 1
+    },
+    "enquire_link": {
+        "delay": 60000,
+        "timeout": 3000
+    },
+    "countrycode": "34",
+    "applications": [{
+        "to": "tel:<%= @phonenumber %>;phone-context=+34",
+        "endpoint": "<%= @incoming %>"
+    }]
+}

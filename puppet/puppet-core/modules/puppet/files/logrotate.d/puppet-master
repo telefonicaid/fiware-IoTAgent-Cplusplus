@@ -1,0 +1,15 @@
+##########################################################################
+# This file is centrally managed, any manual changes will be OVERWRITTEN #
+##########################################################################
+
+/var/log/puppet/puppetmaster.log {
+  compress
+  missingok
+  notifempty
+  create 0644 puppet puppet
+  sharedscripts
+  postrotate
+    /sbin/service puppetunicorn restart
+  endscript
+}
+

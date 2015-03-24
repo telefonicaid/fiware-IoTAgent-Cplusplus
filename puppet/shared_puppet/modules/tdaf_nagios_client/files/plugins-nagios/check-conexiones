@@ -1,0 +1,83 @@
+#!/bin/bash
+#Get current estabilished connections on Port
+#Version 2.0
+#By Felipe Ferreira August 2011
+ 
+# Exit codes
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+STATE_DEPENDENT=4
+#Variables
+port=8080
+minconcrit=1
+
+perfdata=0
+ 
+#Check arguments print help
+if [ $# -lt 1 ]; then
+    echo "Usage: $0 <port>  -f(for perdata)"
+    exit $STATE_UNKNOWN
+fi
+ 
+port=$1
+ 
+#GET ARGUMENTS
+while test -n "$1"; do
+    case "$1" in
+        --help)
+            echo "Uso: $0 <port> [-w|--warning <warn>] [-c|--critical <crit>] -f(for perdata)"
+            exit $STATE_OK
+            ;;
+        -h)
+            echo "Uso: $0 <port> [-w|--warning <warn>] [-c|--critical <crit>] -f(for perdata)"
+            exit $STATE_OK
+            ;;
+                --warning)
+            maxconwarn=$2
+            shift
+            ;;
+        -w)
+            maxconwarn=$2
+            shift
+            ;;
+        --critical)
+            maxconcrit=$2
+            shift
+            ;;
+        -c)
+            maxconcrit=$2
+            shift
+            ;;
+        -f)
+            perfdata=1
+            ;;
+        -perfdata)
+            perfdata=1
+            ;;
+    esac
+   shift
+done
+ 
+#EXECUTE THE COMMAND TO GET HOW MANY ESTABLISHED CONNECTIONS EXISTS
+result=`netstat -an | grep ":$port" | grep -c ESTA`
+ 
+#OR UNIQUE IP's ONLY, SET THE PORT  HERE
+#result=`netstat -anp |grep  " 0 $port:8080" |grep ESTA |awk '{print $5}' |grep -v $port |cut -d ":" -f1 | sort -u  |wc -l`
+ 
+if [ $result -lt $minconcrit ]; then
+        OUTPUT="CRITICAL - No hay conexiones en  $port = $result"
+        exitstatus=$STATE_CRITICAL
+else
+   OUTPUT="OK - Conexiones establecida en puerto $port = $result"
+   exitstatus=$STATE_OK
+fi
+ 
+if [ $perfdata -eq 1 ]; then
+    OUTPUT="$OUTPUT|Conections=$result"
+fi
+ 
+ 
+echo $OUTPUT
+exit $exitstatus

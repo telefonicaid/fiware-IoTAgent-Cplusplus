@@ -1,0 +1,4 @@
+#!/bin/bash
+
+kill -9 `cat <%= @iotagent_pidfile %>` 
+rm -f <%= @iotagent_pidfile %>

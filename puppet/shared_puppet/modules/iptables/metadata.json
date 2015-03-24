@@ -1,0 +1,45 @@
+{
+  "checksums": {
+    "templates/concat/filter_output_header": "4ea99ed133f23b71262a4e171d21f892",
+    "manifests/file.pp": "8dae66812621f2ba3980f63665936e3e",
+    "tests/disableboot.pp": "27ff0c543599d102d942040395f5b634",
+    "templates/concat/filter_forward_footer": "bc328948165ddc7d9c292cd89f1bcb12",
+    "README.rdoc": "6ae4391c6ec3cbd673a2325c5cb67f3a",
+    "tests/init.pp": "d5b501ba7f6f34857338dd77647c37c3",
+    "templates/concat/filter_input_header": "d4cdd32be1d3329f8474b5b44a7a8e3a",
+    "templates/concat/filter_header": "9c3ba180e75628e1ce1b21c2fb8b0c53",
+    "manifests/params.pp": "976a6aa48ae789ab67401e2632d98782",
+    "manifests/init.pp": "7b799ba98d6c900d40e833be30b937b2",
+    "templates/concat/nat_header": "40e21574040301d075d2ee573acb29b5",
+    "manifests/rule.pp": "5af32726f922f2d395e4d4c7b3299380",
+    "templates/concat/filter_output_footer": "22602d6bbe5894fb646ab2b5bf7c05f8",
+    "templates/concat/filter_input_footer": "e08ddadd08c819233eeaade3d0404a87",
+    "templates/concat/filter_footer": "540958ffa84654821fe664428dffcb42",
+    "templates/concat/nat_footer": "540958ffa84654821fe664428dffcb42",
+    "tests/disable.pp": "0d247aa28d2a820fff3754d3504fbc7f",
+    "tests/debug.pp": "07b2e06383bb5bae96897679e4617c9c",
+    "templates/concat/mangle_footer": "540958ffa84654821fe664428dffcb42",
+    "manifests/debian.pp": "2b5f271b36ffa1853e75d62ed8a2e762",
+    "templates/concat/mangle_header": "9bea9e60db9a5b1d8435976ef1b10e10",
+    "templates/concat/filter_forward_header": "f06138d4ed821782272915c859e5c288",
+    "Modulefile": "840dea443c694583ab3bb87f4e5911e1",
+    "manifests/concat.pp": "569f80a90a0d75987436e3ae7aaffa79"
+  },
+  "license": "Apache2",
+  "types": [
+
+  ],
+  "version": "2.0.1",
+  "dependencies": [
+    {
+      "version_requirement": ">= 2.0.0",
+      "name": "example42/puppi"
+    }
+  ],
+  "summary": "Puppet module for foo",
+  "source": "https://github.com/example42/puppet-iptables",
+  "description": "This module installs and manages iptables. Check README.rdoc for details. Puppi is required for some common functions: you can install them without using the whole module. ",
+  "author": "Alessandro Franceschi",
+  "name": "example42-iptables",
+  "project_page": "http://www.example42.com"
+}

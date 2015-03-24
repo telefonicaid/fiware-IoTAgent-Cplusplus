@@ -1,0 +1,24 @@
+{
+  "name": "zooz-puppetdb",
+  "version": "0.0.1",
+  "source": "UNKNOWN",
+  "author": "zooz",
+  "license": "Apache License, Version 2.0",
+  "summary": "Puppetdb module",
+  "description": "This module installs and configures puppetdb. Currently, puppetdb\n    is only supported to be run on the same host as puppet master.",
+  "project_page": "UNKNOWN",
+  "dependencies": [
+
+  ],
+  "types": [
+
+  ],
+  "checksums": {
+    "Modulefile": "8912c05e363b2620a157e5b53315e74f",
+    "README.md": "08face4ab07434953db25b8d54f54ed8",
+    "manifests/init.pp": "c2495703770bc7f850a04a650af13455",
+    "templates/config.ini.erb": "08e86f58c6363a5adcecafc7f49c4558",
+    "templates/database.ini.erb": "537c542461f146682e32a3398340f466",
+    "templates/sysconfig_puppetdb.erb": "6f412ea21d3983807ca853f98ec0293a"
+  }
+}

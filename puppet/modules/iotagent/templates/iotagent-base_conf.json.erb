@@ -1,0 +1,31 @@
+  {"resource":""}
+  ],
+    "ngsi_url": {
+    "cbroker": "<%= @context_broker_endpoint %>",
+    "updateContext": "<%= @update_context_path %>",
+    "registerContext": "<%= @register_context_path %>",
+    "queryContext" : "<%= @query_context_path %>"
+  },
+  "timeout": 10,
+  "dir_log": "<%= @iotagent_logdir %>",
+  "timezones": "/etc/iot/date_time_zonespec.csv",
+  "storage": {
+        "host":"<%= @mongodb_host %>",
+        "type":"mongodb",
+        "port":"<%= @mongodb_port %>",
+        "dbname":"iot"
+  },
+  "oauth": {
+      "on_behalf_trust_url": "<%= @trust_token_url %>",
+      "validate_token_url": "<%= @user_token_url %>",
+      "get_roles_url": "<%= @user_roles_url %>",
+      "retrieve_subservices_url": "<%= @user_subservices_url %>",
+      "access_control_url": "<%= @user_access_control_url %>",
+      "pep_user": "<%= @pep_user %>",
+      "pep_password": "<%= @pep_password %>",
+      "pep_domain": "<%= @pep_domain %>",
+      "on_behalf_user": "<%= @trust_token_user %>",
+      "on_behalf_password": "<%= @trust_token_password %>",
+      "timeout": <%= @auth_timeout %>
+  }
+}

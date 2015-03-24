@@ -1,0 +1,2 @@
+<Sensors>/etc/iot/sensormqtt.xml</Sensors>
+<LogPath>/var/log/iot</LogPath>

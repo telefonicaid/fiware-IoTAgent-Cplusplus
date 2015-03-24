@@ -1,0 +1,2 @@
+<Sensors>/etc/iot/sensortt-open.xml</Sensors>
+<LogPath>/var/log/iot</LogPath>

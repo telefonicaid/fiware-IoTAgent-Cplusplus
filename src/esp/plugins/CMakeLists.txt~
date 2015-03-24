@@ -1,0 +1,13 @@
+add_subdirectory(input_buffer)
+add_subdirectory(input_file)
+add_subdirectory(input_ip)
+add_subdirectory(input_mqtt)
+add_subdirectory(output_file)
+add_subdirectory(output_sbc)
+add_subdirectory(parser_basic)
+add_subdirectory(postprocessor_sensorml)
+add_subdirectory(postprocessor_text)
+add_subdirectory(preprocessor_lua)
+
+
+

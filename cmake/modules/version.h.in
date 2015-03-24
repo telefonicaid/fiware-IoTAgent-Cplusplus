@@ -1,0 +1,10 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+// cmake -DGIT_VERSION=1.0.0 -DGIT_COMMIT=22.gb304603 -DBOOST_ROOT=/home/develop/iot/boost_1_55_0 -DCMAKE_BUILD_TYPE=Debug ../../
+
+#define gV_GIT  "@GIT_VERSION@"
+#define gV_COMMIT "@GIT_COMMIT@"
+
+
+#endif

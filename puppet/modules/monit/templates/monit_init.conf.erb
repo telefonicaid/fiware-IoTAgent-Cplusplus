@@ -1,0 +1,11 @@
+##########################
+# File managed by Puppet #
+##########################
+
+start on runlevel [2345]
+stop on shutdown
+respawn
+# Limited respawn <%= @respawn_limit %> times over a <%= @respawn_time %> sec period
+respawn limit 10 5
+exec <%= @exec_file %> -Ic <%= @config_file %>
+

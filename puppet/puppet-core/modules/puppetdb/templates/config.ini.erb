@@ -1,0 +1,18 @@
+#
+# This file is managed by puppet
+#
+[global]
+# Store mq/db data in a custom directory
+vardir = <%= @vardir %>
+
+# Use an external log4j config file
+logging-config = <%= @logging_config %>
+
+# Maximum number of results that a resource query may return
+resource-query-limit = <%= @resource_query_limit %>
+
+[command-processing]
+<% if @threads %>threads = <%= @threads %><% end %>
+<% if @store_usage %>store-usage = <%= @store_usage %><% end %>
+<% if @temp_usage %>temp-usage = <%= @temp_usage %><% end %>
+

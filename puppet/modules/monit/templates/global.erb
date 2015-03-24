@@ -1,0 +1,36 @@
+########################
+# FILE MANAGED BY PUPPET
+########################
+
+# ============
+# GLOBAL STUFF
+# ============
+
+# If you use Monit in a HA-cluster you should place the state file
+# in a temporary filesystem so if the machine which runs HA-services
+# should crash and the stand-by machine take over its services,
+# the HA-services won't be started after the crashed node will boot again 
+set statefile <%= @statefile %>
+
+# If specified in the control file, Monit will start a Monit daemon with http support. 
+# From a Browser you can then start and stop services, disable or enable 
+# service monitoring as well as view the status of each service. 
+# Also, if Monit logs to its own file, you can view the content of this logfile in a Browser.
+# The Monit web interface is required for CLI interface operation, 
+# as all CLI commands (such as "monit status") are handled by the web interface.
+set httpd
+     port <%= @port %> 
+     use address localhost
+     allow localhost
+     allow <%= @login %>:<%= @passwd %>
+
+
+# The set init statement prevents Monit from transforming itself into a daemon process. 
+# Instead Monit will run as a foreground process. 
+# You should still use set daemon to specify the poll cycle).
+# Run Monit in standard run-levels
+#  mo:2345:respawn:/usr/bin/monit -Ic /etc/monit.conf
+# set init
+
+# set daemon mode timeout to 60 seconds
+set daemon <%= @period %>

@@ -1,0 +1,25 @@
+{
+  "name": "anselm-concatfile",
+  "version": "0.0.4",
+  "source": "UNKNOWN",
+  "author": "anselm",
+  "license": "Apache License, Version 2.0",
+  "summary": "UNKNOWN",
+  "description": "UNKNOWN",
+  "project_page": "UNKNOWN",
+  "dependencies": [
+    {
+      "name": "DavidSchmitt/common",
+      "version_requirement": "1.0.0"
+    }
+  ],
+  "types": [
+
+  ],
+  "checksums": {
+    "Modulefile": "4c304c815f3e839b79b844544172a86f",
+    "README.markdown": "6c27255b5d730b119854d52d53f4394b",
+    "manifests/init.pp": "c93e25db558c1653a3c50d63a60ac9b2",
+    "manifests/part.pp": "a5ac184e82b7320448d905c4b41eea78"
+  }
+}

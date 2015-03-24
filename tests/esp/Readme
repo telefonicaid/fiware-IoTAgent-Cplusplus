@@ -1,0 +1,2 @@
+ESP tests require libmosquitto and libmosquittopp to be added to the LD_LIBRARY_PATH.
+As it also loads some xml files from ./sample folder they must be run from that folder.
