@@ -277,7 +277,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
           s_time_e = iso_e.toString();
 
         }
-        catch (boost::bad_lexical_cast) {
+        catch (boost::bad_lexical_cast&) {
           // Se trata como formato iso (string).
           PION_LOG_DEBUG(m_logger, "Tratando formato ISO");
           s_time_b = stime_tokens[0];
