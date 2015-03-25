@@ -1117,6 +1117,18 @@ int iota::CommandHandle::send(
   std::string& cb_response) {
 
   ContextBrokerCommunicator cb_comm;
+  return cb_comm.send(ngsi_context_element,
+                      opSTR, service, cb_response);
+
+}
+/*
+int iota::CommandHandle::send(
+  iota::ContextElement ngsi_context_element,
+  const std::string& opSTR,
+  const boost::property_tree::ptree& service,
+  std::string& cb_response) {
+
+  ContextBrokerCommunicator cb_comm;
 
   std::string cb_url;
 
@@ -1128,7 +1140,7 @@ int iota::CommandHandle::send(
 
   return cb_comm.async_send(cb_url, ngsi_context_element.get_string(), service,
     boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
-}
+}*/
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&
     operation) {
