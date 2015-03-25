@@ -1,12 +1,11 @@
 # Find the Google Mock headers and libraries
 # GMOCK_INCLUDE_DIR where to find gmock.h
 find_path ( GMOCK_INCLUDE_DIR gmock/gmock.h
-PATHS /home/develop/iot/gmock-1.7.0/include /usr/local/include
+${IOTAGENT_DEPENDENCIES_PATHS}
 NO_DEFAULT_PATH )
 find_library(GMOCK_LIBRARY
 	NAMES gmock
-	PATHS /home/develop/iot/gmock-1.7.0
-	PATH_SUFFIXES lib
+	PATHS ${IOTAGENT_DEPENDENCIES_PATHS} 
 	NO_DEFAULT_PATH)
 if (GMOCK_LIBRARY)
   get_filename_component(GMOCK_LIBS_DIR ${GMOCK_LIBRARY} DIRECTORY)

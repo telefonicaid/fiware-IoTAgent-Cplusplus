@@ -112,7 +112,7 @@ To build IoT Agents you need cmake 2.8.12 (minimum version). In order to find de
 - LOG4CPLUS_ROOT: where *log4cplus* is installed.
 - MONGODB_ROOT: where *mongodb cplusplus driver* is installed.
 
-Take a look to cmake directory. You can find there cmake scripts to find dependencies. Dependencies are not searched in default directories. You can set IOTAGENT_DEPENDENCIES_PATH in CMakeList.txt in order to set where cmake looks for dependencies ++(cmake includes a module to look for boost libraries. You need to use environment variable to help cmake to find boost)++. For example:
+Take a look to cmake directory. You can find there cmake scripts to find dependencies. Dependencies are not searched in default directories. You can set IOTAGENT_DEPENDENCIES_ROOT in CMakeList.txt in order to set where cmake looks for dependencies ++(cmake includes a module to look for boost libraries. You need to use environment variable to help cmake to find boost)++. For example:
 
 `set(IOTAGENT_DEPENDENCIES_ROOT /home/develop/iot/pion-5.0.6
                                 /home/develop/iot/log4cplus
