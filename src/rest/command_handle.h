@@ -94,6 +94,18 @@ class CommandHandle :
     boost::shared_ptr<Command> timeout_f(boost::shared_ptr<Command> item);
 
     /**
+     * @name    handle_updateContext
+     * @brief   this function is called by asynchronous responses from CB
+     *          if error writes an alarm
+     *
+     * @param [in] response  the response from CB
+     * @param [in] response  the response http code response from CB
+     *
+     */
+    void handle_updateContext(const std::string &url,
+                              std::string response, int status);
+
+    /**
      * @name    updateCommand
      * @brief   information from one command, recieved in updateConext
      *

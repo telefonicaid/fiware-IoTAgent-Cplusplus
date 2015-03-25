@@ -31,6 +31,7 @@
 #include "util/service.h"
 #include "rest/types.h"
 #include "util/iota_exception.h"
+#include "util/alarm.h"
 #include "boost/format.hpp"
 #include <boost/uuid/uuid.hpp>            // uuid class
 #include <boost/uuid/uuid_generators.hpp> // generators
@@ -85,6 +86,21 @@ iota::CommandHandle::~CommandHandle() {
 
 void iota::CommandHandle::set_async_commands() {
   _callback = true;
+}
+
+void iota::CommandHandle::handle_updateContext(
+     const std::string &url,
+     std::string response, int status){
+  PION_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response <<
+                            "|" << status);
+
+  if (status == 200) {
+      iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url,
+                       iota::types::ERROR, response);
+  }else{
+      iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url,
+                       iota::types::ERROR, response);
+  }
 }
 
 boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
@@ -700,7 +716,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
       res.set_reason(e.reason());
       res.set_details(e.what());
     }
-    catch (std::exception e) {
+    catch (std::exception& e) {
       PION_LOG_DEBUG(m_logger,
                      "CommandHandle::updateContext capturada std::exception"<< e.what());
       iresponse= iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
@@ -1052,7 +1068,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
     iresponse = 200;
     response = create_ngsi_response(500, e.what(), e.what());
   }
-  catch (std::exception e) {
+  catch (std::exception& e) {
     iresponse = 200;
     response = create_ngsi_response(500, e.what(), e.what());
   }
@@ -1105,6 +1121,26 @@ int iota::CommandHandle::send(
                       opSTR, service, cb_response);
 
 }
+/*
+int iota::CommandHandle::send(
+  iota::ContextElement ngsi_context_element,
+  const std::string& opSTR,
+  const boost::property_tree::ptree& service,
+  std::string& cb_response) {
+
+  ContextBrokerCommunicator cb_comm;
+
+  std::string cb_url;
+
+  std::string cbrokerURL = service.get<std::string>("cbroker", "");
+  if (!cbrokerURL.empty()) {
+    cb_url.assign(cbrokerURL);
+    cb_url.append(get_ngsi_operation("updateContext"));
+  }
+
+  return cb_comm.async_send(cb_url, ngsi_context_element.get_string(), service,
+    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
+}*/
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&
     operation) {

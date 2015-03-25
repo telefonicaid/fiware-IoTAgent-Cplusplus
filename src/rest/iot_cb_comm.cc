@@ -132,7 +132,7 @@ bool iota::ContextBrokerCommunicator::async_send(std::string url,
         iotagent_user = to_map["on_behalf_user"];
         iotagent_pass = to_map["on_behalf_password"];
       }
-      catch (std::runtime_error e) {
+      catch (std::runtime_error& e) {
         PION_LOG_DEBUG(m_logger, "oauth not found :" << e.what());
       }
     }
@@ -197,7 +197,7 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
       iotagent_user = to_map["on_behalf_user"];
       iotagent_pass = to_map["on_behalf_password"];
     }
-    catch (std::runtime_error e) {
+    catch (std::runtime_error& e) {
       PION_LOG_DEBUG(m_logger, "oauth not found :" << e.what());
     }
   }
