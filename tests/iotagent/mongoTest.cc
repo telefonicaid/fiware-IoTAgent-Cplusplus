@@ -306,8 +306,14 @@ void MongoTest::testReplica() {
       milis_threads = boost::lexical_cast<int>(valmilis);
   }
 
+  boost::thread_group g;
   std::cout << "nonum threads:" << num_threads << " milis: " << milis_threads << std::endl;
+  for (int i =0; i < num_threads; i++){
+    g.add_thread(new boost::thread(MongoTest::workerFunc));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(milis_threads));
+  }
 
+  g.join_all();
   std::cout << "END testReplica" << std::endl;
 }
 

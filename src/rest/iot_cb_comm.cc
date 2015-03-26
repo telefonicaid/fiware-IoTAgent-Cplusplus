@@ -351,10 +351,6 @@ void iota::ContextBrokerCommunicator::add_updateContext(
   const boost::shared_ptr<iota::Device>& item_dev,
   const boost::property_tree::ptree& service,
   iota::ContextElement& ngsi_context_element) {
-  PION_LOG_DEBUG(m_logger,
-                 "add_updateContext "<< command_name << " " << command_att <<
-                 " " << value << " " <<  item_dev->get_real_name() << " " <<
-                 item_dev->_entity_type);
 
   iota::RiotISO8601 mi_hora;
   std::string date_to_cb = mi_hora.toUTC().toString();

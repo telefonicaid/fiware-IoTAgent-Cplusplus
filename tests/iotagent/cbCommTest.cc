@@ -106,6 +106,7 @@ void cbCommTest::testSynchSendTimeout() {
   std::cout << "STOP testSynchSendTimeout" << std::endl;
 }
 
+/*
 void cbCommTest::testAsynchSendTimeout() {
 
   std::cout << "START testAsyncSendTimeout" << std::endl;
@@ -133,7 +134,34 @@ void cbCommTest::testAsynchSendTimeout() {
   }
   CPPUNIT_ASSERT_MESSAGE("Handler invoked ", handler_invoked);
   std::cout << "END testAsyncSend" << std::endl;
+}*/
+
+void cbCommTest::testAsynchSendTimeout() {
+
+  std::cout << "START testAsyncSendTimeout2" << std::endl;
+
+  boost::shared_ptr<iota::ContextBrokerCommunicator> cb(new
+      iota::ContextBrokerCommunicator());
+  cb->start();
+
+  //std::string url("http://10.95.168.57:1026/NGSI10/updateContext");
+  std::string url = "http://192.0.0.1:9001/mock";
+  boost::property_tree::ptree pt1;
+  pt1.put("service", "service");
+  boost::property_tree::ptree c1;
+  c1.put("timeout", 10);
+  pt1.add_child("config.cbroker", c1);
+  std::cout << "Async send" << std::endl;
+  cb->async_send(url, "UPDATE", pt1, boost::bind(handler_function,
+                 _1, _2));
+
+  /*while (!handler_invoked) {
+    io_service->run();
+  }*/
+  CPPUNIT_ASSERT_MESSAGE("Handler invoked ", handler_invoked);
+  std::cout << "END testAsyncSend2" << std::endl;
 }
+
 
 void cbCommTest::testAsyncSend() {
   boost::shared_ptr<HttpMock> http_mock;
@@ -142,9 +170,6 @@ void cbCommTest::testAsyncSend() {
   std::string mock_port = boost::lexical_cast<std::string>(http_mock->get_port());
 
   std::cout << "START testAsyncSend" << std::endl;
-  boost::shared_ptr<boost::asio::io_service> io_service(new
-      boost::asio::io_service());
-
   iota::Attribute attribute("name", "type", "value");
   iota::Attribute metadata("name", "typecheck", "valor");
   iota::Attribute metadata1("name1", "type1", "value1");
@@ -163,9 +188,8 @@ void cbCommTest::testAsyncSend() {
   response_cb.append("\"statusCode\" : {\"code\" : \"200\",\"reasonPhrase\" : \"OK\"}}]}");
   http_mock->set_response(200, response_cb);
   boost::shared_ptr<iota::ContextBrokerCommunicator> cb(new
-      iota::ContextBrokerCommunicator(
-        *io_service));
-  //cb->start();
+      iota::ContextBrokerCommunicator());
+  cb->start();
   //cb.start();
   //std::string url("http://10.95.168.57:1026/NGSI10/updateContext");
   std::string url = "http://127.0.0.1:"+ mock_port + "/mock";
@@ -188,9 +212,9 @@ void cbCommTest::testAsyncSend() {
                              boost::ref(req), boost::ref(connection), oauth));
                              */
   std::cout << __FUNCTION__ << " CB" << cb.use_count() << std::endl;
-  while (!handler_invoked) {
+  /*while (!handler_invoked) {
     io_service->run();
-  }
+  }*/
   http_mock->stop();
   CPPUNIT_ASSERT_MESSAGE("Handler invoked ", handler_invoked);
   std::cout << "END testAsyncSend" << std::endl;

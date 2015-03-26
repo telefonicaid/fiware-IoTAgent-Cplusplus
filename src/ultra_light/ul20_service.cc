@@ -260,11 +260,11 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
         std::string srv = service_ptree.get<std::string>("service", "");
 
         io_ul_idas.translate(content, dev, service_ptree, querySBC, cb_eltos, 0);
+        code_resp = iota::types::RESPONSE_CODE_OK;
         for (int ii=0; ii < cb_eltos.size(); ii++) {
           std::string cb_response;
           // NO cb_eltos[ii].set_env_info(service_ptree, dev);
-          code_resp = send(cb_eltos[ii], "APPEND", service_ptree, cb_response);
-          PION_LOG_DEBUG(m_logger, "response cb "<< cb_response);
+          send(cb_eltos[ii], "APPEND", service_ptree, cb_response);
         }
       }
       else {

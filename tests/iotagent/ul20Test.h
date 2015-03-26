@@ -30,6 +30,7 @@
 
 class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(Ul20Test);
+
     CPPUNIT_TEST(testNormalPOST);
     CPPUNIT_TEST(testTimePOST);
     CPPUNIT_TEST(testBadPost);
@@ -71,6 +72,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testBAD_PUSHCommand_MONGO);
 
     CPPUNIT_TEST(testCommandHandle);
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
