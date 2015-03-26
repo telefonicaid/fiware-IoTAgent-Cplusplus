@@ -228,7 +228,7 @@ void cbCommTest::testAlarm() {
                                value, item_dev,
                                service, opSTR);
   }
-  catch (std::exception e) {
+  catch (std::exception& e) {
     CPPUNIT_ASSERT_MESSAGE("alarm not found", iota::Alarm::instance()->size() == 1);
   }
 

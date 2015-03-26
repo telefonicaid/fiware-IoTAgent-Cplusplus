@@ -855,7 +855,7 @@ void Ul20Test::testGetAllCommand() {
     //llega la respuesta y borramos el comando
     ul20serv.remove_command(command_id, service, service_path);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout << exc.what() << std::endl;
   }
   catch (...) {
@@ -911,7 +911,7 @@ void Ul20Test::testDevices() {
       std::cout << "inactive must throw an exceptionnn" << std::endl;
       CPPUNIT_FAIL("inactive must throw an exception");
     }
-    catch (std::runtime_error e) {
+    catch (std::runtime_error& e) {
       std::cout << "inactive throws an runtime_error" << std::endl;
       std::string errSTR = e.what();
       std::cout << errSTR << std::endl;
@@ -1087,7 +1087,7 @@ void Ul20Test::testSendRegister() {
     ul20serv.get_service_by_name(pt_cb, "service2", "/");
     IOTASSERT(true);
   }
-  catch (std::exception e) {
+  catch (std::exception& e) {
     std::cout << "exception " << e.what() << std::endl;
   }
 

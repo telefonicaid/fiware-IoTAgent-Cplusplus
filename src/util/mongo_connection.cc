@@ -106,7 +106,7 @@ void iota::MongoConnection::reconnect(){
       try {
         _timeout = boost::lexical_cast<double>(timeoutSTR);
       }
-      catch (std::exception e) {
+      catch (std::exception& e) {
         PION_LOG_ERROR(m_logger, "Error in config, bad timeuot defined, use default");
         _timeout = 0;
       }

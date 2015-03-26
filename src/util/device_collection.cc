@@ -161,7 +161,7 @@ void iota::DeviceCollection::Map2BSONAttribute(mongo::BSONObjBuilder& obj,
       objB.append(key_map,iter->first);
       arrayBSON.append(objB.obj());
     }
-    catch (mongo::MsgAssertionException exc) {
+    catch (mongo::MsgAssertionException& exc) {
       PION_LOG_ERROR(m_logger, "PARSER ERROR " << exc.getCode() << ":" << exc.what());
       PION_LOG_ERROR(m_logger, "PARSER data: " << body);
     }
