@@ -67,7 +67,7 @@ class ContextBrokerCommunicator: public
       const boost::property_tree::ptree& service,
       const std::string& opSTR);
 
-    void add_updateContext(
+    static void add_updateContext(
       const std::string& command_name,
       const std::string& command_att,
       const std::string& type,

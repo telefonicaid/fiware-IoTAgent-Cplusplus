@@ -45,6 +45,8 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/algorithm/string.hpp>
 #include "boost/format.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/thread/thread.hpp>
 
 
 #include <cmath>
@@ -64,6 +66,8 @@
 #define  IOTASSERT(y) \
          std::cout << "@" << __LINE__ << "@" << std::endl; \
          CPPUNIT_ASSERT(y)
+
+#define  ASYNC_TIME_WAIT  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 const int Ul20Test::POST_RESPONSE_CODE = 201;
 
@@ -258,10 +262,12 @@ void Ul20Test::testNormalPOST() {
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
-    std::cout << "POST fecha + temperatura " << http_response.get_status_code() <<
+    std::cout << "POST fecha + temperatura " <<
+        http_response.get_status_code() << response <<
               std::endl;
     IOTASSERT_MESSAGE("response code not is 200",
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    ASYNC_TIME_WAIT
     // updateContext to CB
     cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
@@ -298,8 +304,10 @@ void Ul20Test::testNormalPOST() {
 
     std::cout << "POST dos medida " << http_response.get_status_code() << std::endl;
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    ASYNC_TIME_WAIT
     // updateContext to CB
     cb_last = cb_mock->get_last();
+    cb_last.append(cb_mock->get_last());
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -307,7 +315,6 @@ void Ul20Test::testNormalPOST() {
       cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"24\"")
       !=
       std::string::npos);
-    cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -339,8 +346,12 @@ void Ul20Test::testNormalPOST() {
     std::cout << "POST medida + localizacion " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
-    // updateContext to CB
+
+    ASYNC_TIME_WAIT
+    // we don't know the order of meassurements to CB, so we join the two observations
     cb_last = cb_mock->get_last();
+    cb_last.append(cb_mock->get_last());
+
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -349,7 +360,6 @@ void Ul20Test::testNormalPOST() {
                                 ",\"type\":\"string\",\"value\":\"WGS84\"") !=
                    std::string::npos);
 
-    cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -377,11 +387,15 @@ void Ul20Test::testNormalPOST() {
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "POST dos medidas sin fecha " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     // updateContext to CB
+    // we don't know the order of meassurements to CB, so we join the two observations
     cb_last = cb_mock->get_last();
+    cb_last.append(cb_mock->get_last());
+
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -389,10 +403,7 @@ void Ul20Test::testNormalPOST() {
       cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"24\"")
       !=
       std::string::npos);
-    cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
-                   std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
       !=
@@ -417,11 +428,15 @@ void Ul20Test::testNormalPOST() {
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "POST sin fecha medida + localizacion " <<
               http_response.get_status_code() << std::endl;
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     // updateContext to CB
+    // we don't know the order of meassurements to CB, so we join the two observations
     cb_last = cb_mock->get_last();
+    cb_last.append(cb_mock->get_last());
+
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -430,7 +445,6 @@ void Ul20Test::testNormalPOST() {
                                 ",\"type\":\"string\",\"value\":\"WGS84\"") !=
                    std::string::npos);
 
-    cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -672,11 +686,14 @@ void Ul20Test::testNoDevicePost() {
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "POST device no registered " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    ASYNC_TIME_WAIT
 
     cb_last = cb_mock->get_last();
+    cb_last.append(cb_mock->get_last());
     // updateContext to CB
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(
@@ -686,7 +703,6 @@ void Ul20Test::testNoDevicePost() {
     IOTASSERT(
       cb_last.find("{\"name\":\"l\",\"type\":\"\",\"value\":\"-3.3423/2.345\"") !=
       std::string::npos);
-    cb_last = cb_mock->get_last();
     IOTASSERT(
       cb_last.find("\"id\":\"thing:unitTest_device_tegistered\",\"type\":\"thing\"")
       !=
@@ -1342,6 +1358,7 @@ void Ul20Test::testPUSHCommand() {
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
@@ -1427,7 +1444,7 @@ void Ul20Test::testPUSHCommandAsync() {
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
 
-    sleep(4);
+    ASYNC_TIME_WAIT
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
@@ -1583,6 +1600,7 @@ void Ul20Test::testBADPUSHCommand() {
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     //respuesta al update de contextBroker
     // UL20 Command is not correct, it must be  name_device@command_name, but it is 22
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
@@ -1666,7 +1684,7 @@ void Ul20Test::testPollingCommand() {
     std::string response;
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
-
+    ASYNC_TIME_WAIT
     std::cout << "@UT@POST updateContext " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT_MESSAGE("@UT@POST, response code no 200" ,
@@ -1704,6 +1722,7 @@ void Ul20Test::testPollingCommand() {
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "@UT@GET command " << http_response.get_status_code() <<
               ":" << http_response.get_content() << std::endl;
     IOTASSERT_MESSAGE("@UT@GET response code no 200" ,
@@ -1740,6 +1759,7 @@ void Ul20Test::testPollingCommand() {
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "@UT@POST command result " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT_MESSAGE("@UT@GET response code no 200" ,
@@ -1804,7 +1824,7 @@ void Ul20Test::testPollingCommandTimeout() {
     std::string response;
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
-
+    ASYNC_TIME_WAIT
     std::cout << "@UT@POST updateContext " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT_MESSAGE("@UT@POST, response code no 200" ,
@@ -1883,6 +1903,8 @@ void Ul20Test::testCommandNOUL() {
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
+
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
@@ -1943,6 +1965,7 @@ void Ul20Test::testPUSHCommandParam() {
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
@@ -2085,6 +2108,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
@@ -2468,6 +2492,7 @@ void Ul20Test::testPollingCommand_MONGO(
     ul20serv.op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "@UT@POST updateContext " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT_MESSAGE("@UT@POST, response code no 200" ,
@@ -2512,6 +2537,7 @@ void Ul20Test::testPollingCommand_MONGO(
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "@UT@GET command " << http_response.get_status_code() <<
               ":" << http_response.get_content() << std::endl;
     IOTASSERT_MESSAGE("@UT@GET response code no 200" ,
@@ -2556,6 +2582,7 @@ void Ul20Test::testPollingCommand_MONGO(
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
+    ASYNC_TIME_WAIT
     std::cout << "@UT@POST command result " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT_MESSAGE("@UT@GET response code no 200" ,

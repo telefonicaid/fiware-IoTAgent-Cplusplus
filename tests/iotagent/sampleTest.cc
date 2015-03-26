@@ -58,6 +58,8 @@
 #define RESPONSE_MESSAGE_NGSI_OK "{ \"statusCode\" : { \"code\":200, \"reasonPhrase\":\"OK\"}}"
 #define RESPONSE_CODE_NGSI 200
 
+#define  ASYNC_TIME_WAIT  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
 CPPUNIT_TEST_SUITE_REGISTRATION(SampleTest);
 namespace iota {
 std::string logger("main");
@@ -161,7 +163,7 @@ void SampleTest::testNormalPOST() {
     std::string response;
     sampleserv.service(http_request, url_args, query_parameters,
                        http_response, response);
-
+    ASYNC_TIME_WAIT
     std::cout << "POST fecha + temperatura " << http_response.get_status_code() <<
               std::endl;
     CPPUNIT_ASSERT(http_response.get_status_code() == 200);
@@ -211,7 +213,7 @@ void SampleTest::testCommandNormalPOST() {
     std::string response;
     sampleserv.service(http_request, url_args, query_parameters,
                        http_response, response);
-
+    ASYNC_TIME_WAIT
     std::cout << "POST fecha + temperatura " << http_response.get_status_code() <<
               std::endl;
     CPPUNIT_ASSERT(http_response.get_status_code() == 200);
@@ -239,7 +241,7 @@ void SampleTest::testCommandNormalPOST() {
     std::string response;
     sampleserv.service(http_request, url_args, query_parameters,
                        http_response, response);
-
+    ASYNC_TIME_WAIT
     std::cout << "POST fecha + temperatura " << http_response.get_status_code() <<
               std::endl;
     CPPUNIT_ASSERT(http_response.get_status_code() == 200);
@@ -295,7 +297,7 @@ void SampleTest::testPUSHCommand() {
     std::string response;
     plugin.default_op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
-
+    ASYNC_TIME_WAIT
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
@@ -369,6 +371,7 @@ void SampleTest::testPollingCommand() {
     std::string response;
     plugin.default_op_ngsi(http_request, url_args, query_parameters,
                      http_response, response);
+    ASYNC_TIME_WAIT
 
     std::cout << "@UT@POST updateContext " << http_response.get_status_code() <<
               std::endl;
@@ -407,6 +410,8 @@ void SampleTest::testPollingCommand() {
     std::string response;
     plugin.service(http_request, url_args, query_parameters,
                      http_response, response);
+
+    ASYNC_TIME_WAIT
 
     std::cout << "@UT@GET command " << http_response.get_status_code() <<
               ":" <<response << std::endl;
@@ -451,7 +456,7 @@ void SampleTest::testPollingCommand() {
     std::string response;
     plugin.service(http_request, url_args, query_parameters,
                      http_response, response);
-
+    ASYNC_TIME_WAIT
     std::cout << "@UT@POST command result " << http_response.get_status_code() <<
               std::endl;
     IOTASSERT_MESSAGE("@UT@GET response code no 200" ,

@@ -91,8 +91,7 @@ void iota::CommandHandle::set_async_commands() {
 void iota::CommandHandle::handle_updateContext(
      const std::string &url,
      std::string response, int status){
-  PION_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response <<
-                            "|" << status);
+  //TODO PION_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response << "|" << status);
 
   if (status == 200) {
       iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url,
@@ -131,8 +130,7 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
     get_service_by_name(service_ptree, item->get_service(),
                         item->get_service_path());
     //ha saltado algun timeout, hay que enviar el nuevo estado del comando
-    ContextBrokerCommunicator cb_communicator;
-    cb_communicator.send_updateContext(
+    send_updateContext(
       item->get_name(), iota::types::STATUS, iota::types::STATUS_TYPE ,statusSTR,
       dev, service_ptree, iota::types::STATUS_OP);
 
@@ -1116,19 +1114,9 @@ int iota::CommandHandle::send(
   const boost::property_tree::ptree& service,
   std::string& cb_response) {
 
-  ContextBrokerCommunicator cb_comm;
-  return cb_comm.send(ngsi_context_element,
-                      opSTR, service, cb_response);
-
-}
-/*
-int iota::CommandHandle::send(
-  iota::ContextElement ngsi_context_element,
-  const std::string& opSTR,
-  const boost::property_tree::ptree& service,
-  std::string& cb_response) {
-
-  ContextBrokerCommunicator cb_comm;
+  boost::shared_ptr<iota::ContextBrokerCommunicator> cb_comm(new
+      iota::ContextBrokerCommunicator());
+  cb_comm->start();
 
   std::string cb_url;
 
@@ -1138,9 +1126,9 @@ int iota::CommandHandle::send(
     cb_url.append(get_ngsi_operation("updateContext"));
   }
 
-  return cb_comm.async_send(cb_url, ngsi_context_element.get_string(), service,
+  return cb_comm->async_send(cb_url, ngsi_context_element.get_string(), service,
     boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
-}*/
+}
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&
     operation) {
@@ -1228,12 +1216,26 @@ int iota::CommandHandle::send_updateContext(
   const boost::shared_ptr<Device>& item_dev,
   const boost::property_tree::ptree& service,
   const std::string& opSTR) {
-  ContextBrokerCommunicator cb_comm;
-  cb_comm.send_updateContext(command_name, command_att,
-                             type,
-                             value, item_dev,
-                             service, opSTR);
 
+  iota::ContextElement ngsi_context_element;
+  std::string cb_response;
+  ContextBrokerCommunicator::add_updateContext(command_name, command_att,
+                            type,
+                            value, item_dev,
+                            service, ngsi_context_element);
+
+  iota::RiotISO8601 mi_hora;
+  std::string date_to_cb = mi_hora.toUTC().toString();
+  iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
+  ngsi_context_element.add_attribute(timeAT);
+  PION_LOG_DEBUG(m_logger,"<<<" << ngsi_context_element.get_string());
+
+  ngsi_context_element.set_env_info(service, item_dev);
+
+  int code_resp = send(ngsi_context_element, opSTR, service, cb_response);
+  PION_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
+
+  return code_resp;
 }
 
 int iota::CommandHandle::send_updateContext(
@@ -1247,15 +1249,14 @@ int iota::CommandHandle::send_updateContext(
   const boost::shared_ptr<Device>& item_dev,
   const boost::property_tree::ptree& service,
   const std::string& opSTR) {
-  ContextBrokerCommunicator cb_comm;
 
   iota::ContextElement ngsi_context_element;
   std::string cb_response;
-  cb_comm.add_updateContext(command_name, command_att,
+  ContextBrokerCommunicator::add_updateContext(command_name, command_att,
                             type,
                             value, item_dev,
                             service, ngsi_context_element);
-  cb_comm.add_updateContext(command_name, command_att2,
+  ContextBrokerCommunicator::add_updateContext(command_name, command_att2,
                             type2,
                             value2, item_dev,
                             service, ngsi_context_element);
@@ -1270,6 +1271,8 @@ int iota::CommandHandle::send_updateContext(
 
   int code_resp = send(ngsi_context_element, opSTR, service, cb_response);
   PION_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
+
+  return code_resp;
 }
 
 
