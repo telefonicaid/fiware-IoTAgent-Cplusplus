@@ -38,7 +38,7 @@ A command has different parts:
 - specific command data (when you send a single command, you can send specified data in the value of attribute)
 
 This data can be the entire text send to device, or parameters used as a part of this.
- [More information](##def-prerequisites)
+ [More information](#def-sendCommand)
 
 ![IoT Agent architecture](imgs/regDevice.png)
 
@@ -77,22 +77,115 @@ user can subscribe or consult this.
 <a name="def-prerequisites"></a>
 ## 2. Provisioning commands
 
-Example a command named PING, this command is ul20
+Example, provisioning a command named PING, this command is ul20
 ```
 curl -X POST http://$HOST:$PORT/iot/devices \
 -i \
 -H "Content-Type: application/json" \
--H "Fiware-Service: TestServiceF" \
--H "Fiware-ServicePath: /TestSubserviceF" \
+-H "Fiware-Service: TestService" \
+-H "Fiware-ServicePath: /TestSubservice" \
 -d ' { "devices": [ { "device_id": "device_id", "entity_name": "entity_name", "entity_type": "entity_type", "timezone": "America/Santiago", "commands": [{ "name": "PING", "type": "command", "value": "device_id@ping6|%s"}]  } ] }'
 ```
 
+Data for the command
+
+{
+ 
+"name": "PING",
+
+"type": "command",
+ 
+"value": "device_id@ping6|%s"
+
+}
+
+When you provisioning a command, iotagent register this command and device in context Broker, so you can check it with the context Broker [Discover Context Availability API](https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Convenience_Discover_Context_Availability)
 
 <a name="def-sendCommand"></a>
 ## 3. Send a Command
 
-special attributes to check command resolution
-<command_name>_status
+You must send an updateCommand via http to the Context Broker, where the iot agent has registered the command
+[Update context elements](https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Update_context_elements)
+
+You must use te entity name of the device, and the command name. An example with the before command.
+
+updateCommand sned to Context Broker
+
+```
+curl -X POST http://$HOST:$PORT/v1/updateContext \
+     -i \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: TestService" \
+-H "Fiware-ServicePath: /TestSubservice" \
+-d ' {"updateAction":"UPDATE","contextElements":[{"id":"entity_name","type":"entity_type","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22" } ]} ]}'
+``` 
+
+Context Broker redirect this updateContext command to iotagent. If you have permissions for this operation, Iotagent transforms this command to 
+
+```
+device_id@ping6|22
+```
+
+This text is sent to device.
+
+The device can respond this command, this is an example using ul20 protocol.
+
+```
+device_id@ping6|Ping OK
+``` 
+
+If you remembered, the provisioned data for device was
+
+```
+{ "name": "PING", "type": "command", "value": "device_id@ping6|%s"}
+```
+
+%s is substituted with the value of "value" attribute in updateCommand
+
+###You  can use several parameters.
+
+provisioned data
+```
+{"name": "PING","type": "command","value": "device_id@ping6|%s-%s-%s"}
+```
+updateContext with value separated with |
+```
+{"name": "PING","type": "command","value": "param1|param2|param3"}
+```
+data sent to device
+```
+device_id@ping6|param1-param2-param3
+```
+
+###You  can use a raw command
+
+provisioned data
+```
+{"name": "PING","type": "command","value": ""}
+```
+updateContext with value separated with |
+```
+{"name": "PING","type": "command","value": "param1|param2|param3"}
+```
+data sent to device
+```
+param1|param2|param3
+```
+
+
+Iotagent read the response command, and save this in a specific attribute of the device.
+Every command has two special attributes
+
+<command_name>_status:  status of the command
+
+<command_name>_info:  final result of the command or error.
+
+In this example, this attributes are.
+
+PING_status:  OK
+PING_info:   device_id@ping6|Ping OK
+
+In PUSH command like this example it can be two status 
 
 | status     |description               |
 | ------------- |:-------------:           |
@@ -100,7 +193,7 @@ special attributes to check command resolution
 | not delivered   | name of the service_path (must start with /)    |
 
 <command_name>_info
-comman result
+command result
 
 Error message:
 
@@ -115,10 +208,14 @@ Error message:
 { "errorCode" : { "code":404, "reasonPhrase":"the device does not have implemented this command"}}
 
 
+
+
 <a name="def-result"></a>
 ## 4. Check results
 
+The user sends command to Context Broker, and checks the result to Context Broke, with  [Query Context operation](https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Query_Context_operation)
 
+You need to know the service, servicePath, entity name for the device, the name of the command and query context for the attribute  <command_name>_info  (information sent by device) or <command_name>_status (information about the status of the process)
 
 <a name="def-polling"></a>
 ## 5. Polling
