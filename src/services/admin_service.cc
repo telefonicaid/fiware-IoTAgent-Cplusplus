@@ -1392,48 +1392,57 @@ int iota::AdminService::put_device_json(
   std::string reason;
   std::string error_details;
 
-  if (body.empty()){
+  if (body.empty()) {
     error_details.assign("empty body");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
-  }else if (validate_json_schema(body, iota::store::types::DEVICE_TABLE,
-                           "PUT", error_details)) {
+  }
+  else if (validate_json_schema(body, iota::store::types::DEVICE_TABLE,
+                                "PUT", error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
-    mongo::BSONObj query =  BSON(iota::store::types::SERVICE << service <<
-                                 iota::store::types::SERVICE_PATH << service_path <<
-                                 iota::store::types::DEVICE_ID << device_id);
-
-    Collection devTable(store::types::DEVICE_TABLE);
-    std::string entity_name = setbo.getStringField (store::types::ENTITY_NAME);
-    if (!entity_name.empty()){
-          // "entity_name" : 1, "service" : 1, "service_path" : 1
-          devTable.find(BSON(store::types::ENTITY_NAME <<  entity_name <<
-              store::types::SERVICE << service <<
-              store::types::SERVICE_PATH <<service_path));
-          if (devTable.more()){
-            throw iota::IotaException(iota::types::RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS,
-                              " [ entity_name: " + entity_name + "]",
-                              iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
-          }
+    if (setbo.nFields() ==0) {
+      error_details.assign("empty body");
+      reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+      code = types::RESPONSE_CODE_BAD_REQUEST;
     }
-    int count = devTable.update(query, setbo, false);
-    if (count == 0) {
-      PION_LOG_INFO(m_log, "put_device_json no device " <<
-      "|service=" << service << "|service_path=" <<
-      service_path << "|device=" << device_id << "|content=" << body );
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_DEVICE,
-                              " [ device: " + param_request + "]",
-                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
-    }else{
-      Device device(device_id, service);
-      device._service_path = service_path;
-      deploy_device(device);
+    else {
+      mongo::BSONObj query =  BSON(iota::store::types::SERVICE << service <<
+                                   iota::store::types::SERVICE_PATH << service_path <<
+                                   iota::store::types::DEVICE_ID << device_id);
 
-      boost::shared_ptr<Device> item_dev(new Device(device));
-      registeredDevices.get(item_dev);
+      Collection devTable(store::types::DEVICE_TABLE);
+      std::string entity_name = setbo.getStringField(store::types::ENTITY_NAME);
+      if (!entity_name.empty()) {
+        // "entity_name" : 1, "service" : 1, "service_path" : 1
+        devTable.find(BSON(store::types::ENTITY_NAME <<  entity_name <<
+                           store::types::SERVICE << service <<
+                           store::types::SERVICE_PATH <<service_path));
+        if (devTable.more()) {
+          throw iota::IotaException(iota::types::RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS,
+                                    " [ entity_name: " + entity_name + "]",
+                                    iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
+        }
+      }
+      int count = devTable.update(query, setbo, false);
+      if (count == 0) {
+        PION_LOG_INFO(m_log, "put_device_json no device " <<
+                      "|service=" << service << "|service_path=" <<
+                      service_path << "|device=" << device_id << "|content=" << body);
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_DEVICE,
+                                  " [ device: " + param_request + "]",
+                                  iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+      }
+      else {
+        Device device(device_id, service);
+        device._service_path = service_path;
+        deploy_device(device);
 
-      //remove device from cache, to force reload new data
-      remove_from_cache(device);
+        boost::shared_ptr<Device> item_dev(new Device(device));
+        registeredDevices.get(item_dev);
+
+        //remove device from cache, to force reload new data
+        remove_from_cache(device);
+      }
     }
   }
   else {
@@ -1645,36 +1654,45 @@ int iota::AdminService::put_service_json(
   std::string reason;
   std::string error_details;
 
-  if (body.empty()){
+  if (body.empty()) {
     error_details.assign("empty body");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
-  }else if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
-                           "PUT", error_details)) {
+  }
+  else if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
+                                "PUT", error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
-    mongo::BSONObj query = BSON(iota::store::types::SERVICE_ID << id
-                                << iota::store::types::SERVICE_PATH << service_path
-                                << iota::store::types::APIKEY << apikey
-                                << iota::store::types::RESOURCE << resource);
-    ServiceCollection table;
-
-    std::string cbroker = setbo.getStringField(iota::store::types::CBROKER);
-    // if cbroker is empty is ok, check_uri  throw an exception
-    if (!cbroker.empty()) {
-      check_uri(cbroker);
+    if (setbo.nFields() ==0) {
+      error_details.assign("empty body");
+      reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+      code = types::RESPONSE_CODE_BAD_REQUEST;
     }
+    else {
+      mongo::BSONObj query = BSON(iota::store::types::SERVICE_ID << id
+                                  << iota::store::types::SERVICE_PATH << service_path
+                                  << iota::store::types::APIKEY << apikey
+                                  << iota::store::types::RESOURCE << resource);
+      ServiceCollection table;
+
+      std::string cbroker = setbo.getStringField(iota::store::types::CBROKER);
+      // if cbroker is empty is ok, check_uri  throw an exception
+      if (!cbroker.empty()) {
+        check_uri(cbroker);
+      }
 
 
-    int count = table.update(query, setbo, false);
-    if (count == 0) {
-      PION_LOG_INFO(m_log, "put_service_json no device " <<
-      "|service=" << service << "|service_path=" << service_path <<
-      "|content=" << body );
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
-                              " [  " + param_request + "]",
-                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
-    }else{
-      code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
+      int count = table.update(query, setbo, false);
+      if (count == 0) {
+        PION_LOG_INFO(m_log, "put_service_json no device " <<
+                      "|service=" << service << "|service_path=" << service_path <<
+                      "|content=" << body);
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                                  " [  " + param_request + "]",
+                                  iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+      }
+      else {
+        code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
+      }
     }
   }
   else {

@@ -90,7 +90,7 @@ void ApiKeyTest::testConfigurator() {
     const iota::JsonValue& pt2 = conf->getServicebyApiKey("/iot/res", "/noexists");
     CPPUNIT_ASSERT(true);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "noexists excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
   }
@@ -100,7 +100,7 @@ void ApiKeyTest::testConfigurator() {
     const iota::JsonValue& pt2 = conf->getServicebyApiKey("/iot/res", "apikeyduplicada");
     CPPUNIT_ASSERT(true);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "apikeduplicada excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
   }
@@ -113,7 +113,7 @@ void ApiKeyTest::testConfigurator() {
     std::cout << "token " << s << std::endl;
     CPPUNIT_ASSERT(s.compare("token111") == 0);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "serviceduplicado excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
     CPPUNIT_ASSERT(true);
@@ -124,7 +124,7 @@ void ApiKeyTest::testConfigurator() {
     const iota::JsonValue& pt2 = conf->getService("/iot/res", "serviceduplicado", "");
     CPPUNIT_ASSERT(true);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "serviceduplicado excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
   }
@@ -285,7 +285,7 @@ void ApiKeyTest::testConfiguratorMongo() {
     std::cout << " getServicebyApiKey -> noexists " << std::endl;
     CPPUNIT_ASSERT(true);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "noexists excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
   }
@@ -296,7 +296,7 @@ void ApiKeyTest::testConfiguratorMongo() {
     rh.get_service_by_apiKey(pt_cb, apiKey);
     CPPUNIT_ASSERT(true);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "apikeduplicada excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
   }
@@ -308,7 +308,7 @@ void ApiKeyTest::testConfiguratorMongo() {
     std::cout << "token " << s << std::endl;
     CPPUNIT_ASSERT(s.compare("token111") == 0);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "serviceduplicado excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
     CPPUNIT_ASSERT(true);
@@ -319,7 +319,7 @@ void ApiKeyTest::testConfiguratorMongo() {
     rh.get_service_by_name(pt_cb, "serviceduplicado", "");
     CPPUNIT_ASSERT(true);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "serviceduplicado excepcion" << std::endl;
     std::cout  << exc.what() << std::endl;
   }
@@ -345,7 +345,7 @@ void ApiKeyTest::testConfiguratorMongo() {
                          std::runtime_error);
 
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
     std::cout  << "catch a borrar" << std::endl;
     std::cout  << exc.what() << std::endl;
   }
@@ -360,7 +360,7 @@ void ApiKeyTest::testConfiguratorMongo() {
     CPPUNIT_ASSERT_MESSAGE("Checking static attribute GPS", s_a.get<std::string>("value", "").compare("10") == 0);
     CPPUNIT_ASSERT_MESSAGE("Checking cbroker", pt_cb.get<std::string>("cbroker", "").compare("http:://0.0.0.0:1026") == 0);
   }
-  catch (std::exception exc) {
+  catch (std::exception& exc) {
   }
 
   // std::cout << conf->getAll() << std::endl;
