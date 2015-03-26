@@ -141,7 +141,7 @@ find_package(GMock)
 if(GMOCK_FOUND)
  include_directories(${GMOCK_INCLUDE_DIR})
  link_directories(${GMOCK_LIBS_DIR})
- set(TEST_LIBS ${TEST_LIBS} gmock gtest)
+ set(TEST_LIBS ${TEST_LIBS} gmock)
 endif()
 
 #libVariant
