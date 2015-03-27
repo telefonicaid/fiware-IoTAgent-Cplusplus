@@ -22,7 +22,7 @@
                 <!--input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="10.95.106.50" port="11883"/-->
 
 		<!-- WARNING: names of input matter to Tests, that is to say a change of name below and tests break -->
-		<input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwritter"/>				
+		<input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwriter"/>				
 		<input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="localhost" port="1883" user="admin" password="1234" name="mqttrunner"/>
 				
         </inputs>
@@ -40,6 +40,8 @@
 				<measure ref="payload"/>
 				<alias ref="type"/>
 				<apikey ref="apikey" />	
+				<bypass_cmdexe ref="resultcommand" /> <!-- This is used when processing mqtt command response -->
+				<bypass_cmdget ref="cmdget-payload" /> <!-- This is used for cmdget requests -->
 			</postprocessor>
 
 					
@@ -122,6 +124,10 @@
 								</tag>
 								
 								
+							</tag>
+
+							<!-- Footer -->
+							<tag type="footer">
 							</tag>
 					</parser>
 			</command>
