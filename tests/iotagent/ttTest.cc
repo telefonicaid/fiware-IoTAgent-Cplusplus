@@ -1335,7 +1335,7 @@ CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS
 
 
   std::string query =
-    "cadena=#8934075379000039321,#0,GM,temp,23,$#0,GPS,11,,33,44,#0,B,12,23,34,,56,67,50,#0,P1,214,,33f,633c,#0,K1,0$";
+    "cadena=#8934075379000039321,#0,GM,temp,23,$#0,GPS,11,,33,44,#0,B,12,23,34,,56,67,#0,P1,214,,33f,633c,#0,K1,0$";
 
 
   query.assign(pion::algorithm::url_encode(query));
@@ -1365,6 +1365,7 @@ CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS
   cb_mock_up->stop();
 
 }
+
 void TTTest::testNoEmptyResponsesOnBug_IDAS20303() {
 
 
@@ -1559,6 +1560,68 @@ CC_Logger::getSingleton()->logDebug("testErrorCodesOnBug_IDAS20308: starting");
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
   cb_mock_query->stop();
   cb_mock_up->stop();
+
+}
+
+void TTTest::testNoEmpty_And_ValidResponse_OnBug_IDAS20308(){
+
+  boost::shared_ptr<HttpMock> cb_mock_up;
+  cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
+  boost::shared_ptr<HttpMock> cb_mock_query;
+
+  cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
+
+  start_cbmock(cb_mock_up,cb_mock_query);
+
+
+  ttService = new iota::esp::TTService();
+  ttService->set_resource("/iot/tt");
+  ttService->set_option("ConfigFile", "../../tests/iotagent/TTService.xml");
+
+
+  std::string query;
+
+  std::vector<std::string>v_query;
+
+  v_query.push_back("cadena=#8934075379000039321,#0,GM,temp,33,$,#0,GM,,22,$");
+  v_query.push_back("cadena=#8934075379000039321,#0,GM,test,,$,#0,GM,temp,55,$");
+
+  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  http_request->set_method("POST");
+
+  std::map<std::string, std::string> url_args;
+  std::multimap<std::string, std::string> query_parameters;
+
+  //for (int i=0 ; i < v_query.size(); i++ ){
+  for (std::vector<std::string>::const_iterator it = v_query.begin() ;
+       it != v_query.end(); ++it) {
+
+    query.assign(*it);
+    CC_Logger::getSingleton()->logDebug("testNoEmptyResponsesOnBug_IDAS20303: query:  %s ",
+                                        query.c_str());
+
+    query.assign(pion::algorithm::url_encode(query));
+    http_request->set_content(query);
+    pion::http::response http_response;
+
+    std::string response;
+    ttService->service(http_request, url_args, query_parameters,
+                       http_response, response);
+
+    CC_Logger::getSingleton()->logDebug("testNoEmptyResponsesOnBug_IDAS20303: CODE:  %d ",
+                                        http_response.get_status_code());
+    CC_Logger::getSingleton()->logDebug("testNoEmptyResponsesOnBug_IDAS20303: Response:  %s ",
+                                        response.c_str());
+
+
+    CPPUNIT_ASSERT(http_response.get_status_code() == 200);
+
+    CPPUNIT_ASSERT_EQUAL(std::string("#0,GM,test,$"), response);
+  }
+
+  cb_mock_query->stop();
+  cb_mock_up->stop();
+  delete ttService;
 
 }
 
