@@ -10,7 +10,7 @@ Pion Network Library recommends as log library *log4cplus*.
 Common dependencies when you build these IoT Agents:
 - boost: 1.55.0 (http://www.boost.org/)
 - Pion Network Library: 5.0.6 (http://pion.sourceforge.net/) (depends on boost and log4cplus).
-- MongoDB: 2.6 (http://www.mongodb.org/)
+- MongoDB driver: legacy-1.0.0 (http://docs.mongodb.org/ecosystem/drivers/cpp/)
 - rapidjson: 0.11 (https://code.google.com/p/rapidjson/downloads/list)
 - log4cplus: 1.1.3-rc4 (http://sourceforge.net/p/log4cplus/wiki/Home/)
 - cppunit: 1.12.1 (for unit test) (http://sourceforge.net/projects/cppunit/)
