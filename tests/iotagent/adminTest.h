@@ -45,6 +45,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testBADPostDevice);
 
     CPPUNIT_TEST(testPtreeWrite);
+    CPPUNIT_TEST(testAttributeService);
 
     CPPUNIT_TEST(testAbout);
     CPPUNIT_TEST_SUITE_END();
@@ -142,6 +143,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     void testPtreeWrite();
 
     void testBADPostDevice();
+    void testAttributeService();
 
     void testAbout();
 

@@ -94,7 +94,7 @@ pion::http::plugin_server_ptr iota::AdminService::get_web_server() {
 void iota::AdminService::set_timezone_database(std::string timezones_file) {
 
   _timezone_database.load_from_file(timezones_file);
-  PION_LOG_INFO(m_log, "Load timezone database " << timezones_file);
+  PION_LOG_DEBUG(m_log, "Load timezone database " << timezones_file);
 }
 
 void  iota::AdminService::check_mongo_config() {
@@ -172,7 +172,7 @@ void iota::AdminService::start() {
 
   }
   catch (std::exception& e) {
-    PION_LOG_INFO(m_log, "OAuth for northbound is not configured");
+    PION_LOG_ERROR(m_log, "OAuth for northbound is not configured");
   }
 
   boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter());
@@ -210,7 +210,7 @@ void iota::AdminService::about(pion::http::request_ptr& http_request_ptr,
   ss << __DATE__;
 
   response.append(ss.str());
-  PION_LOG_INFO(m_log, response);
+  PION_LOG_DEBUG(m_log, response);
 
 }
 
@@ -428,7 +428,7 @@ std::string iota::AdminService::conf_global_adm(pion::http::request_ptr&
 
 
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, "iota::AdminService::conf_adm " << method);
+  PION_LOG_DEBUG(m_log, "iota::AdminService::conf_adm " << method);
   iota::Configurator* configurator = iota::Configurator::instance();
   std::string global_configuration;
 
@@ -463,14 +463,17 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
                                  pion::http::response& http_response,
                                  std::string& response) {
 
-  PION_LOG_INFO(m_log, "iota::AdminService::devices");
-  check_mongo_config();
+  std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_log, "iota::AdminService::devices|method:" +method +
+          "|trace_message:" + trace_message);
+
   std::string reason;
   std::string error_details;
   std::string op, temp;
   int code = pion::http::types::RESPONSE_CODE_OK;
   try {
+    check_mongo_config();
     std::string content_type(http_request_ptr->get_header(
                                pion::http::types::HEADER_CONTENT_TYPE));
     std::string service(http_request_ptr->get_header(
@@ -486,6 +489,10 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
+      PION_LOG_INFO(m_log, "iota::AdminService::devices|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
+          "|response:" + response);
       return;
     }
     if (service_path.empty()) {
@@ -575,7 +582,10 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
 
-  PION_LOG_DEBUG(m_log, "response " << code << ":" << response);
+  PION_LOG_INFO(m_log, "iota::AdminService::devices|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(code)+
+          "|response:" + response);
 
 }
 
@@ -585,12 +595,14 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
                                 pion::http::response& http_response,
                                 std::string& response) {
 
+  std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_log, "iota::AdminService::device|method:" +method +
+          "|trace_message:" + trace_message);
   std::string reason;
   std::string error_details;
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string device_in_url = url_args[_api_device_holder];
-  PION_LOG_DEBUG(m_log, "|method=" << method << "|device=" << device_in_url);
   try {
     std::string content_type(http_request_ptr->get_header(
                                pion::http::types::HEADER_CONTENT_TYPE));
@@ -607,6 +619,10 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
+      PION_LOG_INFO(m_log, "iota::AdminService::device|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
+          "|response:" + response);
       return;
     }
     if (service_path.empty()) {
@@ -650,7 +666,10 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
 
-  PION_LOG_DEBUG(m_log, "response " << code << ":" << response);
+  PION_LOG_INFO(m_log, "iota::AdminService::device|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(code)+
+          "|response:" + response);
 
 }
 
@@ -659,16 +678,18 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
                                   std::multimap<std::string, std::string>& query_parameters,
                                   pion::http::response& http_response,
                                   std::string& response) {
-
-  PION_LOG_INFO(m_log, "iota::AdminService::services");
-  check_mongo_config();
+  std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_log, "iota::AdminService::services|method:" +method +
+          "|trace_message:" + trace_message);
+
   std::string reason;
   std::string error_details;
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string service_in_url;
   std::string temp, op;
   try {
+    check_mongo_config();
     std::string content_type(http_request_ptr->get_header(
                                pion::http::types::HEADER_CONTENT_TYPE));
     std::string service(http_request_ptr->get_header(
@@ -685,6 +706,10 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
+      PION_LOG_INFO(m_log, "iota::AdminService::services|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
+          "|response:" + response);
       return;
     }
     if (service_path.empty()) {
@@ -819,6 +844,10 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         reason.assign(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
         error_details.assign("device parameter is invalid [true/false]");
         create_response(code, reason, error_details, http_response, response);
+        PION_LOG_INFO(m_log, "iota::AdminService::devices|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
+          "|response:" + response);
         return;
       }
       if (service_path.size() == 2 && (service_path.find("/*") == 0 ||
@@ -865,6 +894,11 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
     create_response(code, reason, error_details, http_response, response);
   }
+
+  PION_LOG_INFO(m_log, "iota::AdminService::services|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(code)+
+          "|response:" + response);
 }
 
 void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
@@ -872,14 +906,16 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
                                  std::multimap<std::string, std::string>& query_parameters,
                                  pion::http::response& http_response,
                                  std::string& response) {
-  PION_LOG_INFO(m_log, "iota::AdminService::service");
-  check_mongo_config();
+  std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
+          "|trace_message:" + trace_message);
   std::string reason;
   std::string error_details;
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string service_in_url = url_args[_api_service_holder];
   try {
+    check_mongo_config();
     std::string content_type(http_request_ptr->get_header(
                                pion::http::types::HEADER_CONTENT_TYPE));
     std::string service(http_request_ptr->get_header(
@@ -897,10 +933,15 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       error_details.assign("<service_id> not provided in url");
       error_details.append(iota::types::FIWARE_SERVICE);
     }
+
     if (!reason.empty()) {
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
+      PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
+          "|response:" + response);
       return;
     }
 
@@ -914,6 +955,10 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
+      PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
+          "|response:" + response);
       return;
     }
     if (method.compare(pion::http::types::REQUEST_METHOD_PUT) == 0) {
@@ -979,6 +1024,10 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
           reason.assign(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER);
           error_details.assign("resource parameter is mandatory in DELETE operation");
           create_response(code, reason, error_details, http_response, response);
+          PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(code)+
+          "|response:" + response);
           return;
         }
       }
@@ -987,6 +1036,10 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
         reason.assign(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
         error_details.assign("device parameter is invalid [true/false]");
         create_response(code, reason, error_details, http_response, response);
+        PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(code)+
+          "|response:" + response);
         return;
       }
       if (service_path.size() == 2 && (service_path.find("/*") == 0 ||
@@ -1024,7 +1077,11 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
     create_response(code, reason, error_details, http_response, response);
   }
-  PION_LOG_DEBUG(m_log, "response " << code << ":" << response);
+
+  PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(code)+
+          "|response:" + response);
 }
 
 void iota::AdminService::start_plugin(std::string& resource,
@@ -1103,7 +1160,7 @@ void iota::AdminService::remove_from_cache(Device & device){
 void iota::AdminService::add_service(const std::string& resource,
                                      iota::RestHandle* service_ptr) {
 
-  PION_LOG_INFO(m_log, "Registering " << resource);
+  PION_LOG_DEBUG(m_log, "Registering " << resource);
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   std::pair<std::map<std::string, iota::RestHandle*>::iterator, bool> p;
   p = _service_manager.insert(std::pair<std::string, iota::RestHandle*>(resource,
@@ -1372,7 +1429,6 @@ int iota::AdminService::post_device_json(
     code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
-  PION_LOG_INFO(m_log, param_request << "|status=" << code);
   return create_response(code, reason, error_details, http_response, response);
 }
 
@@ -1493,7 +1549,7 @@ int iota::AdminService::get_all_devices_json(
     bson_fields.append(iota::store::types::DEVICE_ID, 1);
   }
   else if (detailed.compare(iota::store::types::ON) != 0) {
-    PION_LOG_INFO(m_log, param_request << "|status=" <<
+    PION_LOG_DEBUG(m_log, param_request << "|status=" <<
                   pion::http::types::RESPONSE_CODE_BAD_REQUEST);
     return create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                            types::RESPONSE_MESSAGE_BAD_REQUEST,
@@ -1511,7 +1567,6 @@ int iota::AdminService::get_all_devices_json(
   }
   res << "]}";
 
-  PION_LOG_INFO(m_log, param_request << "|status=" << code);
   return create_response(code, res.str(), "", http_response, response);
 
 }
@@ -1542,7 +1597,7 @@ int iota::AdminService::get_a_device_json(
     code = iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND;
     response = iota::types::RESPONSE_MESSAGE_NO_DEVICE;
   }
-  PION_LOG_INFO(m_log, param_request << "|status=" + code);
+
   return create_response(code, res.str(), "", http_response, response);
 
 }
@@ -1557,7 +1612,7 @@ int iota::AdminService::delete_device_json(
   std::string param_request("delete_device_json|service=" + service +
                             "|service_path=" +
                             service_path + "|device=" + id_device);
-  PION_LOG_INFO(m_log, param_request);
+  PION_LOG_DEBUG(m_log, param_request);
   std::string reason;
   std::string error_details;
 
@@ -1574,8 +1629,6 @@ int iota::AdminService::delete_device_json(
   Collection devTable(iota::store::types::DEVICE_TABLE);
   devTable.remove(b.obj());
 
-
-  PION_LOG_INFO(m_log, param_request << "|status=" << code);
   return create_response(code, reason, error_details, http_response,
                          response);
 }
@@ -1629,7 +1682,7 @@ int iota::AdminService::post_service_json(
     code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
-  PION_LOG_INFO(m_log, param_request << "|status=" + code);
+  PION_LOG_DEBUG(m_log, param_request << "|status=" + code);
   return create_response(code, reason, error_details, http_response,
                          response);
 
@@ -1700,7 +1753,6 @@ int iota::AdminService::put_service_json(
     code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
-  PION_LOG_INFO(m_log, param_request << "|status=" << code);
   return create_response(code, reason, error_details, http_response,
                          response);
 }
@@ -1746,8 +1798,6 @@ int iota::AdminService::get_all_services_json(
 
   }
   else if (detailed.compare(iota::store::types::ON) != 0) {
-    PION_LOG_INFO(m_log, param_request << "|status=" <<
-                  pion::http::types::RESPONSE_CODE_BAD_REQUEST);
     return create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                            types::RESPONSE_MESSAGE_BAD_REQUEST,
                            "parameter detailed must be on or off", http_response,
@@ -1765,7 +1815,6 @@ int iota::AdminService::get_all_services_json(
   }
 
   res << "]}";
-  PION_LOG_INFO(m_log, param_request << "|status=" << code);
   return create_response(code, res.str(), "", http_response, response);
 
 }
