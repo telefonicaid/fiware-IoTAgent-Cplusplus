@@ -1645,7 +1645,7 @@ int iota::AdminService::post_service_json(
   std::string& response) {
   std::string param_request("post_service_json|service=" + service +
                             "|service_path=" +
-                            service_path + "|content=" + body);
+                            service_path);
   PION_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason;
