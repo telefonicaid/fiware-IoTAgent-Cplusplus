@@ -52,7 +52,7 @@ Fields in JSON object representing a service are:
 - `apikey` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
 - `token` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
 - `cbroker`(string, mandatory). Context Broker endpoint assigned to this service, it must be a real uri.
-- `resource` (string, mandatory). Uri into IoT Agent that this service can receive information from devices.
+- `resource` (string, mandatory). Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
 - `entity_type` (string, optional). Entity type used in entity publication (overload default).
 - `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
 `object_id` (string, mandatory): protocol parameter to be mapped.

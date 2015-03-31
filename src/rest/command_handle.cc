@@ -1176,8 +1176,12 @@ int iota::CommandHandle::send(
     cb_url.append(get_ngsi_operation("updateContext"));
   }
 
-  return cb_comm->async_send(cb_url, ngsi_context_element.get_string(), service,
-    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
+  std::string updateAction(opSTR); 
+  iota::UpdateContext op(updateAction); 
+  op.add_context_element(ngsi_context_element); 
+
+  return cb_comm->async_send(cb_url, op.get_string(), service, 
+    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2)); 
 }
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&

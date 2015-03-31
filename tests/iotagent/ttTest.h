@@ -65,6 +65,8 @@ class TTTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testNoEmptyResponsesOnBug_IDAS20303);
     CPPUNIT_TEST(testErrorCodesOnBug_IDAS20303);
     CPPUNIT_TEST(testErrorCodesOnBug_IDAS20308);
+    CPPUNIT_TEST(testNoEmpty_And_ValidResponse_OnBug_IDAS20308);
+    CPPUNIT_TEST(testError_when_empty_response_from_CB);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -101,6 +103,10 @@ class TTTest : public CPPUNIT_NS::TestFixture {
     void testErrorCodesOnBug_IDAS20303();
 
     void testErrorCodesOnBug_IDAS20308();
+
+    void testNoEmpty_And_ValidResponse_OnBug_IDAS20308();
+
+    void testError_when_empty_response_from_CB();
 
   private:
     iota::esp::TTService* ttService;

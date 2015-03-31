@@ -198,6 +198,7 @@ void TTGPSModules::populateInternalMappings(TiXmlElement* element) {
 void TTGPSModules::transform(CC_AttributesType* attributes) {
 
   parseSleepCondAndTime(attributes);
+  bValid = false;
 
   json.assign("{");
 
@@ -361,7 +362,7 @@ void TTP1_BModules::transform(CC_AttributesType* inputMap) {
   //mappings ==> "param_1", ( "mcc", <value> )
   //mappings ==> "param_2", ( "mnc", <value> )
   // (...)
-  bValid = true;
+  bValid = false;
 
   parseSleepCondAndTime(inputMap);
 
@@ -370,6 +371,7 @@ void TTP1_BModules::transform(CC_AttributesType* inputMap) {
   jSonValue.assign("{");
 
   int count=0;
+  bValid = true;
   CC_Logger::getSingleton()->logDebug("TTModules: checking map: size %d",
                                       mappings.size());
   for (std::map<std::string,tt::Pair*>::iterator itMap = mappings.begin() ;
@@ -441,12 +443,13 @@ TTGM_Modules::TTGM_Modules(std::string name) : TTModules(name) {
 
 void TTGM_Modules::transform(CC_AttributesType* attributes) {
 
+  bValid = false;
   CC_AttributesType::iterator itName = attributes->find("param_1");
 
   CC_AttributesType::iterator itValue = attributes->find("param_2");
 
-  std::string nameGM;
-  std::string valueGM;
+  std::string nameGM("");
+  std::string valueGM("");
 
   parseSleepCondAndTime(attributes);
 
@@ -456,6 +459,7 @@ void TTGM_Modules::transform(CC_AttributesType* attributes) {
   }
   else {
     valueGM.assign(itValue->second.getValueAsString());
+
   }
 
   if (itName == attributes->end()) {
@@ -464,6 +468,7 @@ void TTGM_Modules::transform(CC_AttributesType* attributes) {
   }
   else {
     nameGM.assign(itName->second.getValueAsString());
+
   }
 
 
@@ -500,11 +505,12 @@ void TTGC_Modules::transform(CC_AttributesType* attributes) {
 
   CC_AttributesType::iterator itValue = attributes->find("param_2");
 
-  std::string nameGC;
-  std::string valueGC;
+  std::string nameGC("");
+  std::string valueGC("");
 
   parseSleepCondAndTime(attributes);
 
+  bValid = false;
 
   if (itValue == attributes->end()) {
     CC_Logger::getSingleton()->logError("WARNING: missing [param_2] from incoming message.");
