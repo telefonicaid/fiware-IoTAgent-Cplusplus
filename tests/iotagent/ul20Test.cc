@@ -284,6 +284,46 @@ void Ul20Test::testNormalPOST() {
                            std::string::npos);
 
   }
+  {
+    pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR);
+    http_request->add_header(iota::types::FIWARE_SERVICE, "service22");
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv22");
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(std::pair<std::string,std::string>("i",
+                            "no_device"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","apikey33"));
+    pion::http::response http_response;
+    std::string response;
+    ul20serv.service(http_request, url_args, query_parameters,
+                     http_response, response);
+
+    std::cout << "POST fecha + temperatura " <<
+        http_response.get_status_code() << response <<
+              std::endl;
+    IOTASSERT_MESSAGE("response code not is 200",
+                           http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    ASYNC_TIME_WAIT
+    // updateContext to CB
+    cb_last = cb_mock->get_last();
+    std::cout << "@UT@CB"<< cb_last << std::endl;
+    IOTASSERT_MESSAGE("translate the name of device",
+                           cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                           std::string::npos);
+    IOTASSERT_MESSAGE("translate alias of observation",
+                           cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
+                           !=
+                           std::string::npos);
+    IOTASSERT_MESSAGE("add statis attributes",
+                           cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
+                           !=
+                           std::string::npos);
+
+  }
   // Dos Medidas
   bodySTR = "2014-02-18T16:41:20Z|t|23#t|24";
   {

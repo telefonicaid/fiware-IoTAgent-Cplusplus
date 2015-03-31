@@ -635,6 +635,50 @@ void  AdminTest::testPostDevice() {
   std::cout << "END@UT@ testPostDevice" << std::endl;
 }
 
+void  AdminTest::testAttributeService(){
+  srand(time(NULL));
+  std::cout << "START @UT@START testAttributeService" << std::endl;
+  std::map<std::string,std::string> headers;
+  std::string query_string("apikey=apikey&resource=/iot/d");
+
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+
+  std::string response;
+  std::string service= "service" ;
+  service.append(boost::lexical_cast<std::string>(rand()));
+  std::cout << "@UT@service " << service << std::endl;
+  int code_res;
+  // Removing
+  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+                       "application/json", "",
+                       headers, query_string, response);
+  IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
+                    (code_res), code_res == 204);
+
+  std::cout << "@UT@POST" << std::endl;
+  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+                       POST_SERVICE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
+                    (code_res), code_res == POST_RESPONSE_CODE);
+
+  std::cout << "@UT@medida" << std::endl;
+  code_res = http_test("/iot/d", "POST", service, "", "application/json",
+                       "2014-02-18T16:41:20Z|t|23", headers, "i=unitTest_dev1_endpoint&k=apikey3", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+//TODO  IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>(code_res), code_res == POST_RESPONSE_CODE);
+
+
+  std::cout << "@UT@DELETE: " <<  service << std::endl;
+  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+                       "application/json", "",
+                       headers, "apikey=apikey&resource=/iot/d", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+
+}
 
 void  AdminTest::testPostService() {
   srand(time(NULL));

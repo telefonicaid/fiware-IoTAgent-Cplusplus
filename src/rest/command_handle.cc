@@ -249,7 +249,6 @@ void iota::CommandHandle::make_registrations(void) {
   _reg_timeout = DEFAULT_REG_TIMEOUT;
 
   while (true) {
-    PION_LOG_INFO(m_logger, "Timeout in seconds: " << _reg_timeout);
     // Timer with select
     struct timeval time_to_wait;
     time_to_wait.tv_sec = _reg_timeout;
@@ -282,7 +281,7 @@ void iota::CommandHandle::make_registrations(void) {
       }
     }
     catch (std::exception& e) {
-      PION_LOG_INFO(m_logger, "ERROR in conf devices_store");
+      PION_LOG_ERROR(m_logger, "ERROR in conf devices_store");
     }
   }
 
@@ -633,6 +632,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
                                        const boost::property_tree::ptree& service_ptree,
                                        const std::string& sequence,
                                        iota::ContextResponses&  context_responses) {
+
   PION_LOG_DEBUG(m_logger, "updateContext");
   int iresponse=200;
 
@@ -849,7 +849,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
   if (!item_dev->_endpoint.empty()) {
     send_updateContext(command_name, iota::types::STATUS, iota::types::STATUS_TYPE,
                        iota::types::PENDING, item_dev, service, iota::types::STATUS_OP);
-    PION_LOG_INFO(m_logger, "Device has endpoint, send command to " <<
+    PION_LOG_DEBUG(m_logger, "Device has endpoint, send command to " <<
                   item_dev->_endpoint);
     try {
       if (_callback) {
@@ -965,12 +965,17 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
                          boost::str(boost::format(command_value) % params[0] % params[1] % params[2] %
                                     params[3]));
       }
+      else if (count ==5) {
+        command_line.put(iota::store::types::BODY,
+                         boost::str(boost::format(command_value) % params[0] % params[1] % params[2] %
+                                    params[3] % params[4]));
+      }
       else {
         std::string errSTR = "excedded max params in command ";
         errSTR.append(command_value);
         errSTR.append(" in relation with ");
         errSTR.append(updateCommand_value);
-        errSTR.append(" max is 4 %s");
+        errSTR.append(" max is 5 %s");
         PION_LOG_ERROR(m_logger, errSTR);
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
                                   errSTR,
@@ -999,7 +1004,10 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
     std::map<std::string, std::string>& url_args,
     std::multimap<std::string, std::string>& query_parameters,
     pion::http::response& http_response, std::string& response) {
-  PION_LOG_DEBUG(m_logger, "default_op_ngsi CommandHandle");
+
+  std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
+  std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi|trace_message:" + trace_message);
 
   int iresponse= 200;
   response = "OK";
@@ -1078,7 +1086,9 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   }
   //write response
 
-  PION_LOG_DEBUG(m_logger, "response ngsi:" <<iresponse << "->" <<  response);
+  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(iresponse)+
+          "|response:" + response);
   http_response.set_status_code(iresponse);
 
   if (!response.empty()) {

@@ -110,7 +110,10 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
                                 std::multimap<std::string, std::string>& query_parameters,
                                 pion::http::response& http_response, std::string& response) {
 
-  PION_LOG_DEBUG(m_logger, "UL20Service service");
+  std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
+  std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_logger, "iota::UL20Service::service|method:" +method +
+          "|trace_message:" + trace_message);
 
   //HTTPResponse http_response(*http_request_ptr);
   std::string respuesta;
@@ -127,7 +130,6 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
   // Adaptamos a nuevas PION cambio   getMethod   -->   get_method
   // Mirar :  /home/develop/iot/pion-5.0.6/include/pion/http/request.hpp
   //std::string method = http_request_ptr->getMethod();
-  std::string method = http_request_ptr->get_method();
 
   std::string resource_o = http_request_ptr->get_original_resource();
 
@@ -354,6 +356,11 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
 
     response.append(commandsSTR);
   }
+
+  PION_LOG_INFO(m_logger, "iota::UL20Service::service|method:" +method +
+          "|trace_message:" + trace_message+
+          "|code: " + boost::lexical_cast<std::string>(code_resp));
+
 }
 
 
