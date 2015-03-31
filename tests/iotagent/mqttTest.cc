@@ -953,6 +953,8 @@ void MqttTest::testPushCommandExecution() {
   std::string logPath("./");
 
 
+  std::cout << "TEST: testPushCommandExecution loading ESP...  " << std::endl;
+  mqttService->initESPLib(logPath, sensorfile);
 
   mockMosquitto = new MockMosquitto();
 
@@ -970,8 +972,7 @@ void MqttTest::testPushCommandExecution() {
 
   EXPECT_CALL(*mockMosquittoPub, mqttDisconnect()).WillOnce(Return(0));
 
-  std::cout << "TEST: testPushCommandExecution loading ESP...  " << std::endl;
-  mqttService->initESPLib(logPath, sensorfile);
+
   std::cout << "TEST: testPushCommandExecution ESP Loaded  " << std::endl;
   mqttService->setIotaMqttService(cbPublish);
 
