@@ -73,6 +73,7 @@ const std::string types::RESOURCE("resource");
 const std::string types::APIKEY("apikey");
 const std::string types::TOKEN("token");
 const std::string types::CBROKER("cbroker");
+const std::string types::PUBLIC_IP("public_ip");
 
 
 
