@@ -352,6 +352,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
         //What should I do if I get another 404 or empty response after publishing? is this even possible?
         if (response == ""){
           PION_LOG_ERROR(m_logger,"TTService: unexpected empty response from ContextBroker.");
+          http_response.set_status_code(500);
           throw iota::IotaException("Empty response from CB","An unexpected empty response received from ContextBroker. Entity was not published",500);
         }
       }
