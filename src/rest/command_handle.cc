@@ -565,6 +565,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
             iota::Entity entity(register_device._entity_name, register_device._entity_type,
                                 "false");
             cr.add_entity(entity);
+
             cr.add_provider(_myProvidingApp);
 
             if (! register_device._registration_id.empty()) {
@@ -625,7 +626,6 @@ void iota::CommandHandle::send_register_device(Device& device) {
     PION_LOG_ERROR(m_logger, "Error sending registrations");
   }
 }
-
 
 
 int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
@@ -1458,19 +1458,38 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
       my_resource =url_ngsi.substr(0,pos);
     }
 
-    if (my_ip != "0.0.0.0") {
-      char sport [50];
-      sprintf(sport, "%d", my_port);
-      _myProvidingApp = "http://";
-      _myProvidingApp += my_ip;
-      _myProvidingApp += ":";
-      _myProvidingApp += sport;
+    const JsonValue& cfg_ngsi_url =
+      iota::Configurator::instance()->get("ngsi_url");
+    
+    if (cfg_ngsi_url.IsObject() && 
+        cfg_ngsi_url.HasMember(iota::store::types::PUBLIC_IP.c_str())) {
+      std::string straux =
+        cfg_ngsi_url[iota::store::types::PUBLIC_IP.c_str()].GetString();    
+      pos = straux.find("http");
+      if (pos != 0) {
+        _myProvidingApp = "http://" + straux;
+      }
+      else {
+        _myProvidingApp = straux;
+      }
       _myProvidingApp += my_resource;
-      PION_LOG_DEBUG(m_logger, "ProvidingApp: " << _myProvidingApp);
+      PION_LOG_DEBUG(m_logger, "With balancer ProvidingApp: " << _myProvidingApp);
     }
     else {
-      PION_LOG_ERROR(m_logger,
-                     "Unable to set ProvidingApp because ip is: " << my_ip);
+      if (my_ip != "0.0.0.0") {
+        char sport [50];
+        sprintf(sport, "%d", my_port);
+        _myProvidingApp = "http://";
+        _myProvidingApp += my_ip;
+        _myProvidingApp += ":";
+        _myProvidingApp += sport;
+        _myProvidingApp += my_resource;
+        PION_LOG_DEBUG(m_logger, "ProvidingApp: " << _myProvidingApp);
+      }
+      else {
+        PION_LOG_ERROR(m_logger,
+                       "Unable to set ProvidingApp because ip is: " << my_ip);
+      }
     }
   }
 }
