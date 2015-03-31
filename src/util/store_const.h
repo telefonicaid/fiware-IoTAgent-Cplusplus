@@ -94,6 +94,7 @@ struct types {
   static const std::string APIKEY;
   static const std::string TOKEN;
   static const std::string CBROKER;
+  static const std::string OUTGOING_ROUTE;
 
   // Types for values
   // detailed
