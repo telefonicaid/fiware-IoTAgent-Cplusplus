@@ -414,6 +414,8 @@ Then iotagent will send to contextBroker a NGSI9 registerContextRequest, with th
 }
 ```
 
+If high availability is required, and  "ngsi_url" tag of config.json includes a field "public_ip" where is defined url of load balancer, this url will be used to build "providingApplication". Otherwise local ip:port of iotagent will be used. 
+
 ContextBroker will response with a NGSI9 registerContextResponse such as :
 
 ```
