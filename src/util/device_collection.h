@@ -39,6 +39,8 @@ class DeviceCollection : public Collection {
 
     DeviceCollection(DeviceCollection&);
 
+    ~DeviceCollection();
+
     int insert(const Device& obj) ;
     int find(const Device& query) ;
     Device next() ;

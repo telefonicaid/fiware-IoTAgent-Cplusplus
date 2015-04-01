@@ -152,7 +152,7 @@ void MongoTest::testCommandCollection() {
     iota::Command p("nodo","service","/");
     p.set_command(pt);
     p.set_entity_type("entity_type");
-    p.set_id("id");
+    p.set_id("id0");
     p.set_name("name");
     p.set_sequence("sequence");
     p.set_status(0);
@@ -163,7 +163,7 @@ void MongoTest::testCommandCollection() {
     iota::Command p2("nodo2","service2","/");
     p2.set_command(pt);
     p2.set_entity_type("entity_type");
-    p2.set_id("id");
+    p2.set_id("id2");
     p2.set_name("name");
     p2.set_sequence("sequence");
     p2.set_status(0);
@@ -185,6 +185,7 @@ void MongoTest::testCommandCollection() {
     CPPUNIT_ASSERT_MESSAGE("more data", table2.more() == false);
 
     table1.remove(p2);
+    table1.remove(p);
 
     int num = table1.count(p2);
     CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);

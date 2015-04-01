@@ -39,6 +39,8 @@ class ServiceCollection : public Collection {
 
     ServiceCollection(ServiceCollection&);
 
+    ~ServiceCollection();
+
     int createTableAndIndex();
 
     static void addServicePath(const std::string & service_path,
