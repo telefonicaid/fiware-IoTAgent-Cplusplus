@@ -32,6 +32,7 @@ const std::string types::CONF_FILE_SERVICE("service");
 const std::string types::CONF_FILE_SERVICE_PATH("service_path");
 const std::string types::CONF_FILE_TOKEN("token");
 const std::string types::CONF_FILE_CBROKER("cbroker");
+const std::string types::CONF_FILE_PROXY("http_proxy");
 const std::string types::CONF_FILE_ENTITY_TYPE("entity_type");
 const std::string types::CONF_FILE_STATISTICS("statistics");
 
@@ -197,6 +198,7 @@ const std::string types::ERROR_DELIMITER = "@@ERROR_DELIMITER@@";
 const std::string types::ERROR_BAD_REQUEST = "@@ERROR_BAD_REQUEST@@";
 
 const std::string types::HEADER_TRACE_MESSAGES("X-Trace-Message");
+const std::string types::HEADER_OUTGOING_ROUTE("X-M2M-Outgoing-Route");
 
 const std::string types::STAT_TRAFFIC("traffic");
 const std::string types::STAT_TRAFFIC_IN("in");

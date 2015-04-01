@@ -1081,6 +1081,9 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
       boost::property_tree::ptree service_ptree;
       get_service_by_name(service_ptree, service, service_path);
 
+      // Add proxy
+
+
       std::istringstream ss(content);
       iota::UpdateContext op_updateContext(ss);
 

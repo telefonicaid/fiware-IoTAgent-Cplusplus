@@ -423,6 +423,10 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
     //request->set_content_type(IOT_CONTENT_TYPE_JSON);
     //request->setContentLength(message.size());
 
+    if (!outgoing_route.empty()) {
+      request->add_header(iota::types::HEADER_OUTGOING_ROUTE, outgoing_route);
+    }
+
     if (query.empty() == false) {
       request->set_query_string(query);
     }
@@ -513,12 +517,16 @@ int iota::UL20Service::execute_command(const std::string& destino,
   //timeout_plugin = _service_configuration.get<int> ("Timeout", timeout);
   timeout_plugin = timeout;
 
+  // Proxy and outgoing_route
+  std::string outgoing_route = service.get<std::string>(iota::store::types::OUTGOING_ROUTE, "");
+  std::string proxy = service.get<std::string>(iota::types::CONF_FILE_PROXY, "");;
+
   std::string content_resp;
   int code_resp = sendHTTP(url.getHost(), url.getPort(), "POST", url.getPath(),
-                           "",
+                           proxy,
                            timeout_plugin,
                            url.getSSL(),
-                           url.getQuery(),  command_to_send, "",
+                           url.getQuery(),  command_to_send, outgoing_route,
                            content_resp, callback);
   if (!callback) {
     std::string command_response;

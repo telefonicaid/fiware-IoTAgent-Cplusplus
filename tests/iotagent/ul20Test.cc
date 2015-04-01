@@ -58,6 +58,8 @@
 
 #define  PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 #define  PATH_CONFIG "../../tests/iotagent/config.json"
+#define  PATH_CONFIG_VPN "../../tests/iotagent/config_vpn.json"
+
 
 #define  PATH_DEV_CFG "../../tests/iotagent/devices.json"
 
@@ -180,7 +182,8 @@ void Ul20Test::tearDown() {
 }
 
 void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
-                            const std::string& type) {
+                            const std::string& type,
+                            bool vpn) {
   cb_mock->init();
   std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
   std::cout << "mock with port:" << mock_port << std::endl;
@@ -189,6 +192,7 @@ void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
   iota::Configurator* my_instance = iota::Configurator::instance();
 
   std::stringstream ss;
+  if (!vpn) {
   ss << "{ \"ngsi_url\": {"
      <<   "     \"updateContext\": \"/NGSI10/updateContext\","
      <<   "     \"registerContext\": \"/NGSI9/registerContext\","
@@ -214,6 +218,36 @@ void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
      <<   "\"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
      <<   "\"entity_type\": \"thing\""
      << "} ] } ] }";
+     }
+     else {
+     ss << "{ \"ngsi_url\": {"
+     <<   "     \"updateContext\": \"/NGSI10/updateContext\","
+     <<   "     \"registerContext\": \"/NGSI9/registerContext\","
+     <<   "     \"queryContext\": \"/NGSI10/queryContext\""
+     <<   "},"
+     <<   "\"timeout\": 1,"
+     <<   "\"http_proxy\": \"127.0.0.1:8888\","
+     <<   "\"dir_log\": \"/tmp/\","
+     <<   "\"timezones\": \"/etc/iot/date_time_zonespec.csv\","
+     <<   "\"storage\": {"
+     <<   "\"host\": \"127.0.0.1\","
+     <<   "\"type\": \"" <<  type << "\","
+     <<   "\"port\": \"27017\","
+     <<   "\"dbname\": \"iotest\","
+     <<   "\"file\": \"../../tests/iotagent/devices.json\""
+     << "},"
+     << "\"resources\":[{\"resource\": \"/iot/d\","
+     << "  \"options\": {\"FileName\": \"UL20Service\" },"
+     <<    " \"services\":[ {"
+     <<   "\"apikey\": \"apikey3\","
+     <<   "\"service\": \"service2\","
+     <<   "\"service_path\": \"/ssrv2\","
+     <<   "\"token\": \"token2\","
+     <<   "\"outgoing_route\": \"gretunnel-service2\","
+     <<   "\"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
+     <<   "\"entity_type\": \"thing\""
+     << "} ] } ] }";
+     }
   //my_instance->update_conf(ss);
   std::string err = my_instance->read_file(ss);
   std::cout << "GET CONF " << my_instance->getAll() << std::endl;
@@ -1456,6 +1490,92 @@ void Ul20Test::testPUSHCommand() {
   cb_mock->stop();
   device_mock->stop();
   std::cout << "@UT@END testPUSHCommand " << std::endl;
+}
+
+void Ul20Test::testPUSHCommandProxyAndOutgoingRoute() {
+  std::cout << "@UT@START testPUSHCommandProxyAndOutgoingRoute" << std::endl;
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock("/mock"));
+  start_cbmock(cb_mock, "file", true);
+
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_VPN);
+
+  //simulador del device
+  boost::shared_ptr<HttpMock> device_mock;
+  device_mock.reset(new HttpMock(9999, "/device"));
+  //device_mock->set_extended_echo();
+  device_mock->init();
+
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+
+  // updateContext
+  std::string querySTR = "";
+  std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
+  bodySTR.append("\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\",");
+  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"dev1@command|22\",");
+  bodySTR.append("\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}");
+  bodySTR.append("]} ]}");
+  {
+    pion::http::request_ptr http_request(new
+                                         pion::http::request("/iot/ngsi/d/updateContext"));
+    http_request->set_method("POST");
+    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR);
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    pion::http::response http_response;
+    std::string response;
+    ul20serv.op_ngsi(http_request, url_args, query_parameters,
+                     http_response, response);
+
+    ASYNC_TIME_WAIT
+    //respuesta al update de contextBroker
+    std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
+              response << std::endl;
+    IOTASSERT(response.find(RESPONSE_MESSAGE_NGSI_OK) !=
+                   std::string::npos);
+    IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
+
+    std::string cb_last = cb_mock->get_last();
+    // info
+    std::cout << "@UT@INFO" << cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                   std::string::npos);
+    IOTASSERT(
+      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"dev1@command|22\"")
+      !=
+      std::string::npos);
+    // OK
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                   std::string::npos);
+    IOTASSERT(
+      cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"OK\"")
+      !=
+      std::string::npos);
+
+    cb_last = device_mock->get_last();
+    std::cout << "@UT@comando que llega al simulador "<< cb_last << std::endl;
+    IOTASSERT(cb_last.find("dev1@command|22") !=
+                   std::string::npos);
+
+    cb_last = cb_mock->get_last();
+    // pending
+    std::cout << "@UT@Pending"<< cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                   std::string::npos);
+    IOTASSERT(
+      cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"pending\"")
+      !=
+      std::string::npos);
+  }
+
+  cb_mock->stop();
+  device_mock->stop();
+  std::cout << "@UT@END testPUSHCommandProxyAndOutgoingRoute " << std::endl;
 }
 
 void Ul20Test::testPUSHCommandAsync() {

@@ -209,6 +209,11 @@ class RestHandle: public pion::http::plugin_service,
     std::string get_default_context_broker();
 
     /**
+    *
+    */
+    std::string get_http_proxy();
+
+    /**
     * Get default timeout
     */
     int get_default_timeout();

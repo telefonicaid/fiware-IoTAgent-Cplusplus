@@ -131,6 +131,7 @@ AdminTest::POST_SERVICE("{\"services\": [{"
 const std::string
 AdminTest::POST_SERVICE2("{\"services\": [{"
                          "\"apikey\": \"apikey\",\"token\": \"token\","
+                         "\"outgoing_route\": \"gretunnel\","
                          "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d2\"}]}");
 const std::string
 AdminTest::BAD_POST_SERVICE1("{\"services\": [{"
@@ -749,6 +750,12 @@ void  AdminTest::testPostService() {
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
                     (code_res), code_res == POST_RESPONSE_CODE);
+  std::cout << "@UT@GET" << std::endl;
+  code_res = http_test("/iot/services", "GET", service, "", "application/json",
+                       "",
+                       headers, "", response);
+  IOTASSERT_MESSAGE(service + "|outgoing_route" + response,
+                    response.find("outgoing_route") != std::string::npos);
 
   std::cout << "@UT@PUTBAD" << std::endl;
   // PUT no apikey, no resource 400
