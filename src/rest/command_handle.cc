@@ -105,7 +105,6 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
       PION_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
       if (_storage_type.compare(iota::store::types::MONGODB)==0) {
 
-        m_asyncCommands.set_max_num_items(0);
         PION_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
         m_asyncCommands.set_function(boost::bind(command_from_mongo, _1));
         m_asyncCommands.set_entity_function(boost::bind(command_from_mongo, _1));
