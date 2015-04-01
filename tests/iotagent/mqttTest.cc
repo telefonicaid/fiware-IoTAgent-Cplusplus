@@ -989,6 +989,24 @@ void MqttTest::testPushCommandExecution() {
 
   //Checking command just inserted
 
+  boost::property_tree::ptree service_ptree;
+  std::string apikey("1234");
+  std::string device("dev_mqtt_push");
+
+  mqttService->get_service_by_apiKey(service_ptree, apikey);
+
+
+  std::string srv = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
+  std::string srv_path = service_ptree.get<std::string>(iota::store::types::SERVICE_PATH
+                         , "");
+
+  boost::shared_ptr<iota::Device> dev = mqttService->get_device(device, srv, srv_path);
+  iota::CommandVect all_commands =  mqttService->get_all_command(dev, service_ptree);
+  std::cout << "TEST: testPushCommandExecution Checking commands ...  # " <<
+            all_commands.size() << std::endl;
+
+  CPPUNIT_ASSERT(all_commands.size() == 0);
+
 
   std::cout <<
             "TEST: testPushCommandExecution Inserting command into Iotagent MqttService...  DONE"
@@ -1007,7 +1025,7 @@ void MqttTest::testPushCommandExecution() {
   CPPUNIT_ASSERT(idsensor > 0);
   cb_mock->stop();
 
-
+  //delete mqttService;
 
   std::cout << "TEST: testPushCommandExecution DONE  " << std::endl;
 }
