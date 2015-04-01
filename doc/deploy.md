@@ -320,6 +320,19 @@ Iotagent needs a configuration file,  usually named config.json, an example coul
    ]
 }
 ```
+
+If installation requires high availability and a load balancer will be used, ip:port of balancer should be configured in a field "public_ip" into "ngsi_url". An example should be :
+```
+"ngsi_url": {
+        "updateContext": "/NGSI10/updateContext",
+        "registerContext": "/NGSI9/registerContext",
+        "queryContext": "/NGSI10/queryContext",
+        "public_ip": "http://10.95.200.200:20000"
+    },
+```
+
+Setting "public_ip": "10.95.200.200:20000", only with ip:port is also avoided.
+
 You can get more information in next sections.
 
 Now you can create an start script, for example  init_iotagent.sh

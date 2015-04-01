@@ -1,6 +1,7 @@
 # Architecture
 * [Components](#Components)
 * [Data flow](#Dataflow)
+* [High availability](# HighAvailability)
 
 These IoT Agents are based on Pion Network Library (http://pion.sourceforge.ne/).
 
@@ -54,5 +55,12 @@ This flow has a _c_ subscript and flows to get a _iotagent_ token is repeated.  
 3. A command is _updateContext_ operation. This operation has entity and attribute (command to execute).
 4. Command is stored in database (a command could be an asynchronous operation).
 5. Agent sends command to device.
+
+
+## HighAvailability 
+
+If high availability is required, architecture should be redundant and several iotagents  will be running.  Then should exits a load balancer to manage communications between several iotagent and contextBroker  processes.
+
+Load balancer url must be defined in a field "public_ip" in "ngsi_url"  tag of configuration file (config.json). This url will be used to build "providingApplication" which will be sent in context registrations to contextBroker.
 
 
