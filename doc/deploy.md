@@ -15,8 +15,9 @@
     4. [Ngsi](#def-ngsi)
     5. [Logs](#def-logs)
     6. [Timezone](#def-timezone)
-    7. [General configuration](#def-general)
-    8. [Examples](#def-examples)
+    7. [HTTP Proxy](#def-proxy)
+    8. [General configuration](#def-general)
+    9. [Examples](#def-examples)
         1. [Example mongo storage, example resource](#def-examples1)
         2. [Example file storage](#def-examples2)
 5. [Check Instalation with HTTP request with curls](#def-check)
@@ -302,6 +303,7 @@ Iotagent needs a configuration file,  usually named config.json, an example coul
         "queryContext": "/NGSI10/queryContext"
     },
     "timeout": 10,
+    "http_proxy": "192.0.0.2:3128"
     "dir_log": "/tmp/",
     "timezones": "/etc/iot/date_time_zonespec.csv",
     "storage": {
@@ -492,13 +494,17 @@ You should review [Monitoring alarms](#def-alarms).
 ### 6. Timezone configuration
 This information is not used in this version, but it points where database (a file) for timezones is.
 
+<a name="def-proxy"></a>
+### 7. HTTP server proxy
+In order to send commands to devices in VPN, IoTAgent provides an infrastructure based in _squid_ as HTTP proxy and endpoint of GRE tunnels.
+
 <a name="def-general"></a>
-### 7. General configuration
+### 8. General configuration
 Field _timeout_ is a general timer for operations.
 
 
 <a name="def-examples"></a>
-### 8. Examples
+### 9. Examples
 
 Now, we put all together, and ther are two examples, one with mongodb storage and second with file storage.
 You can change for your specific values and use these files.

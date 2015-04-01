@@ -662,6 +662,7 @@ int iota::RestHandle::get_service_by_name_bbdd(
   std::string resource = get_resource();
   std::string default_context_broker = get_default_context_broker();
   int default_timeout = get_default_timeout();
+  std::string http_proxy = get_http_proxy();
 
   iota::Collection q1(iota::store::types::SERVICE_TABLE);
   mongo::BSONObjBuilder p2;
@@ -684,6 +685,7 @@ int iota::RestHandle::get_service_by_name_bbdd(
     if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
       pt.put(iota::store::types::TIMEOUT, default_timeout);
     }
+    pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
   }
   else {
     PION_LOG_ERROR(m_logger, "get_service_by_name_bbdd no service for "
@@ -708,6 +710,7 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
   std::string resource = get_resource();
   std::string default_context_broker = get_default_context_broker();
   int default_timeout = get_default_timeout();
+  std::string http_proxy = get_http_proxy();
 
   PION_LOG_DEBUG(m_logger, "get_service_by_apiKey_bbdd " << apiKey);
 
@@ -727,7 +730,7 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
     if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
       pt.put(iota::store::types::TIMEOUT, default_timeout);
     }
-
+    pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
   }
   else {
     PION_LOG_ERROR(m_logger,
@@ -751,6 +754,7 @@ const iota::JsonValue& iota::RestHandle::get_service_by_name_file(
 
   std::string default_context_broker = get_default_context_broker();
   int default_timeout = get_default_timeout();
+  std::string http_proxy = get_http_proxy();
 
   const iota::JsonValue& service_object =
     iota::Configurator::instance()->getService(get_resource(),
@@ -768,6 +772,7 @@ const iota::JsonValue& iota::RestHandle::get_service_by_name_file(
   if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
     pt.put(iota::store::types::TIMEOUT, default_timeout);
   }
+  pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
   return service_object;
 
 }
@@ -816,6 +821,7 @@ const iota::JsonValue& iota::RestHandle::get_service_by_apiKey_file(
 
   std::string default_context_broker = get_default_context_broker();
   int default_timeout = get_default_timeout();
+  std::string http_proxy = get_http_proxy();
 
   const iota::JsonValue& service_object =
     iota::Configurator::instance()->getServicebyApiKey(get_resource(),
@@ -833,6 +839,7 @@ const iota::JsonValue& iota::RestHandle::get_service_by_apiKey_file(
   if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
     pt.put(iota::store::types::TIMEOUT, default_timeout);
   }
+  pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
   return service_object;
 
 
@@ -996,6 +1003,19 @@ std::string iota::RestHandle::get_default_context_broker() {
   return default_context_broker;
 }
 
+
+std::string iota::RestHandle::get_http_proxy() {
+  std::string http_proxy;
+  try {
+    http_proxy =
+      iota::Configurator::instance()->get(iota::types::CONF_FILE_PROXY.c_str()).GetString();
+
+  }
+  catch (std::exception& e) {
+    PION_LOG_DEBUG(m_logger, "proxy not defined");
+  }
+  return http_proxy;
+}
 int iota::RestHandle::get_default_timeout() {
   int default_timeout = iota::DEFAULT_TIMEOUT;
   try {

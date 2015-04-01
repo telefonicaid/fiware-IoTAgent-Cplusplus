@@ -1041,6 +1041,9 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
       boost::property_tree::ptree service_ptree;
       get_service_by_name(service_ptree, service, service_path);
 
+      // Add proxy
+
+
       std::istringstream ss(content);
       iota::UpdateContext op_updateContext(ss);
 
@@ -1136,12 +1139,12 @@ int iota::CommandHandle::send(
     cb_url.append(get_ngsi_operation("updateContext"));
   }
 
-  std::string updateAction(opSTR); 
-  iota::UpdateContext op(updateAction); 
-  op.add_context_element(ngsi_context_element); 
+  std::string updateAction(opSTR);
+  iota::UpdateContext op(updateAction);
+  op.add_context_element(ngsi_context_element);
 
-  return cb_comm->async_send(cb_url, op.get_string(), service, 
-    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2)); 
+  return cb_comm->async_send(cb_url, op.get_string(), service,
+    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
 }
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&

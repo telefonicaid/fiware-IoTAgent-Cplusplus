@@ -72,7 +72,6 @@ pion::http::response_ptr iota::HttpClient::send(pion::http::request_ptr request,
     unsigned int timeout,
     std::string proxy,
     application_callback_t callback) {
-
   // Si proxy, entonces hay que modificar los datos a usar para la conexion
   //set_error(boost::asio::error::would_block);
   set_error(boost::system::errc::make_error_code(boost::system::errc::success));
@@ -91,17 +90,7 @@ pion::http::response_ptr iota::HttpClient::send(pion::http::request_ptr request,
     _strand->wrap(boost::bind(&HttpClient::timeout_connection,
                               shared_from_this(),
                               boost::asio::placeholders::error)));
-  /**
-  _ec = _connection->connect(_ip, _port);
-  if (check_connection()) {
-    _request->send(*_connection, _ec);
-    if (check_connection()) {
-      _response.reset(new pion::http::response(*_request));
-      _response->receive(*_connection, _ec);
-      checkResponse(_response, _connection, _ec);
-    }
-  }
-  */
+
   connect();
   if (_local_io.get() != NULL) {
     _local_io.reset();
@@ -218,16 +207,24 @@ void iota::HttpClient::connectHandle(const boost::system::error_code& ec) {
   set_error(ec);
   if (check_connection()) {
     // Si se esta utilizando proxy
+
     if (_proxy) {
       std::stringstream request_CONNECT;
       request_CONNECT << "CONNECT " << _remote_ip << ":" << _remote_port <<
                       " HTTP/1.1\r\n";
-      _connection->async_write(boost::asio::buffer(request_CONNECT.str()),
-                               _strand->wrap(boost::bind(&HttpClient::endWriteProxy,
-                                             shared_from_this(),
-                                             boost::asio::placeholders::error,
-                                             boost::asio::placeholders::bytes_transferred))
-                              );
+      std::string h_outgoing = _request->get_header(
+                                 iota::types::HEADER_OUTGOING_ROUTE);
+      if (!h_outgoing.empty()) {
+        request_CONNECT << iota::types::HEADER_OUTGOING_ROUTE << ": " << h_outgoing <<
+                        "\r\n";
+      }
+      request_CONNECT << "\r\n";
+      boost::system::error_code error_code;
+      _connection->write(boost::asio::buffer(request_CONNECT.str()), error_code);
+      _connection->async_read_some(_strand->wrap(
+                                     boost::bind(&HttpClient::endConnectProxy, shared_from_this(),
+                                         boost::asio::placeholders::error,
+                                         boost::asio::placeholders::bytes_transferred)));
       if (_local_io.get() != NULL) {
         _local_io->run_one();
       }
@@ -254,6 +251,7 @@ void iota::HttpClient::endWriteProxy(const boost::system::error_code& ec,
 
 void iota::HttpClient::endConnectProxy(const boost::system::error_code& ec,
                                        std::size_t bytes_read) {
+
   std::string resp_proxy(_connection->get_read_buffer().data());
   boost::system::error_code ec_proxy = ec;
   size_t pos_OK = resp_proxy.find(" 200 ");
