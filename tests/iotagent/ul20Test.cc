@@ -1499,6 +1499,8 @@ void Ul20Test::testPUSHCommandAsync() {
                      http_response, response);
 
     ASYNC_TIME_WAIT
+    ASYNC_TIME_WAIT
+    ASYNC_TIME_WAIT
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
