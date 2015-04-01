@@ -140,7 +140,7 @@ private:
 
     void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,const std::string& type = "file");
 
-    MockMosquitto* defineExpectationsMqttPublisher();
+    void defineExpectationsMqttPublisher();
 
   int stubConnectPub(const char* host, int port, int keepalive);
   int stubPublish(int* mid,const char* topic,int payloadLen,const void* payload,int qos,bool retain);

@@ -712,9 +712,9 @@ void MqttTest::testPollingOneMqttCommand() {
   std::string logPath("./");
 
 
-
+  mockMosquittoPub = new MockMosquitto();
   //Definition of expectations for Mqtt publisher mock
-  mockMosquittoPub = defineExpectationsMqttPublisher();
+  defineExpectationsMqttPublisher();
 
 
 
@@ -962,7 +962,8 @@ void MqttTest::testPushCommandExecution() {
   defineExpectationsMqttNoIncomingMsg();
 
   //Definition of expectations for Mqtt publisher mock
-  mockMosquittoPub = defineExpectationsMqttPublisher();
+   mockMosquittoPub = new MockMosquitto();
+  defineExpectationsMqttPublisher();
 
   //Expect call for publishing the command.
 
@@ -1310,28 +1311,24 @@ void MqttTest::defineExpectationsMqttt() {
 
 }
 
-MockMosquitto* MqttTest::defineExpectationsMqttPublisher() {
-
-  MockMosquitto* mosquittoPub = new MockMosquitto();
-
-
+void MqttTest::defineExpectationsMqttPublisher() {
 
   std::string user = "admin";
   std::string passwd = "1234";
 
   //Order matters.
 
-  EXPECT_CALL(*mosquittoPub, mqttSetPassword(StrEq(user.c_str()),
+  EXPECT_CALL(*mockMosquittoPub, mqttSetPassword(StrEq(user.c_str()),
               StrEq(passwd.c_str()))).WillRepeatedly(Return(0));
 
   //Basic and common expected calls.
-  EXPECT_CALL(*mosquittoPub, mqttConnect(_, _, _)).WillRepeatedly(Invoke(this,
+  EXPECT_CALL(*mockMosquittoPub, mqttConnect(_, _, _)).WillRepeatedly(Invoke(this,
       &MqttTest::stubConnectPub));
-  EXPECT_CALL(*mosquittoPub, mqttLoop(_, _)).WillRepeatedly(Return(0));
+  EXPECT_CALL(*mockMosquittoPub, mqttLoop(_, _)).WillRepeatedly(Return(0));
 
-  ESP_Plugin_Input_Mqtt::getInstance()->setMosquitto(mosquittoPub, "mqttwriter");
+  ESP_Plugin_Input_Mqtt::getInstance()->setMosquitto(mockMosquittoPub, "mqttwriter");
 
-  return mosquittoPub;
+
 }
 
 //Asserting the topic.
