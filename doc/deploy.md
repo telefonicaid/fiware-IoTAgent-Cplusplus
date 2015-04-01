@@ -327,11 +327,9 @@ If installation requires high availability and a load balancer will be used, ip:
         "updateContext": "/NGSI10/updateContext",
         "registerContext": "/NGSI9/registerContext",
         "queryContext": "/NGSI10/queryContext",
-        "public_ip": "http://10.95.200.200:20000"
+        "public_ip": "10.95.200.200:20000"
     },
 ```
-
-Setting "public_ip": "10.95.200.200:20000", only with ip:port is also avoided.
 
 You can get more information in next sections.
 
