@@ -1273,7 +1273,7 @@ void ESP_Runner_Server::run() {
 void* ESP_Runner_Server::runThread(void* userData) {
   ESP_Runner* runner = (ESP_Runner*)userData;
   ESP_Sensor* sensorRef = runner->sensor;
-  CC_Logger::getSingleton()->logDebug("Run Server Thread");
+  CC_Logger::getSingleton()->logDebug("Run Server Thread %d",sensorRef->_id);
 
   // Get Input
   ESP_Input_Base* input = runner->input;
