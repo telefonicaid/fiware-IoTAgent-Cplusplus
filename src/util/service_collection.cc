@@ -37,6 +37,10 @@ iota::ServiceCollection::ServiceCollection(ServiceCollection& dc):Collection(
     dc) {
 };
 
+iota::ServiceCollection::~ServiceCollection() {
+};
+
+
 void iota::ServiceCollection::addServicePath(const std::string& data,
     mongo::BSONObjBuilder& obj) {
 

@@ -87,7 +87,7 @@ boost::shared_ptr<iota::Command> command_from_mongo(boost::shared_ptr<iota::Comm
 }
 
 iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
-  m_asyncCommands(0, false) {
+  m_asyncCommands(iota::types::MAX_SIZE_CACHE, false) {
 
   m_asyncCommands.set_timeout_function(boost::bind(
                                          &iota::CommandHandle::timeout_f, this, _1));
@@ -105,6 +105,7 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
       PION_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
       if (_storage_type.compare(iota::store::types::MONGODB)==0) {
 
+        m_asyncCommands.set_max_num_items(0);
         PION_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
         m_asyncCommands.set_function(boost::bind(command_from_mongo, _1));
         m_asyncCommands.set_entity_function(boost::bind(command_from_mongo, _1));
@@ -571,7 +572,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
     iota::DeviceCollection dev_table;
     std::string srv, service_path;
 
-    iota::ServiceCollection srv_table;
+    iota::Collection srv_table(iota::store::types::SERVICE_TABLE);
 
     PION_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
     mongo::BSONObj srv_find = BSON("resource" << get_resource());
@@ -1176,12 +1177,12 @@ int iota::CommandHandle::send(
     cb_url.append(get_ngsi_operation("updateContext"));
   }
 
-  std::string updateAction(opSTR); 
-  iota::UpdateContext op(updateAction); 
-  op.add_context_element(ngsi_context_element); 
+  std::string updateAction(opSTR);
+  iota::UpdateContext op(updateAction);
+  op.add_context_element(ngsi_context_element);
 
-  return cb_comm->async_send(cb_url, op.get_string(), service, 
-    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2)); 
+  return cb_comm->async_send(cb_url, op.get_string(), service,
+    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
 }
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&
@@ -1420,13 +1421,14 @@ iota::CommandVect iota::CommandHandle::get_all_command(const
   res =  m_asyncCommands.get_by_entityV(item, iota::types::DELIVERED);
 
   // send to CB status to DELIVERED
+  iota::Collection table(iota::store::types::COMMAND_TABLE);
   for (CommandVect::iterator it = res.begin(); it != res.end(); ++it) {
     CommandPtr prt = *it;
-      if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+    if (_storage_type.compare(iota::store::types::MONGODB)==0) {
       PION_LOG_DEBUG(m_logger, "update command status to delivered " << prt->get_id());
-      iota::Collection table(iota::store::types::COMMAND_TABLE);
-
-      mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << prt->get_id());
+      mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << prt->get_id()
+                            << iota::store::types::SERVICE << prt->get_service()
+                            << iota::store::types::SERVICE_PATH << prt->get_service_path());
       mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
       table.update(no, ap);
     }

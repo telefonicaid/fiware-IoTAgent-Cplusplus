@@ -36,6 +36,9 @@ iota::DeviceCollection::DeviceCollection():Collection(
 iota::DeviceCollection::DeviceCollection(DeviceCollection& dc):Collection(dc) {
 };
 
+iota::DeviceCollection::~DeviceCollection() {
+};
+
 int iota::DeviceCollection::insert(const Device& obj) {
   return iota::Collection::insert(Obj2BSON(obj, true));
 }

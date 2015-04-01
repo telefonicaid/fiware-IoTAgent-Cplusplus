@@ -37,6 +37,7 @@ class CommandCollection : public Collection {
 
     CommandCollection();
     CommandCollection(CommandCollection&);
+    ~CommandCollection();
 
     int insert(const Command& obj) ;
     int find(const std::string& id) ;
