@@ -95,6 +95,7 @@ struct types {
   static const std::string TOKEN;
   static const std::string CBROKER;
   static const std::string OUTGOING_ROUTE;
+  static const std::string PUBLIC_IP;
 
   // Types for values
   // detailed

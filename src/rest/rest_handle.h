@@ -253,12 +253,12 @@ class RestHandle: public pion::http::plugin_service,
     // Only internal stats
     bool _enabled_stats;
 
-    //type for storage
-    std::string _storage_type;
-
     std::string _my_url_base;
 
   protected:
+
+    //type for storage
+    std::string _storage_type;
 
     //cache with registered devices
     Cache registeredDevices;

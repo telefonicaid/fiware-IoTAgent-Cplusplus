@@ -80,6 +80,10 @@ class CommandCache {
       _async_manager->run();
     };
 
+    void set_max_num_items (std::size_t capacity){
+        _max_num_items = capacity;
+    }
+
     void set_function(GetFunction_t get_function) {
       _get_function = get_function;
     }
@@ -185,13 +189,25 @@ class CommandCache {
       item_iterator_entity i = boost::multi_index::get<2>(_list).begin();
       i = boost::multi_index::get<2>(_list).find(*key, entity_command_hash(),
           entity_command_equal());
-      while (i != boost::multi_index::get<2>(_list).end()) {
-        boost::shared_ptr<Command> item;
-        (*i)->set_status(new_status);
-        insert(*i);
-        item = *i;
-        i++;
-        result.push_back(item);
+      if (i != boost::multi_index::get<2>(_list).end()) {
+        while (i != boost::multi_index::get<2>(_list).end()) {
+          boost::shared_ptr<Command> item;
+          (*i)->set_status(new_status);
+          insert(*i);
+          item = *i;
+          i++;
+          result.push_back(item);
+        }
+      }else{
+        if (_get_function != NULL) {
+            //TODO la funcion _get_entity_function solo devuelve uno
+          const boost::shared_ptr<Command> new_item = _get_entity_function(key);
+          if (new_item.get() != NULL) {
+            insert(new_item);
+            result.push_back(new_item);
+          }
+
+        }
       }
 
       return result;

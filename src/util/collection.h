@@ -53,7 +53,7 @@ class Collection {
 
     Collection(Collection&);
 
-    ~Collection();
+    virtual ~Collection();
 
     void setQueryOptions(int queryOptions) {
       a_queryOptions = queryOptions;

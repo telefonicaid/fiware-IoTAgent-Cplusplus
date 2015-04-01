@@ -34,6 +34,8 @@ iota::CommandCollection::CommandCollection(CommandCollection& dc):Collection(
     dc) {
 };
 
+iota::CommandCollection::~CommandCollection() {
+};
 
 int iota::CommandCollection::insert(const Command& obj) {
   return iota::Collection::insert(Obj2BSON(obj, true));
@@ -70,14 +72,14 @@ iota::Command iota::CommandCollection::BSON2Obj(const mongo::BSONObj& obj) {
   // URI respuesta
   result.set_uri_resp(obj.getStringField(iota::store::types::URI_RESP));
 
-  // Identificador de comando, deberia ser unico
-  result.set_id(obj.getStringField(iota::store::types::ID));
+  // Identificador de comando, usamos el de mongo
+  result.set_id(obj.getStringField(iota::store::types::COMMAND_ID));
 
   // Identificador de comando, deberia ser unico
   result.set_name(obj.getStringField(iota::store::types::NAME));
 
   // Si esta expirado
-  //TIODO bool _expired;
+  //TODO bool _expired;
 
   // Si el comando se recupera por polling, debe almacenarse
   std::string body = obj.getStringField(iota::store::types::COMMAND);
@@ -86,7 +88,7 @@ iota::Command iota::CommandCollection::BSON2Obj(const mongo::BSONObj& obj) {
   result.set_command(pt);
 
   // estado del comando
-  //TODO int _status;
+  int _status = obj.getIntField(iota::store::types::STATUS);
 
   // estado del comando
   result.set_service(obj.getStringField(iota::store::types::SERVICE));
@@ -103,6 +105,11 @@ mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
 
   mongo::BSONObjBuilder obj;
   if (withShardKey) {
+      if (!command.get_id().empty()) {
+          obj.append(iota::store::types::COMMAND_ID, command.get_id());
+      }
+  }
+
     if (!command.get_name().empty()) {
       obj.append(iota::store::types::NAME, command.get_name());
     }
@@ -115,7 +122,6 @@ mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
     if (!command.get_service_path().empty()) {
       obj.append(iota::store::types::SERVICE_PATH, command.get_service_path());
     }
-  };
 
   if (!command.get_device().empty()) {
     obj.append(iota::store::types::DEVICE, command.get_device());
@@ -148,9 +154,12 @@ int iota::CommandCollection::createTableAndIndex() {
 
    int res = 200;
 
-   // db.SERVICE.ensureIndex( { "service":1, "service_path":1, "resource":1 }, { unique: true } )
-   //ensureIndex(BSON ("service" << 1 << "service_path" << 1 << "resource" <<1),
-   //       true);
+   // db.COMMAND.ensureIndex( { "id":1 , "service" :1, "service_path":1}, { unique: true } )
+   ensureIndex("shardKey",
+              BSON(iota::store::types::COMMAND_ID << 1 <<
+                   iota::store::types::SERVICE << 1 <<
+                   iota::store::types::SERVICE_PATH << 1),
+              true);
 
    return res;
 }

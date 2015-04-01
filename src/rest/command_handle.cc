@@ -45,6 +45,7 @@
 #include "util/device_collection.h"
 #include "util/service_collection.h"
 #include "util/store_const.h"
+#include "util/command_collection.h"
 
 #include "services/admin_service.h"
 
@@ -67,10 +68,27 @@ extern "C"  void* _begin_registrations(void* arg) {
   usrv->make_registrations();
 }
 
-iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
-  m_asyncCommands(iota::types::MAX_SIZE_COMMAND_CACHE, true) {
+boost::shared_ptr<iota::Command> command_from_mongo(boost::shared_ptr<iota::Command> item) {
+  boost::shared_ptr<iota::Command> resu;
 
-  //m_asyncCommands.set_timeout_function(iota::CommandHandle::timeout_f);
+  try {
+    iota::CommandCollection table;
+    table.find(*item);
+
+    if (table.more()) {
+      iota::Command aux = table.next();
+      resu.reset(new iota::Command(aux));
+    }
+  }
+  catch (...) {
+    // ERROR
+  }
+  return resu;
+}
+
+iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
+  m_asyncCommands(iota::types::MAX_SIZE_CACHE, false) {
+
   m_asyncCommands.set_timeout_function(boost::bind(
                                          &iota::CommandHandle::timeout_f, this, _1));
 
@@ -78,6 +96,32 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
   _reg_timeout = DEFAULT_REG_TIMEOUT;
   _myProvidingApp = UNKOWN_PROVIDING_APP;
   _callback = NULL;
+
+  try {
+    const iota::JsonValue& storage = iota::Configurator::instance()->get(
+                                       iota::store::types::STORAGE);
+    if (storage.HasMember(iota::store::types::TYPE.c_str())) {
+      _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
+      PION_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
+      if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+
+        m_asyncCommands.set_max_num_items(0);
+        PION_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
+        m_asyncCommands.set_function(boost::bind(command_from_mongo, _1));
+        m_asyncCommands.set_entity_function(boost::bind(command_from_mongo, _1));
+        m_asyncCommands.set_id_function(boost::bind(command_from_mongo, _1));
+        PION_LOG_DEBUG(m_logger, "Check tables in mongo");
+        iota::CommandCollection commandcol;
+        commandcol.createTableAndIndex();
+      }
+    }
+    else {
+      PION_LOG_ERROR(m_logger, "Config file has not got storage");
+    }
+  }
+  catch (...) {
+    PION_LOG_DEBUG(m_logger, " Problem with devices config file");
+  }
 }
 
 iota::CommandHandle::~CommandHandle() {
@@ -528,7 +572,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
     iota::DeviceCollection dev_table;
     std::string srv, service_path;
 
-    iota::ServiceCollection srv_table;
+    iota::Collection srv_table(iota::store::types::SERVICE_TABLE);
 
     PION_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
     mongo::BSONObj srv_find = BSON("resource" << get_resource());
@@ -565,6 +609,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
             iota::Entity entity(register_device._entity_name, register_device._entity_type,
                                 "false");
             cr.add_entity(entity);
+
             cr.add_provider(_myProvidingApp);
 
             if (! register_device._registration_id.empty()) {
@@ -625,7 +670,6 @@ void iota::CommandHandle::send_register_device(Device& device) {
     PION_LOG_ERROR(m_logger, "Error sending registrations");
   }
 }
-
 
 
 int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
@@ -849,6 +893,16 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
   if (!item_dev->_endpoint.empty()) {
     send_updateContext(command_name, iota::types::STATUS, iota::types::STATUS_TYPE,
                        iota::types::PENDING, item_dev, service, iota::types::STATUS_OP);
+    // always we save command in cache
+    save_command(cmd_data.command_name,
+                 cmd_data.command_id,  cmd_data.timeout,
+                 cmd_data.command_to_send,
+                 cmd_data.item_dev,
+                 cmd_data.entity_type,
+                 cmd_data.item_dev->_endpoint,
+                 cmd_data.service,
+                 cmd_data.sequence,
+                 iota::types::READY_FOR_READ);
     PION_LOG_DEBUG(m_logger, "Device has endpoint, send command to " <<
                   item_dev->_endpoint);
     try {
@@ -878,6 +932,9 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
 
         PION_LOG_DEBUG(m_logger,
                        "response:" << res_code << "->" << resp_cmd);
+        std::string service_name = service.get<std::string>(iota::store::types::SERVICE, "");
+        std::string service_path = service.get<std::string>(iota::store::types::SERVICE_PATH, "");
+        remove_command(command_id, service_name, service_path);
         if (resp_cmd.empty()) {
           PION_LOG_DEBUG(m_logger, "command response from plugin_terceros is empty");
           // empty is a good response, do not add anything
@@ -921,11 +978,15 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
     const boost::property_tree::ptree& service,
     std::string& command_id,
     boost::property_tree::ptree& command_line) {
+  std::cout << "rrrr" << std::endl;
   PION_LOG_DEBUG(m_logger,
                  "transform_command:: " << command_value << " updateCommand_value:" <<
                  updateCommand_value);
+  std::string result;
+
   if (!command_value.empty()) {
     if (command_value.compare(iota::types::RAW) == 0) {
+      result = updateCommand_value;
       command_line.put(iota::store::types::BODY, updateCommand_value);
     }
     else {
@@ -933,7 +994,9 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
       boost::split(params, updateCommand_value,  boost::is_any_of("|"));
       int count = std::count(command_value.begin(), command_value.end(), '%');
       PION_LOG_DEBUG(m_logger, "count:" << count << " size params:" << params.size());
-      if (count > params.size()) {
+      if (count ==0) {
+        command_line.put(iota::store::types::BODY, command_value);
+      }else  if (count > params.size()) {
         std::string errSTR = "malformed command ";
         errSTR.append(command_value);
         errSTR.append(" in relation with ");
@@ -943,49 +1006,27 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
                                   errSTR,
                                   iota::types::RESPONSE_CODE_BAD_REQUEST);
-      }
+      }else{
+        std::size_t found1 =0;
+        std::size_t found2= command_value.find("%s");
+        int i=0;
+        while (found2!=std::string::npos)
+        {
+          result.append(command_value.substr(found1, found2 - found1));
+          result.append(params[i++]);
+          found1 = found2 +2;
+          found2=command_value.find("%s",found1);
+        }
+        result.append(command_value.substr(found1, command_value.length() - found1));
 
-      if (count ==0) {
-        command_line.put(iota::store::types::BODY, command_value);
-      }
-      else if (count ==1) {
-        command_line.put(iota::store::types::BODY,
-                         boost::str(boost::format(command_value) % updateCommand_value));
-      }
-      else if (count ==2) {
-        command_line.put(iota::store::types::BODY,
-                         boost::str(boost::format(command_value) % params[0] % params[1]));
-      }
-      else if (count ==3) {
-        command_line.put(iota::store::types::BODY,
-                         boost::str(boost::format(command_value) % params[0] % params[1] % params[2]));
-      }
-      else if (count ==4) {
-        command_line.put(iota::store::types::BODY,
-                         boost::str(boost::format(command_value) % params[0] % params[1] % params[2] %
-                                    params[3]));
-      }
-      else if (count ==5) {
-        command_line.put(iota::store::types::BODY,
-                         boost::str(boost::format(command_value) % params[0] % params[1] % params[2] %
-                                    params[3] % params[4]));
-      }
-      else {
-        std::string errSTR = "excedded max params in command ";
-        errSTR.append(command_value);
-        errSTR.append(" in relation with ");
-        errSTR.append(updateCommand_value);
-        errSTR.append(" max is 5 %s");
-        PION_LOG_ERROR(m_logger, errSTR);
-        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
-                                  errSTR,
-                                  iota::types::RESPONSE_CODE_BAD_REQUEST);
+        command_line.put(iota::store::types::BODY, result);
       }
     }
   }
   else {
     //by default the command is raw, and return the parameter
-    command_line.put(iota::store::types::BODY, updateCommand_value);
+    result = updateCommand_value;
+    command_line.put(iota::store::types::BODY, result);
   }
 
   if (sequence_id.empty()) {
@@ -996,7 +1037,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
     command_id.assign(sequence_id);
   }
 
-  PION_LOG_DEBUG(m_logger, "result command:" << command_id);
+  PION_LOG_DEBUG(m_logger, "resultcommand|" << command_id << "|" << result);
 };
 
 void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
@@ -1333,6 +1374,14 @@ void iota::CommandHandle::save_command(const std::string& command_name,
                                   "", command_to_send));
   item->set_status(status);
   m_asyncCommands.insert(item);
+
+  if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+    PION_LOG_DEBUG(m_logger, "save_command in mongo");
+    iota::CommandCollection table;
+    table.insert(*(item.get()));
+  }
+
+
 }
 
 iota::CommandVect iota::CommandHandle::get_all_command(const std::string&
@@ -1373,9 +1422,19 @@ iota::CommandVect iota::CommandHandle::get_all_command(const
   item->set_status(iota::types::READY_FOR_READ);
   //change command status to DELIVERED
   res =  m_asyncCommands.get_by_entityV(item, iota::types::DELIVERED);
+
   // send to CB status to DELIVERED
+  iota::Collection table(iota::store::types::COMMAND_TABLE);
   for (CommandVect::iterator it = res.begin(); it != res.end(); ++it) {
     CommandPtr prt = *it;
+    if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+      PION_LOG_DEBUG(m_logger, "update command status to delivered " << prt->get_id());
+      mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << prt->get_id()
+                            << iota::store::types::SERVICE << prt->get_service()
+                            << iota::store::types::SERVICE_PATH << prt->get_service_path());
+      mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
+      table.update(no, ap);
+    }
     send_updateContext(prt->get_name(), iota::types::STATUS,
                        iota::types::STATUS_TYPE ,iota::types::DELIVERED_MESSAGE, dev,
                        service_ptree, iota::types::STATUS_OP);
@@ -1417,6 +1476,12 @@ void iota::CommandHandle::remove_command(
   item->set_id(command_id);
 
   m_asyncCommands.remove(item);
+
+  if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+    PION_LOG_DEBUG(m_logger, "remove_command in mongo");
+    iota::CommandCollection table;
+    table.remove(*(item.get()));
+  }
 
 }
 
@@ -1461,19 +1526,38 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
       my_resource =url_ngsi.substr(0,pos);
     }
 
-    if (my_ip != "0.0.0.0") {
-      char sport [50];
-      sprintf(sport, "%d", my_port);
-      _myProvidingApp = "http://";
-      _myProvidingApp += my_ip;
-      _myProvidingApp += ":";
-      _myProvidingApp += sport;
+    const JsonValue& cfg_ngsi_url =
+      iota::Configurator::instance()->get("ngsi_url");
+    
+    if (cfg_ngsi_url.IsObject() && 
+        cfg_ngsi_url.HasMember(iota::store::types::PUBLIC_IP.c_str())) {
+      std::string straux =
+        cfg_ngsi_url[iota::store::types::PUBLIC_IP.c_str()].GetString();    
+      pos = straux.find("http");
+      if (pos != 0) {
+        _myProvidingApp = "http://" + straux;
+      }
+      else {
+        _myProvidingApp = straux;
+      }
       _myProvidingApp += my_resource;
-      PION_LOG_DEBUG(m_logger, "ProvidingApp: " << _myProvidingApp);
+      PION_LOG_DEBUG(m_logger, "With balancer ProvidingApp: " << _myProvidingApp);
     }
     else {
-      PION_LOG_ERROR(m_logger,
-                     "Unable to set ProvidingApp because ip is: " << my_ip);
+      if (my_ip != "0.0.0.0") {
+        char sport [50];
+        sprintf(sport, "%d", my_port);
+        _myProvidingApp = "http://";
+        _myProvidingApp += my_ip;
+        _myProvidingApp += ":";
+        _myProvidingApp += sport;
+        _myProvidingApp += my_resource;
+        PION_LOG_DEBUG(m_logger, "ProvidingApp: " << _myProvidingApp);
+      }
+      else {
+        PION_LOG_ERROR(m_logger,
+                       "Unable to set ProvidingApp because ip is: " << my_ip);
+      }
     }
   }
 }
@@ -1521,7 +1605,11 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     int& res_code,
     std::string& resp_cmd) {
 
+  std::string service_name = cmd_data.service.get<std::string>(iota::store::types::SERVICE, "");
+  std::string service_path = cmd_data.service.get<std::string>(iota::store::types::SERVICE_PATH, "");
+
   if (res_code == pion::http::types::RESPONSE_CODE_OK) {
+    remove_command(cmd_data.command_id, service_name, service_path);
     if (!(resp_cmd.empty())) {
       send_updateContext(cmd_data.command_name,
                          iota::types::STATUS,
@@ -1543,21 +1631,21 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     PION_LOG_DEBUG(m_logger, " accepted command, waiting for the result");
     send_updateContext(cmd_data.command_name, iota::types::STATUS,
                        iota::types::STATUS_TYPE,
-                       iota::types::READY_FOR_READ_MESSAGE,
+                       iota::types::DELIVERED_MESSAGE,
                        cmd_data.item_dev, cmd_data.service,
                        iota::types::STATUS_OP);
-    save_command(cmd_data.command_name,
-                 cmd_data.command_id,  cmd_data.timeout,
-                 cmd_data.command_to_send,
-                 cmd_data.item_dev,
-                 cmd_data.entity_type,
-                 cmd_data.item_dev->_endpoint,
-                 cmd_data.service,
-                 cmd_data.sequence,
-                 iota::types::READY_FOR_READ);
-    PION_LOG_DEBUG(m_logger, " accepted command id ," << cmd_data.command_id);
+    if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+      PION_LOG_DEBUG(m_logger, "update command status to delivered " << cmd_data.command_id);
+      iota::Collection table(iota::store::types::COMMAND_TABLE);
+
+      mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << cmd_data.command_id);
+      mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
+      table.update(no, ap);
+    }
+    PION_LOG_DEBUG(m_logger, " response 202, accepted command id ," << cmd_data.command_id);
   }
   else {
+    remove_command(cmd_data.command_id, service_name, service_path);
     send_updateContext(cmd_data.command_name, iota::types::STATUS,
                        iota::types::STATUS_TYPE,
                        iota::types::ERROR,
