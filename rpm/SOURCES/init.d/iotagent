@@ -32,12 +32,12 @@ if [[ ! -f ${IOTAGENT_CONFIG_FILE} ]]; then
 fi
 
 # Mandatory parameters
-IOTAGENT_OPTS="-n ${IOTAGENT_SERVER_NAME} \
-               -v ${IOTAGENT_LOG_LEVEL}       \
+IOTAGENT_OPTS="-n ${IOTAGENT_SERVER_NAME}    \
+               -v ${IOTAGENT_LOG_LEVEL}      \
                -i ${IOTAGENT_SERVER_ADDRESS} \
-               -p ${IOTAGENT_SERVER_PORT} \
-               -d ${IOTAGENT_LIBRARY_DIR} \
-               -c ${IOTAGENT_CONFIG_FILE}
+               -p ${IOTAGENT_SERVER_PORT}    \
+               -d ${IOTAGENT_LIBRARY_DIR}    \
+               -c ${IOTAGENT_CONFIG_FILE}"
 
 iotagent_start()
 {
