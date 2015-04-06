@@ -56,7 +56,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
 
     CPPUNIT_TEST(testPUSHCommand);
-    //CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
+    CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
     CPPUNIT_TEST(testPUSHCommandAsync);
     CPPUNIT_TEST(testBADPUSHCommand);
     CPPUNIT_TEST(testPollingCommand);
