@@ -933,7 +933,6 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                        "response:" << res_code << "->" << resp_cmd);
         std::string service_name = service.get<std::string>(iota::store::types::SERVICE, "");
         std::string service_path = service.get<std::string>(iota::store::types::SERVICE_PATH, "");
-        remove_command(command_id, service_name, service_path);
         if (resp_cmd.empty()) {
           PION_LOG_DEBUG(m_logger, "command response from plugin_terceros is empty");
           // empty is a good response, do not add anything
@@ -1527,11 +1526,11 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
 
     const JsonValue& cfg_ngsi_url =
       iota::Configurator::instance()->get("ngsi_url");
-    
-    if (cfg_ngsi_url.IsObject() && 
+
+    if (cfg_ngsi_url.IsObject() &&
         cfg_ngsi_url.HasMember(iota::store::types::PUBLIC_IP.c_str())) {
       std::string straux =
-        cfg_ngsi_url[iota::store::types::PUBLIC_IP.c_str()].GetString();    
+        cfg_ngsi_url[iota::store::types::PUBLIC_IP.c_str()].GetString();
       pos = straux.find("http");
       if (pos != 0) {
         _myProvidingApp = "http://" + straux;

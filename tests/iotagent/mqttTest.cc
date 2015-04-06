@@ -1005,7 +1005,7 @@ void MqttTest::testPushCommandExecution() {
   std::cout << "TEST: testPushCommandExecution Checking commands ...  # " <<
             all_commands.size() << std::endl;
 
-  CPPUNIT_ASSERT(all_commands.size() == 0);
+  CPPUNIT_ASSERT(all_commands.size() == 1);
 
 
   std::cout <<
