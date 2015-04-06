@@ -17,7 +17,7 @@ ENV_FILE=/etc/iot/${NAME}
 
 # Load the environment
 if [[ -f ${ENV_FILE} ]]; then
-    . ${ENV_FILE}
+	. ${ENV_FILE}
 else
    echo "Configuration file ${ENV_FILE} not found"
    echo "Please read the documentation for information on setting up ${NAME}"
@@ -33,72 +33,71 @@ fi
 
 # Mandatory parameters
 IOTAGENT_OPTS="-n ${IOTAGENT_SERVER_NAME}    \
-               -v ${IOTAGENT_LOG_LEVEL}      \
-               -i ${IOTAGENT_SERVER_ADDRESS} \
-               -p ${IOTAGENT_SERVER_PORT}    \
-               -d ${IOTAGENT_LIBRARY_DIR}    \
-               -c ${IOTAGENT_CONFIG_FILE}"
+			   -v ${IOTAGENT_LOG_LEVEL}      \
+			   -i ${IOTAGENT_SERVER_ADDRESS} \
+			   -p ${IOTAGENT_SERVER_PORT}    \
+			   -d ${IOTAGENT_LIBRARY_DIR}    \
+			   -c ${IOTAGENT_CONFIG_FILE}"
 
 iotagent_start()
 {
-    printf "%-50s" "Starting ${NAME}..."
-    if [[ -x ${EXECUTABLE} ]]; then
-        sudo -u ${NAME} -c "${EXECUTABLE} ${IOTAGENT_OPTS} &> /dev/null "
-        sleep 2 # wait some time to leave iotagent start
-        PID=$(cat ${IOTAGENT_PID_FILE})
-        if [[ -z "${PID}" ]]; then
-            printf "%s" "pidfile not found"
-            printf "%s\n" "$(failure)" 
-            exit 1
-        else
-            printf "%s\n" "$(success)"
-        fi
-    else
-        printf "%s\n" "Fail - missing ${EXECUTABLE} executable"
-        exit 1
-    fi
-   
+	printf "%-50s" "Starting ${NAME}..."
+	if [[ -x ${EXECUTABLE} ]]; then
+		sudo -u ${NAME} -s /bin/bash -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
+		${EXECUTABLE} ${IOTAGENT_OPTS} &" &> /dev/null 
+		ps -ef | grep ${EXECUTABLE} | grep -v grep | awk '{print $2}' > ${IOTAGENT_PID_FILE}
+		sleep 2 # wait some time to leave iotagent start
+		PID=$(cat ${IOTAGENT_PID_FILE})
+		if [[ -z "${PID}" ]]; then
+			printf "%s" "pidfile not found"
+			printf "%s\n" "$(failure)" 
+			exit 1
+		else
+			printf "%s\n" "$(success)"
+		fi
+	else
+		printf "%s\n" "Fail - missing ${EXECUTABLE} executable"
+		exit 1
+	fi
 }
 
 iotagent_stop()
 {
-    printf "%-50s" "Stopping $NAME..."
-    if [ -f "${IOTAGENT_PID_FILE}" ]; then
-        kill -HUP $(cat ${IOTAGENT_PID_FILE})
-        rm -f ${IOTAGENT_PID_FILE}
-        printf "%s\n" "$(success)"
-    else
-        printf "%s\n" "$(failure)"
-    fi
+	printf "%-50s" "Stopping $NAME..."
+	if [ -f "${IOTAGENT_PID_FILE}" ]; then
+		kill $(cat ${IOTAGENT_PID_FILE})
+		rm -f ${IOTAGENT_PID_FILE}
+		printf "%s\n" "$(success)"
+	else
+		printf "%s\n" "$(failure)"
+	fi
 }
 
 iotagent_status()
 {
-    status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE}
+	status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE}
 }
 
 
 case ${PARAM} in
 
-    'start')
-        echo "Starting..."
-        status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} && exit 0
-        iotagent_start
-        ;;
+	'start')
+		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} && exit 0
+		iotagent_start
+		;;
 
-    'stop')
-        echo "Stopping..."
-        status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} || exit 0
-        iotagent_stop
-        ;;
+	'stop')
+		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} || exit 0
+		iotagent_stop
+		;;
 
-    'restart')
-        iotagent_stop
-        iotagent_start
-        ;;
+	'restart')
+		iotagent_stop
+		iotagent_start
+		;;
 
-    'status')
-        iotagent_status
-        ;;
+	'status')
+		iotagent_status
+		;;
 
 esac
