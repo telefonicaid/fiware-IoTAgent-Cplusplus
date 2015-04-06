@@ -256,7 +256,7 @@ void iota::HttpClient::endConnectProxy(const boost::system::error_code& ec,
   boost::system::error_code ec_proxy = ec;
   size_t pos_OK = resp_proxy.find(" 200 ");
   if ((pos_OK == std::string::npos) && (!ec)) {
-    ec_proxy = boost::asio::error::not_connected;
+    ec_proxy = boost::asio::error::host_unreachable;
   }
   set_error(ec_proxy);
   if (check_connection()) {
