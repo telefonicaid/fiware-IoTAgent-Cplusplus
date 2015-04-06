@@ -22,6 +22,7 @@
         2. [Example file storage](#def-examples2)
 5. [Check Instalation with HTTP request with curls](#def-check)
 6. [Monitoring Events and Alarms](#def-alarms)
+7. [Using SmartM2M VPNs](VPNs.md)
 
 <a name="def-introduction"></a>
 ## 1. Introduction
@@ -689,7 +690,7 @@ db.DEVICE.find()
 Alarms
 
 Alarms is logged in FATAL level, and an alarm means that a communication between an other component is broken.
-When the communication is restored other fatal log is written with event=END-ALARM, pay attention, only FATAL logs must be consider, logs in DEBUG level are normal and can't be considered.
+When the communication is restored other fatal log is written with event=END-ALARM, pay attention, only FATAL logs must be consider, logs in DEBUG level are normal and cannot be considered.
 
 Every alarm has a code to identify it.
 
@@ -710,4 +711,3 @@ Example of broken communications with mongo database
 
 060315T123808,396.176UTC|lvl=DEBUG|comp=iota:dev|op=remove|[140148573378304:alarm.cc:96] |event=END-ALARM|code=100|origin= 127.0.0.1:27017|info=MongoConnection OK
 ```
-
