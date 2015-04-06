@@ -4,9 +4,11 @@
     "cbroker": "<%= @context_broker_endpoint %>",
     "updateContext": "<%= @update_context_path %>",
     "registerContext": "<%= @register_context_path %>",
-    "queryContext" : "<%= @query_context_path %>"
+    "queryContext" : "<%= @query_context_path %>",
+    "public_ip" : "<%= @load_balancer_url %>"
   },
   "timeout": 10,
+  "http_proxy": "<%= @http_proxy_gre %>",
   "dir_log": "<%= @iotagent_logdir %>",
   "timezones": "/etc/iot/date_time_zonespec.csv",
   "storage": {
