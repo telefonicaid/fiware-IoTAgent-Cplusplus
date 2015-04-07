@@ -43,7 +43,7 @@ iotagent_start()
 {
 	printf "%-50s" "Starting ${NAME}..."
 	if [[ -x ${EXECUTABLE} ]]; then
-		sudo -u ${NAME} -s /bin/bash -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
+		su ${NAME} -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
 		${EXECUTABLE} ${IOTAGENT_OPTS} &" &> /dev/null 
 		ps -ef | grep ${EXECUTABLE} | grep -v grep | awk '{print $2}' > ${IOTAGENT_PID_FILE}
 		sleep 2 # wait some time to leave iotagent start
