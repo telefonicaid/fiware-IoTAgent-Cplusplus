@@ -19,52 +19,34 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_SERVICE_COLLECTION_H_
-#define SRC_UTIL_SERVICE_COLLECTION_H_
-
-#include <string>
-#include <vector>
-
-#include "collection.h"
-#include "device.h"
+#include <iostream>
 
 
-
-namespace iota {
-
-class ServiceCollection : public Collection {
-  public:
-
-    ServiceCollection();
-
-    ServiceCollection(std::string collection_name);
-
-    ServiceCollection(ServiceCollection&);
-
-    ~ServiceCollection();
-
-    int createTableAndIndex();
-
-    static void addServicePath(const std::string & service_path,
-                        mongo::BSONObjBuilder &obj );
-
-    std::string getSchema(const std::string& method);
+#include <time.h>
+#include <algorithm>
+#include "store_const.h"
+#include "protocol_collection.h"
 
 
-  protected:
+iota::ProtocolCollection::ProtocolCollection():Collection(
+    iota::store::types::PROTOCOL_TABLE) {
+};
 
 
-    //TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
+iota::ProtocolCollection::ProtocolCollection(ProtocolCollection& dc):Collection(
+    dc) {
+};
 
-  private:
-
-    static const std::string POST_SCHEMA;
-    static const std::string PUT_SCHEMA;
-
-}; // end class ServiceCollection
-
-}// end namespace  riot
-
-#endif
+iota::ProtocolCollection::~ProtocolCollection() {
+};
 
 
+int iota::ProtocolCollection::createTableAndIndex() {
+
+  int res = 200;
+  ensureIndex("shardKey",
+              BSON(iota::store::types::DESCRIPTION << 1),
+              true);
+
+  return res;
+}

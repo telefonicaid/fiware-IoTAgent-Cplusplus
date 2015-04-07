@@ -327,6 +327,9 @@ int main(int argc, char* argv[]) {
       web_server->add_service(url_ngsi_common, ngsi_ptr);
       AdminService_ptr->add_service(url_ngsi_common, ngsi_ptr);
     }
+    else {
+      AdminService_ptr->set_manager();
+    }
 
     if (ssl_flag) {
 #ifdef PION_HAVE_SSL

@@ -32,6 +32,9 @@ iota::ServiceCollection::ServiceCollection():Collection(
     iota::store::types::SERVICE_TABLE) {
 };
 
+iota::ServiceCollection::ServiceCollection(std::string collection_name):
+  Collection(collection_name) {
+};
 
 iota::ServiceCollection::ServiceCollection(ServiceCollection& dc):Collection(
     dc) {
@@ -45,7 +48,8 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
     mongo::BSONObjBuilder& obj) {
 
   if (data.empty()) {
-    obj.append(iota::store::types::SERVICE_PATH, iota::types::FIWARE_SERVICEPATH_DEFAULT);
+    obj.append(iota::store::types::SERVICE_PATH,
+               iota::types::FIWARE_SERVICEPATH_DEFAULT);
   }
   else if (data.compare("/*")!= 0 && data.compare("/#")!= 0) {
     obj.append(iota::store::types::SERVICE_PATH, data);
@@ -267,8 +271,16 @@ const std::string iota::ServiceCollection::PUT_SCHEMA(
 int iota::ServiceCollection::createTableAndIndex() {
 
   int res = 200;
-  ensureIndex("shardKey",
-              BSON("service" << 1 << "service_path" << 1 << "resource" <<1),
-              true);
+  if (getBBDD().compare(iota::store::types::SERVICE_TABLE) == 0) {
+    ensureIndex("shardKey",
+                BSON("service" << 1 << "service_path" << 1 << "resource" <<1),
+                true);
+  }
+  else {
+    ensureIndex("shardKey",
+                BSON(iota::store::types::SERVICE << 1 << iota::store::types::SERVICE_PATH << 1
+                     << iota::store::types::PROTOCOL <<1),
+                true);
+  }
   return res;
 }

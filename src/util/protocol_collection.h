@@ -19,51 +19,40 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_SERVICE_COLLECTION_H_
-#define SRC_UTIL_SERVICE_COLLECTION_H_
+#ifndef SRC_UTIL_PROTOCOL_COLLECTION_H_
+#define SRC_UTIL_PROTOCOL_COLLECTION_H_
 
 #include <string>
 #include <vector>
 
 #include "collection.h"
-#include "device.h"
 
 
 
 namespace iota {
 
-class ServiceCollection : public Collection {
+class ProtocolCollection : public Collection {
   public:
 
-    ServiceCollection();
+    ProtocolCollection();
 
-    ServiceCollection(std::string collection_name);
+    ProtocolCollection(ProtocolCollection&);
 
-    ServiceCollection(ServiceCollection&);
-
-    ~ServiceCollection();
+    ~ProtocolCollection();
 
     int createTableAndIndex();
-
-    static void addServicePath(const std::string & service_path,
-                        mongo::BSONObjBuilder &obj );
-
-    std::string getSchema(const std::string& method);
 
 
   protected:
 
 
-    //TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
 
   private:
 
-    static const std::string POST_SCHEMA;
-    static const std::string PUT_SCHEMA;
 
-}; // end class ServiceCollection
+}; // end class ProtocolCollection
 
-}// end namespace  riot
+}// end namespace  iota
 
 #endif
 

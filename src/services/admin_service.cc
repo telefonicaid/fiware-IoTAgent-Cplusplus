@@ -63,7 +63,8 @@ const unsigned short iota::AdminService::TIME_TO_LOG = 60;
 iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
   iota::RestHandle(),
   _web_server(web_server),
-  m_log(PION_GET_LOGGER(iota::logger)) {
+  m_log(PION_GET_LOGGER(iota::logger)),
+  _manager(false) {
   PION_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
   //iota::AdminService::_web_server = web_server.get();
   //_web_server = web_server;
@@ -71,7 +72,7 @@ iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
 
 }
 
-iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)) {
+iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)), _manager(false) {
   // iota::AdminService::_web_server = NULL;
 }
 
@@ -195,6 +196,10 @@ void iota::AdminService::stop() {
     }
     */
 }
+
+void iota::AdminService::set_manager() {
+  _manager = true;
+};
 
 void iota::AdminService::about(pion::http::request_ptr& http_request_ptr,
                                std::map<std::string, std::string>& url_args,

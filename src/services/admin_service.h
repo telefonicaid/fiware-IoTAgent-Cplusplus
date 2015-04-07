@@ -40,6 +40,7 @@ class AdminService :
     virtual void start();
     virtual void stop();
     void set_timezone_database(std::string timezone_str);
+    void set_manager();
     boost::posix_time::ptime get_local_time_from_timezone(std::string timezone_str);
 
     void agents(pion::http::request_ptr& http_request_ptr,
@@ -425,6 +426,9 @@ class AdminService :
     void check_logs();
     boost::shared_ptr<boost::asio::deadline_timer> _timer;
     std::string _log_file;
+
+    // As manager
+    bool _manager;
 };
 
 }   // end namespace iota

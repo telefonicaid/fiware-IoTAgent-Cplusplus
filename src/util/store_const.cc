@@ -76,7 +76,16 @@ const std::string types::CBROKER("cbroker");
 const std::string types::OUTGOING_ROUTE("outgoing_route");
 const std::string types::PUBLIC_IP("public_ip");
 
+/// SERVICE_TABLE MANAGER
+const std::string types::MANAGER_SERVICE_TABLE("SERVICE_MGMT");
+const std::string types::PROTOCOL("protocol");
+/// PROTOCOL_TABLE
+const std::string types::PROTOCOL_TABLE("PROTOCOL");
+const std::string types::DESCRIPTION("description");
+const std::string types::ENDPOINTS("endpoints");
+const std::string types::ENDPOINT_AG("endpoint");
 
+// Also has resource from service table.
 
 /// STORAGE
 const std::string types::STORAGE("storage");
