@@ -26,7 +26,7 @@ Prior a device can successfully publish information on the IoTAgent, a service a
 
 The structure has three (or four) different topics, being the last one used when working with commands. Topic structure:
 
-<api-key>/<device-id>/<type>/[cmd-name]
+	<api-key>/<device-id>/<type>/[cmd-name]
 
 Where:
 ''api-key'': this is a unique value per service. It is provided through the provisioning API.
@@ -53,11 +53,12 @@ Where:
 ''type'': it is the actual phenomenon being measured, for example: temperature, pressure, etc… this is the name of the attribute being published on ContextBroker.
 An example would be:
 
-822asijn7jwb9kn367fjz235/id234/temperature
+	822asijn7jwb9kn367fjz235/id234/temperature
 
 The payload can just be a number representing the temperature. The payload will be directly what comes into "value" of the published entity on ContextBroker. 
 
 This is what is publised on ContextBroker: 
+
            {
                 "id":"id234",
                 "type" : "<entity-type>",
@@ -89,7 +90,7 @@ Another scenario can happen when devices send more than one phenomena within the
 
 Topic:
 
-<api-key>/<device-id>/mul20
+	<api-key>/<device-id>/mul20
 
 Where:
 ''api-key'': this is a unique value per service.
@@ -116,13 +117,13 @@ Topic: 		822asijn7jwb9kn367fjz235/id234/mul20
 payload: 	temperature|33#pressure|55#
 
 Therefore, the entity published on ContextBroker will contain two attributes with name "temperature" and "pressure" with values "33" and "55" respectively. 
-
-{
-                "id":"id234",
-                "type" : "<entity-type>",
-                "isPattern" : "false",
-                "attributes" : [
-                               {
+	
+	{
+        	        "id":"id234",
+                	"type" : "<entity-type>",
+                	"isPattern" : "false",
+                	"attributes" : [
+                               	{
                                 	"name":"temperature",
                                         "type":"string",
                                         "value":"33",
@@ -160,13 +161,13 @@ As per it's described in [IoTAgent Commands](commands.md), there are two kind of
 
 For this kind of commands, devices are the ones to request the sending of any available command by polling the IoTAgent. To do so they have to publish a message on this topic:
 
-<api-key>/<device-id>/cmdget
+	<api-key>/<device-id>/cmdget
 
 Payload is not relevant (it can be null)
 
 The IoTAgent, will then publish all available (not expired) commands for that device. For example a command will be a mqtt message with this topic: 
 
-822asijn7jwb9kn367fjz235/id234/cmd/set_time
+	822asijn7jwb9kn367fjz235/id234/cmd/set_time
 
 Note: devices must subscribe to that topic pattern only, otherwise they may receive commands addressed to other devices, causing issues. So for this example, the device must be subscribed to: 822asijn7jwb9kn367fjz235/id234/cmd/+    (including ‘+’). 
 
@@ -181,7 +182,8 @@ In this case, devices don't need to do anything else apart from subscribing to t
 Regardless of the type of command (push or polling) information within payload must follow same format used in multi-measures. Command parameters will have name and value that will be separated by “|” and each parameter will be separated by “#”. There is one critical piece of information in the payload, this is the command id. That has to be returned to the IoTAgent in the response of the command using the previous format. 
 
 Example of command payload:
-cmdid|82ndsj28924hnsrh2932424#param1|value1#
+	
+	cmdid|82ndsj28924hnsrh2932424#param1|value1#
 
 Where an additional “param1” parameter has been included with “value1” value. 
 
@@ -191,7 +193,7 @@ For doing so, devices have to publish an MQTT message on the following topic, an
 
 Topic:
 
-<api-key>/<device-id>/cmdexe/<cmd-name>
+	<api-key>/<device-id>/cmdexe/<cmd-name>
 
 Where:
 api-key: this is a unique value per vendor.
@@ -206,8 +208,10 @@ As it has been highlighted, cmdid must be present in the payload of any response
 Example (response to previous “set_time” command):
 
 Topic:
-822asijn7jwb9kn367fjz235/id234/cmdexe/set_time
+	
+	822asijn7jwb9kn367fjz235/id234/cmdexe/set_time
 Payload:
+	
 	cmdid|82ndsj28924hnsrh2932424#result|OK#
 
 In this example a specific result has been added apart from the cmdid previously sent. 
