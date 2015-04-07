@@ -19,8 +19,8 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_SERVICE_COLLECTION_H_
-#define SRC_UTIL_SERVICE_COLLECTION_H_
+#ifndef SRC_UTIL_SERVICE_MGMT_COLLECTION_H_
+#define SRC_UTIL_SERVICE_MGMT_COLLECTION_H_
 
 #include <string>
 #include <vector>
@@ -32,14 +32,18 @@
 
 namespace iota {
 
-class ServiceCollection : public Collection {
+typedef std::pair<std::string, std::string>   ServiceType;
+
+typedef std::pair<std::string, std::string>   IotagentType;
+
+class ServiceMgmtCollection : public Collection {
   public:
 
-    ServiceCollection();
+    ServiceMgmtCollection();
 
-    ServiceCollection(ServiceCollection&);
+    ServiceMgmtCollection(ServiceMgmtCollection&);
 
-    ~ServiceCollection();
+    ~ServiceMgmtCollection();
 
     int createTableAndIndex();
 
@@ -48,6 +52,13 @@ class ServiceCollection : public Collection {
 
     std::string getSchema(const std::string& method);
 
+    std::vector<ServiceType> get_services_by_protocol(
+              const std::string &protocol_name,
+              int limit=0, int skip=0);
+
+    std::vector<IotagentType> get_iotagents_by_service(
+        const std::string & service, const std::string& service_path,
+        int limit=0, int skip=0);
 
   protected:
 

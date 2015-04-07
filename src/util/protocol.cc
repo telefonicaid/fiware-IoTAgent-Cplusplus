@@ -19,54 +19,28 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_PROTOCOL_COLLECTION_H_
-#define SRC_UTIL_PROTOCOL_COLLECTION_H_
-
-#include <string>
-#include <vector>
-
-#include "collection.h"
 #include "protocol.h"
 
+iota::Protocol::Protocol() {
+
+  _description = "";
+  _name = "";
+
+}
 
 
-namespace iota {
+iota::Protocol::Protocol(const std::string& description) {
 
-class ProtocolCollection : public Collection {
-  public:
+  _description = description;
+  _name = "";
 
-    ProtocolCollection();
-
-    ProtocolCollection(ProtocolCollection&);
-
-    ~ProtocolCollection();
-
-    int createTableAndIndex();
-
-    int insert(const Protocol& obj) ;
-    int find(const Protocol& query) ;
-    Protocol next() ;
-    int remove(const Protocol& query) ;
-    int count(const Protocol& query) ;
-
-    int update(const Protocol& query,
-               const Protocol& sett);
-
-    std::vector<iota::Protocol> get_all();
-
-  protected:
-
-    iota::Protocol BSON2Obj(const mongo::BSONObj& obj);
-
-    mongo::BSONObj Obj2BSON(const Protocol& protocol, bool withShardKey);
-
-  private:
+}
 
 
-}; // end class ProtocolCollection
+iota::Protocol::~Protocol(void) {
+}
 
-}// end namespace  iota
-
-#endif
-
+void iota::Protocol::add(resource_endpoint data) {
+   _endpoints.push_back (data);
+}
 

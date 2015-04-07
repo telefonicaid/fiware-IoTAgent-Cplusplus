@@ -19,54 +19,60 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_PROTOCOL_COLLECTION_H_
-#define SRC_UTIL_PROTOCOL_COLLECTION_H_
+#ifndef SRC_UTIL_PROTOCOL_H_
+#define SRC_UTIL_PROTOCOL_H_
 
-#include <string>
-#include <vector>
-
-#include "collection.h"
-#include "protocol.h"
-
-
+#include "timer.h"
+#include <boost/functional/hash.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace iota {
 
-class ProtocolCollection : public Collection {
+class Protocol  {
+
   public:
+    typedef struct {
+      std::string endpoint;
+      std::string resource;
+    } resource_endpoint;
 
-    ProtocolCollection();
+    Protocol();
+    Protocol(const std::string& name);
 
-    ProtocolCollection(ProtocolCollection&);
+    virtual ~Protocol();
 
-    ~ProtocolCollection();
+    void add(resource_endpoint data);
 
-    int createTableAndIndex();
+    std::vector<resource_endpoint> & get_endpoints() {
+      return _endpoints;
+    };
 
-    int insert(const Protocol& obj) ;
-    int find(const Protocol& query) ;
-    Protocol next() ;
-    int remove(const Protocol& query) ;
-    int count(const Protocol& query) ;
+    std::string get_description() const {
+      return _description;
+    };
 
-    int update(const Protocol& query,
-               const Protocol& sett);
+    void set_description(const std::string& description) {
+      _description = description;
+    }
 
-    std::vector<iota::Protocol> get_all();
+    std::string get_name() const {
+      return _name;
+    };
+
+    void set_name(const std::string& name) {
+      _name = name;
+    }
 
   protected:
-
-    iota::Protocol BSON2Obj(const mongo::BSONObj& obj);
-
-    mongo::BSONObj Obj2BSON(const Protocol& protocol, bool withShardKey);
-
   private:
 
+    std::string _description;
+    std::string _name;
+    std::vector<resource_endpoint> _endpoints;
 
-}; // end class ProtocolCollection
+};
+};
 
-}// end namespace  iota
+
 
 #endif
-
-

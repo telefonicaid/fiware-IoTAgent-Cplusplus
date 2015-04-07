@@ -45,8 +45,84 @@ int iota::ProtocolCollection::createTableAndIndex() {
 
   int res = 200;
   ensureIndex("shardKey",
-              BSON(iota::store::types::DESCRIPTION << 1),
+              BSON(iota::store::types::PROTOCOL_DESCRIPTION << 1),
               true);
 
   return res;
 }
+
+int iota::ProtocolCollection::insert(const Protocol& obj) {
+  return iota::Collection::insert(Obj2BSON(obj, true));
+}
+
+int iota::ProtocolCollection::update(const Protocol& query,
+                                   const Protocol& sett) {
+  return iota::Collection::update(
+                Obj2BSON(query, true),
+                Obj2BSON(sett, true));
+}
+
+int iota::ProtocolCollection::find(const Protocol& query) {
+  return iota::Collection::find(Obj2BSON(query, true));
+}
+
+iota::Protocol iota::ProtocolCollection::next() {
+  mongo::BSONObj data = iota::Collection::next();
+  return BSON2Obj(data);
+}
+
+int iota::ProtocolCollection::remove(const Protocol& query) {
+  return iota::Collection::remove(Obj2BSON(query, true));
+}
+
+int iota::ProtocolCollection::count(const Protocol& query) {
+  return iota::Collection::count(Obj2BSON(query, true));
+}
+
+mongo::BSONObj iota::ProtocolCollection::Obj2BSON(const Protocol& protocol,
+    bool withShardKey) {
+  mongo::BSONObjBuilder obj;
+  if (withShardKey) {
+    if (!protocol.get_name().empty()) {
+      obj.append(iota::store::types::PROTOCOL_NAME, protocol.get_name());
+    }
+  }
+
+  if (!protocol.get_description().empty()) {
+      obj.append(iota::store::types::PROTOCOL_DESCRIPTION, protocol.get_description());
+    }
+
+  return obj.obj();
+}
+
+iota::Protocol iota::ProtocolCollection::BSON2Obj(const mongo::BSONObj& obj) {
+
+  std::string name = obj.getStringField(iota::store::types::PROTOCOL_NAME);
+  std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
+
+  Protocol result(name);
+  result.set_description(description);
+
+  return result;
+}
+
+std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
+  std::vector<iota::Protocol>  result;
+
+  mongo::BSONObj query;
+  mongo::BSONObjBuilder fieldsToReturn;
+  fieldsToReturn.append(iota::store::types::PROTOCOL_NAME, 1);
+  fieldsToReturn.append(iota::store::types::PROTOCOL_DESCRIPTION, 1);
+
+  iota::Collection::find(a_queryOptions, query,
+                           0, 0,
+                           iota::store::types::PROTOCOL_NAME,
+                           fieldsToReturn, 0);
+
+  while(more()){
+    result.push_back(next());
+  }
+
+  return result;
+}
+
