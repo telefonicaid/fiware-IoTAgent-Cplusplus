@@ -60,6 +60,7 @@ class ServiceCollection : public Collection {
 
     static const std::string POST_SCHEMA;
     static const std::string PUT_SCHEMA;
+    static const std::string POST_MANAGER_SCHEMA;
 
 }; // end class ServiceCollection
 

@@ -76,11 +76,16 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 std::string iota::ServiceCollection::getSchema(const std::string& method) {
   std::ostringstream schema;
 
-  if (method.compare("POST") == 0) {
-    return   POST_SCHEMA;
+  if (getBBDD().compare(iota::store::types::MANAGER_SERVICE_TABLE) != 0) {
+    if (method.compare("POST") == 0) {
+      return POST_SCHEMA;
+    }
+    else {
+      return PUT_SCHEMA;
+    }
   }
   else {
-    return   PUT_SCHEMA;
+    return POST_MANAGER_SCHEMA;
   }
 
 }
@@ -265,6 +270,103 @@ const std::string iota::ServiceCollection::PUT_SCHEMA(
   "}"
   "}"
   "}"
+  "}");
+
+const std::string iota::ServiceCollection::POST_MANAGER_SCHEMA(
+  "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
+  "\"title\": \"Service\","
+  "\"description\": \"A service\","
+  "\"additionalProperties\":false,"
+  "\"type\": \"object\","
+  "\"properties\": {"
+  "\"services\": {"
+  "\"type\":\"array\","
+  "\"id\": \"services\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"entity_type\": {"
+  "\"description\": \"default entity_type, if a device has not got entity_type uses this\","
+  "\"type\": \"string\""
+  "},"
+  "\"apikey\": {"
+  "\"description\": \"apikey\","
+  "\"type\": \"string\""
+  "},"
+  "\"token\": {"
+  "\"description\": \"token\","
+  "\"type\": \"string\""
+  "},"
+  "\"cbroker\": {"
+  "\"description\": \"uri for the context broker\","
+  "\"type\": \"string\","
+  "\"format\": \"uri\","
+  "\"minLength\":1"
+  "},"
+  "\"outgoing_route\": {"
+  "\"description\": \"VPN/GRE tunnel identifier\","
+  "\"type\": \"string\""
+  "},"
+  "\"resource\": {"
+  "\"description\": \"uri for the iotagent\","
+  "\"type\": \"string\","
+  "\"format\":\"regex\","
+  "\"pattern\":\"^/\""
+  "},"
+  "\"attributes\": {"
+  "\"type\":\"array\","
+  "\"id\": \"attributes\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"object_id\": {"
+  "\"description\": \"The unique identifier by service for a device\","
+  "\"type\": \"string\""
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of the entity, if it does not exits use device_id\","
+  "\"type\": \"string\""
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of the entity\","
+  "\"type\": \"string\""
+  "}"
+  "}"
+  "}"
+  "},"
+  "\"static_attributes\": {"
+  "\"type\":\"array\","
+  "\"id\": \"static_attributes\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"value\": {"
+  "\"description\": \"The unique identifier by service for a device\","
+  "\"type\": \"string\""
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of the entity, if it does not exits use device_id\","
+  "\"type\": \"string\""
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of the entity\","
+  "\"type\": \"string\""
+  "}"
+  "}"
+  "}"
+  "}"
+  "}"
+  ",\"required\": [\"apikey\", \"resource\", \"cbroker\"]"
+  "}"
+  "}"
+  "}"
+  ",\"required\": [\"services\"]"
   "}");
 
 

@@ -79,6 +79,13 @@ class AdminService :
                  pion::http::response& http_response,
                  std::string& response);
 
+    void protocols(pion::http::request_ptr& http_request_ptr,
+                   std::map<std::string, std::string>& url_args,
+                   std::multimap<std::string, std::string>& query_parameters,
+                   pion::http::response& http_response,
+                   std::string& response);
+
+
     void about(pion::http::request_ptr& http_request_ptr,
                std::map<std::string, std::string>& url_args,
                std::multimap<std::string, std::string>& query_parameters,
@@ -361,6 +368,23 @@ class AdminService :
       pion::http::response& http_response,
       std::string& response);
 
+    int post_protocol_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response);
+
+    int get_protocols_json(
+      const std::string& service,
+      const std::string& service_path,
+      int limit,
+      int offset,
+      const std::string& detailed,
+      const std::string& resource,
+      pion::http::response& http_response,
+      std::string& response);
+
     /**
       * check inf mongois configurated in config.json
       * avoid to call API Rest with no mongodb typw in config
@@ -371,7 +395,7 @@ class AdminService :
 
   private:
 
-    void remove_from_cache(Device &device);
+    void remove_from_cache(Device& device);
     void check_uri(const std::string& data);
 
     // API holders

@@ -54,6 +54,7 @@ const std::string ADMIN_SERVICE_AGENTS = "/agents";
 const std::string ADMIN_SERVICE_DEVICES = "/devices";
 const std::string ADMIN_SERVICE_SERVICES = "/services";
 const std::string ADMIN_SERVICE_ABOUT = "/about";
+const std::string ADMIN_SERVICE_PROTOCOLS = "/protocols";
 
 typedef boost::function<void (
   pion::http::request_ptr&,
