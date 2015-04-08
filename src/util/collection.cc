@@ -111,6 +111,56 @@ mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
 
 }
 
+mongo::BSONObj iota::Collection::aggregate(
+    const std::vector<mongo::BSONObj> &pipeline,
+    int retry) {
+
+  std::string bbdd = getDatabaseName();
+  mongo::BSONObj res, r;
+  mongo::BSONObjBuilder obj;
+
+  mongo::DBClientBase* conn = getConnection();
+
+  obj.append("aggregate", a_bbdd);
+  obj.append("pipeline", pipeline);
+
+  r = obj.obj();
+
+  std::string param_request("Collection:aggregate|bbdd=" + bbdd + "|data=" +
+                            r.toString());
+  PION_LOG_DEBUG(m_logger, param_request);
+  //int errCode = 0;
+  //mongo::BSONObj errObj;
+  try {
+    conn->runCommand(bbdd, r, res);
+    //obtenemos el id y ok
+    //errObj = conn->getLastErrorDetailed();
+    //errCode = errObj["code"].numberInt();
+  }
+  catch (mongo::DBException& exc) {
+    // try again
+    std::string original_exc(exc.what());
+    try {
+      conn->runCommand(bbdd, r, res);
+      //errObj = conn->getLastErrorDetailed();
+      //errCode = errObj["code"].numberInt();
+    }
+    catch (std::exception& e) {
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                                original_exc, iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+    }
+  }
+
+  getLastError(bbdd, res);
+  PION_LOG_DEBUG(m_logger, "Find and notify query:" << r.toString());
+  PION_LOG_DEBUG(m_logger, "Find and notify result:" << res.toString());
+
+  return res;
+
+}
+
 int iota::Collection::getLastError(const std::string& bbdd,
                                    const mongo::BSONObj &obj) {
 
@@ -460,14 +510,15 @@ int iota::Collection::find(const mongo::BSONObj& query) {
 int iota::Collection::find(int queryOptions,
                            const mongo::BSONObj& query,
                            mongo::BSONObjBuilder& fieldsToReturn) {
-  return find(queryOptions, query, 0, 0, "", fieldsToReturn);
+  mongo::BSONObj emptyBSON;
+  return find(queryOptions, query, 0, 0, emptyBSON, fieldsToReturn);
 }
 
 int iota::Collection::find(int queryOptions,
                            const mongo::BSONObj& queryObj,
                            int limit,
                            int skip,
-                           const std::string &order,
+                           const mongo::BSONObj& order,
                            mongo::BSONObjBuilder& fieldsToReturn,
                            int retry) {
 
@@ -487,7 +538,7 @@ int iota::Collection::find(int queryOptions,
 
   try {
 
-    if (!order.empty()){
+    if (order.nFields()> 0){
       query.sort(order);
     }
 

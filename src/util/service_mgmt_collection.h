@@ -60,6 +60,10 @@ class ServiceMgmtCollection : public Collection {
         const std::string & service, const std::string& service_path,
         int limit=0, int skip=0);
 
+    std::vector<iota::ServiceType> get_services_group_protocol(
+              const std::string &protocol_name,
+              int limit, int skip);
+
   protected:
 
 

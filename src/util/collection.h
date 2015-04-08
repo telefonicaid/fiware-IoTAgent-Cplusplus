@@ -66,6 +66,10 @@ class Collection {
                                  bool upsert = true,
                                  int retry=0);
 
+    mongo::BSONObj aggregate(
+             const std::vector<mongo::BSONObj> &pipeline,
+             int retry);
+
     int insert(const mongo::BSONObj& data, int retry=0);
 
     int update(bool upsert = false);
@@ -92,7 +96,7 @@ class Collection {
              const mongo::BSONObj& query,
              int limit,
              int skip,
-             const std::string &order,
+             const mongo::BSONObj& order,
              mongo::BSONObjBuilder& fieldsToReturn,
              int retry = 0);
 

@@ -29,10 +29,10 @@ iota::Protocol::Protocol() {
 }
 
 
-iota::Protocol::Protocol(const std::string& description) {
+iota::Protocol::Protocol(const std::string& name) {
 
-  _description = description;
-  _name = "";
+  _description = "";
+  _name = name;
 
 }
 

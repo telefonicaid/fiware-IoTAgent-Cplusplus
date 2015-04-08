@@ -114,9 +114,11 @@ std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
   fieldsToReturn.append(iota::store::types::PROTOCOL_NAME, 1);
   fieldsToReturn.append(iota::store::types::PROTOCOL_DESCRIPTION, 1);
 
+  mongo::BSONObj fieldsSort = BSON(iota::store::types::PROTOCOL_NAME << 1);
+
   iota::Collection::find(a_queryOptions, query,
                            0, 0,
-                           iota::store::types::PROTOCOL_NAME,
+                           fieldsSort,
                            fieldsToReturn, 0);
 
   while(more()){

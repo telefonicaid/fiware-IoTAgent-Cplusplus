@@ -123,6 +123,14 @@ const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
   "\"format\":\"regex\","
   "\"pattern\":\"^/\""
   "},"
+  "\"iotagent\": {"
+  "\"description\": \"host for the iotagent\","
+  "\"type\": \"string\""
+  "},"
+  "\"protocol\": {"
+  "\"description\": \"protocol\","
+  "\"type\": \"string\""
+  "},"
   "\"attributes\": {"
   "\"type\":\"array\","
   "\"id\": \"attributes\","
@@ -184,7 +192,7 @@ int iota::ServiceMgmtCollection::createTableAndIndex() {
 
   ensureIndex("shardKey",
                 BSON(iota::store::types::SERVICE << 1 << iota::store::types::SERVICE_PATH << 1
-                     << iota::store::types::PROTOCOL <<1),
+                     << iota::store::types::PROTOCOL <<1 << iota::store::types::RESOURCE << 1),
                 true);
 
   return res;
@@ -202,18 +210,50 @@ std::vector<iota::ServiceType> iota::ServiceMgmtCollection::get_services_by_prot
 
   iota::Collection::find(a_queryOptions, query,
                            limit, skip,
-                           iota::store::types::SERVICE,
+                           BSON(iota::store::types::SERVICE << 1 <<
+                           iota::store::types::SERVICE_PATH << 1),
                            fieldsToReturn, 0);
 
   std::string ser, ser_path;
   mongo::BSONObj elto;
   while(more()){
-      //TODO  comprobar que noe sta repetido
+      //TODO  comprobar que no esta repetido
     elto = next();
     ser = elto.getStringField(iota::store::types::SERVICE);
     ser_path = elto.getStringField(iota::store::types::SERVICE_PATH);
     result.push_back(iota::ServiceType(ser, ser_path));
   }
+
+
+  return result;
+}
+
+std::vector<iota::ServiceType> iota::ServiceMgmtCollection::get_services_group_protocol(
+              const std::string &protocol_name,
+              int limit, int skip){
+  std::vector<iota::ServiceType>  result;
+
+  std::vector<mongo::BSONObj> pipeline;
+  // TODO  match y sort
+  pipeline.push_back( BSON( "$project" <<
+       BSON("service" << 1 << "service_path" << 1 << "protocol" <<1)
+       ));
+  pipeline.push_back( BSON("$group" <<
+       BSON("_id" <<
+       BSON("service" << "$service" << "service_path"<< "$service_path") <<
+       "protocol" << BSON("$addToSet" << "$protocol" ) ))
+  );
+  mongo::BSONObj res =iota::Collection::aggregate(pipeline, 0);
+  std::cout << "RES::" << res << std::endl;
+  /*std::string ser, ser_path;
+  mongo::BSONObj elto;
+  while(more()){
+      //TODO  comprobar que no esta repetido
+    elto = next();
+    ser = elto.getStringField(iota::store::types::SERVICE);
+    ser_path = elto.getStringField(iota::store::types::SERVICE_PATH);
+    result.push_back(iota::ServiceType(ser, ser_path));
+  }*/
 
 
   return result;
@@ -231,7 +271,8 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
 
   iota::Collection::find(a_queryOptions, query,
                            limit, skip,
-                           iota::store::types::IOTAGENT,
+                           BSON(iota::store::types::IOTAGENT << 1 <<
+                           iota::store::types::RESOURCE << 1),
                            fieldsToReturn, 0);
 
   std::string ser, ser_path;

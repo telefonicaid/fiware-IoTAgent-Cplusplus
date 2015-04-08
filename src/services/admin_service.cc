@@ -37,6 +37,7 @@
 #include "version.h"
 #include "util/device_collection.h"
 #include "util/service_collection.h"
+#include "util/service_mgmt_collection.h"
 #include "util/protocol_collection.h"
 #include "util/iot_url.h"
 
@@ -1452,7 +1453,7 @@ bool iota::AdminService::validate_json_schema(
     json_schema = serv.getSchema(method);
   }
   else if (table.compare(iota::store::types::MANAGER_SERVICE_TABLE) == 0) {
-    ServiceCollection serv(iota::store::types::MANAGER_SERVICE_TABLE);
+    ServiceMgmtCollection serv;
     json_schema = serv.getSchema(method);
   }
   else {
@@ -1707,6 +1708,12 @@ int iota::AdminService::get_all_devices_json(
   mongo::BSONObj elto;
   mongo::BSONObjBuilder bson_query;
   bson_query.append(iota::store::types::SERVICE, service);
+
+  mongo::BSONObjBuilder bson_sort;
+  // se ordena de manera ascendente por nombre device
+  bson_sort.append(store::types::DEVICE_SORT, 1);
+  bson_sort.append(store::types::SERVICE_PATH, 1);
+
   ServiceCollection::addServicePath(service_path, bson_query);
   mongo::BSONObj obj_query;
   if (entity.empty() == false) {
@@ -1730,7 +1737,7 @@ int iota::AdminService::get_all_devices_json(
                            http_response, response);
   }
   devTable.find(INT_MIN, obj_query, limit, offset,
-                store::types::DEVICE_SORT, bson_fields);
+                bson_sort.obj(), bson_fields);
   while (devTable.more()) {
     elto = devTable.next();
     res << elto.jsonString();
@@ -1952,6 +1959,10 @@ int iota::AdminService::get_all_services_json(
   mongo::BSONObjBuilder query;
   mongo::BSONObj p;
   mongo::BSONObjBuilder bson_fields;
+  mongo::BSONObjBuilder bson_sort;
+  // se ordena de manera ascendente poer servicio y subservicio, a fuego
+  bson_sort.append(store::types::SERVICE, 1);
+  bson_sort.append(store::types::SERVICE_PATH, 1);
 
   // Fiware-Service
   query.append(iota::store::types::SERVICE_ID, service);
@@ -1979,7 +1990,7 @@ int iota::AdminService::get_all_services_json(
   }
 
   table.find(INT_MIN, p, limit, offset,
-             store::types::SERVICE_SORT, bson_fields);
+             bson_sort.obj(), bson_fields);
   while (table.more()) {
     elto = table.next();
     res << elto.jsonString();
@@ -2119,7 +2130,7 @@ int iota::AdminService::post_protocol_json(
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason;
   std::string error_details;
-  ServiceCollection service_table(iota::store::types::MANAGER_SERVICE_TABLE);
+  ServiceMgmtCollection service_table;
   ProtocolCollection protocol_table;
 
   if (body.empty()) {
@@ -2135,7 +2146,7 @@ int iota::AdminService::post_protocol_json(
     // Resource and description define a protocol
     std::string endpoint = obj.getStringField(iota::store::types::ENDPOINT);
     std::string resource = obj.getStringField(iota::store::types::RESOURCE);
-    std::string description = obj.getStringField(iota::store::types::DESCRIPTION);
+    std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
 
     // TODO New protocol or update endpoints and get _id as protocol identifier
     std::string protocol_identifier;
