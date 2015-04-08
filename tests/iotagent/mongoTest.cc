@@ -502,13 +502,13 @@ void MongoTest::testServiceMgmtCollection(){
 
     std::cout << "@UT@Todos los servicios de un protocolo " << std::endl;
     iota::ServiceMgmtCollection table2;
-    std::vector<std::pair<std::string, std::string>> services = table2.get_services_by_protocol("UL20");
-    std::cout << "@UT@res: " << services << std::endl;
+    std::vector<iota::ServiceType> services = table2.get_services_by_protocol("UL20");
+    //std::cout << "@UT@res: " << services << std::endl;
 
     std::cout << "@UT@Todos los iotagent de un servicio " << std::endl;
     iota::ServiceMgmtCollection table3;
-    std::vector<std::pair<std::string, std::string>> iotagents = table3.get_iotagents_by_service("s1", "/ss1");
-    std::cout << "@UT@hay " << iotagents << std::endl;
+    std::vector<iota::IotagentType> iotagents = table3.get_iotagents_by_service("s1", "/ss1");
+    //std::cout << "@UT@hay " << iotagents << std::endl;
 
     table2.remove(all);
 
