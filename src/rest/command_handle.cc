@@ -1627,19 +1627,25 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
   }
   else if (res_code == 202) {
     PION_LOG_DEBUG(m_logger, " accepted command, waiting for the result");
-    send_updateContext(cmd_data.command_name, iota::types::STATUS,
-                       iota::types::STATUS_TYPE,
-                       iota::types::DELIVERED_MESSAGE,
-                       cmd_data.item_dev, cmd_data.service,
-                       iota::types::STATUS_OP);
+    int n=1;
     if (_storage_type.compare(iota::store::types::MONGODB)==0) {
       PION_LOG_DEBUG(m_logger, "update command status to delivered " << cmd_data.command_id);
       iota::Collection table(iota::store::types::COMMAND_TABLE);
 
       mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << cmd_data.command_id);
       mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
-      table.update(no, ap);
+      n = table.update(no, ap);
     }
+    if (n > 0){
+       send_updateContext(cmd_data.command_name, iota::types::STATUS,
+                       iota::types::STATUS_TYPE,
+                       iota::types::DELIVERED_MESSAGE,
+                       cmd_data.item_dev, cmd_data.service,
+                       iota::types::STATUS_OP);
+    }else{
+      PION_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
+    }
+
     PION_LOG_DEBUG(m_logger, " response 202, accepted command id ," << cmd_data.command_id);
   }
   else {
