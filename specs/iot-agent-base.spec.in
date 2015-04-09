@@ -34,7 +34,7 @@ IoT - IoTAgent Base
 
 echo "[INFO] Creating %{_owner} user"
 getent group %{_owner} >/dev/null || groupadd -r %{_owner}
-getent passwd %{_owner} >/dev/null || useradd -r -g %{_owner} -m -s /bin/bash -c 'Orion account' %{_owner}
+getent passwd %{_owner} >/dev/null || useradd -r -g %{_owner} -m -s /bin/bash -c 'IoTAgent account' %{_owner}
 
 # -------------------------------------------------------------------------------------------- #
 # Install section:
@@ -59,18 +59,16 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/src/services/date_time_zonespec.csv %{buildroot}/e
 cp @CMAKE_CURRENT_SOURCE_DIR@/tests/iotagent/devices.json %{buildroot}/etc/iot
 
 mkdir -p %{buildroot}/usr/local/iot/config
-cp @CMAKE_CURRENT_SOURCE_DIR@rpm/SOURCES/config/iotagent %{buildroot}/usr/local/iot/config
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagent %{buildroot}/usr/local/iot/config
 
 mkdir -p %{buildroot}/usr/local/iot/init.d
-cp @CMAKE_CURRENT_SOURCE_DIR@rpm/SOURCES/init.d/iotagent %{buildroot}/usr/local/iot/init.d
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/init.d/iotagent %{buildroot}/usr/local/iot/init.d
 
 mkdir -p %{buildroot}/etc/cron.d
-cp @CMAKE_CURRENT_SOURCE_DIR@rpm/SOURCES/cron.d/cron-logrotate-iotagent-size %{buildroot}/etc/cron.d
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/cron.d/cron-logrotate-iotagent-size %{buildroot}/etc/cron.d
 
 mkdir -p %{buildroot}/etc/logrotate.d
-cp @CMAKE_CURRENT_SOURCE_DIR@rpm/SOURCES/logrotate.d/logrotate-iotagent-daily  %{buildroot}/etc/logrotate.d
-
-ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/logrotate.d/logrotate-iotagent-daily  %{buildroot}/etc/logrotate.d
 
 # -------------------------------------------------------------------------------------------- #
 # Post-Install section:
@@ -82,6 +80,8 @@ mkdir -p %{_log_dir}
 
 echo "[INFO] Creating run directory"
 mkdir -p %{_run_dir}
+
+ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 
 # -------------------------------------------------------------------------------------------- #
 # pre-uninstall section:
@@ -104,3 +104,7 @@ rm -rf %{buildroot}
 # -------------------------------------------------------------------------------------------- #
 %files
 %defattr(755,%{_owner},%{_owner},755)
+/etc/iot
+/etc/cron.d
+/etc/logrotate.d
+/usr/local/iot/
