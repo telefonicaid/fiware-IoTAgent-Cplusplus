@@ -385,6 +385,10 @@ class AdminService :
       pion::http::response& http_response,
       std::string& response);
 
+    int delete_all_protocol_json(
+      pion::http::response& http_response,
+      std::string& response);
+
     /**
       * check inf mongois configurated in config.json
       * avoid to call API Rest with no mongodb typw in config

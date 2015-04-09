@@ -151,7 +151,8 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
 
   PION_LOG_INFO(m_logger, "timeout command: |device:" <<
                 item->get_device() << "|service:" << item->get_service()
-                << "|service_path:" << item->get_service_path());
+                << "|service_path:" << item->get_service_path()
+                << "|command_id" << item->get_id());
   try {
     int status  = item->get_status();
     std::string statusSTR;
@@ -172,10 +173,19 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
 
     get_service_by_name(service_ptree, item->get_service(),
                         item->get_service_path());
-    //ha saltado algun timeout, hay que enviar el nuevo estado del comando
-    send_updateContext(
-      item->get_name(), iota::types::STATUS, iota::types::STATUS_TYPE ,statusSTR,
-      dev, service_ptree, iota::types::STATUS_OP);
+    //look for command in cache
+    int c = remove_command( item->get_id(),  item->get_service(),
+           item->get_service_path());
+
+    if (c > 0){
+      //ha saltado algun timeout, hay que enviar el nuevo estado del comando
+      send_updateContext(
+        item->get_name(), iota::types::STATUS, iota::types::STATUS_TYPE ,statusSTR,
+        dev, service_ptree, iota::types::STATUS_OP);
+    }else{
+      PION_LOG_ERROR(m_logger, "timeout command: |command_id" << item->get_id()<<
+               " timeout but no command in cache, no sended data to CB");
+    }
 
   }
   catch (iota::IotaException& e) {
@@ -1463,12 +1473,13 @@ void iota::CommandHandle::remove_all_command() {
   m_asyncCommands.remove_all();
 }
 
-void iota::CommandHandle::remove_command(
+int iota::CommandHandle::remove_command(
   const std::string& command_id,
   const std::string& service,
   const std::string& service_path) {
   PION_LOG_DEBUG(m_logger, "remove_command: " << command_id <<
                  " service:" <<  service << " " << service_path);
+  int removed_commands=1;
 
   boost::shared_ptr<Command> item(new Command("", service, service_path));
   item->set_id(command_id);
@@ -1478,9 +1489,10 @@ void iota::CommandHandle::remove_command(
   if (_storage_type.compare(iota::store::types::MONGODB)==0) {
     PION_LOG_DEBUG(m_logger, "remove_command in mongo");
     iota::CommandCollection table;
-    table.remove(*(item.get()));
+    removed_commands = table.remove(*(item.get()));
   }
 
+  return removed_commands;
 }
 
 int iota::CommandHandle::get_cache_size() {
@@ -1627,19 +1639,25 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
   }
   else if (res_code == 202) {
     PION_LOG_DEBUG(m_logger, " accepted command, waiting for the result");
-    send_updateContext(cmd_data.command_name, iota::types::STATUS,
-                       iota::types::STATUS_TYPE,
-                       iota::types::DELIVERED_MESSAGE,
-                       cmd_data.item_dev, cmd_data.service,
-                       iota::types::STATUS_OP);
+    int n=1;
     if (_storage_type.compare(iota::store::types::MONGODB)==0) {
       PION_LOG_DEBUG(m_logger, "update command status to delivered " << cmd_data.command_id);
       iota::Collection table(iota::store::types::COMMAND_TABLE);
 
       mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << cmd_data.command_id);
       mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
-      table.update(no, ap);
+      n = table.update(no, ap);
     }
+    if (n > 0){
+       send_updateContext(cmd_data.command_name, iota::types::STATUS,
+                       iota::types::STATUS_TYPE,
+                       iota::types::DELIVERED_MESSAGE,
+                       cmd_data.item_dev, cmd_data.service,
+                       iota::types::STATUS_OP);
+    }else{
+      PION_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
+    }
+
     PION_LOG_DEBUG(m_logger, " response 202, accepted command id ," << cmd_data.command_id);
   }
   else {
