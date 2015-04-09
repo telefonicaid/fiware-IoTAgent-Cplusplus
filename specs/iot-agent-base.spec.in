@@ -23,8 +23,8 @@ IoT - IoTAgent Base
 %define _topdir @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM
 %define _owner iotagent
 # _localstatedir is a system var that goes to /var
-%define _log_dir %{_localstatedir}/log/%{_project_name}
-%define _run_dir %{_localstatedir}/run/%{_project_name}
+%define _log_dir %{_localstatedir}/log/iot
+%define _run_dir %{_localstatedir}/run/iot
 
 
 # -------------------------------------------------------------------------------------------- #
@@ -90,6 +90,9 @@ ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 
 /sbin/service %{_owner} stop
 rm /etc/init.d/iotagent
+userdel %{_owner}
+
+getent passwd %{_owner} > /dev/null && userdel %{_owner}
 
 # -------------------------------------------------------------------------------------------- #
 # post-uninstall section:
