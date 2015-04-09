@@ -89,6 +89,7 @@ ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 %preun
 
 /sbin/service %{_owner} stop
+rm /etc/init.d/iotagent
 
 # -------------------------------------------------------------------------------------------- #
 # post-uninstall section:
