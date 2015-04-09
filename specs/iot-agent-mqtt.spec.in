@@ -57,6 +57,7 @@ rm -rf %{buildroot}
 # Files to add to the RPM
 # -------------------------------------------------------------------------------------------- #
 %files
+%defattr(755,%{_owner},%{_owner},755)
 #/usr/local/iot/lib/libEsp.so
 #/usr/local/iot/lib/libMqttService.so
 /usr/local/iot/lib/MqttService.so
