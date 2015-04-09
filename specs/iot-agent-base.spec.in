@@ -108,3 +108,5 @@ rm -rf %{buildroot}
 /etc/cron.d
 /etc/logrotate.d
 /usr/local/iot/
+%attr(600, root, root) /etc/cron.d/cron-logrotate-iotagent-size
+%attr(644, root, root) /etc/logrotate.d/logrotate-iotagent-daily

@@ -1,3 +1,7 @@
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
+# 
+# This file is part of fiware-IoTAgentCplusPlus (FI-WARE project).
+
 Name:          @CPACK_PACKAGE_NAME@-mqtt
 Version:       @CPACK_PACKAGE_VERSION@
 Release:       @CPACK_PACKAGE_RELEASE@
@@ -13,9 +17,14 @@ Requires: @CPACK_PACKAGE_NAME@-base, mosquitto, libmosquitto1, libmosquittopp1
 %define _rpmfilename %{name}-@CPACK_PACKAGE_FILE_NAME@.rpm
 %define _unpackaged_files_terminate_build 0
 %define _topdir @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM
+%define _owner iotagent
 
 %description
 IoT - IoTAgent MQTT
+
+# -------------------------------------------------------------------------------------------- #
+# Install section:
+# -------------------------------------------------------------------------------------------- #
 %install
 pwd
 mkdir -p %{buildroot}/usr/local/iot/lib
@@ -34,13 +43,19 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/src/mqtt/init_mosquitto.sh %{buildroot}/usr/local/
 %clean
 rm -rf %{buildroot}
 
-
+# -------------------------------------------------------------------------------------------- #
+# pre-uninstall section:
+# -------------------------------------------------------------------------------------------- #
 %pre
 
+# -------------------------------------------------------------------------------------------- #
+# Post-Install section:
+# -------------------------------------------------------------------------------------------- #
 %post
 
-%preun
-
+# -------------------------------------------------------------------------------------------- #
+# Files to add to the RPM
+# -------------------------------------------------------------------------------------------- #
 %files
 #/usr/local/iot/lib/libEsp.so
 #/usr/local/iot/lib/libMqttService.so
