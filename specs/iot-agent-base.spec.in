@@ -70,16 +70,16 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/cron.d/cron-logrotate-iotagent-size %{
 mkdir -p %{buildroot}/etc/logrotate.d
 cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/logrotate.d/logrotate-iotagent-daily  %{buildroot}/etc/logrotate.d
 
-echo "[INFO] Creating log directory"
-mkdir -p %{buildroot}/%{_log_dir}
-
-echo "[INFO] Creating run directory"
-mkdir -p %{buildroot}/%{_run_dir}
-
 # -------------------------------------------------------------------------------------------- #
 # Post-Install section:
 # -------------------------------------------------------------------------------------------- #
 %post
+
+echo "[INFO] Creating log directory"
+mkdir -p %{_log_dir}
+
+echo "[INFO] Creating run directory"
+mkdir -p %{_run_dir}
 
 ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 
