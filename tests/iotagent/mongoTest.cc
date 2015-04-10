@@ -515,7 +515,7 @@ void MongoTest::testServiceMgmtCollection(){
 
     std::cout << "@UT@Todos los iotagentS del servicio s1 /ss1 " << std::endl;
     iota::ServiceMgmtCollection table3;
-    std::vector<iota::IotagentType> iotagents = table3.get_iotagents_by_service("s1", "/ss1");
+    std::vector<iota::IotagentType> iotagents = table3.get_iotagents_by_service("s1", "/ss1", "UL20");
     int iot_count=0;
     std::string iot;
     for(std::vector<iota::IotagentType>::iterator it = iotagents.begin(); it != iotagents.end(); ++it) {

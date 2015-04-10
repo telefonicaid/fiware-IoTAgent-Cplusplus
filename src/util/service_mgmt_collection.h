@@ -58,6 +58,7 @@ class ServiceMgmtCollection : public Collection {
 
     std::vector<IotagentType> get_iotagents_by_service(
         const std::string & service, const std::string& service_path,
+        const std::string& protocol_id,
         int limit=0, int skip=0);
 
     std::vector<iota::ServiceType> get_services_group_protocol(
