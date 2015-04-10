@@ -12,12 +12,12 @@ iota::AdminManagerService::~AdminManagerService(){
 
 }
 
-void iota::AdminManagerService::extract_protocol_and_device(std::vector<std::string> v_protocols_out, std::vector<DeviceToBeAdded> v_devices_out,const std::string& device_protocol_in){
+void iota::AdminManagerService::resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in){
 
   rapidjson::Document document;
-  char buffer[device_protocol_in.length()];
+  char buffer[devices_protocols_in.length()];
   //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
-  strcpy(buffer, device_protocol_in.c_str());
+  strcpy(buffer, devices_protocols_in.c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
     what << "ContextElement: ";

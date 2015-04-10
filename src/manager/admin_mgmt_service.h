@@ -10,35 +10,36 @@
 #include <rapidjson/writer.h>
 #include <rapidjson/document.h>
 #include <boost/foreach.hpp>
+#include <iostream>
 
 namespace iota{
 
  class DeviceToBeAdded{
 
     public:
-      DeviceToBeAdded(std::string device_json, std::string protocol) : _device_json(device_json) , _protocol(protocol)
+      DeviceToBeAdded(std::string device_json, std::string endpoint) : _device_json(device_json) , _endpoint(endpoint)
       {};
 
     bool operator==(DeviceToBeAdded& a) const {
       if ((_device_json.compare(a._device_json) == 0) &&
-          (_protocol.compare(a._protocol) == 0)) {
+          (_endpoint.compare(a._endpoint) == 0)) {
         return true;
       }
       return false;
     }
 
   DeviceToBeAdded(const DeviceToBeAdded& a){
-    DeviceToBeAdded(a._protocol,a._device_json);
+    _endpoint.assign(a._endpoint);
+    _device_json.assign(a._device_json);
   };
 
   void swap(DeviceToBeAdded& a){
-    _protocol.assign(a.get_protocol());
+    _endpoint.assign(a.get_endpoint());
     _device_json.assign(a.get_device_json());
   };
 
   DeviceToBeAdded& operator=(const DeviceToBeAdded& a){
     DeviceToBeAdded tmp(a);
-
     swap(tmp);
     return *this;
   };
@@ -47,13 +48,13 @@ namespace iota{
         return _device_json;
       };
 
-      std::string & get_protocol() {
-        return _protocol;
+      std::string & get_endpoint() {
+        return _endpoint;
       };
 
     private:
       std::string _device_json;
-      std::string _protocol;
+      std::string _endpoint;
   };
 
 
@@ -64,10 +65,23 @@ class AdminManagerService{
     AdminManagerService();
     virtual ~AdminManagerService();
 
-    int add_device_iotagent(std::string ip_iotagent,const std::string& device);
+    /**
+    @name add_device_iotagent
+    @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a POST request. The result
+    is returned in HTTP code.
+    */
+    int add_device_iotagent(std::string iotagent_endpoint,const std::string& device_json);
 
-    void extract_protocol_and_device(std::vector<std::string> v_protocols_out, std::vector<DeviceToBeAdded> v_devices_out, const std::string& devices_protocol_in);
-//TODO: more methods.
+    /**
+    @name resolve_endpoints
+    @brief Based on the information given in devices_protocols_in, the method will produce as result an array of objects with the
+    endpoint where the JSON will be posted. This JSON is the same coming in the original post but linked to the endpoint. The relationship
+    is given by what IoTManager knows about  endpoints - protocols - services.
+    */
+    void resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in);
+
+
+
   private:
    pion::logger m_log;
 
