@@ -77,9 +77,11 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/logrotate.d/logrotate-iotagent-daily  
 
 echo "[INFO] Creating log directory"
 mkdir -p %{_log_dir}
+chown %{_owner}:%{_owner} %{_log_dir}
 
 echo "[INFO] Creating run directory"
 mkdir -p %{_run_dir}
+chown %{_owner}:%{_owner} %{_run_dir}
 
 ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 
