@@ -104,6 +104,7 @@ struct types {
   /// PROTOCOL
   static const std::string PROTOCOL_TABLE;
   static const std::string PROTOCOL_DESCRIPTION;
+  static const std::string PROTOCOL_ID;
   static const std::string PROTOCOL_NAME;
   static const std::string ENDPOINTS;
   static const std::string ENDPOINT_AG;

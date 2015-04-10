@@ -36,6 +36,8 @@ class Protocol  {
       std::string resource;
     } resource_endpoint;
 
+    typedef std::vector<resource_endpoint>   resource_endpoint_vector;
+
     Protocol();
     Protocol(const std::string& name);
 
@@ -43,7 +45,7 @@ class Protocol  {
 
     void add(resource_endpoint data);
 
-    std::vector<resource_endpoint> & get_endpoints() {
+    const resource_endpoint_vector & get_endpoints() const{
       return _endpoints;
     };
 
@@ -63,12 +65,21 @@ class Protocol  {
       _name = name;
     }
 
+    std::string get_id() const {
+      return _id;
+    };
+
+    void set_id(const std::string& id) {
+      _id = id;
+    }
+
   protected:
   private:
 
+    std::string _id;
     std::string _description;
     std::string _name;
-    std::vector<resource_endpoint> _endpoints;
+    resource_endpoint_vector _endpoints;
 
 };
 };

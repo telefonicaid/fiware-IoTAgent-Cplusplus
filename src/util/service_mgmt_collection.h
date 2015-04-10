@@ -34,7 +34,7 @@ namespace iota {
 
 typedef std::pair<std::string, std::string>   ServiceType;
 
-typedef std::pair<std::string, std::string>   IotagentType;
+typedef std::string  IotagentType;
 
 class ServiceMgmtCollection : public Collection {
   public:

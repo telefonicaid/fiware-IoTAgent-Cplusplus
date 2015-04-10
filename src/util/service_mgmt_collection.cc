@@ -26,6 +26,7 @@
 #include <algorithm>
 #include "store_const.h"
 #include "service_mgmt_collection.h"
+#include "service_collection.h"
 #include "iota_exception.h"
 
 
@@ -192,7 +193,7 @@ int iota::ServiceMgmtCollection::createTableAndIndex() {
 
   ensureIndex("shardKey",
                 BSON(iota::store::types::SERVICE << 1 << iota::store::types::SERVICE_PATH << 1
-                     << iota::store::types::PROTOCOL <<1 << iota::store::types::RESOURCE << 1),
+                     << iota::store::types::RESOURCE <<1 << iota::store::types::IOTAGENT << 1),
                 true);
 
   return res;
@@ -269,20 +270,15 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   fieldsToReturn.append(iota::store::types::IOTAGENT, 1);
   fieldsToReturn.append(iota::store::types::RESOURCE, 1);
 
-  iota::Collection::find(a_queryOptions, query,
-                           limit, skip,
-                           BSON(iota::store::types::IOTAGENT << 1 <<
-                           iota::store::types::RESOURCE << 1),
-                           fieldsToReturn, 0);
+  mongo::BSONObjBuilder bson_query;
+  bson_query.append(iota::store::types::SERVICE, service);
+  ServiceCollection::addServicePath(service_path, bson_query);
 
-  std::string ser, ser_path;
-  mongo::BSONObj elto;
-  while(more()){
-      //TODO  comprobar que noe sta repetido
-    elto = next();
-    ser = elto.getStringField(iota::store::types::IOTAGENT);
-    ser_path = elto.getStringField(iota::store::types::RESOURCE);
-    result.push_back(iota::IotagentType(ser, ser_path));
+  mongo::BSONObj res = iota::Collection::distinct("iotagent" , bson_query.obj(), 0);
+
+  mongo::BSONObjIterator fields (res.getObjectField ("values"));
+  while(fields.more()) {
+    result.push_back(fields.next().str ());
   }
 
   return result;
