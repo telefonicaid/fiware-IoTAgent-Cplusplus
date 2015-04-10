@@ -310,7 +310,7 @@ class CommandHandle :
     CommandVect get_all_command(const std::string& device_id,
                                 const std::string&   apikey);
 
-    void remove_command(
+    int remove_command(
       const std::string& command_id,
       const std::string& service,
       const std::string& service_path);

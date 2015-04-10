@@ -1122,7 +1122,7 @@ void iota::AdminService::protocols(pion::http::request_ptr& http_request_ptr,
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, "|method:" +method +
+  PION_LOG_INFO(m_log, "|protocols|method:" +method +
                 "|trace_message:" + trace_message);
 
   std::string reason;
@@ -2120,6 +2120,25 @@ int iota::AdminService::delete_service_json(
                          response);
 }
 
+int iota::AdminService::delete_all_protocol_json(
+  pion::http::response& http_response,
+  std::string& response) {
+  int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
+  std::string param_request("delete_all_protocol_json");
+  PION_LOG_DEBUG(m_log, param_request);
+
+  std::string reason;
+  std::string error_details;
+  std::string b_query_service_path;
+
+  Collection table(iota::store::types::PROTOCOL_TABLE);
+  mongo::BSONObj all;
+  table.remove(all,0);
+
+  return create_response(code, reason, error_details, http_response,
+                         response);
+}
+
 int iota::AdminService::post_protocol_json(
   const std::string& service,
   const std::string& service_path,
@@ -2148,8 +2167,22 @@ int iota::AdminService::post_protocol_json(
     std::string resource = obj.getStringField(iota::store::types::RESOURCE);
     std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
 
-    // TODO New protocol or update endpoints and get _id as protocol identifier
     std::string protocol_identifier;
+    Protocol protocol;
+    protocol.set_description(description);
+    protocol_table.find(protocol);
+    if (protocol_table.more()){
+      Protocol p =protocol_table.next();
+      protocol_identifier = p.get_id();
+      PION_LOG_DEBUG(m_log, "already exists protocol:" + protocol_identifier+
+            "|des:" +description);
+    }else{
+      PION_LOG_DEBUG(m_log, "no exits protocol:" +description);
+      protocol_identifier = protocol_table.newID();
+      protocol.set_id(protocol_identifier);
+      protocol_table.insert(protocol);
+    }
+
     std::vector<mongo::BSONElement> be = obj.getField(
                                            iota::store::types::SERVICES).Array();
     for (unsigned int i = 0; i<be.size(); i++) {

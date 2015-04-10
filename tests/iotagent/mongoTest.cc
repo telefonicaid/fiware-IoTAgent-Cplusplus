@@ -446,12 +446,12 @@ void MongoTest::testProtocolCollection(){
     CPPUNIT_ASSERT_MESSAGE("no inserted data",
            table2.more());
     iota::Protocol r1 =  table2.next();
-   //TODO CPPUNIT_ASSERT_MESSAGE("no all endpoints", r1.get_endpoints().size() == 2);
+    CPPUNIT_ASSERT_MESSAGE("no all endpoints", r1.get_endpoints().size() == 2);
 
     std::cout << "@UT@Todos los protocolos " << std::endl;
     iota::Protocol all2;
     std::vector<iota::Protocol> protocols= table2.get_all();
-   //TODO CPPUNIT_ASSERT_MESSAGE("no all endpoints2 ", protocols.size() == 2);
+    CPPUNIT_ASSERT_MESSAGE("no all endpoints2 ", protocols.size() == 2);
 
     table2.remove(all2);
 
@@ -475,6 +475,10 @@ void MongoTest::testServiceMgmtCollection(){
                    "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
                    "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
+    std::string s1_d_host2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host2\","
+                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
     std::string s1_d2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
                    "\"entity_type\":\"thing\",\"resource\":\"/iot/d2\",\"iotagent\":\"host1\","
                    "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
@@ -494,6 +498,7 @@ void MongoTest::testServiceMgmtCollection(){
 
     std::cout << "inserts" << std::endl;
     table1.insert(mongo::fromjson(s1_d));
+    table1.insert(mongo::fromjson(s1_d_host2));
     table1.insert(mongo::fromjson(s1_d2));
     table1.insert(mongo::fromjson(s1_mqtt));
     table1.insert(mongo::fromjson(s2_d));
@@ -508,13 +513,20 @@ void MongoTest::testServiceMgmtCollection(){
     }
     std::cout << "@UT@fin" << std::endl;
 
-    std::cout << "@UT@Todos los iotagent del servicio s1 /ss1 " << std::endl;
+    std::cout << "@UT@Todos los iotagentS del servicio s1 /ss1 " << std::endl;
     iota::ServiceMgmtCollection table3;
     std::vector<iota::IotagentType> iotagents = table3.get_iotagents_by_service("s1", "/ss1");
+    int iot_count=0;
+    std::string iot;
     for(std::vector<iota::IotagentType>::iterator it = iotagents.begin(); it != iotagents.end(); ++it) {
-      std::cout << it->first << ":" << it->second << std::endl;
+      iot.append(*it);
+      std::cout << "|" << iot <<  "|" << std::endl;
+      iot_count++;
     }
-    std::cout << "@UT@fin" << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("count iotagent", iot_count == 2);
+    CPPUNIT_ASSERT_MESSAGE("no found host1", iot.find("host1") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no found host2", iot.find("host2") != std::string::npos);
+
     table2.remove(all);
 
     int num = table2.count(all);

@@ -79,29 +79,62 @@ int iota::ProtocolCollection::count(const Protocol& query) {
   return iota::Collection::count(Obj2BSON(query, true));
 }
 
-mongo::BSONObj iota::ProtocolCollection::Obj2BSON(const Protocol& protocol,
+mongo::BSONObj iota::ProtocolCollection::Obj2BSON( const Protocol& protocol,
     bool withShardKey) {
   mongo::BSONObjBuilder obj;
   if (withShardKey) {
-    if (!protocol.get_name().empty()) {
-      obj.append(iota::store::types::PROTOCOL_NAME, protocol.get_name());
+    if (!protocol.get_id().empty()) {
+      obj.append(iota::store::types::PROTOCOL_ID, protocol.get_id());
     }
+  }
+
+  if (!protocol.get_name().empty()) {
+      obj.append(iota::store::types::PROTOCOL_NAME, protocol.get_name());
   }
 
   if (!protocol.get_description().empty()) {
       obj.append(iota::store::types::PROTOCOL_DESCRIPTION, protocol.get_description());
     }
 
+  const iota::Protocol::resource_endpoint_vector &endpoints =  protocol.get_endpoints();
+  mongo::BSONArrayBuilder arr;
+  int count_endpoints=0;
+  for(std::vector<iota::Protocol::resource_endpoint>::const_iterator it = endpoints.begin(); it != endpoints.end(); ++it) {
+    arr.append(BSON(iota::store::types::ENDPOINT << it->endpoint <<
+                    iota::store::types::RESOURCE << it->resource));
+    count_endpoints++;
+  }
+
+  if (count_endpoints > 0){
+    obj.append(iota::store::types::ENDPOINTS, arr.arr());
+  }
+
   return obj.obj();
 }
 
 iota::Protocol iota::ProtocolCollection::BSON2Obj(const mongo::BSONObj& obj) {
 
+  mongo::BSONElement oi;
+  obj.getObjectID(oi);
+  mongo::OID o = oi.__oid();
+  std::string id = o.toString();
   std::string name = obj.getStringField(iota::store::types::PROTOCOL_NAME);
   std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
 
   Protocol result(name);
   result.set_description(description);
+
+  mongo::BSONObj endpoints = obj.getObjectField (iota::store::types::ENDPOINTS);
+
+  mongo::BSONObjIterator it(endpoints);
+  while ( it.moreWithEOO() ) {
+    mongo::BSONObj e = it.next().Obj();
+    iota::Protocol::resource_endpoint endp;
+    endp.endpoint = e.getStringField(iota::store::types::ENDPOINT);
+    endp.resource = e.getStringField(iota::store::types::RESOURCE);
+    std::cout << "FF:" << endp.endpoint  << std::endl;
+    result.add(endp);
+  }
 
   return result;
 }

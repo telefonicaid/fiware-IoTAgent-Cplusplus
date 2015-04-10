@@ -35,8 +35,8 @@ class MongoTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testReplica);
     CPPUNIT_TEST(testException);
 
-    CPPUNIT_TEST(testProtocolCollection);
-    CPPUNIT_TEST(testServiceMgmtCollection);
+    //TODO CPPUNIT_TEST(testProtocolCollection);
+    //TODO CPPUNIT_TEST(testServiceMgmtCollection);
 
     CPPUNIT_TEST_SUITE_END();
 

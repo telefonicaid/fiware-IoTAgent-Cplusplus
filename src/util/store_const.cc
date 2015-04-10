@@ -84,6 +84,7 @@ const std::string types::IOTAGENT("iotagent");
 const std::string types::PROTOCOL_TABLE("PROTOCOL");
 const std::string types::PROTOCOL_DESCRIPTION("description");
 const std::string types::PROTOCOL_NAME("protocol");
+const std::string types::PROTOCOL_ID("_id");
 const std::string types::ENDPOINTS("endpoints");
 const std::string types::ENDPOINT_AG("endpoint");
 

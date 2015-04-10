@@ -161,6 +161,58 @@ mongo::BSONObj iota::Collection::aggregate(
 
 }
 
+mongo::BSONObj iota::Collection::distinct(
+    const std::string &field,
+    const mongo::BSONObj &query,
+    int retry) {
+
+  std::string bbdd = getDatabaseName();
+  mongo::BSONObj res, r;
+  mongo::BSONObjBuilder obj;
+
+  mongo::DBClientBase* conn = getConnection();
+
+  obj.append("distinct", a_bbdd);
+  obj.append("key", field);
+  obj.append("query", query);
+
+  r = obj.obj();
+
+  std::string param_request("Collection:aggregate|bbdd=" + bbdd + "|data=" +
+                            r.toString());
+  PION_LOG_DEBUG(m_logger, param_request);
+  //int errCode = 0;
+  //mongo::BSONObj errObj;
+  try {
+    conn->runCommand(bbdd, r, res);
+    //obtenemos el id y ok
+    //errObj = conn->getLastErrorDetailed();
+    //errCode = errObj["code"].numberInt();
+  }
+  catch (mongo::DBException& exc) {
+    // try again
+    std::string original_exc(exc.what());
+    try {
+      conn->runCommand(bbdd, r, res);
+      //errObj = conn->getLastErrorDetailed();
+      //errCode = errObj["code"].numberInt();
+    }
+    catch (std::exception& e) {
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                                original_exc, iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+    }
+  }
+
+  getLastError(bbdd, res);
+  PION_LOG_DEBUG(m_logger, "Find and notify query:" << r.toString());
+  PION_LOG_DEBUG(m_logger, "Find and notify result:" << res.toString());
+
+  return res;
+
+}
+
 int iota::Collection::getLastError(const std::string& bbdd,
                                    const mongo::BSONObj &obj) {
 
@@ -494,6 +546,12 @@ int iota::Collection::remove(const mongo::BSONObj& query,
 
 void iota::Collection::instantiateID(const std::string& id)  {
   find(BSON("_id" << mongo::OID(id)));
+}
+
+std::string iota::Collection::newID() {
+    mongo::OID oid;
+    oid.init();
+    return oid.toString();
 }
 
 int iota::Collection::find(const mongo::BSONObj& query,
