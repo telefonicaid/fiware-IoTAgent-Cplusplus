@@ -29,6 +29,7 @@
 #include "util/dev_file.h"
 #include "util/FuncUtil.h"
 #include "util/iota_exception.h"
+#include "util/iot_url.h"
 #include <boost/bind.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <rapidjson/document.h>
@@ -195,11 +196,77 @@ void iota::RestHandle::register_plugin() {
   try {
     const iota::JsonValue& manager_endpoint =
       iota::Configurator::instance()->get(iota::types::CONF_FILE_IOTA_MANAGER);
-    _manager_endpoint = manager_endpoint.GetString();
+    std::string m_end(manager_endpoint.GetString());
+    set_iota_manager_endpoint(m_end);
   }
   catch (std::exception& e) {
     PION_LOG_INFO(m_logger, "No IoTA-Manager configured in "
                   << get_resource());
+  }
+}
+
+std::string iota::RestHandle::get_public_ip() {
+
+  std::string public_ip;
+  try {
+    const JsonValue& conf_public_ip =
+      iota::Configurator::instance()->get(iota::store::types::PUBLIC_IP);
+    public_ip = conf_public_ip.GetString();
+  }
+  catch (std::exception& e) {
+    PION_LOG_INFO(m_logger, "No public ip");
+  }
+  if (public_ip.empty()) {
+    // Own endpoint to register
+    boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
+      AdminService_ptr->get_web_server()->get_endpoint();
+    boost::asio::ip::address own_addr = my_endpoint.address();
+    std::string my_ip = own_addr.to_string();
+    unsigned short my_port =  my_endpoint.port();
+    public_ip.append(my_ip);
+    public_ip.append(":");
+    public_ip.append(boost::lexical_cast<std::string>(my_port));
+  }
+  return public_ip;
+}
+
+void iota::RestHandle::register_iota_manager() {
+
+  std::string log_message("|resource=" + get_resource());
+  std::string public_ip = get_public_ip();
+
+  try {
+
+    iota::ServiceCollection srv_table;
+    mongo::BSONObj srv_find = BSON(iota::store::types::RESOURCE << get_resource());
+    int code_res = srv_table.find(srv_find);
+    iota::ProtocolData protocol_data = get_protocol_data();
+    if (!protocol_data.protocol.empty() && !protocol_data.description.empty()) {
+      mongo::BSONObjBuilder json_builder;
+      mongo::BSONArrayBuilder services_builder;
+      json_builder.append(iota::store::types::PROTOCOL, protocol_data.protocol);
+      json_builder.append(iota::store::types::PROTOCOL_DESCRIPTION,
+                          protocol_data.description);
+      json_builder.append(iota::store::types::IOTAGENT, public_ip);
+      while (srv_table.more()) {
+        mongo::BSONObj srv_resu =srv_table.next();
+        log_message.append("|endpoint=" + public_ip + "|protocol=" +
+                           protocol_data.protocol + "|description=" +
+                           protocol_data.description + "|service=" + srv_resu.getStringField(
+                             iota::store::types::SERVICE) + "|service_path=" +
+                           srv_resu.getStringField(iota::store::types::SERVICE_PATH));
+
+        services_builder.append(srv_resu);
+      }
+      json_builder.append(iota::store::types::SERVICES, services_builder.arr());
+      PION_LOG_INFO(m_logger, log_message);
+    }
+    else {
+      PION_LOG_ERROR(m_logger, "No protocol information for " << get_resource());
+    }
+  }
+  catch (std::exception& e) {
+    PION_LOG_ERROR(m_logger, e.what());
   }
 }
 
@@ -1021,6 +1088,21 @@ std::string iota::RestHandle::get_default_context_broker() {
     PION_LOG_DEBUG(m_logger, "Default context broker endpoint not defined");
   }
   return default_context_broker;
+}
+
+std::string iota::RestHandle::get_iota_manager_endpoint() {
+  return _manager_endpoint;
+}
+
+void iota::RestHandle::set_iota_manager_endpoint(std::string manager_endpoint) {
+  try {
+    iota::IoTUrl url_endpoint(manager_endpoint);
+    _manager_endpoint = manager_endpoint;
+  }
+  catch (iota::IotaException& e) {
+    PION_LOG_ERROR(m_logger, e.what());
+  }
+
 }
 
 iota::ProtocolData iota::RestHandle::get_protocol_data() {

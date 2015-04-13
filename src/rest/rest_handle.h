@@ -169,6 +169,31 @@ class RestHandle: public pion::http::plugin_service,
     **/
     virtual iota::ProtocolData get_protocol_data();
 
+    /**
+    * @name get_iota_manager_endpoint
+    * @brief get manager endpoint to register protocols.
+    * @return endpoint of iota manager
+    */
+    std::string get_iota_manager_endpoint();
+
+    /**
+    * @name set_iota_manager_endpoint
+    * @brief set manager endpoint to register protocols
+    *
+    * @param [in] manager endpoint as URL
+    */
+    void set_iota_manager_endpoint(std::string manager_endpoint);
+
+    /**
+    * @name register_iota_manager
+    * @brief send services and protocols to iota manager if defined
+    */
+    void register_iota_manager();
+
+    /**
+    */
+    std::string get_public_ip();
+
   protected:
     std::string remove_url_base(std::string url);
     void register_plugin();
