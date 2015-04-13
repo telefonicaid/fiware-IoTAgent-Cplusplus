@@ -82,7 +82,7 @@ class MqttService : public iota::esp::ngsi::IotaMqttCommands {
                                 const std::string& command_id,
                                 const boost::property_tree::ptree& command_to_send,
                                 int timeout,
-                                const boost::shared_ptr<iota::Device> &item_dev,
+                                const boost::shared_ptr<iota::Device>& item_dev,
                                 const boost::property_tree::ptree& service,
                                 std::string& response,
                                 iota::HttpClient::application_callback_t callback = NULL);
@@ -91,30 +91,33 @@ class MqttService : public iota::esp::ngsi::IotaMqttCommands {
 
 
     void transform_command(const std::string& command_name,
-                                          const std::string& command_value,
-                                          const std::string& updateCommand_value,
-                                          const std::string& sequence_id,
-                                          const boost::shared_ptr<iota::Device>& item_dev,
-                                          const boost::property_tree::ptree& service,
-                                          std::string &command_id,
-                                          boost::property_tree::ptree& command_line);
+                           const std::string& command_value,
+                           const std::string& updateCommand_value,
+                           const std::string& sequence_id,
+                           const boost::shared_ptr<iota::Device>& item_dev,
+                           const boost::property_tree::ptree& service,
+                           std::string& command_id,
+                           boost::property_tree::ptree& command_line);
 
 
-  /**
-  Maybe I don't need to use this anymore.
-  */
-   std::string serializeMqttCommand(std::string apikey,std::string device,std::string command,std::string payload);
+    /**
+    Maybe I don't need to use this anymore.
+    */
+    std::string serializeMqttCommand(std::string apikey,std::string device,
+                                     std::string command,std::string payload);
 
-   int execute_mqtt_command(std::string apikey,std::string device,std::string name,std::string command_payload,std::string command_id);
+    int execute_mqtt_command(std::string apikey,std::string device,std::string name,
+                             std::string command_payload,std::string command_id);
 
-   void respond_mqtt_command(std::string apikey,std::string device,std::string command_payload,std::string command_id);
+    void respond_mqtt_command(std::string apikey,std::string device,
+                              std::string command_payload,std::string command_id);
 
-   void op_ngsi(pion::http::request_ptr& http_request_ptr,
-                                std::map<std::string, std::string>& url_args,
-                                std::multimap<std::string, std::string>& query_parameters,
-                                pion::http::response& http_response, std::string& response);
+    void op_ngsi(pion::http::request_ptr& http_request_ptr,
+                 std::map<std::string, std::string>& url_args,
+                 std::multimap<std::string, std::string>& query_parameters,
+                 pion::http::response& http_response, std::string& response);
 
-
+    virtual iota::ProtocolData get_protocol_data();
 
   protected:
     pion::logger m_logger;

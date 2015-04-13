@@ -43,6 +43,8 @@ const std::string types::CONF_FILE_TIMEOUT("timeout");
 const std::string types::CONF_FILE_DIR_LOG("dir_log");
 const std::string types::CONF_FILE_TIMEZONES("timezones");
 
+const std::string types::CONF_FILE_IOTA_MANAGER("iota_manager");
+
 
 const std::string types::CONF_FILE_DEVICES_STORE("devices_store");
 

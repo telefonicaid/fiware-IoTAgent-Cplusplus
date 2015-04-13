@@ -73,7 +73,7 @@ boost::shared_ptr<iota::Device> get_func(boost::shared_ptr<iota::Device> item) {
 
 iota::RestHandle::RestHandle(): _enabled_stats(true),
   m_logger(PION_GET_LOGGER(iota::logger)),
-  registeredDevices(iota::types::MAX_SIZE_CACHE, false) {
+  registeredDevices(iota::types::MAX_SIZE_CACHE, false), _manager_endpoint("") {
   PION_LOG_DEBUG(m_logger, "RestHandle constructor");
 
   _connectionManager.reset(new CommonAsyncManager(1));
@@ -84,7 +84,7 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
   try {
 
     const iota::JsonValue& storage = iota::Configurator::instance()->get(
-                                 iota::store::types::STORAGE);
+                                       iota::store::types::STORAGE);
     if (storage.HasMember(iota::store::types::TYPE.c_str())) {
       _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
       PION_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
@@ -152,7 +152,8 @@ void iota::RestHandle::register_plugin() {
   iota::Configurator* configurator = iota::Configurator::instance();
 
   try {
-    const iota::JsonValue& res_obj = configurator->getResourceObject(get_resource());
+    const iota::JsonValue& res_obj = configurator->getResourceObject(
+                                       get_resource());
     if (res_obj.HasMember(iota::types::CONF_FILE_STATISTICS.c_str())
         && res_obj.IsTrue()) {
       add_statistic_counter(iota::types::STAT_TRAFFIC, true);
@@ -165,10 +166,12 @@ void iota::RestHandle::register_plugin() {
 
   // Statistics by service
   try {
-    const iota::JsonValue& res_obj = configurator->getResourceObject(get_resource());
+    const iota::JsonValue& res_obj = configurator->getResourceObject(
+                                       get_resource());
     if ((res_obj.HasMember(iota::types::CONF_FILE_SERVICES.c_str())) &&
         (res_obj[iota::types::CONF_FILE_SERVICES.c_str()].IsArray())) {
-      const iota::JsonValue& services = res_obj[iota::types::CONF_FILE_SERVICES.c_str()];
+      const iota::JsonValue& services =
+        res_obj[iota::types::CONF_FILE_SERVICES.c_str()];
       for (rapidjson::SizeType j = 0; j < services.Size(); j++) {
         if ((services[j].HasMember(iota::types::CONF_FILE_SERVICE.c_str())) &&
             (services[j][iota::types::CONF_FILE_SERVICE.c_str()].IsString())) {
@@ -187,12 +190,23 @@ void iota::RestHandle::register_plugin() {
     PION_LOG_INFO(m_logger, "No internal stats information in configuration file "
                   << get_resource());
   }
+
+  // IoTA Manager register
+  try {
+    const iota::JsonValue& manager_endpoint =
+      iota::Configurator::instance()->get(iota::types::CONF_FILE_IOTA_MANAGER);
+    _manager_endpoint = timeout.GetString();
+  }
+  catch (std::exception& e) {
+    PION_LOG_INFO(m_logger, "No IoTA-Manager configured in "
+                  << get_resource());
+  }
 }
 
 std::string iota::RestHandle::add_url(std::string url,
-                               std::map<std::string, std::string>& filters,
-                               iota::RestHandle::HandleFunction_t handle,
-                               iota::RestHandle* context) {
+                                      std::map<std::string, std::string>& filters,
+                                      iota::RestHandle::HandleFunction_t handle,
+                                      iota::RestHandle* context) {
   register_plugin();
   PION_LOG_DEBUG(m_logger,
                  "Add url " << url << " to url base " << iota::URL_BASE);
@@ -218,7 +232,7 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
                                   pion::tcp::connection_ptr& tcp_conn) {
   tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
-      iota::types::STAT_TRAFFIC);
+        iota::types::STAT_TRAFFIC);
 
   // Request statistic
   double tr_in = get_payload_length(http_request_ptr);
@@ -246,27 +260,26 @@ void iota::RestHandle::execute_filters(
   if (status != iota::types::RESPONSE_CODE_OK) {
     handle_end_filters(http_request_ptr, tcp_conn, num_filter, status);
   }
-  else
-  {
+  else {
     if (num_filter != (_pre_filters.size() -1)) {
       int n_filter = num_filter;
       _pre_filters.at(num_filter)->set_async_filter(
         _connectionManager->get_io_service(),
         http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
         boost::bind(&iota::RestHandle::execute_filters, this, http_request_ptr,
-                  tcp_conn, ++n_filter, _1));
+                    tcp_conn, ++n_filter, _1));
     }
     else {
       _pre_filters.at(num_filter)->set_async_filter(
         _connectionManager->get_io_service(),
         http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
         boost::bind(&iota::RestHandle::handle_end_filters, this, http_request_ptr,
-                  tcp_conn, num_filter, _1));
+                    tcp_conn, num_filter, _1));
     }
 
     _pre_filters.at(num_filter)->get_io_service()->post(
-             boost::bind(&HTTPFilter::handle_request,
-             _pre_filters.at(num_filter), http_request_ptr, tcp_conn));
+      boost::bind(&HTTPFilter::handle_request,
+                  _pre_filters.at(num_filter), http_request_ptr, tcp_conn));
 
   }
 }
@@ -285,10 +298,10 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
       pion::http::response_writer::create(tcp_conn, *http_request_ptr,
                                           boost::bind(&iota::RestHandle::finish, this, tcp_conn)));
     if (status == iota::types::RESPONSE_CODE_NOT_ACCEPTABLE) {
-       response_buffer =iota::types::RESPONSE_MESSAGE_NOT_ACCEPTABLE;
+      response_buffer =iota::types::RESPONSE_MESSAGE_NOT_ACCEPTABLE;
     }
     else if (status == iota::types::RESPONSE_CODE_UNSUPPORTED_MEDIA_TYPE) {
-       response_buffer = iota::types::RESPONSE_MESSAGE_UNSUPPORTED_MEDIA_TYPE;
+      response_buffer = iota::types::RESPONSE_MESSAGE_UNSUPPORTED_MEDIA_TYPE;
     }
 
     error_response(writer->get_response(), response_buffer, status);
@@ -305,7 +318,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
   PION_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
 
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
-      iota::types::STAT_TRAFFIC);
+        iota::types::STAT_TRAFFIC);
   Duration d((*stat)[iota::types::STAT_TRAFFIC_DURATION]);
 
   // Response to request
@@ -436,8 +449,9 @@ std::string iota::RestHandle::get_statistics() {
   rapidjson::Document stats;
   stats.SetArray();
 
-  std::map<std::string, boost::shared_ptr<iota::IoTStatistic> >::iterator it_stats =
-    _statistics.begin();
+  std::map<std::string, boost::shared_ptr<iota::IoTStatistic> >::iterator it_stats
+    =
+      _statistics.begin();
 
   while (it_stats != _statistics.end()) {
     rapidjson::Value stat_element;
@@ -448,7 +462,8 @@ std::string iota::RestHandle::get_statistics() {
       rapidjson::Value counter;
       counter.SetObject();
 
-      std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> > accs =
+      std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >
+      accs =
         it_stats->second->get_counters();
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >::iterator
       it_tm = accs.begin();
@@ -513,10 +528,12 @@ std::string iota::RestHandle::get_statistics() {
 boost::shared_ptr<iota::IoTStatistic> iota::RestHandle::add_statistic_counter(
   const std::string& name_stat, bool enabled) {
   boost::mutex::scoped_lock loc(m_mutex_stat);
-  boost::shared_ptr<iota::IoTStatistic> handler_statistic(new iota::IoTStatistic(name_stat));
+  boost::shared_ptr<iota::IoTStatistic> handler_statistic(new iota::IoTStatistic(
+        name_stat));
   handler_statistic->set_enable(enabled);
-  _statistics.insert(std::pair<std::string, boost::shared_ptr<iota::IoTStatistic> >
-                     (name_stat, handler_statistic));
+  _statistics.insert(
+    std::pair<std::string, boost::shared_ptr<iota::IoTStatistic> >
+    (name_stat, handler_statistic));
   return _statistics[name_stat];
 
 }
@@ -528,14 +545,16 @@ boost::shared_ptr<iota::IoTStatistic> iota::RestHandle::get_statistic_counter(
     _statistics.begin();
   it = _statistics.find(name_stat);
   if (it == _statistics.end()) {
-    boost::shared_ptr<iota::IoTStatistic> handler_statistic(new iota::IoTStatistic(name_stat));
-    _statistics.insert(std::pair<std::string, boost::shared_ptr<iota::IoTStatistic> >
-                       (name_stat, handler_statistic));
+    boost::shared_ptr<iota::IoTStatistic> handler_statistic(new iota::IoTStatistic(
+          name_stat));
+    _statistics.insert(
+      std::pair<std::string, boost::shared_ptr<iota::IoTStatistic> >
+      (name_stat, handler_statistic));
   }
   return _statistics[name_stat];
 }
 
-void iota::RestHandle::remove_devices_from_cache(Device &device){
+void iota::RestHandle::remove_devices_from_cache(Device& device) {
   registeredDevices.remove(device);
 }
 
@@ -633,7 +652,7 @@ bool iota::RestHandle::get_service_by_name(
     code = get_service_by_name_bbdd(pt, item_name, service_path);
   }
   if (code == ERROR_NO_SERVICE) {
-      get_service_by_name_file(pt, item_name, service_path);
+    get_service_by_name_file(pt, item_name, service_path);
   }
 
   return true;
@@ -845,7 +864,8 @@ const iota::JsonValue& iota::RestHandle::get_service_by_apiKey_file(
 
 }
 
-const boost::shared_ptr<iota::Device> iota::RestHandle::get_device_empty_service_path(
+const boost::shared_ptr<iota::Device>
+iota::RestHandle::get_device_empty_service_path(
   boost::shared_ptr<iota::Device> itemQ) {
 
   boost::shared_ptr<iota::Device> result;
@@ -976,7 +996,7 @@ void iota::RestHandle::send_http_response(pion::http::response_writer_ptr&
 
   // Response statistic
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
-      iota::types::STAT_TRAFFIC);
+        iota::types::STAT_TRAFFIC);
   double tr_out = get_payload_length(writer->get_response());
   IoTValue v_out((*stat)[iota::types::STAT_TRAFFIC_OUT], tr_out);
   writer->write_no_copy(response_buffer);
@@ -1003,12 +1023,16 @@ std::string iota::RestHandle::get_default_context_broker() {
   return default_context_broker;
 }
 
-
+iota::ProtocolData iota::RestHandle::get_protocol_data() {
+  iota::ProtocolData protocol_data;
+  return protocol_data;
+}
 std::string iota::RestHandle::get_http_proxy() {
   std::string http_proxy;
   try {
     http_proxy =
-      iota::Configurator::instance()->get(iota::types::CONF_FILE_PROXY.c_str()).GetString();
+      iota::Configurator::instance()->get(
+        iota::types::CONF_FILE_PROXY.c_str()).GetString();
 
   }
   catch (std::exception& e) {

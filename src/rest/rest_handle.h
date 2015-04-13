@@ -140,7 +140,7 @@ class RestHandle: public pion::http::plugin_service,
 
     /**
        * @name    send_update_context
-       * @brief   sen an updateContext to context broker  with attributes
+       * @brief   send an updateContext to context broker  with attributes
        *
        *
        * @param [in] apikey,  apikey that identifies a service, if no exists throw exception.
@@ -160,6 +160,15 @@ class RestHandle: public pion::http::plugin_service,
 
     void remove_devices_from_cache(Device &device);
 
+    /**
+    * @name get_protocol_data
+    * @brief get information about a resource implementing a protocol. This function must be implemented
+    *        for every modules if it want manager knows module.
+    *
+    * @return a struct with protocol and description
+    **/
+    virtual iota::ProtocolData get_protocol_data();
+
   protected:
     std::string remove_url_base(std::string url);
     void register_plugin();
@@ -168,6 +177,8 @@ class RestHandle: public pion::http::plugin_service,
     double get_payload_length(pion::http::response& http_response);
     std::map<std::string, std::string> get_multipart_content(
       pion::http::request_ptr& request_ptr);
+
+    std::string _manager_endpoint;
 
   private:
 

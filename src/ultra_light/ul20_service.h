@@ -114,6 +114,9 @@ class UL20Service :
 
     void send_optional_registration(std::string device, std::string service);
 
+    // Information about protocol implementented.
+    virtual iota::ProtocolData get_protocol_data();
+
   private:
 
     std::string get_id_command(std::string str_command);
