@@ -127,15 +127,14 @@ iota::Protocol iota::ProtocolCollection::BSON2Obj(const mongo::BSONObj& obj) {
   mongo::BSONObj endpoints = obj.getObjectField (iota::store::types::ENDPOINTS);
 
   mongo::BSONObjIterator it(endpoints);
-  while ( it.moreWithEOO() ) {
+  while ( it.more() ) {
     mongo::BSONObj e = it.next().Obj();
     iota::Protocol::resource_endpoint endp;
+
     endp.endpoint = e.getStringField(iota::store::types::ENDPOINT);
     endp.resource = e.getStringField(iota::store::types::RESOURCE);
-    std::cout << "FF:" << endp.endpoint  << std::endl;
     result.add(endp);
   }
-
   return result;
 }
 
@@ -205,6 +204,14 @@ const std::string iota::ProtocolCollection::POST_SCHEMA(
   "\"additionalProperties\":false,"
   "\"id\": \"0\","
   "\"properties\":{"
+  "\"service\": {"
+  "\"description\": \"service name\","
+  "\"type\": \"string\""
+  "},"
+  "\"service_path\": {"
+  "\"description\": \"service path, must start with /\","
+  "\"type\": \"string\""
+  "},"
   "\"entity_type\": {"
   "\"description\": \"default entity_type, if a device has not got entity_type uses this\","
   "\"type\": \"string\""
@@ -280,7 +287,7 @@ const std::string iota::ProtocolCollection::POST_SCHEMA(
   "}"
   "}"
   "}"
-  ",\"required\": [\"apikey\", \"resource\", \"cbroker\"]"
+  ",\"required\": [\"service\", \"service_path\", \"apikey\", \"resource\", \"cbroker\"]"
   "}"
   "}"
   "}"

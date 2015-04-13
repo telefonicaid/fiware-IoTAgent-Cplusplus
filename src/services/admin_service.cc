@@ -2170,20 +2170,19 @@ int iota::AdminService::post_protocol_json(
     std::string endpoint = obj.getStringField(iota::store::types::ENDPOINT);
     std::string resource = obj.getStringField(iota::store::types::RESOURCE);
     std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
+    std::string protocol_name = obj.getStringField(iota::store::types::PROTOCOL_NAME);
 
-    std::string protocol_identifier;
     Protocol protocol;
-    protocol.set_description(description);
+    protocol.set_name(protocol_name);
     protocol_table.find(protocol);
     if (protocol_table.more()){
       Protocol p =protocol_table.next();
-      protocol_identifier = p.get_id();
-      PION_LOG_DEBUG(m_log, "already exists protocol:" + protocol_identifier+
+      PION_LOG_DEBUG(m_log, "already exists protocol:" + protocol_name+
             "|des:" +description);
     }else{
       PION_LOG_DEBUG(m_log, "no exits protocol:" +description);
-      protocol_identifier = protocol_table.newID();
-      protocol.set_id(protocol_identifier);
+      protocol.set_name(protocol_name);
+      protocol.set_description(description);
       protocol_table.insert(protocol);
     }
 
@@ -2192,7 +2191,7 @@ int iota::AdminService::post_protocol_json(
     for (unsigned int i = 0; i<be.size(); i++) {
       mongo::BSONObjBuilder bo;
       bo.appendElements(be[i].embeddedObject());
-      bo.append(iota::store::types::PROTOCOL, protocol_identifier);
+      bo.append(iota::store::types::PROTOCOL, protocol_name);
       insObj = bo.obj();
       service_table.insert(insObj);
     }
