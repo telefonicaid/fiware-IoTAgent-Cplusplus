@@ -168,12 +168,14 @@ const std::string AdminTest::URI_PROTOCOLS("/iot/protocols");
 const std::string
 AdminTest::POST_PROTOCOLS1("{\"endpoint\": \"host1\","
                           "\"resource\": \"/iot/d\","
-                          "\"description\": \"UL 20\""
+                          "\"protocol\": \"UL20\","
+                          "\"description\": \"Ultralight 2.0\""
                           "}");
 const std::string
 AdminTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
                           "\"resource\": \"/iot/d\","
-                          "\"description\": \"UL 20\","
+                          "\"protocol\": \"UL20\","
+                          "\"description\": \"Ultralight 2.0\","
                           "\"services\": [{"
                                 "\"apikey\": \"apikey3\","
                                 "\"service\": \"service2\","
