@@ -1456,6 +1456,10 @@ bool iota::AdminService::validate_json_schema(
     ServiceMgmtCollection serv;
     json_schema = serv.getSchema(method);
   }
+  else if (table.compare(iota::store::types::PROTOCOL_TABLE) == 0) {
+    ProtocolCollection serv;
+    json_schema = serv.getSchema(method);
+  }
   else {
     std::string err = "validate_json_schema for ";
     err.append(table);
@@ -2157,7 +2161,7 @@ int iota::AdminService::post_protocol_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, iota::store::types::MANAGER_SERVICE_TABLE,
+  else if (validate_json_schema(body, iota::store::types::PROTOCOL_TABLE,
                                 "POST", error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
