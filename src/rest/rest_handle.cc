@@ -195,7 +195,7 @@ void iota::RestHandle::register_plugin() {
   try {
     const iota::JsonValue& manager_endpoint =
       iota::Configurator::instance()->get(iota::types::CONF_FILE_IOTA_MANAGER);
-    _manager_endpoint = timeout.GetString();
+    _manager_endpoint = manager_endpoint.GetString();
   }
   catch (std::exception& e) {
     PION_LOG_INFO(m_logger, "No IoTA-Manager configured in "
