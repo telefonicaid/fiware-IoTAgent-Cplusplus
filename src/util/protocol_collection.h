@@ -53,6 +53,7 @@ class ProtocolCollection : public Collection {
                const Protocol& sett);
 
     std::vector<iota::Protocol> get_all();
+    std::string getSchema(const std::string& method);
 
   protected:
 
@@ -62,6 +63,8 @@ class ProtocolCollection : public Collection {
 
   private:
 
+    static const std::string POST_SCHEMA;
+    static const std::string PUT_SCHEMA;
 
 }; // end class ProtocolCollection
 

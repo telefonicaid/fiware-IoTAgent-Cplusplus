@@ -168,18 +168,21 @@ const std::string AdminTest::URI_PROTOCOLS("/iot/protocols");
 const std::string
 AdminTest::POST_PROTOCOLS1("{\"endpoint\": \"host1\","
                           "\"resource\": \"/iot/d\","
-                          "\"description\": \"UL 20\""
+                          "\"protocol\": \"UL20\","
+                          "\"description\": \"Ultralight 2.0\""
                           "}");
 const std::string
 AdminTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
                           "\"resource\": \"/iot/d\","
-                          "\"description\": \"UL 20\","
+                          "\"protocol\": \"UL20\","
+                          "\"description\": \"Ultralight 2.0\","
                           "\"services\": [{"
                                 "\"apikey\": \"apikey3\","
                                 "\"service\": \"service2\","
                                 "\"service_path\": \"/ssrv2\","
                                 "\"token\": \"token2\","
                                 "\"cbroker\": \"http://127.0.0.1:1026\","
+                                "\"resource\": \"/iot/d\","
                                 "\"entity_type\": \"thing\""
                           "}]}");
 const std::string
@@ -1512,7 +1515,7 @@ void AdminTest::testProtocol(){
                        "application/json",
                        POST_PROTOCOLS1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
+  IOTASSERT(code_res == 500);
 
   std::cout << "@UT@Post iotagents with a service" << std::endl;
   std::cout << "@UT@POST" << std::endl;
