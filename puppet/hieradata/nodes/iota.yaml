@@ -9,12 +9,12 @@ iota::base::iota_server_port: 80
 iota::base::iota_server_name: qa
 iota::base::iota_log_level: DEBUG
 iota::base::http_proxy_gre: '127.0.0.1:8888'
+iota::base::load_balancer_url: 'http://127.0.0.1:2000'
 
 iota::ngsi::context_broker_endpoint: 'http://127.0.0.1:1026'
 iota::ngsi::update_context_path: /NGSI10/updateContext
 iota::ngsi::register_context_path: /NGSI9/registerContext
 iota::ngsi::query_context_path: /NGSI10/queryContext
-iota::ngsi::load_balancer_url: 'http://127.0.0.1:2000'
 
 iota::authorization::trust_token_url: ''
 iota::authorization::trust_token_user: iotagent
