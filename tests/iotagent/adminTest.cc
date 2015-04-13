@@ -182,6 +182,7 @@ AdminTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
                                 "\"service_path\": \"/ssrv2\","
                                 "\"token\": \"token2\","
                                 "\"cbroker\": \"http://127.0.0.1:1026\","
+                                "\"resource\": \"/iot/d\","
                                 "\"entity_type\": \"thing\""
                           "}]}");
 const std::string
@@ -1514,7 +1515,7 @@ void AdminTest::testProtocol(){
                        "application/json",
                        POST_PROTOCOLS1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
+  IOTASSERT(code_res == 500);
 
   std::cout << "@UT@Post iotagents with a service" << std::endl;
   std::cout << "@UT@POST" << std::endl;
