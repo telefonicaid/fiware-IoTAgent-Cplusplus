@@ -38,11 +38,16 @@
 #include <pion/logger.hpp>
 #include "manager/admin_mgmt_service.h"
 
+#include "util/protocol_collection.h"
+
+#define PATH_CONFIG "../../test/"
+
 
 class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminManagerTest);
 
     CPPUNIT_TEST(testDeviceToBeAdded);
+    CPPUNIT_TEST(testGetEndpointsFromDevices);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -54,6 +59,8 @@ public:
 protected:
 
   void testDeviceToBeAdded();
+  void testGetEndpointsFromDevices();
+
 
 private:
 

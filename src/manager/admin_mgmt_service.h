@@ -11,6 +11,7 @@
 #include <rapidjson/document.h>
 #include <boost/foreach.hpp>
 #include <iostream>
+#include "util/service_mgmt_collection.h"
 
 namespace iota{
 
@@ -70,7 +71,7 @@ class AdminManagerService{
     @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a POST request. The result
     is returned in HTTP code.
     */
-    int add_device_iotagent(std::string iotagent_endpoint,const std::string& device_json);
+    int add_device_iotagent(std::string iotagent_endpoint,const std::string& device_json,std::string service, std::string sub_service);
 
     /**
     @name resolve_endpoints
@@ -78,7 +79,7 @@ class AdminManagerService{
     endpoint where the JSON will be posted. This JSON is the same coming in the original post but linked to the endpoint. The relationship
     is given by what IoTManager knows about  endpoints - protocols - services.
     */
-    void resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in);
+    void resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in,std::string service,std::string sub_service);
 
 
 
@@ -86,6 +87,9 @@ class AdminManagerService{
    pion::logger m_log;
 
    pion::one_to_one_scheduler _scheduler;
+
+   iota::ServiceMgmtCollection _service_mgmt;
+
 };
 
 

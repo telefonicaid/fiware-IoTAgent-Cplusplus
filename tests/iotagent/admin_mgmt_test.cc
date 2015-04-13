@@ -28,6 +28,7 @@
 #include <cppunit/XmlOutputter.h>
 #include "adminManagerTest.h"
 
+#include "mongo/client/init.h"
 
 namespace iota {
 std::string URL_BASE = "/iot";
@@ -36,6 +37,8 @@ std::string logger("main");
 iota::AdminService* AdminService_ptr;
 
 int main(int argc, char* argv[]) {
+
+  mongo::client::initialize();
 
   testing::GTEST_FLAG(throw_on_failure) = true;
   testing::InitGoogleMock(&argc, argv);
