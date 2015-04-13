@@ -90,11 +90,12 @@ ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 # -------------------------------------------------------------------------------------------- #
 %preun
 
+getent passwd %{_owner} > /dev/null && userdel -r %{_owner}
 /sbin/service %{_owner} stop
 rm /etc/init.d/iotagent
-userdel %{_owner}
-
-getent passwd %{_owner} > /dev/null && userdel -r %{_owner}
+rm -rf %{_log_dir}
+rm -rf %{_run_dir}
+rm -rf /etc/iot
 
 # -------------------------------------------------------------------------------------------- #
 # post-uninstall section:
