@@ -71,7 +71,7 @@ iota::SPService::~SPService() {
 }
 
 void iota::SPService::start() {
-  PION_LOG_DEBUG(m_logger, "START PLUGIN UL2.0");
+  PION_LOG_DEBUG(m_logger, "START PLUGIN SPService");
 
   std::map<std::string, std::string> filters;
   add_url("", filters, REST_HANDLE(&iota::SPService::service), this);
@@ -94,6 +94,12 @@ void iota::SPService::start() {
       my_resource = saux.substr(0,pos);
     }
   }
+}
+
+iota::ProtocolData iota::SPService::get_protocol_data() {
+  iota::ProtocolData p_d;
+  p_d.protocol = "HOLA";
+  p_d.description = "ADIOS";
 }
 
 void iota::SPService::op_ngsi(pion::http::request_ptr& http_request_ptr,

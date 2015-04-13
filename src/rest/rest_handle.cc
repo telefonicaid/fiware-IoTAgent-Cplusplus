@@ -198,6 +198,7 @@ void iota::RestHandle::register_plugin() {
       iota::Configurator::instance()->get(iota::types::CONF_FILE_IOTA_MANAGER);
     std::string m_end(manager_endpoint.GetString());
     set_iota_manager_endpoint(m_end);
+    register_iota_manager();
   }
   catch (std::exception& e) {
     PION_LOG_INFO(m_logger, "No IoTA-Manager configured in "
@@ -232,34 +233,77 @@ std::string iota::RestHandle::get_public_ip() {
 
 void iota::RestHandle::register_iota_manager() {
 
-  std::string log_message("|resource=" + get_resource());
+  std::string iota_manager_endpoint = get_iota_manager_endpoint();
+  std::string log_message("|resource=" + get_resource() + "|manager=" +
+                          iota_manager_endpoint);
   std::string public_ip = get_public_ip();
 
   try {
-
-    iota::ServiceCollection srv_table;
-    mongo::BSONObj srv_find = BSON(iota::store::types::RESOURCE << get_resource());
-    int code_res = srv_table.find(srv_find);
-    iota::ProtocolData protocol_data = get_protocol_data();
-    if (!protocol_data.protocol.empty() && !protocol_data.description.empty()) {
-      mongo::BSONObjBuilder json_builder;
-      mongo::BSONArrayBuilder services_builder;
-      json_builder.append(iota::store::types::PROTOCOL, protocol_data.protocol);
-      json_builder.append(iota::store::types::PROTOCOL_DESCRIPTION,
-                          protocol_data.description);
-      json_builder.append(iota::store::types::IOTAGENT, public_ip);
-      while (srv_table.more()) {
-        mongo::BSONObj srv_resu =srv_table.next();
-        log_message.append("|endpoint=" + public_ip + "|protocol=" +
-                           protocol_data.protocol + "|description=" +
-                           protocol_data.description + "|service=" + srv_resu.getStringField(
-                             iota::store::types::SERVICE) + "|service_path=" +
-                           srv_resu.getStringField(iota::store::types::SERVICE_PATH));
-
-        services_builder.append(srv_resu);
+    bool using_database = true;
+    const iota::JsonValue& storage = iota::Configurator::instance()->get(
+                                       iota::store::types::STORAGE);
+    if (storage.HasMember(iota::store::types::TYPE.c_str())) {
+      std::string storage_type;
+      storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
+      if (storage_type.compare(iota::store::types::MONGODB) != 0) {
+        using_database = false;
       }
-      json_builder.append(iota::store::types::SERVICES, services_builder.arr());
-      PION_LOG_INFO(m_logger, log_message);
+    }
+    else {
+      PION_LOG_ERROR(m_logger, "Config file has not got storage");
+    }
+
+    if (using_database) {
+
+      iota::ServiceCollection srv_table;
+      mongo::BSONObj srv_find = BSON(iota::store::types::RESOURCE << get_resource());
+      int code_res = srv_table.find(srv_find);
+      iota::ProtocolData protocol_data = get_protocol_data();
+      if (!protocol_data.protocol.empty() && !protocol_data.description.empty()) {
+        mongo::BSONObjBuilder json_builder;
+        mongo::BSONArrayBuilder services_builder;
+        json_builder.append(iota::store::types::PROTOCOL, protocol_data.protocol);
+        json_builder.append(iota::store::types::PROTOCOL_DESCRIPTION,
+                            protocol_data.description);
+        json_builder.append(iota::store::types::IOTAGENT, public_ip);
+        while (srv_table.more()) {
+          mongo::BSONObj srv_resu =srv_table.next();
+          log_message.append("|endpoint=" + public_ip + "|protocol=" +
+                             protocol_data.protocol + "|description=" +
+                             protocol_data.description + "|service=" + srv_resu.getStringField(
+                               iota::store::types::SERVICE) + "|service_path=" +
+                             srv_resu.getStringField(iota::store::types::SERVICE_PATH));
+
+          services_builder.append(srv_resu);
+        }
+        json_builder.append(iota::store::types::SERVICES, services_builder.arr());
+        PION_LOG_INFO(m_logger, log_message);
+      }
+      else { // using file
+      /*
+        try {
+
+          PION_LOG_INFO(m_logger, "Services names by resource (file storage): " <<
+                        get_resource());
+          const JsonValue& res =
+            iota::Configurator::instance()->getResourceObject(get_resource());
+
+          if (res.IsObject() && res.HasMember("services")) {
+            const JsonValue& services = res["services"];
+            if (services.IsArray()) {
+              for (rapidjson::SizeType i = 0; i < services.Size(); i++) {
+                std::string service = services[i]["service"].GetString();
+                _services_names.push_back(service);
+                PION_LOG_DEBUG(m_logger, "Found service: " << service);
+              }
+            }
+          }
+        }
+        catch (std::exception& e) {
+          PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+        }
+        */
+      }
     }
     else {
       PION_LOG_ERROR(m_logger, "No protocol information for " << get_resource());
