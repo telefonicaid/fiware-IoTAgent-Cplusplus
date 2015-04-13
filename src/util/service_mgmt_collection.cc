@@ -262,6 +262,7 @@ std::vector<iota::ServiceType> iota::ServiceMgmtCollection::get_services_group_p
 
 std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_service(
         const std::string & service, const std::string& service_path,
+        const std::string& protocol_id,
         int limit, int skip){
   std::vector<iota::IotagentType>  result;
 
@@ -273,6 +274,7 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   mongo::BSONObjBuilder bson_query;
   bson_query.append(iota::store::types::SERVICE, service);
   ServiceCollection::addServicePath(service_path, bson_query);
+  bson_query.append(iota::store::types::PROTOCOL_ID, protocol_id);
 
   mongo::BSONObj res = iota::Collection::distinct("iotagent" , bson_query.obj(), 0);
 
