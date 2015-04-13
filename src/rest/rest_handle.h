@@ -35,6 +35,7 @@
 #include <util/CommandResponse.h>
 #include <util/cache.h>
 #include <util/device.h>
+#include "util/http_client.h"
 #include <ngsi/Attribute.h>
 
 #include <util/async_comm.h>
@@ -85,9 +86,9 @@ class RestHandle: public pion::http::plugin_service,
                             int num_filter, int status = 200);
 
     std::string add_url(std::string url,
-                 std::map<std::string, std::string>& filters,
-                 iota::RestHandle::HandleFunction_t handle,
-                 iota::RestHandle* context);
+                        std::map<std::string, std::string>& filters,
+                        iota::RestHandle::HandleFunction_t handle,
+                        iota::RestHandle* context);
     bool add_pre_filter(boost::shared_ptr<iota::HTTPFilter> filter);
     bool add_post_filter(boost::shared_ptr<iota::HTTPFilter> filter);
     virtual void error_response(pion::http::response& http_response,
@@ -101,7 +102,7 @@ class RestHandle: public pion::http::plugin_service,
     void reset_counters();
 
     const boost::shared_ptr<Device> get_device_empty_service_path(
-        boost::shared_ptr<Device> itemQ);
+      boost::shared_ptr<Device> itemQ);
 
     /**
        * @name    getDevice
@@ -154,11 +155,11 @@ class RestHandle: public pion::http::plugin_service,
        * @endcode
        */
     void send_update_context(
-         const std::string &apikey,
-         const std::string &device_id,
-         const std::vector<iota::Attribute> &attributes);
+      const std::string& apikey,
+      const std::string& device_id,
+      const std::vector<iota::Attribute>& attributes);
 
-    void remove_devices_from_cache(Device &device);
+    void remove_devices_from_cache(Device& device);
 
     /**
     * @name get_protocol_data
@@ -255,6 +256,11 @@ class RestHandle: public pion::http::plugin_service,
     */
     int get_default_timeout();
 
+    void receive_event_from_manager(
+      boost::shared_ptr<iota::HttpClient> connection,
+      pion::http::response_ptr response_ptr,
+      const boost::system::error_code& error);
+
     void finish(pion::tcp::connection_ptr& tcp_conn);
     void clear_buffer(pion::tcp::connection_ptr& tcp_conn);
     std::string& create_buffer(pion::tcp::connection_ptr& tcp_conn);
@@ -273,6 +279,7 @@ class RestHandle: public pion::http::plugin_service,
     std::map<std::string, ResourceHandler> _handlers;
     std::vector<boost::shared_ptr<iota::HTTPFilter> > _pre_filters;
     std::vector<boost::shared_ptr<iota::HTTPFilter> > _post_filters;
+
 
     // Buffers to answers (async)
     std::map<pion::tcp::connection_ptr, std::string> _async_buffers;

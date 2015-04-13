@@ -100,6 +100,7 @@ iota::ProtocolData iota::SPService::get_protocol_data() {
   iota::ProtocolData p_d;
   p_d.protocol = "HOLA";
   p_d.description = "ADIOS";
+  return p_d;
 }
 
 void iota::SPService::op_ngsi(pion::http::request_ptr& http_request_ptr,

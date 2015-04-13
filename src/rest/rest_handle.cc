@@ -268,41 +268,34 @@ void iota::RestHandle::register_iota_manager() {
         json_builder.append(iota::store::types::IOTAGENT, public_ip);
         while (srv_table.more()) {
           mongo::BSONObj srv_resu =srv_table.next();
-          log_message.append("|endpoint=" + public_ip + "|protocol=" +
-                             protocol_data.protocol + "|description=" +
-                             protocol_data.description + "|service=" + srv_resu.getStringField(
-                               iota::store::types::SERVICE) + "|service_path=" +
-                             srv_resu.getStringField(iota::store::types::SERVICE_PATH));
-
           services_builder.append(srv_resu);
         }
-        json_builder.append(iota::store::types::SERVICES, services_builder.arr());
-        PION_LOG_INFO(m_logger, log_message);
-      }
-      else { // using file
-      /*
-        try {
-
-          PION_LOG_INFO(m_logger, "Services names by resource (file storage): " <<
-                        get_resource());
-          const JsonValue& res =
-            iota::Configurator::instance()->getResourceObject(get_resource());
-
-          if (res.IsObject() && res.HasMember("services")) {
-            const JsonValue& services = res["services"];
-            if (services.IsArray()) {
-              for (rapidjson::SizeType i = 0; i < services.Size(); i++) {
-                std::string service = services[i]["service"].GetString();
-                _services_names.push_back(service);
-                PION_LOG_DEBUG(m_logger, "Found service: " << service);
-              }
-            }
-          }
+        if (services_builder.arrSize() > 0) {
+          json_builder.append(iota::store::types::SERVICES, services_builder.arr());
         }
-        catch (std::exception& e) {
-          PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
-        }
-        */
+        std::string json_post(json_builder.obj().jsonString());
+        log_message.append(json_post);
+        iota::IoTUrl dest(iota_manager_endpoint);
+        boost::shared_ptr<iota::HttpClient> http_client(
+          new iota::HttpClient(*(_connectionManager->get_io_service()), dest.getHost(),
+                               dest.getPort()));
+        boost::property_tree::ptree additional_info;
+        pion::http::request_ptr request(new pion::http::request());
+        request->set_method(pion::http::types::REQUEST_METHOD_POST);
+        request->set_resource(dest.getPath());
+        request->set_content(json_post);
+        request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
+        request->add_header(iota::types::IOT_HTTP_HEADER_ACCEPT,
+                            iota::types::IOT_CONTENT_TYPE_JSON);
+        std::string server(dest.getHost());
+        server.append(":");
+        server.append(boost::lexical_cast<std::string>(dest.getPort()));
+        request->add_header(pion::http::types::HEADER_HOST, server);
+        http_client->async_send(request, get_default_timeout(), "",
+                                boost::bind(&iota::RestHandle::receive_event_from_manager,
+                                            this, _1, _2, _3));
+        PION_LOG_INFO(m_logger, json_post);
+
       }
     }
     else {
@@ -311,6 +304,22 @@ void iota::RestHandle::register_iota_manager() {
   }
   catch (std::exception& e) {
     PION_LOG_ERROR(m_logger, e.what());
+  }
+}
+
+void iota::RestHandle::receive_event_from_manager(
+  boost::shared_ptr<iota::HttpClient> connection,
+  pion::http::response_ptr response_ptr,
+  const boost::system::error_code& error) {
+
+  int code = -1;
+  if (response_ptr.get() != NULL) {
+    code = response_ptr->get_status_code();
+  }
+  if (error || code != pion::http::types::RESPONSE_CODE_OK) {
+    PION_LOG_ERROR(m_logger,
+                   "|resource=" + get_resource() + "|code=" + boost::lexical_cast<std::string>
+                   (code) + "|error=" + error.message());
   }
 }
 
