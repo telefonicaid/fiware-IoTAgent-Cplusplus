@@ -40,7 +40,6 @@
 
 #include "util/protocol_collection.h"
 
-#define PATH_CONFIG "../../test/"
 
 
 class AdminManagerTest : public CPPUNIT_NS::TestFixture {

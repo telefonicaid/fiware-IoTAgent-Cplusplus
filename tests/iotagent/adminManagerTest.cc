@@ -40,8 +40,12 @@ using ::testing::Invoke;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminManagerTest);
 
+
 AdminManagerTest::AdminManagerTest() {
 
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
 
 }
 
@@ -115,22 +119,31 @@ void AdminManagerTest::testGetEndpointsFromDevices()
   std::cout << "Test: testGetEndpointsFromDevices... starting" << std::endl;
 
 
-  std::vector<iota::DeviceToBeAdded> v_endpoints;
+  std::vector<iota::DeviceToBeAdded> v_endpoints_devices;
   std::string devices("{\"devices\": "
                        "[{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                       "},{\"protocol\":\"UL20\",\"device_id\": \"device_id_2\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
 
-  manager_service.resolve_endpoints(v_endpoints,devices,"s1","/ss1");
+  manager_service.resolve_endpoints(v_endpoints_devices,devices,"s1","/ss1");
 
   //Expected, "host1" and "host2"
 
-  std::cout << "Test: testGetEndpointsFromDevices: result: ["<< v_endpoints.size() << "] endpoints" << std::endl;
-  CPPUNIT_ASSERT (v_endpoints.size() == 2);
-  CPPUNIT_ASSERT (v_endpoints[0].get_endpoint().compare("host1")==0);
-  CPPUNIT_ASSERT (v_endpoints[1].get_endpoint().compare("host2")==0);
+  std::cout << "Test: testGetEndpointsFromDevices: result: ["<< v_endpoints_devices.size() << "] endpoints" << std::endl;
+  CPPUNIT_ASSERT (v_endpoints_devices.size() == 4);
+  for (int i=0;i<v_endpoints_devices.size(); i++){
+    std::cout << "Test: host: " << v_endpoints_devices[i].get_endpoint() << std::endl;
+  }
+  CPPUNIT_ASSERT (v_endpoints_devices[0].get_endpoint().compare("host1")==0);
+  CPPUNIT_ASSERT (v_endpoints_devices[1].get_endpoint().compare("host2")==0);
+  CPPUNIT_ASSERT (v_endpoints_devices[2].get_endpoint().compare("host1")==0);
+  CPPUNIT_ASSERT (v_endpoints_devices[3].get_endpoint().compare("host2")==0);
   std::cout << "Test: END" << std::endl;
 
 }

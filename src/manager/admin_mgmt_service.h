@@ -9,6 +9,9 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/document.h>
+#include <rapidjson/prettywriter.h>	// for stringify JSON
+#include <rapidjson/filestream.h>	// wrapper of C stream for prettywriter as output
+#include <rapidjson/stringbuffer.h>
 #include <boost/foreach.hpp>
 #include <iostream>
 #include "util/service_mgmt_collection.h"

@@ -41,15 +41,21 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
 
     if (document.HasMember("devices")) {
       PION_LOG_DEBUG(m_log,"resolve_endpoints: devices found, parsing individually");
-      const rapidjson::Value& devices = &(document["devices"]);
+      const rapidjson::Value& devices = document["devices"];
       if (!devices.IsArray()) {
-        throw std::runtime_error("AdminManagerService: not proper formatted [devices]: not an array");
-      }// can it be just an object? I doubt it.
-        for (rapidjson::SizeType i = 0; i < devices.Size(); i++) {
-          const std::string protocol(devices[i]["protocol"].GetString());
 
+          throw std::runtime_error("AdminManagerService: not proper formatted [devices]: not an array");
+
+      }
+      PION_LOG_DEBUG(m_log,"resolve_endpoints: size of elements ["<< devices.Size() << "]");
+        for (rapidjson::SizeType i = 0; i < devices.Size(); i++) {
+
+          const std::string protocol(devices[i]["protocol"].GetString());
+          PION_LOG_DEBUG(m_log,"resolve_endpoints: Processing first Device: protocol ["<< protocol << "]");
           std::vector <IotagentType> v_endpoint = map_endpoints[protocol];
-          if (!v_endpoint.size()){
+
+          if (v_endpoint.size()==0){
+            PION_LOG_DEBUG(m_log,"resolve_endpoints: getting endpoints for protocol ["<< protocol << "]");
             v_endpoint = _service_mgmt.get_iotagents_by_service(service,sub_service,protocol);
             map_endpoints[protocol] =  v_endpoint;
             PION_LOG_DEBUG(m_log,"resolve_endpoints: endpoints ["<< v_endpoint.size() <<"] found for device");
@@ -57,9 +63,14 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
 
           //Now link endpoints with device.
           for (int j = 0; j < v_endpoint.size(); j++){
-            iota::DeviceToBeAdded dev_add(v_endpoint[j],devices[i].GetString());
+
+	          rapidjson::StringBuffer string_buffer;
+            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(string_buffer);
+            devices[i].Accept(writer);
+
+            iota::DeviceToBeAdded dev_add(string_buffer.GetString(),v_endpoint[j]);
             v_devices_endpoint_out.push_back(dev_add);
-            PION_LOG_DEBUG(m_log,"resolve_endpoints: adding endpoint ["<< v_endpoint[j] << "] for device [" << devices[i].GetString() << "]");
+            PION_LOG_DEBUG(m_log,"resolve_endpoints: adding endpoint ["<< v_endpoint[j] << "] for device [" << string_buffer.GetString() << "]");
           }
 
         }

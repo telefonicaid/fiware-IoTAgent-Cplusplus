@@ -8,7 +8,7 @@
     "dir_log": "/tmp/",
     "timezones": "/etc/iot/date_time_zonespec.csv",
     "storage": {
-        "host": "ci-sbc-build-01",
+        "host": "127.0.0.1",
         "type": "mongodb",
         "dbname": "iotest"
     }
