@@ -201,6 +201,13 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
   // If value is empty, this attribute is not published
   // Type compound use other method (to review)
   bool empty_value = false;
+
+  // Sanity. If type is empty, default is string
+  if (attribute.get_type().empty()) {
+    std::string default_type("string");
+    attribute.set_type(default_type);
+  }
+
   if (attribute.get_type().compare("compound") == 0) {
     empty_value = attribute.get_compound_value().empty();
   }
@@ -220,7 +227,8 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
               iota::store::types::ATTRIBUTES).begin();
         while (attr_mapping.empty()
                && it != _service_info.get_child(iota::store::types::ATTRIBUTES).end()) {
-          if (it->second.get<std::string>(iota::store::types::ATTRIBUTE_ID, "").compare(attribute.get_name()) == 0) {
+          if (it->second.get<std::string>(iota::store::types::ATTRIBUTE_ID,
+                                          "").compare(attribute.get_name()) == 0) {
             std::stringstream os_json;
             iota::property_tree::json_parser::write_json(os_json, it->second);
             attr_mapping = os_json.str();
