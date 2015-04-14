@@ -783,14 +783,14 @@ void Ul20Test::testNoDevicePost() {
       !=
       std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"l\",\"type\":\"\",\"value\":\"-3.3423/2.345\"") !=
+      cb_last.find("{\"name\":\"l\",\"type\":\"string\",\"value\":\"-3.3423/2.345\"") !=
       std::string::npos);
     IOTASSERT(
       cb_last.find("\"id\":\"thing:unitTest_device_tegistered\",\"type\":\"thing\"")
       !=
       std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"t\",\"type\":\"\",\"value\":\"22\"") !=
+      cb_last.find("{\"name\":\"t\",\"type\":\"string\",\"value\":\"22\"") !=
       std::string::npos);
 
   }
