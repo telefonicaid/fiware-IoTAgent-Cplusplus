@@ -68,7 +68,8 @@ extern "C"  void* _begin_registrations(void* arg) {
   usrv->make_registrations();
 }
 
-boost::shared_ptr<iota::Command> command_from_mongo(boost::shared_ptr<iota::Command> item) {
+boost::shared_ptr<iota::Command> command_from_mongo(
+  boost::shared_ptr<iota::Command> item) {
   boost::shared_ptr<iota::Command> resu;
 
   try {
@@ -132,15 +133,16 @@ void iota::CommandHandle::set_async_commands() {
 }
 
 void iota::CommandHandle::handle_updateContext(
-     const std::string &url,
-     std::string response, int status){
+  const std::string& url,
+  std::string response, int status) {
   //TODO PION_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response << "|" << status);
 
   if (status == 200) {
-      iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url,
-                       iota::types::ERROR, response);
-  }else{
-      iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url,
+    iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url,
+                      iota::types::ERROR, response);
+  }
+  else {
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url,
                        iota::types::ERROR, response);
   }
 }
@@ -176,17 +178,18 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
     get_service_by_name(service_ptree, item->get_service(),
                         item->get_service_path());
     //look for command in cache
-    int c = remove_command( item->get_id(),  item->get_service(),
-           item->get_service_path());
+    int c = remove_command(item->get_id(),  item->get_service(),
+                           item->get_service_path());
 
-    if (c > 0){
+    if (c > 0) {
       //ha saltado algun timeout, hay que enviar el nuevo estado del comando
       send_updateContext(
         item->get_name(), iota::types::STATUS, iota::types::STATUS_TYPE ,statusSTR,
         dev, service_ptree, iota::types::STATUS_OP);
-    }else{
+    }
+    else {
       PION_LOG_ERROR(m_logger, "timeout command: |command_id" << item->get_id()<<
-               " timeout but no command in cache, no sended data to CB");
+                     " timeout but no command in cache, no sended data to CB");
     }
 
   }
@@ -915,7 +918,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                  cmd_data.sequence,
                  iota::types::READY_FOR_READ);
     PION_LOG_DEBUG(m_logger, "Device has endpoint, send command to " <<
-                  item_dev->_endpoint);
+                   item_dev->_endpoint);
     try {
       if (_callback) {
 
@@ -943,8 +946,10 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
 
         PION_LOG_DEBUG(m_logger,
                        "response:" << res_code << "->" << resp_cmd);
-        std::string service_name = service.get<std::string>(iota::store::types::SERVICE, "");
-        std::string service_path = service.get<std::string>(iota::store::types::SERVICE_PATH, "");
+        std::string service_name = service.get<std::string>(iota::store::types::SERVICE,
+                                   "");
+        std::string service_path = service.get<std::string>
+                                   (iota::store::types::SERVICE_PATH, "");
         if (resp_cmd.empty()) {
           PION_LOG_DEBUG(m_logger, "command response from plugin_terceros is empty");
           // empty is a good response, do not add anything
@@ -1006,7 +1011,8 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
       PION_LOG_DEBUG(m_logger, "count:" << count << " size params:" << params.size());
       if (count ==0) {
         command_line.put(iota::store::types::BODY, command_value);
-      }else  if (count > params.size()) {
+      }
+      else  if (count > params.size()) {
         std::string errSTR = "malformed command ";
         errSTR.append(command_value);
         errSTR.append(" in relation with ");
@@ -1016,12 +1022,12 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
                                   errSTR,
                                   iota::types::RESPONSE_CODE_BAD_REQUEST);
-      }else{
+      }
+      else {
         std::size_t found1 =0;
         std::size_t found2= command_value.find("%s");
         int i=0;
-        while (found2!=std::string::npos)
-        {
+        while (found2!=std::string::npos) {
           result.append(command_value.substr(found1, found2 - found1));
           result.append(params[i++]);
           found1 = found2 +2;
@@ -1056,9 +1062,11 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
     std::multimap<std::string, std::string>& query_parameters,
     pion::http::response& http_response, std::string& response) {
 
-  std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
+  std::string trace_message = http_request_ptr->get_header(
+                                iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi|trace_message:" + trace_message);
+  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi|trace_message:" +
+                trace_message);
 
   int iresponse= 200;
   response = "OK";
@@ -1140,9 +1148,10 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   }
   //write response
 
-  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi|trace_message:" + trace_message+
-          "|code: " + boost::lexical_cast<std::string>(iresponse)+
-          "|response:" + response);
+  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi|trace_message:" +
+                trace_message+
+                "|code: " + boost::lexical_cast<std::string>(iresponse)+
+                "|response:" + response);
   http_response.set_status_code(iresponse);
 
   if (!response.empty()) {
@@ -1195,7 +1204,7 @@ int iota::CommandHandle::send(
   op.add_context_element(ngsi_context_element);
 
   return cb_comm->async_send(cb_url, op.get_string(), service,
-    boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
+                             boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
 }
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&
@@ -1288,9 +1297,9 @@ int iota::CommandHandle::send_updateContext(
   iota::ContextElement ngsi_context_element;
   std::string cb_response;
   ContextBrokerCommunicator::add_updateContext(command_name, command_att,
-                            type,
-                            value, item_dev,
-                            service, ngsi_context_element);
+      type,
+      value, item_dev,
+      service, ngsi_context_element);
 
   iota::RiotISO8601 mi_hora;
   std::string date_to_cb = mi_hora.toUTC().toString();
@@ -1321,13 +1330,13 @@ int iota::CommandHandle::send_updateContext(
   iota::ContextElement ngsi_context_element;
   std::string cb_response;
   ContextBrokerCommunicator::add_updateContext(command_name, command_att,
-                            type,
-                            value, item_dev,
-                            service, ngsi_context_element);
+      type,
+      value, item_dev,
+      service, ngsi_context_element);
   ContextBrokerCommunicator::add_updateContext(command_name, command_att2,
-                            type2,
-                            value2, item_dev,
-                            service, ngsi_context_element);
+      type2,
+      value2, item_dev,
+      service, ngsi_context_element);
 
   iota::RiotISO8601 mi_hora;
   std::string date_to_cb = mi_hora.toUTC().toString();
@@ -1438,10 +1447,11 @@ iota::CommandVect iota::CommandHandle::get_all_command(const
   for (CommandVect::iterator it = res.begin(); it != res.end(); ++it) {
     CommandPtr prt = *it;
     if (_storage_type.compare(iota::store::types::MONGODB)==0) {
-      PION_LOG_DEBUG(m_logger, "update command status to delivered " << prt->get_id());
+      PION_LOG_DEBUG(m_logger,
+                     "update command status to delivered " << prt->get_id());
       mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << prt->get_id()
-                            << iota::store::types::SERVICE << prt->get_service()
-                            << iota::store::types::SERVICE_PATH << prt->get_service_path());
+                               << iota::store::types::SERVICE << prt->get_service()
+                               << iota::store::types::SERVICE_PATH << prt->get_service_path());
       mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
       table.update(no, ap);
     }
@@ -1538,39 +1548,16 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
       my_resource =url_ngsi.substr(0,pos);
     }
 
-    const JsonValue& cfg_ngsi_url =
-      iota::Configurator::instance()->get("ngsi_url");
-
-    if (cfg_ngsi_url.IsObject() &&
-        cfg_ngsi_url.HasMember(iota::store::types::PUBLIC_IP.c_str())) {
-      std::string straux =
-        cfg_ngsi_url[iota::store::types::PUBLIC_IP.c_str()].GetString();
-      pos = straux.find("http");
-      if (pos != 0) {
-        _myProvidingApp = "http://" + straux;
-      }
-      else {
-        _myProvidingApp = straux;
-      }
-      _myProvidingApp += my_resource;
-      PION_LOG_DEBUG(m_logger, "With balancer ProvidingApp: " << _myProvidingApp);
+    std::string public_ip = get_public_ip();
+    pos = public_ip.find("http");
+    if (pos != 0) {
+      _myProvidingApp = "http://" + public_ip;
     }
     else {
-      if (my_ip != "0.0.0.0") {
-        char sport [50];
-        sprintf(sport, "%d", my_port);
-        _myProvidingApp = "http://";
-        _myProvidingApp += my_ip;
-        _myProvidingApp += ":";
-        _myProvidingApp += sport;
-        _myProvidingApp += my_resource;
-        PION_LOG_DEBUG(m_logger, "ProvidingApp: " << _myProvidingApp);
-      }
-      else {
-        PION_LOG_ERROR(m_logger,
-                       "Unable to set ProvidingApp because ip is: " << my_ip);
-      }
+      _myProvidingApp = public_ip;
     }
+    _myProvidingApp += my_resource;
+
   }
 }
 
@@ -1579,7 +1566,8 @@ void iota::CommandHandle::receive_command_response(
   boost::shared_ptr<iota::HttpClient> http_client,
   pion::http::response_ptr http_response,
   const boost::system::error_code& error) {
-  PION_LOG_DEBUG(m_logger, "command response from " << http_client->getRemoteEndpoint());
+  PION_LOG_DEBUG(m_logger,
+                 "command response from " << http_client->getRemoteEndpoint());
   int res_code;
   std::string command_response;
   if (error || http_response.get() == NULL) {
@@ -1596,7 +1584,9 @@ void iota::CommandHandle::receive_command_response(
     std::string resp_cmd = http_response->get_content();
     std::string id_command;
     if (transform_response(resp_cmd, res_code, command_response, id_command) < 0) {
-      PION_LOG_ERROR(m_logger, "command response from " << http_client->getRemoteEndpoint() << " " << resp_cmd);
+      PION_LOG_ERROR(m_logger,
+                     "command response from " << http_client->getRemoteEndpoint() << " " <<
+                     resp_cmd);
     }
 
   }
@@ -1617,8 +1607,10 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     int& res_code,
     std::string& resp_cmd) {
 
-  std::string service_name = cmd_data.service.get<std::string>(iota::store::types::SERVICE, "");
-  std::string service_path = cmd_data.service.get<std::string>(iota::store::types::SERVICE_PATH, "");
+  std::string service_name = cmd_data.service.get<std::string>
+                             (iota::store::types::SERVICE, "");
+  std::string service_path = cmd_data.service.get<std::string>
+                             (iota::store::types::SERVICE_PATH, "");
 
   if (res_code == pion::http::types::RESPONSE_CODE_OK) {
     remove_command(cmd_data.command_id, service_name, service_path);
@@ -1643,7 +1635,8 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     PION_LOG_DEBUG(m_logger, " accepted command, waiting for the result");
     int n=1;
     if (_storage_type.compare(iota::store::types::MONGODB)==0) {
-      PION_LOG_DEBUG(m_logger, "update command status to delivered " << cmd_data.command_id);
+      PION_LOG_DEBUG(m_logger,
+                     "update command status to delivered " << cmd_data.command_id);
       iota::Collection table(iota::store::types::COMMAND_TABLE);
 
       mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << cmd_data.command_id);
@@ -1669,7 +1662,8 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
       PION_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
     }
 
-    PION_LOG_DEBUG(m_logger, " response 202, accepted command id ," << cmd_data.command_id);
+    PION_LOG_DEBUG(m_logger,
+                   " response 202, accepted command id ," << cmd_data.command_id);
   }
   else {
     remove_command(cmd_data.command_id, service_name, service_path);

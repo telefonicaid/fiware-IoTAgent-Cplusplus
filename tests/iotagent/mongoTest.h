@@ -32,7 +32,7 @@ class MongoTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testCommandCollection);
     CPPUNIT_TEST(testDeviceCollection);
     CPPUNIT_TEST(testNoMongo);
-    CPPUNIT_TEST(testReplica);
+    //CPPUNIT_TEST(testReplica);
     CPPUNIT_TEST(testException);
 
     CPPUNIT_TEST(testProtocolCollection);

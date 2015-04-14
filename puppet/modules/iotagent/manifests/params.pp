@@ -31,7 +31,8 @@ class iotagent::params {
   $update_context_path         = hiera('iota::ngsi::update_context_path', '/NGSI10/updateContext')
   $register_context_path       = hiera('iota::ngsi::register_context_path', '/NGSI9/registerContext')
   $query_context_path          = hiera('iota::ngsi::query_context_path','/NGSI10/queryContext')
-  $load_balancer_url	       = hiera('iota::ngsi::load_balancer_url')
+  $load_balancer_url	       = hiera('iota::base::load_balancer_url')
+  $iota_manager_endpoint     = hiera('iota::base::iota_manager_endpoint')
   
 
   # Package parameters
