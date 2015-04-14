@@ -51,6 +51,8 @@ struct types {
   static const std::string CONF_FILE_DIR_LOG;
   static const std::string CONF_FILE_TIMEZONES;
 
+  static const std::string CONF_FILE_IOTA_MANAGER;
+
 
   // Storage
   static const std::string CONF_FILE_DEVICES_STORE;
@@ -229,5 +231,10 @@ struct types {
   static const char* ERROR_MESSAGE[];
 
 };
+
+typedef struct ProtocolData {
+  std::string protocol;
+  std::string description;
+} ProtocolData;
 }
 #endif
