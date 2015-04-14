@@ -1647,10 +1647,9 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     iota::CommandPtr pt = get_command(cmd_data.command_id,
                service_name, service_path);
     if (pt.get()!= NULL){
-        PION_LOG_DEBUG(m_logger, " change status command, delivered");
+        PION_LOG_DEBUG(m_logger, cmd_data.command_id << " change status command, delivered");
         pt->set_status (iota::types::DELIVERED);
     }
-
 
     if (n > 0){
        send_updateContext(cmd_data.command_name, iota::types::STATUS,
