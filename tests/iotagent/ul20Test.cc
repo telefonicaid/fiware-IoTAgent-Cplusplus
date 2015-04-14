@@ -320,6 +320,48 @@ void Ul20Test::testNormalPOST() {
                            std::string::npos);
 
   }
+  // No attribute mapping
+  {
+    std::string bodySTR_no_mapping = "2014-02-18T16:41:20Z|nomap|23";
+    pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR_no_mapping);
+    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(std::pair<std::string,std::string>("i",
+                            "unitTest_dev1_endpoint"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","apikey3"));
+    pion::http::response http_response;
+    std::string response;
+    ul20serv.service(http_request, url_args, query_parameters,
+                     http_response, response);
+
+    std::cout << "POST fecha + nomap " <<
+        http_response.get_status_code() << response <<
+              std::endl;
+    IOTASSERT_MESSAGE("response code not is 200",
+                           http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    ASYNC_TIME_WAIT
+    // updateContext to CB
+    cb_last = cb_mock->get_last();
+    std::cout << "@UT@CB"<< cb_last << std::endl;
+    IOTASSERT_MESSAGE("translate the name of device",
+                           cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                           std::string::npos);
+    IOTASSERT_MESSAGE(" observation",
+                           cb_last.find("{\"name\":\"nomap\",\"type\":\"string\",\"value\":\"23\"")
+                           !=
+                           std::string::npos);
+    IOTASSERT_MESSAGE("add statis attributes",
+                           cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
+                           !=
+                           std::string::npos);
+
+  }
   {
     pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
     http_request->set_method("POST");
@@ -777,14 +819,14 @@ void Ul20Test::testNoDevicePost() {
       !=
       std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"l\",\"type\":\"\",\"value\":\"-3.3423/2.345\"") !=
+      cb_last.find("{\"name\":\"l\",\"type\":\"string\",\"value\":\"-3.3423/2.345\"") !=
       std::string::npos);
     IOTASSERT(
       cb_last.find("\"id\":\"thing:unitTest_device_tegistered\",\"type\":\"thing\"")
       !=
       std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"t\",\"type\":\"\",\"value\":\"22\"") !=
+      cb_last.find("{\"name\":\"t\",\"type\":\"string\",\"value\":\"22\"") !=
       std::string::npos);
 
   }
