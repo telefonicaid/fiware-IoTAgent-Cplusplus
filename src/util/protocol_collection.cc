@@ -127,15 +127,14 @@ iota::Protocol iota::ProtocolCollection::BSON2Obj(const mongo::BSONObj& obj) {
   mongo::BSONObj endpoints = obj.getObjectField (iota::store::types::ENDPOINTS);
 
   mongo::BSONObjIterator it(endpoints);
-  while ( it.moreWithEOO() ) {
+  while ( it.more() ) {
     mongo::BSONObj e = it.next().Obj();
     iota::Protocol::resource_endpoint endp;
+
     endp.endpoint = e.getStringField(iota::store::types::ENDPOINT);
     endp.resource = e.getStringField(iota::store::types::RESOURCE);
-    std::cout << "FF:" << endp.endpoint  << std::endl;
     result.add(endp);
   }
-
   return result;
 }
 
@@ -161,3 +160,154 @@ std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
   return result;
 }
 
+std::string iota::ProtocolCollection::getSchema(const std::string& method) {
+  std::ostringstream schema;
+
+
+  if (method.compare("POST") == 0) {
+    return POST_SCHEMA;
+  }
+  else {
+    return PUT_SCHEMA;
+  }
+
+}
+
+const std::string iota::ProtocolCollection::POST_SCHEMA(
+  "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
+  "\"title\": \"Iotagent_Registration\","
+  "\"description\": \"Protocol registration from Iotafgent and registratio of all services\","
+  "\"additionalProperties\":false,"
+  "\"type\": \"object\","
+  "\"properties\": {"
+  "\"protocol\": {"
+  "\"description\": \"protocol identifier\","
+  "\"type\": \"string\""
+  "},"
+  "\"description\": {"
+  "\"description\": \"protocol description\","
+  "\"type\": \"string\""
+  "},"
+  "\"endpoint\": {"
+  "\"description\": \"public ip of iotagent\","
+  "\"type\": \"string\""
+  "},"
+  "\"resource\": {"
+  "\"description\": \"protocol resource, uri path for the iotagent\","
+  "\"type\": \"string\""
+  "},"
+  "\"services\": {"
+  "\"type\":\"array\","
+  "\"id\": \"services\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"service\": {"
+  "\"description\": \"service name\","
+  "\"type\": \"string\""
+  "},"
+  "\"service_path\": {"
+  "\"description\": \"service path, must start with /\","
+  "\"type\": \"string\""
+  "},"
+  "\"entity_type\": {"
+  "\"description\": \"default entity_type, if a device has not got entity_type uses this\","
+  "\"type\": \"string\""
+  "},"
+  "\"apikey\": {"
+  "\"description\": \"apikey\","
+  "\"type\": \"string\""
+  "},"
+  "\"token\": {"
+  "\"description\": \"token\","
+  "\"type\": \"string\""
+  "},"
+  "\"cbroker\": {"
+  "\"description\": \"uri for the context broker\","
+  "\"type\": \"string\","
+  "\"format\": \"uri\","
+  "\"minLength\":1"
+  "},"
+  "\"outgoing_route\": {"
+  "\"description\": \"VPN/GRE tunnel identifier\","
+  "\"type\": \"string\""
+  "},"
+  "\"resource\": {"
+  "\"description\": \"uri for the iotagent\","
+  "\"type\": \"string\","
+  "\"format\":\"regex\","
+  "\"pattern\":\"^/\""
+  "},"
+  "\"attributes\": {"
+  "\"type\":\"array\","
+  "\"id\": \"attributes\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"object_id\": {"
+  "\"description\": \"The unique identifier by service for a device\","
+  "\"type\": \"string\""
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of the entity, if it does not exits use device_id\","
+  "\"type\": \"string\""
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of the entity\","
+  "\"type\": \"string\""
+  "}"
+  "}"
+  "}"
+  "},"
+  "\"static_attributes\": {"
+  "\"type\":\"array\","
+  "\"id\": \"static_attributes\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"value\": {"
+  "\"description\": \"The unique identifier by service for a device\","
+  "\"type\": \"string\""
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of the entity, if it does not exits use device_id\","
+  "\"type\": \"string\""
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of the entity\","
+  "\"type\": \"string\""
+  "}"
+  "}"
+  "}"
+  "}"
+  "}"
+  ",\"required\": [\"service\", \"service_path\", \"apikey\", \"resource\", \"cbroker\"]"
+  "}"
+  "}"
+  "}"
+  ",\"required\": [\"protocol\",\"endpoint\",\"resource\"]"
+  "}");
+
+const std::string iota::ProtocolCollection::PUT_SCHEMA(
+  "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
+  "\"title\": \"Protocol\","
+  "\"description\": \"only protocol update\","
+  "\"additionalProperties\":false,"
+  "\"type\": \"object\","
+  "\"properties\": {"
+  "\"protocol\": {"
+  "\"description\": \"protocol identifier\","
+  "\"type\": \"string\""
+  "},"
+  "\"description\": {"
+  "\"description\": \"protocol description\","
+  "\"type\": \"string\""
+  "}"
+  "}"
+  "}");
