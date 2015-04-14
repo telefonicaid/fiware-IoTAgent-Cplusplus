@@ -28,10 +28,10 @@
 #include <cppunit/XmlOutputter.h>
 #include "simpleplugingTest.h"
 #include "services/admin_service.h"
-
+#include "mongo/client/init.h"
 
 int main(int argc, char* argv[]) {
-
+ mongo::client::initialize();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(SimplePluginTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
