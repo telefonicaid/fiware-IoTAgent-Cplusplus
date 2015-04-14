@@ -194,17 +194,17 @@ AdminTest::GET_PROTOCOLS_RESPONSE("{ \"count\": 0,\"devices\": []}");
 const std::string AdminTest::URI_SERVICES_MANAGEMET("/iot/services");
 //POST
 const std::string
-AdminTest::POST_SERVICE_MANAGEMENT1("\"services\": [{"
+AdminTest::POST_SERVICE_MANAGEMENT1("{\"services\": [{"
        "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
-       "\"apikey\": \"apikey3\","
-       "\"token\": \"token3\","
-     "}]");
+       "\"apikey\": \"apikey\",\"token\": \"token\","
+       "\"cbroker\": \"cbroker\",\"entity_type\": \"thing\""
+     "}]}");
 const std::string
-AdminTest::POST_SERVICE_MANAGEMENT2("\"services\": [{"
+AdminTest::POST_SERVICE_MANAGEMENT2("{\"services\": [{"
        "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
-       "\"apikey\": \"apikey3\","
-       "\"token\": \"token3\","
-     "}]");
+       "\"apikey\": \"apikey\",\"token\": \"token\","
+       "\"cbroker\": \"cbroker\",\"entity_type\": \"thing\""
+     "}]}");
 
 const std::string
 AdminTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");

@@ -2395,8 +2395,7 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
     IOTASSERT(http_response.get_status_code() == 200);
 
   }
-  //TODO
-/*
+
   //creamos le servicio
   std::cout << "@UT@POST create Service" << std::endl;
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
@@ -2508,7 +2507,6 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   code_res = adminserv.delete_service_json(service, "/", service, "apikey", "/iot/d", true,
                      http_response, response);
 
-*/
   cb_mock->stop();
   device_mock->stop();
 

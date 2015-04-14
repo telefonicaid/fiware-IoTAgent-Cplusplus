@@ -182,6 +182,7 @@ const std::string iota::ProtocolCollection::POST_SCHEMA(
   "\"properties\": {"
   "\"protocol\": {"
   "\"description\": \"protocol identifier\","
+  "\"format\": \"uri\","
   "\"type\": \"string\""
   "},"
   "\"description\": {"

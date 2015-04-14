@@ -446,7 +446,7 @@ void MongoTest::testProtocolCollection(){
     CPPUNIT_ASSERT_MESSAGE("no inserted data",
            table2.more());
     iota::Protocol r1 =  table2.next();
-    CPPUNIT_ASSERT_MESSAGE("no all endpoints", r1.get_endpoints().size() == 2);
+    CPPUNIT_ASSERT_MESSAGE("no all endpoints", r1.get_endpoints().size() == 1);
 
     std::cout << "@UT@Todos los protocolos " << std::endl;
     iota::Protocol all2;
