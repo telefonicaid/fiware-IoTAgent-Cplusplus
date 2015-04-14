@@ -32,7 +32,6 @@ iota::ServiceCollection::ServiceCollection():Collection(
     iota::store::types::SERVICE_TABLE) {
 };
 
-
 iota::ServiceCollection::ServiceCollection(ServiceCollection& dc):Collection(
     dc) {
 };
@@ -45,7 +44,8 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
     mongo::BSONObjBuilder& obj) {
 
   if (data.empty()) {
-    obj.append(iota::store::types::SERVICE_PATH, iota::types::FIWARE_SERVICEPATH_DEFAULT);
+    obj.append(iota::store::types::SERVICE_PATH,
+               iota::types::FIWARE_SERVICEPATH_DEFAULT);
   }
   else if (data.compare("/*")!= 0 && data.compare("/#")!= 0) {
     obj.append(iota::store::types::SERVICE_PATH, data);
@@ -72,11 +72,12 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 std::string iota::ServiceCollection::getSchema(const std::string& method) {
   std::ostringstream schema;
 
+
   if (method.compare("POST") == 0) {
-    return   POST_SCHEMA;
+    return POST_SCHEMA;
   }
   else {
-    return   PUT_SCHEMA;
+    return PUT_SCHEMA;
   }
 
 }
@@ -263,12 +264,12 @@ const std::string iota::ServiceCollection::PUT_SCHEMA(
   "}"
   "}");
 
-
 int iota::ServiceCollection::createTableAndIndex() {
 
   int res = 200;
   ensureIndex("shardKey",
-              BSON("service" << 1 << "service_path" << 1 << "resource" <<1),
-              true);
+                BSON("service" << 1 << "service_path" << 1 << "resource" <<1),
+                true);
+
   return res;
 }

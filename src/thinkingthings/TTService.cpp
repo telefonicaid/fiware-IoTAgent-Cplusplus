@@ -431,6 +431,13 @@ void iota::esp::TTService::add_info(boost::property_tree::ptree& pt,
   }
 }
 
+iota::ProtocolData iota::esp::TTService::get_protocol_data() {
+  iota::ProtocolData protocol_data;
+  protocol_data.description = "Thinking Things Protocol";
+  protocol_data.protocol = "PDI-IoTA-ThinkingThings";
+  return protocol_data;
+}
+
 
 
 // creates new miplugin objects

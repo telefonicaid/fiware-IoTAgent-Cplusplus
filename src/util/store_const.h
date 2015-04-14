@@ -97,6 +97,19 @@ struct types {
   static const std::string OUTGOING_ROUTE;
   static const std::string PUBLIC_IP;
 
+  /// SERVICE MANAGER
+  static const std::string PROTOCOL;
+  static const std::string MANAGER_SERVICE_TABLE;
+  static const std::string IOTAGENT;
+  /// PROTOCOL
+  static const std::string PROTOCOL_TABLE;
+  static const std::string PROTOCOL_DESCRIPTION;
+  static const std::string PROTOCOL_ID;
+  static const std::string PROTOCOL_NAME;
+  static const std::string ENDPOINTS;
+  static const std::string ENDPOINT_AG;
+
+
   // Types for values
   // detailed
   static const std::string ON;

@@ -345,6 +345,13 @@ std::string iota::esp::MqttService::serializeMqttCommand(std::string apikey,
   return result;
 }
 
+iota::ProtocolData iota::esp::MqttService::get_protocol_data() {
+  iota::ProtocolData protocol_data;
+  protocol_data.description = "MQTT with Propietary Protocol in topics and payload (UL-based)";
+  protocol_data.protocol = "PDI-IoTA-MQTT-UltraLight";
+  return protocol_data;
+}
+
 
 // creates new miplugin objects
 //

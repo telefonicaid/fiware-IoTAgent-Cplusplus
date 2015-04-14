@@ -26,6 +26,9 @@
 #include "util/collection.h"
 #include "util/command_collection.h"
 #include "util/device_collection.h"
+#include "util/protocol.h"
+#include "util/protocol_collection.h"
+#include "util/service_mgmt_collection.h"
 #include "util/alarm.h"
 #include "util/iota_exception.h"
 #include <boost/property_tree/ptree.hpp>
@@ -388,3 +391,166 @@ void MongoTest::testException() {
 
   std::cout << "END testException" << std::endl;
 }
+
+
+void MongoTest::testProtocolCollection(){
+  std::cout << "START testProtocolCollection" << std::endl;
+  iota::Configurator::initialize(PATH_CONFIG);
+  iota::ProtocolCollection table1;
+
+    table1.createTableAndIndex();
+
+    iota::Protocol all("");
+    table1.remove(all);
+
+    iota::Protocol p("protocol1" );
+    iota::Protocol::resource_endpoint endp1;
+    endp1.endpoint = "endpoint1";
+    endp1.resource = "resource1";
+    p.add(endp1);
+
+    p.set_description("descripcion p1");
+
+    std::cout << "insert1" << std::endl;
+    table1.insert(p);
+
+    iota::Protocol p2("protocol2" );
+    iota::Protocol::resource_endpoint endp2;
+    endp2.endpoint = "endpoint2";
+    endp2.resource = "resource2";
+
+    p2.add(endp2);
+
+    p2.set_name("p2");
+
+    std::cout << "insert2" << std::endl;
+    table1.insert(p2);
+
+
+    // ponemos registrationid
+    std::cout << "@UT@UPDATE registration" << std::endl;
+    iota::Protocol query("protocol1" );
+
+    iota::Protocol sett;
+    sett.set_description("descripcion 2");
+    iota::Protocol::resource_endpoint endpU;
+    endpU.endpoint = "endpointU";
+    endpU.resource = "resourceU";
+    p.add(endp1);
+    table1.update(query, sett);
+
+
+    iota::ProtocolCollection table2;
+    iota::Protocol q1("protocol1" );
+    int code_res = table2.find(q1);
+    CPPUNIT_ASSERT_MESSAGE("no inserted data",
+           table2.more());
+    iota::Protocol r1 =  table2.next();
+    CPPUNIT_ASSERT_MESSAGE("no all endpoints", r1.get_endpoints().size() == 2);
+
+    std::cout << "@UT@Todos los protocolos " << std::endl;
+    iota::Protocol all2;
+    std::vector<iota::Protocol> protocols= table2.get_all();
+    CPPUNIT_ASSERT_MESSAGE("no all endpoints2 ", protocols.size() == 2);
+
+    table2.remove(all2);
+
+    int num = table2.count(q1);
+    CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);
+
+  std::cout << "END testProtocolCollection " << std::endl;
+}
+
+void MongoTest::testServiceMgmtCollection(){
+    std::cout << "START testServiceMgmtCollection" << std::endl;
+  iota::Configurator::initialize(PATH_CONFIG);
+  iota::ServiceMgmtCollection table1;
+
+    table1.createTableAndIndex();
+
+    mongo::BSONObj all;
+    table1.remove(all);
+
+    std::string s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
+                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+    std::string s1_d_host2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host2\","
+                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+    std::string s1_d2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d2\",\"iotagent\":\"host1\","
+                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+    std::string s1_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
+                   "\"protocol\":\"MQTT\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+    std::string s2_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
+                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss2\"}");
+
+    std::string s3_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
+                   "\"protocol\":\"MQTT\",\"service\": \"s3\",\"service_path\":\"/ss3\"}");
+
+
+    std::cout << "inserts" << std::endl;
+    table1.insert(mongo::fromjson(s1_d));
+    table1.insert(mongo::fromjson(s1_d_host2));
+    table1.insert(mongo::fromjson(s1_d2));
+    table1.insert(mongo::fromjson(s1_mqtt));
+    table1.insert(mongo::fromjson(s2_d));
+    table1.insert(mongo::fromjson(s3_mqtt));
+
+
+    std::cout << "@UT@Todos los servicios de protocolo UL20" << std::endl;
+    iota::ServiceMgmtCollection table2;
+    std::vector<iota::ServiceType> services = table2.get_services_by_protocol("UL20");
+    for(std::vector<iota::ServiceType>::iterator it = services.begin(); it != services.end(); ++it) {
+      std::cout << it->first << ":" << it->second << std::endl;
+    }
+    std::cout << "@UT@fin" << std::endl;
+
+    std::cout << "@UT@Todos los iotagentS del servicio s1 /ss1 " << std::endl;
+    iota::ServiceMgmtCollection table3;
+    std::vector<iota::IotagentType> iotagents = table3.get_iotagents_by_service("s1", "/ss1", "UL20");
+    int iot_count=0;
+    std::string iot;
+    for(std::vector<iota::IotagentType>::iterator it = iotagents.begin(); it != iotagents.end(); ++it) {
+      iot.append(*it);
+      std::cout << "|" << iot <<  "|" << std::endl;
+      iot_count++;
+    }
+    CPPUNIT_ASSERT_MESSAGE("count iotagent", iot_count == 2);
+    CPPUNIT_ASSERT_MESSAGE("no found host1", iot.find("host1") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no found host2", iot.find("host2") != std::string::npos);
+
+    table2.remove(all);
+
+    int num = table2.count(all);
+    CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);
+
+  std::cout << "END testServiceMgmtCollection " << std::endl;
+}
+
+
+/*
+
+print("1- Todos los protocolos que hay");
+db.PROTOCOL.find({},{ "name" : 1, "description" :1});
+
+print("3- Todos los servicios de un protocolo");
+db.SERVICE_MGMT.find({"protocol":"MQTT"});
+
+print("4- Todos los iotagent de un servicio  http://10.95.213.36:80/iot/devices?limit=24&offset=1");
+db.SERVICE_MGMT.find({"service" : "s1", "service_path" : "/ss1"},{"iotagent":1}).sort({iotagent:1})
+print("OJO se puede repetir iotagent, hay que tenerlo en cuenta en la consulta");
+
+print("5- Todos los dispositivos de un protocolo");
+
+db.SERVICE_MGMT.find({"protocol":"UL20"},{"iotagent":1}).sort({iotagent:1})
+print("OJO se puede repetir iotagent, hay que tenerlo en cuenta en la consulta");
+
+*/

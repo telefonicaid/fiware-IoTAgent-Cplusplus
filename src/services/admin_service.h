@@ -40,6 +40,7 @@ class AdminService :
     virtual void start();
     virtual void stop();
     void set_timezone_database(std::string timezone_str);
+    void set_manager();
     boost::posix_time::ptime get_local_time_from_timezone(std::string timezone_str);
 
     void agents(pion::http::request_ptr& http_request_ptr,
@@ -77,6 +78,13 @@ class AdminService :
                  std::multimap<std::string, std::string>& query_parameters,
                  pion::http::response& http_response,
                  std::string& response);
+
+    void protocols(pion::http::request_ptr& http_request_ptr,
+                   std::map<std::string, std::string>& url_args,
+                   std::multimap<std::string, std::string>& query_parameters,
+                   pion::http::response& http_response,
+                   std::string& response);
+
 
     void about(pion::http::request_ptr& http_request_ptr,
                std::map<std::string, std::string>& url_args,
@@ -360,6 +368,27 @@ class AdminService :
       pion::http::response& http_response,
       std::string& response);
 
+    int post_protocol_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response);
+
+    int get_protocols_json(
+      const std::string& service,
+      const std::string& service_path,
+      int limit,
+      int offset,
+      const std::string& detailed,
+      const std::string& resource,
+      pion::http::response& http_response,
+      std::string& response);
+
+    int delete_all_protocol_json(
+      pion::http::response& http_response,
+      std::string& response);
+
     /**
       * check inf mongois configurated in config.json
       * avoid to call API Rest with no mongodb typw in config
@@ -370,7 +399,7 @@ class AdminService :
 
   private:
 
-    void remove_from_cache(Device &device);
+    void remove_from_cache(Device& device);
     void check_uri(const std::string& data);
 
     // API holders
@@ -425,6 +454,9 @@ class AdminService :
     void check_logs();
     boost::shared_ptr<boost::asio::deadline_timer> _timer;
     std::string _log_file;
+
+    // As manager
+    bool _manager;
 };
 
 }   // end namespace iota

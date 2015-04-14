@@ -66,6 +66,15 @@ class Collection {
                                  bool upsert = true,
                                  int retry=0);
 
+    mongo::BSONObj aggregate(
+             const std::vector<mongo::BSONObj> &pipeline,
+             int retry);
+
+    mongo::BSONObj distinct(
+              const std::string &field,
+              const mongo::BSONObj &query,
+              int retry);
+
     int insert(const mongo::BSONObj& data, int retry=0);
 
     int update(bool upsert = false);
@@ -75,7 +84,6 @@ class Collection {
                bool upsert = false, int retry = 0);
 
     void instantiateID(const std::string& id);
-    void createID() ;
     std::string newID() ;
 
     int find(const mongo::BSONObj& query,
@@ -92,7 +100,7 @@ class Collection {
              const mongo::BSONObj& query,
              int limit,
              int skip,
-             const std::string &order,
+             const mongo::BSONObj& order,
              mongo::BSONObjBuilder& fieldsToReturn,
              int retry = 0);
 
