@@ -19,24 +19,30 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#include <iostream>
-#include <cppunit/TestResult.h>
-#include <cppunit/ui/text/TestRunner.h>
-#include <cppunit/TestResultCollector.h>
-#include <cppunit/CompilerOutputter.h>
-#include <cppunit/TextTestProgressListener.h>
-#include <cppunit/XmlOutputter.h>
-#include "simpleplugingTest.h"
-#include "services/admin_service.h"
-#include "mongo/client/init.h"
+#include "protocol.h"
 
-int main(int argc, char* argv[]) {
- mongo::client::initialize();
-  CppUnit::TextUi::TestRunner runner;
-  runner.addTest(SimplePluginTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
-  bool s = runner.run();
-  //sleep(2);
-  return s ? 0 : 1;
+iota::Protocol::Protocol() {
+
+  _description = "";
+  _name = "";
+  _id = "";
+
 }
+
+
+iota::Protocol::Protocol(const std::string& name) {
+
+  _description = "";
+  _name = name;
+  _id = "";
+
+}
+
+
+iota::Protocol::~Protocol(void) {
+}
+
+void iota::Protocol::add(resource_endpoint data) {
+   _endpoints.push_back (data);
+}
+

@@ -42,6 +42,7 @@ class SPService :
     SPService();
     virtual ~SPService();
     void start();
+    virtual iota::ProtocolData get_protocol_data();
 
     void op_ngsi(pion::http::request_ptr& http_request_ptr,
                  std::map<std::string, std::string>& url_args,

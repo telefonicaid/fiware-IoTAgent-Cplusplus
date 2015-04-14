@@ -708,6 +708,13 @@ std::string iota::UL20Service::get_ngsi_operation(const std::string&
   return op;
 }
 
+iota::ProtocolData iota::UL20Service::get_protocol_data() {
+  iota::ProtocolData protocol_data;
+  protocol_data.description = "Ultra Light Propietary Protocol";
+  protocol_data.protocol = "PDI-IoTA-UltraLight";
+  return protocol_data;
+}
+
 
 // creates new UL20Service objects
 //
