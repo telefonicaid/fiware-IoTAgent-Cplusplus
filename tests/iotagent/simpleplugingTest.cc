@@ -49,6 +49,8 @@
 #define  PATH_DEV_CFG "../../tests/iotagent/devices.json"
 #define  SERVICE  "service7"
 
+#define  ASYNC_TIME_WAIT  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
 CPPUNIT_TEST_SUITE_REGISTRATION(SimplePluginTest);
 namespace iota {
 std::string logger("main");
@@ -166,6 +168,8 @@ void SimplePluginTest::testRegisterIoTA() {
   CPPUNIT_ASSERT_MESSAGE("Manager endpoint ",
                          spserv_auth->get_iota_manager_endpoint().find("/protocols") !=
                          std::string::npos);
+
+  ASYNC_TIME_WAIT
   std::string r_1 = cb_mock->get_last();
   CPPUNIT_ASSERT_MESSAGE("POST manager ", r_1.find("HOLA") != std::string::npos);
 }
