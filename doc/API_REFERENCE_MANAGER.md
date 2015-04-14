@@ -51,9 +51,10 @@ Protocols are the rules that define the communication with different devices. It
 
 ### Protocol Model
 Fields in JSON object representing a protocol are:
-- `id` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
-- `protocol` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
-- `description`(string, mandatory). Context Broker endpoint assigned to this service, it must be a real uri.
+- `_id` (string, mandatory). It is a internal identifier.
+- `protocol` (string, mandatory). It is a name or identifier provided by IoT Agent.
+- `description`(string, mandatory). It is a description about protocol provided by IoT Agent.
+- `enpoints` (array, mandatory). It is an array with information about where this protocol is deployed. An endpoint is defined by `endpoint` (including ip address and port) and `resource` (including path or uri where protocol is deployed into IoT Agent).
 
 ### Retrieve a service [GET]
 
@@ -201,10 +202,10 @@ With one subservice defined in Fiware-ServicePath header.
 + Response 201
 
 
-## Devices [/devices]
+## Devices [/devices{?protocol}]
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
-- `protocol` (string, mandatory). Unique identifier for the protocol of the device.
+- `protocol` (string, mandatory). Unique identifier for the protocol of the device. Available protocols could be retrieved from IoTA Manager.
 - `device_id` (string, mandatory). Unique identifier into a service.
 - `entity_name` (string, optional). Entity name used for entity publication (overload default)
 - `entity_type` (string, optional). Entity type used for entity publication (overload entity_type defined in service).
@@ -272,6 +273,52 @@ A device is a resource that publish information to IoT Platform and it uses the 
             }
 
 + Response 404
+
+### Retrieve all devices [GET]
+
++ Parameters [protocol]
+
+
+    + `protocol` (optional, string). It allows get a device using a specific protocol.
+
++ Request (application/json)
+
+    + Headers
+
+            Fiware-Service: TestService
+            Fiware-ServicePath: /TestSubservice
+
++ Response 200
+
+    + Body
+
+            {
+              "count": 1,
+              "devices": [
+                {
+                  "protocol": "55261958d31fc2151cc44c70",
+                  "device_id": "device_id",
+                  "entity_name": "entity_name",
+                  "entity_type": "entity_type",
+                  "timezone": "America/Santiago",
+                  "attributes": [
+                    {
+                      "object_id": "source_data",
+                      "name": "attr_name",
+                      "type": "int"
+                    }
+                  ],
+                  "static_attributes": [
+                    {
+                      "name": "att_name",
+                      "type": "string",
+                      "value": "value"
+                    }
+                  ]
+                }
+              ]
+            }
+
 
 
 
