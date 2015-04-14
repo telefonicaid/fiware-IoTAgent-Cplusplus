@@ -1641,16 +1641,22 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
       mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
       n = table.update(no, ap);
     }
-    if (n > 0) {
-      send_updateContext(cmd_data.command_name, iota::types::STATUS,
-                         iota::types::STATUS_TYPE,
-                         iota::types::DELIVERED_MESSAGE,
-                         cmd_data.item_dev, cmd_data.service,
-                         iota::types::STATUS_OP);
+
+    iota::CommandPtr pt = get_command(cmd_data.command_id,
+               service_name, service_path);
+    if (pt.get()!= NULL){
+        PION_LOG_DEBUG(m_logger, cmd_data.command_id << " change status command, delivered");
+        pt->set_status (iota::types::DELIVERED);
     }
-    else {
-      PION_LOG_ERROR(m_logger,
-                     "no command in cache, timeout or response received ," << cmd_data.command_id);
+
+    if (n > 0){
+       send_updateContext(cmd_data.command_name, iota::types::STATUS,
+                       iota::types::STATUS_TYPE,
+                       iota::types::DELIVERED_MESSAGE,
+                       cmd_data.item_dev, cmd_data.service,
+                       iota::types::STATUS_OP);
+    }else{
+      PION_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
     }
 
     PION_LOG_DEBUG(m_logger,

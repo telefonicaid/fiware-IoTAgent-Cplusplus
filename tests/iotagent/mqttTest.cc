@@ -1004,8 +1004,9 @@ void MqttTest::testPushCommandExecution() {
   iota::CommandVect all_commands =  mqttService->get_all_command(dev, service_ptree);
   std::cout << "TEST: testPushCommandExecution Checking commands ...  # " <<
             all_commands.size() << std::endl;
-
-  CPPUNIT_ASSERT(all_commands.size() == 1);
+  //no hay comandos en la cache, porque el comando se ha pasado a DELIVERED
+  //ya que ha recibido un 202
+  CPPUNIT_ASSERT(all_commands.size() == 0);
 
 
   std::cout <<
