@@ -114,7 +114,8 @@ void AdminManagerTest::testDeviceToBeAdded(){
 
 void AdminManagerTest::testGetEndpointsFromDevices()
 {
-  iota::AdminManagerService manager_service;
+  boost::asio::io_service io_service;
+  iota::AdminManagerService manager_service(io_service);
 
   std::cout << "Test: testGetEndpointsFromDevices... starting" << std::endl;
 

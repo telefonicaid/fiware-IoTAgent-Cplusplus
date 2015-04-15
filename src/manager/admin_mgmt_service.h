@@ -9,20 +9,23 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>	// for stringify JSON
-#include <rapidjson/filestream.h>	// wrapper of C stream for prettywriter as output
+#include <rapidjson/prettywriter.h> // for stringify JSON
+#include <rapidjson/filestream.h> // wrapper of C stream for prettywriter as output
 #include <rapidjson/stringbuffer.h>
 #include <boost/foreach.hpp>
 #include <iostream>
 #include "util/service_mgmt_collection.h"
+#include "util/http_client.h"
 
-namespace iota{
 
- class DeviceToBeAdded{
+namespace iota {
 
-    public:
-      DeviceToBeAdded(std::string device_json, std::string endpoint) : _device_json(device_json) , _endpoint(endpoint)
-      {};
+class DeviceToBeAdded {
+
+  public:
+    DeviceToBeAdded(std::string device_json,
+                    std::string endpoint) : _device_json(device_json) , _endpoint(endpoint)
+    {};
 
     bool operator==(DeviceToBeAdded& a) const {
       if ((_device_json.compare(a._device_json) == 0) &&
@@ -32,41 +35,41 @@ namespace iota{
       return false;
     }
 
-  DeviceToBeAdded(const DeviceToBeAdded& a){
-    _endpoint.assign(a._endpoint);
-    _device_json.assign(a._device_json);
-  };
+    DeviceToBeAdded(const DeviceToBeAdded& a) {
+      _endpoint.assign(a._endpoint);
+      _device_json.assign(a._device_json);
+    };
 
-  void swap(DeviceToBeAdded& a){
-    _endpoint.assign(a.get_endpoint());
-    _device_json.assign(a.get_device_json());
-  };
+    void swap(DeviceToBeAdded& a) {
+      _endpoint.assign(a.get_endpoint());
+      _device_json.assign(a.get_device_json());
+    };
 
-  DeviceToBeAdded& operator=(const DeviceToBeAdded& a){
-    DeviceToBeAdded tmp(a);
-    swap(tmp);
-    return *this;
-  };
+    DeviceToBeAdded& operator=(const DeviceToBeAdded& a) {
+      DeviceToBeAdded tmp(a);
+      swap(tmp);
+      return *this;
+    };
 
-      std::string & get_device_json() {
-        return _device_json;
-      };
+    std::string& get_device_json() {
+      return _device_json;
+    };
 
-      std::string & get_endpoint() {
-        return _endpoint;
-      };
+    std::string& get_endpoint() {
+      return _endpoint;
+    };
 
-    private:
-      std::string _device_json;
-      std::string _endpoint;
-  };
+  private:
+    std::string _device_json;
+    std::string _endpoint;
+};
 
 
-class AdminManagerService{
+class AdminManagerService {
 
   public:
 
-    AdminManagerService();
+    AdminManagerService(boost::asio::io_service& io_service);
     virtual ~AdminManagerService();
 
     /**
@@ -74,7 +77,8 @@ class AdminManagerService{
     @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a POST request. The result
     is returned in HTTP code.
     */
-    int add_device_iotagent(std::string iotagent_endpoint,const std::string& device_json,std::string service, std::string sub_service);
+    int add_device_iotagent(std::string iotagent_endpoint,
+                            const std::string& device_json,std::string service, std::string sub_service);
 
     /**
     @name resolve_endpoints
@@ -82,16 +86,38 @@ class AdminManagerService{
     endpoint where the JSON will be posted. This JSON is the same coming in the original post but linked to the endpoint. The relationship
     is given by what IoTManager knows about  endpoints - protocols - services.
     */
-    void resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in,std::string service,std::string sub_service);
+    void resolve_endpoints(std::vector<DeviceToBeAdded>& v_devices_endpoint_out,
+                           const std::string& devices_protocols_in,std::string service,
+                           std::string sub_service);
 
+    /**
+    @name get_devices
+    @brief it gets devices from iotagents based on enpoints IoTA Manager knows. Devices are filtered by service (Fiware-Service header)
+    subservice (Fiware-ServicePath header). A optional query parameter (protocol) may be provided.
+    */
+    void get_devices(pion::http::request_ptr& http_request_ptr,
+                     std::map<std::string, std::string>& url_args,
+                     std::multimap<std::string, std::string>& query_parameters,
+                     pion::http::response& http_response,
+                     std::string& response);
 
+    void set_timeout(unsigned short timeout);
 
   private:
-   pion::logger m_log;
+    pion::logger m_log;
 
-   pion::one_to_one_scheduler _scheduler;
+    pion::one_to_one_scheduler _scheduler;
+    boost::asio::io_service& _io_service;
+    unsigned short _timeout;
 
-   iota::ServiceMgmtCollection _service_mgmt;
+    iota::ServiceMgmtCollection _service_mgmt;
+
+    void receive_get_devices(
+      std::string request_identifier,
+      pion::http::response& http_response_request,
+      boost::shared_ptr<iota::HttpClient> connection,
+      pion::http::response_ptr response_ptr,
+      const boost::system::error_code& error);
 
 };
 
