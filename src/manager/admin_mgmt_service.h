@@ -6,6 +6,8 @@
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/plugin_server.hpp>
 #include <pion/http/response_writer.hpp>
+#include <pion/http/response_reader.hpp>
+#include <pion/http/request.hpp>
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/document.h>
@@ -15,6 +17,10 @@
 #include <boost/foreach.hpp>
 #include <iostream>
 #include "util/service_mgmt_collection.h"
+#include "util/alarm.h"
+#include "rest/rest_handle.h"
+#include "util/service_collection.h"
+
 
 namespace iota{
 
@@ -74,7 +80,7 @@ class AdminManagerService{
     @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a POST request. The result
     is returned in HTTP code.
     */
-    int add_device_iotagent(std::string iotagent_endpoint,const std::string& device_json,std::string service, std::string sub_service);
+    int add_device_iotagent(std::string iotagent_endpoint,const std::string& device_json,std::string service, std::string sub_service,std::string x_auth_token);
 
     /**
     @name resolve_endpoints
