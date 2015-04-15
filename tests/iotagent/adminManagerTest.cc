@@ -37,7 +37,6 @@ using ::testing::StrEq;
 using ::testing::_;
 using ::testing::Invoke;
 
-
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminManagerTest);
 
 
@@ -87,6 +86,10 @@ void AdminManagerTest::setUp() {
                    "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
                    "\"protocol\":\"MQTT\",\"service\": \"s3\",\"service_path\":\"/ss3\"}");
 
+    std::string s4_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+                   "\"entity_type\":\"thing\",\"resource\":\"/iot/fake\",\"iotagent\":\"http://127.0.0.1:7777/iot\","
+                   "\"protocol\":\"UL20\",\"service\": \"s4_agus\",\"service_path\":\"/ss3\"}");
+
 
     std::cout << "inserts" << std::endl;
     table1.insert(mongo::fromjson(s1_d));
@@ -95,6 +98,7 @@ void AdminManagerTest::setUp() {
     table1.insert(mongo::fromjson(s1_mqtt));
     table1.insert(mongo::fromjson(s2_d));
     table1.insert(mongo::fromjson(s3_mqtt));
+    table1.insert(mongo::fromjson(s4_agus));
 
 }
 
@@ -147,5 +151,32 @@ void AdminManagerTest::testGetEndpointsFromDevices()
   CPPUNIT_ASSERT (v_endpoints_devices[3].get_endpoint().compare("host2")==0);
   std::cout << "Test: END" << std::endl;
 
+}
+
+void AdminManagerTest::testGetDevices() {
+  std::cout << "START testGetDevices" << std::endl;
+  boost::shared_ptr<HttpMock> http_mock;
+  http_mock.reset(new HttpMock(7777, "/iot/devices", false));
+  http_mock->init();
+  std::string mock_port = boost::lexical_cast<std::string>(http_mock->get_port());
+  pion::one_to_one_scheduler scheduler;
+  scheduler.startup();
+  iota::AdminManagerService manager_service(scheduler.get_io_service());
+  pion::http::request_ptr http_request(new pion::http::request("/"));
+  http_request->add_header("Fiware-Service", "s4_agus");
+  http_request->add_header("Fiware-ServicePath", "/ss3");
+  http_request->add_header("X-Trace-Message", "12345");
+  http_request->set_method("GET");
+  std::map<std::string, std::string> args;
+  std::multimap<std::string, std::string> query;
+  query.insert(std::pair<std::string, std::string>("protocol", "UL20"));
+  pion::http::response http_response;
+  std::string response;
+  manager_service.get_devices(http_request, args, query, http_response, response);
+  CPPUNIT_ASSERT(http_response.get_status_code() == 200);
+  std::cout << http_response.get_content() << std::endl;
+  std::cout << "STOP testGetDevices" << std::endl;
+
+  sleep(10);
 }
 

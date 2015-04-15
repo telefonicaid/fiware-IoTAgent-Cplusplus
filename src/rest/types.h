@@ -162,6 +162,7 @@ struct types {
   // Header to trace messages
   static const std::string HEADER_TRACE_MESSAGES;
   static const std::string HEADER_OUTGOING_ROUTE;
+  static const std::string HEADER_INTERNAL_TYPE;
 
   // Counters
   static const std::string STAT_TRAFFIC;
