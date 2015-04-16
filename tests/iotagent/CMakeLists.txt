@@ -16,6 +16,9 @@ target_link_libraries(ul20_tests sul20 iotmock iota_a ${IOTAGENT_LIBS} Variant
 add_executable(admin_tests adminTest.cc admin_tests.cc)
 target_link_libraries(admin_tests iota_a ${IOTAGENT_LIBS} Variant ${TEST_LIBS})
 
+add_executable(adminMgM_tests adminMgMTest.cc adminMgM_tests.cc)
+target_link_libraries(adminMgM_tests iota_a ${IOTAGENT_LIBS} Variant ${TEST_LIBS})
+
 if(MOSQUITTO_FOUND)
 include_directories(${MOSQUITTO_INCLUDE_DIR})
 #set(IOTAGENT_LIBS ${IOTAGENT_LIBS} ${MOSQUITTO_LIBRARIES})
@@ -24,11 +27,11 @@ link_directories(${MOSQUITTO_LIBS_DIR})
 add_executable(mqtt_tests mqttTest.cc mqtt_test.cc)
 target_link_libraries(mqtt_tests esp_mqtt mosquittopp mosquitto smqttservice iotmock iota_a
 	${IOTAGENT_LIBS} ${MOSQUITTO_LIBRARIES} Variant ${TEST_LIBS})
-endif()
 
 add_executable(tt_tests ttTest.cc tt_test.cc TTBufferTests.cc)
 target_link_libraries(tt_tests esp sttservice iotmock iota_a
 	${IOTAGENT_LIBS} Variant ${TEST_LIBS})
+endif()
 
 
 add_executable(url_tests urlTest.cc url_test.cc)
