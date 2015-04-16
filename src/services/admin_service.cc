@@ -567,9 +567,14 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
       if (it != query_parameters.end()) {
         entity = it->second;
       }
-      code = get_all_devices_json(service, service_path, limit, offset, detailed,
-                                  entity,
-                                  http_response, response);
+
+      if (_manager) {
+      }
+      else {
+        code = get_all_devices_json(service, service_path, limit, offset, detailed,
+                                    entity,
+                                    http_response, response);
+      }
     }
     else {
       code = iota::types::RESPONSE_CODE_METHOD_NOT_ALLOWED;
@@ -1213,7 +1218,7 @@ void iota::AdminService::protocols(pion::http::request_ptr& http_request_ptr,
       }
 
       code = get_protocols_json(service, service_path, limit,
-                               offset, "on", protocol, http_response, response);
+                                offset, "on", protocol, http_response, response);
 
     }
     else {
@@ -2169,17 +2174,20 @@ int iota::AdminService::post_protocol_json(
     // Resource and description define a protocol
     std::string endpoint = obj.getStringField(iota::store::types::ENDPOINT);
     std::string resource = obj.getStringField(iota::store::types::RESOURCE);
-    std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
-    std::string protocol_name = obj.getStringField(iota::store::types::PROTOCOL_NAME);
+    std::string description = obj.getStringField(
+                                iota::store::types::PROTOCOL_DESCRIPTION);
+    std::string protocol_name = obj.getStringField(
+                                  iota::store::types::PROTOCOL_NAME);
 
     Protocol protocol;
     protocol.set_name(protocol_name);
     protocol_table.find(protocol);
-    if (protocol_table.more()){
+    if (protocol_table.more()) {
       Protocol p =protocol_table.next();
       PION_LOG_DEBUG(m_log, "already exists protocol:" + protocol_name+
-            "|des:" +description);
-    }else{
+                     "|des:" +description);
+    }
+    else {
       PION_LOG_DEBUG(m_log, "no exits protocol:" +description);
       protocol.set_name(protocol_name);
       protocol.set_description(description);

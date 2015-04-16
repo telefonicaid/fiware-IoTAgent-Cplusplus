@@ -173,16 +173,16 @@ void AdminManagerTest::testGetEndpointsFromDevices()
 
 void AdminManagerTest::testAddDevicesToEndpoints(){
 
-
-
-   boost::asio::io_service io_service;
-  iota::AdminManagerService manager_service(io_service);
-
   pion::process::initialize();
 
   adm = new iota::AdminService();
+  AdminService_ptr = adm;
   adm->set_manager();
-
+  //AdminService_ptr->add_service("/iot/res", AdminService_ptr);
+  wserver.reset(new pion::http::plugin_server(scheduler));
+  wserver->add_service("/iot", adm);
+  wserver->start();
+  iota::AdminManagerService manager_service(scheduler.get_io_service());
   std::string service("s1");
   std::string service_path("/ss1");
   std::string service_s1("{\"services\": [{"
@@ -194,11 +194,6 @@ void AdminManagerTest::testAddDevicesToEndpoints(){
 
   adm->post_service_json(service,service_path,service_s1,http_response,response);
 
-  AdminService_ptr = adm;
-  AdminService_ptr->add_service("/iot/res", AdminService_ptr);
-  wserver.reset(new pion::http::plugin_server(scheduler));
-  wserver->add_service("/iot", adm);
-  wserver->start();
   std::string device("{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
@@ -220,9 +215,12 @@ void AdminManagerTest::testAddDevicesToEndpoints(){
   std::cout << "Endpoint: " << endpoint << std::endl;
   int res = manager_service.add_device_iotagent(endpoint,device,"s1","/ss1","test");
   CPPUNIT_ASSERT (res == 204);
+  //sleep(4);
   //CLEAN UP
   wserver->stop();
   scheduler.shutdown();
+  //pion::process::shutdown();
+
 }
 
 void AdminManagerTest::testGetDevices() {
@@ -259,7 +257,7 @@ void AdminManagerTest::testGetDevices() {
   query.insert(std::pair<std::string, std::string>("protocol", "UL20"));
   pion::http::response http_response;
   std::string response;
-  manager_service.get_devices(http_request, args, query, http_response, response);
+  manager_service.get_devices(http_request, args, query, "s4_agus", "/ss3", 0, 0, http_response, response);
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
   std::cout << "RECEIVED IN TEST " << http_response.get_content() << std::endl;
   std::string json(http_response.get_content());

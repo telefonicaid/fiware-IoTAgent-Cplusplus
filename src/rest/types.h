@@ -154,10 +154,12 @@ struct types {
 ///ALARMS
   static const unsigned int ALARM_CODE_NO_MONGO;
   static const unsigned int ALARM_CODE_NO_CB;
+  static const unsigned int ALARM_CODE_NO_IOTA;
 
 
   static const std::string ALARM_MESSAGE_NO_MONGO;
   static const std::string ALARM_MESSAGE_NO_CB;
+  static const std::string ALARM_MESSAGE_NO_IOTA;
 
   // Header to trace messages
   static const std::string HEADER_TRACE_MESSAGES;

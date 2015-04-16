@@ -99,6 +99,7 @@ class AdminManagerService{
     void get_devices(pion::http::request_ptr& http_request_ptr,
                      std::map<std::string, std::string>& url_args,
                      std::multimap<std::string, std::string>& query_parameters,
+                     std::string service, std::string service_path, int limit, int offset,
                      pion::http::response& http_response,
                      std::string& response);
 
