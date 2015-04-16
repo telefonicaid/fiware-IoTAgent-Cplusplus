@@ -176,7 +176,6 @@ void AdminManagerTest::testGetDevices() {
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
   std::cout << http_response.get_content() << std::endl;
   std::cout << "STOP testGetDevices" << std::endl;
-
-  sleep(10);
+  http_mock->stop();
 }
 
