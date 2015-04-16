@@ -22,7 +22,7 @@
 #include "adminManagerTest.h"
 #include <boost/property_tree/ptree.hpp>
 #include <boost/algorithm/string/trim.hpp>
-
+#include <pion/process.hpp>
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -37,6 +37,7 @@ using ::testing::StrEq;
 using ::testing::_;
 using ::testing::Invoke;
 
+iota::AdminService* AdminService_ptr;
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminManagerTest);
 
 
@@ -112,6 +113,9 @@ void AdminManagerTest::setUp() {
   table1.insert(mongo::fromjson(s4_agus));
   table1.insert(mongo::fromjson(s5_agus));
 
+    //table_service.insert(mongo::fromjson(service_s1));
+
+
 }
 
 void AdminManagerTest::tearDown() {
@@ -128,7 +132,8 @@ void AdminManagerTest::testDeviceToBeAdded() {
   CPPUNIT_ASSERT(test == test2);
 }
 
-void AdminManagerTest::testGetEndpointsFromDevices() {
+void AdminManagerTest::testGetEndpointsFromDevices()
+{
   boost::asio::io_service io_service;
   iota::AdminManagerService manager_service(io_service);
 
@@ -164,6 +169,60 @@ void AdminManagerTest::testGetEndpointsFromDevices() {
   CPPUNIT_ASSERT(v_endpoints_devices[3].get_endpoint().compare("host2")==0);
   std::cout << "Test: END" << std::endl;
 
+}
+
+void AdminManagerTest::testAddDevicesToEndpoints(){
+
+
+
+   boost::asio::io_service io_service;
+  iota::AdminManagerService manager_service(io_service);
+
+  pion::process::initialize();
+
+  adm = new iota::AdminService();
+  adm->set_manager();
+
+  std::string service("s1");
+  std::string service_path("/ss1");
+  std::string service_s1("{\"services\": [{"
+                        "\"apikey\": \"apikey\",\"token\": \"token\","
+                        "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
+
+  pion::http::response http_response;
+  std::string response;
+
+  adm->post_service_json(service,service_path,service_s1,http_response,response);
+
+  AdminService_ptr = adm;
+  AdminService_ptr->add_service("/iot/res", AdminService_ptr);
+  wserver.reset(new pion::http::plugin_server(scheduler));
+  wserver->add_service("/iot", adm);
+  wserver->start();
+  std::string device("{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                       "}");
+
+
+  std::string endpoint ("http://127.0.0.1"); //rellena esto del webserver
+  //TEST:
+
+  endpoint.append(":");
+
+  std::stringstream ss;
+    ss << wserver->get_port();
+  std::string str = ss.str();
+  endpoint.append(str);
+  endpoint.append("/iot/devices");
+
+  std::cout << "Endpoint: " << endpoint << std::endl;
+  int res = manager_service.add_device_iotagent(endpoint,device,"s1","/ss1","test");
+  CPPUNIT_ASSERT (res == 204);
+  //CLEAN UP
+  wserver->stop();
+  scheduler.shutdown();
 }
 
 void AdminManagerTest::testGetDevices() {
@@ -209,4 +268,5 @@ void AdminManagerTest::testGetDevices() {
   sleep(4);
   http_mock->stop();
 }
+
 

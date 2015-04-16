@@ -1,8 +1,11 @@
 #include "admin_mgmt_service.h"
+#include "util/iot_url.h"
+#include "util/http_client.h"
 #include "rest/rest_handle.h"
 #include "util/iot_url.h"
 #include "util/iota_exception.h"
 #include <boost/property_tree/ptree.hpp>
+
 namespace iota {
 extern std::string logger;
 }
@@ -97,57 +100,62 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
 }
 
 
-/**
-CHECK CAREFULLY!!!!
-
-Typical value:
-ip_iotagent: 'http://127.0.0.1:2000'
-*/
 int iota::AdminManagerService::add_device_iotagent(std::string url_iotagent,
-    const std::string& body,std::string service,std::string sub_service) {
+    const std::string& body,std::string service,std::string sub_service,std::string x_auth_token) {
 
-  pion::tcp::connection tcp_conn(_scheduler.get_io_service());
-  boost::system::error_code error_code;
+   boost::shared_ptr<iota::HttpClient> http_client;
+  pion::http::response_ptr response;
+  // IoTAgent trust token
+  int code_res = 404;
+  try {
+    iota::IoTUrl                 dest(url_iotagent);
+    std::string resource = dest.getPath();
+    std::string query    = dest.getQuery();
+    std::string server   = dest.getHost();
+    std::string compound_server(server);
+
+  //iot/device
+
+    compound_server.append(":");
+    compound_server.append(boost::lexical_cast<std::string>(dest.getPort()));
+    PION_LOG_DEBUG(m_log, "Server " << server);
 
 
-  int port;
-  std::string ip_iotagent;
-  std::string response;
+  pion::http::request_ptr request(new pion::http::request());
+  request->set_method(pion::http::types::REQUEST_METHOD_POST);
+  request->set_resource(resource);
+  request->set_content(body);
+  request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
 
-  //TODO: split ip_iotagent and extract port.
 
-  error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string(ip_iotagent), port);
+  request->add_header(iota::types::IOT_HTTP_HEADER_ACCEPT,
+                        iota::types::IOT_CONTENT_TYPE_JSON);
+  request->add_header(pion::http::types::HEADER_HOST, server);
 
-  std::string uri("/iot/devices");
-  std::string method("POST");
-  std::string content_type("application/json");
 
-  pion::http::request http_request(uri);
-  http_request.set_method(method);
-  http_request.set_content_type(content_type);
+  request->add_header(iota::types::FIWARE_SERVICE, service);
+  request->add_header(iota::types::FIWARE_SERVICEPATH, sub_service);
 
-  if (!service.empty()) {
-    http_request.add_header(iota::types::FIWARE_SERVICE, service);
+  if (!x_auth_token.empty()) {
+    request->add_header(iota::types::IOT_HTTP_HEADER_AUTH,x_auth_token);
   }
-  if (!sub_service.empty()) {
-    http_request.add_header(iota::types::FIWARE_SERVICEPATH, sub_service);
+
+  http_client.reset(new iota::HttpClient(server, dest.getPort()));
+
+  //TODO: set timeout and proxy well.
+  response = http_client->send(request, 10, "");
+
   }
-
-  http_request.add_header("Accept", "application/json"); //Needed?
-
-  if (!body.empty()) {
-    http_request.set_content(body);
+  catch (std::exception& e) {
+    PION_LOG_ERROR(m_log, e.what());
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url_iotagent,
+                       iota::types::ERROR, e.what());
   }
-
-
-  http_request.send(tcp_conn, error_code);
-  pion::http::response http_response(http_request);
-  http_response.receive(tcp_conn, error_code);
-  tcp_conn.close();
-
-  int code_res = http_response.get_status_code();
-  response.assign(http_response.get_content());
+  // TODO check remove (sync)
+  //remove_connection(http_client);
+  if (response.get() != NULL){
+    code_res = response->get_status_code();
+  }
 
   return code_res;
 
@@ -203,7 +211,9 @@ void iota::AdminManagerService::get_devices(pion::http::request_ptr&
 
   int i = 0;
   std::map<std::string, std::string> response_from_iotagent;
-  std::cout << "ENDPOINT " << all_dest.size() << std::endl;
+  std::string x_auth_token = http_request_ptr->get_header(
+                                     iota::types::IOT_HTTP_HEADER_AUTH);
+
   for (i = 0; i < all_dest.size(); i++) {
 
     iota::IoTUrl dest(all_dest.at(i));
@@ -223,6 +233,9 @@ void iota::AdminManagerService::get_devices(pion::http::request_ptr&
     server.append(":");
     server.append(boost::lexical_cast<std::string>(dest.getPort()));
     request->add_header(pion::http::types::HEADER_HOST, server);
+    if (!x_auth_token.empty()) {
+      request->add_header(iota::types::IOT_HTTP_HEADER_AUTH, x_auth_token);
+    }
     request->add_header(iota::types::HEADER_TRACE_MESSAGES, request_identifier);
     log_message.append("|endpoint=" + http_client->getRemoteEndpoint());
     // Asynch send

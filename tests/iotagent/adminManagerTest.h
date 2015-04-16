@@ -37,8 +37,9 @@
 #include <pion/logger.hpp>
 #include <pion/logger.hpp>
 #include "manager/admin_mgmt_service.h"
+#include "services/admin_service.h"
 
-#include "util/protocol_collection.h"
+#include "util/service_collection.h"
 
 
 
@@ -47,6 +48,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testDeviceToBeAdded);
     CPPUNIT_TEST(testGetEndpointsFromDevices);
+    CPPUNIT_TEST(testAddDevicesToEndpoints);
     CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST_SUITE_END();
 
@@ -60,12 +62,14 @@ protected:
 
   void testDeviceToBeAdded();
   void testGetEndpointsFromDevices();
+  void testAddDevicesToEndpoints();
   void testGetDevices();
-
 
 private:
 
-
+    iota::AdminService* adm;
+    pion::http::plugin_server_ptr wserver;
+    pion::one_to_one_scheduler scheduler;
 
 
 
