@@ -436,7 +436,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
                                       pion::tcp::connection_ptr& tcp_conn, int status) {
 
   PION_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
-
+  bool finish = false;
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
   Duration d((*stat)[iota::types::STAT_TRAFFIC_DURATION]);
@@ -481,6 +481,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
     }
     if (it_handle == _handlers.end()) {
       error_response(writer->get_response(), response_buffer);
+      finish = true;
     }
     else {
       std::string host_header = http_request_ptr->get_header(
@@ -498,9 +499,13 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
     // Response
     response_buffer.assign(e.what());
     error_response(writer->get_response(), response_buffer);
+    finish = true;
   }
 
-  send_http_response(writer, response_buffer);
+  std::string async_internal = http_request_ptr->get_header(iota::types::HEADER_INTERNAL_TYPE);
+  if (async_internal.compare("true") == 0 || finish) {
+    send_http_response(writer, response_buffer);
+  }
 }
 
 void iota::RestHandle::finish(pion::tcp::connection_ptr& tcp_conn) {

@@ -72,7 +72,8 @@ class AdminManagerService{
 
   public:
 
-    AdminManagerService();
+    AdminManagerService(boost::asio::io_service&
+    io_service);
     virtual ~AdminManagerService();
 
     /**
@@ -90,14 +91,35 @@ class AdminManagerService{
     */
     void resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in,std::string service,std::string sub_service);
 
+    /**
+    @name get_devices
+    @brief it gets devices from iotagents based on enpoints IoTA Manager knows. Devices are filtered by service (Fiware-Service header)
+    subservice (Fiware-ServicePath header). A optional query parameter (protocol) may be provided.
+    */
+    void get_devices(pion::http::request_ptr& http_request_ptr,
+                     std::map<std::string, std::string>& url_args,
+                     std::multimap<std::string, std::string>& query_parameters,
+                     pion::http::response& http_response,
+                     std::string& response);
 
+    void set_timeout(unsigned short timeout);
 
   private:
-   pion::logger m_log;
+    pion::logger m_log;
 
-   pion::one_to_one_scheduler _scheduler;
+    pion::one_to_one_scheduler _scheduler;
+    boost::asio::io_service& _io_service;
+    unsigned short _timeout;
 
-   iota::ServiceMgmtCollection _service_mgmt;
+    iota::ServiceMgmtCollection _service_mgmt;
+
+    void receive_get_devices(
+      std::string request_identifier,
+      pion::http::response& http_response_request,
+      boost::shared_ptr<iota::HttpClient> connection,
+      pion::http::response_ptr response_ptr,
+      const boost::system::error_code& error);
+
 
 };
 

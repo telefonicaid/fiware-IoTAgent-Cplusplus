@@ -201,6 +201,7 @@ const std::string types::ERROR_BAD_REQUEST = "@@ERROR_BAD_REQUEST@@";
 
 const std::string types::HEADER_TRACE_MESSAGES("X-Trace-Message");
 const std::string types::HEADER_OUTGOING_ROUTE("X-M2M-Outgoing-Route");
+const std::string types::HEADER_INTERNAL_TYPE("X-Async-Internal");
 
 const std::string types::STAT_TRAFFIC("traffic");
 const std::string types::STAT_TRAFFIC_IN("in");

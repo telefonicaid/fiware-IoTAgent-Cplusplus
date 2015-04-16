@@ -49,6 +49,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testDeviceToBeAdded);
     CPPUNIT_TEST(testGetEndpointsFromDevices);
     CPPUNIT_TEST(testAddDevicesToEndpoints);
+    CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -62,7 +63,7 @@ protected:
   void testDeviceToBeAdded();
   void testGetEndpointsFromDevices();
   void testAddDevicesToEndpoints();
-
+  void testGetDevices();
 
 private:
 
