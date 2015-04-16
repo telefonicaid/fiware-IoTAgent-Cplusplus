@@ -30,12 +30,11 @@
 #include "iota_exception.h"
 
 
-iota::ServiceMgmtCollection::ServiceMgmtCollection():Collection(
-    iota::store::types::MANAGER_SERVICE_TABLE) {
+iota::ServiceMgmtCollection::ServiceMgmtCollection() {
+  setBBDD(iota::store::types::MANAGER_SERVICE_TABLE);
 };
 
-iota::ServiceMgmtCollection::ServiceMgmtCollection(ServiceMgmtCollection& dc):Collection(
-    dc) {
+iota::ServiceMgmtCollection::ServiceMgmtCollection(ServiceMgmtCollection& dc) {
 };
 
 iota::ServiceMgmtCollection::~ServiceMgmtCollection() {
@@ -58,21 +57,11 @@ iota::ServiceMgmtCollection::~ServiceMgmtCollection() {
 
 }*/
 
-std::string iota::ServiceMgmtCollection::getSchema(const std::string& method) {
-  std::ostringstream schema;
-
-  if (method.compare("POST") == 0) {
-    return POST_SCHEMA;
-  }
-  else {
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                              "[no PUT for ServiceMgmtCollection]",
-                              iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
-  }
-
+const std::string & iota::ServiceMgmtCollection::getPostSchema() const{
+  return _POST_SCHEMA;
 }
 
-const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
+const std::string iota::ServiceMgmtCollection::_POST_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Service\","
   "\"description\": \"A service\","
@@ -87,12 +76,12 @@ const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
   "\"additionalProperties\":false,"
   "\"id\": \"0\","
   "\"properties\":{"
-  "\"protocols\": {"
+  "\"protocol\": {"
   "\"type\":\"array\","
-  "\"id\": \"protocols\","
+  "\"id\": \"protocol\","
   "\"items\":{"
   "\"type\":\"string\""
-  "},\"minItems\": 1,"
+  "},\"minItems\": 1"
   "},"
   "\"entity_type\": {"
   "\"description\": \"default entity_type, if a device has not got entity_type uses this\","
@@ -163,7 +152,7 @@ const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
   "}"
   "}"
   "}"
-  ",\"required\": [\"apikey\", \"protocols\", \"cbroker\"]"
+  ",\"required\": [\"apikey\", \"protocol\", \"cbroker\"]"
   "}"
   "}"
   "}"
@@ -175,9 +164,10 @@ int iota::ServiceMgmtCollection::createTableAndIndex() {
 
   int res = 200;
 
+  //db.SERVICE_MGMT.ensureIndex({"service":1, service_path:1, iotagent:1, protocol:1},{"unique":1})
   ensureIndex("shardKey",
                 BSON(iota::store::types::SERVICE << 1 << iota::store::types::SERVICE_PATH << 1
-                     << iota::store::types::RESOURCE <<1 << iota::store::types::IOTAGENT << 1),
+                     << iota::store::types::IOTAGENT << 1 << iota::store::types::PROTOCOL_NAME << 1),
                 true);
 
   return res;
@@ -253,12 +243,13 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   mongo::BSONObj query;
   mongo::BSONObjBuilder fieldsToReturn;
   fieldsToReturn.append(iota::store::types::IOTAGENT, 1);
-  fieldsToReturn.append(iota::store::types::RESOURCE, 1);
 
   mongo::BSONObjBuilder bson_query;
   bson_query.append(iota::store::types::SERVICE, service);
   ServiceCollection::addServicePath(service_path, bson_query);
-  bson_query.append(iota::store::types::PROTOCOL_NAME, protocol_id);
+  if (!protocol_id.empty()){
+    bson_query.append(iota::store::types::PROTOCOL_NAME, protocol_id);
+  }
 
   mongo::BSONObj res = iota::Collection::distinct("iotagent" , bson_query.obj(), 0);
 

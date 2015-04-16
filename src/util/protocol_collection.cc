@@ -44,8 +44,9 @@ iota::ProtocolCollection::~ProtocolCollection() {
 int iota::ProtocolCollection::createTableAndIndex() {
 
   int res = 200;
+  //db.PROTOCOL.ensureIndex({protocol:1},{"unique":1})
   ensureIndex("shardKey",
-              BSON(iota::store::types::PROTOCOL_DESCRIPTION << 1),
+              BSON(iota::store::types::PROTOCOL_NAME << 1),
               true);
 
   return res;
@@ -160,20 +161,12 @@ std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
   return result;
 }
 
-std::string iota::ProtocolCollection::getSchema(const std::string& method) {
-  std::ostringstream schema;
 
-
-  if (method.compare("POST") == 0) {
-    return POST_SCHEMA;
-  }
-  else {
-    return PUT_SCHEMA;
-  }
-
+const std::string & iota::ProtocolCollection::getPostSchema() const{
+  return _POST_SCHEMA;
 }
 
-const std::string iota::ProtocolCollection::POST_SCHEMA(
+const std::string iota::ProtocolCollection::_POST_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Iotagent_Registration\","
   "\"description\": \"Protocol registration from Iotafgent and registratio of all services\","
@@ -295,7 +288,11 @@ const std::string iota::ProtocolCollection::POST_SCHEMA(
   ",\"required\": [\"protocol\",\"endpoint\",\"resource\"]"
   "}");
 
-const std::string iota::ProtocolCollection::PUT_SCHEMA(
+const std::string & iota::ProtocolCollection::getPutSchema() const{
+  return _PUT_SCHEMA;
+}
+
+const std::string iota::ProtocolCollection::_PUT_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Protocol\","
   "\"description\": \"only protocol update\","

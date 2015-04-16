@@ -49,9 +49,6 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testAbout);
 
-    //TODO CPPUNIT_TEST(testProtocol);
-    //TODO CPPUNIT_TEST(testServiceManagement);
-
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -113,6 +110,8 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     static const std::string URI_PROTOCOLS;
     static const std::string POST_PROTOCOLS1;
     static const std::string POST_PROTOCOLS2;
+    static const std::string POST_PROTOCOLS3;
+    static const std::string POST_PROTOCOLS4;
     static const std::string GET_PROTOCOLS_RESPONSE;
 
     // SERVICE_MANAGEMENT
@@ -166,9 +165,6 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     void testAttributeService();
 
     void testAbout();
-
-    void testProtocol();
-    void testServiceManagement();
 
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;

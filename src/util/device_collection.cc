@@ -39,31 +39,31 @@ iota::DeviceCollection::DeviceCollection(DeviceCollection& dc):Collection(dc) {
 iota::DeviceCollection::~DeviceCollection() {
 };
 
-int iota::DeviceCollection::insert(const Device& obj) {
+int iota::DeviceCollection::insertd(const Device& obj) {
   return iota::Collection::insert(Obj2BSON(obj, true));
 }
 
-int iota::DeviceCollection::update(const Device& query,
+int iota::DeviceCollection::updated(const Device& query,
                                    const Device& sett) {
   return iota::Collection::update(
                 Obj2BSON(query, true),
                 Obj2BSON(sett, true));
 }
 
-int iota::DeviceCollection::find(const Device& query) {
+int iota::DeviceCollection::findd(const Device& query) {
   return iota::Collection::find(Obj2BSON(query, true));
 }
 
-iota::Device iota::DeviceCollection::next() {
+iota::Device iota::DeviceCollection::nextd() {
   mongo::BSONObj data = iota::Collection::next();
   return BSON2Obj(data);
 }
 
-int iota::DeviceCollection::remove(const Device& query) {
+int iota::DeviceCollection::removed(const Device& query) {
   return iota::Collection::remove(Obj2BSON(query, true));
 }
 
-int iota::DeviceCollection::count(const Device& query) {
+int iota::DeviceCollection::countd(const Device& query) {
   return iota::Collection::count(Obj2BSON(query, true));
 }
 
@@ -272,21 +272,11 @@ mongo::BSONObj iota::DeviceCollection::Obj2BSON(const Device& device,
   return obj.obj();
 }
 
-
-
-std::string iota::DeviceCollection::getSchema(const std::string& method) {
-  std::ostringstream schema;
-
-  if (method.compare("POST") == 0) {
-    return   POST_SCHEMA;
-  }
-  else {
-    return   PUT_SCHEMA;
-  }
-
+const std::string & iota::DeviceCollection::getPostSchema() const{
+  return _POST_SCHEMA;
 }
 
-const std::string iota::DeviceCollection::POST_SCHEMA(
+const std::string iota::DeviceCollection::_POST_SCHEMA(
 "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
 "\"title\": \"Device\","
 "\"description\": \"A device\","
@@ -416,7 +406,11 @@ const std::string iota::DeviceCollection::POST_SCHEMA(
      ",\"required\": [\"devices\"]"
 "}");
 
-const std::string iota::DeviceCollection::PUT_SCHEMA(
+const std::string & iota::DeviceCollection::getPutSchema() const{
+   return _PUT_SCHEMA;
+}
+
+const std::string iota::DeviceCollection::_PUT_SCHEMA(
 "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
 "\"title\": \"Device\","
 "\"description\": \"A device\","

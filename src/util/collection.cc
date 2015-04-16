@@ -53,6 +53,7 @@ iota::Collection::Collection(Collection& c) : m_logger(
 iota::Collection::~Collection() {
 };
 
+const std::string iota::Collection::_EMPTY;
 
 mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
     const mongo::BSONObj& query,
@@ -361,24 +362,30 @@ int iota::Collection::update(
 int iota::Collection::update(
   const mongo::BSONObj& query , const mongo::BSONObj& setData, bool upsert,
   int retry) {
+    mongo::BSONObj setObj = BSON("$set" << setData);
+    return update_r(query, setObj, upsert, 0);
+}
+
+int iota::Collection::update_r(
+  const mongo::BSONObj& query , const mongo::BSONObj& setData,
+  bool upsert,  int retry) {
 
   int n=0;
   mongo::DBClientBase* conn = getConnection();
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
-  mongo::BSONObj set = BSON("$set" << setData);
 
   std::string param_request("Collection:update|bbdd="
                             + bbdd + "query=" + query.toString() +
                             "|data=" +
-                            set.toString());
+                            setData.toString());
   PION_LOG_DEBUG(m_logger, param_request);
 
 
   try {
-    conn->update(bbdd, query, set, upsert);
-    n = getLastError(bbdd, set);
+    conn->update(bbdd, query, setData, upsert);
+    n = getLastError(bbdd, setData);
   }
   catch (mongo::SocketException& e) {
     std::string errorSTR = "SocketException ";
@@ -874,9 +881,29 @@ void iota::Collection::ensureIndex(
 
 }
 
+const std::string & iota::Collection::getPostSchema() const {
+  return _EMPTY;
+}
+
+const std::string & iota::Collection::getPutSchema() const {
+  return _EMPTY;
+}
 
 std::string iota::Collection::get_endpoint(){
      return m_conn.get_endpoint();
+}
+
+const std::string& iota::Collection::getSchema(const std::string& method) const {
+  std::ostringstream schema;
+
+
+  if (method.compare("POST") == 0) {
+    return getPostSchema();
+  }
+  else {
+    return getPutSchema();
+  }
+
 }
 
 void iota::Collection::reconnect(){

@@ -297,6 +297,8 @@ void AdminMgmTest::testServiceManagement(){
   PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
 
+  adm->set_manager();
+
   std::string service= "service" ;
   service.append(boost::lexical_cast<std::string>(rand()));
   std::cout << "@UT@service " << service << std::endl;
