@@ -57,48 +57,60 @@ void AdminManagerTest::setUp() {
   iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
   iota::ServiceMgmtCollection table1;
 
-    table1.createTableAndIndex();
+  table1.createTableAndIndex();
 
-    mongo::BSONObj all;
-    table1.remove(all);
+  mongo::BSONObj all;
+  table1.remove(all);
 
-    std::string s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
-                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+  std::string
+  s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
+       "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
-    std::string s1_d_host2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host2\","
-                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+  std::string
+  s1_d_host2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+             "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host2\","
+             "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
-    std::string s1_d2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d2\",\"iotagent\":\"host1\","
-                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+  std::string
+  s1_d2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+        "\"entity_type\":\"thing\",\"resource\":\"/iot/d2\",\"iotagent\":\"host1\","
+        "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
-    std::string s1_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
-                   "\"protocol\":\"MQTT\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+  std::string
+  s1_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+          "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
+          "\"protocol\":\"MQTT\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
-    std::string s2_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
-                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss2\"}");
+  std::string
+  s2_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
+       "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss2\"}");
 
-    std::string s3_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
-                   "\"protocol\":\"MQTT\",\"service\": \"s3\",\"service_path\":\"/ss3\"}");
+  std::string
+  s3_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+          "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
+          "\"protocol\":\"MQTT\",\"service\": \"s3\",\"service_path\":\"/ss3\"}");
 
-    std::string s4_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/fake\",\"iotagent\":\"http://127.0.0.1:7777/iot\","
-                   "\"protocol\":\"UL20\",\"service\": \"s4_agus\",\"service_path\":\"/ss3\"}");
+  std::string
+  s4_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+          "\"entity_type\":\"thing\",\"resource\":\"/iot/fake\",\"iotagent\":\"http://127.0.0.1:7777/iot\","
+          "\"protocol\":\"UL20\",\"service\": \"s4_agus\",\"service_path\":\"/ss3\"}");
+  std::string
+  s5_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+          "\"entity_type\":\"thing\",\"resource\":\"/iot/fake\",\"iotagent\":\"http://127.0.0.1:7777/iot1\","
+          "\"protocol\":\"UL20\",\"service\": \"s4_agus\",\"service_path\":\"/ss3\"}");
 
 
-    std::cout << "inserts" << std::endl;
-    table1.insert(mongo::fromjson(s1_d));
-    table1.insert(mongo::fromjson(s1_d_host2));
-    table1.insert(mongo::fromjson(s1_d2));
-    table1.insert(mongo::fromjson(s1_mqtt));
-    table1.insert(mongo::fromjson(s2_d));
-    table1.insert(mongo::fromjson(s3_mqtt));
-    table1.insert(mongo::fromjson(s4_agus));
+  std::cout << "inserts" << std::endl;
+  table1.insert(mongo::fromjson(s1_d));
+  table1.insert(mongo::fromjson(s1_d_host2));
+  table1.insert(mongo::fromjson(s1_d2));
+  table1.insert(mongo::fromjson(s1_mqtt));
+  table1.insert(mongo::fromjson(s2_d));
+  table1.insert(mongo::fromjson(s3_mqtt));
+  table1.insert(mongo::fromjson(s4_agus));
+  table1.insert(mongo::fromjson(s5_agus));
 
 }
 
@@ -108,7 +120,7 @@ void AdminManagerTest::tearDown() {
 }
 
 
-void AdminManagerTest::testDeviceToBeAdded(){
+void AdminManagerTest::testDeviceToBeAdded() {
 
   iota::DeviceToBeAdded test("protocol","device_json");
   iota::DeviceToBeAdded test2 = test;
@@ -116,8 +128,7 @@ void AdminManagerTest::testDeviceToBeAdded(){
   CPPUNIT_ASSERT(test == test2);
 }
 
-void AdminManagerTest::testGetEndpointsFromDevices()
-{
+void AdminManagerTest::testGetEndpointsFromDevices() {
   boost::asio::io_service io_service;
   iota::AdminManagerService manager_service(io_service);
 
@@ -126,29 +137,31 @@ void AdminManagerTest::testGetEndpointsFromDevices()
 
   std::vector<iota::DeviceToBeAdded> v_endpoints_devices;
   std::string devices("{\"devices\": "
-                       "[{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
-                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
-                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
-                       "},{\"protocol\":\"UL20\",\"device_id\": \"device_id_2\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
-                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
-                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
-                       "}]}");
+                      "[{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                      "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                      "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                      "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                      "},{\"protocol\":\"UL20\",\"device_id\": \"device_id_2\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                      "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                      "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                      "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                      "}]}");
 
   manager_service.resolve_endpoints(v_endpoints_devices,devices,"s1","/ss1");
 
   //Expected, "host1" and "host2"
 
-  std::cout << "Test: testGetEndpointsFromDevices: result: ["<< v_endpoints_devices.size() << "] endpoints" << std::endl;
-  CPPUNIT_ASSERT (v_endpoints_devices.size() == 4);
-  for (int i=0;i<v_endpoints_devices.size(); i++){
-    std::cout << "Test: host: " << v_endpoints_devices[i].get_endpoint() << std::endl;
+  std::cout << "Test: testGetEndpointsFromDevices: result: ["<<
+            v_endpoints_devices.size() << "] endpoints" << std::endl;
+  CPPUNIT_ASSERT(v_endpoints_devices.size() == 4);
+  for (int i=0; i<v_endpoints_devices.size(); i++) {
+    std::cout << "Test: host: " << v_endpoints_devices[i].get_endpoint() <<
+              std::endl;
   }
-  CPPUNIT_ASSERT (v_endpoints_devices[0].get_endpoint().compare("host1")==0);
-  CPPUNIT_ASSERT (v_endpoints_devices[1].get_endpoint().compare("host2")==0);
-  CPPUNIT_ASSERT (v_endpoints_devices[2].get_endpoint().compare("host1")==0);
-  CPPUNIT_ASSERT (v_endpoints_devices[3].get_endpoint().compare("host2")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[0].get_endpoint().compare("host1")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[1].get_endpoint().compare("host2")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[2].get_endpoint().compare("host1")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[3].get_endpoint().compare("host2")==0);
   std::cout << "Test: END" << std::endl;
 
 }
@@ -156,11 +169,26 @@ void AdminManagerTest::testGetEndpointsFromDevices()
 void AdminManagerTest::testGetDevices() {
   std::cout << "START testGetDevices" << std::endl;
   boost::shared_ptr<HttpMock> http_mock;
-  http_mock.reset(new HttpMock(7777, "/iot/devices", false));
+  http_mock.reset(new HttpMock(7777, "/", false));
   http_mock->init();
+  std::string mock_response("{\"count\": 2,\"devices\": "
+                            "[{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                            "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                            "},{\"protocol\":\"UL20\",\"device_id\": \"device_id_2\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                            "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                            "}]}");
+  std::map<std::string, std::string> h;
+  // Two endpoints. Repeat response for test
+  http_mock->set_response(200, mock_response, h);
+  http_mock->set_response(200, mock_response, h);
   std::string mock_port = boost::lexical_cast<std::string>(http_mock->get_port());
   pion::one_to_one_scheduler scheduler;
   scheduler.startup();
+
   iota::AdminManagerService manager_service(scheduler.get_io_service());
   pion::http::request_ptr http_request(new pion::http::request("/"));
   http_request->add_header("Fiware-Service", "s4_agus");
@@ -174,8 +202,11 @@ void AdminManagerTest::testGetDevices() {
   std::string response;
   manager_service.get_devices(http_request, args, query, http_response, response);
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
-  std::cout << http_response.get_content() << std::endl;
+  std::cout << "RECEIVED IN TEST " << http_response.get_content() << std::endl;
+  std::string json(http_response.get_content());
+  CPPUNIT_ASSERT_MESSAGE("Expected 4 devices ", json.find("\"count\": 4") != std::string::npos);
   std::cout << "STOP testGetDevices" << std::endl;
+  sleep(4);
   http_mock->stop();
 }
 
