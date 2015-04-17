@@ -92,14 +92,24 @@ class AdminManagerService{
     void resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in,std::string service,std::string sub_service);
 
     /**
+    @name post_multiple_devices
+    @brief This function will issue multiple posts request to add those devices contained in the v_devices_endpoint_in vector. Endpoints where posts should be sent are
+    also included in the DeviceToBeAdded object. Extra information is needed like service, sub-service and x-auth-token for respective headers.
+    @return JSON with results of all devices.
+    */
+    std::string post_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,std::string service,std::string sub_service,std::string x_auth_token);
+
+    /**
     @name get_devices
     @brief it gets devices from iotagents based on enpoints IoTA Manager knows. Devices are filtered by service (Fiware-Service header)
     subservice (Fiware-ServicePath header). A optional query parameter (protocol) may be provided.
+
     */
     void get_devices(pion::http::request_ptr& http_request_ptr,
                      std::map<std::string, std::string>& url_args,
                      std::multimap<std::string, std::string>& query_parameters,
                      std::string service, std::string service_path, int limit, int offset,
+                     std::string detailed, std::string entity,
                      pion::http::response& http_response,
                      std::string& response);
 
