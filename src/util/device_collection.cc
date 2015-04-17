@@ -182,6 +182,7 @@ iota::Device iota::DeviceCollection::BSON2Obj(mongo::BSONObj& obj) {
   result._service_path = obj.getStringField(iota::store::types::SERVICE_PATH);
   result._entity_type = obj.getStringField(iota::store::types::ENTITY_TYPE);
   result._entity_name = obj.getStringField(iota::store::types::ENTITY_NAME);
+  result._protocol = obj.getStringField(iota::store::types::PROTOCOL);
   result._timezone = obj.getStringField(iota::store::types::TIMEZONE);
   result._endpoint = obj.getStringField(iota::store::types::ENDPOINT);
 
@@ -234,6 +235,10 @@ mongo::BSONObj iota::DeviceCollection::Obj2BSON(const Device& device,
 
   if (!device._endpoint.empty()) {
     obj.append(iota::store::types::ENDPOINT, device._endpoint);
+  }
+
+  if (!device._protocol.empty()) {
+    obj.append(iota::store::types::PROTOCOL, device._protocol);
   }
   if (!device._entity_name.empty()) {
     obj.append(iota::store::types::ENTITY_NAME, device._entity_name);
@@ -295,6 +300,10 @@ const std::string iota::DeviceCollection::_POST_SCHEMA(
                        "\"description\": \"The unique identifier by service for a device\","
                        "\"type\": \"string\","
                        "\"minLength\":1"
+                   "},"
+                   "\"protocol\": {"
+                       "\"description\": \"protocol name, protocol implemented by device\","
+                       "\"type\": \"string\""
                    "},"
                    "\"entity_name\": {"
                        "\"description\": \"Name of the entity, if it does not exits use device_id\","
@@ -421,6 +430,10 @@ const std::string iota::DeviceCollection::_PUT_SCHEMA(
                        "\"description\": \"The unique identifier by service for a device\","
                        "\"type\": \"string\","
                        "\"minLength\":1"
+                   "},"
+                   "\"protocol\": {"
+                       "\"description\": \"protocol name, protocol implemented by device\","
+                       "\"type\": \"string\""
                    "},"
                    "\"entity_name\": {"
                        "\"description\": \"Name of the entity, if it does not exits use device_id\","

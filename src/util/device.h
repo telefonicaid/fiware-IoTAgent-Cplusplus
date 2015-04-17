@@ -33,12 +33,20 @@ namespace iota {
 struct Device : public virtual Timer {
 
   explicit Device(std::string name, std::string service): Timer(),
-    _name(name), _service(service) {_active = INT_MIN;_duration_cb = LONG_MIN;};
+    _name(name), _service(service) {
+      _active = INT_MIN;
+      _duration_cb = LONG_MIN;
+      _protocol="";
+  };
 
   explicit Device(std::string entity_name, std::string entity_type,
                   std::string service):
     Timer(), _entity_name(entity_name), _entity_type(entity_type),
-    _service(service) {_active = INT_MIN;_duration_cb = LONG_MIN;};
+    _service(service) {
+    _active = INT_MIN;
+    _duration_cb = LONG_MIN;
+    _protocol="";
+  };
 
   Device(const Device& dev):
     Timer() {
@@ -68,6 +76,10 @@ struct Device : public virtual Timer {
     }
     if (!dev._registration_id.empty()) {
       _registration_id = dev._registration_id;
+    }
+
+    if (!dev._protocol.empty()) {
+      _protocol = dev._protocol;
     }
 
     if (dev._duration_cb != LONG_MIN) {
@@ -176,6 +188,7 @@ struct Device : public virtual Timer {
   }
 
   std::string _name;
+  std::string _protocol;
   std::string _service;
   std::string _service_path;
   std::string _entity_type;
