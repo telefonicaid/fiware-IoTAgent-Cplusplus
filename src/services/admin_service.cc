@@ -811,9 +811,16 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       if (it != query_parameters.end()) {
         detailed = it->second;
       }
-      it = query_parameters.find(iota::store::types::RESOURCE);
-      if (it != query_parameters.end()) {
-        resource = it->second;
+      if (_manager){
+        it = query_parameters.find(iota::store::types::PROTOCOL);
+        if (it != query_parameters.end()) {
+          resource = it->second;
+        }
+      }else{
+        it = query_parameters.find(iota::store::types::RESOURCE);
+        if (it != query_parameters.end()) {
+          resource = it->second;
+        }
       }
 
       code = get_all_services_json(col, service, service_path, limit,
@@ -1980,7 +1987,11 @@ int iota::AdminService::get_all_services_json(
   ServiceCollection::addServicePath(service_path, query);
 
   if (!resource.empty()) {
-    query.append(iota::store::types::RESOURCE, resource);
+    if (_manager){
+      query.append(iota::store::types::PROTOCOL, resource);
+    }else{
+      query.append(iota::store::types::RESOURCE, resource);
+    }
   }
   p = query.obj();
 
