@@ -113,6 +113,14 @@ class AdminManagerService{
 
     void set_timeout(unsigned short timeout);
 
+    /**
+    @name do_post_json_devices
+    @brief this method is intended to be called as part of AdminService::devices logic. The http_request contains an array of devices with their respective protocols. This
+    method will take the service, x-auth-token header and content as inputs and then call to @see resolve_endpoints to get the vector of endpoints where devices will be posted.
+    Then a call to @see post_multiple_devices will effectively do the individual posts.
+    */
+    void do_post_json_devices(std::string service,std::string sub_service,std::string x_auth_token,std::string content,pion::http::response& http_response,std::string& response);
+
   private:
     pion::logger m_log;
 

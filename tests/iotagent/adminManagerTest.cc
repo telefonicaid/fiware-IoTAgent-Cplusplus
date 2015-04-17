@@ -210,7 +210,7 @@ void AdminManagerTest::testGetEndpointsFromDevices()
 void AdminManagerTest::testAddDevicesToEndpoints(){
 
   boost::shared_ptr<HttpMock> http_mock;
-  http_mock.reset(new HttpMock(7777, "/iot/devices", false));
+  http_mock.reset(new HttpMock(8777, "/iot/devices", false));
   http_mock->init();
 
   pion::one_to_one_scheduler scheduler;
@@ -220,7 +220,7 @@ void AdminManagerTest::testAddDevicesToEndpoints(){
 
   std::cout << "testAddDevicesToEndpoints: STARTING... " << std::endl;
    std::map<std::string, std::string> h;
-  http_mock->set_response(204, "{}", h);
+  http_mock->set_response(200, "{}", h);
 
   std::string device("{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
@@ -229,13 +229,13 @@ void AdminManagerTest::testAddDevicesToEndpoints(){
                        "}");
 
 
-  std::string endpoint ("http://127.0.0.1:7777/iot/devices");
+  std::string endpoint ("http://127.0.0.1:8777/iot/devices");
   //TEST:
 
 
   std::cout << "Endpoint: " << endpoint << std::endl;
   int res = manager_service.add_device_iotagent(endpoint,device,"s1","/ss1","test");
-  CPPUNIT_ASSERT (res == 204);
+  CPPUNIT_ASSERT (res == 200);
   //CLEAN UP
   sleep(4);
   http_mock->stop();
@@ -289,7 +289,7 @@ void AdminManagerTest::testMultiplePostsWithResponse(){
   //boost::asio::io_service io_service;
 
   boost::shared_ptr<HttpMock> http_mock;
-  http_mock.reset(new HttpMock(7777, "/iot/devices", false));
+  http_mock.reset(new HttpMock(9777, "/iot/devices", false));
   http_mock->init();
   pion::one_to_one_scheduler scheduler;
   scheduler.startup();
@@ -323,7 +323,7 @@ void AdminManagerTest::testMultiplePostsWithResponse(){
                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}");
 
-  std::string endpoint("http://127.0.0.1:7777");
+  std::string endpoint("http://127.0.0.1:9777");
 
   std::vector<iota::DeviceToBeAdded> v_devices;
 
@@ -335,6 +335,6 @@ void AdminManagerTest::testMultiplePostsWithResponse(){
   std::cout << "Test: testMultiplePostsWithResponse: result: "<< response<< std::endl;
 
   CPPUNIT_ASSERT (!response.empty()); //<- I have to change this and use a proper assertion
-  sleep(5);
+  sleep(4);
   http_mock->stop();
 }

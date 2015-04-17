@@ -162,6 +162,7 @@ int iota::AdminManagerService::add_device_iotagent(std::string url_iotagent,
   //remove_connection(http_client);
   if (response.get() != NULL) {
     code_res = response->get_status_code();
+    PION_LOG_DEBUG(m_log,"Response: CODE: "<<code_res);
   }
 
   return code_res;
@@ -376,3 +377,33 @@ std::string iota::AdminManagerService::post_multiple_devices(
   return response;
 
 }
+
+
+void iota::AdminManagerService::do_post_json_devices(std::string service,
+    std::string sub_service, std::string x_auth_token, std::string content,
+    pion::http::response& http_response, std::string& response) {
+
+    PION_LOG_DEBUG(m_log,"do_post_json_devices: validating input");
+
+    if (service.empty() || sub_service.empty()){
+      PION_LOG_ERROR(m_log,"");
+      http_response.set_status_code(400);
+    }
+
+    std::vector<iota::DeviceToBeAdded> v_endpoints;
+
+    resolve_endpoints(v_endpoints,content,service,sub_service);
+    PION_LOG_DEBUG(m_log,"do_post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
+    response.assign(post_multiple_devices(v_endpoints,service,sub_service,x_auth_token));
+    PION_LOG_DEBUG(m_log,"do_post_json_devices: POSTs processed: ["<<response<<"]");
+    if (!response.empty()){
+      http_response.set_content(response);
+      http_response.set_status_code(200);
+    }else{
+      http_response.set_status_code(404);
+    }
+
+
+}
+
+
