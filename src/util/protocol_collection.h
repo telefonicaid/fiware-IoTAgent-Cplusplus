@@ -54,6 +54,11 @@ class ProtocolCollection : public Collection {
 
     std::vector<iota::Protocol> get_all();
 
+    /**
+     *  in protocols fills with protocol name and protocol description
+     **/
+    void fillProtocols(std::map<std::string,std::string> &protocols);
+
     virtual const std::string &getPostSchema() const;
     virtual const std::string &getPutSchema() const;
 

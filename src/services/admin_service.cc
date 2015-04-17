@@ -1850,11 +1850,13 @@ int iota::AdminService::post_service_json(
                                 "POST", error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
-    std::vector<mongo::BSONElement> be = obj.getField(
-                                           iota::store::types::SERVICES).Array();
+    std::vector<mongo::BSONObj> be;
+    table->getElementsFromBSON(obj, be);
+
     for (unsigned int i = 0; i<be.size(); i++) {
       mongo::BSONObjBuilder bo;
-      bo.appendElements(be[i].embeddedObject());
+      PION_LOG_DEBUG(m_log, "add service:" << be[i]);
+      bo.appendElements(be[i]);
       bo.append(iota::store::types::SERVICE_ID, service);
       bo.append(iota::store::types::SERVICE_PATH, service_path);
       insObj = bo.obj();

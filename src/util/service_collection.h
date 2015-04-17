@@ -49,6 +49,8 @@ class ServiceCollection : public Collection {
     virtual const std::string &getPostSchema() const;
     virtual const std::string &getPutSchema() const;
 
+    virtual void getElementsFromBSON(mongo::BSONObj &obj,
+                           std::vector<mongo::BSONObj>& result);
   protected:
 
 

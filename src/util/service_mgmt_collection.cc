@@ -28,6 +28,7 @@
 #include "service_mgmt_collection.h"
 #include "service_collection.h"
 #include "iota_exception.h"
+#include "protocol_collection.h"
 
 
 iota::ServiceMgmtCollection::ServiceMgmtCollection() {
@@ -219,7 +220,6 @@ std::vector<iota::ServiceType> iota::ServiceMgmtCollection::get_services_group_p
        "protocol" << BSON("$addToSet" << "$protocol" ) ))
   );
   mongo::BSONObj res =iota::Collection::aggregate(pipeline, 0);
-  std::cout << "RES::" << res << std::endl;
   /*std::string ser, ser_path;
   mongo::BSONObj elto;
   while(more()){
@@ -259,4 +259,44 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   }
 
   return result;
+}
+
+
+void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
+                                std::vector<mongo::BSONObj> &result){
+
+    std::vector<mongo::BSONElement> be = obj.getField(
+                                           iota::store::types::SERVICES).Array();
+    std::map<std::string, std::string>protocols;
+    iota::ProtocolCollection protocolCol;
+    protocolCol.fillProtocols(protocols);
+    std::map<std::string,std::string>::iterator it;
+    std::string descriptionSTR;
+
+    for (unsigned int i = 0; i<be.size(); i++) {
+      mongo::BSONObj obj = be[i].embeddedObject();
+      //cogemos el protocolo
+      if (obj.hasField(iota::store::types::PROTOCOL_NAME)){
+         mongo::BSONElement protocolsObj = obj.getField(iota::store::types::PROTOCOL_NAME);
+         std::vector<mongo::BSONElement> proArr = protocolsObj.Array();
+         for (unsigned int j = 0; j<proArr.size(); j++) {
+            std::string protocol_id = proArr[j].str();
+            it=protocols.find(protocol_id);
+            if (it == protocols.end()){
+                std::string errorSTR = "No exists protocol " + protocol_id;
+                PION_LOG_ERROR(m_logger, errorSTR);
+                throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                           errorSTR, iota::types::RESPONSE_CODE_BAD_REQUEST);
+            }else{
+              descriptionSTR = it->second;
+            }
+            mongo::BSONObjBuilder newdata;
+            newdata.appendElements(obj.removeField(iota::store::types::PROTOCOL_NAME));
+            newdata.append(iota::store::types::PROTOCOL_NAME, protocol_id);
+            newdata.append(iota::store::types::PROTOCOL_DESCRIPTION, descriptionSTR);
+            mongo::BSONObj ddd  = newdata.obj();
+            result.push_back(ddd);
+         }
+      }
+   }
 }

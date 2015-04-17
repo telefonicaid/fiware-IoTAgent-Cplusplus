@@ -161,6 +161,28 @@ std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
   return result;
 }
 
+void iota::ProtocolCollection::fillProtocols(
+           std::map<std::string,std::string> &protocols){
+
+  mongo::BSONObj query;
+  mongo::BSONObjBuilder fieldsToReturn;
+  fieldsToReturn.append(iota::store::types::PROTOCOL_NAME, 1);
+  fieldsToReturn.append(iota::store::types::PROTOCOL_DESCRIPTION, 1);
+
+  mongo::BSONObj fieldsSort = BSON(iota::store::types::PROTOCOL_NAME << 1);
+
+  iota::Collection::find(a_queryOptions, query,
+                           0, 0,
+                           fieldsSort,
+                           fieldsToReturn, 0);
+
+  while(more()){
+    Protocol p = next();
+    protocols.insert(std::pair<std::string,std::string>
+      (p.get_name(), p.get_description()));
+  }
+
+}
 
 const std::string & iota::ProtocolCollection::getPostSchema() const{
   return _POST_SCHEMA;

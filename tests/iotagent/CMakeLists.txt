@@ -16,7 +16,7 @@ target_link_libraries(ul20_tests sul20 iotmock iota_a ${IOTAGENT_LIBS} Variant
 add_executable(admin_tests adminTest.cc admin_tests.cc)
 target_link_libraries(admin_tests iota_a ${IOTAGENT_LIBS} Variant ${TEST_LIBS})
 
-add_executable(adminMgM_tests adminMgMTest.cc adminMgM_tests.cc)
+add_executable(adminMgM_tests adminMgmTest.cc adminMgm_tests.cc)
 target_link_libraries(adminMgM_tests iota_a ${IOTAGENT_LIBS} Variant ${TEST_LIBS})
 
 if(MOSQUITTO_FOUND)

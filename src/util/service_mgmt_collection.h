@@ -62,6 +62,9 @@ class ServiceMgmtCollection : public ServiceCollection {
               const std::string &protocol_name,
               int limit, int skip);
 
+    virtual void getElementsFromBSON(mongo::BSONObj &obj,
+                           std::vector<mongo::BSONObj>& result);
+
   protected:
 
 

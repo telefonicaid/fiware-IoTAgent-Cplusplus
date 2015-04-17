@@ -523,10 +523,15 @@ void MongoTest::testServiceMgmtCollection(){
     CPPUNIT_ASSERT_MESSAGE("no found host1", iot.find("host1") != std::string::npos);
     CPPUNIT_ASSERT_MESSAGE("no found host2", iot.find("host2") != std::string::npos);
 
-    table2.remove(all);
+    std::cout << "@UT@OR" << std::endl;
+    int n = table1.count(all);
+    std::cout << "En la tabla hay " << n  << " eltos " << std::endl;
+    table1.remove(BSON("service" << BSON( "$in" << BSON_ARRAY("s1" << "s3"))));
+    int n2 = table1.count(all);
+    std::cout << "despues de borrar con OR quedan " << n2  << " eltos " << std::endl;
 
-    int num = table2.count(all);
-    CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);
+
+    CPPUNIT_ASSERT_MESSAGE("remove error", n2 == 0);
 
   std::cout << "END testServiceMgmtCollection " << std::endl;
 }

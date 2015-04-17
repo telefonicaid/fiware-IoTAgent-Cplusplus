@@ -24,12 +24,14 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include "services/admin_service.h"
+#include <mongo/client/dbclient.h>
+#include <mongo/client/dbclientcursor.h>
 
 class AdminMgmTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminMgmTest);
 
-    CPPUNIT_TEST(testProtocol);
-    CPPUNIT_TEST(testServiceManagement);
+    CPPUNIT_TEST(testProtocol_ServiceManagement);
+    CPPUNIT_TEST(testBADServiceManagement);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -46,6 +48,7 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
     //GET ALL empty
     static const std::string GET_EMPTY_RESPONSE_DEVICES;
     static const int GET_RESPONSE_CODE;
+    static const int DELETE_RESPONSE_CODE;
     static const int GET_RESPONSE_CODE_NOT_FOUND;
 
     //PROTOCOL
@@ -60,6 +63,7 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
     static const std::string URI_SERVICES_MANAGEMET;
     static const std::string POST_SERVICE_MANAGEMENT1;
     static const std::string POST_SERVICE_MANAGEMENT2;
+    static const std::string POST_BAD_SERVICE_MANAGEMENT1;
     static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
 
 
@@ -80,8 +84,8 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
 
   private:
 
-    void testProtocol();
-    void testServiceManagement();
+    void testProtocol_ServiceManagement();
+    void testBADServiceManagement();
 
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;

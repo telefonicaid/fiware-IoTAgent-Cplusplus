@@ -65,6 +65,7 @@ const int AdminMgmTest::POST_RESPONSE_CODE = 201;
 //GET ALL empty
 const int AdminMgmTest::GET_RESPONSE_CODE = 200;
 const int AdminMgmTest::GET_RESPONSE_CODE_NOT_FOUND = 404;
+const int AdminMgmTest::DELETE_RESPONSE_CODE = 204;
 
 ////////////////////
 ////  PROTOCOLS
@@ -116,13 +117,21 @@ const std::string AdminMgmTest::URI_SERVICES_MANAGEMET("/iot/services");
 //POST
 const std::string
 AdminMgmTest::POST_SERVICE_MANAGEMENT1("{\"services\": [{"
-       "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
+       "\"protocol\": [\"UL20\", \"MQTT\"],"
        "\"apikey\": \"apikey\",\"token\": \"token\","
        "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
      "}]}");
 const std::string
 AdminMgmTest::POST_SERVICE_MANAGEMENT2("{\"services\": [{"
-       "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
+       "\"protocol\": [\"UL20\", \"MQTT\"],"
+       "\"apikey\": \"apikey\",\"token\": \"token\","
+       "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+     "}]}");
+
+
+const std::string
+AdminMgmTest::POST_BAD_SERVICE_MANAGEMENT1("{\"services\": [{"
+       "\"protocol\": [\"no_exists\", \"MQTT\"],"
        "\"apikey\": \"apikey\",\"token\": \"token\","
        "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
      "}]}");
@@ -222,9 +231,8 @@ int AdminMgmTest::http_test(const std::string& uri,
 }
 
 
-void AdminMgmTest::testProtocol(){
+void AdminMgmTest::testProtocol_ServiceManagement(){
   std::cout << "START @UT@START testProtocol" << std::endl;
-  adm->set_manager();
   std::map<std::string, std::string> headers;
   std::string query_string;
   int code_res;
@@ -282,22 +290,8 @@ void AdminMgmTest::testProtocol(){
 
   std::cout << "END@UT@ testProtocol" << std::endl;
 
-}
-
-void AdminMgmTest::testServiceManagement(){
   srand(time(NULL));
   std::cout << "START @UT@START testServiceManagement" << std::endl;
-  std::map<std::string, std::string> headers;
-  std::string query_string;
-  int code_res;
-  std::string response;
-
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
-
-  adm->set_manager();
 
   std::string service= "service" ;
   service.append(boost::lexical_cast<std::string>(rand()));
@@ -325,7 +319,7 @@ void AdminMgmTest::testServiceManagement(){
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == GET_RESPONSE_CODE);
   IOTASSERT_MESSAGE("only return one",
-                    response.find("\"count\": 1,\"services\"")!= std::string::npos);
+                    response.find("\"count\": 2,\"services\"")!= std::string::npos);
 
   std::cout << "@UT@POST" << std::endl;
   code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "/ssrv2",
@@ -341,9 +335,9 @@ void AdminMgmTest::testServiceManagement(){
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == GET_RESPONSE_CODE);
   IOTASSERT_MESSAGE("only return one",
-                    response.find("\"count\": 2,\"services\"")!= std::string::npos);
+                    response.find("\"count\": 4,\"services\"")!= std::string::npos);
 
-  /*std::cout << "@UT@DELETE " << service << std::endl;
+  std::cout << "@UT@DELETE " << service << std::endl;
   code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/*",
                        "application/json", "",
                        headers, query_string, response);
@@ -351,15 +345,44 @@ void AdminMgmTest::testServiceManagement(){
   IOTASSERT(code_res == DELETE_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test(URI_SERVICE2, "GET", service, "/*",
+  code_res = http_test(URI_SERVICES_MANAGEMET, "GET", service, "/*",
                        "application/json", "",
                        headers, "", response);
   boost::algorithm::trim(response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 200);
   IOTASSERT(response.compare("{ \"count\": 0,\"services\": []}") == 0);
-*/
+
 
   std::cout << "END@UT@ testServiceManagement" << std::endl;
 
+}
+
+void AdminMgmTest::testBADServiceManagement() {
+  srand(static_cast<unsigned int>(time(0)));
+  std::cout << "START @UT@START testBADServiceManagement" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string;
+
+  int code_res;
+  std::string response;
+  std::string service= "service" ;
+  service.append(boost::lexical_cast<std::string>(rand()));
+  std::cout << "@UT@service " << service << std::endl;
+
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+
+  //no existe servicio al hacer POST de device
+  std::cout << "@UT@1POST" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "", "application/json",
+                       POST_BAD_SERVICE_MANAGEMENT1, headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+  "{\"reason\":\"The request is not well formed\",\"details\":\"No exists protocol no_exists\"}") == 0);
+
+  std::cout << "END@UT@ testBADServiceManagement" << std::endl;
 }

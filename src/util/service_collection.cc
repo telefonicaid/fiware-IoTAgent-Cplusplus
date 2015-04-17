@@ -268,3 +268,13 @@ int iota::ServiceCollection::createTableAndIndex() {
 
   return res;
 }
+
+
+void iota::ServiceCollection::getElementsFromBSON(mongo::BSONObj &obj,
+                                std::vector<mongo::BSONObj> &result){
+  std::vector<mongo::BSONElement> be = obj.getField(
+                                           iota::store::types::SERVICES).Array();
+  for (unsigned int i = 0; i<be.size(); i++) {
+      result.push_back(be[i].embeddedObject());
+  }
+}
