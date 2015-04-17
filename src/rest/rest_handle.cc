@@ -502,10 +502,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
     finish = true;
   }
 
-  std::string async_internal = http_request_ptr->get_header(iota::types::HEADER_INTERNAL_TYPE);
-  if (async_internal.compare("true") == 0 || finish) {
-    send_http_response(writer, response_buffer);
-  }
+  send_http_response(writer, response_buffer);
 }
 
 void iota::RestHandle::finish(pion::tcp::connection_ptr& tcp_conn) {
