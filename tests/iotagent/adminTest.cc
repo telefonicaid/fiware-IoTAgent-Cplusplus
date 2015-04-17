@@ -229,7 +229,7 @@ AdminTest::AdminTest() {
   pion::process::initialize();
 
   adm = new iota::AdminService();
-  adm->set_manager();
+  //adm->set_manager();
   AdminService_ptr = adm;
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
   wserver.reset(new pion::http::plugin_server(scheduler));
@@ -1495,7 +1495,7 @@ void  AdminTest::testAbout() {
 
 void AdminTest::testProtocol(){
   std::cout << "START @UT@START testProtocol" << std::endl;
-  adm->set_manager();
+  //adm->set_manager();
   std::map<std::string, std::string> headers;
   std::string query_string;
   int code_res;
@@ -1556,7 +1556,7 @@ void AdminTest::testProtocol(){
 void AdminTest::testServiceManagement(){
   srand(time(NULL));
   std::cout << "START @UT@START testServiceManagement" << std::endl;
-  adm->set_manager();
+  //adm->set_manager();
   std::map<std::string, std::string> headers;
   std::string query_string;
   int code_res;
