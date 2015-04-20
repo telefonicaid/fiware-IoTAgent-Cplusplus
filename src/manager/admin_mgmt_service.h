@@ -105,11 +105,18 @@ class AdminManagerService{
     subservice (Fiware-ServicePath header). A optional query parameter (protocol) may be provided.
 
     */
-    void get_devices(pion::http::request_ptr& http_request_ptr,
+    int get_devices(pion::http::request_ptr& http_request_ptr,
                      std::map<std::string, std::string>& url_args,
                      std::multimap<std::string, std::string>& query_parameters,
                      std::string service, std::string service_path, int limit, int offset,
                      std::string detailed, std::string entity,
+                     pion::http::response& http_response,
+                     std::string& response);
+
+    int get_device(pion::http::request_ptr& http_request_ptr,
+                     std::map<std::string, std::string>& url_args,
+                     std::multimap<std::string, std::string>& query_parameters,
+                     std::string service, std::string service_path, std::string device_id,
                      pion::http::response& http_response,
                      std::string& response);
 

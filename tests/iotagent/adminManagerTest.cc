@@ -78,10 +78,10 @@ s5_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.2
 
 std::string
 devices("{\"devices\":[{\"protocol\":\"UL20\",\"device_id\": \"device_id_post\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
-          "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
-          "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
-          "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
-          "}]}");
+        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+        "}]}");
 
 
 AdminManagerTest::AdminManagerTest() {
@@ -103,14 +103,16 @@ AdminManagerTest::AdminManagerTest() {
   wserver->add_service("/iot", adm);
   wserver->start();
 
-   std::string service("s1");
+  std::string service("s1");
   std::string service_path("/ss1");
   pion::http::response http_response;
   std::string response;
   std::string service_s1("{\"services\": [{"
-                        "\"apikey\": \"apikey\",\"token\": \"token\","
-                        "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
-  adm->post_service_json(service,service_path,service_s1,http_response,response);
+                         "\"apikey\": \"apikey\",\"token\": \"token\","
+                         "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
+  adm->post_service_json(col, service,service_path,service_s1,http_response,
+                         response);
 
 }
 
@@ -134,22 +136,22 @@ AdminManagerTest::~AdminManagerTest() {
 
 void AdminManagerTest::setUp() {
 
-/*
-  iota::ServiceCollection table1;
+  /*
+    iota::ServiceCollection table1;
 
-  table1.createTableAndIndex();
-  mongo::BSONObj all = BSON("service" << "s1");
+    table1.createTableAndIndex();
+    mongo::BSONObj all = BSON("service" << "s1");
 
-  table1.remove(all);
+    table1.remove(all);
 
-  std::cout << "inserts" << std::endl;
-  table1.insert(mongo::fromjson(s1_d));
-  table1.insert(mongo::fromjson(s1_d_host2));
-  table1.insert(mongo::fromjson(s1_d2));
-  table1.insert(mongo::fromjson(s1_mqtt));
-  table1.insert(mongo::fromjson(s2_d));
-  table1.insert(mongo::fromjson(s3_mqtt));
-*/
+    std::cout << "inserts" << std::endl;
+    table1.insert(mongo::fromjson(s1_d));
+    table1.insert(mongo::fromjson(s1_d_host2));
+    table1.insert(mongo::fromjson(s1_d2));
+    table1.insert(mongo::fromjson(s1_mqtt));
+    table1.insert(mongo::fromjson(s2_d));
+    table1.insert(mongo::fromjson(s3_mqtt));
+  */
 }
 
 void AdminManagerTest::tearDown() {
@@ -212,10 +214,10 @@ void AdminManagerTest::testGetEndpointsFromDevices() {
   }
   // Following asserts have to change
 
-  CPPUNIT_ASSERT (v_endpoints_devices[0].get_endpoint().compare("host2")==0);
-  CPPUNIT_ASSERT (v_endpoints_devices[1].get_endpoint().compare("host1")==0);
-  CPPUNIT_ASSERT (v_endpoints_devices[2].get_endpoint().compare("host2")==0);
-  CPPUNIT_ASSERT (v_endpoints_devices[3].get_endpoint().compare("host1")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[0].get_endpoint().compare("host2")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[1].get_endpoint().compare("host1")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[2].get_endpoint().compare("host2")==0);
+  CPPUNIT_ASSERT(v_endpoints_devices[3].get_endpoint().compare("host1")==0);
 
   std::cout << "Test: END" << std::endl;
 
@@ -279,6 +281,12 @@ void AdminManagerTest::testGetDevices() {
                             "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                             "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                             "}]}");
+  std::string
+  mock_response_one_device("{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                           "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                           "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                           "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                           "}");
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
   http_mock->set_response(200, mock_response, h);
@@ -302,13 +310,18 @@ void AdminManagerTest::testGetDevices() {
                               "on", "", http_response, response);
   CPPUNIT_ASSERT_MESSAGE("Expected 4 devices ",
                          response.find("\"count\" : 4") != std::string::npos);
-
+  http_mock->set_response(200, mock_response_one_device, h);
+  manager_service.get_device(http_request, args, query, "s4_agus", "/ss3",
+                             "device_id", http_response, response);
+  CPPUNIT_ASSERT_MESSAGE("Expected device_id ",
+                         response.find("\"device_id\": \"device_id\"") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE("Expected  count ",
+                         response.find("\"count\" : 1") != std::string::npos);
   std::cout << "STOP testGetDevices" << std::endl;
   sleep(2);
   http_mock->stop();
 
   table1.remove(BSON("service" << "s4_agus"));
-  //table1.remove(BSON("service" << BSON( "$in" << BSON_ARRAY("s1" << "s6"))));
 }
 
 void AdminManagerTest::testMultiplePostsWithResponse() {
@@ -365,12 +378,13 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   http_mock->stop();
 }
 
-void AdminManagerTest::testPostJSONDevices(){
+void AdminManagerTest::testPostJSONDevices() {
 
-std::string
+  std::string
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-     "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"+boost::lexical_cast<std::string>(wserver->get_port())+"\","
-     "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
+       +boost::lexical_cast<std::string>(wserver->get_port())+"\","
+       "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
   iota::ServiceMgmtCollection table1;
   iota::DeviceCollection table_device;
@@ -384,7 +398,7 @@ std::string
 
   iota::Device borrar("","");
 
-  table_device.remove(borrar);
+  table_device.removed(borrar);
 
   table1.insert(mongo::fromjson(s1_d));
 
@@ -396,19 +410,20 @@ std::string
   pion::http::response http_response;
 
   std::cout << "Test testPostJSONDevices STARTING" << std::endl;
-  manager_service.do_post_json_devices("s1","/ss1","",devices,http_response,response);
+  manager_service.do_post_json_devices("s1","/ss1","",devices,http_response,
+                                       response);
 
   std::cout << "Result " << response << std::endl;
 
-  CPPUNIT_ASSERT (http_response.get_status_code() == 200);
-  CPPUNIT_ASSERT (!response.empty());
+  CPPUNIT_ASSERT(http_response.get_status_code() == 200);
+  CPPUNIT_ASSERT(!response.empty());
 
   //Now checking if the device has been added to the collection.
-  iota::Device q1("device_id_post", "s1" );
+  iota::Device q1("device_id_post", "s1");
   q1._service_path.assign("/ss1");
-  int code = table_device.find(q1);
+  int code = table_device.findd(q1);
   std::cout << "DEVICE FOUND?: " << (code < 0?"NO":"YES") << std::endl;
-  CPPUNIT_ASSERT (code > 0);
+  CPPUNIT_ASSERT(code > 0);
   std::cout << "Test testPostJSONDevices DONE" << std::endl;
 
 }

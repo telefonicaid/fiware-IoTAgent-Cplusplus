@@ -169,7 +169,7 @@ int iota::AdminManagerService::add_device_iotagent(std::string url_iotagent,
 
 }
 
-void iota::AdminManagerService::get_devices(pion::http::request_ptr&
+int iota::AdminManagerService::get_devices(pion::http::request_ptr&
     http_request_ptr,
     std::map<std::string, std::string>& url_args,
     std::multimap<std::string, std::string>& query_parameters,
@@ -199,14 +199,13 @@ void iota::AdminManagerService::get_devices(pion::http::request_ptr&
     manager_service_collection.get_iotagents_by_service(service, service_path,
         protocol_filter);
 
-  int i = 0;
   std::map<std::string, std::string> response_from_iotagent;
   std::string x_auth_token = http_request_ptr->get_header(
                                iota::types::IOT_HTTP_HEADER_AUTH);
 
 
 
-  for (i = 0; i < all_dest.size(); i++) {
+  for (int i = 0; i < all_dest.size(); i++) {
 
     iota::IoTUrl dest(all_dest.at(i));
     // Build request
@@ -254,10 +253,6 @@ void iota::AdminManagerService::get_devices(pion::http::request_ptr&
     pion::http::response_ptr resp_http = http_client->send(request, _timeout, "");
     int code = -1;
 
-    // Alarms
-    if (resp_http.get() == NULL) {
-      std::cout << "ERROROROROROROROROROR" << std::endl;
-    }
     if (resp_http.get() != NULL && !http_client->get_error()) {
       code = resp_http->get_status_code();
       iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i),
@@ -319,7 +314,138 @@ void iota::AdminManagerService::get_devices(pion::http::request_ptr&
   mongo::BSONObj result = builder_json.obj();
   response = result.jsonString();
   PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
-  //http_request_ptr->add_header(iota::types::HEADER_INTERNAL_TYPE, "true");
+  return pion::http::types::RESPONSE_CODE_OK;
+}
+
+int iota::AdminManagerService::get_device(pion::http::request_ptr&
+    http_request_ptr,
+    std::map<std::string, std::string>& url_args,
+    std::multimap<std::string, std::string>& query_parameters,
+    std::string service, std::string service_path, std::string device_id,
+    pion::http::response& http_response,
+    std::string& response) {
+
+  int code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
+  std::string request_identifier = http_request_ptr->get_header(
+                                     iota::types::HEADER_TRACE_MESSAGES);
+
+  iota::ServiceMgmtCollection manager_service_collection;
+
+  // Protocol filter
+  std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
+  std::string protocol_filter;
+  it = query_parameters.find(iota::store::types::PROTOCOL);
+  if (it != query_parameters.end()) {
+    protocol_filter = it->second;
+  }
+
+  std::string log_message("|id-request=" + request_identifier);
+  PION_LOG_DEBUG(m_log, log_message);
+
+  std::vector<iota::IotagentType> all_dest =
+    manager_service_collection.get_iotagents_by_service(service, service_path,
+        protocol_filter);
+
+  std::map<std::string, std::string> response_from_iotagent;
+  std::string x_auth_token = http_request_ptr->get_header(
+                               iota::types::IOT_HTTP_HEADER_AUTH);
+
+
+  for (int i = 0; i < all_dest.size(); i++) {
+
+    iota::IoTUrl dest(all_dest.at(i));
+    // Build request
+    pion::http::request_ptr request(new pion::http::request());
+    request->set_method(pion::http::types::REQUEST_METHOD_GET);
+    request->set_resource(dest.getPath() + iota::ADMIN_SERVICE_DEVICES + "/" + device_id);
+
+    request->add_header(iota::types::IOT_HTTP_HEADER_ACCEPT,
+                        iota::types::IOT_CONTENT_TYPE_JSON);
+
+    if (!x_auth_token.empty()) {
+      request->add_header(iota::types::IOT_HTTP_HEADER_AUTH, x_auth_token);
+    }
+    request->add_header(iota::types::HEADER_TRACE_MESSAGES, request_identifier);
+    request->add_header(iota::types::FIWARE_SERVICE, service);
+    request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
+
+    std::string server(dest.getHost());
+    server.append(":");
+    server.append(boost::lexical_cast<std::string>(dest.getPort()));
+    request->change_header(pion::http::types::HEADER_HOST, server);
+    boost::shared_ptr<iota::HttpClient> http_client(
+      new iota::HttpClient(dest.getHost(),
+                           dest.getPort()));
+
+    boost::property_tree::ptree additional_info;
+
+
+    log_message.append("|endpoint=" + http_client->getRemoteEndpoint());
+    // Asynch send
+    /*
+    http_client->async_send(request, _timeout, "",
+                            boost::bind(&iota::AdminManagerService::receive_get_devices,
+                                        this, request_identifier, boost::ref(http_response), _1, _2, _3));
+    */
+    pion::http::response_ptr resp_http = http_client->send(request, _timeout, "");
+
+    if (resp_http.get() != NULL && !http_client->get_error()) {
+      code = resp_http->get_status_code();
+      iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i),
+                        iota::types::ERROR, http_client->get_error().message());
+    }
+    else {
+      iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i),
+                         iota::types::ERROR, http_client->get_error().message());
+    }
+
+    log_message.append("|error-conn=" + http_client->get_error().message());
+    log_message.append("|status-code=" + boost::lexical_cast<std::string>(code));
+
+    // If no successful response, nothing
+    if (code == pion::http::types::RESPONSE_CODE_OK) {
+      response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
+                                      i), resp_http->get_content()));
+    }
+    PION_LOG_INFO(m_log, log_message);
+  }
+
+  int total_count = 0;
+  mongo::BSONObjBuilder builder_json;
+  mongo::BSONArrayBuilder builder_array;
+  std::map<std::string, std::string>::iterator it_resp =
+    response_from_iotagent.begin();
+  while (it_resp != response_from_iotagent.end()) {
+    try {
+
+      mongo::BSONObj obj_mongo = mongo::fromjson(it_resp->second);
+      total_count += obj_mongo.getIntField("count");
+      std::vector<mongo::BSONElement> devices = obj_mongo.getField(
+            iota::store::types::DEVICES).Array();
+      for (int j = 0; j < devices.size(); j++) {
+        builder_array.append(devices.at(j));
+      }
+
+    }
+    catch (mongo::MsgAssertionException& e) {
+      log_message.append("|endpoint=" + it_resp->first + "|error-json=" + std::string(
+                           e.what()));
+      PION_LOG_ERROR(m_log, log_message);
+    }
+    catch (std::exception& e) {
+      log_message.append("|endpoint=" + it_resp->first + "|error=" + std::string(
+                           e.what()));
+      PION_LOG_ERROR(m_log, log_message);
+    }
+    ++it_resp;
+  }
+  builder_json.append("count", total_count);
+  builder_json.appendArray(iota::store::types::DEVICES, builder_array.obj());
+  mongo::BSONObj result = builder_json.obj();
+  response = result.jsonString();
+  PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
+  return pion::http::types::RESPONSE_CODE_OK;
+
 }
 
 void iota::AdminManagerService::receive_get_devices(
@@ -397,25 +523,28 @@ void iota::AdminManagerService::do_post_json_devices(std::string service,
     std::string sub_service, std::string x_auth_token, std::string content,
     pion::http::response& http_response, std::string& response) {
 
-    PION_LOG_DEBUG(m_log,"do_post_json_devices: validating input");
+  PION_LOG_DEBUG(m_log,"do_post_json_devices: validating input");
 
-    if (service.empty() || sub_service.empty()){
-      PION_LOG_ERROR(m_log,"");
-      http_response.set_status_code(400);
-    }
+  if (service.empty() || sub_service.empty()) {
+    PION_LOG_ERROR(m_log,"");
+    http_response.set_status_code(400);
+  }
 
-    std::vector<iota::DeviceToBeAdded> v_endpoints;
+  std::vector<iota::DeviceToBeAdded> v_endpoints;
 
-    resolve_endpoints(v_endpoints,content,service,sub_service);
-    PION_LOG_DEBUG(m_log,"do_post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
-    response.assign(post_multiple_devices(v_endpoints,service,sub_service,x_auth_token));
-    PION_LOG_DEBUG(m_log,"do_post_json_devices: POSTs processed: ["<<response<<"]");
-    if (!response.empty()){
-      http_response.set_content(response);
-      http_response.set_status_code(200);
-    }else{
-      http_response.set_status_code(404);
-    }
+  resolve_endpoints(v_endpoints,content,service,sub_service);
+  PION_LOG_DEBUG(m_log,
+                 "do_post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
+  response.assign(post_multiple_devices(v_endpoints,service,sub_service,
+                                        x_auth_token));
+  PION_LOG_DEBUG(m_log,"do_post_json_devices: POSTs processed: ["<<response<<"]");
+  if (!response.empty()) {
+    http_response.set_content(response);
+    http_response.set_status_code(200);
+  }
+  else {
+    http_response.set_status_code(404);
+  }
 
 
 }
