@@ -28,14 +28,14 @@
 #include "service_mgmt_collection.h"
 #include "service_collection.h"
 #include "iota_exception.h"
+#include "protocol_collection.h"
 
 
-iota::ServiceMgmtCollection::ServiceMgmtCollection():Collection(
-    iota::store::types::MANAGER_SERVICE_TABLE) {
+iota::ServiceMgmtCollection::ServiceMgmtCollection() {
+  setBBDD(iota::store::types::MANAGER_SERVICE_TABLE);
 };
 
-iota::ServiceMgmtCollection::ServiceMgmtCollection(ServiceMgmtCollection& dc):Collection(
-    dc) {
+iota::ServiceMgmtCollection::ServiceMgmtCollection(ServiceMgmtCollection& dc) {
 };
 
 iota::ServiceMgmtCollection::~ServiceMgmtCollection() {
@@ -58,36 +58,17 @@ iota::ServiceMgmtCollection::~ServiceMgmtCollection() {
 
 }*/
 
-std::string iota::ServiceMgmtCollection::getSchema(const std::string& method) {
-  std::ostringstream schema;
-
-  if (method.compare("POST") == 0) {
-    return POST_SCHEMA;
-  }
-  else {
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                              "[no PUT for ServiceMgmtCollection]",
-                              iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
-  }
-
+const std::string & iota::ServiceMgmtCollection::getPostSchema() const{
+  return _POST_SCHEMA;
 }
 
-const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
+const std::string iota::ServiceMgmtCollection::_POST_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Service\","
   "\"description\": \"A service\","
   "\"additionalProperties\":false,"
   "\"type\": \"object\","
   "\"properties\": {"
-  "\"endpoint\": {"
-  "\"description\": \"endpoint\","
-  "\"format\": \"uri\","
-  "\"type\": \"string\""
-  "},"
-  "\"description\": {"
-  "\"description\": \"iota description\","
-  "\"type\": \"string\""
-  "},"
   "\"services\": {"
   "\"type\":\"array\","
   "\"id\": \"services\","
@@ -96,6 +77,13 @@ const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
   "\"additionalProperties\":false,"
   "\"id\": \"0\","
   "\"properties\":{"
+  "\"protocol\": {"
+  "\"type\":\"array\","
+  "\"id\": \"protocol\","
+  "\"items\":{"
+  "\"type\":\"string\""
+  "},\"minItems\": 1"
+  "},"
   "\"entity_type\": {"
   "\"description\": \"default entity_type, if a device has not got entity_type uses this\","
   "\"type\": \"string\""
@@ -116,20 +104,6 @@ const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
   "},"
   "\"outgoing_route\": {"
   "\"description\": \"VPN/GRE tunnel identifier\","
-  "\"type\": \"string\""
-  "},"
-  "\"resource\": {"
-  "\"description\": \"uri for the iotagent\","
-  "\"type\": \"string\","
-  "\"format\":\"regex\","
-  "\"pattern\":\"^/\""
-  "},"
-  "\"iotagent\": {"
-  "\"description\": \"host for the iotagent\","
-  "\"type\": \"string\""
-  "},"
-  "\"protocol\": {"
-  "\"description\": \"protocol\","
   "\"type\": \"string\""
   "},"
   "\"attributes\": {"
@@ -179,7 +153,7 @@ const std::string iota::ServiceMgmtCollection::POST_SCHEMA(
   "}"
   "}"
   "}"
-  ",\"required\": [\"apikey\", \"resource\", \"cbroker\"]"
+  ",\"required\": [\"apikey\", \"protocol\", \"cbroker\"]"
   "}"
   "}"
   "}"
@@ -191,9 +165,10 @@ int iota::ServiceMgmtCollection::createTableAndIndex() {
 
   int res = 200;
 
+  //db.SERVICE_MGMT.ensureIndex({"service":1, service_path:1, iotagent:1, protocol:1},{"unique":1})
   ensureIndex("shardKey",
                 BSON(iota::store::types::SERVICE << 1 << iota::store::types::SERVICE_PATH << 1
-                     << iota::store::types::RESOURCE <<1 << iota::store::types::IOTAGENT << 1),
+                     << iota::store::types::IOTAGENT << 1 << iota::store::types::PROTOCOL_NAME << 1),
                 true);
 
   return res;
@@ -245,7 +220,6 @@ std::vector<iota::ServiceType> iota::ServiceMgmtCollection::get_services_group_p
        "protocol" << BSON("$addToSet" << "$protocol" ) ))
   );
   mongo::BSONObj res =iota::Collection::aggregate(pipeline, 0);
-  std::cout << "RES::" << res << std::endl;
   /*std::string ser, ser_path;
   mongo::BSONObj elto;
   while(more()){
@@ -269,12 +243,13 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   mongo::BSONObj query;
   mongo::BSONObjBuilder fieldsToReturn;
   fieldsToReturn.append(iota::store::types::IOTAGENT, 1);
-  fieldsToReturn.append(iota::store::types::RESOURCE, 1);
 
   mongo::BSONObjBuilder bson_query;
   bson_query.append(iota::store::types::SERVICE, service);
   ServiceCollection::addServicePath(service_path, bson_query);
-  bson_query.append(iota::store::types::PROTOCOL_NAME, protocol_id);
+  if (!protocol_id.empty()){
+    bson_query.append(iota::store::types::PROTOCOL_NAME, protocol_id);
+  }
 
   mongo::BSONObj res = iota::Collection::distinct("iotagent" , bson_query.obj(), 0);
 
@@ -284,4 +259,44 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   }
 
   return result;
+}
+
+
+void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
+                                std::vector<mongo::BSONObj> &result){
+
+    std::vector<mongo::BSONElement> be = obj.getField(
+                                           iota::store::types::SERVICES).Array();
+    std::map<std::string, std::string>protocols;
+    iota::ProtocolCollection protocolCol;
+    protocolCol.fillProtocols(protocols);
+    std::map<std::string,std::string>::iterator it;
+    std::string descriptionSTR;
+
+    for (unsigned int i = 0; i<be.size(); i++) {
+      mongo::BSONObj obj = be[i].embeddedObject();
+      //cogemos el protocolo
+      if (obj.hasField(iota::store::types::PROTOCOL_NAME)){
+         mongo::BSONElement protocolsObj = obj.getField(iota::store::types::PROTOCOL_NAME);
+         std::vector<mongo::BSONElement> proArr = protocolsObj.Array();
+         for (unsigned int j = 0; j<proArr.size(); j++) {
+            std::string protocol_id = proArr[j].str();
+            it=protocols.find(protocol_id);
+            if (it == protocols.end()){
+                std::string errorSTR = "No exists protocol " + protocol_id;
+                PION_LOG_ERROR(m_logger, errorSTR);
+                throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                           errorSTR, iota::types::RESPONSE_CODE_BAD_REQUEST);
+            }else{
+              descriptionSTR = it->second;
+            }
+            mongo::BSONObjBuilder newdata;
+            newdata.appendElements(obj.removeField(iota::store::types::PROTOCOL_NAME));
+            newdata.append(iota::store::types::PROTOCOL_NAME, protocol_id);
+            newdata.append(iota::store::types::PROTOCOL_DESCRIPTION, descriptionSTR);
+            mongo::BSONObj ddd  = newdata.obj();
+            result.push_back(ddd);
+         }
+      }
+   }
 }

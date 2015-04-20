@@ -26,7 +26,7 @@
 #include <vector>
 
 #include "collection.h"
-#include "device.h"
+#include "service_collection.h"
 
 
 
@@ -36,7 +36,7 @@ typedef std::pair<std::string, std::string>   ServiceType;
 
 typedef std::string  IotagentType;
 
-class ServiceMgmtCollection : public Collection {
+class ServiceMgmtCollection : public ServiceCollection {
   public:
 
     ServiceMgmtCollection();
@@ -47,10 +47,7 @@ class ServiceMgmtCollection : public Collection {
 
     int createTableAndIndex();
 
-    static void addServicePath(const std::string & service_path,
-                        mongo::BSONObjBuilder &obj );
-
-    std::string getSchema(const std::string& method);
+    virtual const std::string &getPostSchema() const;
 
     std::vector<ServiceType> get_services_by_protocol(
               const std::string &protocol_name,
@@ -65,6 +62,9 @@ class ServiceMgmtCollection : public Collection {
               const std::string &protocol_name,
               int limit, int skip);
 
+    virtual void getElementsFromBSON(mongo::BSONObj &obj,
+                           std::vector<mongo::BSONObj>& result);
+
   protected:
 
 
@@ -72,8 +72,7 @@ class ServiceMgmtCollection : public Collection {
 
   private:
 
-    static const std::string POST_SCHEMA;
-    static const std::string PUT_SCHEMA;
+    static const std::string _POST_SCHEMA;
 
 }; // end class ServiceCollection
 

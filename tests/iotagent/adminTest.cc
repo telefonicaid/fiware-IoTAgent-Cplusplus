@@ -37,6 +37,8 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string.hpp>
 #include "util/device_collection.h"
+#include "util/service_collection.h"
+#include "util/service_mgmt_collection.h"
 #include "services/admin_service.h"
 
 #define PATH_CONFIG "../../tests/iotagent/config.json"
@@ -66,7 +68,7 @@ const std::string AdminTest::URI_DEVICE("/devices");
 //POST
 const std::string
 AdminTest::POST_DEVICE("{\"devices\": "
-                       "[{\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"device_id\",\"protocol\": \"kk\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -173,6 +175,20 @@ AdminTest::POST_PROTOCOLS1("{\"endpoint\": \"host1\","
                           "}");
 const std::string
 AdminTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
+                          "\"resource\": \"/iot/mqtt\","
+                          "\"protocol\": \"MQTT\","
+                          "\"description\": \"mqtt example\","
+                          "\"services\": [{"
+                                "\"apikey\": \"apikey3\","
+                                "\"service\": \"service2\","
+                                "\"service_path\": \"/ssrv2\","
+                                "\"token\": \"token2\","
+                                "\"cbroker\": \"http://127.0.0.1:1026\","
+                                "\"resource\": \"/iot/mqtt\","
+                                "\"entity_type\": \"thing\""
+                          "}]}");
+const std::string
+AdminTest::POST_PROTOCOLS3("{\"endpoint\": \"host3\","
                           "\"resource\": \"/iot/d\","
                           "\"protocol\": \"UL20\","
                           "\"description\": \"Ultralight 2.0\","
@@ -186,6 +202,8 @@ AdminTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
                                 "\"entity_type\": \"thing\""
                           "}]}");
 const std::string
+AdminTest::POST_PROTOCOLS4("TODO");
+const std::string
 AdminTest::GET_PROTOCOLS_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
 
@@ -194,17 +212,17 @@ AdminTest::GET_PROTOCOLS_RESPONSE("{ \"count\": 0,\"devices\": []}");
 const std::string AdminTest::URI_SERVICES_MANAGEMET("/iot/services");
 //POST
 const std::string
-AdminTest::POST_SERVICE_MANAGEMENT1("\"services\": [{"
+AdminTest::POST_SERVICE_MANAGEMENT1("{\"services\": [{"
        "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
-       "\"apikey\": \"apikey3\","
-       "\"token\": \"token3\","
-     "}]");
+       "\"apikey\": \"apikey\",\"token\": \"token\","
+       "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+     "}]}");
 const std::string
-AdminTest::POST_SERVICE_MANAGEMENT2("\"services\": [{"
+AdminTest::POST_SERVICE_MANAGEMENT2("{\"services\": [{"
        "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
-       "\"apikey\": \"apikey3\","
-       "\"token\": \"token3\","
-     "}]");
+       "\"apikey\": \"apikey\",\"token\": \"token\","
+       "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+     "}]}");
 
 const std::string
 AdminTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
@@ -229,12 +247,12 @@ AdminTest::AdminTest() {
   pion::process::initialize();
 
   adm = new iota::AdminService();
-  adm->set_manager();
   AdminService_ptr = adm;
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
   wserver.reset(new pion::http::plugin_server(scheduler));
   wserver->add_service("/iot", adm);
   wserver->start();
+
 }
 
 AdminTest::~AdminTest() {
@@ -599,7 +617,7 @@ void  AdminTest::testPostBadContentType() {
 
 void  AdminTest::testPostDevice() {
 
-  std::cout << "START @UT@START testPostDevicee" << std::endl;
+  std::cout << "START @UT@START testPostDevice" << std::endl;
   srand(time(NULL));
   std::map<std::string, std::string> headers;
   std::string query_string;
@@ -1493,140 +1511,3 @@ void  AdminTest::testAbout() {
   std::cout << "END@UT@START testAbout" << std::endl;
 }
 
-void AdminTest::testProtocol(){
-  std::cout << "START @UT@START testProtocol" << std::endl;
-  adm->set_manager();
-  std::map<std::string, std::string> headers;
-  std::string query_string;
-  int code_res;
-  std::string response;
-
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
-
-  std::cout << "@UT@Remove all data in protocols" << std::endl;
-  pion::http::response http_response;
-  adm->delete_all_protocol_json(http_response, response);
-
-  std::cout << "@UT@Post iotagents without services" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
-                       "application/json",
-                       POST_PROTOCOLS1, headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 500);
-
-  std::cout << "@UT@Post iotagents with a service" << std::endl;
-  std::cout << "@UT@POST" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
-                       "application/json",
-                       POST_PROTOCOLS2, headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
-
-  std::cout << "@UT@GET" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "GET", "", "",
-                       "application/json", "",
-                       headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == GET_RESPONSE_CODE);
-  IOTASSERT_MESSAGE("only return one",
-                    response.find("\"count\": 2,\"protocols\"")!= std::string::npos);
-
-  std::cout << "@UT@DELETE protocols" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "DELETE", "", "",
-                       "application/json", "",
-                       headers, query_string, response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == DELETE_RESPONSE_CODE);
-
-  std::cout << "@UT@GET" << std::endl;
-  code_res = http_test(URI_PROTOCOLS , "GET", "", "",
-                       "application/json", "",
-                       headers, "", response);
-  boost::algorithm::trim(response);
-  IOTASSERT(code_res == 200);
-  IOTASSERT(response.compare("{ \"count\": 0,\"protocols\": []}") == 0);
-
-  std::cout << "END@UT@ testProtocol" << std::endl;
-
-}
-
-void AdminTest::testServiceManagement(){
-  srand(time(NULL));
-  std::cout << "START @UT@START testServiceManagement" << std::endl;
-  adm->set_manager();
-  std::map<std::string, std::string> headers;
-  std::string query_string;
-  int code_res;
-  std::string response;
-
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
-
-  std::string service= "service" ;
-  service.append(boost::lexical_cast<std::string>(rand()));
-  std::cout << "@UT@service " << service << std::endl;
-
-  std::cout << "@UT@GET get empty" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET , "GET", service, "",
-                           "application/json", "",
-                           headers, query_string, response);
-  boost::algorithm::trim(response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 200);
-  IOTASSERT(response.compare("{ \"count\": 0,\"services\": []}") == 0);
-
-  std::cout << "@UT@POST" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "", "application/json",
-                       POST_SERVICE_MANAGEMENT1, headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
-
-  std::cout << "@UT@GET only return one" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "GET", service, "/*",
-                       "application/json", "",
-                       headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == GET_RESPONSE_CODE);
-  IOTASSERT_MESSAGE("only return one",
-                    response.find("\"count\": 1,\"services\"")!= std::string::npos);
-
-  std::cout << "@UT@POST" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "/ssrv2",
-                       "application/json",
-                       POST_SERVICE_MANAGEMENT2, headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
-
-  std::cout << "@UT@GET only return two" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "GET", service, "/*",
-                       "application/json", "",
-                       headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == GET_RESPONSE_CODE);
-  IOTASSERT_MESSAGE("only return one",
-                    response.find("\"count\": 2,\"services\"")!= std::string::npos);
-
-  std::cout << "@UT@DELETE " << service << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/*",
-                       "application/json", "",
-                       headers, query_string, response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == DELETE_RESPONSE_CODE);
-
-  std::cout << "@UT@GET" << std::endl;
-  code_res = http_test(URI_SERVICE2, "GET", service, "/*",
-                       "application/json", "",
-                       headers, "", response);
-  boost::algorithm::trim(response);
-  IOTASSERT(code_res == 200);
-  IOTASSERT(response.compare("{ \"count\": 0,\"services\": []}") == 0);
-
-
-  std::cout << "END@UT@ testServiceManagement" << std::endl;
-
-}

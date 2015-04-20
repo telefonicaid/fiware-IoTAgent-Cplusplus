@@ -39,6 +39,7 @@
 #include "util/service_collection.h"
 #include "util/service_mgmt_collection.h"
 #include "util/protocol_collection.h"
+#include "util/command_collection.h"
 #include "util/iot_url.h"
 
 #if defined LIBVARIANT
@@ -68,9 +69,25 @@ iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
   m_log(PION_GET_LOGGER(iota::logger)),
   _manager(false) {
   PION_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
-  //iota::AdminService::_web_server = web_server.get();
-  //_web_server = web_server;
-
+  const iota::JsonValue& storage = iota::Configurator::instance()->get(
+                                       iota::store::types::STORAGE);
+  if (storage.HasMember(iota::store::types::TYPE.c_str())) {
+      _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
+      PION_LOG_INFO(m_log, "type_store:" <<  _storage_type);
+      if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+        PION_LOG_DEBUG(m_log, "Check tables in mongo");
+        iota::DeviceCollection devcol;
+        devcol.createTableAndIndex();
+        iota::ServiceCollection servcol;
+        servcol.createTableAndIndex();
+        iota::ServiceMgmtCollection servmancol;
+        servmancol.createTableAndIndex();
+        iota::CommandCollection commandcol;
+        commandcol.createTableAndIndex();
+        iota::ProtocolCollection protocolcol;
+        protocolcol.createTableAndIndex();
+      }
+  }
 
 }
 
@@ -703,16 +720,25 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, "iota::AdminService::services|method:" +method +
-                "|trace_message:" + trace_message);
+  PION_LOG_INFO(m_log, "iota::AdminService::services|method:" << method <<
+                "|trace_message:" << trace_message <<
+                "|manager:" << _manager);
 
   std::string reason;
   std::string error_details;
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string service_in_url;
   std::string temp, op;
+  ServiceCollection *col = NULL;
+
   try {
     check_mongo_config();
+    if (_manager){
+      col = new ServiceMgmtCollection();
+    }else{
+      col = new ServiceCollection();
+    }
+
     std::string content_type(http_request_ptr->get_header(
                                pion::http::types::HEADER_CONTENT_TYPE));
     std::string service(http_request_ptr->get_header(
@@ -743,7 +769,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
     if (method.compare(pion::http::types::REQUEST_METHOD_POST) == 0) {
       std::string content = http_request_ptr->get_content();
       boost::trim(content);
-      code = post_service_json(service,  service_path,
+      code = post_service_json(col, service,  service_path,
                                content, http_response, response);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
@@ -785,12 +811,19 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       if (it != query_parameters.end()) {
         detailed = it->second;
       }
-      it = query_parameters.find(iota::store::types::RESOURCE);
-      if (it != query_parameters.end()) {
-        resource = it->second;
+      if (_manager){
+        it = query_parameters.find(iota::store::types::PROTOCOL);
+        if (it != query_parameters.end()) {
+          resource = it->second;
+        }
+      }else{
+        it = query_parameters.find(iota::store::types::RESOURCE);
+        if (it != query_parameters.end()) {
+          resource = it->second;
+        }
       }
 
-      code = get_all_services_json(service, service_path, limit,
+      code = get_all_services_json(col, service, service_path, limit,
                                    offset, "on", resource, http_response, response);
 
     }
@@ -825,7 +858,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
           create_response(code, reason, error_details, http_response, response);
         }
         else {
-          code = put_service_json(service,  service_path, service_in_url, apikey,
+          code = put_service_json(col, service,  service_path, service_in_url, apikey,
                                   resource,
                                   content, http_response, response);
         }
@@ -855,7 +888,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         if (it != query_parameters.end()) {
           resource = it->second;
         }
-        if (resource.empty()) {
+        if (resource.empty() && !_manager) {
           code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
           reason.assign(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER);
           error_details.assign("resource parameter is mandatory in DELETE operation");
@@ -885,7 +918,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         create_response(code, reason, error_details, http_response, response);
       }
       else {
-        code = delete_service_json(service, service_path,
+        code = delete_service_json(col, service, service_path,
                                    service_in_url, apikey, resource, remove_devices, http_response, response);
         create_response(code, reason, error_details, http_response, response);
       }
@@ -920,6 +953,9 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
 
+  if (col != NULL){
+    delete col;
+  }
   PION_LOG_INFO(m_log, "iota::AdminService::services|method:" +method +
                 "|trace_message:" + trace_message+
                 "|code: " + boost::lexical_cast<std::string>(code)+
@@ -940,8 +976,16 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
   std::string error_details;
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string service_in_url = url_args[_api_service_holder];
+  ServiceCollection *col = NULL;
+
   try {
     check_mongo_config();
+    if (_manager){
+      col = new ServiceMgmtCollection();
+    }else{
+      col = new ServiceCollection();
+    }
+
     std::string content_type(http_request_ptr->get_header(
                                pion::http::types::HEADER_CONTENT_TYPE));
     std::string service(http_request_ptr->get_header(
@@ -1010,7 +1054,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
         create_response(code, reason, error_details, http_response, response);
       }
       else {
-        code = put_service_json(service,  service_path, service_in_url, apikey,
+        code = put_service_json(col, service,  service_path, service_in_url, apikey,
                                 resource,
                                 content, http_response, response);
       }
@@ -1023,7 +1067,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       if (it != query_parameters.end()) {
         resource = it->second;
       }
-      code = get_all_services_json(service, service_path, 0, 0,
+      code = get_all_services_json(col, service, service_path, 0, 0,
                                    "on", resource, http_response, response);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_DELETE) == 0) {
@@ -1047,7 +1091,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
         if (it != query_parameters.end()) {
           resource = it->second;
         }
-        if (resource.empty()) {
+        if (resource.empty() && !_manager) {
           code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
           reason.assign(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER);
           error_details.assign("resource parameter is mandatory in DELETE operation");
@@ -1080,7 +1124,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
         create_response(code, reason, error_details, http_response, response);
       }
       else {
-        code = delete_service_json(service, service_path,
+        code = delete_service_json(col, service, service_path,
                                    service_in_url, apikey, resource, remove_devices, http_response, response);
       }
     }
@@ -1104,6 +1148,10 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
     error_details.assign(e.what());
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
     create_response(code, reason, error_details, http_response, response);
+  }
+
+  if (col != NULL){
+    delete col;
   }
 
   PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
@@ -1148,28 +1196,6 @@ void iota::AdminService::protocols(pion::http::request_ptr& http_request_ptr,
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
 
-      if (service.empty() || (!service_path.empty() && service_path[0] != '/')) {
-        reason.append(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
-        error_details.append(iota::types::FIWARE_SERVICE + "/" +
-                             iota::types::FIWARE_SERVICEPATH + " not present or invalid");
-        PION_LOG_ERROR(m_log, reason << "|service:" << service << "|service_path:" <<
-                       service_path
-                       << "|");
-        create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
-                        reason, error_details,
-                        http_response, response);
-        PION_LOG_INFO(m_log, "|method:" +method +
-                      "|trace_message:" + trace_message+
-                      "|code: " + boost::lexical_cast<std::string>
-                      (pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
-                      "|response:" + response);
-        return;
-      }
-      if (service_path.empty()) {
-        service_path = iota::types::FIWARE_SERVICEPATH_DEFAULT;
-      }
-      service_in_url = service;
-
       std::string detailed, protocol;
       int limit = types::LIMIT_DEFAULT, offset =0;
       std::multimap<std::string,std::string>::iterator it;
@@ -1212,7 +1238,7 @@ void iota::AdminService::protocols(pion::http::request_ptr& http_request_ptr,
         protocol = it->second;
       }
 
-      code = get_protocols_json(service, service_path, limit,
+      code = get_protocols_json(limit,
                                offset, "on", protocol, http_response, response);
 
     }
@@ -1432,7 +1458,7 @@ boost::posix_time::ptime iota::AdminService::get_local_time_from_timezone(
 
 bool iota::AdminService::validate_json_schema(
   const std::string& json_str,
-  const std::string& table,
+  iota::Collection* table,
   const std::string& method,
   std::string& response) {
 
@@ -1443,26 +1469,10 @@ bool iota::AdminService::validate_json_schema(
 
 #if defined LIBVARIANT
 
-  if (table.compare(iota::store::types::DEVICE_TABLE) == 0) {
-    DeviceCollection dev;
-    json_schema = dev.getSchema(method);
-
-  }
-  else if (table.compare(iota::store::types::SERVICE_TABLE) == 0) {
-    ServiceCollection serv;
-    json_schema = serv.getSchema(method);
-  }
-  else if (table.compare(iota::store::types::MANAGER_SERVICE_TABLE) == 0) {
-    ServiceMgmtCollection serv;
-    json_schema = serv.getSchema(method);
-  }
-  else if (table.compare(iota::store::types::PROTOCOL_TABLE) == 0) {
-    ProtocolCollection serv;
-    json_schema = serv.getSchema(method);
-  }
-  else {
+  json_schema = table->getSchema(method);
+  if (json_schema.empty()) {
     std::string err = "validate_json_schema for ";
-    err.append(table);
+    err.append(table->getBBDD());
     err.append(" is not implemented");
     PION_LOG_DEBUG(m_log, err);
     response.assign(err);
@@ -1470,7 +1480,7 @@ bool iota::AdminService::validate_json_schema(
   }
 
   PION_LOG_DEBUG(m_log, "json:" << json_str);
-  PION_LOG_DEBUG(m_log, "json:" << json_schema);
+  PION_LOG_DEBUG(m_log, "jsonschema:" << table->getBBDD());
 
   try {
     libvariant::Variant data = libvariant::DeserializeGuess(json_str);
@@ -1545,7 +1555,9 @@ int iota::AdminService::post_device_json(
   std::string reason;
   std::string error_details;
   std::string device_to_post;
-  std::string service_exists = get_service_json(service, service_path);
+  iota::ServiceCollection table;
+  iota::DeviceCollection devTable;
+  std::string service_exists = get_service_json(&table, service, service_path);
 
   if (body.empty()) {
     error_details.assign("empty body");
@@ -1560,7 +1572,7 @@ int iota::AdminService::post_device_json(
     reason.assign(types::RESPONSE_MESSAGE_NO_SERVICE);
     code = types::RESPONSE_CODE_NO_SERVICE;
   }
-  else if (validate_json_schema(body, iota::store::types::DEVICE_TABLE,
+  else if (validate_json_schema(body, &devTable,
                                 "POST", error_details)) {
 
     mongo::BSONObj obj =  mongo::fromjson(body);
@@ -1575,7 +1587,6 @@ int iota::AdminService::post_device_json(
       device_to_post.assign(bo.getField(iota::store::types::DEVICE_ID).String());
       PION_LOG_DEBUG(m_log, "device:  " << device_to_post);
 
-      Collection devTable(store::types::DEVICE_TABLE);
       mongo::BSONObj insertObj = builder.obj();
       std::string entity_name =
         insertObj.getStringField(store::types::ENTITY_NAME);
@@ -1625,13 +1636,14 @@ int iota::AdminService::put_device_json(
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string reason;
   std::string error_details;
+  iota::DeviceCollection devTable;
 
   if (body.empty()) {
     error_details.assign("empty body");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, iota::store::types::DEVICE_TABLE,
+  else if (validate_json_schema(body, &devTable,
                                 "PUT", error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
     if (setbo.nFields() ==0) {
@@ -1644,7 +1656,6 @@ int iota::AdminService::put_device_json(
                                    iota::store::types::SERVICE_PATH << service_path <<
                                    iota::store::types::DEVICE_ID << device_id);
 
-      Collection devTable(store::types::DEVICE_TABLE);
       std::string entity_name = setbo.getStringField(store::types::ENTITY_NAME);
       if (!entity_name.empty()) {
         // "entity_name" : 1, "service" : 1, "service_path" : 1
@@ -1708,7 +1719,7 @@ int iota::AdminService::get_all_devices_json(
                             service_path + "|detailed=" +
                             detailed);
   PION_LOG_DEBUG(m_log, param_request);
-  Collection devTable(iota::store::types::DEVICE_TABLE);
+  DeviceCollection devTable;
   mongo::BSONObj elto;
   mongo::BSONObjBuilder bson_query;
   bson_query.append(iota::store::types::SERVICE, service);
@@ -1821,7 +1832,9 @@ void iota::AdminService::check_uri(const std::string& data) {
   IoTUrl instance(data);
 }
 
+
 int iota::AdminService::post_service_json(
+  iota::ServiceCollection * table,
   const std::string& service,
   const std::string& service_path,
   const std::string& body,
@@ -1834,27 +1847,28 @@ int iota::AdminService::post_service_json(
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason;
   std::string error_details;
-  ServiceCollection table;
 
   if (body.empty()) {
     error_details.assign("empty body");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
+  else if (validate_json_schema(body,  table,
                                 "POST", error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
-    std::vector<mongo::BSONElement> be = obj.getField(
-                                           iota::store::types::SERVICES).Array();
+    std::vector<mongo::BSONObj> be;
+    table->getElementsFromBSON(obj, be);
+
     for (unsigned int i = 0; i<be.size(); i++) {
       mongo::BSONObjBuilder bo;
-      bo.appendElements(be[i].embeddedObject());
+      PION_LOG_DEBUG(m_log, "add service:" << be[i]);
+      bo.appendElements(be[i]);
       bo.append(iota::store::types::SERVICE_ID, service);
       bo.append(iota::store::types::SERVICE_PATH, service_path);
       insObj = bo.obj();
       check_uri(insObj.getStringField(iota::store::types::CBROKER));
-      table.insert(insObj);
+      table->insert(insObj);
     }
     code = pion::http::types::RESPONSE_CODE_CREATED;
     if (be.size() == 1) {
@@ -1875,6 +1889,7 @@ int iota::AdminService::post_service_json(
 
 
 int iota::AdminService::put_service_json(
+  iota::ServiceCollection * table,
   const std::string& service,
   const std::string& service_path,
   const std::string& id,
@@ -1897,7 +1912,7 @@ int iota::AdminService::put_service_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, iota::store::types::SERVICE_TABLE,
+  else if (validate_json_schema(body, table,
                                 "PUT", error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
     if (setbo.nFields() ==0) {
@@ -1910,7 +1925,6 @@ int iota::AdminService::put_service_json(
                                   << iota::store::types::SERVICE_PATH << service_path
                                   << iota::store::types::APIKEY << apikey
                                   << iota::store::types::RESOURCE << resource);
-      ServiceCollection table;
 
       std::string cbroker = setbo.getStringField(iota::store::types::CBROKER);
       // if cbroker is empty is ok, check_uri  throw an exception
@@ -1919,7 +1933,7 @@ int iota::AdminService::put_service_json(
       }
 
 
-      int count = table.update(query, setbo, false);
+      int count = table->update(query, setbo, false);
       if (count == 0) {
         PION_LOG_INFO(m_log, "put_service_json no device " <<
                       "|service=" << service << "|service_path=" << service_path <<
@@ -1943,6 +1957,7 @@ int iota::AdminService::put_service_json(
 }
 
 int iota::AdminService::get_all_services_json(
+  iota::ServiceCollection *table,
   const std::string& service,
   const std::string& service_path,
   int limit,
@@ -1958,7 +1973,6 @@ int iota::AdminService::get_all_services_json(
                             "|detailed=" + detailed + "|resource=" + resource);
   PION_LOG_DEBUG(m_log, param_request);
   std::ostringstream res;
-  ServiceCollection table;
   mongo::BSONObj elto;
   mongo::BSONObjBuilder query;
   mongo::BSONObj p;
@@ -1970,14 +1984,18 @@ int iota::AdminService::get_all_services_json(
 
   // Fiware-Service
   query.append(iota::store::types::SERVICE_ID, service);
-  table.addServicePath(service_path, query);
+  ServiceCollection::addServicePath(service_path, query);
 
   if (!resource.empty()) {
-    query.append(iota::store::types::RESOURCE, resource);
+    if (_manager){
+      query.append(iota::store::types::PROTOCOL, resource);
+    }else{
+      query.append(iota::store::types::RESOURCE, resource);
+    }
   }
   p = query.obj();
 
-  int count = table.count(p);
+  int count = table->count(p);
   res << "{ \"count\": " << count << ",";
   res << "\"services\": [";
 
@@ -1993,12 +2011,12 @@ int iota::AdminService::get_all_services_json(
                            response);
   }
 
-  table.find(INT_MIN, p, limit, offset,
+  table->find(INT_MIN, p, limit, offset,
              bson_sort.obj(), bson_fields);
-  while (table.more()) {
-    elto = table.next();
+  while (table->more()) {
+    elto = table->next();
     res << elto.jsonString();
-    if (table.more()) {
+    if (table->more()) {
       res << ",";
     }
   }
@@ -2009,6 +2027,7 @@ int iota::AdminService::get_all_services_json(
 }
 
 int iota::AdminService::get_a_service_json(
+  iota::ServiceCollection *table,
   const std::string& service,
   const std::string& service_path,
   const std::string& id,
@@ -2021,7 +2040,7 @@ int iota::AdminService::get_a_service_json(
   PION_LOG_DEBUG(m_log, param_request);
 
   int code= pion::http::types::RESPONSE_CODE_OK;
-  std::string res = get_service_json(service, service_path);
+  std::string res = get_service_json(table, service, service_path);
   if (res.empty()) {
     code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
   }
@@ -2029,6 +2048,7 @@ int iota::AdminService::get_a_service_json(
 }
 
 std::string iota::AdminService::get_service_json(
+  iota::ServiceCollection *table,
   const std::string& service,
   const std::string& service_path) {
 
@@ -2037,7 +2057,6 @@ std::string iota::AdminService::get_service_json(
                             service_path);
   PION_LOG_DEBUG(m_log, param_request);
   std::ostringstream res;
-  iota::ServiceCollection table;
   mongo::BSONObj elto;
   mongo::BSONObjBuilder query;
 
@@ -2046,9 +2065,9 @@ std::string iota::AdminService::get_service_json(
   // Fiware-ServicePath
   query.append(iota::store::types::SERVICE_PATH, service_path);
 
-  table.find(query.obj());
-  if (table.more()) {
-    elto = table.next();
+  table->find(query.obj());
+  if (table->more()) {
+    elto = table->next();
     res << elto.jsonString();
   }
   return res.str();
@@ -2056,6 +2075,7 @@ std::string iota::AdminService::get_service_json(
 
 //TODO duda sobre los permisos y relacion entre service header y borrado
 int iota::AdminService::delete_service_json(
+  iota::ServiceCollection *table,
   const std::string& service,
   const std::string& service_path,
   const std::string& id,
@@ -2076,14 +2096,17 @@ int iota::AdminService::delete_service_json(
   std::string error_details;
   std::string b_query_service_path;
 
-  ServiceCollection table;
   mongo::BSONObjBuilder b_delete;
   mongo::BSONObjBuilder b_count;
   if (!id.empty()) {
     b_delete.append(iota::store::types::SERVICE_ID, id);
     b_count.append(iota::store::types::SERVICE_ID, id);
-    b_delete.append(iota::store::types::APIKEY, apikey);
-    b_delete.append(iota::store::types::RESOURCE, resource);
+    if (!apikey.empty()){
+      b_delete.append(iota::store::types::APIKEY, apikey);
+    }
+    if (!resource.empty()){
+      b_delete.append(iota::store::types::RESOURCE, resource);
+    }
   }
   else {
     std::string text_error = " service:";
@@ -2109,10 +2132,11 @@ int iota::AdminService::delete_service_json(
 
   mongo::BSONObj obj_delete = b_delete.obj();
   mongo::BSONObj obj_count = b_count.obj();
-  int num_services = table.count(obj_count);
-  int num_removed_services = table.remove(obj_delete);
+  int num_services = table->count(obj_count);
+  int num_removed_services = table->remove(obj_delete);
   if ((num_services - num_removed_services) == 0 &&
-      remove_devices == true) {
+      remove_devices && !_manager) {
+
     mongo::BSONObjBuilder b_dev;
     b_dev.append(iota::store::types::SERVICE_ID, id);
     b_dev.append(iota::store::types::SERVICE_PATH, b_query_service_path);
@@ -2126,6 +2150,7 @@ int iota::AdminService::delete_service_json(
 
 int iota::AdminService::delete_all_protocol_json(
   pion::http::response& http_response,
+  const std::string& protocol_name,
   std::string& response) {
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string param_request("delete_all_protocol_json");
@@ -2137,7 +2162,13 @@ int iota::AdminService::delete_all_protocol_json(
 
   Collection table(iota::store::types::PROTOCOL_TABLE);
   mongo::BSONObj all;
+  if (!protocol_name.empty()){
+      all = BSON(iota::store::types::PROTOCOL_NAME << protocol_name);
+  }
   table.remove(all,0);
+
+  Collection tableSM(iota::store::types::MANAGER_SERVICE_TABLE);
+  tableSM.remove(all,0);
 
   return create_response(code, reason, error_details, http_response,
                          response);
@@ -2161,7 +2192,7 @@ int iota::AdminService::post_protocol_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, iota::store::types::PROTOCOL_TABLE,
+  else if (validate_json_schema(body, &protocol_table,
                                 "POST", error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
@@ -2169,31 +2200,36 @@ int iota::AdminService::post_protocol_json(
     // Resource and description define a protocol
     std::string endpoint = obj.getStringField(iota::store::types::ENDPOINT);
     std::string resource = obj.getStringField(iota::store::types::RESOURCE);
-    std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
-    std::string protocol_name = obj.getStringField(iota::store::types::PROTOCOL_NAME);
+    std::string description = obj.getStringField(
+                                iota::store::types::PROTOCOL_DESCRIPTION);
+    std::string protocol_name = obj.getStringField(
+                                  iota::store::types::PROTOCOL_NAME);
 
-    Protocol protocol;
-    protocol.set_name(protocol_name);
-    protocol_table.find(protocol);
-    if (protocol_table.more()){
-      Protocol p =protocol_table.next();
-      PION_LOG_DEBUG(m_log, "already exists protocol:" + protocol_name+
-            "|des:" +description);
-    }else{
-      PION_LOG_DEBUG(m_log, "no exits protocol:" +description);
-      protocol.set_name(protocol_name);
-      protocol.set_description(description);
-      protocol_table.insert(protocol);
+    PION_LOG_DEBUG(m_log, "update protocol :" +protocol_name);
+    int num_ups = protocol_table.update_r(
+        BSON(iota::store::types::PROTOCOL_NAME << protocol_name <<
+             iota::store::types::PROTOCOL_DESCRIPTION << description),
+           BSON("$addToSet"  <<
+           BSON( iota::store::types::ENDPOINTS << BSON(iota::store::types::ENDPOINT << endpoint <<
+                                  iota::store::types::RESOURCE << resource)
+            )), true, 0 );
+
+    mongo::BSONElement element =  obj.getField(iota::store::types::SERVICES);
+    if (element.eoo()) {
+      PION_LOG_DEBUG(m_log, "Protocol: " +protocol_name + " has not got services");
     }
-
-    std::vector<mongo::BSONElement> be = obj.getField(
-                                           iota::store::types::SERVICES).Array();
-    for (unsigned int i = 0; i<be.size(); i++) {
-      mongo::BSONObjBuilder bo;
-      bo.appendElements(be[i].embeddedObject());
-      bo.append(iota::store::types::PROTOCOL, protocol_name);
-      insObj = bo.obj();
-      service_table.insert(insObj);
+    else {
+      std::vector<mongo::BSONElement> be = element.Array();
+      PION_LOG_DEBUG(m_log, "insert services ");
+      for (unsigned int i = 0; i<be.size(); i++) {
+        mongo::BSONObjBuilder bo;
+        bo.appendElements(be[i].embeddedObject());
+        bo.append(iota::store::types::PROTOCOL, protocol_name);
+        bo.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
+        bo.append(iota::store::types::IOTAGENT, endpoint);
+        insObj = bo.obj();
+        service_table.insert(insObj);
+      }
     }
     code = pion::http::types::RESPONSE_CODE_CREATED;
   }
@@ -2207,8 +2243,6 @@ int iota::AdminService::post_protocol_json(
 }
 
 int iota::AdminService::get_protocols_json(
-  const std::string& service,
-  const std::string& service_path,
   int limit,
   int offset,
   const std::string& detailed,
@@ -2217,7 +2251,50 @@ int iota::AdminService::get_protocols_json(
   std::string& response) {
 
   int code = pion::http::types::RESPONSE_CODE_OK;
-  return code;
+  std::ostringstream res;
+  mongo::BSONObj* fieldsToReturn = NULL;
+  mongo::BSONObjBuilder bson_fields;
+  std::string param_request("get_protocols_json|detailed=" +  detailed);
+  PION_LOG_DEBUG(m_log, param_request);
+  Collection table(iota::store::types::PROTOCOL_TABLE);
+  mongo::BSONObj elto;
+
+  mongo::BSONObjBuilder bson_sort;
+  // se ordena de manera ascendente por nombre device
+  bson_sort.append(store::types::PROTOCOL_NAME, 1);
+
+  mongo::BSONObj obj_query;
+
+  int count = table.count(obj_query);
+  res << "{ \"count\": " << count << ",";
+  res << "\"protocols\": [";
+
+  if (detailed.empty() ||
+      (detailed.compare(iota::store::types::OFF) == 0)) {
+    bson_fields.append(iota::store::types::PROTOCOL_NAME, 1);
+    bson_fields.append(iota::store::types::PROTOCOL_DESCRIPTION, 1);
+  }
+  else if (detailed.compare(iota::store::types::ON) != 0) {
+    PION_LOG_DEBUG(m_log, param_request << "|status=" <<
+                   pion::http::types::RESPONSE_CODE_BAD_REQUEST);
+    return create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
+                           types::RESPONSE_MESSAGE_BAD_REQUEST,
+                           "parameter detailed must be on or off",
+                           http_response, response);
+  }
+  table.find(INT_MIN, obj_query, limit, offset,
+                bson_sort.obj(), bson_fields);
+  while (table.more()) {
+    elto = table.next();
+    res << elto.jsonString();
+    if (table.more()) {
+      res << ",";
+    }
+  }
+  res << "]}";
+
+  return create_response(code, res.str(), "", http_response, response);
+
 }
 void iota::AdminService::deploy_device(Device& device) {
 

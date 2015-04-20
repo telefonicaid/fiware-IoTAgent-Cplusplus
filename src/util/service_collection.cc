@@ -69,21 +69,11 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 
 }*/
 
-std::string iota::ServiceCollection::getSchema(const std::string& method) {
-  std::ostringstream schema;
-
-
-  if (method.compare("POST") == 0) {
-    return POST_SCHEMA;
-  }
-  else {
-    return PUT_SCHEMA;
-  }
-
+const std::string & iota::ServiceCollection::getPostSchema() const{
+  return _POST_SCHEMA;
 }
 
-
-const std::string iota::ServiceCollection::POST_SCHEMA(
+const std::string iota::ServiceCollection::_POST_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Service\","
   "\"description\": \"A service\","
@@ -180,7 +170,11 @@ const std::string iota::ServiceCollection::POST_SCHEMA(
   ",\"required\": [\"services\"]"
   "}");
 
-const std::string iota::ServiceCollection::PUT_SCHEMA(
+const std::string & iota::ServiceCollection::getPutSchema() const{
+  return _PUT_SCHEMA;
+}
+
+const std::string iota::ServiceCollection::_PUT_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Device\","
   "\"description\": \"A device\","
@@ -267,9 +261,20 @@ const std::string iota::ServiceCollection::PUT_SCHEMA(
 int iota::ServiceCollection::createTableAndIndex() {
 
   int res = 200;
+  //db.SERVICE.ensureIndex({"service":1, service_path:1, resource:1},{"unique":1})
   ensureIndex("shardKey",
                 BSON("service" << 1 << "service_path" << 1 << "resource" <<1),
                 true);
 
   return res;
+}
+
+
+void iota::ServiceCollection::getElementsFromBSON(mongo::BSONObj &obj,
+                                std::vector<mongo::BSONObj> &result){
+  std::vector<mongo::BSONElement> be = obj.getField(
+                                           iota::store::types::SERVICES).Array();
+  for (unsigned int i = 0; i<be.size(); i++) {
+      result.push_back(be[i].embeddedObject());
+  }
 }

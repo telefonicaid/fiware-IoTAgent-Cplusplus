@@ -1390,7 +1390,7 @@ void Ul20Test::testCacheMongoGet() {
 
   iota::DeviceCollection table1;
   try {
-    table1.insert(p);
+    table1.insertd(p);
   }
   catch (std::exception& e) {
   }
@@ -2279,6 +2279,8 @@ void Ul20Test::testPUSHCommand_MONGO() {
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
 
+  iota::ServiceCollection col;
+
   std::string response;
   int code_res;
   std::string service= "service" ;
@@ -2292,7 +2294,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
   std::string apikey = "apikey";
   apikey.append(mock_port);
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port  % mock_port);
-  code_res = adminserv.post_service_json( service, subservice, postSRV,
+  code_res = adminserv.post_service_json( &col, service, subservice, postSRV,
                      http_response, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
@@ -2368,7 +2370,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
   }
 
   std::cout << "@UT@DELETE Service" << std::endl;
-  code_res = adminserv.delete_service_json(service, "/", service, apikey, "/iot/d", true,
+  code_res = adminserv.delete_service_json(&col, service, "/", service, apikey, "/iot/d", true,
                      http_response, response);
 
 
@@ -2391,6 +2393,8 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   boost::shared_ptr<HttpMock> device_mock;
   device_mock.reset(new HttpMock(9999, "/device"));
   device_mock->init();
+
+  iota::ServiceCollection col;
 
   iota::AdminService adminserv;
   iota::UL20Service ul20serv;
@@ -2437,12 +2441,11 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
     IOTASSERT(http_response.get_status_code() == 200);
 
   }
-  //TODO
-/*
+
   //creamos le servicio
   std::cout << "@UT@POST create Service" << std::endl;
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
-  code_res = adminserv.post_service_json( service, subservice, postSRV,
+  code_res = adminserv.post_service_json(&col, service, subservice, postSRV,
                      http_response, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
@@ -2547,10 +2550,9 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   }
 
   std::cout << "@UT@DELETE Service" << std::endl;
-  code_res = adminserv.delete_service_json(service, "/", service, "apikey", "/iot/d", true,
+  code_res = adminserv.delete_service_json(&col, service, "/", service, "apikey", "/iot/d", true,
                      http_response, response);
 
-*/
   cb_mock->stop();
   device_mock->stop();
 
@@ -2570,6 +2572,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
   std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
   std::cout << "@UT@mock port " <<  mock_port << std::endl;
 
+  iota::ServiceCollection col;
   std::string service="service";
   service.append(mock_port);
   std::string subservice="/ssrv";
@@ -2577,7 +2580,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
   std::cout << "@UT@POST Service" <<  service << std::endl;
 
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
-  int code_res = adminserv.post_service_json( service, subservice, postSRV,
+  int code_res = adminserv.post_service_json( &col, service, subservice, postSRV,
                          http_response, response);
 
   std::cout << "@UT@First command" <<  service << std::endl;
@@ -2588,7 +2591,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
        "room_ut32", "type2", POST_DEVICE_CON2, cb_mock);
 
   std::cout << "@UT@DELETE Service" << std::endl;
-  code_res = adminserv.delete_service_json( service, subservice, service, "apikey", "/iot/d", true,
+  code_res = adminserv.delete_service_json(&col, service, subservice, service, "apikey", "/iot/d", true,
                          http_response, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 204);
@@ -2643,6 +2646,7 @@ void Ul20Test::testPollingCommand_MONGO(
      cb_mock = create_mock;
   }
 
+  iota::ServiceCollection col;
   mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
   //simulador del device
   boost::shared_ptr<HttpMock> device_mock;
@@ -2669,14 +2673,14 @@ void Ul20Test::testPollingCommand_MONGO(
       std::cout << "@UT@POST Service" << std::endl;
 
       std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
-      code_res = adminserv.post_service_json( service, subservice, postSRV,
+      code_res = adminserv.post_service_json( &col, service, subservice, postSRV,
                          http_response, response);
       std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
       IOTASSERT(code_res == POST_RESPONSE_CODE);
   }
 
   std::cout << "@UT@POST Device" << std::endl;
-  code_res = adminserv.post_device_json(service, subservice, post_device,
+  code_res = adminserv.post_device_json( service, subservice, post_device,
                      http_response, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
@@ -2838,7 +2842,7 @@ void Ul20Test::testPollingCommand_MONGO(
   if (create_mock.get() == NULL){
       std::cout << "@UT@Delete Service" << std::endl;
 
-      code_res = adminserv.delete_service_json( service, subservice, service, apikey, "/iot/d", true,
+      code_res = adminserv.delete_service_json(  &col, service, subservice, service, apikey, "/iot/d", true,
                          http_response, response);
       std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
       IOTASSERT(code_res == 204);

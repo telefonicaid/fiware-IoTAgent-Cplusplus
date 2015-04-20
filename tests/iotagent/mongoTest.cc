@@ -204,7 +204,7 @@ void MongoTest::testDeviceCollection() {
     table1.createTableAndIndex();
 
     iota::Device all("","");
-    table1.remove(all);
+    table1.removed(all);
 
     iota::Device p("Joe", "service1" );
     p._service_path = "service_path";
@@ -227,7 +227,7 @@ void MongoTest::testDeviceCollection() {
     p._static_attributes.insert(std::pair<std::string, std::string>("uuid","{\"name\": \"att_name2\",\"type\": \"xxxx\",\"value\": \"value\"}"));
 
     std::cout << "insert with props" << std::endl;
-    table1.insert(p);
+    table1.insertd(p);
 
 
     // ponemos registrationid
@@ -237,15 +237,15 @@ void MongoTest::testDeviceCollection() {
     iota::Device sett("", "" );
     sett._registration_id = "registration_id";
     sett._duration_cb = 666;
-    table1.update(query, sett);
+    table1.updated(query, sett);
 
 
     iota::DeviceCollection table2;
     iota::Device q1("Joe", "service1" );
-    int code_res = table2.find(q1);
+    int code_res = table2.findd(q1);
     CPPUNIT_ASSERT_MESSAGE("no inserted data",
            table2.more());
-    iota::Device r1 =  table2.next();
+    iota::Device r1 =  table2.nextd();
     CPPUNIT_ASSERT_MESSAGE("no commands", r1._commands.size() == 2);
     CPPUNIT_ASSERT_MESSAGE("no attributes", r1._attributes.size() == 3);
     std::string location =  r1._attributes["l"];
@@ -260,9 +260,9 @@ void MongoTest::testDeviceCollection() {
     std::cout << "name:" << name << std::endl;
     CPPUNIT_ASSERT_MESSAGE("no inserted data", name.compare("Joe") == 0);
 
-    table2.remove(q1);
+    table2.removed(q1);
 
-    int num = table2.count(q1);
+    int num = table2.countd(q1);
     CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);
 
   std::cout << "END testDeviceCollection " << std::endl;
@@ -446,7 +446,7 @@ void MongoTest::testProtocolCollection(){
     CPPUNIT_ASSERT_MESSAGE("no inserted data",
            table2.more());
     iota::Protocol r1 =  table2.next();
-    CPPUNIT_ASSERT_MESSAGE("no all endpoints", r1.get_endpoints().size() == 2);
+    CPPUNIT_ASSERT_MESSAGE("no all endpoints", r1.get_endpoints().size() == 1);
 
     std::cout << "@UT@Todos los protocolos " << std::endl;
     iota::Protocol all2;
@@ -479,9 +479,6 @@ void MongoTest::testServiceMgmtCollection(){
                    "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host2\","
                    "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
-    std::string s1_d2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
-                   "\"entity_type\":\"thing\",\"resource\":\"/iot/d2\",\"iotagent\":\"host1\","
-                   "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
     std::string s1_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
                    "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
@@ -499,7 +496,6 @@ void MongoTest::testServiceMgmtCollection(){
     std::cout << "inserts" << std::endl;
     table1.insert(mongo::fromjson(s1_d));
     table1.insert(mongo::fromjson(s1_d_host2));
-    table1.insert(mongo::fromjson(s1_d2));
     table1.insert(mongo::fromjson(s1_mqtt));
     table1.insert(mongo::fromjson(s2_d));
     table1.insert(mongo::fromjson(s3_mqtt));
@@ -527,30 +523,15 @@ void MongoTest::testServiceMgmtCollection(){
     CPPUNIT_ASSERT_MESSAGE("no found host1", iot.find("host1") != std::string::npos);
     CPPUNIT_ASSERT_MESSAGE("no found host2", iot.find("host2") != std::string::npos);
 
-    table2.remove(all);
+    std::cout << "@UT@OR" << std::endl;
+    int n = table1.count(all);
+    std::cout << "En la tabla hay " << n  << " eltos " << std::endl;
+    table1.remove(BSON("service" << BSON( "$in" << BSON_ARRAY("s1" << "s3"))));
+    int n2 = table1.count(all);
+    std::cout << "despues de borrar con OR quedan " << n2  << " eltos " << std::endl;
 
-    int num = table2.count(all);
-    CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);
+
+    CPPUNIT_ASSERT_MESSAGE("remove error", n2 == 0);
 
   std::cout << "END testServiceMgmtCollection " << std::endl;
 }
-
-
-/*
-
-print("1- Todos los protocolos que hay");
-db.PROTOCOL.find({},{ "name" : 1, "description" :1});
-
-print("3- Todos los servicios de un protocolo");
-db.SERVICE_MGMT.find({"protocol":"MQTT"});
-
-print("4- Todos los iotagent de un servicio  http://10.95.213.36:80/iot/devices?limit=24&offset=1");
-db.SERVICE_MGMT.find({"service" : "s1", "service_path" : "/ss1"},{"iotagent":1}).sort({iotagent:1})
-print("OJO se puede repetir iotagent, hay que tenerlo en cuenta en la consulta");
-
-print("5- Todos los dispositivos de un protocolo");
-
-db.SERVICE_MGMT.find({"protocol":"UL20"},{"iotagent":1}).sort({iotagent:1})
-print("OJO se puede repetir iotagent, hay que tenerlo en cuenta en la consulta");
-
-*/

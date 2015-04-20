@@ -82,6 +82,8 @@ class Collection {
                bool upsert = false);
     int update(const mongo::BSONObj& query, const mongo::BSONObj& update_data,
                bool upsert = false, int retry = 0);
+    int update_r(const mongo::BSONObj& query , const mongo::BSONObj& setData,
+         bool upsert = false, int retry = 0);
 
     void instantiateID(const std::string& id);
     std::string newID() ;
@@ -123,6 +125,11 @@ class Collection {
       a_bbdd = value;
     }
 
+    const std::string& getSchema(const std::string& method) const;
+
+    virtual const std::string &getPostSchema() const;
+    virtual const std::string &getPutSchema() const;
+
     void reconnect();
 
     void ensureIndex(const std::string &name_index,
@@ -148,6 +155,8 @@ class Collection {
   private:
 
     MongoConnection m_conn;
+
+    static const std::string _EMPTY;
 
 }; // end class Collection
 
