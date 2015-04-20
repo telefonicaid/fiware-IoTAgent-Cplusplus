@@ -326,6 +326,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
 ## Device [/devices/{device_id}]
 
 ### Retrieve a device [GET]
+If there are more than one IoT Agent (that is different endpoint), device name could be repeated.
 
 + Request (application/json)
 
@@ -339,7 +340,9 @@ A device is a resource that publish information to IoT Platform and it uses the 
     + Body
 
             {
-
+              "count": 1,
+              "devices": [
+                {
                   "protocol": "55261958d31fc2151cc44c70",
                   "device_id": "device_id",
                   "entity_name": "entity_name",
@@ -359,7 +362,8 @@ A device is a resource that publish information to IoT Platform and it uses the 
                       "value": "value"
                     }
                   ]
-
+                }
+              ]
             }
 
 
