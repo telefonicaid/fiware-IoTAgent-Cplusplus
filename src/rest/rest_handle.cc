@@ -237,6 +237,8 @@ void iota::RestHandle::register_iota_manager() {
   std::string log_message("|resource=" + get_resource() + "|manager=" +
                           iota_manager_endpoint);
   std::string public_ip = get_public_ip();
+  public_ip.append("/");
+  public_ip.append(iota::URL_BASE);
 
   try {
     bool using_database = true;
