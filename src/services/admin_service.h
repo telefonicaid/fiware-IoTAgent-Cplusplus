@@ -266,7 +266,7 @@ class AdminService :
          * @endcode
          */
     int get_all_services_json(
-      iota::ServiceCollection * table,
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       int limit,
@@ -278,7 +278,7 @@ class AdminService :
 
 
     int get_a_service_json(
-      iota::ServiceCollection * table,
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& device_id,
@@ -312,7 +312,7 @@ class AdminService :
       * @endcode
       */
     int put_service_json(
-      iota::ServiceCollection * table,
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& service_id,
@@ -345,7 +345,7 @@ class AdminService :
        * @endcode
        */
     int post_service_json(
-      iota::ServiceCollection * table,
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& body,
@@ -372,7 +372,7 @@ class AdminService :
        * @endcode
        */
     int delete_service_json(
-      iota::ServiceCollection * table,
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& id_service,
@@ -446,7 +446,7 @@ class AdminService :
     std::string check_json(const std::string& json_str, JsonDocument& doc);
 
     std::string get_service_json(
-      iota::ServiceCollection *table,
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path);
 
@@ -454,7 +454,7 @@ class AdminService :
     bool is_mongo_active();
     bool validate_json_schema(
       const std::string& json_str,
-      iota::Collection* table,
+      const boost::shared_ptr<iota::Collection>& table,
       const std::string& method,
       std::string& response);
 
