@@ -41,17 +41,19 @@ class DeviceCollection : public Collection {
 
     ~DeviceCollection();
 
-    int insert(const Device& obj) ;
-    int find(const Device& query) ;
-    Device next() ;
-    int remove(const Device& query) ;
-    int count(const Device& query) ;
+    int insertd(const Device& obj) ;
+    int findd(const Device& query) ;
+    Device nextd() ;
+    int removed(const Device& query) ;
+    int countd(const Device& query) ;
 
-    int update(const Device& query,
+    int updated(const Device& query,
                const Device& sett);
 
     int createTableAndIndex();
-    std::string getSchema(const std::string& method);
+
+    virtual const std::string &getPostSchema() const;
+    virtual const std::string &getPutSchema() const;
 
   protected:
 
@@ -76,11 +78,11 @@ class DeviceCollection : public Collection {
 
     //TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
 
-    static const std::string POST_SCHEMA;
-    static const std::string PUT_SCHEMA;
 
   private:
 
+    static const std::string _PUT_SCHEMA;
+    static const std::string _POST_SCHEMA;
 
 }; // end class DeviceCollection
 

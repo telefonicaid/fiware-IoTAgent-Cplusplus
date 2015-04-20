@@ -110,9 +110,6 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
         m_asyncCommands.set_function(boost::bind(command_from_mongo, _1));
         m_asyncCommands.set_entity_function(boost::bind(command_from_mongo, _1));
         m_asyncCommands.set_id_function(boost::bind(command_from_mongo, _1));
-        PION_LOG_DEBUG(m_logger, "Check tables in mongo");
-        iota::CommandCollection commandcol;
-        commandcol.createTableAndIndex();
       }
     }
     else {
@@ -156,6 +153,8 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
                 << "|service_path:" << item->get_service_path()
                 << "|command_id" << item->get_id());
   try {
+
+
     int status  = item->get_status();
     std::string statusSTR;
     if (iota::types::READY_FOR_READ == status) {
@@ -490,10 +489,10 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
       PION_LOG_DEBUG(m_logger, "Service: " <<  srv);
 
       Device dev_find("", srv);
-      dev_table.find(dev_find);
+      dev_table.findd(dev_find);
 
       while (dev_table.more()) {
-        Device dev_resu = dev_table.next();
+        Device dev_resu = dev_table.nextd();
         PION_LOG_DEBUG(m_logger, "Found device: " <<  dev_resu._name);
         // If no commands and no internal attributes, register is not needed.
         PION_LOG_DEBUG(m_logger,
@@ -559,7 +558,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
           dev_update._duration_cb = _reg_timeout;
 
           Device dev_query(dev_resu._name, dev_resu._service);
-          dev_table.update(dev_query, dev_update);
+          dev_table.updated(dev_query, dev_update);
 
           PION_LOG_DEBUG(m_logger, "registrationId: " <<  reg_id);
           PION_LOG_DEBUG(m_logger, "duration: " <<  reg_time);
@@ -596,10 +595,10 @@ void iota::CommandHandle::send_register_device(Device& device) {
 
       if (srv.compare(device._service) == 0) {
         PION_LOG_DEBUG(m_logger, "|service=" <<  srv);
-        dev_table.find(device);
+        dev_table.findd(device);
 
         while (dev_table.more()) {
-          register_device = dev_table.next();
+          register_device = dev_table.nextd();
           PION_LOG_DEBUG(m_logger, "Found device: " <<  register_device._name);
 
           // If no commands and no internal attributes, register is not needed.
@@ -669,7 +668,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
             dev_update._duration_cb = _reg_timeout;
 
             Device dev_query(register_device._name, register_device._service);
-            dev_table.update(dev_query, dev_update);
+            dev_table.updated(dev_query, dev_update);
 
             PION_LOG_DEBUG(m_logger,
                            p_request << "|registrationId=" <<  reg_id << "|duration=" << reg_time);
@@ -968,7 +967,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                        iota::types::READY_FOR_READ_MESSAGE,
                        item_dev, service,
                        iota::types::STATUS_OP);
-    PION_LOG_DEBUG(m_logger, " PUSH command, item_dev has not got endpoint");
+    PION_LOG_DEBUG(m_logger, " POLLING command, item_dev has not got endpoint");
     save_command(command_name,
                  command_id, timeout,
                  command_to_send, item_dev,
@@ -1641,16 +1640,22 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
       mongo::BSONObj ap = BSON(iota::store::types::STATUS << iota::types::DELIVERED);
       n = table.update(no, ap);
     }
-    if (n > 0) {
-      send_updateContext(cmd_data.command_name, iota::types::STATUS,
-                         iota::types::STATUS_TYPE,
-                         iota::types::DELIVERED_MESSAGE,
-                         cmd_data.item_dev, cmd_data.service,
-                         iota::types::STATUS_OP);
+
+    iota::CommandPtr pt = get_command(cmd_data.command_id,
+               service_name, service_path);
+    if (pt.get()!= NULL){
+        PION_LOG_DEBUG(m_logger, cmd_data.command_id << " change status command, delivered");
+        pt->set_status (iota::types::DELIVERED);
     }
-    else {
-      PION_LOG_ERROR(m_logger,
-                     "no command in cache, timeout or response received ," << cmd_data.command_id);
+
+    if (n > 0){
+       send_updateContext(cmd_data.command_name, iota::types::STATUS,
+                       iota::types::STATUS_TYPE,
+                       iota::types::DELIVERED_MESSAGE,
+                       cmd_data.item_dev, cmd_data.service,
+                       iota::types::STATUS_OP);
+    }else{
+      PION_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
     }
 
     PION_LOG_DEBUG(m_logger,

@@ -37,6 +37,8 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string.hpp>
 #include "util/device_collection.h"
+#include "util/service_collection.h"
+#include "util/service_mgmt_collection.h"
 #include "services/admin_service.h"
 
 #define PATH_CONFIG "../../tests/iotagent/config.json"
@@ -66,7 +68,7 @@ const std::string AdminTest::URI_DEVICE("/devices");
 //POST
 const std::string
 AdminTest::POST_DEVICE("{\"devices\": "
-                       "[{\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"device_id\",\"protocol\": \"kk\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -173,6 +175,20 @@ AdminTest::POST_PROTOCOLS1("{\"endpoint\": \"host1\","
                           "}");
 const std::string
 AdminTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
+                          "\"resource\": \"/iot/mqtt\","
+                          "\"protocol\": \"MQTT\","
+                          "\"description\": \"mqtt example\","
+                          "\"services\": [{"
+                                "\"apikey\": \"apikey3\","
+                                "\"service\": \"service2\","
+                                "\"service_path\": \"/ssrv2\","
+                                "\"token\": \"token2\","
+                                "\"cbroker\": \"http://127.0.0.1:1026\","
+                                "\"resource\": \"/iot/mqtt\","
+                                "\"entity_type\": \"thing\""
+                          "}]}");
+const std::string
+AdminTest::POST_PROTOCOLS3("{\"endpoint\": \"host3\","
                           "\"resource\": \"/iot/d\","
                           "\"protocol\": \"UL20\","
                           "\"description\": \"Ultralight 2.0\","
@@ -186,6 +202,8 @@ AdminTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
                                 "\"entity_type\": \"thing\""
                           "}]}");
 const std::string
+AdminTest::POST_PROTOCOLS4("TODO");
+const std::string
 AdminTest::GET_PROTOCOLS_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
 
@@ -194,17 +212,17 @@ AdminTest::GET_PROTOCOLS_RESPONSE("{ \"count\": 0,\"devices\": []}");
 const std::string AdminTest::URI_SERVICES_MANAGEMET("/iot/services");
 //POST
 const std::string
-AdminTest::POST_SERVICE_MANAGEMENT1("\"services\": [{"
+AdminTest::POST_SERVICE_MANAGEMENT1("{\"services\": [{"
        "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
-       "\"apikey\": \"apikey3\","
-       "\"token\": \"token3\","
-     "}]");
+       "\"apikey\": \"apikey\",\"token\": \"token\","
+       "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+     "}]}");
 const std::string
-AdminTest::POST_SERVICE_MANAGEMENT2("\"services\": [{"
+AdminTest::POST_SERVICE_MANAGEMENT2("{\"services\": [{"
        "\"protocol\": [\"55261958d31fc2151cc44c70\", \"55261958d31fc2151cc44c73\"],"
-       "\"apikey\": \"apikey3\","
-       "\"token\": \"token3\","
-     "}]");
+       "\"apikey\": \"apikey\",\"token\": \"token\","
+       "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+     "}]}");
 
 const std::string
 AdminTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
@@ -229,12 +247,12 @@ AdminTest::AdminTest() {
   pion::process::initialize();
 
   adm = new iota::AdminService();
-  //adm->set_manager();
   AdminService_ptr = adm;
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
   wserver.reset(new pion::http::plugin_server(scheduler));
   wserver->add_service("/iot", adm);
   wserver->start();
+
 }
 
 AdminTest::~AdminTest() {
@@ -599,7 +617,7 @@ void  AdminTest::testPostBadContentType() {
 
 void  AdminTest::testPostDevice() {
 
-  std::cout << "START @UT@START testPostDevicee" << std::endl;
+  std::cout << "START @UT@START testPostDevice" << std::endl;
   srand(time(NULL));
   std::map<std::string, std::string> headers;
   std::string query_string;

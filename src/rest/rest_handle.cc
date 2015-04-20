@@ -37,6 +37,7 @@
 #include <rapidjson/prettywriter.h>
 #include "util/device_collection.h"
 #include "util/service_collection.h"
+#include "util/service_mgmt_collection.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <ngsi/ContextElement.h>
@@ -59,10 +60,10 @@ boost::shared_ptr<iota::Device> get_func(boost::shared_ptr<iota::Device> item) {
 
   try {
     iota::DeviceCollection dev_table;
-    dev_table.find(*item);
+    dev_table.findd(*item);
 
     if (dev_table.more()) {
-      iota::Device aux = dev_table.next();
+      iota::Device aux = dev_table.nextd();
       resu.reset(new iota::Device(aux));
     }
   }
@@ -96,11 +97,7 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
         PION_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
         registeredDevices.set_function(boost::bind(get_func, _1));
         registeredDevices.set_entity_function(boost::bind(get_func, _1));
-        PION_LOG_DEBUG(m_logger, "Check tables in mongo");
-        iota::DeviceCollection devcol;
-        devcol.createTableAndIndex();
-        ServiceCollection servcol;
-        servcol.createTableAndIndex();
+
       }
       else {
         if (storage.HasMember(iota::store::types::FILE.c_str())) {

@@ -27,6 +27,7 @@
 #include <rest/command_handle.h>
 #include <rapidjson/document.h>
 #include <boost/date_time/local_time/local_time.hpp>
+#include "util/service_collection.h"
 
 
 namespace iota {        // begin namespace iota
@@ -42,6 +43,14 @@ class AdminService :
     void set_timezone_database(std::string timezone_str);
     void set_manager();
     boost::posix_time::ptime get_local_time_from_timezone(std::string timezone_str);
+
+    /**
+         * @name    getServiceCollectionName
+         * @brief   return the name of collection
+         *
+         * @return if adminservice is manager returns SERVICE_MGMT if not returns SERVICE
+         */
+    const std::string& getServiceCollectionName();
 
     void agents(pion::http::request_ptr& http_request_ptr,
                 std::map<std::string, std::string>& url_args,
@@ -257,6 +266,7 @@ class AdminService :
          * @endcode
          */
     int get_all_services_json(
+      iota::ServiceCollection * table,
       const std::string& service,
       const std::string& service_path,
       int limit,
@@ -268,6 +278,7 @@ class AdminService :
 
 
     int get_a_service_json(
+      iota::ServiceCollection * table,
       const std::string& service,
       const std::string& service_path,
       const std::string& device_id,
@@ -301,6 +312,7 @@ class AdminService :
       * @endcode
       */
     int put_service_json(
+      iota::ServiceCollection * table,
       const std::string& service,
       const std::string& service_path,
       const std::string& service_id,
@@ -333,6 +345,7 @@ class AdminService :
        * @endcode
        */
     int post_service_json(
+      iota::ServiceCollection * table,
       const std::string& service,
       const std::string& service_path,
       const std::string& body,
@@ -359,6 +372,7 @@ class AdminService :
        * @endcode
        */
     int delete_service_json(
+      iota::ServiceCollection * table,
       const std::string& service,
       const std::string& service_path,
       const std::string& id_service,
@@ -376,8 +390,6 @@ class AdminService :
       std::string& response);
 
     int get_protocols_json(
-      const std::string& service,
-      const std::string& service_path,
       int limit,
       int offset,
       const std::string& detailed,
@@ -387,6 +399,7 @@ class AdminService :
 
     int delete_all_protocol_json(
       pion::http::response& http_response,
+      const std::string& protocol_name,
       std::string& response);
 
     /**
@@ -433,6 +446,7 @@ class AdminService :
     std::string check_json(const std::string& json_str, JsonDocument& doc);
 
     std::string get_service_json(
+      iota::ServiceCollection *table,
       const std::string& service,
       const std::string& service_path);
 
@@ -440,7 +454,7 @@ class AdminService :
     bool is_mongo_active();
     bool validate_json_schema(
       const std::string& json_str,
-      const std::string& table,
+      iota::Collection* table,
       const std::string& method,
       std::string& response);
 
