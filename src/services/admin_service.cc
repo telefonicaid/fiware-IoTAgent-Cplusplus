@@ -1550,8 +1550,8 @@ int iota::AdminService::post_device_json(
   std::string reason;
   std::string error_details;
   std::string device_to_post;
-  boost::shared_ptr<iota::ServiceCollection> table;
-  boost::shared_ptr<iota::DeviceCollection> devTable;
+  boost::shared_ptr<iota::ServiceCollection> table(new ServiceCollection());
+  boost::shared_ptr<iota::DeviceCollection> devTable(new DeviceCollection());;
   std::string service_exists = get_service_json(table, service, service_path);
 
   if (body.empty()) {
@@ -1631,7 +1631,7 @@ int iota::AdminService::put_device_json(
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string reason;
   std::string error_details;
-  boost::shared_ptr<iota::DeviceCollection> devTable;
+  boost::shared_ptr<iota::DeviceCollection> devTable(new iota::DeviceCollection());
 
   if (body.empty()) {
     error_details.assign("empty body");
@@ -2180,7 +2180,7 @@ int iota::AdminService::post_protocol_json(
   std::string reason;
   std::string error_details;
   ServiceMgmtCollection service_table;
-  boost::shared_ptr<iota::ProtocolCollection> protocol_table;
+  boost::shared_ptr<iota::ProtocolCollection> protocol_table(new iota::ProtocolCollection());
 
   if (body.empty()) {
     error_details.assign("empty body");
