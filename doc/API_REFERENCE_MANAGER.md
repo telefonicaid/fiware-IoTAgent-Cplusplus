@@ -202,7 +202,7 @@ With one subservice defined in Fiware-ServicePath header.
 + Response 201
 
 
-## Devices [/devices{?protocol}]
+## Devices [/devices{?protocol,limit,offset,detailed}]
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
 - `protocol` (string, mandatory). Unique identifier for the protocol of the device. Available protocols could be retrieved from IoTA Manager.
@@ -276,10 +276,13 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
 ### Retrieve all devices [GET]
 
-+ Parameters [protocol]
++ Parameters [protocol, limit, offset, detailed]
 
 
     + `protocol` (optional, string). It allows get a device using a specific protocol.
+    + `limit` (optional, number). In order to specify the maximum number of devices (default is 20, maximum allowed is 1000).
+    + `offset` (optional, number). In order to skip a given number of elements at the beginning (default is 0).
+    + `detailed` (optional, string). _on_ returns all device information, _off_ returns only name.
 
 + Request (application/json)
 
@@ -317,6 +320,46 @@ A device is a resource that publish information to IoT Platform and it uses the 
                   ]
                 }
               ]
+            }
+
+
+## Device [/devices/{device_id}]
+
+### Retrieve a device [GET]
+
++ Request (application/json)
+
+    + Headers
+
+            Fiware-Service: TestService
+            Fiware-ServicePath: /TestSubservice
+
++ Response 200
+
+    + Body
+
+            {
+
+                  "protocol": "55261958d31fc2151cc44c70",
+                  "device_id": "device_id",
+                  "entity_name": "entity_name",
+                  "entity_type": "entity_type",
+                  "timezone": "America/Santiago",
+                  "attributes": [
+                    {
+                      "object_id": "source_data",
+                      "name": "attr_name",
+                      "type": "int"
+                    }
+                  ],
+                  "static_attributes": [
+                    {
+                      "name": "att_name",
+                      "type": "string",
+                      "value": "value"
+                    }
+                  ]
+
             }
 
 
