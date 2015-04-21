@@ -1,3 +1,7 @@
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
+# 
+# This file is part of fiware-IoTAgentCplusPlus (FI-WARE project).
+
 Name:          @CPACK_PACKAGE_NAME@-ul
 Version:       @CPACK_PACKAGE_VERSION@
 Release:       @CPACK_PACKAGE_RELEASE@
@@ -13,9 +17,14 @@ Requires: @CPACK_PACKAGE_NAME@-base
 %define _rpmfilename %{name}-@CPACK_PACKAGE_FILE_NAME@.rpm
 %define _unpackaged_files_terminate_build 0
 %define _topdir @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM
+%define _owner iotagent
 
 %description
 IoT - IoTAgent UltraLight 2.0
+
+# -------------------------------------------------------------------------------------------- #
+# Install section:
+# -------------------------------------------------------------------------------------------- #
 %install
 pwd
 mkdir -p %{buildroot}/usr/local/iot/lib
@@ -25,10 +34,21 @@ mkdir -p %{buildroot}/etc/iot
 
 %clean
 rm -rf %{buildroot}
+
+# -------------------------------------------------------------------------------------------- #
+# pre-uninstall section:
+# -------------------------------------------------------------------------------------------- #
 %pre
+
+# -------------------------------------------------------------------------------------------- #
+# Post-Install section:
+# -------------------------------------------------------------------------------------------- #
 %post
-%preun
+
+# -------------------------------------------------------------------------------------------- #
+# Files to add to the RPM
+# -------------------------------------------------------------------------------------------- #
 %files
+%defattr(755,%{_owner},%{_owner},755)
 /usr/local/iot/lib/*
-#/usr/local/dca/certs/*
-#/etc/iot/*
+
