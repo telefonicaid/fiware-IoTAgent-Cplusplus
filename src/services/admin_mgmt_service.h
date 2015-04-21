@@ -99,12 +99,15 @@ class AdminManagerService{
     */
     std::string post_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,std::string service,std::string sub_service,std::string x_auth_token);
 
-    /**
-    @name get_devices
-    @brief it gets devices from iotagents based on enpoints IoTA Manager knows. Devices are filtered by service (Fiware-Service header)
-    subservice (Fiware-ServicePath header). A optional query parameter (protocol) may be provided.
 
-    */
+    int testFunc(boost::optional<std::string&> cadena)
+    {
+        if (cadena->empty()){
+          return 0;
+        }
+        return 1;
+    };
+
     int get_devices(pion::http::request_ptr& http_request_ptr,
                      std::map<std::string, std::string>& url_args,
                      std::multimap<std::string, std::string>& query_parameters,
@@ -119,6 +122,41 @@ class AdminManagerService{
                      std::string service, std::string service_path, std::string device_id,
                      pion::http::response& http_response,
                      std::string& response);
+
+
+
+     /**
+    @name get_devices
+    @brief it gets devices from iotagents based on enpoints IoTA Manager knows. Devices are filtered by service (Fiware-Service header)
+    subservice (Fiware-ServicePath header). A optional query parameter (protocol) may be provided.
+
+    */
+
+    int get_all_devices_json(
+      const std::string& service,
+      const std::string& service_path,
+      int limit,
+      int offset,
+      const std::string& detailed,
+      const std::string& entity,
+      pion::http::response& http_response,
+      std::string& response,
+      boost::optional<pion::http::request_ptr&> http_request_ptr,
+      boost::optional<std::multimap<std::string, std::string>& > query_parameters
+      );
+
+
+
+    int get_a_device_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& device_id,
+      pion::http::response& http_response,
+      std::string& response,
+      boost::optional<pion::http::request_ptr&> http_request_ptr ,
+      boost::optional<std::multimap<std::string, std::string>& > query_parameters );
+
+
 
     void set_timeout(unsigned short timeout);
 

@@ -298,10 +298,15 @@ void AdminManagerTest::testGetDevices() {
   query.insert(std::pair<std::string, std::string>("protocol", "UL20"));
   pion::http::response http_response;
   std::string response;
-  manager_service.get_devices(http_request, args, query, "s4_agus", "/ss3", 0, 0,
-                              "on", "", http_response, response);
+//  manager_service.get_devices(http_request, args, query, "s4_agus", "/ss3", 0, 0,
+//                              "on", "", http_response, response);
+
+  manager_service.get_all_devices_json("s4_agus", "/ss3", 0, 0, "on", "",
+                                http_response, response, http_request, query);
+
   CPPUNIT_ASSERT_MESSAGE("Expected 4 devices ",
                          response.find("\"count\" : 4") != std::string::npos);
+
                          /*
   http_mock->set_response(200, mock_response_one_device, h);
   manager_service.get_device(http_request, args, query, "s4_agus", "/ss3",

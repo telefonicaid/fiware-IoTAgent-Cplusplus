@@ -30,13 +30,11 @@
 #include "gtest/gtest.h"
 
 #include "../mocks/http_mock.h"
-#include "services/admin_service.h"
-#include "../mocks/http_mock.h"
 
 #include <boost/property_tree/ptree.hpp>
 #include <pion/logger.hpp>
 #include <pion/logger.hpp>
-#include "manager/admin_mgmt_service.h"
+#include "services/admin_mgmt_service.h"
 #include "services/admin_service.h"
 
 #include "util/service_collection.h"

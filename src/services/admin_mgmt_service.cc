@@ -169,26 +169,29 @@ int iota::AdminManagerService::add_device_iotagent(std::string url_iotagent,
 
 }
 
-int iota::AdminManagerService::get_devices(pion::http::request_ptr&
-    http_request_ptr,
-    std::map<std::string, std::string>& url_args,
-    std::multimap<std::string, std::string>& query_parameters,
-    std::string service, std::string service_path, int limit, int offset,
-    std::string detailed, std::string entity,
-    pion::http::response& http_response,
-    std::string& response) {
+int iota::AdminManagerService::get_all_devices_json(
+      const std::string& service,
+      const std::string& service_path,
+      int limit,
+      int offset,
+      const std::string& detailed,
+      const std::string& entity,
+      pion::http::response& http_response,
+      std::string& response,
+      boost::optional<pion::http::request_ptr&> http_request_ptr,
+      boost::optional<std::multimap<std::string, std::string>& > query_parameters) {
 
 
-  std::string request_identifier = http_request_ptr->get_header(
+  std::string request_identifier = http_request_ptr.get()->get_header(
                                      iota::types::HEADER_TRACE_MESSAGES);
 
   iota::ServiceMgmtCollection manager_service_collection;
 
   // Protocol filter
-  std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
+  std::multimap<std::string, std::string>::iterator it = query_parameters.get().begin();
   std::string protocol_filter;
-  it = query_parameters.find(iota::store::types::PROTOCOL);
-  if (it != query_parameters.end()) {
+  it = query_parameters.get().find(iota::store::types::PROTOCOL);
+  if (it != query_parameters.get().end()) {
     protocol_filter = it->second;
   }
 
@@ -200,7 +203,7 @@ int iota::AdminManagerService::get_devices(pion::http::request_ptr&
         protocol_filter);
 
   std::map<std::string, std::string> response_from_iotagent;
-  std::string x_auth_token = http_request_ptr->get_header(
+  std::string x_auth_token = http_request_ptr.get()->get_header(
                                iota::types::IOT_HTTP_HEADER_AUTH);
 
 
@@ -318,25 +321,26 @@ int iota::AdminManagerService::get_devices(pion::http::request_ptr&
   return pion::http::types::RESPONSE_CODE_OK;
 }
 
-int iota::AdminManagerService::get_device(pion::http::request_ptr&
-    http_request_ptr,
-    std::map<std::string, std::string>& url_args,
-    std::multimap<std::string, std::string>& query_parameters,
-    std::string service, std::string service_path, std::string device_id,
-    pion::http::response& http_response,
-    std::string& response) {
+int iota::AdminManagerService::get_a_device_json(
+  const std::string& service,
+  const std::string& service_path,
+  const std::string& device_id,
+  pion::http::response& http_response,
+  std::string& response,
+  boost::optional<pion::http::request_ptr&> http_request_ptr,
+  boost::optional<std::multimap<std::string, std::string>& > query_parameters) {
 
   int code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
-  std::string request_identifier = http_request_ptr->get_header(
+  std::string request_identifier = http_request_ptr.get()->get_header(
                                      iota::types::HEADER_TRACE_MESSAGES);
 
   iota::ServiceMgmtCollection manager_service_collection;
 
   // Protocol filter
-  std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
+  std::multimap<std::string, std::string>::iterator it = query_parameters.get().begin();
   std::string protocol_filter;
-  it = query_parameters.find(iota::store::types::PROTOCOL);
-  if (it != query_parameters.end()) {
+  it = query_parameters.get().find(iota::store::types::PROTOCOL);
+  if (it != query_parameters.get().end()) {
     protocol_filter = it->second;
   }
 
@@ -348,7 +352,7 @@ int iota::AdminManagerService::get_device(pion::http::request_ptr&
         protocol_filter);
 
   std::map<std::string, std::string> response_from_iotagent;
-  std::string x_auth_token = http_request_ptr->get_header(
+  std::string x_auth_token = http_request_ptr.get()->get_header(
                                iota::types::IOT_HTTP_HEADER_AUTH);
 
 

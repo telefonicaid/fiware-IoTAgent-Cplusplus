@@ -1729,7 +1729,9 @@ int iota::AdminService::get_all_devices_json(
   const std::string& detailed,
   const std::string& entity,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  boost::optional<pion::http::request_ptr&> http_request_ptr,
+  boost::optional<std::multimap<std::string, std::string>& > ) {
 
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::ostringstream res;
@@ -1792,7 +1794,9 @@ int iota::AdminService::get_a_device_json(
   const std::string& service_path,
   const std::string& device_id,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  boost::optional<pion::http::request_ptr&> http_request_ptr,
+  boost::optional<std::multimap<std::string, std::string>& > ) {
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string param_request("get_a_device_json|service=" + service +
                             "|service_path=" +

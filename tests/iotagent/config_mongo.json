@@ -14,6 +14,22 @@
     },
     "resources": [
         {
+            "resource": "/iot/d",
+            "options": {
+                "FileName": "UL20Service"
+            },
+            "services": [
+                {
+                    "apikey": "apikey",
+                    "service": "s1",
+                    "service_path": "/ss1",
+                    "token": "token2",
+                    "cbroker": "http://127.0.0.1:1026",
+                    "entity_type": "thing"
+                }
+            ]
+        },
+        {
             "resource": "/iot/evadts",
             "services": [
                 {
@@ -25,22 +41,6 @@
                     "token": "token3"
                 }
             ]
-        },
-	{
-		"resource": "/iot/d",
-		"options": {
-                	"FileName": "UL20Service"
-            	},
-            	"services": [
-                {
-                    "apikey": "apikey",
-                    "service": "s1",
-                    "service_path": "/ss1",
-                    "token": "token2",
-                    "cbroker": "http://127.0.0.1:1026",
-                    "entity_type": "thing"
-                }
-	    ]
-	}
+        }
     ]
 }

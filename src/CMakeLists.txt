@@ -3,7 +3,6 @@ add_subdirectory(util)
 add_subdirectory(ngsi)
 add_subdirectory(rest)
 add_subdirectory(services)
-add_subdirectory(manager)
 if(MOSQUITTO_FOUND)
 add_subdirectory(esp)
 add_subdirectory(mqtt)
@@ -16,13 +15,11 @@ add_library(iota_a STATIC $<TARGET_OBJECTS:util_objs>
                         $<TARGET_OBJECTS:ngsi_objs>
                         $<TARGET_OBJECTS:rest_objs>
                         $<TARGET_OBJECTS:admin_objs>
-			$<TARGET_OBJECTS:manager_objs>
                         )
 add_library(iota SHARED $<TARGET_OBJECTS:util_objs>
                         $<TARGET_OBJECTS:ngsi_objs>
                         $<TARGET_OBJECTS:rest_objs>
                         $<TARGET_OBJECTS:admin_objs>
-			$<TARGET_OBJECTS:manager_objs>
                         )
 set_target_properties(iota_a PROPERTIES OUTPUT_NAME iota)
 add_executable(iotagent app/main.cc)

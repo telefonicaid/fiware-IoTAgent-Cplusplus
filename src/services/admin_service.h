@@ -24,6 +24,7 @@
 
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/plugin_server.hpp>
+#include <pion/http/request.hpp>
 #include <rest/command_handle.h>
 #include <rapidjson/document.h>
 #include <boost/date_time/local_time/local_time.hpp>
@@ -120,6 +121,7 @@ class AdminService :
 
     pion::http::plugin_server_ptr get_web_server();
 
+
     /**
          * @name    get_all_json
          * @brief   API Rest method POST to insert a device (using json)
@@ -140,7 +142,7 @@ class AdminService :
          *    Status: 200
          * @endcode
          */
-    int get_all_devices_json(
+    virtual int get_all_devices_json(
       const std::string& service,
       const std::string& service_path,
       int limit,
@@ -148,15 +150,21 @@ class AdminService :
       const std::string& detailed,
       const std::string& entity,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      boost::optional<pion::http::request_ptr&> http_request_ptr = boost::optional<pion::http::request_ptr& >() ,
+      boost::optional<std::multimap<std::string, std::string>& > query_parameters = boost::optional<std::multimap<std::string, std::string>& >()
+      );
 
 
-    int get_a_device_json(
+
+    virtual int get_a_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& device_id,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      boost::optional<pion::http::request_ptr&> http_request_ptr = boost::optional<pion::http::request_ptr& >() ,
+      boost::optional<std::multimap<std::string, std::string>& > query_parameters = boost::optional<std::multimap<std::string, std::string>& >());
 
     /**
       * @name    put_json
