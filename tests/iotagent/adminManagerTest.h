@@ -51,6 +51,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST(testMultiplePostsWithResponse);
     CPPUNIT_TEST(testPostJSONDevices);
+    CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST_SUITE_END();
 
 public:
