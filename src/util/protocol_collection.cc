@@ -202,7 +202,7 @@ const std::string iota::ProtocolCollection::_POST_SCHEMA(
   "\"description\": \"protocol description\","
   "\"type\": \"string\""
   "},"
-  "\"endpoint\": {"
+  "\"iotagent\": {"
   "\"description\": \"public ip of iotagent\","
   "\"type\": \"string\""
   "},"
@@ -305,7 +305,7 @@ const std::string iota::ProtocolCollection::_POST_SCHEMA(
   "}"
   "}"
   "}"
-  ",\"required\": [\"protocol\",\"endpoint\",\"resource\"]"
+  ",\"required\": [\"protocol\",\"iotagent\",\"resource\"]"
   "}");
 
 const std::string & iota::ProtocolCollection::getPutSchema() const{
