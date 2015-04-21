@@ -75,14 +75,15 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/logrotate.d/logrotate-iotagent-daily  
 # -------------------------------------------------------------------------------------------- #
 %post
 
-echo "[INFO] Creating log directory"
+echo "[INFO] Creating log directory..."
 mkdir -p %{_log_dir}
 chown %{_owner}:%{_owner} %{_log_dir}
 
-echo "[INFO] Creating run directory"
+echo "[INFO] Creating run directory..."
 mkdir -p %{_run_dir}
 chown %{_owner}:%{_owner} %{_run_dir}
 
+echo "[INFO] Creating links..."
 ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 
 # -------------------------------------------------------------------------------------------- #
@@ -90,12 +91,16 @@ ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 # -------------------------------------------------------------------------------------------- #
 %preun
 
+echo "[INFO] Deleting %{_owner} user..."
 getent passwd %{_owner} > /dev/null && userdel -r %{_owner}
-/sbin/service %{_owner} stop
+
+echo "[INFO] Deleting %{_owner} directories..."
 rm /etc/init.d/iotagent
 rm -rf %{_log_dir}
 rm -rf %{_run_dir}
 rm -rf /etc/iot
+
+echo "[INFO] Done!"
 
 # -------------------------------------------------------------------------------------------- #
 # post-uninstall section:
