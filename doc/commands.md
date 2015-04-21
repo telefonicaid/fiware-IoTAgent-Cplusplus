@@ -388,7 +388,7 @@ curl -X POST http://x.x.x.x:8080/iot/devices \
 
 ```
 
-Then iotagent will send to contextBroker a NGSI9 registerContextRequest, with this payload:
+Then iotagent will send to contextBroker a NGSI9 registerContextRequest, including a header "Accept: application/json,text/json" to indicate that  payloads in json format are expected. An example of registerContextRequest should be:
 
 ```
 {
@@ -413,6 +413,8 @@ Then iotagent will send to contextBroker a NGSI9 registerContextRequest, with th
   ]
 }
 ```
+
+If high availability is required, and  "ngsi_url" tag of config.json includes a field "public_ip" where is defined url of load balancer, this url will be used to build "providingApplication". Otherwise local ip:port of iotagent will be used. 
 
 ContextBroker will response with a NGSI9 registerContextResponse such as :
 
@@ -455,3 +457,4 @@ In ngsi_update_cmd.json  file:
 }
 ```
 
+ContextBroker will forward this updateContextRequest to iotagent. If HTTP request received by iotagent includes an accept header this one must indicate payload in json format, otherwise iotagent will return HTTP error 406. If accept header is not present, Content-Type header must indicate payload in json format, otherwise an error 415 will be returned.

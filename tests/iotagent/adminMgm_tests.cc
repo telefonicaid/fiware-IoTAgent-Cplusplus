@@ -26,17 +26,22 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TextTestProgressListener.h>
 #include <cppunit/XmlOutputter.h>
-#include "simpleplugingTest.h"
+#include "adminMgmTest.h"
 #include "services/admin_service.h"
+
+
 #include "mongo/client/init.h"
 
 int main(int argc, char* argv[]) {
- mongo::client::initialize();
+
+  mongo::client::initialize();
+
+
   CppUnit::TextUi::TestRunner runner;
-  runner.addTest(SimplePluginTest::suite());
+  runner.addTest(AdminMgmTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cerr));
   bool s = runner.run();
-  //sleep(2);
   return s ? 0 : 1;
+
 }

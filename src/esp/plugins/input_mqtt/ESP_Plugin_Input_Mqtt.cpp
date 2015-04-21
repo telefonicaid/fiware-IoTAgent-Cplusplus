@@ -292,7 +292,7 @@ void ESP_Plugin_Input_Mqtt::setMosquitto(IMosquitto* mosquitto,
   pthread_mutex_lock(&mutexMqtt);
 
   mapMosquitto.insert(std::pair<std::string,IMosquitto*>(inputName,mosquitto));
-
+  CC_Logger::getSingleton()->logDebug("SetMosquitto: %s new size: %d [%p]",inputName.c_str(),mapMosquitto.size(),mosquitto);
   pthread_mutex_unlock(&mutexMqtt);
 }
 
@@ -300,6 +300,8 @@ bool ESP_Plugin_Input_Mqtt::isThereRefMosquitto() {
   bool ret = false;
   pthread_mutex_lock(&mutexMqtt);
   ret = mapMosquitto.size() > 0;
+  CC_Logger::getSingleton()->logDebug("ESP_Plugin_Input_MQTT: checking map size  : %d",mapMosquitto.size());
+
   pthread_mutex_unlock(&mutexMqtt);
 
   return ret;
@@ -310,13 +312,14 @@ IMosquitto* ESP_Plugin_Input_Mqtt::getAndRemoveIMosquitto(
   if (isThereRefMosquitto()) {
     pthread_mutex_lock(&mutexMqtt);
     //
-    IMosquitto* obj;
+    IMosquitto* obj=0x0;
     std::map<std::string,IMosquitto*>::iterator it = mapMosquitto.find(inputName);
 
     if (it != mapMosquitto.end()) {
       obj = it->second;
-      CC_Logger::getSingleton()->logDebug("ESP_Plugin_Input_MQTT: Replacing Mosquitto implementor %s",inputName.c_str());
       mapMosquitto.erase(it);
+      CC_Logger::getSingleton()->logDebug("ESP_Plugin_Input_MQTT: Replacing Mosquitto implementor %s map size after : %d",inputName.c_str(),mapMosquitto.size());
+
     }
     //
     pthread_mutex_unlock(&mutexMqtt);
@@ -334,7 +337,7 @@ int ESP_Plugin_Input_Mqtt::initMQTT(int port, std::string host,
   std::string finalID = uniqueName + std::string("-") +
                         ESP_StringUtils::intToString(idMqtt);
 
-  IMosquitto* refIMosquitto;
+  IMosquitto* refIMosquitto =NULL;
   if (!isThereRefMosquitto()) {
   #ifdef USE_MQTT
     refIMosquitto = new ESP_MosquittoImpl(finalID.c_str(),
@@ -345,6 +348,9 @@ int ESP_Plugin_Input_Mqtt::initMQTT(int port, std::string host,
   }
   else {
     refIMosquitto = getAndRemoveIMosquitto(inputName);
+    CC_Logger::getSingleton()->logDebug("InitMQTT: getting mosquitto from map %p",refIMosquitto);
+    if (refIMosquitto == NULL)
+     return -1;
   }
 
   ESP_MqttWrapper* mqttWrap = new ESP_MqttWrapper(refIMosquitto,port,host,

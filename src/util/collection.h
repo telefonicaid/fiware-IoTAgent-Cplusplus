@@ -53,7 +53,7 @@ class Collection {
 
     Collection(Collection&);
 
-    ~Collection();
+    virtual ~Collection();
 
     void setQueryOptions(int queryOptions) {
       a_queryOptions = queryOptions;
@@ -66,6 +66,19 @@ class Collection {
                                  bool upsert = true,
                                  int retry=0);
 
+    mongo::BSONObj aggregate(
+             const std::vector<mongo::BSONObj> &pipeline,
+             int retry);
+
+    mongo::BSONObj distinct(
+              const std::string &field,
+              const mongo::BSONObj &query,
+              int retry);
+
+    int dropIndexes();
+
+    int createIndex(const mongo::BSONObj& index, bool uniqueIndex);
+
     int insert(const mongo::BSONObj& data, int retry=0);
 
     int update(bool upsert = false);
@@ -73,9 +86,10 @@ class Collection {
                bool upsert = false);
     int update(const mongo::BSONObj& query, const mongo::BSONObj& update_data,
                bool upsert = false, int retry = 0);
+    int update_r(const mongo::BSONObj& query , const mongo::BSONObj& setData,
+         bool upsert = false, int retry = 0);
 
     void instantiateID(const std::string& id);
-    void createID() ;
     std::string newID() ;
 
     int find(const mongo::BSONObj& query,
@@ -92,7 +106,7 @@ class Collection {
              const mongo::BSONObj& query,
              int limit,
              int skip,
-             const std::string &order,
+             const mongo::BSONObj& order,
              mongo::BSONObjBuilder& fieldsToReturn,
              int retry = 0);
 
@@ -115,9 +129,14 @@ class Collection {
       a_bbdd = value;
     }
 
+    const std::string& getSchema(const std::string& method) const;
+
+    virtual const std::string &getPostSchema() const;
+    virtual const std::string &getPutSchema() const;
+
     void reconnect();
 
-    void ensureIndex(const std::string &name_index,
+    int ensureIndex(const std::string &name_index,
                      const mongo::BSONObj& index,
                       bool is_unique );
 
@@ -140,6 +159,8 @@ class Collection {
   private:
 
     MongoConnection m_conn;
+
+    static const std::string _EMPTY;
 
 }; // end class Collection
 

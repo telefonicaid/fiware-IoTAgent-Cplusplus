@@ -53,6 +53,7 @@ iota::Collection::Collection(Collection& c) : m_logger(
 iota::Collection::~Collection() {
 };
 
+const std::string iota::Collection::_EMPTY;
 
 mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
     const mongo::BSONObj& query,
@@ -77,6 +78,108 @@ mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
   std::string bbdd = getDatabaseName();
 
   std::string param_request("Collection:findAndModify|bbdd=" + bbdd + "|data=" +
+                            r.toString());
+  PION_LOG_DEBUG(m_logger, param_request);
+  //int errCode = 0;
+  //mongo::BSONObj errObj;
+  try {
+    conn->runCommand(bbdd, r, res);
+    //obtenemos el id y ok
+    //errObj = conn->getLastErrorDetailed();
+    //errCode = errObj["code"].numberInt();
+  }
+  catch (mongo::DBException& exc) {
+    // try again
+    std::string original_exc(exc.what());
+    try {
+      conn->runCommand(bbdd, r, res);
+      //errObj = conn->getLastErrorDetailed();
+      //errCode = errObj["code"].numberInt();
+    }
+    catch (std::exception& e) {
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                                original_exc, iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+    }
+  }
+
+  getLastError(bbdd, res);
+  PION_LOG_DEBUG(m_logger, "Find and notify query:" << r.toString());
+  PION_LOG_DEBUG(m_logger, "Find and notify result:" << res.toString());
+
+  return res;
+
+}
+
+mongo::BSONObj iota::Collection::aggregate(
+    const std::vector<mongo::BSONObj> &pipeline,
+    int retry) {
+
+  std::string bbdd = getDatabaseName();
+  mongo::BSONObj res, r;
+  mongo::BSONObjBuilder obj;
+
+  mongo::DBClientBase* conn = getConnection();
+
+  obj.append("aggregate", a_bbdd);
+  obj.append("pipeline", pipeline);
+
+  r = obj.obj();
+
+  std::string param_request("Collection:aggregate|bbdd=" + bbdd + "|data=" +
+                            r.toString());
+  PION_LOG_DEBUG(m_logger, param_request);
+  //int errCode = 0;
+  //mongo::BSONObj errObj;
+  try {
+    conn->runCommand(bbdd, r, res);
+    //obtenemos el id y ok
+    //errObj = conn->getLastErrorDetailed();
+    //errCode = errObj["code"].numberInt();
+  }
+  catch (mongo::DBException& exc) {
+    // try again
+    std::string original_exc(exc.what());
+    try {
+      conn->runCommand(bbdd, r, res);
+      //errObj = conn->getLastErrorDetailed();
+      //errCode = errObj["code"].numberInt();
+    }
+    catch (std::exception& e) {
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                                original_exc, iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+    }
+  }
+
+  getLastError(bbdd, res);
+  PION_LOG_DEBUG(m_logger, "Find and notify query:" << r.toString());
+  PION_LOG_DEBUG(m_logger, "Find and notify result:" << res.toString());
+
+  return res;
+
+}
+
+mongo::BSONObj iota::Collection::distinct(
+    const std::string &field,
+    const mongo::BSONObj &query,
+    int retry) {
+
+  std::string bbdd = getDatabaseName();
+  mongo::BSONObj res, r;
+  mongo::BSONObjBuilder obj;
+
+  mongo::DBClientBase* conn = getConnection();
+
+  obj.append("distinct", a_bbdd);
+  obj.append("key", field);
+  obj.append("query", query);
+
+  r = obj.obj();
+
+  std::string param_request("Collection:aggregate|bbdd=" + bbdd + "|data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -259,24 +362,30 @@ int iota::Collection::update(
 int iota::Collection::update(
   const mongo::BSONObj& query , const mongo::BSONObj& setData, bool upsert,
   int retry) {
+    mongo::BSONObj setObj = BSON("$set" << setData);
+    return update_r(query, setObj, upsert, 0);
+}
+
+int iota::Collection::update_r(
+  const mongo::BSONObj& query , const mongo::BSONObj& setData,
+  bool upsert,  int retry) {
 
   int n=0;
   mongo::DBClientBase* conn = getConnection();
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
-  mongo::BSONObj set = BSON("$set" << setData);
 
   std::string param_request("Collection:update|bbdd="
                             + bbdd + "query=" + query.toString() +
                             "|data=" +
-                            set.toString());
+                            setData.toString());
   PION_LOG_DEBUG(m_logger, param_request);
 
 
   try {
-    conn->update(bbdd, query, set, upsert);
-    n = getLastError(bbdd, set);
+    conn->update(bbdd, query, setData, upsert);
+    n = getLastError(bbdd, setData);
   }
   catch (mongo::SocketException& e) {
     std::string errorSTR = "SocketException ";
@@ -446,6 +555,12 @@ void iota::Collection::instantiateID(const std::string& id)  {
   find(BSON("_id" << mongo::OID(id)));
 }
 
+std::string iota::Collection::newID() {
+    mongo::OID oid;
+    oid.init();
+    return oid.toString();
+}
+
 int iota::Collection::find(const mongo::BSONObj& query,
                            mongo::BSONObjBuilder& builderfieldsToReturn) {
 
@@ -460,14 +575,131 @@ int iota::Collection::find(const mongo::BSONObj& query) {
 int iota::Collection::find(int queryOptions,
                            const mongo::BSONObj& query,
                            mongo::BSONObjBuilder& fieldsToReturn) {
-  return find(queryOptions, query, 0, 0, "", fieldsToReturn);
+  mongo::BSONObj emptyBSON;
+  return find(queryOptions, query, 0, 0, emptyBSON, fieldsToReturn);
 }
+
+
+
+int iota::Collection::ensureIndex(
+  const std::string& name_index,
+  const mongo::BSONObj& index,
+  bool is_unique) {
+
+  int result = -1;
+  std::string bbdd = getDatabaseName();
+  bbdd.append(".");
+  bbdd.append(a_bbdd);
+
+  std::string param_request("Collection:ensureIndex|bbdd=" + bbdd +
+         "|key:" );
+  PION_LOG_DEBUG(m_logger, param_request <<  index);
+
+  mongo::DBClientBase* conn;
+
+  try {
+
+    conn = getConnection();
+    mongo::StringData bbddStringdata(bbdd);
+    mongo::IndexSpec indexSpec;
+    indexSpec.addKeys(index);
+    indexSpec.unique(is_unique);
+    indexSpec.dropDuplicatesDeprecated(is_unique);
+
+    PION_LOG_DEBUG(m_logger, "before query" );
+    conn->createIndex(bbddStringdata, indexSpec);
+    result = 0;
+  }catch (mongo::DBException& e) {
+    std::string errorSTR = "DBException ";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, errorSTR);
+    PION_LOG_ERROR(m_logger, errorSTR << e.what());
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                                errorSTR, ERROR_MONGO);
+  }
+
+  return result;
+
+}
+
+int iota::Collection::dropIndexes() {
+
+  int result = -1;
+  std::string bbdd = getDatabaseName();
+  bbdd.append(".");
+  bbdd.append(a_bbdd);
+
+  std::string param_request("Collection:dropIndex|bbdd=" + bbdd );
+  PION_LOG_DEBUG(m_logger, param_request );
+
+  mongo::DBClientBase* conn;
+
+  try {
+
+    conn = getConnection();
+
+    PION_LOG_DEBUG(m_logger, "before query" );
+    conn->dropIndexes(bbdd);
+    result = 0;
+  }catch (mongo::DBException& e) {
+    std::string errorSTR = "DBException in  dropIndexes";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, errorSTR);
+    PION_LOG_ERROR(m_logger, errorSTR << e.what());
+
+  }catch (std::exception& e) {
+    std::string errorSTR = "Exception in  dropIndexes";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, e.what());
+    PION_LOG_ERROR(m_logger, errorSTR << e.what());
+  }
+
+  return result;
+}
+
+int iota::Collection::createIndex(const mongo::BSONObj& index,
+                                                 bool uniqueIndex) {
+
+  int res = 200;
+
+  std::string bbdd = getDatabaseName();
+  bbdd.append(".");
+  bbdd.append(a_bbdd);
+  Collection indexCol("system.indexes");
+  int num_index = indexCol.count(BSON("ns" << bbdd));
+  bool dropIndex = false;
+
+  PION_LOG_DEBUG(m_logger, bbdd << "|checkIndex|");
+  if (num_index == 2) {
+    // check if the index exists
+    if (uniqueIndex){
+      dropIndex == (indexCol.count(BSON("ns" << bbdd <<
+              "key" << index << "unique" << true)) !=1);
+    }else{
+      dropIndex == (indexCol.count(BSON("ns" << bbdd <<
+              "key" << index)) !=1);
+    }
+  }else{
+    // no correct numbner of index
+    dropIndex = true;
+  }
+
+  if (dropIndex){
+    PION_LOG_DEBUG(m_logger, bbdd << "|dropIndex an create|" << index);
+    dropIndexes();
+
+    ensureIndex("shardKey", index, uniqueIndex);
+  }
+
+  return res;
+}
+
 
 int iota::Collection::find(int queryOptions,
                            const mongo::BSONObj& queryObj,
                            int limit,
                            int skip,
-                           const std::string &order,
+                           const mongo::BSONObj& order,
                            mongo::BSONObjBuilder& fieldsToReturn,
                            int retry) {
 
@@ -487,7 +719,7 @@ int iota::Collection::find(int queryOptions,
 
   try {
 
-    if (!order.empty()){
+    if (order.nFields()> 0){
       query.sort(order);
     }
 
@@ -716,7 +948,7 @@ mongo::DBClientBase* iota::Collection::getConnection() {
   return m_conn.conn();
 };
 
-
+/*
 void iota::Collection::ensureIndex(
   const std::string& name_index,
   const mongo::BSONObj& index,
@@ -763,11 +995,31 @@ void iota::Collection::ensureIndex(
                               bbdd + "]", e.what(), iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
   }
 
+}*/
+
+const std::string & iota::Collection::getPostSchema() const {
+  return _EMPTY;
 }
 
+const std::string & iota::Collection::getPutSchema() const {
+  return _EMPTY;
+}
 
 std::string iota::Collection::get_endpoint(){
      return m_conn.get_endpoint();
+}
+
+const std::string& iota::Collection::getSchema(const std::string& method) const {
+  std::ostringstream schema;
+
+
+  if (method.compare("POST") == 0) {
+    return getPostSchema();
+  }
+  else {
+    return getPutSchema();
+  }
+
 }
 
 void iota::Collection::reconnect(){

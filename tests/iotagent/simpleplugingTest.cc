@@ -49,6 +49,8 @@
 #define  PATH_DEV_CFG "../../tests/iotagent/devices.json"
 #define  SERVICE  "service7"
 
+#define  ASYNC_TIME_WAIT  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+
 CPPUNIT_TEST_SUITE_REGISTRATION(SimplePluginTest);
 namespace iota {
 std::string logger("main");
@@ -66,6 +68,111 @@ SimplePluginTest::~SimplePluginTest() {
 void SimplePluginTest::tearDown() {
 }
 
+void SimplePluginTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
+                                    const std::string& type,
+                                    bool vpn) {
+  cb_mock->init();
+  std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
+  std::cout << "mock with port:" << mock_port << std::endl;
+
+  iota::Configurator::release();
+  iota::Configurator* my_instance = iota::Configurator::instance();
+
+  std::stringstream ss;
+  if (!vpn) {
+    ss << "{ \"ngsi_url\": {"
+       <<   "     \"updateContext\": \"/NGSI10/updateContext\","
+       <<   "     \"registerContext\": \"/NGSI9/registerContext\","
+       <<   "     \"queryContext\": \"/NGSI10/queryContext\""
+       <<   "},"
+       <<   "\"public_ip\": \"127.0.0.1:8888\","
+
+       <<   "\"timeout\": 1,"
+       <<   "\"iota_manager\": \"http://127.0.0.1:" << mock_port << "/protocols\", "
+       <<   "\"dir_log\": \"/tmp/\","
+       <<   "\"timezones\": \"/etc/iot/date_time_zonespec.csv\","
+       <<   "\"storage\": {"
+       <<   "\"host\": \"127.0.0.1\","
+       <<   "\"type\": \"" <<  type << "\","
+       <<   "\"port\": \"27017\","
+       <<   "\"dbname\": \"iotest\","
+       <<   "\"file\": \"../../tests/iotagent/devices.json\""
+       << "},"
+       << "\"resources\":[{\"resource\": \"/iot/sp\","
+       << "  \"options\": {\"FileName\": \"SPService\" },"
+       <<    " \"services\":[ {"
+       <<   "\"apikey\": \"apikey3\","
+       <<   "\"service\": \"service2\","
+       <<   "\"service_path\": \"/ssrv2\","
+       <<   "\"token\": \"token2\","
+       <<   "\"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
+       <<   "\"entity_type\": \"thing\""
+       << "} ] } ] }";
+  }
+  else {
+    ss << "{ \"ngsi_url\": {"
+       <<   "     \"updateContext\": \"/NGSI10/updateContext\","
+       <<   "     \"registerContext\": \"/NGSI9/registerContext\","
+       <<   "     \"queryContext\": \"/NGSI10/queryContext\""
+       <<   "},"
+       <<   "\"public_ip\": \"127.0.0.1:8888\","
+       <<   "\"timeout\": 1,"
+       <<   "\"http_proxy\": \"127.0.0.1:8888\","
+       <<   "\"dir_log\": \"/tmp/\","
+       <<   "\"timezones\": \"/etc/iot/date_time_zonespec.csv\","
+       <<   "\"storage\": {"
+       <<   "\"host\": \"127.0.0.1\","
+       <<   "\"type\": \"" <<  type << "\","
+       <<   "\"port\": \"27017\","
+       <<   "\"dbname\": \"iotest\","
+       <<   "\"file\": \"../../tests/iotagent/devices.json\""
+       << "},"
+       << "\"resources\":[{\"resource\": \"/iot/d\","
+       << "  \"options\": {\"FileName\": \"UL20Service\" },"
+       <<    " \"services\":[ {"
+       <<   "\"apikey\": \"apikey3\","
+       <<   "\"service\": \"service2\","
+       <<   "\"service_path\": \"/ssrv2\","
+       <<   "\"token\": \"token2\","
+       <<   "\"outgoing_route\": \"gretunnel-service2\","
+       <<   "\"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
+       <<   "\"entity_type\": \"thing\""
+       << "} ] } ] }";
+  }
+  //my_instance->update_conf(ss);
+  std::string err = my_instance->read_file(ss);
+  std::cout << "GET CONF " << my_instance->getAll() << std::endl;
+  if (!err.empty()) {
+    std::cout << "start_cbmock:" << err << std::endl;
+    std::cout << "start_cbmock_data:" << ss.str() << std::endl;
+  }
+
+
+}
+
+void SimplePluginTest::testRegisterIoTA() {
+
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock("/protocols"));
+  start_cbmock(cb_mock, "mongodb");
+  std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
+  scheduler.set_num_threads(1);
+  wserver.reset(new pion::http::plugin_server(scheduler));
+  spserv_auth = new iota::SPService();
+  wserver->add_service("/iot/sp", spserv_auth);
+  wserver->start();
+
+  CPPUNIT_ASSERT_MESSAGE("Manager endpoint ",
+                         spserv_auth->get_iota_manager_endpoint().find("/protocols") !=
+                         std::string::npos);
+
+  ASYNC_TIME_WAIT
+  std::string r_1 = cb_mock->get_last();
+  CPPUNIT_ASSERT_MESSAGE("POST manager ", r_1.find("HOLA") != std::string::npos);
+}
 void SimplePluginTest::testFilter() {
   std::cout << "START testFilter" << std::endl;
   pion::logger pion_logger(PION_GET_LOGGER("main"));
@@ -188,32 +295,37 @@ void SimplePluginTest::testGetDevice() {
   wserver->start();
   std::cout << "THREADS " << scheduler.get_num_threads() << std::endl;
 
-  std::cout << "get_device 8934075379000039321 serviceTT  /subservice " << std::endl;
-  boost::shared_ptr<iota::Device> dev = spserv_auth->get_device("8934075379000039321", "serviceTT", "/subservice");
-  if (dev.get() == NULL){
-     std::cout << "Not found device 8934075379000039321" << std::endl;
-     CPPUNIT_ASSERT_MESSAGE("Not found device 8934075379000039321", true);
-  }else {
-     std::cout << " entity: " << dev->_entity_name  << std::endl;
+  std::cout << "get_device 8934075379000039321 serviceTT  /subservice " <<
+            std::endl;
+  boost::shared_ptr<iota::Device> dev =
+    spserv_auth->get_device("8934075379000039321", "serviceTT", "/subservice");
+  if (dev.get() == NULL) {
+    std::cout << "Not found device 8934075379000039321" << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("Not found device 8934075379000039321", true);
+  }
+  else {
+    std::cout << " entity: " << dev->_entity_name  << std::endl;
     // CPPUNIT_ASSERT_MESSAGE("device has not correct entity_name", dev->_entity_name.compare("room1") == 0);
   }
 
   std::cout << "get_device 8934075379000039321  /subservice" << std::endl;
   dev = spserv_auth->get_device("8934075379000039321", "", "/subservice");
-  if (dev.get() == NULL){
-     std::cout << "Not found device 8934075379000039321" << std::endl;
-     CPPUNIT_ASSERT_MESSAGE("Not found device 8934075379000039321", true);
-  }else {
+  if (dev.get() == NULL) {
+    std::cout << "Not found device 8934075379000039321" << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("Not found device 8934075379000039321", true);
+  }
+  else {
     std::cout << " entity: " << dev->_entity_name  << std::endl;
     // CPPUNIT_ASSERT_MESSAGE("device has not correct entity_name", dev->_entity_name.compare("room1") == 0);
   }
 
   std::cout << "get_device 8934075379000039321" << std::endl;
   dev = spserv_auth->get_device("8934075379000039321");
-  if (dev.get() == NULL){
-     std::cout << "Not found device 8934075379000039321" << std::endl;
-     CPPUNIT_ASSERT_MESSAGE("Not found device 8934075379000039321", true);
-  }else {
+  if (dev.get() == NULL) {
+    std::cout << "Not found device 8934075379000039321" << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("Not found device 8934075379000039321", true);
+  }
+  else {
     std::cout << " entity: " << dev->_entity_name  << std::endl;
     // CPPUNIT_ASSERT_MESSAGE("device has not correct entity_name", dev->_entity_name.compare("room1") == 0);
   }

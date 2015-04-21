@@ -19,41 +19,51 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_SERVICE_COLLECTION_H_
-#define SRC_UTIL_SERVICE_COLLECTION_H_
+#ifndef SRC_UTIL_SERVICE_MGMT_COLLECTION_H_
+#define SRC_UTIL_SERVICE_MGMT_COLLECTION_H_
 
 #include <string>
 #include <vector>
 
 #include "collection.h"
-#include "device.h"
+#include "service_collection.h"
+
+
 
 namespace iota {
 
-class ServiceCollection : public Collection {
+typedef std::pair<std::string, std::string>   ServiceType;
+
+typedef std::string  IotagentType;
+
+class ServiceMgmtCollection : public ServiceCollection {
   public:
 
-    ServiceCollection();
+    ServiceMgmtCollection();
 
-    ServiceCollection(ServiceCollection&);
+    ServiceMgmtCollection(ServiceMgmtCollection&);
 
-    ~ServiceCollection();
+    ~ServiceMgmtCollection();
 
     int createTableAndIndex();
 
-    static void addServicePath(const std::string & service_path,
-                        mongo::BSONObjBuilder &obj );
-
     virtual const std::string &getPostSchema() const;
-    virtual const std::string &getPutSchema() const;
+
+    std::vector<ServiceType> get_services_by_protocol(
+              const std::string &protocol_name,
+              int limit=0, int skip=0);
+
+    std::vector<IotagentType> get_iotagents_by_service(
+        const std::string & service, const std::string& service_path,
+        const std::string& protocol_id,
+        int limit=0, int skip=0);
+
+    std::vector<iota::ServiceType> get_services_group_protocol(
+              const std::string &protocol_name,
+              int limit, int skip);
 
     virtual void getElementsFromBSON(mongo::BSONObj &obj,
                            std::vector<mongo::BSONObj>& result);
-
-    virtual int fill_all_resources(const std::string& service,
-                                   const std::string& service_path,
-                                   std::vector<std::string>& resources);
-
 
   protected:
 
@@ -62,7 +72,6 @@ class ServiceCollection : public Collection {
 
   private:
 
-    static const std::string _PUT_SCHEMA;
     static const std::string _POST_SCHEMA;
 
 }; // end class ServiceCollection

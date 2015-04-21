@@ -41,7 +41,7 @@ void argument_error(void) {
   std::cerr << "usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE" <<
             std::endl
             << "         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE" << std::endl
-            << "options: [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]"
+            << "options: [-m] [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]"
             << std::endl;
 }
 
@@ -71,6 +71,7 @@ int main(int argc, char* argv[]) {
   std::string log_level;
   std::string standalone_config_file;
   std::string component_name("iota");
+  bool manager = false;
   bool ssl_flag = false;
   bool verbose_flag = false;
   int  port = DEFAULT_PORT;
@@ -148,6 +149,10 @@ int main(int argc, char* argv[]) {
           log_level.assign(argv[++argnum]);
         }
       }
+      else if (argv[argnum][1] == 'm' && argv[argnum][2] == '\0') {
+        // Start as IoTA Manager
+        manager = true;
+      }
       else {
         argument_error();
         return 1;
@@ -198,7 +203,7 @@ int main(int argc, char* argv[]) {
   std::string dir_log("/tmp/");
   try {
     const iota::JsonValue& log_obj = iota::Configurator::instance()->get(
-                                 iota::types::CONF_FILE_DIR_LOG.c_str());
+                                       iota::types::CONF_FILE_DIR_LOG.c_str());
     if (log_obj.IsString()) {
       dir_log.assign(log_obj.GetString());
     }
@@ -291,8 +296,16 @@ int main(int argc, char* argv[]) {
     */
     pion::one_to_one_scheduler pion_scheduler;
     pion_scheduler.set_num_threads(8);
-    PION_LOG_FATAL(main_log,
-                   "======= IoTAgent StartingWebServer: " << cfg_endpoint.address() << " ========");
+    if (!manager) {
+      PION_LOG_INFO(main_log,
+                    "======= IoTAgent StartingWebServer: " << cfg_endpoint.address() <<
+                    " ========");
+    }
+    else {
+      PION_LOG_INFO(main_log,
+                    "======= IoTAgent Manager StartingWebServer: " << cfg_endpoint.address() <<
+                    " ========");
+    }
 
     pion::http::plugin_server_ptr web_server(new pion::http::plugin_server(
           pion_scheduler,
@@ -302,18 +315,21 @@ int main(int argc, char* argv[]) {
     // static service
     AdminService_ptr = new iota::AdminService(web_server);
     AdminService_ptr->set_log_file(log_file);
-    iota::NgsiService* ngsi_ptr = new iota::NgsiService();
-
     // Argument with url-base
     std::string adm_service_url(iota::URL_BASE);
-    //adm_service_url.append("/agents");
     web_server->add_service(adm_service_url, AdminService_ptr);
-    std::string url_ngsi_common(iota::URL_BASE);
-    url_ngsi_common.append("/");
-    url_ngsi_common.append(iota::NGSI_SERVICE);
-    web_server->add_service(url_ngsi_common, ngsi_ptr);
-    AdminService_ptr->add_service(url_ngsi_common, ngsi_ptr);
 
+    if (!manager) {
+      iota::NgsiService* ngsi_ptr = new iota::NgsiService();
+      std::string url_ngsi_common(iota::URL_BASE);
+      url_ngsi_common.append("/");
+      url_ngsi_common.append(iota::NGSI_SERVICE);
+      web_server->add_service(url_ngsi_common, ngsi_ptr);
+      AdminService_ptr->add_service(url_ngsi_common, ngsi_ptr);
+    }
+    else {
+      AdminService_ptr->set_manager();
+    }
 
     if (ssl_flag) {
 #ifdef PION_HAVE_SSL
@@ -339,13 +355,12 @@ int main(int argc, char* argv[]) {
         web_server->set_service_option(url_complete, i->first, i->second);
       }
     }
-    else {
+    else if (!manager) {
       // load services using the configuration file
-      //web_server->load_service_config(service_config_file);
       try {
         PION_LOG_DEBUG(main_log, "Config file " << service_config_file);
         const iota::JsonValue& resources = iota::Configurator::instance()->get(
-                                       iota::types::CONF_FILE_RESOURCES.c_str());
+                                             iota::types::CONF_FILE_RESOURCES.c_str());
         if (!resources.IsArray()) {
           PION_LOG_FATAL(main_log, "ERROR in Config File " << service_config_file <<
                          " Configuration error [resources]");
@@ -359,7 +374,8 @@ int main(int argc, char* argv[]) {
               std::string res =
                 resources[i][iota::types::CONF_FILE_RESOURCE.c_str()].GetString();
               if (resources[i].HasMember(iota::types::CONF_FILE_OPTIONS.c_str())) {
-                const iota::JsonValue& options = resources[i][iota::types::CONF_FILE_OPTIONS.c_str()];
+                const iota::JsonValue& options =
+                  resources[i][iota::types::CONF_FILE_OPTIONS.c_str()];
                 if ((options.HasMember(iota::types::CONF_FILE_FILE_NAME.c_str()))
                     && (options[iota::types::CONF_FILE_FILE_NAME.c_str()].IsString())) {
                   std::string s_n(options[iota::types::CONF_FILE_FILE_NAME.c_str()].GetString());

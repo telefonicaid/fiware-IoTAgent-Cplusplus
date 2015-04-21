@@ -32,6 +32,7 @@ const std::string types::CONF_FILE_SERVICE("service");
 const std::string types::CONF_FILE_SERVICE_PATH("service_path");
 const std::string types::CONF_FILE_TOKEN("token");
 const std::string types::CONF_FILE_CBROKER("cbroker");
+const std::string types::CONF_FILE_PROXY("http_proxy");
 const std::string types::CONF_FILE_ENTITY_TYPE("entity_type");
 const std::string types::CONF_FILE_STATISTICS("statistics");
 
@@ -41,6 +42,8 @@ const std::string types::CONF_FILE_FILE_NAME("FileName");
 const std::string types::CONF_FILE_TIMEOUT("timeout");
 const std::string types::CONF_FILE_DIR_LOG("dir_log");
 const std::string types::CONF_FILE_TIMEZONES("timezones");
+
+const std::string types::CONF_FILE_IOTA_MANAGER("iota_manager");
 
 
 const std::string types::CONF_FILE_DEVICES_STORE("devices_store");
@@ -141,6 +144,9 @@ const std::string
 types::RESPONSE_MESSAGE_DUPLICATED_DATA("There are conflicts, object already exists");
 
 const std::string
+types::RESPONSE_MESSAGE_BAD_PROTOCOL("There are conflicts, protocol is not correct");
+
+const std::string
 types::RESPONSE_MESSAGE_DATA_NOT_FOUND("Field or data not founded");
 
 
@@ -197,6 +203,7 @@ const std::string types::ERROR_DELIMITER = "@@ERROR_DELIMITER@@";
 const std::string types::ERROR_BAD_REQUEST = "@@ERROR_BAD_REQUEST@@";
 
 const std::string types::HEADER_TRACE_MESSAGES("X-Trace-Message");
+const std::string types::HEADER_OUTGOING_ROUTE("X-M2M-Outgoing-Route");
 
 const std::string types::STAT_TRAFFIC("traffic");
 const std::string types::STAT_TRAFFIC_IN("in");

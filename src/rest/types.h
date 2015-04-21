@@ -40,6 +40,7 @@ struct types {
   static const std::string CONF_FILE_SERVICE_PATH;
   static const std::string CONF_FILE_TOKEN;
   static const std::string CONF_FILE_CBROKER;
+  static const std::string CONF_FILE_PROXY;
   static const std::string CONF_FILE_ENTITY_TYPE;
   static const std::string CONF_FILE_STATISTICS;
 
@@ -49,6 +50,8 @@ struct types {
   static const std::string CONF_FILE_TIMEOUT;
   static const std::string CONF_FILE_DIR_LOG;
   static const std::string CONF_FILE_TIMEZONES;
+
+  static const std::string CONF_FILE_IOTA_MANAGER;
 
 
   // Storage
@@ -91,6 +94,7 @@ struct types {
   static const std::string RESPONSE_MESSAGE_NOT_ACCEPTABLE;
   static const std::string RESPONSE_MESSAGE_NO_SERVICE;
   static const std::string RESPONSE_MESSAGE_NO_DEVICE;
+  static const std::string RESPONSE_MESSAGE_BAD_PROTOCOL;
   static const std::string RESPONSE_MESSAGE_DATA_NOT_FOUND;
   static const std::string RESPONSE_MESSAGE_BAD_URI;
   static const std::string RESPONSE_MESSAGE_MORE_ONE_SERVICE;
@@ -158,6 +162,7 @@ struct types {
 
   // Header to trace messages
   static const std::string HEADER_TRACE_MESSAGES;
+  static const std::string HEADER_OUTGOING_ROUTE;
 
   // Counters
   static const std::string STAT_TRAFFIC;
@@ -227,5 +232,10 @@ struct types {
   static const char* ERROR_MESSAGE[];
 
 };
+
+typedef struct ProtocolData {
+  std::string protocol;
+  std::string description;
+} ProtocolData;
 }
 #endif

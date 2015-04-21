@@ -31,6 +31,7 @@ iota::Command::Command(const std::string& id_nodo,
   _nodo = id_nodo;
 
 
+  _id = "";
   _expired = INT_MIN;
   _timeout = INT_MIN;
   _status = INT_MIN;

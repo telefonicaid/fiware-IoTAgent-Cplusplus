@@ -15,12 +15,14 @@
     4. [Ngsi](#def-ngsi)
     5. [Logs](#def-logs)
     6. [Timezone](#def-timezone)
-    7. [General configuration](#def-general)
-    8. [Examples](#def-examples)
+    7. [HTTP Proxy](#def-proxy)
+    8. [General configuration](#def-general)
+    9. [Examples](#def-examples)
         1. [Example mongo storage, example resource](#def-examples1)
         2. [Example file storage](#def-examples2)
 5. [Check Instalation with HTTP request with curls](#def-check)
 6. [Monitoring Events and Alarms](#def-alarms)
+7. [Using SmartM2M VPNs](VPNs.md)
 
 <a name="def-introduction"></a>
 ## 1. Introduction
@@ -302,6 +304,7 @@ Iotagent needs a configuration file,  usually named config.json, an example coul
         "queryContext": "/NGSI10/queryContext"
     },
     "timeout": 10,
+    "http_proxy": "192.0.0.2:3128"
     "dir_log": "/tmp/",
     "timezones": "/etc/iot/date_time_zonespec.csv",
     "storage": {
@@ -320,6 +323,17 @@ Iotagent needs a configuration file,  usually named config.json, an example coul
    ]
 }
 ```
+
+If installation requires high availability and a load balancer will be used, ip:port of balancer should be configured in a field "public_ip" into "ngsi_url". An example should be :
+```
+"ngsi_url": {
+        "updateContext": "/NGSI10/updateContext",
+        "registerContext": "/NGSI9/registerContext",
+        "queryContext": "/NGSI10/queryContext",
+        "public_ip": "10.95.200.200:20000"
+    },
+```
+
 You can get more information in next sections.
 
 Now you can create an start script, for example  init_iotagent.sh
@@ -492,13 +506,17 @@ You should review [Monitoring alarms](#def-alarms).
 ### 6. Timezone configuration
 This information is not used in this version, but it points where database (a file) for timezones is.
 
+<a name="def-proxy"></a>
+### 7. HTTP server proxy
+In order to send commands to devices in VPN, IoTAgent provides an infrastructure based in _squid_ as HTTP proxy and endpoint of GRE tunnels.
+
 <a name="def-general"></a>
-### 7. General configuration
+### 8. General configuration
 Field _timeout_ is a general timer for operations.
 
 
 <a name="def-examples"></a>
-### 8. Examples
+### 9. Examples
 
 Now, we put all together, and ther are two examples, one with mongodb storage and second with file storage.
 You can change for your specific values and use these files.
@@ -672,7 +690,7 @@ db.DEVICE.find()
 Alarms
 
 Alarms is logged in FATAL level, and an alarm means that a communication between an other component is broken.
-When the communication is restored other fatal log is written with event=END-ALARM, pay attention, only FATAL logs must be consider, logs in DEBUG level are normal and can't be considered.
+When the communication is restored other fatal log is written with event=END-ALARM, pay attention, only FATAL logs must be consider, logs in DEBUG level are normal and cannot be considered.
 
 Every alarm has a code to identify it.
 
@@ -693,4 +711,3 @@ Example of broken communications with mongo database
 
 060315T123808,396.176UTC|lvl=DEBUG|comp=iota:dev|op=remove|[140148573378304:alarm.cc:96] |event=END-ALARM|code=100|origin= 127.0.0.1:27017|info=MongoConnection OK
 ```
-

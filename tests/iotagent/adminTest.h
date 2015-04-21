@@ -48,6 +48,8 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testAttributeService);
 
     CPPUNIT_TEST(testAbout);
+    CPPUNIT_TEST(testcheck_device_protocol);
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -62,6 +64,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     static const std::string URI_DEVICE;
     //POST
     static const std::string POST_DEVICE;
+    static const std::string BAD_PROTOCOL_POST_DEVICE;
     static const std::string BAD_POST_DEVICE;
     static const std::string BAD_POST_DEVICE2;
      static const std::string BAD_POST_DEVICE3;
@@ -105,7 +108,25 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     //GET elto
     static const std::string GET_SERVICE_RESPONSE;
 
+    //PROTOCOL
+    static const std::string URI_PROTOCOLS;
+    static const std::string POST_PROTOCOLS1;
+    static const std::string POST_PROTOCOLS2;
+    static const std::string POST_PROTOCOLS3;
+    static const std::string POST_PROTOCOLS4;
+    static const std::string GET_PROTOCOLS_RESPONSE;
 
+    // SERVICE_MANAGEMENT
+    static const std::string URI_SERVICES_MANAGEMET;
+    static const std::string POST_SERVICE_MANAGEMENT1;
+    static const std::string POST_SERVICE_MANAGEMENT2;
+    static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
+
+
+    //DEVICE_MANAGEMENT
+    static const std::string URI_DEVICES_MANAGEMEMT;
+    static const std::string POST_DEVICE_MANAGEMENT1;
+    static const std::string GET_DEVICE_MANAGEMENT_RESPONSE;
 
     int http_test(const std::string& uri,
                   const std::string& method,
@@ -146,6 +167,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     void testAttributeService();
 
     void testAbout();
+    void testcheck_device_protocol();
 
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;

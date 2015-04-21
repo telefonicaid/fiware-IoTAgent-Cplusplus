@@ -27,6 +27,7 @@
 #include <rest/command_handle.h>
 #include <rapidjson/document.h>
 #include <boost/date_time/local_time/local_time.hpp>
+#include "util/service_collection.h"
 
 
 namespace iota {        // begin namespace iota
@@ -39,8 +40,19 @@ class AdminService :
     virtual ~AdminService();
     virtual void start();
     virtual void stop();
+
+    void checkIndexes();
     void set_timezone_database(std::string timezone_str);
+    void set_manager();
     boost::posix_time::ptime get_local_time_from_timezone(std::string timezone_str);
+
+    /**
+         * @name    getServiceCollectionName
+         * @brief   return the name of collection
+         *
+         * @return if adminservice is manager returns SERVICE_MGMT if not returns SERVICE
+         */
+    const std::string& getServiceCollectionName();
 
     void agents(pion::http::request_ptr& http_request_ptr,
                 std::map<std::string, std::string>& url_args,
@@ -77,6 +89,13 @@ class AdminService :
                  std::multimap<std::string, std::string>& query_parameters,
                  pion::http::response& http_response,
                  std::string& response);
+
+    void protocols(pion::http::request_ptr& http_request_ptr,
+                   std::map<std::string, std::string>& url_args,
+                   std::multimap<std::string, std::string>& query_parameters,
+                   pion::http::response& http_response,
+                   std::string& response);
+
 
     void about(pion::http::request_ptr& http_request_ptr,
                std::map<std::string, std::string>& url_args,
@@ -229,6 +248,27 @@ class AdminService :
       std::string& response);
 
     /**
+       * @name    check_device_protocol
+       * @brief   check if service and service_path has a resource (plugin)
+       *          with this protocol
+       *
+       *
+       * Example Request:
+       * @code
+       *    check_device_protocol("UL20", "s1", "/s1");
+       * @endcode
+       *
+       * <h2>Return values</h2>
+       * @return true if there is a plugin.
+       *
+       */
+    bool check_device_protocol(const std::string &protocol_name,
+                               const std::string &service_name,
+                               const std::string &service_path,
+                               const boost::shared_ptr<iota::ServiceCollection> &table);
+
+
+    /**
          * @name    get_all_json
          * @brief   API Rest method POST to insert a device (using json)
          *
@@ -249,6 +289,7 @@ class AdminService :
          * @endcode
          */
     int get_all_services_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       int limit,
@@ -260,6 +301,7 @@ class AdminService :
 
 
     int get_a_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& device_id,
@@ -293,6 +335,7 @@ class AdminService :
       * @endcode
       */
     int put_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& service_id,
@@ -325,6 +368,7 @@ class AdminService :
        * @endcode
        */
     int post_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& body,
@@ -351,6 +395,7 @@ class AdminService :
        * @endcode
        */
     int delete_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& id_service,
@@ -358,6 +403,26 @@ class AdminService :
       const std::string& resource,
       bool remove_devices,
       pion::http::response& http_response,
+      std::string& response);
+
+    int post_protocol_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response);
+
+    int get_protocols_json(
+      int limit,
+      int offset,
+      const std::string& detailed,
+      const std::string& resource,
+      pion::http::response& http_response,
+      std::string& response);
+
+    int delete_all_protocol_json(
+      pion::http::response& http_response,
+      const std::string& protocol_name,
       std::string& response);
 
     /**
@@ -370,7 +435,7 @@ class AdminService :
 
   private:
 
-    void remove_from_cache(Device &device);
+    void remove_from_cache(Device& device);
     void check_uri(const std::string& data);
 
     // API holders
@@ -404,6 +469,7 @@ class AdminService :
     std::string check_json(const std::string& json_str, JsonDocument& doc);
 
     std::string get_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path);
 
@@ -411,7 +477,7 @@ class AdminService :
     bool is_mongo_active();
     bool validate_json_schema(
       const std::string& json_str,
-      const std::string& table,
+      const boost::shared_ptr<iota::Collection>& table,
       const std::string& method,
       std::string& response);
 
@@ -425,6 +491,9 @@ class AdminService :
     void check_logs();
     boost::shared_ptr<boost::asio::deadline_timer> _timer;
     std::string _log_file;
+
+    // As manager
+    bool _manager;
 };
 
 }   // end namespace iota

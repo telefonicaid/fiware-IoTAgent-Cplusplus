@@ -19,55 +19,63 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_SERVICE_COLLECTION_H_
-#define SRC_UTIL_SERVICE_COLLECTION_H_
+#ifndef SRC_UTIL_PROTOCOL_COLLECTION_H_
+#define SRC_UTIL_PROTOCOL_COLLECTION_H_
 
 #include <string>
 #include <vector>
 
 #include "collection.h"
-#include "device.h"
+#include "protocol.h"
+
+
 
 namespace iota {
 
-class ServiceCollection : public Collection {
+class ProtocolCollection : public Collection {
   public:
 
-    ServiceCollection();
+    ProtocolCollection();
 
-    ServiceCollection(ServiceCollection&);
+    ProtocolCollection(ProtocolCollection&);
 
-    ~ServiceCollection();
+    ~ProtocolCollection();
 
     int createTableAndIndex();
 
-    static void addServicePath(const std::string & service_path,
-                        mongo::BSONObjBuilder &obj );
+    int insert(const Protocol& obj) ;
+    int find(const Protocol& query) ;
+    Protocol next() ;
+    int remove(const Protocol& query) ;
+    int count(const Protocol& query) ;
+
+    int update(const Protocol& query,
+               const Protocol& sett);
+
+    std::vector<iota::Protocol> get_all();
+
+    /**
+     *  in protocols fills with protocol name and protocol description
+     **/
+    void fillProtocols(std::map<std::string,std::string> &protocols);
 
     virtual const std::string &getPostSchema() const;
     virtual const std::string &getPutSchema() const;
 
-    virtual void getElementsFromBSON(mongo::BSONObj &obj,
-                           std::vector<mongo::BSONObj>& result);
-
-    virtual int fill_all_resources(const std::string& service,
-                                   const std::string& service_path,
-                                   std::vector<std::string>& resources);
-
-
   protected:
 
+    iota::Protocol BSON2Obj(const mongo::BSONObj& obj);
 
-    //TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
+    mongo::BSONObj Obj2BSON(const Protocol& protocol, bool withShardKey);
 
   private:
 
     static const std::string _PUT_SCHEMA;
     static const std::string _POST_SCHEMA;
 
-}; // end class ServiceCollection
+}; // end class ProtocolCollection
 
-}// end namespace  riot
+}// end namespace  iota
 
 #endif
 

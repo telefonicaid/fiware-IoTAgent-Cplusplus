@@ -36,6 +36,27 @@ You can review protocol reference in [Ultra-Light](UL20_protocol.md).
 
 ## MQTT Agent ###
 
+MQTT is a M2M oriented protocol based on TCP that requires a broker for publishing and subscribing to messages based on topics hiearchy. In order to be able to publish and receive on IoTAgent-MQTT, services must be provisioned providing an api-key that will be used in the topics sent by devices belonging to that service as explained here [MQTT](MQTT_protocol.md). The typical port used is 1883 (no SSL).  
+
+As MQTT works over TCP, there is no curl command to test it. However, anyone could use <a href=http://mosquitto.org>Mosquitto</a> implemenation to test it. It comes with both clients: publisher and subscriber, so once a service is provisioned, you can issue the following commands to test that is working:
+
+For subscribing to topics coming to your recently provisioned device (replace api-key and device-id with actual ids). "Server.name" is the IP or hostname where the broker is (typically is the same as IotAgent's)
+```
+     mosquitto_sub -h sever.name -t /api-key/device-id/+ -d
+```
+
+Then you can publish a test (on a separate shell):
+
+```
+     mosquitto_pub -h server.name -t /api-key/device-id/test -m 44
+```
+You can check that the message has come to the subscriber and also to the ContextBroker, as IoTAgent will be listening to all publications. 
+
+```
+{"id":"my_device","type":"thing","isPattern":"false","attributes":[{"name":"test","type":"string","value":"44","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]},{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]}
+```
+
+
 ## Thinking Things Agent ###
 Thinking Things devices use their own frame format over HTTP requests to send measures and take configuration changes. Thinking Things module for IoTAgent will transform those HTTP request into ContextBroker entities following the mapping described here: [Thinking Things](TT_protocol.md). One key thing that differentiates Thinking Things from others protocols is that there is no "apikey" for identifying services. Users will need to provision a "sub-service" within the given Service. For doing so, they have to provide a "trust_token" as credentials.
 

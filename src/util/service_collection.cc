@@ -32,16 +32,20 @@ iota::ServiceCollection::ServiceCollection():Collection(
     iota::store::types::SERVICE_TABLE) {
 };
 
-
 iota::ServiceCollection::ServiceCollection(ServiceCollection& dc):Collection(
     dc) {
 };
+
+iota::ServiceCollection::~ServiceCollection() {
+};
+
 
 void iota::ServiceCollection::addServicePath(const std::string& data,
     mongo::BSONObjBuilder& obj) {
 
   if (data.empty()) {
-    obj.append(iota::store::types::SERVICE_PATH, iota::types::FIWARE_SERVICEPATH_DEFAULT);
+    obj.append(iota::store::types::SERVICE_PATH,
+               iota::types::FIWARE_SERVICEPATH_DEFAULT);
   }
   else if (data.compare("/*")!= 0 && data.compare("/#")!= 0) {
     obj.append(iota::store::types::SERVICE_PATH, data);
@@ -65,20 +69,38 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 
 }*/
 
-std::string iota::ServiceCollection::getSchema(const std::string& method) {
-  std::ostringstream schema;
+int iota::ServiceCollection::fill_all_resources(const std::string& service,
+                                                 const std::string& service_path,
+                                                 std::vector<std::string>& resources) {
 
-  if (method.compare("POST") == 0) {
-    return   POST_SCHEMA;
-  }
-  else {
-    return   PUT_SCHEMA;
+  int result =0;
+  mongo::BSONObj query = BSON ( iota::store::types::SERVICE << service <<
+                                iota::store::types::SERVICE_PATH << service_path);
+  mongo::BSONObjBuilder field_return;
+  field_return.append(iota::store::types::RESOURCE, 1);
+
+  find(query, field_return);
+  mongo::BSONObj obj;
+  std::string resource;
+  if (more()) {
+    obj =  next();
+    std::cout << obj << std::endl;
+    resource = obj.getStringField(iota::store::types::RESOURCE);
+    if (!resource.empty()){
+        resources.push_back(resource);
+        std::cout << "push_back" << resource << std::endl;
+        result++;
+      }
   }
 
+  return result;
 }
 
+const std::string & iota::ServiceCollection::getPostSchema() const{
+  return _POST_SCHEMA;
+}
 
-const std::string iota::ServiceCollection::POST_SCHEMA(
+const std::string iota::ServiceCollection::_POST_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Service\","
   "\"description\": \"A service\","
@@ -110,6 +132,10 @@ const std::string iota::ServiceCollection::POST_SCHEMA(
   "\"type\": \"string\","
   "\"format\": \"uri\","
   "\"minLength\":1"
+  "},"
+  "\"outgoing_route\": {"
+  "\"description\": \"VPN/GRE tunnel identifier\","
+  "\"type\": \"string\""
   "},"
   "\"resource\": {"
   "\"description\": \"uri for the iotagent\","
@@ -171,7 +197,11 @@ const std::string iota::ServiceCollection::POST_SCHEMA(
   ",\"required\": [\"services\"]"
   "}");
 
-const std::string iota::ServiceCollection::PUT_SCHEMA(
+const std::string & iota::ServiceCollection::getPutSchema() const{
+  return _PUT_SCHEMA;
+}
+
+const std::string iota::ServiceCollection::_PUT_SCHEMA(
   "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Device\","
   "\"description\": \"A device\","
@@ -195,6 +225,10 @@ const std::string iota::ServiceCollection::PUT_SCHEMA(
   "\"type\": \"string\","
   "\"format\": \"uri\","
   "\"minLength\":1"
+  "},"
+  "\"outgoing_route\": {"
+  "\"description\": \"VPN/GRE tunnel identifier\","
+  "\"type\": \"string\""
   "},"
   "\"resource\": {"
   "\"description\": \"uri for the iotagent\","
@@ -251,12 +285,21 @@ const std::string iota::ServiceCollection::PUT_SCHEMA(
   "}"
   "}");
 
-
 int iota::ServiceCollection::createTableAndIndex() {
 
   int res = 200;
-  ensureIndex("shardKey",
-              BSON("service" << 1 << "service_path" << 1 << "resource" <<1),
-              true);
-  return res;
+  // db.SERVICE.ensureIndex({"service":1, service_path:1, resource:1},{"unique":1})
+  mongo::BSONObj indexUni = BSON("service" << 1 << "service_path" << 1 << "resource" <<1);
+
+  return createIndex(indexUni, true);
+}
+
+
+void iota::ServiceCollection::getElementsFromBSON(mongo::BSONObj &obj,
+                                std::vector<mongo::BSONObj> &result){
+  std::vector<mongo::BSONElement> be = obj.getField(
+                                           iota::store::types::SERVICES).Array();
+  for (unsigned int i = 0; i<be.size(); i++) {
+      result.push_back(be[i].embeddedObject());
+  }
 }

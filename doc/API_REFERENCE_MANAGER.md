@@ -1,7 +1,9 @@
 FORMAT: 1A
 
-# IoT Agent Provision API Documentacion
-The IoT Agent Provision API is based on REST principles. This documentation covers the resources you can manipulate on IoT Agent in order to publish custom information in IoT Platform.
+# IoT Manager API Documentacion
+The IoT Manager API is based on REST principles. This documentation covers the resources you can manipulate on IoT Manager in order to manage  information registered by IoT Agents.
+
+NOTE: This document is a **work in progress**.
 
 **Allowed HTTPs requests:**
 
@@ -44,15 +46,55 @@ Anyway, this API needs two headers in order to manage requests:
 ## API Access
 All URIs are relative to an specific url, where IoT Agent is raised. For example, `http://127.0.0.1:8080/iot/`.
 
-## Services [/services{?limit,offset,resource,apikey,device}]
+## Protocols [/protocols{?limit,offset}]
+Protocols are the rules that define the communication with different devices. It depends on the deployed iotagents, a list will be displayed with the ID and description of the protocols.
+
+### Protocol Model
+Fields in JSON object representing a protocol are:
+- `id` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
+- `protocol` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
+- `description`(string, mandatory). Context Broker endpoint assigned to this service, it must be a real uri.
+
+### Retrieve a service [GET]
+
+It retrieves all protocols.
+
++ Parameters [limit, offset]
+
+    + `limit` (optional, number). In order to specify the maximum number of services (default is 20, maximun allowed is 1000).
+
+    + `offset` (optional, number). In order to skip a given number of elements at the beginning (default is 0) .
+
+
++ Request (application/json)
+
+
++ Response 200
+
+    + Body
+
+            {
+              "count": 1,
+              "protocols": [
+                {
+                    "id": "apikey3",
+                    "protocol": "service2",
+                    "description": "/srvpath2",
+                }
+              ]
+            }
+
+## Services [/services{?limit,offset}]
 Services are the higher level in IoT Platform. When you manipulate a service, you use a Fiware-Service header with its name. Parameters apply to different operations.
 
 ### Service Model
 Fields in JSON object representing a service are:
+- `protocol` (string, mandatory). It is the unique identifier of the protocol.
+- `description` (string, mandatory). It is the description of the protocol.
 - `apikey` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
 - `token` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
 - `cbroker`(string, mandatory). Context Broker endpoint assigned to this service, it must be a real uri.
-- `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent. 
+- `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
 - `resource` (string, mandatory). Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
 - `entity_type` (string, optional). Entity type used in entity publication (overload default).
 - `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
@@ -76,8 +118,6 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
     + `offset` (optional, number). In order to skip a given number of elements at the beginning (default is 0) .
 
-    + `resource` (optional, string). URI for the iotagent, return only services for this iotagent.
-
 + Request (application/json)
 
     + Headers
@@ -93,6 +133,8 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
               "count": 1,
               "services": [
                 {
+                    "protocol": "55261958d31fc2151cc44c70",
+                    "description": "protocol description",
                     "apikey": "apikey3",
                     "service": "service2",
                     "service_path": "/srvpath2",
@@ -146,6 +188,7 @@ With one subservice defined in Fiware-ServicePath header.
             {
               "services": [
                 {
+                  "protocol": ["55261958d31fc2151cc44c70", "55261958d31fc2151cc44c74"],
                   "apikey": "apikey3",
                   "token": "token2",
                   "cbroker": "http://127.0.0.1:1026",
@@ -158,54 +201,10 @@ With one subservice defined in Fiware-ServicePath header.
 + Response 201
 
 
-### Update a service/subservice [PUT]
-If you want modify only a field, you can do it. ("/*" is not allowed).
-
-+ Parameters [apikey, resource]
-
-    + `apikey` (optional, string). If you don't specify, apikey="" is applied.
-
-    + `resource` (mandatory, string). URI for service into iotagent.
-
-+ Request (application/json)
-
-    + Headers
-
-            Fiware-Service: TestService
-            Fiware-ServicePath: /TestSubservice
-
-    + Body
-
-            {
-               "entity_type": "entity_type"
-            }
-
-+ Response 204
-
-### Remove a subservice/service [DELETE]
-You remove a subservice into a service. If Fiware-ServicePath is '/*' or '/#' remove service and all subservices.
-
-+ Parameters [apikey, resource, device]
-
-    + `apikey` (optional, string). If you don't specify, apikey="" is applied.
-
-    + `resource` (mandatory, string). URI for service into iotagent.
-
-    + `device` (optional, boolean). Default value is false. Remove devices in service/subservice. This parameter is not valid when Fiware-ServicePath is '/*' or '/#'.
-
-+ Request (application/json)
-
-    + Headers
-
-            Fiware-Service: TestService
-            Fiware-ServicePath: /TestSubservice
-
-+ Response 204
-
-
-## Devices [/devices{?limit,offset,detailed}]
+## Devices [/devices]
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
+- `protocol` (string, mandatory). Unique identifier for the protocol of the device.
 - `device_id` (string, mandatory). Unique identifier into a service.
 - `entity_name` (string, optional). Entity name used for entity publication (overload default)
 - `entity_type` (string, optional). Entity type used for entity publication (overload entity_type defined in service).
@@ -224,55 +223,6 @@ A device is a resource that publish information to IoT Platform and it uses the 
 `type` (string, mandatory). It must be 'command'.
 `value` (string, mandatory): command representation depends on protocol.
 
-### Retrieve all devices [GET]
-
-+ Parameters [limit, offset, detailed, entity]
-
-
-    + `limit` (optional, number). In order to specify the maximum number of services (default is 20, maximun allowed is 1000).
-
-    + `offset` (optional, number). In order to skip a given number of elements at the beginning (default is 0) .
-
-    + `detailed` (optional, string). `on` return all service information, `off` (default) return only name.
-
-    + `entity` (optional, string). It allows get a device from entity name.
-
-+ Request (application/json)
-
-    + Headers
-
-            Fiware-Service: TestService
-            Fiware-ServicePath: /TestSubservice
-
-+ Response 200
-
-    + Body
-
-            {
-              "count": 1,
-              "devices": [
-                {
-                  "device_id": "device_id",
-                  "entity_name": "entity_name",
-                  "entity_type": "entity_type",
-                  "timezone": "America/Santiago",
-                  "attributes": [
-                    {
-                      "object_id": "source_data",
-                      "name": "attr_name",
-                      "type": "int"
-                    }
-                  ],
-                  "static_attributes": [
-                    {
-                      "name": "att_name",
-                      "type": "string",
-                      "value": "value"
-                    }
-                  ]
-                }
-              ]
-            }
 
 ### Create a device [POST]
 
@@ -288,6 +238,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
             {
                 "devices": [
                 {
+                  "protocol": "55261958d31fc2151cc44c70",
                   "device_id": "device_id",
                   "entity_name": "entity_name",
                   "entity_type": "entity_type",
@@ -313,9 +264,6 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
 + Response 201
 
-    	+ Headers (only if ONE device is in request)
-
-            Location: /iot/devices/device_id
 
 + Response 400
 
@@ -324,72 +272,6 @@ A device is a resource that publish information to IoT Platform and it uses the 
             }
 
 + Response 404
-
-
-## Device [/devices/{device_id}]
-
-### Retrieve a device [GET]
-
-+ Request (application/json)
-
-    + Headers
-
-            Fiware-Service: TestService
-            Fiware-ServicePath: /TestSubservice
-
-+ Response 200
-
-    + Body
-
-            {
-              "device_id": "device_id",
-              "entity_name": "entity_name",
-              "entity_type": "entity_type",
-              "timezone": "America/Santiago",
-              "attributes": [
-                {
-                  "object_id": "source_data",
-                  "name": "attr_name",
-                  "type": "int"
-                }
-              ],
-              "static_attributes": [
-                {
-                  "name": "att_name",
-                  "type": "string",
-                  "value": "value"
-                }
-              ]
-            }
-
-### Update a device [PUT]
-If you want modify only a field, you can do it.
-+ Request (application/json)
-
-    + Headers
-
-            Fiware-Service: TestService
-            Fiware-ServicePath: /TestSubservice
-
-    + Body
-
-            {
-               "entity_name": "entity_name"
-            }
-
-
-+ Response 204
-
-### Remove a device [DELETE]
-If specific device is not found, we work as deleted.
-+ Request (application/json)
-
-    + Headers
-
-            Fiware-Service: TestService
-            Fiware-ServicePath: /TestSubservice
-
-+ Response 204
 
 
 

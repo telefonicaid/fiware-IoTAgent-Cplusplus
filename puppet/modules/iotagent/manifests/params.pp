@@ -31,7 +31,8 @@ class iotagent::params {
   $update_context_path         = hiera('iota::ngsi::update_context_path', '/NGSI10/updateContext')
   $register_context_path       = hiera('iota::ngsi::register_context_path', '/NGSI9/registerContext')
   $query_context_path          = hiera('iota::ngsi::query_context_path','/NGSI10/queryContext')
-
+  $load_balancer_url	       = hiera('iota::base::load_balancer_url')
+  $iota_manager_endpoint     = hiera('iota::base::iota_manager_endpoint')
   
 
   # Package parameters
@@ -50,6 +51,7 @@ class iotagent::params {
   $iotagent_pidfile            = "$iotagent_piddir/$iotagent_pidonlyfile"
   $iotagent_logdir             = '/var/log/iot/'
   $iotagent_process_name_monit = "iotagent-$iota_server_name"
+  $http_proxy_gre	       = hiera('iota::base::http_proxy_gre','127.0.0.1:8888')
   
   
   # Init parameters

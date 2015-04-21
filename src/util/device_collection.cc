@@ -36,31 +36,34 @@ iota::DeviceCollection::DeviceCollection():Collection(
 iota::DeviceCollection::DeviceCollection(DeviceCollection& dc):Collection(dc) {
 };
 
-int iota::DeviceCollection::insert(const Device& obj) {
+iota::DeviceCollection::~DeviceCollection() {
+};
+
+int iota::DeviceCollection::insertd(const Device& obj) {
   return iota::Collection::insert(Obj2BSON(obj, true));
 }
 
-int iota::DeviceCollection::update(const Device& query,
+int iota::DeviceCollection::updated(const Device& query,
                                    const Device& sett) {
   return iota::Collection::update(
                 Obj2BSON(query, true),
                 Obj2BSON(sett, true));
 }
 
-int iota::DeviceCollection::find(const Device& query) {
+int iota::DeviceCollection::findd(const Device& query) {
   return iota::Collection::find(Obj2BSON(query, true));
 }
 
-iota::Device iota::DeviceCollection::next() {
+iota::Device iota::DeviceCollection::nextd() {
   mongo::BSONObj data = iota::Collection::next();
   return BSON2Obj(data);
 }
 
-int iota::DeviceCollection::remove(const Device& query) {
+int iota::DeviceCollection::removed(const Device& query) {
   return iota::Collection::remove(Obj2BSON(query, true));
 }
 
-int iota::DeviceCollection::count(const Device& query) {
+int iota::DeviceCollection::countd(const Device& query) {
   return iota::Collection::count(Obj2BSON(query, true));
 }
 
@@ -179,6 +182,7 @@ iota::Device iota::DeviceCollection::BSON2Obj(mongo::BSONObj& obj) {
   result._service_path = obj.getStringField(iota::store::types::SERVICE_PATH);
   result._entity_type = obj.getStringField(iota::store::types::ENTITY_TYPE);
   result._entity_name = obj.getStringField(iota::store::types::ENTITY_NAME);
+  result._protocol = obj.getStringField(iota::store::types::PROTOCOL);
   result._timezone = obj.getStringField(iota::store::types::TIMEZONE);
   result._endpoint = obj.getStringField(iota::store::types::ENDPOINT);
 
@@ -232,6 +236,10 @@ mongo::BSONObj iota::DeviceCollection::Obj2BSON(const Device& device,
   if (!device._endpoint.empty()) {
     obj.append(iota::store::types::ENDPOINT, device._endpoint);
   }
+
+  if (!device._protocol.empty()) {
+    obj.append(iota::store::types::PROTOCOL, device._protocol);
+  }
   if (!device._entity_name.empty()) {
     obj.append(iota::store::types::ENTITY_NAME, device._entity_name);
   }
@@ -269,21 +277,11 @@ mongo::BSONObj iota::DeviceCollection::Obj2BSON(const Device& device,
   return obj.obj();
 }
 
-
-
-std::string iota::DeviceCollection::getSchema(const std::string& method) {
-  std::ostringstream schema;
-
-  if (method.compare("POST") == 0) {
-    return   POST_SCHEMA;
-  }
-  else {
-    return   PUT_SCHEMA;
-  }
-
+const std::string & iota::DeviceCollection::getPostSchema() const{
+  return _POST_SCHEMA;
 }
 
-const std::string iota::DeviceCollection::POST_SCHEMA(
+const std::string iota::DeviceCollection::_POST_SCHEMA(
 "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
 "\"title\": \"Device\","
 "\"description\": \"A device\","
@@ -302,6 +300,10 @@ const std::string iota::DeviceCollection::POST_SCHEMA(
                        "\"description\": \"The unique identifier by service for a device\","
                        "\"type\": \"string\","
                        "\"minLength\":1"
+                   "},"
+                   "\"protocol\": {"
+                       "\"description\": \"protocol name, protocol implemented by device\","
+                       "\"type\": \"string\""
                    "},"
                    "\"entity_name\": {"
                        "\"description\": \"Name of the entity, if it does not exits use device_id\","
@@ -413,7 +415,11 @@ const std::string iota::DeviceCollection::POST_SCHEMA(
      ",\"required\": [\"devices\"]"
 "}");
 
-const std::string iota::DeviceCollection::PUT_SCHEMA(
+const std::string & iota::DeviceCollection::getPutSchema() const{
+   return _PUT_SCHEMA;
+}
+
+const std::string iota::DeviceCollection::_PUT_SCHEMA(
 "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
 "\"title\": \"Device\","
 "\"description\": \"A device\","
@@ -424,6 +430,10 @@ const std::string iota::DeviceCollection::PUT_SCHEMA(
                        "\"description\": \"The unique identifier by service for a device\","
                        "\"type\": \"string\","
                        "\"minLength\":1"
+                   "},"
+                   "\"protocol\": {"
+                       "\"description\": \"protocol name, protocol implemented by device\","
+                       "\"type\": \"string\""
                    "},"
                    "\"entity_name\": {"
                        "\"description\": \"Name of the entity, if it does not exits use device_id\","
@@ -532,13 +542,10 @@ const std::string iota::DeviceCollection::PUT_SCHEMA(
 
 int iota::DeviceCollection::createTableAndIndex() {
 
-    int res =0;
+  int res =200;
+  ///db.DEVICE.ensureIndex( { "device_id": 1, "service":1, "service_path":1 }, { unique: true } )
+  mongo::BSONObj indexUni = BSON("device_id" << 1
+               << "service" << 1 << "service_path" << 1);
 
-    ///db.DEVICE.ensureIndex( { "device_id": 1, "service":1, "service_path":1 }, { unique: true } )
-
-    ensureIndex( "shardKey",
-               BSON("device_id" << 1
-               << "service" << 1 << "service_path" << 1), true);
-
-    return res;
+  return createIndex(indexUni, true);
 }
