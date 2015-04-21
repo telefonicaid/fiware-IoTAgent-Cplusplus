@@ -231,6 +231,9 @@ std::string iota::RestHandle::get_public_ip() {
 void iota::RestHandle::register_iota_manager() {
 
   std::string iota_manager_endpoint = get_iota_manager_endpoint();
+  if (iota_manager_endpoint.empty()) {
+    return;
+  }
   std::string log_message("|resource=" + get_resource() + "|manager=" +
                           iota_manager_endpoint);
   std::string public_ip = get_public_ip();
