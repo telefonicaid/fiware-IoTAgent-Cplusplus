@@ -152,14 +152,12 @@ mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
 
 int iota::CommandCollection::createTableAndIndex() {
 
-   int res = 200;
-
-   // db.COMMAND.ensureIndex( { "id":1 , "service" :1, "service_path":1}, { unique: true } )
-   ensureIndex("shardKey",
-              BSON(iota::store::types::COMMAND_ID << 1 <<
+  int res = 200;
+  // db.COMMAND.ensureIndex( { "id":1 , "service" :1, "service_path":1}, { unique: true } )
+  mongo::BSONObj indexUni =BSON(iota::store::types::COMMAND_ID << 1 <<
                    iota::store::types::SERVICE << 1 <<
-                   iota::store::types::SERVICE_PATH << 1),
-              true);
+                   iota::store::types::SERVICE_PATH << 1);
 
-   return res;
+  return createIndex(indexUni, true);
+  return 0;
 }

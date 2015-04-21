@@ -579,6 +579,122 @@ int iota::Collection::find(int queryOptions,
   return find(queryOptions, query, 0, 0, emptyBSON, fieldsToReturn);
 }
 
+
+
+int iota::Collection::ensureIndex(
+  const std::string& name_index,
+  const mongo::BSONObj& index,
+  bool is_unique) {
+
+  int result = -1;
+  std::string bbdd = getDatabaseName();
+  bbdd.append(".");
+  bbdd.append(a_bbdd);
+
+  std::string param_request("Collection:ensureIndex|bbdd=" + bbdd +
+         "|key:" );
+  PION_LOG_DEBUG(m_logger, param_request <<  index);
+
+  mongo::DBClientBase* conn;
+
+  try {
+
+    conn = getConnection();
+    mongo::StringData bbddStringdata(bbdd);
+    mongo::IndexSpec indexSpec;
+    indexSpec.addKeys(index);
+    indexSpec.unique(is_unique);
+    indexSpec.dropDuplicatesDeprecated(is_unique);
+
+    PION_LOG_DEBUG(m_logger, "before query" );
+    conn->createIndex(bbddStringdata, indexSpec);
+    result = 0;
+  }catch (mongo::DBException& e) {
+    std::string errorSTR = "DBException ";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, errorSTR);
+    PION_LOG_ERROR(m_logger, errorSTR << e.what());
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                                errorSTR, ERROR_MONGO);
+  }
+
+  return result;
+
+}
+
+int iota::Collection::dropIndexes() {
+
+  int result = -1;
+  std::string bbdd = getDatabaseName();
+  bbdd.append(".");
+  bbdd.append(a_bbdd);
+
+  std::string param_request("Collection:dropIndex|bbdd=" + bbdd );
+  PION_LOG_DEBUG(m_logger, param_request );
+
+  mongo::DBClientBase* conn;
+
+  try {
+
+    conn = getConnection();
+
+    PION_LOG_DEBUG(m_logger, "before query" );
+    conn->dropIndexes(bbdd);
+    result = 0;
+  }catch (mongo::DBException& e) {
+    std::string errorSTR = "DBException in  dropIndexes";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, errorSTR);
+    PION_LOG_ERROR(m_logger, errorSTR << e.what());
+
+  }catch (std::exception& e) {
+    std::string errorSTR = "Exception in  dropIndexes";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                       types::ERROR, e.what());
+    PION_LOG_ERROR(m_logger, errorSTR << e.what());
+  }
+
+  return result;
+}
+
+int iota::Collection::createIndex(const mongo::BSONObj& index,
+                                                 bool uniqueIndex) {
+
+  int res = 200;
+
+  std::string bbdd = getDatabaseName();
+  bbdd.append(".");
+  bbdd.append(a_bbdd);
+  Collection indexCol("system.indexes");
+  int num_index = indexCol.count(BSON("ns" << bbdd));
+  bool dropIndex = false;
+
+  PION_LOG_DEBUG(m_logger, bbdd << "|checkIndex|");
+  if (num_index == 2) {
+    // check if the index exists
+    if (uniqueIndex){
+      dropIndex == (indexCol.count(BSON("ns" << bbdd <<
+              "key" << index << "unique" << true)) !=1);
+    }else{
+      dropIndex == (indexCol.count(BSON("ns" << bbdd <<
+              "key" << index)) !=1);
+    }
+  }else{
+    // no correct numbner of index
+    dropIndex = true;
+  }
+
+  if (dropIndex){
+    PION_LOG_DEBUG(m_logger, bbdd << "|dropIndex an create|" << index);
+    dropIndexes();
+
+    ensureIndex("shardKey", index, uniqueIndex);
+  }
+
+  return res;
+}
+
+
 int iota::Collection::find(int queryOptions,
                            const mongo::BSONObj& queryObj,
                            int limit,
@@ -832,7 +948,7 @@ mongo::DBClientBase* iota::Collection::getConnection() {
   return m_conn.conn();
 };
 
-
+/*
 void iota::Collection::ensureIndex(
   const std::string& name_index,
   const mongo::BSONObj& index,
@@ -879,7 +995,7 @@ void iota::Collection::ensureIndex(
                               bbdd + "]", e.what(), iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
   }
 
-}
+}*/
 
 const std::string & iota::Collection::getPostSchema() const {
   return _EMPTY;

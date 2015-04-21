@@ -542,13 +542,10 @@ const std::string iota::DeviceCollection::_PUT_SCHEMA(
 
 int iota::DeviceCollection::createTableAndIndex() {
 
-    int res =0;
+  int res =200;
+  ///db.DEVICE.ensureIndex( { "device_id": 1, "service":1, "service_path":1 }, { unique: true } )
+  mongo::BSONObj indexUni = BSON("device_id" << 1
+               << "service" << 1 << "service_path" << 1);
 
-    ///db.DEVICE.ensureIndex( { "device_id": 1, "service":1, "service_path":1 }, { unique: true } )
-
-    ensureIndex( "shardKey",
-               BSON("device_id" << 1
-               << "service" << 1 << "service_path" << 1), true);
-
-    return res;
+  return createIndex(indexUni, true);
 }
