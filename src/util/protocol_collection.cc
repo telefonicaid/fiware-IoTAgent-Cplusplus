@@ -45,11 +45,9 @@ int iota::ProtocolCollection::createTableAndIndex() {
 
   int res = 200;
   //db.PROTOCOL.ensureIndex({protocol:1},{"unique":1})
-  ensureIndex("shardKey",
-              BSON(iota::store::types::PROTOCOL_NAME << 1),
-              true);
+  mongo::BSONObj indexUni = BSON(iota::store::types::PROTOCOL_NAME << 1);
 
-  return res;
+  return createIndex(indexUni, true);
 }
 
 int iota::ProtocolCollection::insert(const Protocol& obj) {

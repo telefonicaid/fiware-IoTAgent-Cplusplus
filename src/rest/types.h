@@ -94,6 +94,7 @@ struct types {
   static const std::string RESPONSE_MESSAGE_NOT_ACCEPTABLE;
   static const std::string RESPONSE_MESSAGE_NO_SERVICE;
   static const std::string RESPONSE_MESSAGE_NO_DEVICE;
+  static const std::string RESPONSE_MESSAGE_BAD_PROTOCOL;
   static const std::string RESPONSE_MESSAGE_DATA_NOT_FOUND;
   static const std::string RESPONSE_MESSAGE_BAD_URI;
   static const std::string RESPONSE_MESSAGE_MORE_ONE_SERVICE;

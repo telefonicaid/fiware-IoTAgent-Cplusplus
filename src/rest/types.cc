@@ -144,6 +144,9 @@ const std::string
 types::RESPONSE_MESSAGE_DUPLICATED_DATA("There are conflicts, object already exists");
 
 const std::string
+types::RESPONSE_MESSAGE_BAD_PROTOCOL("There are conflicts, protocol is not correct");
+
+const std::string
 types::RESPONSE_MESSAGE_DATA_NOT_FOUND("Field or data not founded");
 
 

@@ -40,6 +40,8 @@ class AdminService :
     virtual ~AdminService();
     virtual void start();
     virtual void stop();
+
+    void checkIndexes();
     void set_timezone_database(std::string timezone_str);
     void set_manager();
     boost::posix_time::ptime get_local_time_from_timezone(std::string timezone_str);
@@ -244,6 +246,27 @@ class AdminService :
       const std::string& id_device,
       pion::http::response& http_response,
       std::string& response);
+
+    /**
+       * @name    check_device_protocol
+       * @brief   check if service and service_path has a resource (plugin)
+       *          with this protocol
+       *
+       *
+       * Example Request:
+       * @code
+       *    check_device_protocol("UL20", "s1", "/s1");
+       * @endcode
+       *
+       * <h2>Return values</h2>
+       * @return true if there is a plugin.
+       *
+       */
+    bool check_device_protocol(const std::string &protocol_name,
+                               const std::string &service_name,
+                               const std::string &service_path,
+                               const boost::shared_ptr<iota::ServiceCollection> &table);
+
 
     /**
          * @name    get_all_json

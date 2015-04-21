@@ -75,6 +75,10 @@ class Collection {
               const mongo::BSONObj &query,
               int retry);
 
+    int dropIndexes();
+
+    int createIndex(const mongo::BSONObj& index, bool uniqueIndex);
+
     int insert(const mongo::BSONObj& data, int retry=0);
 
     int update(bool upsert = false);
@@ -132,7 +136,7 @@ class Collection {
 
     void reconnect();
 
-    void ensureIndex(const std::string &name_index,
+    int ensureIndex(const std::string &name_index,
                      const mongo::BSONObj& index,
                       bool is_unique );
 

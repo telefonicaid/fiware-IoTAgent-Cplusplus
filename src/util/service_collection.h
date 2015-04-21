@@ -28,8 +28,6 @@
 #include "collection.h"
 #include "device.h"
 
-
-
 namespace iota {
 
 class ServiceCollection : public Collection {
@@ -51,6 +49,12 @@ class ServiceCollection : public Collection {
 
     virtual void getElementsFromBSON(mongo::BSONObj &obj,
                            std::vector<mongo::BSONObj>& result);
+
+    virtual int fill_all_resources(const std::string& service,
+                                   const std::string& service_path,
+                                   std::vector<std::string>& resources);
+
+
   protected:
 
 

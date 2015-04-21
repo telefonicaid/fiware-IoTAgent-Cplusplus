@@ -164,14 +164,13 @@ const std::string iota::ServiceMgmtCollection::_POST_SCHEMA(
 int iota::ServiceMgmtCollection::createTableAndIndex() {
 
   int res = 200;
-
   //db.SERVICE_MGMT.ensureIndex({"service":1, service_path:1, iotagent:1, protocol:1},{"unique":1})
-  ensureIndex("shardKey",
-                BSON(iota::store::types::SERVICE << 1 << iota::store::types::SERVICE_PATH << 1
-                     << iota::store::types::IOTAGENT << 1 << iota::store::types::PROTOCOL_NAME << 1),
-                true);
+  mongo::BSONObj indexUni = BSON(iota::store::types::SERVICE << 1 <<
+                                      iota::store::types::SERVICE_PATH << 1
+                                   << iota::store::types::IOTAGENT << 1 <<
+                                      iota::store::types::PROTOCOL_NAME << 1);
 
-  return res;
+  return createIndex(indexUni, true);
 }
 
 std::vector<iota::ServiceType> iota::ServiceMgmtCollection::get_services_by_protocol(
@@ -260,7 +259,6 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
 
   return result;
 }
-
 
 void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
                                 std::vector<mongo::BSONObj> &result){
