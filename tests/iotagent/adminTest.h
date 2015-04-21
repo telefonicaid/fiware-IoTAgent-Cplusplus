@@ -48,6 +48,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testAttributeService);
 
     CPPUNIT_TEST(testAbout);
+    CPPUNIT_TEST(testcheck_device_protocol);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -63,6 +64,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     static const std::string URI_DEVICE;
     //POST
     static const std::string POST_DEVICE;
+    static const std::string BAD_PROTOCOL_POST_DEVICE;
     static const std::string BAD_POST_DEVICE;
     static const std::string BAD_POST_DEVICE2;
      static const std::string BAD_POST_DEVICE3;
@@ -165,6 +167,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     void testAttributeService();
 
     void testAbout();
+    void testcheck_device_protocol();
 
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;

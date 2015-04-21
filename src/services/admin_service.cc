@@ -69,6 +69,30 @@ iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
   m_log(PION_GET_LOGGER(iota::logger)),
   _manager(false) {
   PION_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
+  checkIndexes();
+
+}
+
+iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
+  _manager(false) {
+  PION_LOG_DEBUG(m_log, "iota::AdminService::AdminService2");
+  // iota::AdminService::_web_server = NULL;
+  checkIndexes();
+}
+
+iota::AdminService::~AdminService() {
+  //std::cout << "DESTRUCTOR AdminService " << _web_server.use_count() << std::endl;
+  if (_timer.get() != NULL) {
+    _timer->cancel();
+  }
+  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  _service_manager.clear();
+  lock.unlock();
+
+}
+
+
+void iota::AdminService::checkIndexes(){
   const iota::JsonValue& storage = iota::Configurator::instance()->get(
                                        iota::store::types::STORAGE);
   if (storage.HasMember(iota::store::types::TYPE.c_str())) {
@@ -88,23 +112,6 @@ iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
         protocolcol.createTableAndIndex();
       }
   }
-
-}
-
-iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
-  _manager(false) {
-  // iota::AdminService::_web_server = NULL;
-}
-
-iota::AdminService::~AdminService() {
-  //std::cout << "DESTRUCTOR AdminService " << _web_server.use_count() << std::endl;
-  if (_timer.get() != NULL) {
-    _timer->cancel();
-  }
-  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
-  _service_manager.clear();
-  lock.unlock();
-
 }
 
 pion::http::plugin_server_ptr iota::AdminService::get_web_server() {
@@ -1596,6 +1603,15 @@ int iota::AdminService::post_device_json(
                                     iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
         }
       }
+
+      std::string protocol_name =
+        insertObj.getStringField(store::types::PROTOCOL_NAME);
+      if (!check_device_protocol(protocol_name, service, service_path, table)) {
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
+                                    " [ protocol: " + protocol_name + "]",
+                                    iota::types::RESPONSE_CODE_BAD_REQUEST);
+      }
+
       devTable->insert(insertObj);
 
       // If commands or internal attributes, register
@@ -2380,3 +2396,36 @@ void iota::AdminService::check_logs() {
 void iota::AdminService::set_log_file(std::string& log_file) {
   _log_file = log_file;
 }
+
+bool iota::AdminService::check_device_protocol(const std::string &protocol_name,
+                               const std::string &service_name,
+                               const std::string &service_path,
+                               const boost::shared_ptr<iota::ServiceCollection> &table){
+  PION_LOG_DEBUG(m_log, "check_device_protocol " << protocol_name);
+
+  if (protocol_name.empty()){
+    return true;
+  }
+
+  std::vector<std::string> resources;
+  std::string resource;
+  iota::RestHandle* plugin;
+  table->fill_all_resources(service_name, service_path, resources);
+
+  for(std::vector<std::string>::iterator it = resources.begin(); it != resources.end(); ++it) {
+    resource = *it;
+    std::cout << "resource::" << resource << std::endl;
+    plugin = get_service(resource);
+    if (plugin != NULL){
+      iota::ProtocolData pro = plugin->get_protocol_data();
+      std::cout << "protocol::" << pro.protocol << std::endl;
+      if (protocol_name.compare(pro.protocol) ==0){
+        PION_LOG_DEBUG(m_log, "exists plugin:" << protocol_name);
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+

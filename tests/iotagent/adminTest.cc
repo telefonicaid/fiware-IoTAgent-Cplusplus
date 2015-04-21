@@ -41,8 +41,7 @@
 #include "util/service_mgmt_collection.h"
 #include "services/admin_service.h"
 
-#define PATH_CONFIG "../../tests/iotagent/config.json"
-#define PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
+#define PATH_CONFIG "../../tests/iotagent/config_mongo.json"
 
 #define  IOTASSERT_MESSAGE(x,y) \
          std::cout << "@" << __LINE__ << "@" << x << std::endl; \
@@ -68,6 +67,14 @@ const std::string AdminTest::URI_DEVICE("/devices");
 //POST
 const std::string
 AdminTest::POST_DEVICE("{\"devices\": "
+                       "[{\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                       "}]}");
+
+const std::string
+AdminTest::BAD_PROTOCOL_POST_DEVICE("{\"devices\": "
                        "[{\"device_id\": \"device_id\",\"protocol\": \"kk\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
@@ -81,6 +88,13 @@ AdminTest::BAD_POST_DEVICE("{\"devices\": "
                            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                            "}]}");
+const std::string
+BAD_PROTOCOL_POST_DEVICE("{\"devices\": "
+                       "[{\"device_id\": \"device_id\",\"protocol\": \"kk\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                       "}]}");
 
 const std::string
 AdminTest::BAD_POST_DEVICE2("{\"devices\": "
@@ -244,6 +258,11 @@ AdminTest::GET_DEVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
 AdminTest::AdminTest() {
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+
   pion::process::initialize();
 
   adm = new iota::AdminService();
@@ -596,7 +615,7 @@ void  AdminTest::testPostBadContentType() {
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string response;
   int code_res;
@@ -625,7 +644,7 @@ void  AdminTest::testPostDevice() {
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string response;
   int code_res;
@@ -726,7 +745,7 @@ void  AdminTest::testAttributeService(){
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string response;
   std::string service= "service" ;
@@ -771,7 +790,7 @@ void  AdminTest::testPostService() {
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string response;
   std::string service= "service" ;
@@ -1013,7 +1032,7 @@ void  AdminTest::testPostService2() {
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string response;
   std::string service= "service" ;
@@ -1108,7 +1127,7 @@ void AdminTest::testBADPostDevice() {
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   //no existe servicio al hacer POST de device
   std::cout << "@UT@1POST" << std::endl;
@@ -1157,7 +1176,7 @@ void AdminTest::testBADPostDevice() {
   std::cout << "@UT@1POSTService duplicated" << std::endl;
   code_res = http_test(URI_SERVICE, "POST", service, "", "application/json",
                        POST_SERVICE, headers, "", response);
-  std::cout << "@UT@2RESPONSEService: " <<  code_res << " " << response <<
+  std::cout << "@UT@1RESPONSEService: " <<  code_res << " " << response <<
             std::endl;
   IOTASSERT(code_res == 409);
   IOTASSERT(response.find(
@@ -1170,6 +1189,8 @@ void AdminTest::testBADPostDevice() {
   std::cout << "@UT@2POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
                        BAD_POST_DEVICE, headers, "", response);
+  std::cout << "@UT@2RESPONSEPOST: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
               "{\"reason\":\"The request is not well formed\",\"details\":\"Additional properties not allowed")
@@ -1179,10 +1200,23 @@ void AdminTest::testBADPostDevice() {
               "[/devices[0]/entity_namee]") !=
             std::string::npos);
 
+  // POST de service con campos bad protocol
+  std::cout << "@UT@25POST" << std::endl;
+  code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+                       BAD_PROTOCOL_POST_DEVICE, headers, "", response);
+  std::cout << "@UT@25RESPONSE: " <<  code_res << " " << response <<
+             std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+              "{\"reason\":\"There are conflicts, protocol is not correct\",\"details\":\" [ protocol: kk]\"}")
+            == 0);
+
   // POST de service cuando faltan campos
   std::cout << "@UT@3POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
                        BAD_POST_DEVICE2, headers, "", response);
+  std::cout << "@UT@3RESPONSEPOST: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
               "{\"reason\":\"The request is not well formed\",\"details\":\"Missing required property: name")
@@ -1193,6 +1227,8 @@ void AdminTest::testBADPostDevice() {
   std::cout << "@UT@4POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
                        BAD_POST_DEVICE3, headers, "", response);
+  std::cout << "@UT@4RESPONSEPOST: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
               "{\"reason\":\"The request is not well formed\",\"details\":\"Additional properties not allowed")
@@ -1203,15 +1239,19 @@ void AdminTest::testBADPostDevice() {
                     std::string::npos);
 
   // POST device
-  std::cout << "@UT@4POST" << std::endl;
+  std::cout << "@UT@5POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
                        POST_DEVICE, headers, "", response);
+  std::cout << "@UT@5RESPONSEPOST: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 201);
 
   // duplicated device
-  std::cout << "@UT@4POST" << std::endl;
+  std::cout << "@UT@6POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
                        POST_DEVICE, headers, "", response);
+  std::cout << "@UT@6RESPONSEPOST: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 409);
   IOTASSERT(response.find(
    "{\"reason\":\"There are conflicts, entity already exists\",\"details\":\" [ entity_name: entity_name]\"}"
@@ -1221,6 +1261,8 @@ void AdminTest::testBADPostDevice() {
   std::cout << "@UT@6BAD Limit" << std::endl;
   code_res = http_test("/iot/services", "GET", service, "/*", "application/json",
                        "", headers, "limit=nonumber", response);
+  std::cout << "@UT@6RESPONSEBAD: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
               "\"reason\":\"A parameter of the request is invalid/not allowed\",\"details\":\"limit must be a number but it is nonumber\"}")
@@ -1232,6 +1274,8 @@ void AdminTest::testBADPostDevice() {
   code_res = http_test("/iot/services", "POST", "badservice", "/badservice",
                        "application/json",
                        BAD_POST_SERVICE1, headers, "", response);
+  std::cout << "@UT@7RESPONSEPOST: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
               "{\"reason\":\"A parameter of the request is invalid/not allowed[cbroker]")
@@ -1243,6 +1287,8 @@ void AdminTest::testBADPostDevice() {
   code_res = http_test("/iot/services", "POST", "badservice", "/badservice",
                        "application/json",
                        BAD_POST_SERVICE2, headers, "", response);
+  std::cout << "@UT@8RESPONSEPOST: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
               "{\"reason\":\"The request is not well formed\",\"details\":\"String does not match pattern \"^/\" [/services[0]/resource]\"}")
@@ -1253,7 +1299,8 @@ void AdminTest::testBADPostDevice() {
   code_res = http_test("/iot/devices/nodev", "GET", "badservice", "/badservice",
                        "application/json",
                        "", headers, "", response);
-  std::cout << "@UT@response " << response << std::endl;
+  std::cout << "@UT@9RESPONSE: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 404);
   IOTASSERT(response.find(
               "The device does not exist")
@@ -1264,7 +1311,8 @@ void AdminTest::testBADPostDevice() {
   code_res = http_test("/iot/devices/nodev", "PUT", "badservice", "/badservice",
                        "application/json",
                        PUT_SERVICE, headers, "", response);
-  std::cout << "@UT@response " << response << std::endl;
+  std::cout << "@UT@10RESPONSEPUT: " <<  code_res << " " << response <<
+             std::endl;
   IOTASSERT(code_res == 404);
   IOTASSERT(response.find(
               "The device does not exist")
@@ -1345,7 +1393,7 @@ void  AdminTest::testNoRestApiService() {
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string response;
   std::string service= "service" ;
@@ -1511,3 +1559,14 @@ void  AdminTest::testAbout() {
   std::cout << "END@UT@START testAbout" << std::endl;
 }
 
+void  AdminTest::testcheck_device_protocol() {
+  std::cout << "START@UT@START testcheck_device_protocol" << std::endl;
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  //adm->check_device_protocol("UL20", );
+
+  std::cout << "END@UT@START testAbout" << std::endl;
+}

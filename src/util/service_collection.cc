@@ -69,6 +69,33 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 
 }*/
 
+int iota::ServiceCollection::fill_all_resources(const std::string& service,
+                                                 const std::string& service_path,
+                                                 std::vector<std::string>& resources) {
+
+  int result =0;
+  mongo::BSONObj query = BSON ( iota::store::types::SERVICE << service <<
+                                iota::store::types::SERVICE_PATH << service_path);
+  mongo::BSONObjBuilder field_return;
+  field_return.append(iota::store::types::RESOURCE, 1);
+
+  find(query, field_return);
+  mongo::BSONObj obj;
+  std::string resource;
+  if (more()) {
+    obj =  next();
+    std::cout << obj << std::endl;
+    resource = obj.getStringField(iota::store::types::RESOURCE);
+    if (!resource.empty()){
+        resources.push_back(resource);
+        std::cout << "push_back" << resource << std::endl;
+        result++;
+      }
+  }
+
+  return result;
+}
+
 const std::string & iota::ServiceCollection::getPostSchema() const{
   return _POST_SCHEMA;
 }
@@ -261,12 +288,10 @@ const std::string iota::ServiceCollection::_PUT_SCHEMA(
 int iota::ServiceCollection::createTableAndIndex() {
 
   int res = 200;
-  //db.SERVICE.ensureIndex({"service":1, service_path:1, resource:1},{"unique":1})
-  ensureIndex("shardKey",
-                BSON("service" << 1 << "service_path" << 1 << "resource" <<1),
-                true);
+  // db.SERVICE.ensureIndex({"service":1, service_path:1, resource:1},{"unique":1})
+  mongo::BSONObj indexUni = BSON("service" << 1 << "service_path" << 1 << "resource" <<1);
 
-  return res;
+  return createIndex(indexUni, true);
 }
 
 
