@@ -512,9 +512,15 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
 
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
+
+  std::string token = http_request_ptr->get_header(
+                               iota::types::IOT_HTTP_HEADER_AUTH);
+
   std::string method = http_request_ptr->get_method();
   PION_LOG_INFO(m_log, "iota::AdminService::devices|method:" +method +
                 "|trace_message:" + trace_message);
+
+   std::string protocol_filter;
 
   std::string reason;
   std::string error_details;
@@ -552,7 +558,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
       std::string content = http_request_ptr->get_content();
       boost::trim(content);
       code = post_device_json(service,  service_path,
-                              content, http_response, response);
+                              content, http_response, response,token);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
       std::string  detailed, entity;
@@ -597,12 +603,17 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
         entity = it->second;
       }
 
+      it = query_parameters.find(iota::store::types::PROTOCOL);
+      if (it != query_parameters.end()) {
+        protocol_filter = it->second;
+      }
+
       if (_manager) {
       }
       else {
         code = get_all_devices_json(service, service_path, limit, offset, detailed,
                                     entity,
-                                    http_response, response);
+                                    http_response, response,trace_message,token,protocol_filter);
       }
     }
     else {
@@ -651,6 +662,11 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
 
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
+
+  std::string token = http_request_ptr->get_header(
+                               iota::types::IOT_HTTP_HEADER_AUTH);
+
+
   std::string method = http_request_ptr->get_method();
   PION_LOG_INFO(m_log, "iota::AdminService::device|method:" +method +
                 "|trace_message:" + trace_message);
@@ -692,8 +708,16 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
                              content, http_response, response);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
+
+      std::string protocol_filter;
+      //Following access to protocol_filter can be taken to a method.
+      std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
+      it = query_parameters.find(iota::store::types::PROTOCOL);
+      if (it != query_parameters.end()) {
+          protocol_filter = it->second;
+      }
       code = get_a_device_json(service, service_path, device_in_url, http_response,
-                               response);
+                               response,trace_message,token,protocol_filter);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_DELETE) == 0) {
       code = delete_device_json(service, service_path,
@@ -1557,7 +1581,8 @@ int iota::AdminService::post_device_json(
   const std::string& service_path,
   const std::string& body,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  std::string token) {
 
   std::string param_request("post_device_json|service=" + service +
                             "|service_path=" +
@@ -1730,8 +1755,9 @@ int iota::AdminService::get_all_devices_json(
   const std::string& entity,
   pion::http::response& http_response,
   std::string& response,
-  boost::optional<pion::http::request_ptr&> http_request_ptr,
-  boost::optional<std::multimap<std::string, std::string>& > ) {
+  std::string request_id,
+  std::string token,
+  std::string protocol_filter) {
 
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::ostringstream res;
@@ -1795,8 +1821,10 @@ int iota::AdminService::get_a_device_json(
   const std::string& device_id,
   pion::http::response& http_response,
   std::string& response,
-  boost::optional<pion::http::request_ptr&> http_request_ptr,
-  boost::optional<std::multimap<std::string, std::string>& > ) {
+  std::string request_id,
+  std::string token,
+  std::string protocol_filter) {
+
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string param_request("get_a_device_json|service=" + service +
                             "|service_path=" +

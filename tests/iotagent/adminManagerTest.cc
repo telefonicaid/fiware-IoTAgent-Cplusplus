@@ -161,8 +161,8 @@ void AdminManagerTest::testDeviceToBeAdded() {
 }
 
 void AdminManagerTest::testGetEndpointsFromDevices() {
-  boost::asio::io_service io_service;
-  iota::AdminManagerService manager_service(io_service);
+
+  iota::AdminManagerService manager_service;
 
   std::cout << "Test: testGetEndpointsFromDevices... starting" << std::endl;
 
@@ -221,10 +221,9 @@ void AdminManagerTest::testAddDevicesToEndpoints() {
   http_mock.reset(new HttpMock(7777, "/iot/devices", false));
   http_mock->init();
 
-  pion::one_to_one_scheduler scheduler;
-  scheduler.startup();
 
-  iota::AdminManagerService manager_service(scheduler.get_io_service());
+
+  iota::AdminManagerService manager_service;
   std::cout << "testAddDevicesToEndpoints: STARTING... " << std::endl;
   std::map<std::string, std::string> h;
   http_mock->set_response(200, "{}", h);
@@ -284,25 +283,23 @@ void AdminManagerTest::testGetDevices() {
   http_mock->set_response(200, mock_response, h);
   http_mock->set_response(200, mock_response, h);
   std::string mock_port = boost::lexical_cast<std::string>(http_mock->get_port());
-  pion::one_to_one_scheduler scheduler;
-  scheduler.startup();
+  //pion::one_to_one_scheduler scheduler;
+  //scheduler.startup();
 
-  iota::AdminManagerService manager_service(scheduler.get_io_service());
+  iota::AdminManagerService manager_service;
   pion::http::request_ptr http_request(new pion::http::request("/"));
   http_request->add_header("Fiware-Service", "s4_agus");
   http_request->add_header("Fiware-ServicePath", "/ss3");
-  http_request->add_header("X-Trace-Message", "12345");
+ // http_request->add_header("X-Trace-Message", "12345");
   http_request->set_method("GET");
-  std::map<std::string, std::string> args;
-  std::multimap<std::string, std::string> query;
-  query.insert(std::pair<std::string, std::string>("protocol", "UL20"));
+
   pion::http::response http_response;
   std::string response;
 //  manager_service.get_devices(http_request, args, query, "s4_agus", "/ss3", 0, 0,
 //                              "on", "", http_response, response);
 
   manager_service.get_all_devices_json("s4_agus", "/ss3", 0, 0, "on", "",
-                                http_response, response, http_request, query);
+                                http_response, response, "12345","token", "UL20");
 
   CPPUNIT_ASSERT_MESSAGE("Expected 4 devices ",
                          response.find("\"count\" : 4") != std::string::npos);
@@ -329,10 +326,10 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   boost::shared_ptr<HttpMock> http_mock;
   http_mock.reset(new HttpMock(7777, "/iot/devices", false));
   http_mock->init();
-  pion::one_to_one_scheduler scheduler;
-  scheduler.startup();
+  //pion::one_to_one_scheduler scheduler;
+  //scheduler.startup();
 
-  iota::AdminManagerService manager_service(scheduler.get_io_service());
+  iota::AdminManagerService manager_service;
 
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
@@ -406,14 +403,14 @@ void AdminManagerTest::testPostJSONDevices() {
 
   //only one endpoint will be added.
 
-  iota::AdminManagerService manager_service(scheduler.get_io_service());
+  iota::AdminManagerService manager_service;
 
   std::string response;
   pion::http::response http_response;
 
   std::cout << "Test testPostJSONDevices STARTING" << std::endl;
-  manager_service.do_post_json_devices("s1","/ss1","",devices,http_response,
-                                       response);
+  manager_service.post_device_json("s1","/ss1",devices,http_response,
+                                       response,"");
 
   std::cout << "Result " << response << std::endl;
 

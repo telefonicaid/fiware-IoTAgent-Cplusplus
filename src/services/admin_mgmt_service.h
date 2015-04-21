@@ -20,6 +20,7 @@
 #include "util/alarm.h"
 #include "rest/rest_handle.h"
 #include "util/service_collection.h"
+#include "admin_service.h"
 
 
 namespace iota{
@@ -68,12 +69,14 @@ namespace iota{
   };
 
 
-class AdminManagerService{
+class AdminManagerService : public iota::AdminService {
 
   public:
 
-    AdminManagerService(boost::asio::io_service&
-    io_service);
+    AdminManagerService();
+    AdminManagerService(pion::http::plugin_server_ptr web_server);
+
+
     virtual ~AdminManagerService();
 
     /**
@@ -100,30 +103,6 @@ class AdminManagerService{
     std::string post_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,std::string service,std::string sub_service,std::string x_auth_token);
 
 
-    int testFunc(boost::optional<std::string&> cadena)
-    {
-        if (cadena->empty()){
-          return 0;
-        }
-        return 1;
-    };
-
-    int get_devices(pion::http::request_ptr& http_request_ptr,
-                     std::map<std::string, std::string>& url_args,
-                     std::multimap<std::string, std::string>& query_parameters,
-                     std::string service, std::string service_path, int limit, int offset,
-                     std::string detailed, std::string entity,
-                     pion::http::response& http_response,
-                     std::string& response);
-
-    int get_device(pion::http::request_ptr& http_request_ptr,
-                     std::map<std::string, std::string>& url_args,
-                     std::multimap<std::string, std::string>& query_parameters,
-                     std::string service, std::string service_path, std::string device_id,
-                     pion::http::response& http_response,
-                     std::string& response);
-
-
 
      /**
     @name get_devices
@@ -141,8 +120,9 @@ class AdminManagerService{
       const std::string& entity,
       pion::http::response& http_response,
       std::string& response,
-      boost::optional<pion::http::request_ptr&> http_request_ptr,
-      boost::optional<std::multimap<std::string, std::string>& > query_parameters
+      std::string request_id,
+      std::string token,
+      std::string protocol_filter
       );
 
 
@@ -153,26 +133,35 @@ class AdminManagerService{
       const std::string& device_id,
       pion::http::response& http_response,
       std::string& response,
-      boost::optional<pion::http::request_ptr&> http_request_ptr ,
-      boost::optional<std::multimap<std::string, std::string>& > query_parameters );
+      std::string request_id,
+      std::string token,
+      std::string protocol_filter
+      );
 
 
 
     void set_timeout(unsigned short timeout);
 
     /**
-    @name do_post_json_devices
+    @name post_json_devices
     @brief this method is intended to be called as part of AdminService::devices logic. The http_request contains an array of devices with their respective protocols. This
     method will take the service, x-auth-token header and content as inputs and then call to @see resolve_endpoints to get the vector of endpoints where devices will be posted.
     Then a call to @see post_multiple_devices will effectively do the individual posts.
     */
-    void do_post_json_devices(std::string service,std::string sub_service,std::string x_auth_token,std::string content,pion::http::response& http_response,std::string& response);
+    virtual int post_device_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response,
+      std::string token = "");
+
 
   private:
     pion::logger m_log;
 
     pion::one_to_one_scheduler _scheduler;
-    boost::asio::io_service& _io_service;
+
     unsigned short _timeout;
 
     iota::ServiceMgmtCollection _service_mgmt;

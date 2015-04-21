@@ -29,6 +29,7 @@
 #include <log4cplus/fileappender.h>
 #include "util/common.h"
 #include "mongo/client/init.h"
+#include "services/admin_mgmt_service.h"
 
 namespace iota {
 std::string logger = "main";
@@ -313,23 +314,26 @@ int main(int argc, char* argv[]) {
 
 
     // static service
-    AdminService_ptr = new iota::AdminService(web_server);
+
+    if (manager){
+      AdminService_ptr = new iota::AdminManagerService(web_server);
+    }else{
+      AdminService_ptr = new iota::AdminService(web_server);
+    }
+
     AdminService_ptr->set_log_file(log_file);
     // Argument with url-base
     std::string adm_service_url(iota::URL_BASE);
     web_server->add_service(adm_service_url, AdminService_ptr);
 
-    if (!manager) {
-      iota::NgsiService* ngsi_ptr = new iota::NgsiService();
-      std::string url_ngsi_common(iota::URL_BASE);
-      url_ngsi_common.append("/");
-      url_ngsi_common.append(iota::NGSI_SERVICE);
-      web_server->add_service(url_ngsi_common, ngsi_ptr);
-      AdminService_ptr->add_service(url_ngsi_common, ngsi_ptr);
-    }
-    else {
-      AdminService_ptr->set_manager();
-    }
+
+    iota::NgsiService* ngsi_ptr = new iota::NgsiService();
+    std::string url_ngsi_common(iota::URL_BASE);
+    url_ngsi_common.append("/");
+    url_ngsi_common.append(iota::NGSI_SERVICE);
+    web_server->add_service(url_ngsi_common, ngsi_ptr);
+    AdminService_ptr->add_service(url_ngsi_common, ngsi_ptr);
+
 
     if (ssl_flag) {
 #ifdef PION_HAVE_SSL

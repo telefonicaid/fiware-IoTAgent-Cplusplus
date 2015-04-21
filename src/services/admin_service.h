@@ -151,8 +151,9 @@ class AdminService :
       const std::string& entity,
       pion::http::response& http_response,
       std::string& response,
-      boost::optional<pion::http::request_ptr&> http_request_ptr = boost::optional<pion::http::request_ptr& >() ,
-      boost::optional<std::multimap<std::string, std::string>& > query_parameters = boost::optional<std::multimap<std::string, std::string>& >()
+      std::string request_id,
+      std::string x_auth_token,
+      std::string protocol_filter
       );
 
 
@@ -163,8 +164,10 @@ class AdminService :
       const std::string& device_id,
       pion::http::response& http_response,
       std::string& response,
-      boost::optional<pion::http::request_ptr&> http_request_ptr = boost::optional<pion::http::request_ptr& >() ,
-      boost::optional<std::multimap<std::string, std::string>& > query_parameters = boost::optional<std::multimap<std::string, std::string>& >());
+      std::string request_id,
+      std::string x_auth_token,
+      std::string protocol_filter
+     );
 
     /**
       * @name    put_json
@@ -222,12 +225,13 @@ class AdminService :
        *    Status: 200
        * @endcode
        */
-    int post_device_json(
+    virtual int post_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& body,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string token = "");
 
     /**
        * @name    post_json
