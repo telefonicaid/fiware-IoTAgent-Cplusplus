@@ -289,7 +289,8 @@ int iota::AdminManagerService::get_devices(pion::http::request_ptr&
     try {
 
       mongo::BSONObj obj_mongo = mongo::fromjson(it_resp->second);
-      total_count += obj_mongo.getIntField("count");
+      int tmp_count = obj_mongo.getIntField("count");
+      total_count += tmp_count;
       std::vector<mongo::BSONElement> devices = obj_mongo.getField(
             iota::store::types::DEVICES).Array();
       for (int j = 0; j < devices.size(); j++) {
