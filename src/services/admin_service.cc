@@ -92,10 +92,11 @@ iota::AdminService::~AdminService() {
 }
 
 
-void iota::AdminService::checkIndexes(){
-  const iota::JsonValue& storage = iota::Configurator::instance()->get(
+void iota::AdminService::checkIndexes() {
+  try {
+    const iota::JsonValue& storage = iota::Configurator::instance()->get(
                                        iota::store::types::STORAGE);
-  if (storage.HasMember(iota::store::types::TYPE.c_str())) {
+    if (storage.HasMember(iota::store::types::TYPE.c_str())) {
       _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
       PION_LOG_INFO(m_log, "type_store:" <<  _storage_type);
       if (_storage_type.compare(iota::store::types::MONGODB)==0) {
@@ -111,6 +112,10 @@ void iota::AdminService::checkIndexes(){
         iota::ProtocolCollection protocolcol;
         protocolcol.createTableAndIndex();
       }
+    }
+  }
+  catch (std::exception &e) {
+    PION_LOG_ERROR(m_log, "Check configuration, error in checkIndexes " << e.what());
   }
 }
 
