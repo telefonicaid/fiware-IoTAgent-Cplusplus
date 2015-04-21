@@ -40,7 +40,7 @@
 #include "services/admin_service.h"
 
 #include "util/service_collection.h"
-
+#include "ultra_light/ul20_service.h"
 
 
 class AdminManagerTest : public CPPUNIT_NS::TestFixture {
@@ -74,7 +74,7 @@ private:
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
 
-
+     iota::UL20Service* ul20serv_ptr;
 
 };
 

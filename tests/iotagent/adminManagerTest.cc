@@ -95,12 +95,18 @@ AdminManagerTest::AdminManagerTest() {
   adm = new iota::AdminService();
   //adm->set_manager();
 
-
+  ul20serv_ptr = new iota::UL20Service();
+  ul20serv_ptr->set_resource("/iot/d");
 
   AdminService_ptr = adm;
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
   wserver.reset(new pion::http::plugin_server(scheduler));
   wserver->add_service("/iot", adm);
+
+
+
+  wserver->add_service("/iot/d",ul20serv_ptr);
+
   wserver->start();
 
   std::string service("s1");
@@ -132,26 +138,12 @@ AdminManagerTest::~AdminManagerTest() {
 
   wserver->stop();
   scheduler.shutdown();
+
 }
 
 void AdminManagerTest::setUp() {
 
-  /*
-    iota::ServiceCollection table1;
 
-    table1.createTableAndIndex();
-    mongo::BSONObj all = BSON("service" << "s1");
-
-    table1.remove(all);
-
-    std::cout << "inserts" << std::endl;
-    table1.insert(mongo::fromjson(s1_d));
-    table1.insert(mongo::fromjson(s1_d_host2));
-    table1.insert(mongo::fromjson(s1_d2));
-    table1.insert(mongo::fromjson(s1_mqtt));
-    table1.insert(mongo::fromjson(s2_d));
-    table1.insert(mongo::fromjson(s3_mqtt));
-  */
 }
 
 void AdminManagerTest::tearDown() {
