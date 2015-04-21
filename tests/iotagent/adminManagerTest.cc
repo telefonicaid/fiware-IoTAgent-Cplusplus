@@ -77,7 +77,7 @@ s5_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.2
         "\"protocol\":\"UL20\",\"service\": \"s4_agus\",\"service_path\":\"/ss3\"}");
 
 std::string
-devices("{\"devices\":[{\"protocol\":\"UL20\",\"device_id\": \"device_id_post\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
+devices("{\"devices\":[{\"protocol\":\"PDI-IoTA-UltraLight\",\"device_id\": \"device_id_post\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
         "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
         "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
         "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -95,8 +95,8 @@ AdminManagerTest::AdminManagerTest() {
   adm = new iota::AdminService();
   //adm->set_manager();
 
-  ul20serv_ptr = new iota::UL20Service();
-  ul20serv_ptr->set_resource("/iot/d");
+ // ul20serv_ptr = new iota::UL20Service();
+ // ul20serv_ptr->set_resource("/iot/d");
 
   AdminService_ptr = adm;
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
@@ -105,7 +105,7 @@ AdminManagerTest::AdminManagerTest() {
 
 
 
-  wserver->add_service("/iot/d",ul20serv_ptr);
+ // wserver->add_service("/iot/d",ul20serv_ptr);
 
   wserver->start();
 
@@ -372,13 +372,16 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   http_mock->stop();
 }
 
+/**
+There's something wrong with the protocol provisioning. Check again once Fago has tested his code.
+*/
 void AdminManagerTest::testPostJSONDevices() {
 
   std::string
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
        +boost::lexical_cast<std::string>(wserver->get_port())+"\","
-       "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
   iota::ServiceMgmtCollection table1;
   iota::DeviceCollection table_device;
