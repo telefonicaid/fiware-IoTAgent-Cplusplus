@@ -72,13 +72,13 @@ const int AdminMgmTest::DELETE_RESPONSE_CODE = 204;
 const std::string AdminMgmTest::URI_PROTOCOLS("/iot/protocols");
 //POST
 const std::string
-AdminMgmTest::POST_PROTOCOLS1("{\"endpoint\": \"host1\","
+AdminMgmTest::POST_PROTOCOLS1("{\"iotagent\": \"host1\","
                           "\"resource\": \"/iot/d\","
                           "\"protocol\": \"UL20\","
                           "\"description\": \"Ultralight 2.0\""
                           "}");
 const std::string
-AdminMgmTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
+AdminMgmTest::POST_PROTOCOLS2("{\"iotagent\": \"host2\","
                           "\"resource\": \"/iot/mqtt\","
                           "\"protocol\": \"MQTT\","
                           "\"description\": \"mqtt example\","
@@ -92,7 +92,7 @@ AdminMgmTest::POST_PROTOCOLS2("{\"endpoint\": \"host2\","
                                 "\"entity_type\": \"thing\""
                           "}]}");
 const std::string
-AdminMgmTest::POST_PROTOCOLS3("{\"endpoint\": \"host3\","
+AdminMgmTest::POST_PROTOCOLS3("{\"iotagent\": \"host3\","
                           "\"resource\": \"/iot/d\","
                           "\"protocol\": \"UL20\","
                           "\"description\": \"Ultralight 2.0\","
