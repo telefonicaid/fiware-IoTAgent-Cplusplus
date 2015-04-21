@@ -72,7 +72,7 @@ private:
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
 
-     iota::UL20Service* ul20serv_ptr;
+
 
 };
 

@@ -312,7 +312,6 @@ void AdminManagerTest::testGetDevices() {
                          response.find("\"device_id\": \"device_id\"") != std::string::npos);
   CPPUNIT_ASSERT_MESSAGE("Expected  count ",
                          response.find("\"count\" : 1") != std::string::npos);
-                         */
   std::cout << "STOP testGetDevices" << std::endl;
   sleep(2);
   http_mock->stop();
