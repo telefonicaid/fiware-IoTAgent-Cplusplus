@@ -60,6 +60,13 @@ This flow has a _c_ subscript and flows to get a _iotagent_ token is repeated.  
 ## High Availability 
 If high availability is required, architecture should be redundant and several iotagents  will be running.  Then should exits a load balancer to manage communications between several iotagent and contextBroker  processes.
 
-Load balancer url must be defined in a field "public_ip" in "ngsi_url"  tag of configuration file (config.json). This url will be used to build "providingApplication" which will be sent in context registrations to contextBroker.
+
+![IoT Agent Cluster](imgs/cluster.png)
+
+Load balancer url must be defined in a field "public_ip" as you can check in configuration section (public_ip is ip address and port). This url will be used to build "providingApplication" which will be sent in context registrations to contextBroker.
+An IoTA cluster is composed of IoT Agent with the same chareacteristics. That is, every IoTA into cluster provides the same protocol/s and shares database and collections. Every IoTA into cluster has the same "public_ip".
+If a different protocol must be deploy and this new protocol is deployed in other IoT Agent, a new cluster must be configured. That is, a different "public_ip" must be configured (in IoTA configuration and load balancer). This new IoTA uses a different database.
+
+
 
 

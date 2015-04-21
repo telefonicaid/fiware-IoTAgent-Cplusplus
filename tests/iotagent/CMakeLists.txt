@@ -54,3 +54,7 @@ add_executable(sample_tests sampleTest.cc sample_test.cc)
 target_link_libraries(sample_tests stestsrv iotmock iota_a ${IOTAGENT_LIBS} Variant
         ${TEST_LIBS})
 
+add_executable(admin_manager_tests adminManagerTest.cc admin_mgmt_test.cc)
+target_link_libraries(admin_manager_tests iotmock iota_a ${IOTAGENT_LIBS} Variant
+        ${TEST_LIBS})
+

@@ -482,6 +482,7 @@ class AdminService :
       std::string& response);
 
     void deploy_device(Device& device);
+    void register_iota_manager();
     void print_services();
 
     // Timer for checking logs

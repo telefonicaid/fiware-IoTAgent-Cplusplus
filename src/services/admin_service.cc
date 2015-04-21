@@ -596,9 +596,14 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
       if (it != query_parameters.end()) {
         entity = it->second;
       }
-      code = get_all_devices_json(service, service_path, limit, offset, detailed,
-                                  entity,
-                                  http_response, response);
+
+      if (_manager) {
+      }
+      else {
+        code = get_all_devices_json(service, service_path, limit, offset, detailed,
+                                    entity,
+                                    http_response, response);
+      }
     }
     else {
       code = iota::types::RESPONSE_CODE_METHOD_NOT_ALLOWED;
@@ -1887,6 +1892,9 @@ int iota::AdminService::post_service_json(
       table->insert(insObj);
     }
     code = pion::http::types::RESPONSE_CODE_CREATED;
+
+    // New service then new register in Manager to update info.
+    register_iota_manager();
     if (be.size() == 1) {
       http_response.add_header(pion::http::types::HEADER_LOCATION,
                                iota::URL_BASE + iota::ADMIN_SERVICE_SERVICES + "/" + service);
@@ -2432,5 +2440,24 @@ bool iota::AdminService::check_device_protocol(const std::string &protocol_name,
   }
 
   return false;
+}
+
+void iota::AdminService::register_iota_manager() {
+  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  std::map<std::string, iota::RestHandle*>::const_iterator it =
+    _service_manager.begin();
+  while (it != _service_manager.end()) {
+    try {
+      iota::RestHandle* rest_handle = dynamic_cast<iota::RestHandle*>
+                                        (it->second);
+      if (rest_handle != NULL) {
+        rest_handle->register_iota_manager();
+      }
+    }
+    catch (std::exception& e) {
+      PION_LOG_DEBUG(m_log, e.what());
+    }
+    ++it;
+  }
 }
 

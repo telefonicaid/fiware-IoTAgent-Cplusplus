@@ -234,6 +234,8 @@ void iota::RestHandle::register_iota_manager() {
   std::string log_message("|resource=" + get_resource() + "|manager=" +
                           iota_manager_endpoint);
   std::string public_ip = get_public_ip();
+  public_ip.append("/");
+  public_ip.append(iota::URL_BASE);
 
   try {
     bool using_database = true;
@@ -263,6 +265,7 @@ void iota::RestHandle::register_iota_manager() {
         json_builder.append(iota::store::types::PROTOCOL_DESCRIPTION,
                             protocol_data.description);
         json_builder.append(iota::store::types::IOTAGENT, public_ip);
+        json_builder.append(iota::store::types::RESOURCE, get_resource());
         while (srv_table.more()) {
           mongo::BSONObj srv_resu =srv_table.next();
           services_builder.append(srv_resu);
@@ -433,7 +436,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
                                       pion::tcp::connection_ptr& tcp_conn, int status) {
 
   PION_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
-
+  bool finish = false;
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
   Duration d((*stat)[iota::types::STAT_TRAFFIC_DURATION]);
@@ -478,6 +481,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
     }
     if (it_handle == _handlers.end()) {
       error_response(writer->get_response(), response_buffer);
+      finish = true;
     }
     else {
       std::string host_header = http_request_ptr->get_header(
@@ -495,6 +499,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
     // Response
     response_buffer.assign(e.what());
     error_response(writer->get_response(), response_buffer);
+    finish = true;
   }
 
   send_http_response(writer, response_buffer);
