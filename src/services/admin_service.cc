@@ -1887,6 +1887,7 @@ int iota::AdminService::post_service_json(
       table->insert(insObj);
     }
     code = pion::http::types::RESPONSE_CODE_CREATED;
+    register_iota_manager();
     if (be.size() == 1) {
       http_response.add_header(pion::http::types::HEADER_LOCATION,
                                iota::URL_BASE + iota::ADMIN_SERVICE_SERVICES + "/" + service);
@@ -1960,6 +1961,7 @@ int iota::AdminService::put_service_json(
       }
       else {
         code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
+        register_iota_manager();
       }
     }
   }
@@ -2160,6 +2162,7 @@ int iota::AdminService::delete_service_json(
     Collection devTable(iota::store::types::DEVICE_TABLE);
     devTable.remove(obj_device);
   }
+  register_iota_manager();
   return create_response(code, reason, error_details, http_response,
                          response);
 }
@@ -2323,6 +2326,26 @@ void iota::AdminService::deploy_device(Device& device) {
                                         (it->second);
       if (cmd_handle != NULL) {
         cmd_handle->send_register_device(device);
+      }
+    }
+    catch (std::exception& e) {
+      PION_LOG_DEBUG(m_log, e.what());
+    }
+    ++it;
+  }
+}
+
+void iota::AdminService::register_iota_manager() {
+
+  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  std::map<std::string, iota::RestHandle*>::const_iterator it =
+    _service_manager.begin();
+  while (it != _service_manager.end()) {
+    try {
+      iota::RestHandle* rest_handle = dynamic_cast<iota::RestHandle*>
+                                        (it->second);
+      if (rest_handle != NULL) {
+        rest_handle->register_iota_manager();
       }
     }
     catch (std::exception& e) {
