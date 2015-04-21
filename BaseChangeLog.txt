@@ -1,0 +1,43 @@
+* Fri Mar 6 2015 Agustin Gonzalez <lucas@tid.es> 1.0.0
+
+* Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
+- FEATURE IDAS-20246: Add parameters (resource, apikey, device, entity) to operations over services and devices
+- FEATURE IDAS-20232: Installing iotagent RPMS in Filab (RPM installation guide in deploy.md)
+- FEATURE IDAS-20006: Puppet recipes.
+- FEATURE IDAS-20227: Add north-bound API for services no REST
+- FEATURE IDAS-20221: Register provider creating and modifying devices
+- FEATURE IDAS-20218: Add default context broker endpoint
+- FEATURE IDAS-20156: Documentation.
+- FEATURE IDAS-20196: Create a sample to build a plugin/module.
+- FEATURE IDAS-20134: Authorization and Access Control integration with Keystone
+- FEATURE IDAS-20134: Add PEP proxy functionality for provision API and Trust Token for CB
+- FEATURE IDAS-20154: Provision API in IoT Agent.
+- FEATURE IDAS-20366: VPNs support through proxy ending GRE tunnels. Specific configuration by header.
+- FEATURE IDAS-20256: Oauth flows in commands from Context Broker.
+- FEATURE IDAS-20368: IoTA Manager is the entry point to IoT Agent cluster.
+- FEATURE IDAS-20255: Attributes and static attributes can be configured by service.
+- FIX IDAS-20249: Duplicated headers in authorization requests.
+- FIX IDAS-20248: Command response must not be forwarded to CB after command timeout
+- FIX IDAS-20231: expired commands don&#39;t send to the correct CB
+- FIX IDAS-20228: get_device without subservice fails with storage file
+- FIX IDAS-20151: Command timeout is not correctly cancelled when command response is received
+- FIX IDAS-20020: doesn&#39;t work commands without entity_type, double search implemented, inactive devices don&#39;t do anything, messages
+- FIX IDAS-20230: File descriptors remain open, due to http_client is stoped but not destroyed.
+- FIX IDAS-20219: Updating in BD registrationID received from CB
+- FIX IDAS-20225: Timeout is not returned in HTTP comms
+- FIX IDAS-20217: Schemas does not include commands
+- FIX IDAS-20173: Commands does not work  by devices registered with empty entity_type  or  entity_name
+- FIX IDAS-20214: crash when config.json does not exists
+- FIX IDAS-20154: Duplicated devices, create unique index in code
+- FIX IDAS-20213: devices weren&#39;t found when there are more than one services with apikey &quot;&quot;. Solution is to use get_device and get_service_by_name instead of &quot;get_service_by_apikey&quot;
+- FIX IDAS-20206: Response to command with Info is not correctly send to CB.
+- FIX IDAS-20212: If service/service_path does not exist, device is not added
+- FIX IDAS-20210: GET all services ignores Fiware-ServicePath header
+- FIX IDAS-20208: Add Content-Type to API responses and format GET devices
+- FIX IDAS-20207: Fiware-ServicePath must start with /
+- FIX IDAS-20205: Remove internal mongo _id from responses
+- FIX IDAS-20202: Compound attributes are not added to context element
+- FIX IDAS-20199: Fiware-Service is not used. JSON include service and service_path as mandatory
+- FIX IDAS-20198: Function name in logs does not correct. Update library log4cplus (1.1.3-rc4)
+- FIX IDAS-20389: attribute default type is string
+- FIX IDAS-20378: push command with 202, thread with response ok is faster than thread with delivered (202 response) son in CB ok response is lost
