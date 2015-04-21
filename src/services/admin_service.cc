@@ -2219,7 +2219,7 @@ int iota::AdminService::post_protocol_json(
     mongo::BSONObj insObj;
 
     // Resource and description define a protocol
-    std::string endpoint = obj.getStringField(iota::store::types::ENDPOINT);
+    std::string endpoint = obj.getStringField(iota::store::types::IOTAGENT);
     std::string resource = obj.getStringField(iota::store::types::RESOURCE);
     std::string description = obj.getStringField(
                                 iota::store::types::PROTOCOL_DESCRIPTION);
