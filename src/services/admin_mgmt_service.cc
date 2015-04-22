@@ -329,7 +329,7 @@ int iota::AdminManagerService::get_a_device_json(
   std::string x_auth_token,
   std::string protocol_filter) {
 
-  std::string log_message;
+
   int code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
   /*std::string request_identifier = http_request_ptr.get()->get_header(
                                      iota::types::HEADER_TRACE_MESSAGES);
@@ -346,7 +346,7 @@ int iota::AdminManagerService::get_a_device_json(
   /*std::string x_auth_token = http_request_ptr.get()->get_header(
                                iota::types::IOT_HTTP_HEADER_AUTH);
 */
-
+   std::string log_message;
   for (int i = 0; i < all_dest.size(); i++) {
     log_message.clear();
     log_message.append("|id-request=" + request_identifier);

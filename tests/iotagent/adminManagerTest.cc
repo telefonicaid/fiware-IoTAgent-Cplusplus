@@ -304,10 +304,10 @@ void AdminManagerTest::testGetDevices() {
   CPPUNIT_ASSERT_MESSAGE("Expected 4 devices ",
                          response.find("\"count\" : 4") != std::string::npos);
 
-                         /*
+
   http_mock->set_response(200, mock_response_one_device, h);
-  manager_service.get_device(http_request, args, query, "s4_agus", "/ss3",
-                             "device_id", http_response, response);
+  manager_service.get_a_device_json("s4_agus", "/ss3",
+                             "device_id", http_response, response,"12345","token","UL20");
   CPPUNIT_ASSERT_MESSAGE("Expected device_id ",
                          response.find("\"device_id\": \"device_id\"") != std::string::npos);
   CPPUNIT_ASSERT_MESSAGE("Expected  count ",
