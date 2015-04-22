@@ -64,7 +64,7 @@ protected:
   void testAddDevicesToEndpoints();
   void testGetDevices();
   void testMultiplePostsWithResponse();
-  void testPostJSONDevices();
+  //TODO void testPostJSONDevices();
 
 private:
     void cleanDB();
