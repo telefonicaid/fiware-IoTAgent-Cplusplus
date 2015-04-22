@@ -160,7 +160,7 @@ AdminMgmTest::AdminMgmTest() {
 
   adm = new iota::AdminService();
   AdminService_ptr = adm;
-  adm->set_manager();
+
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
   wserver.reset(new pion::http::plugin_server(scheduler));
   wserver->add_service("/iot", adm);

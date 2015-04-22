@@ -82,6 +82,8 @@ class AdminManagerService : public iota::AdminService {
 
     virtual ~AdminManagerService();
 
+
+
     /**
     @name add_device_iotagent
     @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a POST request. The result
@@ -163,6 +165,12 @@ class AdminManagerService : public iota::AdminService {
       std::string& response,
       std::string token = "");
 
+
+    void protocols(pion::http::request_ptr& http_request_ptr,
+                   std::map<std::string, std::string>& url_args,
+                   std::multimap<std::string, std::string>& query_parameters,
+                   pion::http::response& http_response,
+                   std::string& response);
 
   protected:
    virtual std::string get_class_name();

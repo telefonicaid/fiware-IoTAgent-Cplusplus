@@ -41,7 +41,7 @@ void iota::AdminManagerService::start(){
 
     // Manager manages protocols
   add_url(ADMIN_SERVICE_PROTOCOLS, filters,
-            REST_HANDLE(&iota::AdminService::protocols), this);
+            REST_HANDLE(&iota::AdminManagerService::protocols), this);
 
   add_oauth_media_filters();
   check_for_logs();
@@ -597,5 +597,124 @@ std::string iota::AdminManagerService::get_param_resource(
   }
 
   return result;
+}
+
+
+void iota::AdminManagerService::protocols(pion::http::request_ptr& http_request_ptr,
+                                   std::map<std::string, std::string>& url_args,
+                                   std::multimap<std::string, std::string>& query_parameters,
+                                   pion::http::response& http_response,
+                                   std::string& response) {
+
+  // TODO protocols,  POST y PUT don't need authentication (it is a register)
+  std::string trace_message = http_request_ptr->get_header(
+                                iota::types::HEADER_TRACE_MESSAGES);
+  std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_log, "|protocols|method:" +method +
+                "|trace_message:" + trace_message);
+
+  std::string reason;
+  std::string error_details;
+  int code = pion::http::types::RESPONSE_CODE_OK;
+  std::string service_in_url;
+  std::string temp, op;
+  try {
+    check_mongo_config();
+    std::string content_type(http_request_ptr->get_header(
+                               pion::http::types::HEADER_CONTENT_TYPE));
+    std::string service(http_request_ptr->get_header(
+                          iota::types::FIWARE_SERVICE));
+    std::string service_path(http_request_ptr->get_header(
+                               iota::types::FIWARE_SERVICEPATH));
+
+
+    if (method.compare(pion::http::types::REQUEST_METHOD_POST) == 0) {
+      std::string content = http_request_ptr->get_content();
+      boost::trim(content);
+      code = post_protocol_json(service,  service_path,
+                                content, http_response, response);
+    }
+    else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
+
+      std::string detailed, protocol;
+      int limit = types::LIMIT_DEFAULT, offset =0;
+      std::multimap<std::string,std::string>::iterator it;
+      it = query_parameters.find(iota::store::types::LIMIT);
+      if (it != query_parameters.end()) {
+        temp = it->second;
+        op = "limit";
+        if (!temp.empty()) {
+          limit = boost::lexical_cast<int>(temp);
+        }
+        else {
+          limit = types::LIMIT_DEFAULT;
+        }
+        if (limit < 0) {
+          PION_LOG_ERROR(m_log, " bad limit using default");
+          limit = types::LIMIT_DEFAULT;
+        }
+        else if (limit > types::LIMIT_MAX) {
+          PION_LOG_ERROR(m_log, " bad limit using maximun");
+          limit = types::LIMIT_MAX;
+        }
+      }
+      it = query_parameters.find(iota::store::types::OFFSET);
+      if (it != query_parameters.end()) {
+        temp = it->second;
+        op = "offset";
+        if (!temp.empty()) {
+          offset = boost::lexical_cast<int>(temp);
+        }
+        else {
+          offset = 0;
+        }
+      }
+      it = query_parameters.find(iota::store::types::DETAILED);
+      if (it != query_parameters.end()) {
+        detailed = it->second;
+      }
+      it = query_parameters.find(iota::store::types::RESOURCE);
+      if (it != query_parameters.end()) {
+        protocol = it->second;
+      }
+
+      code = get_protocols_json(limit,
+                               offset, "on", protocol, http_response, response);
+
+    }
+    else {
+      code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
+      create_response(code, reason, error_details, http_response, response);
+    }
+
+  }
+  catch (const boost::bad_lexical_cast& e) {
+    PION_LOG_ERROR(m_log,"Capturada boost::bad_lexical_cast en services");
+    PION_LOG_ERROR(m_log,e.what());
+    reason.assign(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
+    error_details.assign(op + " must be a number but it is " + temp);
+    code = 400;
+    create_response(code, reason, error_details, http_response, response);
+  }
+  catch (iota::IotaException& e) {
+    PION_LOG_ERROR(m_log,"Capturada: Exception en services");
+    PION_LOG_ERROR(m_log,e.what());
+    reason.assign(e.reason());
+    error_details.assign(e.what());
+    code = e.status();
+    create_response(code, reason, error_details, http_response, response);
+  }
+  catch (std::exception& e) {
+    PION_LOG_ERROR(m_log,"Excepcion en services");
+    reason.assign(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
+    error_details.assign(e.what());
+    code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
+    create_response(code, reason, error_details, http_response, response);
+  }
+
+  PION_LOG_INFO(m_log, "|method:" +method +
+                "|trace_message:" + trace_message+
+                "|code: " + boost::lexical_cast<std::string>(code)+
+                "|response:" + response);
 }
 
