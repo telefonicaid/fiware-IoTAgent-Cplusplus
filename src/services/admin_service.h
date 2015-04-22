@@ -42,6 +42,13 @@ class AdminService :
     virtual void start();
     virtual void stop();
 
+    virtual void create_collection( boost::shared_ptr<iota::ServiceCollection>& col);
+
+    void add_common_urls(std::map<std::string,std::string>& filters);
+
+    void add_oauth_media_filters();
+    void check_for_logs();
+
     void checkIndexes();
     void set_timezone_database(std::string timezone_str);
     void set_manager();

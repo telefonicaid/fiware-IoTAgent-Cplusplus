@@ -76,6 +76,9 @@ class AdminManagerService : public iota::AdminService {
     AdminManagerService();
     AdminManagerService(pion::http::plugin_server_ptr web_server);
 
+    virtual void start();
+
+    void create_collection( boost::shared_ptr<iota::ServiceCollection>& col);
 
     virtual ~AdminManagerService();
 

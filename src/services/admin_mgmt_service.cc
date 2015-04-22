@@ -32,6 +32,26 @@ void iota::AdminManagerService::set_timeout(unsigned short timeout) {
   _timeout = timeout;
 }
 
+void iota::AdminManagerService::start(){
+
+  std::map<std::string, std::string> filters;
+
+
+  add_common_urls(filters);
+
+    // Manager manages protocols
+  add_url(ADMIN_SERVICE_PROTOCOLS, filters,
+            REST_HANDLE(&iota::AdminService::protocols), this);
+
+  add_oauth_media_filters();
+  check_for_logs();
+
+}
+
+void iota::AdminManagerService::create_collection( boost::shared_ptr<iota::ServiceCollection>& col){
+  col.reset(new ServiceMgmtCollection());
+}
+
 void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
     v_devices_endpoint_out, const std::string& devices_protocols_in,
     std::string service, std::string sub_service) {

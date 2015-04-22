@@ -153,12 +153,9 @@ void  iota::AdminService::check_mongo_config() {
   }
 }
 
-void iota::AdminService::start() {
+void iota::AdminService::add_common_urls(std::map<std::string,std::string>& filters){
 
-  std::map<std::string, std::string> filters;
-
-//DGF:REFACTOR sacar a otro metodo
-  // Root
+// Root
   add_url(ADMIN_SERVICE_AGENTS, filters, REST_HANDLE(&iota::AdminService::agents),
           this);
   // Individual agent
@@ -179,25 +176,9 @@ void iota::AdminService::start() {
   add_url(ADMIN_SERVICE_AGENTS+"/<agent>/services" + "/<service>", filters,
           REST_HANDLE(&iota::AdminService::service), this);
 
-//DGF:REFACTOR
-  if (!_manager) {
-    try {
-      const JsonValue& tz_file = iota::Configurator::instance()->get(
-                                   iota::types::CONF_FILE_TIMEZONES);
-      if (tz_file.IsString()) {
-        set_timezone_database(tz_file.GetString());
-      }
-    }
-    catch (std::exception& e) {
-      PION_LOG_DEBUG(m_log, "Timezone database is not configured");
-    }
-  }
-  else {
-    // Manager manages protocols
-    add_url(ADMIN_SERVICE_PROTOCOLS, filters,
-            REST_HANDLE(&iota::AdminService::protocols), this);
-  }
+}
 
+void iota::AdminService::add_oauth_media_filters(){
   try {
     std::map<std::string, std::string> oauth_map;
     iota::Configurator::instance()->get(iota::types::CONF_FILE_OAUTH, oauth_map);
@@ -218,8 +199,14 @@ void iota::AdminService::start() {
     PION_LOG_ERROR(m_log, "OAuth for northbound is not configured");
   }
 
+
   boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter());
   add_pre_filter(media_ptr);
+
+}
+
+
+void iota::AdminService::check_for_logs(){
 
   // Check for logs ok
   _timer.reset(new boost::asio::deadline_timer(*
@@ -228,6 +215,33 @@ void iota::AdminService::start() {
   _timer->async_wait(boost::bind(&iota::AdminService::timeout_check_logs,
                                  this,
                                  boost::asio::placeholders::error));
+}
+
+void iota::AdminService::start() {
+
+
+  std::map<std::string, std::string> filters;
+
+
+  add_common_urls(filters);
+
+
+    try {
+      const JsonValue& tz_file = iota::Configurator::instance()->get(
+                                   iota::types::CONF_FILE_TIMEZONES);
+      if (tz_file.IsString()) {
+        set_timezone_database(tz_file.GetString());
+      }
+    }
+    catch (std::exception& e) {
+      PION_LOG_DEBUG(m_log, "Timezone database is not configured");
+    }
+
+
+  add_oauth_media_filters();
+  check_for_logs();
+
+
 }
 
 void iota::AdminService::stop() {
@@ -752,6 +766,10 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
 
 }
 
+void iota::AdminService::create_collection( boost::shared_ptr<iota::ServiceCollection>& col){
+  col.reset(new ServiceCollection());
+}
+
 void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
                                   std::map<std::string, std::string>& url_args,
                                   std::multimap<std::string, std::string>& query_parameters,
@@ -798,11 +816,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       return;
     }
 
-    if (_manager){
-      col.reset(new ServiceMgmtCollection());
-    }else{
-      col.reset(new ServiceCollection());
-    }
+    create_collection(col);
 
     if (service_path.empty()) {
       service_path = iota::types::FIWARE_SERVICEPATH_DEFAULT;
@@ -1021,12 +1035,9 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
 
   try {
     check_mongo_config();
-    //DGF:REFACTOR
-    if (_manager){
-      col.reset(new ServiceMgmtCollection());
-    }else{
-      col.reset(new ServiceCollection());
-    }
+
+    create_collection(col);
+
 
     std::string content_type(http_request_ptr->get_header(
                                pion::http::types::HEADER_CONTENT_TYPE));
