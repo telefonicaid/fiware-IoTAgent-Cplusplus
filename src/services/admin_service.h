@@ -480,6 +480,11 @@ class AdminService :
 
     std::string check_json(const std::string& json_str, JsonDocument& doc);
 
+
+    virtual std::string get_param_resource(
+            const std::multimap<std::string, std::string>& query_parameters,
+            bool mandatory);
+
     std::string get_service_json(
       const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
