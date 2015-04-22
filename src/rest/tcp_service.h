@@ -31,54 +31,50 @@ template<class Derived>
 class enable_shared_from_this_wrapper {
   public:
     boost::shared_ptr<Derived> shared_from_this_wrapper() {
-      return boost::static_pointer_cast<Derived>(static_cast<Derived*>(this)->shared_from_this());
+      return boost::static_pointer_cast<Derived>(static_cast<Derived*>
+             (this)->shared_from_this());
     }
 
     boost::shared_ptr<Derived> shared_from_this_wrapper() const {
-      return boost::static_pointer_cast<Derived>(static_cast<Derived*>(this)->shared_from_this());
+      return boost::static_pointer_cast<Derived>(static_cast<Derived*>
+             (this)->shared_from_this());
     }
 };
 class TcpService: public pion::tcp::server {
-                   //public iota::enable_shared_from_this_wrapper<iota::TcpService> {
+    //public iota::enable_shared_from_this_wrapper<iota::TcpService> {
   public:
-    // Application handler
+    // Application handler sync
     typedef boost::function<void (
       pion::tcp::connection_ptr&,
       const std::string&,
-      std::string&,
-      boost::system::error_code&)> IotaRequestHandler;
+      const boost::system::error_code&)> IotaRequestHandler;
 
     TcpService(const boost::asio::ip::tcp::endpoint& endpoint);
     virtual ~TcpService();
-    virtual void handle_data(pion::tcp::connection_ptr& tcp_conn,
-                     std::string& request,
-                     const boost::system::error_code& err);
+    bool register_handler(std::string client_name,
+                          iota::TcpService::IotaRequestHandler client_handler);
 
-  protected:
     void send_response(pion::tcp::connection_ptr& tcp_conn,
-                       std::string& buffer_response);
+                       std::string& buffer_response, bool close_connection = true);
+
+    void close_connection(pion::tcp::connection_ptr& tcp_conn);
 
   private:
     virtual void handle_connection(pion::tcp::connection_ptr& tcp_conn);
     void handle_read(pion::tcp::connection_ptr& tcp_conn,
                      const boost::system::error_code& read_error,
                      std::size_t bytes_read);
-    void handle_response(pion::tcp::connection_ptr& tcp_conn,
-                       std::string& buffer_response);
     void print_buffer(std::string& buffer, int bytes_read);
-    std::string& create_buffer(pion::tcp::connection_ptr& tcp_conn);
-    void finish(pion::tcp::connection_ptr& tcp_conn);
-    void clear_buffer(pion::tcp::connection_ptr& tcp_conn);
-    // Buffers to answers (async)
-    std::map<pion::tcp::connection_ptr, std::string> _async_buffers;
+    void finish(pion::tcp::connection_ptr& tcp_conn, bool close_connection = true);
 
     // Lock buffer map
     boost::mutex m_mutex;
 
-    // For async communications. It provides a parallel event loop.
-    //boost::shared_ptr<CommonAsyncManager> _connectionManager;
-
+    // Logger
     pion::logger m_logger;
+
+    // Clients
+    std::map<std::string, iota::TcpService::IotaRequestHandler> c_handlers;
 };
 }
 #endif

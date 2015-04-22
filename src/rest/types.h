@@ -50,7 +50,7 @@ struct types {
   static const std::string CONF_FILE_TIMEOUT;
   static const std::string CONF_FILE_DIR_LOG;
   static const std::string CONF_FILE_TIMEZONES;
-
+  static const std::string CONF_FILE_TCP_SERVERS;
   static const std::string CONF_FILE_IOTA_MANAGER;
 
 

@@ -316,7 +316,7 @@ int main(int argc, char* argv[]) {
     std::map<boost::asio::ip::tcp::endpoint, pion::tcp::server_ptr> tcp_servers;
     try {
       const iota::JsonValue& tcp_s = iota::Configurator::instance()->get(
-                                             "tcp_servers");
+                                             iota::types::CONF_FILE_TCP_SERVERS.c_str());
       if (!tcp_s.IsArray()) {
         PION_LOG_ERROR(main_log, "ERROR in Config File " << service_config_file <<
                        " Configuration error [tcp_servers]");
