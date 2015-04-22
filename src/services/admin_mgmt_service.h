@@ -145,6 +145,10 @@ class AdminManagerService : public iota::AdminService {
 
     void set_timeout(unsigned short timeout);
 
+    virtual std::string get_param_resource(
+                const std::multimap<std::string, std::string>& query_parameters,
+                bool mandatory);
+
     /**
     @name post_json_devices
     @brief this method is intended to be called as part of AdminService::devices logic. The http_request contains an array of devices with their respective protocols. This

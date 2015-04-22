@@ -577,3 +577,25 @@ std::string iota::AdminManagerService::get_class_name(){
   return _class_name;
 }
 
+
+std::string iota::AdminManagerService::get_param_resource(
+            const std::multimap<std::string, std::string>& query_parameters,
+            bool mandatory)
+{
+  std::string result;
+  std::multimap<std::string,std::string>::const_iterator it;
+
+  it = query_parameters.find(iota::store::types::PROTOCOL);
+  if (it != query_parameters.end()) {
+    result = it->second;
+  }
+
+  if (mandatory && result.empty()) {
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
+                              "resource parameter is mandatory",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+  }
+
+  return result;
+}
+

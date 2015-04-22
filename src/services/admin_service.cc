@@ -770,6 +770,28 @@ void iota::AdminService::create_collection( boost::shared_ptr<iota::ServiceColle
   col.reset(new ServiceCollection());
 }
 
+
+std::string iota::AdminService::get_param_resource(
+            const std::multimap<std::string, std::string>& query_parameters,
+            bool mandatory)
+{
+  std::string result;
+  std::multimap<std::string,std::string>::const_iterator it;
+
+  it = query_parameters.find(iota::store::types::RESOURCE);
+  if (it != query_parameters.end()) {
+    result = it->second;
+  }
+
+  if (mandatory && result.empty()) {
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
+                              "resource parameter is mandatory",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+  }
+
+  return result;
+}
+
 void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
                                   std::map<std::string, std::string>& url_args,
                                   std::multimap<std::string, std::string>& query_parameters,
