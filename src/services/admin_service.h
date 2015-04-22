@@ -195,7 +195,7 @@ class AdminService :
       *    Status: 200
       * @endcode
       */
-    int put_device_json(
+    virtual int put_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& device_id,
@@ -252,7 +252,7 @@ class AdminService :
        *    updateCommand("ping", "22", dev, "2345fefe4343Ŕ", service);
        * @endcode
        */
-    int delete_device_json(
+    virtual int delete_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& id_device,
@@ -445,7 +445,11 @@ class AdminService :
 
     void set_log_file(std::string& log_file);
 
+  protected:
+    virtual std::string get_class_name();
+    virtual std::string get_role(){};
   private:
+
 
     void remove_from_cache(Device& device);
     void check_uri(const std::string& data);
@@ -507,6 +511,7 @@ class AdminService :
 
     // As manager
     bool _manager;
+    std::string _class_name;
 };
 
 }   // end namespace iota

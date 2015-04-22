@@ -157,7 +157,14 @@ class AdminManagerService : public iota::AdminService {
       std::string token = "");
 
 
+  protected:
+   virtual std::string get_class_name();
+   virtual std::string get_role();
+
   private:
+
+
+
     pion::logger m_log;
 
     pion::one_to_one_scheduler _scheduler;
@@ -173,6 +180,7 @@ class AdminManagerService : public iota::AdminService {
       pion::http::response_ptr response_ptr,
       const boost::system::error_code& error);
 
+    std::string _class_name;
 
 };
 

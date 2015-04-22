@@ -10,12 +10,18 @@ namespace iota {
 extern std::string logger;
 }
 
-iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr web_server): _timeout(5), m_log(PION_GET_LOGGER(
-            iota::logger)) {
+iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr web_server):
+            _timeout(5),
+            m_log(PION_GET_LOGGER(
+            iota::logger)),
+            _class_name("iota::AdminManagerService")
+             {
 
 }
 
-iota::AdminManagerService::AdminManagerService() : _timeout(5), m_log(PION_GET_LOGGER(iota::logger)){
+iota::AdminManagerService::AdminManagerService() :
+  _class_name("iota::AdminManagerService"), _timeout(5),
+  m_log(PION_GET_LOGGER(iota::logger)) {
 }
 
 iota::AdminManagerService::~AdminManagerService() {
@@ -543,4 +549,11 @@ int iota::AdminManagerService::post_device_json(
 
 }
 
+std::string iota::AdminManagerService::get_role() {
+  return " [working as manager] ";
+}
+
+std::string iota::AdminManagerService::get_class_name(){
+  return _class_name;
+}
 
