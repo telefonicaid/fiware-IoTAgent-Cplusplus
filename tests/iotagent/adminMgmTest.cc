@@ -40,6 +40,7 @@
 #include "util/service_collection.h"
 #include "util/service_mgmt_collection.h"
 #include "services/admin_service.h"
+#include "services/admin_mgmt_service.h"
 
 #define PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 
@@ -158,7 +159,7 @@ AdminMgmTest::AdminMgmTest() {
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
   pion::process::initialize();
 
-  adm = new iota::AdminService();
+  adm = new iota::AdminManagerService();
   AdminService_ptr = adm;
 
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
