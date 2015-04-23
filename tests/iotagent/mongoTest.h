@@ -34,7 +34,8 @@ class MongoTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testNoMongo);
     // to test testReplica  you need a replicaSet in mongo
     // and configure it in tests/iotagent/config_mongo_replica.json
-    //CPPUNIT_TEST(testReplica);
+    CPPUNIT_TEST(testReplica);
+    CPPUNIT_TEST(testMongoAlone);
     CPPUNIT_TEST(testException);
 
     CPPUNIT_TEST(testProtocolCollection);
@@ -57,6 +58,7 @@ class MongoTest : public CPPUNIT_NS::TestFixture {
 
     void testNoMongo();
     void testReplica();
+    void testMongoAlone();
     void testException();
 
     static void workerFunc();
