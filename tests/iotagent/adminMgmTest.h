@@ -89,6 +89,7 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
     void testBADServiceManagement();
 
     iota::AdminService* adm;
+    iota::AdminService* admMgm;
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
 };

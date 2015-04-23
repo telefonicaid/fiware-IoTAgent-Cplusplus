@@ -184,6 +184,7 @@ AdminMgmTest::AdminMgmTest() {
   pion::process::initialize();
 
   adm = new iota::AdminManagerService();
+  admMgm = adm;
   AdminService_ptr = adm;
 
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
@@ -270,7 +271,7 @@ void AdminMgmTest::testProtocol_ServiceManagement(){
 
   std::cout << "@UT@Remove all data in protocols" << std::endl;
   pion::http::response http_response;
-  adm->delete_all_protocol_json(http_response, "", response);
+  admMgm->delete_all_protocol_json(http_response, "", response);
 
   std::cout << "@UT@Post iotagents without services" << std::endl;
   code_res = http_test(URI_PROTOCOLS, "POST", "", "",
