@@ -3,13 +3,13 @@
 
 #### Index
 1. [Introduction](#def-introduction)
-2. [MQTT Conventions](#def-conventions)
-3. [IoTAgent API: provision of Services](north_api.md#def-service-api)
-4. [IoTAgent API: provision of devices](north_api.md#def-device-api)
-5. [Sending single measures MQTT](#def-measures)
-6. [Sending multiple measures](#def-multi)
-7. [Commands](#def-commands)
-8. [Configuration](#def-configuration)
+2. [Configuration](#def-configuration)
+3. [MQTT Conventions](#def-conventions)
+4. [IoTAgent API: provision of Services](north_api.md#def-service-api)
+5. [IoTAgent API: provision of devices](north_api.md#def-device-api)
+6. [Sending single measures MQTT](#def-measures)
+7. [Sending multiple measures](#def-multi)
+8. [Commands](#def-commands)
 
 
 <a name="def-introduction"></a>
@@ -18,8 +18,13 @@ This protocol is purely oriented to machine-to-machine applications and it’s v
 
 The IoTAgent for MQTT will accept MQTT 3.1.1 compliant messages that will be translated into "entities" to get published on a Fiware's Orion Context Broker. Please also note that IotAgent-MQTT is connected to two different brokers: the Context Broker (that is part of a IoT Platform) and the MQTT broker which is a separate element. Once connected to the MQTT broker, the IoTAgent will need to subscribe to all topics on that broker in order to be able to receive all messages from any device connected to that broker. As it will be explained in the following sections, there are some conventions that must be followed in order to interact with the IoTAgent. Therefore, devices have to publish on certain topics with a particular format. 
 
+<a name="def-configuration"></a>
+## 2. Configuration.
+
+
+
 <a name="def-conventions"></a>
-## 2. MQTT Conventions.
+## 3. MQTT Conventions.
 
 MQTT does not define any particular hierarchy for topics. However, IoTAgent for MQTT needs devices to follow a set of particular conventions in order to be able to handle connections from devices belonging to different organizations. Thus, with the following topic conventions, devices will publish information under different "services" that can identify a vendor or any organization who wants to separate its devices from others. This separation has been implemented following a topic structure. Regarding payload, IoTAgent is somewhat agnostic about how devices send data when one message carries plain or raw information. However, for more sophisticated cases like multiple measures per mqtt message or commands, there will be specific formats.
 
@@ -41,7 +46,7 @@ There are, however, some keywords already used for different scenarios:
 
 
 <a name="def-measures"></a>
-## 5. Devices sending single Measures.
+## 6. Devices sending single Measures.
 This is the simplest and more straightforward scenario. Devices (once provisioned under a service) can publish MQTT messages to the IoTAgent. Those messages contain one piece of information each. That means that one message will be translated into one single entity on the ContexBroker domain. The information can be typically sensors' measures. 
 
 This is the topic hierarchy that has to be used by devices:
@@ -85,7 +90,7 @@ This is what is publised on ContextBroker:
 
 
 <a name="def-multi"></a>
-## 6. Devices sending multiple measures per message
+## 7. Devices sending multiple measures per message
 
 Another scenario can happen when devices send more than one phenomena within the payload.  That is to say, one single MQTT message carries all measures. When it comes to ContextBroker, there will be one entity publication (per device) but containing all different attributes as per measures included in the mqtt message (each phenomenon or measure will be a separate attribute). In order to be able to parse the information on the IoTAgent, devices should follow this format:
 
@@ -154,7 +159,7 @@ Therefore, the entity published on ContextBroker will contain two attributes wit
 	   }
 
 <a name="def-commands"></a>
-## 7. Commands.
+## 8. Commands.
 
 As per it's described in [IoTAgent Commands](commands.md), there are two kind of commands depending on what actor is requesting the sending of the commands. The IoTAgent for MQTT supports both. When sending a command, the IoTAgent will publish a mqtt message on a particular topic, and as it was described previously it will follow the "api-key"/"device-id"/cmd/"command-name" pattern. The keyword "cmd" is fixed. That is to say, devices have to subscribe to topics following that pattern: <api-key>/<device-id>/cmd/+  (as defined in the mqtt protocol, the '+' character means any topic on that level) where "api-key" and "device-id" are the identifiers for service and device provisioned. 
 
@@ -216,9 +221,6 @@ Payload:
 	cmdid|82ndsj28924hnsrh2932424#result|OK#
 
 In this example a specific result has been added apart from the cmdid previously sent. 
-
-<a name="def-configuration"></a>
-## 8. Configuration.
 
 
 
