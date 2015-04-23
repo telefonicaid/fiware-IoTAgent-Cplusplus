@@ -55,7 +55,7 @@ Besides, the IoTAgent has to be told where to find the MqttService.so file. This
 
 
 
-As MQTT works over TCP, there is no curl command to test it. However, anyone could use <a href=http://mosquitto.org>Mosquitto</a> implemenation to test it. It comes with both clients: publisher and subscriber, so once a service is provisioned, you can issue the following commands to test that is working:
+As MQTT works over TCP, there is no curl command to test it. However, anyone could use <a href=http://mosquitto.org>Mosquitto</a> implemenation to test it (it requires bulding it). It comes with both clients: publisher and subscriber, so once a service is provisioned, you can issue the following commands to test that is working:
 
 For subscribing to topics coming to your recently provisioned device (replace api-key and device-id with actual ids). "Server.name" is the IP or hostname where the broker is (typically is the same as IotAgent's)
 ```
@@ -68,6 +68,8 @@ Then you can publish a test (on a separate shell):
      mosquitto_pub -h server.name -t /api-key/device-id/test -m 44
 ```
 You can check that the message has come to the subscriber and also to the ContextBroker, as IoTAgent will be listening to all publications. 
+
+__Note__: if ACS is used, mqtt clients have to use user-id that must be the same as the Api-key. In this example, by providing "-u <api-key>" on both commands you can do so. 
 
 ```
 {"id":"my_device","type":"thing","isPattern":"false","attributes":[{"name":"test","type":"string","value":"44","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]},{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]}
