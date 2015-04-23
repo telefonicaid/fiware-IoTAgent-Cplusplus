@@ -183,8 +183,8 @@ AdminMgmTest::AdminMgmTest() {
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_MONGO);
   pion::process::initialize();
 
-  adm = new iota::AdminManagerService();
-  admMgm = adm;
+  admMgm = new iota::AdminManagerService();
+  adm = admMgm;
   AdminService_ptr = adm;
 
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
