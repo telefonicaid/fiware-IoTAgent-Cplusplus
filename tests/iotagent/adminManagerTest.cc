@@ -380,7 +380,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
 /**
 There's something wrong with the protocol provisioning. Check again once Fago has tested his code.
 */
-/*
+
 void AdminManagerTest::testPostJSONDevices() {
 
   std::string
@@ -429,4 +429,4 @@ void AdminManagerTest::testPostJSONDevices() {
   CPPUNIT_ASSERT(code > 0);
   std::cout << "Test testPostJSONDevices DONE" << std::endl;
 
-}*/
+}

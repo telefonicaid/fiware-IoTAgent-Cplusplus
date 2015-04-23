@@ -553,10 +553,10 @@ int iota::AdminManagerService::post_device_json(
 
   resolve_endpoints(v_endpoints,body,service,service_path);
   PION_LOG_DEBUG(m_log,
-                 "do_post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
+                 "post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
   response.assign(post_multiple_devices(v_endpoints,service,service_path,
                                         token));
-  PION_LOG_DEBUG(m_log,"do_post_json_devices: POSTs processed: ["<<response<<"]");
+  PION_LOG_DEBUG(m_log,"post_json_devices: POSTs processed: ["<<response<<"]");
   if (!response.empty()) {
     http_response.set_content(response);
     http_response.set_status_code(200);
