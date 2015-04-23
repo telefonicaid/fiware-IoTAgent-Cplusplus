@@ -66,7 +66,7 @@ By default is __disabled__.
 
 MQTT does not define any particular hierarchy for topics. However, IoTAgent for MQTT needs devices to follow a set of particular conventions in order to be able to handle connections from devices belonging to different organizations. Thus, with the following topic conventions, devices will publish information under different "services" that can identify a vendor or any organization who wants to separate its devices from others. This separation has been implemented following a topic structure. Regarding payload, IoTAgent is somewhat agnostic about how devices send data when one message carries plain or raw information. However, for more sophisticated cases like multiple measures per mqtt message or commands, there will be specific formats.
 
-Prior a device can successfully publish information on the IoTAgent, a service and the device must be provisioned (see (north_api.md#def-service-api) and (north_api.md#def-device-api)). In this case, the api-key attribute has to be supplied, as it's part of the topic structure and therefore, it will be used to filter messages. 
+Prior a device can successfully publish information on the IoTAgent, a service and the device must be provisioned (see [API for services](north_api.md#def-service-api) and [API for devices](north_api.md#def-device-api)). In this case, the api-key attribute has to be supplied, as it's part of the topic structure and therefore, it will be used to filter messages. 
 
 The structure has three (or four) different topics, being the last one used when working with commands. Topic structure:
 
