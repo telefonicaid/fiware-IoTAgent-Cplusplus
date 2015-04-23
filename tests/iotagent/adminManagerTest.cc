@@ -118,7 +118,7 @@ AdminManagerTest::AdminManagerTest() {
                          "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
   boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
   adm->post_service_json(col, service,service_path,service_s1,http_response,
-                         response);
+                         response, "1234", "5678");
 
 }
 

@@ -382,13 +382,15 @@ class AdminService :
        *    Status: 200
        * @endcode
        */
-    int post_service_json(
+    virtual int post_service_json(
       const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
       const std::string& body,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string token,
+      std::string request_identifier);
 
     /**
        * @name    post_json
@@ -453,6 +455,11 @@ class AdminService :
   protected:
     virtual std::string get_class_name();
     virtual std::string get_role(){ return ""; };
+    bool validate_json_schema(
+      const std::string& json_str,
+      const boost::shared_ptr<iota::Collection>& table,
+      const std::string& method,
+      std::string& response);
   private:
 
 
@@ -501,11 +508,6 @@ class AdminService :
 
 
     bool is_mongo_active();
-    bool validate_json_schema(
-      const std::string& json_str,
-      const boost::shared_ptr<iota::Collection>& table,
-      const std::string& method,
-      std::string& response);
 
     void deploy_device(Device& device);
     void register_iota_manager();
