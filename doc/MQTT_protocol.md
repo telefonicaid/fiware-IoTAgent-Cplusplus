@@ -35,10 +35,12 @@ The "resources" section of this file contains valuable information about what pl
        }
      } 
 
-Where "MqttService" is the name of the plugin, and it's equivalente to the file that will be loaded by IoTAgent: __MqttService.so__ 
+Where "MqttService" is the name of the plugin, and it's equivalente to the file that will be loaded by IoTAgent: __MqttService.so__.
+
 "ConfigFile" will be used by the MQTT plugin to locate other configurations file that are also needed. 
 
 ### Files needed.
+
 In this example, let's assume all files are installed in /etc/iot/ directory. So the files that must be present for a proper operation of the IoTAgent with MQTT plugin are:
 
 - MqttService.xml (it contains the path to the following file).
@@ -47,6 +49,7 @@ In this example, let's assume all files are installed in /etc/iot/ directory. So
 - aclfile.mqtt (file used for the Access Control in Mosquitto)
 
 ### Using a different MQTT broker.
+
 If Mosquitto is not prefered, or it's going to run in a separate machine whithin your infraestructure, some changes have to be done to __sensormqtt.xml__ file. Locate the following two lines in such file:
          
          <input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwriter"/>				
