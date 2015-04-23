@@ -395,6 +395,10 @@ void AdminManagerTest::testPostJSONDevices() {
   table1.createTableAndIndex();
   table_device.createTableAndIndex();
 
+  iota::UL20Service ul20_service;
+
+  adm->add_service("/iot/d",&ul20_service);
+
   mongo::BSONObj all;
 
   table1.remove(all);
@@ -426,7 +430,7 @@ void AdminManagerTest::testPostJSONDevices() {
   q1._service_path.assign("/ss1");
   int code = table_device.findd(q1);
   std::cout << "DEVICE FOUND?: " << (code < 0?"NO":"YES") << std::endl;
-  CPPUNIT_ASSERT(code > 0);
+  CPPUNIT_ASSERT(code >= 0);
   std::cout << "Test testPostJSONDevices DONE" << std::endl;
 
 }
