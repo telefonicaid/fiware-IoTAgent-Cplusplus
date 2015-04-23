@@ -935,6 +935,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       bool remove_devices = false;
       std::string apikey, resource;
 
+      resource = get_param_resource(query_parameters,true);
       try {
         std::string r_d("false");
         std::multimap<std::string,std::string>::iterator it;
@@ -948,23 +949,6 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         if (it != query_parameters.end()) {
           apikey = it->second;
         }
-
-        resource = get_param_resource(query_parameters,true);
-/*
-      //DGF:REFACTOR
-        it = query_parameters.find(iota::store::types::RESOURCE);
-        if (it != query_parameters.end()) {
-          resource = it->second;
-        }
-
-        if (resource.empty() && !_manager) {
-          code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
-          reason.assign(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER);
-          error_details.assign("resource parameter is mandatory in DELETE operation");
-          create_response(code, reason, error_details, http_response, response);
-          return;
-        }
-        */
       }
       catch (std::exception& e) {
         code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
@@ -1139,6 +1123,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       bool remove_devices = false;
       std::string apikey, resource;
 
+      resource = get_param_resource(query_parameters,true);
       try {
         std::string r_d("false");
         std::multimap<std::string,std::string>::iterator it;
@@ -1153,26 +1138,6 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
           apikey = it->second;
         }
 
-        resource = get_param_resource(query_parameters,true);
-        /*
-        //DGF:REFACTOR
-        it = query_parameters.find(iota::store::types::RESOURCE);
-        if (it != query_parameters.end()) {
-          resource = it->second;
-        }
-
-        if (resource.empty() && !_manager) {
-          code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
-          reason.assign(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER);
-          error_details.assign("resource parameter is mandatory in DELETE operation");
-          create_response(code, reason, error_details, http_response, response);
-          PION_LOG_INFO(m_log, "iota::AdminService::service|method:" +method +
-                        "|trace_message:" + trace_message+
-                        "|code: " + boost::lexical_cast<std::string>(code)+
-                        "|response:" + response);
-          return;
-        }
-        */
       }
       catch (std::exception& e) {
         code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
@@ -2174,7 +2139,8 @@ int iota::AdminService::post_protocol_json(
     std::string protocol_name = obj.getStringField(
                                   iota::store::types::PROTOCOL_NAME);
 
-    PION_LOG_DEBUG(m_log, "update protocol :" +protocol_name);
+    PION_LOG_DEBUG(m_log, "update protocol :" +protocol_name+
+         "|iotagent:" + endpoint+ "|resource:"+ resource);
     int num_ups = protocol_table->update_r(
         BSON(iota::store::types::PROTOCOL_NAME << protocol_name <<
              iota::store::types::PROTOCOL_DESCRIPTION << description),
@@ -2191,13 +2157,18 @@ int iota::AdminService::post_protocol_json(
       std::vector<mongo::BSONElement> be = element.Array();
       PION_LOG_DEBUG(m_log, "insert services ");
       for (unsigned int i = 0; i<be.size(); i++) {
-        mongo::BSONObjBuilder bo;
-        bo.appendElements(be[i].embeddedObject());
-        bo.append(iota::store::types::PROTOCOL, protocol_name);
-        bo.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
-        bo.append(iota::store::types::IOTAGENT, endpoint);
-        insObj = bo.obj();
-        service_table.insert(insObj);
+        mongo::BSONObj srvObj = be[i].embeddedObject();
+        mongo::BSONObjBuilder query;
+        query.append(iota::store::types::SERVICE, srvObj.getStringField(iota::store::types::SERVICE));
+        query.append(iota::store::types::SERVICE_PATH, srvObj.getStringField(iota::store::types::SERVICE_PATH));
+        query.append(iota::store::types::IOTAGENT, endpoint);
+        query.append(iota::store::types::PROTOCOL, protocol_name);
+        query.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
+
+        srvObj = srvObj.removeField(iota::store::types::SERVICE);
+        srvObj = srvObj.removeField(iota::store::types::SERVICE_PATH);
+        srvObj = srvObj.removeField(iota::store::types::RESOURCE);
+        service_table.update(query.obj(), srvObj, true,0);
       }
     }
     code = pion::http::types::RESPONSE_CODE_CREATED;
