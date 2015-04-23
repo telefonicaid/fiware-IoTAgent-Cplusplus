@@ -57,6 +57,7 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
     static const std::string POST_PROTOCOLS2;
     static const std::string POST_PROTOCOLS3;
     static const std::string POST_PROTOCOLS4;
+    static const std::string POST_PROTOCOLS2_RERE;
     static const std::string GET_PROTOCOLS_RESPONSE;
 
     // SERVICE_MANAGEMENT

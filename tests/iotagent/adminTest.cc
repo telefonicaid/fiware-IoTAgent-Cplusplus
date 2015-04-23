@@ -732,6 +732,10 @@ void  AdminTest::testPostDevice() {
   code_res = http_test("/iot/services/" + service, "DELETE", service, "",
                        "application/json", "",
                        headers, "", response);
+  IOTASSERT(code_res == 400);
+  IOTASSERT(
+    response.find("resource parameter is mandatory")
+    != std::string::npos);
 
   std::cout << "END@UT@ testPostDevice" << std::endl;
 }
