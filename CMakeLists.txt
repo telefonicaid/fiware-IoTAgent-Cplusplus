@@ -194,6 +194,7 @@ add_test(NAME OAuthTest COMMAND oauth_tests)
 add_test(NAME SimplePlugingTest COMMAND sp_tests)
 add_test(NAME MongoTest COMMAND mongo_tests)
 add_test(NAME SamplTest COMMAND sample_tests)
+add_test(NAME TcpTest COMMAND tcp_tests)
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/specs/iot-agent-base.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-base.spec" @ONLY IMMEDIATE)
 set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/iot-agent-base.spec")
