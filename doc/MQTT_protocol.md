@@ -9,6 +9,7 @@
 5. [Sending single measures MQTT](#def-measures)
 6. [Sending multiple measures](#def-multi)
 7. [Commands](#def-commands)
+8. [Configuration](#def-configuration)
 
 
 <a name="def-introduction"></a>
@@ -40,7 +41,7 @@ There are, however, some keywords already used for different scenarios:
 
 
 <a name="def-measures"></a>
-## 5 Devices sending single Measures.
+## 5. Devices sending single Measures.
 This is the simplest and more straightforward scenario. Devices (once provisioned under a service) can publish MQTT messages to the IoTAgent. Those messages contain one piece of information each. That means that one message will be translated into one single entity on the ContexBroker domain. The information can be typically sensors' measures. 
 
 This is the topic hierarchy that has to be used by devices:
@@ -84,7 +85,7 @@ This is what is publised on ContextBroker:
 
 
 <a name="def-multi"></a>
-## 6 Devices sending multiple measures per message
+## 6. Devices sending multiple measures per message
 
 Another scenario can happen when devices send more than one phenomena within the payload.  That is to say, one single MQTT message carries all measures. When it comes to ContextBroker, there will be one entity publication (per device) but containing all different attributes as per measures included in the mqtt message (each phenomenon or measure will be a separate attribute). In order to be able to parse the information on the IoTAgent, devices should follow this format:
 
@@ -215,6 +216,9 @@ Payload:
 	cmdid|82ndsj28924hnsrh2932424#result|OK#
 
 In this example a specific result has been added apart from the cmdid previously sent. 
+
+<a name="def-configuration"></a>
+## 8. Configuration.
 
 
 
