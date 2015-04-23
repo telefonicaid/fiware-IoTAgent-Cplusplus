@@ -21,6 +21,44 @@ The IoTAgent for MQTT will accept MQTT 3.1.1 compliant messages that will be tra
 <a name="def-configuration"></a>
 ## 2. Configuration.
 
+When the IoTAgent is deployed and configured using puppet, there is no need for specific configuration. However, if the installation is manual (using RPMs for instance) there are some details that have to be taken into account. 
+
+### Config.json
+
+The "resources" section of this file contains valuable information about what plugins will be running on that instance of the IoTAgent. So if MQTT is going to be used, at least this resource must be present:
+
+    {
+     "resource": "/iot/mqtt",
+     "options": {
+        "ConfigFile": "/etc/iot/MqttService.xml",
+        "FileName": "MqttService"
+       }
+     } 
+
+Where "MqttService" is the name of the plugin, and it's equivalente to the file that will be loaded by IoTAgent: __MqttService.so__ 
+"ConfigFile" will be used by the MQTT plugin to locate other configurations file that are also needed. 
+
+### Files needed.
+In this example, let's assume all files are installed in /etc/iot/ directory. So the files that must be present for a proper operation of the IoTAgent with MQTT plugin are:
+
+- MqttService.xml (it contains the path to the following file).
+- sensormqtt.xml (it contains low-level details about the MQTT plugin's behaviour. The only recommended information that can be changed by users is where MQTT broker (Mosquitto or equivalent) is listening).
+- mosquitto.conf (part of Mosquitto MQTT Broker. It can be used to fine tune Mosquitto)
+- aclfile.mqtt (file used for the Access Control in Mosquitto)
+
+### Using a different MQTT broker.
+If Mosquitto is not prefered, or it's going to run in a separate machine whithin your infraestructure, some changes have to be done to __sensormqtt.xml__ file. Locate the following two lines in such file:
+         
+         <input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwriter"/>				
+         <input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="localhost" port="1883" user="admin" password="1234" name="mqttrunner"/>
+         
+Where "host" and "port" will be set accordingly. If a different MQTT broker is used, the files "aclfile.mqtt" and "mosquitto.conf" are no longer needed. If Mosquitto is still used, those files must be where Mosquitto is running. 
+
+### Configuring ACL in Mosquitto.
+
+The Access Control List of Mosquitto enables certain level of privacy for MQTT messages. Anyone could publish on the MQTT Broker, and without ACL, anyone could publish on any topic. This might be fine for you, but if you prefer to have some control over who can publish what and where, you should use ACL. The official Mosquitto documentation explains this topic in more detail. The default pattern that we provide requires MQTT publishers to identify themselves (although password is not necessary) using an user id. This user-id has to be the "api-key" provisioned in the system (see following sections). By using the Api-key as user-id and the ACL, you can have many different organizations with different devices publishing on topics making sure they can't see each other. 
+ACL is enabled in the mosquitto.conf file by setting the "aclfile" property to the path where "aclfile.mqtt" file is located. 
+By default is __disabled__. 
 
 
 <a name="def-conventions"></a>
