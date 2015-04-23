@@ -34,23 +34,23 @@ iota::TcpService::TcpService(const boost::asio::ip::tcp::endpoint& endpoint):
 
 iota::TcpService::~TcpService() {}
 
-bool iota::TcpService::register_handler(std::string client_name,
-                                        iota::TcpService::IotaRequestHandler client_handler) {
-  bool res = true;
+boost::shared_ptr<iota::TcpService> iota::TcpService::register_handler(
+  std::string client_name,
+  iota::TcpService::IotaRequestHandler client_handler) {
+  boost::shared_ptr<iota::TcpService> your_tcp_service;
   try {
     c_handlers.insert(std::pair<std::string, iota::TcpService::IotaRequestHandler>
                       (client_name, client_handler));
+    your_tcp_service = shared_from_this();
   }
   catch (std::exception& e) {
     PION_LOG_ERROR(m_logger, e.what());
-    res = false;
   }
-  return res;
+  return your_tcp_service;
 }
 
 void iota::TcpService::handle_connection(pion::tcp::connection_ptr& tcp_conn) {
   //tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
-  std::cout << "CONNECTION" << std::endl;
   tcp_conn->async_read_some(boost::bind(
                               &iota::TcpService::handle_read,
                               this, tcp_conn,
@@ -92,9 +92,14 @@ void iota::TcpService::send_response(pion::tcp::connection_ptr& tcp_conn,
 
   print_buffer(buffer_response, buffer_response.size());
   // TODO ¿Pueden mezclarse?
-  tcp_conn->async_write(boost::asio::buffer(buffer_response.data(),
-                        buffer_response.size()),
-                        boost::bind(&iota::TcpService::finish, this, tcp_conn, close_connection));
+  if (tcp_conn->is_open()) {
+    tcp_conn->async_write(boost::asio::buffer(buffer_response.data(),
+                          buffer_response.size()),
+                          boost::bind(&iota::TcpService::finish, this, tcp_conn, close_connection));
+  }
+  else {
+    PION_LOG_ERROR(m_logger, "Connection is closed");
+  }
 
 }
 

@@ -52,7 +52,7 @@ Fields in JSON object representing a service are:
 - `apikey` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
 - `token` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
 - `cbroker`(string, mandatory). Context Broker endpoint assigned to this service, it must be a real uri.
-- `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent. 
+- `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
 - `resource` (string, mandatory). Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
 - `entity_type` (string, optional). Entity type used in entity publication (overload default).
 - `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
@@ -229,11 +229,11 @@ A device is a resource that publish information to IoT Platform and it uses the 
 + Parameters [limit, offset, detailed, entity]
 
 
-    + `limit` (optional, number). In order to specify the maximum number of services (default is 20, maximun allowed is 1000).
+    + `limit` (optional, number). In order to specify the maximum number of devices (default is 20, maximun allowed is 1000).
 
     + `offset` (optional, number). In order to skip a given number of elements at the beginning (default is 0) .
 
-    + `detailed` (optional, string). `on` return all service information, `off` (default) return only name.
+    + `detailed` (optional, string). `on` return all device information, `off` (default) return only name.
 
     + `entity` (optional, string). It allows get a device from entity name.
 

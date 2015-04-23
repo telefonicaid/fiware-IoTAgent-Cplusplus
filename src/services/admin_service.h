@@ -24,6 +24,7 @@
 
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/plugin_server.hpp>
+#include <pion/http/request.hpp>
 #include <rest/command_handle.h>
 #include <rapidjson/document.h>
 #include <boost/date_time/local_time/local_time.hpp>
@@ -41,9 +42,16 @@ class AdminService :
     virtual void start();
     virtual void stop();
 
+    virtual void create_collection( boost::shared_ptr<iota::ServiceCollection>& col);
+
+    void add_common_urls(std::map<std::string,std::string>& filters);
+
+    void add_oauth_media_filters();
+    void check_for_logs();
+
     void checkIndexes();
     void set_timezone_database(std::string timezone_str);
-    void set_manager();
+
     boost::posix_time::ptime get_local_time_from_timezone(std::string timezone_str);
 
     /**
@@ -90,11 +98,7 @@ class AdminService :
                  pion::http::response& http_response,
                  std::string& response);
 
-    void protocols(pion::http::request_ptr& http_request_ptr,
-                   std::map<std::string, std::string>& url_args,
-                   std::multimap<std::string, std::string>& query_parameters,
-                   pion::http::response& http_response,
-                   std::string& response);
+
 
 
     void about(pion::http::request_ptr& http_request_ptr,
@@ -120,6 +124,7 @@ class AdminService :
 
     pion::http::plugin_server_ptr get_web_server();
 
+
     /**
          * @name    get_all_json
          * @brief   API Rest method POST to insert a device (using json)
@@ -140,7 +145,7 @@ class AdminService :
          *    Status: 200
          * @endcode
          */
-    int get_all_devices_json(
+    virtual int get_all_devices_json(
       const std::string& service,
       const std::string& service_path,
       int limit,
@@ -148,15 +153,24 @@ class AdminService :
       const std::string& detailed,
       const std::string& entity,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string request_id,
+      std::string x_auth_token,
+      std::string protocol_filter
+      );
 
 
-    int get_a_device_json(
+
+    virtual int get_a_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& device_id,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string request_id,
+      std::string x_auth_token,
+      std::string protocol_filter
+     );
 
     /**
       * @name    put_json
@@ -184,7 +198,7 @@ class AdminService :
       *    Status: 200
       * @endcode
       */
-    int put_device_json(
+    virtual int put_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& device_id,
@@ -214,12 +228,13 @@ class AdminService :
        *    Status: 200
        * @endcode
        */
-    int post_device_json(
+    virtual int post_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& body,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string token = "");
 
     /**
        * @name    post_json
@@ -240,7 +255,7 @@ class AdminService :
        *    updateCommand("ping", "22", dev, "2345fefe4343Ŕ", service);
        * @endcode
        */
-    int delete_device_json(
+    virtual int delete_device_json(
       const std::string& service,
       const std::string& service_path,
       const std::string& id_device,
@@ -394,7 +409,7 @@ class AdminService :
        *    updateCommand("ping", "22", dev, "2345fefe4343Ŕ", service);
        * @endcode
        */
-    int delete_service_json(
+    virtual int delete_service_json(
       const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
@@ -433,7 +448,13 @@ class AdminService :
 
     void set_log_file(std::string& log_file);
 
+
+
+  protected:
+    virtual std::string get_class_name();
+    virtual std::string get_role(){ return ""; };
   private:
+
 
     void remove_from_cache(Device& device);
     void check_uri(const std::string& data);
@@ -468,6 +489,11 @@ class AdminService :
 
     std::string check_json(const std::string& json_str, JsonDocument& doc);
 
+
+    virtual std::string get_param_resource(
+            const std::multimap<std::string, std::string>& query_parameters,
+            bool mandatory);
+
     std::string get_service_json(
       const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
@@ -493,8 +519,8 @@ class AdminService :
     boost::shared_ptr<boost::asio::deadline_timer> _timer;
     std::string _log_file;
 
-    // As manager
-    bool _manager;
+
+    std::string _class_name;
 };
 
 }   // end namespace iota

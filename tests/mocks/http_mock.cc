@@ -143,6 +143,7 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
 
       writer->get_response().add_header(it->first, it->second);
     }
+    writer->get_response().set_status_code(_sc);
     writer->write_no_copy(content);
     writer->write_no_copy(pion::http::types::STRING_CRLF);
     writer->write_no_copy(pion::http::types::STRING_CRLF);

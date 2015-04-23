@@ -337,9 +337,11 @@ std::string iota::HttpClient::getRemoteEndpoint() {
   ss << _remote_ip;
   ss << ":";
   ss << _remote_port;
-  ss << _request->get_resource();
-  ss << " ";
-  ss << _request->get_query_string();
+  if (_request) {
+    ss << _request->get_resource();
+    ss << " ";
+    ss << _request->get_query_string();
+  }
   /*
   ss << " by proxy ";
   ss << _ip;

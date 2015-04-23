@@ -29,10 +29,13 @@ class TestService {
     virtual ~TestService() {};
     void handle_data(pion::tcp::connection_ptr& conn, const std::string& r,
       const boost::system::error_code& e) {
-      std::cout << "DATA" << std::endl;
+      std::string res("GOODBYE");
+      s_->send_response(conn, res);
     }
+    void add_tcp_service(boost::shared_ptr<iota::TcpService> s) {s_ = s;};
   protected:
   private:
+    boost::shared_ptr<iota::TcpService> s_;
 };
 class TcpTest: public CppUnit::TestFixture  {
 

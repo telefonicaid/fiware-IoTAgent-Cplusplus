@@ -1,4 +1,4 @@
-include_directories(rest ngsi services util)
+include_directories(rest ngsi manager services util)
 add_subdirectory(util)
 add_subdirectory(ngsi)
 add_subdirectory(rest)

@@ -25,6 +25,7 @@
 
 #include <pion/tcp/server.hpp>
 #include <boost/asio.hpp>
+#include <boost/enable_shared_from_this.hpp>
 namespace iota {
 
 template<class Derived>
@@ -40,8 +41,8 @@ class enable_shared_from_this_wrapper {
              (this)->shared_from_this());
     }
 };
-class TcpService: public pion::tcp::server {
-    //public iota::enable_shared_from_this_wrapper<iota::TcpService> {
+class TcpService: public pion::tcp::server,
+    public boost::enable_shared_from_this<TcpService> {
   public:
     // Application handler sync
     typedef boost::function<void (
@@ -51,7 +52,7 @@ class TcpService: public pion::tcp::server {
 
     TcpService(const boost::asio::ip::tcp::endpoint& endpoint);
     virtual ~TcpService();
-    bool register_handler(std::string client_name,
+    boost::shared_ptr<iota::TcpService> register_handler(std::string client_name,
                           iota::TcpService::IotaRequestHandler client_handler);
 
     void send_response(pion::tcp::connection_ptr& tcp_conn,
