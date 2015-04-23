@@ -155,11 +155,13 @@ void  iota::AdminService::check_mongo_config() {
 void iota::AdminService::add_common_urls(std::map<std::string,std::string>& filters){
 
 // Root
+/*
   add_url(ADMIN_SERVICE_AGENTS, filters, REST_HANDLE(&iota::AdminService::agents),
           this);
   // Individual agent
   add_url(ADMIN_SERVICE_AGENTS+"/<agent>", filters,
           REST_HANDLE(&iota::AdminService::agent), this);
+*/
   add_url(ADMIN_SERVICE_DEVICES, filters,
           REST_HANDLE(&iota::AdminService::devices), this);
   add_url(ADMIN_SERVICE_DEVICES + "/<device>", filters,
@@ -170,10 +172,12 @@ void iota::AdminService::add_common_urls(std::map<std::string,std::string>& filt
           REST_HANDLE(&iota::AdminService::service), this);
   add_url(ADMIN_SERVICE_ABOUT, filters, REST_HANDLE(&iota::AdminService::about),
           this);
+          /*
   add_url(ADMIN_SERVICE_AGENTS+"/<agent>/services", filters,
           REST_HANDLE(&iota::AdminService::services), this);
   add_url(ADMIN_SERVICE_AGENTS+"/<agent>/services" + "/<service>", filters,
           REST_HANDLE(&iota::AdminService::service), this);
+          */
 
 }
 
