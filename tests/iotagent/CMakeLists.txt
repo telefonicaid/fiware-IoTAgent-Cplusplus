@@ -41,6 +41,8 @@ add_executable(cache_tests cacheTests.cc cache_test.cc)
 target_link_libraries(cache_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
 add_executable(csv_tests CsvTest.cc csv_test.cc)
 target_link_libraries(csv_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
+add_executable(tcp_tests tcpTest.cc tcp_test.cc)
+target_link_libraries(tcp_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
 
 
 add_executable(oauth_tests oauthTest.cc oauth_test.cc)

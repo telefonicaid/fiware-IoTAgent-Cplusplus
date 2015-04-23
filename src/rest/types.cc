@@ -42,7 +42,7 @@ const std::string types::CONF_FILE_FILE_NAME("FileName");
 const std::string types::CONF_FILE_TIMEOUT("timeout");
 const std::string types::CONF_FILE_DIR_LOG("dir_log");
 const std::string types::CONF_FILE_TIMEZONES("timezones");
-
+const std::string types::CONF_FILE_TCP_SERVERS("tcp_servers");
 const std::string types::CONF_FILE_IOTA_MANAGER("iota_manager");
 
 
