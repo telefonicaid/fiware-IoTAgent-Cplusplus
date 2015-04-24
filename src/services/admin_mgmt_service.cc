@@ -870,10 +870,14 @@ int iota::AdminManagerService::post_service_json(
                      all_dest.size());
       for (int i = 0; i < all_dest.size(); i++) {
         try {
-          obj_protocols[j].removeField(iota::store::types::PROTOCOL_DESCRIPTION);
+          mongo::BSONObj trim_obj = obj_protocols[j].removeField(iota::store::types::PROTOCOL_DESCRIPTION);
           mongo::BSONObjBuilder obj_to_send;
-          obj_to_send.appendElements(obj_protocols[j]);
-          obj_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
+          mongo::BSONArrayBuilder services;
+          mongo::BSONObjBuilder srv_to_send;
+          srv_to_send.appendElements(trim_obj);
+          srv_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
+          services.append(srv_to_send.obj());
+          obj_to_send.appendArray(iota::store::types::SERVICES, services.obj());
           mongo::BSONObj to_send = obj_to_send.obj();
           iota::IoTUrl dest(all_dest.at(i).endpoint);
           std::cout << "==================" << std::endl;
@@ -1013,10 +1017,14 @@ int iota::AdminManagerService::put_service_json(
                      all_dest.size());
       for (int i = 0; i < all_dest.size(); i++) {
         try {
-          obj_protocols[j].removeField(iota::store::types::PROTOCOL_DESCRIPTION);
+          mongo::BSONObj trim_obj = obj_protocols[j].removeField(iota::store::types::PROTOCOL_DESCRIPTION);
           mongo::BSONObjBuilder obj_to_send;
-          obj_to_send.appendElements(obj_protocols[j]);
-          obj_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
+          mongo::BSONArrayBuilder services;
+          mongo::BSONObjBuilder srv_to_send;
+          srv_to_send.appendElements(trim_obj);
+          srv_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
+          services.append(srv_to_send.obj());
+          obj_to_send.appendArray(iota::store::types::SERVICES, services.obj());
           mongo::BSONObj to_send = obj_to_send.obj();
           iota::IoTUrl dest(all_dest.at(i).endpoint);
 
