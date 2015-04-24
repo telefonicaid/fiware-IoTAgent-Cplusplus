@@ -48,7 +48,12 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testAddDevicesToEndpoints);
     CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST(testMultiplePostsWithResponse);
+
+    CPPUNIT_TEST(testProtocol_ServiceManagement);
+    CPPUNIT_TEST(testBADServiceManagement);
+
     CPPUNIT_TEST(testPostJSONDevices);
+
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -56,6 +61,49 @@ public:
     virtual ~AdminManagerTest();
     void setUp();
     void tearDown();
+
+        static const std::string HOST;
+    static const std::string CONTENT_JSON;
+
+    static const int POST_RESPONSE_CODE;
+    //GET ALL empty
+    static const std::string GET_EMPTY_RESPONSE_DEVICES;
+    static const int GET_RESPONSE_CODE;
+    static const int DELETE_RESPONSE_CODE;
+    static const int GET_RESPONSE_CODE_NOT_FOUND;
+
+    //PROTOCOL
+    static const std::string URI_PROTOCOLS;
+    static const std::string POST_PROTOCOLS1;
+    static const std::string POST_PROTOCOLS2;
+    static const std::string POST_PROTOCOLS3;
+    static const std::string POST_PROTOCOLS4;
+    static const std::string POST_PROTOCOLS2_RERE;
+    static const std::string GET_PROTOCOLS_RESPONSE;
+
+    // SERVICE_MANAGEMENT
+    static const std::string URI_SERVICES_MANAGEMET;
+    static const std::string POST_SERVICE_MANAGEMENT1;
+    static const std::string POST_SERVICE_MANAGEMENT2;
+    static const std::string POST_BAD_SERVICE_MANAGEMENT1;
+    static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
+
+
+    //DEVICE_MANAGEMENT
+    static const std::string URI_DEVICES_MANAGEMEMT;
+    static const std::string POST_DEVICE_MANAGEMENT1;
+    static const std::string GET_DEVICE_MANAGEMENT_RESPONSE;
+
+    int http_test(const std::string& uri,
+                  const std::string& method,
+                  const std::string& service,
+                  const std::string& service_path,
+                  const std::string& content_type,
+                  const std::string& body,
+                  const std::map<std::string,std::string>& headers,
+                  const std::string& query_string,
+                  std::string& response);
+
 
 protected:
 
@@ -68,6 +116,10 @@ protected:
 
 private:
     void cleanDB();
+
+    void testProtocol_ServiceManagement();
+    void testBADServiceManagement();
+
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
