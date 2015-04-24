@@ -547,10 +547,10 @@ int iota::AdminManagerService::post_device_json(
 
   resolve_endpoints(v_endpoints,body,service,service_path);
   PION_LOG_DEBUG(m_log,
-                 "do_post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
+                 "post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
   response.assign(post_multiple_devices(v_endpoints,service,service_path,
                                         token));
-  PION_LOG_DEBUG(m_log,"do_post_json_devices: POSTs processed: ["<<response<<"]");
+  PION_LOG_DEBUG(m_log,"post_json_devices: POSTs processed: ["<<response<<"]");
   if (!response.empty()) {
     http_response.set_content(response);
     http_response.set_status_code(200);
@@ -712,6 +712,110 @@ void iota::AdminManagerService::protocols(pion::http::request_ptr&
                 "|response:" + response);
 }
 
+int iota::AdminManagerService::delete_all_protocol_json(
+  pion::http::response& http_response,
+  const std::string& protocol_name,
+  std::string& response) {
+  int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
+  std::string param_request("delete_all_protocol_json");
+  PION_LOG_DEBUG(m_log, param_request);
+
+  std::string reason;
+  std::string error_details;
+  std::string b_query_service_path;
+
+  Collection table(iota::store::types::PROTOCOL_TABLE);
+  mongo::BSONObj all;
+  if (!protocol_name.empty()) {
+    all = BSON(iota::store::types::PROTOCOL_NAME << protocol_name);
+  }
+  table.remove(all,0);
+
+  Collection tableSM(iota::store::types::MANAGER_SERVICE_TABLE);
+  tableSM.remove(all,0);
+
+  return create_response(code, reason, error_details, http_response,
+                         response);
+}
+
+int iota::AdminManagerService::post_protocol_json(
+  const std::string& service,
+  const std::string& service_path,
+  const std::string& body,
+  pion::http::response& http_response,
+  std::string& response) {
+
+  int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
+  std::string reason;
+  std::string error_details;
+  ServiceMgmtCollection service_table;
+  boost::shared_ptr<iota::ProtocolCollection> protocol_table(
+    new iota::ProtocolCollection());
+
+  if (body.empty()) {
+    error_details.assign("empty body");
+    reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+    code = types::RESPONSE_CODE_BAD_REQUEST;
+  }
+  else if (validate_json_schema(body, protocol_table,
+                                "POST", error_details)) {
+    mongo::BSONObj obj =  mongo::fromjson(body);
+    mongo::BSONObj insObj;
+
+    // Resource and description define a protocol
+    std::string endpoint = obj.getStringField(iota::store::types::IOTAGENT);
+    std::string resource = obj.getStringField(iota::store::types::RESOURCE);
+    std::string description = obj.getStringField(
+                                iota::store::types::PROTOCOL_DESCRIPTION);
+    std::string protocol_name = obj.getStringField(
+                                  iota::store::types::PROTOCOL_NAME);
+
+    PION_LOG_DEBUG(m_log, "update protocol :" +protocol_name+
+                   "|iotagent:" + endpoint+ "|resource:"+ resource);
+    int num_ups = protocol_table->update_r(
+                    BSON(iota::store::types::PROTOCOL_NAME << protocol_name <<
+                         iota::store::types::PROTOCOL_DESCRIPTION << description),
+                    BSON("$addToSet"  <<
+                         BSON(iota::store::types::ENDPOINTS << BSON(iota::store::types::ENDPOINT <<
+                              endpoint <<
+                              iota::store::types::RESOURCE << resource)
+                             )), true, 0);
+
+    mongo::BSONElement element =  obj.getField(iota::store::types::SERVICES);
+    if (element.eoo()) {
+      PION_LOG_DEBUG(m_log, "Protocol: " +protocol_name + " has not got services");
+    }
+    else {
+      std::vector<mongo::BSONElement> be = element.Array();
+      PION_LOG_DEBUG(m_log, "insert services ");
+      for (unsigned int i = 0; i<be.size(); i++) {
+        mongo::BSONObj srvObj = be[i].embeddedObject();
+        mongo::BSONObjBuilder query;
+        query.append(iota::store::types::SERVICE,
+                     srvObj.getStringField(iota::store::types::SERVICE));
+        query.append(iota::store::types::SERVICE_PATH,
+                     srvObj.getStringField(iota::store::types::SERVICE_PATH));
+        query.append(iota::store::types::IOTAGENT, endpoint);
+        query.append(iota::store::types::PROTOCOL, protocol_name);
+        query.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
+
+        srvObj = srvObj.removeField(iota::store::types::SERVICE);
+        srvObj = srvObj.removeField(iota::store::types::SERVICE_PATH);
+        srvObj = srvObj.removeField(iota::store::types::RESOURCE);
+        service_table.update(query.obj(), srvObj, true,0);
+      }
+    }
+    code = pion::http::types::RESPONSE_CODE_CREATED;
+  }
+  else {
+    reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
+    code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
+  }
+
+  return create_response(code, reason, error_details, http_response,
+                         response);
+}
+
 int iota::AdminManagerService::post_service_json(
   const boost::shared_ptr<iota::ServiceCollection>& table,
   const std::string& service,
@@ -733,7 +837,6 @@ int iota::AdminManagerService::post_service_json(
   boost::shared_ptr<iota::ServiceMgmtCollection> manager_service_collection(
     new iota::ServiceMgmtCollection());
   iota::ProtocolCollection proto_collection;
-
   if (body.empty()) {
     error_details.assign("empty body");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
@@ -757,7 +860,7 @@ int iota::AdminManagerService::post_service_json(
         proto_collection.get_endpoint_by_protocol(protocol_filter);
       iota::Protocol::resource_endpoint_vector all_dest;
       for (int k = 0; k < protocols.size(); k++) {
-         all_dest = protocols[k].get_endpoints();
+        all_dest = protocols[k].get_endpoints();
       }
 
       // Send to agents
@@ -823,7 +926,6 @@ int iota::AdminManagerService::post_service_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
-
   PION_LOG_DEBUG(m_log, param_request << "|status=" + code);
   http_response.set_status_code(code);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
@@ -864,3 +966,57 @@ pion::http::request_ptr iota::AdminManagerService::create_request(
   return request;
 }
 
+int iota::AdminManagerService::get_protocols_json(
+  int limit,
+  int offset,
+  const std::string& detailed,
+  const std::string& resource,
+  pion::http::response& http_response,
+  std::string& response) {
+
+  int code = pion::http::types::RESPONSE_CODE_OK;
+  std::ostringstream res;
+  mongo::BSONObj* fieldsToReturn = NULL;
+  mongo::BSONObjBuilder bson_fields;
+  std::string param_request("get_protocols_json|detailed=" +  detailed);
+  PION_LOG_DEBUG(m_log, param_request);
+  Collection table(iota::store::types::PROTOCOL_TABLE);
+  mongo::BSONObj elto;
+
+  mongo::BSONObjBuilder bson_sort;
+  // se ordena de manera ascendente por nombre device
+  bson_sort.append(store::types::PROTOCOL_NAME, 1);
+
+  mongo::BSONObj obj_query;
+
+  int count = table.count(obj_query);
+  res << "{ \"count\": " << count << ",";
+  res << "\"protocols\": [";
+
+  if (detailed.empty() ||
+      (detailed.compare(iota::store::types::OFF) == 0)) {
+    bson_fields.append(iota::store::types::PROTOCOL_NAME, 1);
+    bson_fields.append(iota::store::types::PROTOCOL_DESCRIPTION, 1);
+  }
+  else if (detailed.compare(iota::store::types::ON) != 0) {
+    PION_LOG_DEBUG(m_log, param_request << "|status=" <<
+                   pion::http::types::RESPONSE_CODE_BAD_REQUEST);
+    return create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
+                           types::RESPONSE_MESSAGE_BAD_REQUEST,
+                           "parameter detailed must be on or off",
+                           http_response, response);
+  }
+  table.find(INT_MIN, obj_query, limit, offset,
+             bson_sort.obj(), bson_fields);
+  while (table.more()) {
+    elto = table.next();
+    res << elto.jsonString();
+    if (table.more()) {
+      res << ",";
+    }
+  }
+  res << "]}";
+
+  return create_response(code, res.str(), "", http_response, response);
+
+}

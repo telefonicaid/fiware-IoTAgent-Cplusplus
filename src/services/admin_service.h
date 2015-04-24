@@ -422,25 +422,6 @@ class AdminService :
       pion::http::response& http_response,
       std::string& response);
 
-    int post_protocol_json(
-      const std::string& service,
-      const std::string& service_path,
-      const std::string& body,
-      pion::http::response& http_response,
-      std::string& response);
-
-    int get_protocols_json(
-      int limit,
-      int offset,
-      const std::string& detailed,
-      const std::string& resource,
-      pion::http::response& http_response,
-      std::string& response);
-
-    int delete_all_protocol_json(
-      pion::http::response& http_response,
-      const std::string& protocol_name,
-      std::string& response);
 
     /**
       * check inf mongois configurated in config.json
@@ -455,11 +436,13 @@ class AdminService :
   protected:
     virtual std::string get_class_name();
     virtual std::string get_role(){ return ""; };
+
     bool validate_json_schema(
       const std::string& json_str,
       const boost::shared_ptr<iota::Collection>& table,
       const std::string& method,
       std::string& response);
+
   private:
 
 

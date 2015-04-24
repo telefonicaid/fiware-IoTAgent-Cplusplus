@@ -69,6 +69,10 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 
 }*/
 
+const std::string & iota::ServiceCollection::get_resource_name(){
+  return iota::store::types::RESOURCE;
+}
+
 int iota::ServiceCollection::fill_all_resources(const std::string& service,
                                                  const std::string& service_path,
                                                  std::vector<std::string>& resources) {

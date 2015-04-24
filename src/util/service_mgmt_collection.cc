@@ -299,3 +299,7 @@ void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
       }
    }
 }
+
+const std::string & iota::ServiceMgmtCollection::get_resource_name(){
+  return iota::store::types::PROTOCOL;
+}

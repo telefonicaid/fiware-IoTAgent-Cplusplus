@@ -24,6 +24,7 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 #include "services/admin_service.h"
+#include "services/admin_mgmt_service.h"
 #include <mongo/client/dbclient.h>
 #include <mongo/client/dbclientcursor.h>
 
@@ -89,6 +90,7 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
     void testBADServiceManagement();
 
     iota::AdminService* adm;
+    iota::AdminManagerService* admMgm;
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
 };
