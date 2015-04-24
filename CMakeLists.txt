@@ -174,6 +174,7 @@ include_directories(src/ ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 add_subdirectory(src)
 
+
 enable_testing()
 add_subdirectory(tests)
 add_test(NAME RestTest COMMAND rest_tests)
@@ -181,7 +182,7 @@ add_test(NAME NgsiTest COMMAND ngsi_tests)
 add_test(NAME ApiKeyTest COMMAND apikey_tests)
 add_test(NAME CBCommTest COMMAND cb_comm_tests)
 add_test(NAME AdminTest COMMAND admin_tests)
-add_test(NAME AdminMgmTest COMMAND adminMgM_tests)
+add_test(NAME AdminManagerTest COMMAND admin_manager_tests)
 add_test(NAME Ul20Test COMMAND ul20_tests)
 if(MOSQUITTO_FOUND)
 add_test(NAME MqttTest COMMAND mqtt_tests)
