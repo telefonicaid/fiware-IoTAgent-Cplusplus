@@ -56,7 +56,7 @@ Fields in JSON object representing a protocol are:
 - `description`(string, mandatory). It is a description about protocol provided by IoT Agent.
 - `enpoints` (array, mandatory). It is an array with information about where this protocol is deployed. An endpoint is defined by `endpoint` (including ip address and port) and `resource` (including path or uri where protocol is deployed into IoT Agent).
 
-### Retrieve a service [GET]
+### Retrieve a protocol [GET]
 
 It retrieves all protocols.
 
@@ -113,11 +113,13 @@ Fields in JSON object representing a service are:
 
 With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
-+ Parameters [limit, offset, resource]
++ Parameters [limit, offset, protocol]
 
     + `limit` (optional, number). In order to specify the maximum number of services (default is 20, maximun allowed is 1000).
 
     + `offset` (optional, number). In order to skip a given number of elements at the beginning (default is 0) .
+
+    + `protocol` (optional, string). Get a service using a specific protocol.
 
 + Request (application/json)
 
@@ -175,7 +177,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
 
 ### Create a service [POST]
-With one subservice defined in Fiware-ServicePath header.
+With one subservice defined in Fiware-ServicePath header. Only if it fails for ALL agents, returns 404.
 
 + Request (application/json)
 

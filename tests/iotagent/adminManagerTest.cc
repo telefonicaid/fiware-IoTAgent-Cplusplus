@@ -70,7 +70,7 @@ const int AdminManagerTest::DELETE_RESPONSE_CODE = 204;
 const std::string AdminManagerTest::URI_PROTOCOLS("/iot/protocols");
 //POST
 const std::string
-AdminManagerTest::POST_PROTOCOLS1("{\"iotagent\": \"host1\","
+AdminManagerTest::POST_PROTOCOLS1("{\"iotagent\": \"http://127.0.0.1:7071/iot\","
                           "\"resource\": \"/iot/d\","
                           "\"protocol\": \"UL20\","
                           "\"description\": \"Ultralight 2.0\""
@@ -695,7 +695,12 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
 
   srand(time(NULL));
   std::cout << "START @UT@START testServiceManagement" << std::endl;
-
+   boost::shared_ptr<HttpMock> http_mock;
+  http_mock.reset(new HttpMock(7071, "/", false));
+  http_mock->init();
+  std::map<std::string, std::string> h;
+  // Two endpoints. Repeat response for test
+  http_mock->set_response(201, "{}", h);
   std::string service= "service" ;
   service.append(boost::lexical_cast<std::string>(rand()));
   std::cout << "@UT@service " << service << std::endl;
@@ -715,48 +720,8 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
-  std::cout << "@UT@GET only return one" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "GET", service, "/*",
-                       "application/json", "",
-                       headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == GET_RESPONSE_CODE);
-  IOTASSERT_MESSAGE("only return one",
-                    response.find("\"count\": 2,\"services\"")!= std::string::npos);
 
-  std::cout << "@UT@POST" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "/ssrv2",
-                       "application/json",
-                       POST_SERVICE_MANAGEMENT2, headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
-
-  std::cout << "@UT@GET only return two" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "GET", service, "/*",
-                       "application/json", "",
-                       headers, "", response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == GET_RESPONSE_CODE);
-  IOTASSERT_MESSAGE("only return one",
-                    response.find("\"count\": 4,\"services\"")!= std::string::npos);
-
-  std::cout << "@UT@DELETE " << service << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/*",
-                       "application/json", "",
-                       headers, query_string, response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  //TODO IOTASSERT(code_res == DELETE_RESPONSE_CODE);
-
-  std::cout << "@UT@GET" << std::endl;
-  code_res = http_test(URI_SERVICES_MANAGEMET, "GET", service, "/*",
-                       "application/json", "",
-                       headers, "", response);
-  boost::algorithm::trim(response);
-  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  //TODO IOTASSERT(code_res == 200);
-  //TODO IOTASSERT(response.compare("{ \"count\": 0,\"services\": []}") == 0);
-
-
+  http_mock->stop();
   std::cout << "END@UT@ testServiceManagement" << std::endl;
 
 }
