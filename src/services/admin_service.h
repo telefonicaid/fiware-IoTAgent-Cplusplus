@@ -349,7 +349,7 @@ class AdminService :
       *    Status: 200
       * @endcode
       */
-    int put_service_json(
+    virtual int put_service_json(
       const boost::shared_ptr<iota::ServiceCollection>& table,
       const std::string& service,
       const std::string& service_path,
@@ -358,7 +358,9 @@ class AdminService :
       const std::string& resource,
       const std::string& body,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string token,
+      std::string request_dientifier);
 
     /**
        * @name    post_json
