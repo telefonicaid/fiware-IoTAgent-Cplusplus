@@ -210,6 +210,19 @@ class AdminManagerService : public iota::AdminService {
       std::string token,
       std::string request_identifier);
 
+    virtual int put_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& service_id,
+      const std::string& apikey,
+      const std::string& resource,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response,
+      std::string token,
+      std::string request_dientifier);
+
   protected:
     virtual std::string get_class_name();
     virtual std::string get_role();
@@ -237,12 +250,16 @@ class AdminManagerService : public iota::AdminService {
       std::string method,
       std::string resource,
       std::string query,
+      std::string content,
       std::string x_auth_token,
       std::string request_identifier,
       std::string service,
       std::string service_path,
       std::string host,
       unsigned short port);
+
+    int check_alarm(pion::http::response_ptr& http_resp,
+                     boost::shared_ptr<iota::HttpClient>& http_client);
 
     std::string _class_name;
 

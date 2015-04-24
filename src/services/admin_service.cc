@@ -924,17 +924,11 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         if (it != query_parameters.end()) {
           resource = it->second;
         }
-        if (resource.empty()) {
-          code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
-          reason.assign(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER);
-          error_details.assign("resource parameter is mandatory in PUT operation");
-          create_response(code, reason, error_details, http_response, response);
-        }
-        else {
-          code = put_service_json(col, service,  service_path, service_in_url, apikey,
-                                  resource,
-                                  content, http_response, response);
-        }
+
+        code = put_service_json(col, service,  service_path, service_in_url, apikey,
+                                resource,
+                                content, http_response, response, token, trace_message);
+
       }
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_DELETE) == 0) {
@@ -1027,8 +1021,12 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
                                  std::multimap<std::string, std::string>& query_parameters,
                                  pion::http::response& http_response,
                                  std::string& response) {
+
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
+  std::string token = http_request_ptr->get_header(
+                        iota::types::IOT_HTTP_HEADER_AUTH);
+
   std::string method = http_request_ptr->get_method();
   PION_LOG_INFO(m_log, get_class_name()+"::service|method:" +method +
                 "|trace_message:" + trace_message);
@@ -1114,7 +1112,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       else {
         code = put_service_json(col, service,  service_path, service_in_url, apikey,
                                 resource,
-                                content, http_response, response);
+                                content, http_response, response, token, trace_message);
       }
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
@@ -1843,7 +1841,9 @@ int iota::AdminService::put_service_json(
   const std::string& resource,
   const std::string& body,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  std::string token,
+  std::string request_identifier) {
   std::string param_request("put_service_json|service=" + service +
                             "|service_path=" +
                             service_path + "|service_id=" + id +
@@ -1852,6 +1852,12 @@ int iota::AdminService::put_service_json(
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason;
   std::string error_details;
+
+  if (resource.empty()) {
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
+                              "resource parameter is mandatory in PUT operation",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+  }
 
   if (body.empty()) {
     error_details.assign("empty body");
@@ -1935,7 +1941,7 @@ int iota::AdminService::get_all_services_json(
 
   if (!resource.empty()) {
 
-      query.append(table->get_resource_name(), resource);
+    query.append(table->get_resource_name(), resource);
   }
   p = query.obj();
 
