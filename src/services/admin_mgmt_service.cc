@@ -722,7 +722,6 @@ int iota::AdminManagerService::post_service_json(
   std::string x_auth_token,
   std::string request_identifier) {
 
-  std::cout << "KAKAKAKAKAKAAKAK " << std::endl;
   // Table is not used. This post makes a POST towards manager/protocols
   std::string param_request("service=" + service +
                             "|service_path=" +

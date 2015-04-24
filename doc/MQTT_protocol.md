@@ -3,26 +3,73 @@
 
 #### Index
 1. [Introduction](#def-introduction)
-2. [MQTT Conventions](#def-conventions)
-3. [IoTAgent API: provision of Services](north_api.md#def-service-api)
-4. [IoTAgent API: provision of devices](north_api.md#def-device-api)
-5. [Sending single measures MQTT](#def-measures)
-6. [Sending multiple measures](#def-multi)
-7. [Commands](#def-commands)
+2. [Configuration](#def-configuration)
+3. [MQTT Conventions](#def-conventions)
+4. [IoTAgent API: provision of Services](north_api.md#def-service-api)
+5. [IoTAgent API: provision of devices](north_api.md#def-device-api)
+6. [Sending single measures MQTT](#def-measures)
+7. [Sending multiple measures](#def-multi)
+8. [Commands](#def-commands)
 
 
 <a name="def-introduction"></a>
 ## 1. Introduction
 This protocol is purely oriented to machine-to-machine applications and it’s very lightweight and efficient in terms of bandwidth. It follows a publish-subscribe paradigm, so that sensors will typically publish their information under topics, while listeners will subscribe to such topics to receive data. Therefore there are at least three elements: publisher, subscriber and broker, the latter is the element all other actors connect to in order to either publish or subscribe (as a summary, IoTAgent and devices connect to the MQTT broker). The protocol also features different modes of Quality of Service for message delivering. See <a href="http://whttp://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html">MQTT documentation</a> for more information about MQTT.
 
-The IoTAgent for MQTT will accept MQTT 3.1.1 compliant messages that will be translated into "entities" to get published on a Fiware's Orion Context Broker. Please also note that IotAgent-MQTT is connected to two different brokers: the Context Broker (that is part of a IoT Platform) and the MQTT broker which is a separate element. Once connected to the MQTT broker, the IoTAgent will need to subscribe to all topics on that broker in order to be able to receive all messages from any device connected to that broker. As it will be explained in the following sections, there are some conventions that must be followed in order to interact with the IoTAgent. Therefore, devices have to publish on certain topics with a particular format. 
+The IoTAgent for MQTT will accept MQTT 3.1.1 compliant messages that will be translated into "entities" to get published on a Fiware's Orion Context Broker. Please also note that IotAgent-MQTT is connected to two different brokers: the Context Broker (that is part of a IoT Platform) and the MQTT broker which is a separate element. Once connected to the MQTT broker, the IoTAgent will need to subscribe to all topics on that broker in order to be able to receive all messages from any device connected to that broker. As it will be explained in the following sections, there are some conventions that must be followed in order to interact with the IoTAgent. Therefore, __devices have to publish on certain topics with a particular format__. 
+
+<a name="def-configuration"></a>
+## 2. Configuration.
+
+When the IoTAgent is deployed and configured using puppet, there is no need for specific configuration. However, if the installation is manual (using RPMs for instance) there are some details that have to be taken into account. 
+
+### Config.json
+
+The "resources" section of this file contains valuable information about what plugins will be running on that instance of the IoTAgent. So if MQTT is going to be used, at least this resource must be present:
+
+    {
+     "resource": "/iot/mqtt",
+     "options": {
+        "ConfigFile": "/etc/iot/MqttService.xml",
+        "FileName": "MqttService"
+       }
+     } 
+
+Where "MqttService" is the name of the plugin, and it's equivalente to the file that will be loaded by IoTAgent: __MqttService.so__.
+
+"ConfigFile" will be used by the MQTT plugin to locate other configurations file that are also needed. 
+
+### Files needed.
+
+In this example, let's assume all files are installed in /etc/iot/ directory. So the files that must be present for a proper operation of the IoTAgent with MQTT plugin are:
+
+- MqttService.xml (it contains the path to the following file).
+- sensormqtt.xml (it contains low-level details about the MQTT plugin's behaviour. The only recommended information that can be changed by users is where MQTT broker (Mosquitto or equivalent) is listening).
+- mosquitto.conf (part of Mosquitto MQTT Broker. It can be used to fine tune Mosquitto)
+- aclfile.mqtt (file used for the Access Control in Mosquitto)
+
+### Using a different MQTT broker.
+
+If Mosquitto is not prefered, or it's going to run in a separate machine whithin your infraestructure, some changes have to be done to __sensormqtt.xml__ file. Locate the following two lines in such file:
+         
+         <input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwriter"/>				
+         <input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="localhost" port="1883" user="admin" password="1234" name="mqttrunner"/>
+         
+Where "host" and "port" will be set accordingly. If a different MQTT broker is used, the files "aclfile.mqtt" and "mosquitto.conf" are no longer needed. If Mosquitto is still used, those files must be where Mosquitto is running. 
+
+### Configuring ACL in Mosquitto.
+
+The Access Control List of Mosquitto enables certain level of privacy for MQTT messages. Anyone could publish on the MQTT Broker, and without ACL, anyone could publish on any topic. This might be fine for you, but if you prefer to have some control over who can publish what and where, you should use ACL. The official Mosquitto documentation explains this topic in more detail. The default pattern that we provide requires MQTT publishers to identify themselves (although password is not necessary) using an user id. This user-id has to be the "api-key" provisioned in the system (see following sections). By using the Api-key as user-id and the ACL, you can have many different organizations with different devices publishing on topics making sure they can't see each other. 
+ACL is enabled in the mosquitto.conf file by setting the "aclfile" property to the path where "aclfile.mqtt" file is located. 
+By default is __disabled__. 
+
 
 <a name="def-conventions"></a>
-## 2. MQTT Conventions.
+## 3. MQTT Conventions.
 
 MQTT does not define any particular hierarchy for topics. However, IoTAgent for MQTT needs devices to follow a set of particular conventions in order to be able to handle connections from devices belonging to different organizations. Thus, with the following topic conventions, devices will publish information under different "services" that can identify a vendor or any organization who wants to separate its devices from others. This separation has been implemented following a topic structure. Regarding payload, IoTAgent is somewhat agnostic about how devices send data when one message carries plain or raw information. However, for more sophisticated cases like multiple measures per mqtt message or commands, there will be specific formats.
 
-Prior a device can successfully publish information on the IoTAgent, a service and the device must be provisioned (see (north_api.md#def-service-api) and (north_api.md#def-device-api)). In this case, the api-key attribute has to be supplied, as it's part of the topic structure and therefore, it will be used to filter messages. 
+Prior a device can successfully publish information on the IoTAgent, a service and the device must be provisioned (see [API for services](north_api.md#def-service-api) and [API for devices](north_api.md#def-device-api)). In this case, the api-key attribute has to be supplied, as it's part of the topic structure and therefore, it will be used to filter messages. 
 
 The structure has three (or four) different topics, being the last one used when working with commands. Topic structure:
 
@@ -40,7 +87,7 @@ There are, however, some keywords already used for different scenarios:
 
 
 <a name="def-measures"></a>
-## 5 Devices sending single Measures.
+## 6. Devices sending single Measures.
 This is the simplest and more straightforward scenario. Devices (once provisioned under a service) can publish MQTT messages to the IoTAgent. Those messages contain one piece of information each. That means that one message will be translated into one single entity on the ContexBroker domain. The information can be typically sensors' measures. 
 
 This is the topic hierarchy that has to be used by devices:
@@ -84,7 +131,7 @@ This is what is publised on ContextBroker:
 
 
 <a name="def-multi"></a>
-## 6 Devices sending multiple measures per message
+## 7. Devices sending multiple measures per message
 
 Another scenario can happen when devices send more than one phenomena within the payload.  That is to say, one single MQTT message carries all measures. When it comes to ContextBroker, there will be one entity publication (per device) but containing all different attributes as per measures included in the mqtt message (each phenomenon or measure will be a separate attribute). In order to be able to parse the information on the IoTAgent, devices should follow this format:
 
@@ -153,7 +200,7 @@ Therefore, the entity published on ContextBroker will contain two attributes wit
 	   }
 
 <a name="def-commands"></a>
-## 7. Commands.
+## 8. Commands.
 
 As per it's described in [IoTAgent Commands](commands.md), there are two kind of commands depending on what actor is requesting the sending of the commands. The IoTAgent for MQTT supports both. When sending a command, the IoTAgent will publish a mqtt message on a particular topic, and as it was described previously it will follow the "api-key"/"device-id"/cmd/"command-name" pattern. The keyword "cmd" is fixed. That is to say, devices have to subscribe to topics following that pattern: <api-key>/<device-id>/cmd/+  (as defined in the mqtt protocol, the '+' character means any topic on that level) where "api-key" and "device-id" are the identifiers for service and device provisioned. 
 

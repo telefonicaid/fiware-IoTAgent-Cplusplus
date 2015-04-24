@@ -40,7 +40,11 @@ extern std::string logger;
 iota::MongoConnection::MongoConnection():m_logger(PION_GET_LOGGER(
         iota::logger)) {
   _conex_pool = NULL;
-  reconnect();
+  try{
+    reconnect();
+  }catch(std::exception exc){
+    PION_LOG_ERROR(m_logger, "error in MongoConnection " << exc.what() );
+  }
 }
 
 iota::MongoConnection::MongoConnection(const std::string& ip,
@@ -48,8 +52,11 @@ iota::MongoConnection::MongoConnection(const std::string& ip,
                                        const std::string& dbname,
                                        const std::string& user,
                                        const std::string& pwd) {
-
-  reconnect(ip, puerto, dbname, user, pwd);
+  try{
+    reconnect(ip, puerto, dbname, user, pwd);
+  }catch(std::exception exc){
+    PION_LOG_ERROR(m_logger, "error in MongoConnection " << exc.what() );
+  }
 }
 
 

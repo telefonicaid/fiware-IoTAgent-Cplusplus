@@ -107,6 +107,30 @@ AdminMgmTest::POST_PROTOCOLS3("{\"iotagent\": \"host3\","
                                 "\"entity_type\": \"thing\""
                           "}]}");
 const std::string
+AdminMgmTest::POST_PROTOCOLS2_RERE("{\"iotagent\": \"host2\","
+                          "\"resource\": \"/iot/mqtt\","
+                          "\"protocol\": \"MQTT\","
+                          "\"description\": \"mqtt example\","
+                          "\"services\": [{"
+                                "\"apikey\": \"apikey3\","
+                                "\"service\": \"service2\","
+                                "\"service_path\": \"/ssrv2\","
+                                "\"token\": \"token2rere\","
+                                "\"cbroker\": \"http://127.0.0.1:1026\","
+                                "\"resource\": \"/iot/mqtt\","
+                                "\"entity_type\": \"thingrere\""
+                          "},{"
+                          "\"apikey\": \"apikey3\","
+                                "\"service\": \"service2\","
+                                "\"service_path\": \"/ssrv2re\","
+                                "\"token\": \"token2\","
+                                "\"cbroker\": \"http://127.0.0.1:1026\","
+                                "\"resource\": \"/iot/mqtt\","
+                                "\"entity_type\": \"thing\""
+                          "}]}");
+
+
+const std::string
 AdminMgmTest::POST_PROTOCOLS4("TODO");
 const std::string
 AdminMgmTest::GET_PROTOCOLS_RESPONSE("{ \"count\": 0,\"devices\": []}");
@@ -270,12 +294,12 @@ void AdminMgmTest::testProtocol_ServiceManagement(){
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
-  std::cout << "@UT@POST reregister POST_PROTOCOLS2" << std::endl;
+  std::cout << "@UT@POST reregister POST_PROTOCOLS2_RERE" << std::endl;
   code_res = http_test(URI_PROTOCOLS, "POST", "", "",
                        "application/json",
-                       POST_PROTOCOLS2, headers, "", response);
+                       POST_PROTOCOLS2_RERE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
- //TODO IOTASSERT(code_res == POST_RESPONSE_CODE);
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
 
 
   std::cout << "@UT@GET" << std::endl;
@@ -286,6 +310,19 @@ void AdminMgmTest::testProtocol_ServiceManagement(){
   IOTASSERT(code_res == GET_RESPONSE_CODE);
   IOTASSERT_MESSAGE("only return one",
                     response.find("\"count\": 2,\"protocols\"")!= std::string::npos);
+
+  std::cout << "@UT@GET services" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET , "GET", "service2", "/*",
+                           "application/json", "",
+                           headers, query_string, response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == GET_RESPONSE_CODE);
+  IOTASSERT_MESSAGE("no modified data count ",
+                    response.find("\"count\": 3,\"services\"")!= std::string::npos);
+  IOTASSERT_MESSAGE("no modified data new service",
+                    response.find("/ssrv2re")!= std::string::npos);
+  IOTASSERT_MESSAGE("no modified data reregister",
+                    response.find("token2rere")!= std::string::npos);
 
   std::cout << "@UT@ no delete for protocols, by now " << std::endl;
 
