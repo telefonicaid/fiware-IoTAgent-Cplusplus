@@ -2295,7 +2295,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
   apikey.append(mock_port);
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port  % mock_port);
   code_res = adminserv.post_service_json( col, service, subservice, postSRV,
-                     http_response, response);
+                     http_response, response, "1234", "5678");
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
@@ -2446,7 +2446,7 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   std::cout << "@UT@POST create Service" << std::endl;
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
   code_res = adminserv.post_service_json(col, service, subservice, postSRV,
-                     http_response, response);
+                     http_response, response, "1234", "5678");
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
@@ -2581,7 +2581,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
 
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
   int code_res = adminserv.post_service_json( col, service, subservice, postSRV,
-                         http_response, response);
+                         http_response, response, "1234", "5678");
 
   std::cout << "@UT@First command" <<  service << std::endl;
   testPollingCommand_MONGO("unitTest_dev3_polling",
@@ -2674,7 +2674,7 @@ void Ul20Test::testPollingCommand_MONGO(
 
       std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
       code_res = adminserv.post_service_json( col, service, subservice, postSRV,
-                         http_response, response);
+                         http_response, response, "1234", "5678");
       std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
       IOTASSERT(code_res == POST_RESPONSE_CODE);
   }

@@ -159,6 +159,19 @@ std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
   return result;
 }
 
+std::vector<iota::Protocol> iota::ProtocolCollection::get_endpoint_by_protocol(std::string protocol) {
+  std::vector<iota::Protocol>  result;
+
+  mongo::BSONObj query = BSON(iota::store::types::PROTOCOL_NAME << protocol);
+  iota::Collection::find(query);
+
+  while(more()){
+    result.push_back(next());
+  }
+
+  return result;
+}
+
 void iota::ProtocolCollection::fillProtocols(
            std::map<std::string,std::string> &protocols){
 

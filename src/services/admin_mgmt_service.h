@@ -11,8 +11,8 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/document.h>
-#include <rapidjson/prettywriter.h>	// for stringify JSON
-#include <rapidjson/filestream.h>	// wrapper of C stream for prettywriter as output
+#include <rapidjson/prettywriter.h> // for stringify JSON
+#include <rapidjson/filestream.h> // wrapper of C stream for prettywriter as output
 #include <rapidjson/stringbuffer.h>
 #include <boost/foreach.hpp>
 #include <iostream>
@@ -23,13 +23,14 @@
 #include "admin_service.h"
 
 
-namespace iota{
+namespace iota {
 
- class DeviceToBeAdded{
+class DeviceToBeAdded {
 
-    public:
-      DeviceToBeAdded(std::string device_json, std::string endpoint) : _device_json(device_json) , _endpoint(endpoint)
-      {};
+  public:
+    DeviceToBeAdded(std::string device_json,
+                    std::string endpoint) : _device_json(device_json) , _endpoint(endpoint)
+    {};
 
     bool operator==(DeviceToBeAdded& a) const {
       if ((_device_json.compare(a._device_json) == 0) &&
@@ -39,34 +40,34 @@ namespace iota{
       return false;
     }
 
-  DeviceToBeAdded(const DeviceToBeAdded& a){
-    _endpoint.assign(a._endpoint);
-    _device_json.assign(a._device_json);
-  };
+    DeviceToBeAdded(const DeviceToBeAdded& a) {
+      _endpoint.assign(a._endpoint);
+      _device_json.assign(a._device_json);
+    };
 
-  void swap(DeviceToBeAdded& a){
-    _endpoint.assign(a.get_endpoint());
-    _device_json.assign(a.get_device_json());
-  };
+    void swap(DeviceToBeAdded& a) {
+      _endpoint.assign(a.get_endpoint());
+      _device_json.assign(a.get_device_json());
+    };
 
-  DeviceToBeAdded& operator=(const DeviceToBeAdded& a){
-    DeviceToBeAdded tmp(a);
-    swap(tmp);
-    return *this;
-  };
+    DeviceToBeAdded& operator=(const DeviceToBeAdded& a) {
+      DeviceToBeAdded tmp(a);
+      swap(tmp);
+      return *this;
+    };
 
-      std::string & get_device_json() {
-        return _device_json;
-      };
+    std::string& get_device_json() {
+      return _device_json;
+    };
 
-      std::string & get_endpoint() {
-        return _endpoint;
-      };
+    std::string& get_endpoint() {
+      return _endpoint;
+    };
 
-    private:
-      std::string _device_json;
-      std::string _endpoint;
-  };
+  private:
+    std::string _device_json;
+    std::string _endpoint;
+};
 
 
 class AdminManagerService : public iota::AdminService {
@@ -78,7 +79,7 @@ class AdminManagerService : public iota::AdminService {
 
     virtual void start();
 
-    void create_collection( boost::shared_ptr<iota::ServiceCollection>& col);
+    void create_collection(boost::shared_ptr<iota::ServiceCollection>& col);
 
     virtual ~AdminManagerService();
 
@@ -89,7 +90,9 @@ class AdminManagerService : public iota::AdminService {
     @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a POST request. The result
     is returned in HTTP code.
     */
-    int add_device_iotagent(std::string iotagent_endpoint,const std::string& device_json,std::string service, std::string sub_service,std::string x_auth_token);
+    int add_device_iotagent(std::string iotagent_endpoint,
+                            const std::string& device_json,std::string service, std::string sub_service,
+                            std::string x_auth_token);
 
     /**
     @name resolve_endpoints
@@ -97,7 +100,9 @@ class AdminManagerService : public iota::AdminService {
     endpoint where the JSON will be posted. This JSON is the same coming in the original post but linked to the endpoint. The relationship
     is given by what IoTManager knows about  endpoints - protocols - services.
     */
-    void resolve_endpoints (std::vector<DeviceToBeAdded>& v_devices_endpoint_out, const std::string& devices_protocols_in,std::string service,std::string sub_service);
+    void resolve_endpoints(std::vector<DeviceToBeAdded>& v_devices_endpoint_out,
+                           const std::string& devices_protocols_in,std::string service,
+                           std::string sub_service);
 
     /**
     @name post_multiple_devices
@@ -105,11 +110,13 @@ class AdminManagerService : public iota::AdminService {
     also included in the DeviceToBeAdded object. Extra information is needed like service, sub-service and x-auth-token for respective headers.
     @return JSON with results of all devices.
     */
-    std::string post_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,std::string service,std::string sub_service,std::string x_auth_token);
+    std::string post_multiple_devices(std::vector<DeviceToBeAdded>&
+                                      v_devices_endpoint_in,std::string service,std::string sub_service,
+                                      std::string x_auth_token);
 
 
 
-     /**
+    /**
     @name get_devices
     @brief it gets devices from iotagents based on enpoints IoTA Manager knows. Devices are filtered by service (Fiware-Service header)
     subservice (Fiware-ServicePath header). A optional query parameter (protocol) may be provided.
@@ -128,7 +135,7 @@ class AdminManagerService : public iota::AdminService {
       std::string request_id,
       std::string token,
       std::string protocol_filter
-      );
+    );
 
 
 
@@ -141,15 +148,15 @@ class AdminManagerService : public iota::AdminService {
       std::string request_id,
       std::string token,
       std::string protocol_filter
-      );
+    );
 
 
 
     void set_timeout(unsigned short timeout);
 
     virtual std::string get_param_resource(
-                const std::multimap<std::string, std::string>& query_parameters,
-                bool mandatory);
+      const std::multimap<std::string, std::string>& query_parameters,
+      bool mandatory);
 
     /**
     @name post_json_devices
@@ -172,6 +179,7 @@ class AdminManagerService : public iota::AdminService {
                    pion::http::response& http_response,
                    std::string& response);
 
+
     int post_protocol_json(
       const std::string& service,
       const std::string& service_path,
@@ -192,9 +200,19 @@ class AdminManagerService : public iota::AdminService {
       const std::string& protocol_name,
       std::string& response);
 
+    virtual int post_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response,
+      std::string token,
+      std::string request_identifier);
+
   protected:
-   virtual std::string get_class_name();
-   virtual std::string get_role();
+    virtual std::string get_class_name();
+    virtual std::string get_role();
 
   private:
 
@@ -214,6 +232,17 @@ class AdminManagerService : public iota::AdminService {
       boost::shared_ptr<iota::HttpClient> connection,
       pion::http::response_ptr response_ptr,
       const boost::system::error_code& error);
+
+    pion::http::request_ptr create_request(
+      std::string method,
+      std::string resource,
+      std::string query,
+      std::string x_auth_token,
+      std::string request_identifier,
+      std::string service,
+      std::string service_path,
+      std::string host,
+      unsigned short port);
 
     std::string _class_name;
 

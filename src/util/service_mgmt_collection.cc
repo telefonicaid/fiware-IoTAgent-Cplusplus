@@ -260,6 +260,7 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   return result;
 }
 
+
 void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
                                 std::vector<mongo::BSONObj> &result){
 
