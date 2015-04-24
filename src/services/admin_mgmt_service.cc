@@ -880,9 +880,6 @@ int iota::AdminManagerService::post_service_json(
           obj_to_send.appendArray(iota::store::types::SERVICES, services.obj());
           mongo::BSONObj to_send = obj_to_send.obj();
           iota::IoTUrl dest(all_dest.at(i).endpoint);
-          std::cout << "==================" << std::endl;
-          std::cout << to_send.jsonString() << std::endl;
-          std::cout << "==================" << std::endl;
           // Query Parameters
           std::multimap<std::string, std::string> query_parameters;
 
