@@ -48,10 +48,11 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testAddDevicesToEndpoints);
     CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST(testMultiplePostsWithResponse);
-   // CPPUNIT_TEST(testPostJSONDevices);
 
     CPPUNIT_TEST(testProtocol_ServiceManagement);
     CPPUNIT_TEST(testBADServiceManagement);
+
+    CPPUNIT_TEST(testPostJSONDevices);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -111,7 +112,7 @@ protected:
   void testAddDevicesToEndpoints();
   void testGetDevices();
   void testMultiplePostsWithResponse();
-  //TODO void testPostJSONDevices();
+  void testPostJSONDevices();
 
 private:
     void cleanDB();

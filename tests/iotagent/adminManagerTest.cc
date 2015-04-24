@@ -515,7 +515,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
 /**
 There's something wrong with the protocol provisioning. Check again once Fago has tested his code.
 */
-/*
+
 void AdminManagerTest::testPostJSONDevices() {
 
   std::string
@@ -529,6 +529,10 @@ void AdminManagerTest::testPostJSONDevices() {
 
   table1.createTableAndIndex();
   table_device.createTableAndIndex();
+
+  iota::UL20Service ul20_service;
+
+  adm->add_service("/iot/d",&ul20_service);
 
   mongo::BSONObj all;
 
@@ -561,10 +565,10 @@ void AdminManagerTest::testPostJSONDevices() {
   q1._service_path.assign("/ss1");
   int code = table_device.findd(q1);
   std::cout << "DEVICE FOUND?: " << (code < 0?"NO":"YES") << std::endl;
-  CPPUNIT_ASSERT(code > 0);
+  CPPUNIT_ASSERT(code >= 0);
   std::cout << "Test testPostJSONDevices DONE" << std::endl;
 
-}*/
+}
 
 int AdminManagerTest::http_test(const std::string& uri,
                          const std::string& method,
@@ -784,4 +788,5 @@ void AdminManagerTest::testBADServiceManagement() {
   "{\"reason\":\"The request is not well formed\",\"details\":\"No exists protocol no_exists\"}") == 0);
 
   std::cout << "END@UT@ testBADServiceManagement" << std::endl;
+
 }

@@ -54,6 +54,7 @@ class ServiceCollection : public Collection {
                                    const std::string& service_path,
                                    std::vector<std::string>& resources);
 
+    virtual const std::string & get_resource_name();
 
   protected:
 

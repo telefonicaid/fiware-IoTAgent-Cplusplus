@@ -172,6 +172,26 @@ class AdminManagerService : public iota::AdminService {
                    pion::http::response& http_response,
                    std::string& response);
 
+    int post_protocol_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response);
+
+    int get_protocols_json(
+      int limit,
+      int offset,
+      const std::string& detailed,
+      const std::string& resource,
+      pion::http::response& http_response,
+      std::string& response);
+
+    int delete_all_protocol_json(
+      pion::http::response& http_response,
+      const std::string& protocol_name,
+      std::string& response);
+
   protected:
    virtual std::string get_class_name();
    virtual std::string get_role();
