@@ -853,6 +853,7 @@ int iota::AdminManagerService::post_service_json(
 
     // For each protocol, endpoints
     std::map<std::string, std::string> response_from_iotagent;
+    std::map<std::string, std::string> response_from_iotagent_nok;
     for (int j = 0; j < obj_protocols.size(); j++) {
 
       std::string protocol_filter = obj_protocols[j].getStringField(
@@ -870,7 +871,10 @@ int iota::AdminManagerService::post_service_json(
                      all_dest.size());
       for (int i = 0; i < all_dest.size(); i++) {
         try {
-          mongo::BSONObj trim_obj = obj_protocols[j].removeField(iota::store::types::PROTOCOL_DESCRIPTION);
+          mongo::BSONObj trim_obj = obj_protocols[j].removeField(
+                                      iota::store::types::PROTOCOL_DESCRIPTION).removeField(
+                                      iota::store::types::PROTOCOL);
+
           mongo::BSONObjBuilder obj_to_send;
           mongo::BSONArrayBuilder services;
           mongo::BSONObjBuilder srv_to_send;
@@ -904,17 +908,7 @@ int iota::AdminManagerService::post_service_json(
 
           param_request.append("|endpoint=" + http_client->getRemoteEndpoint());
           pion::http::response_ptr resp_http = http_client->send(request, _timeout, "");
-          int code_i = -1;
-
-          if (resp_http.get() != NULL && !http_client->get_error()) {
-            code_i = resp_http->get_status_code();
-            iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
-                              iota::types::ERROR, http_client->get_error().message());
-          }
-          else {
-            iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
-                               iota::types::ERROR, http_client->get_error().message());
-          }
+          int code_i = check_alarm(resp_http, http_client);
 
           param_request.append("|error-conn=" + http_client->get_error().message());
           param_request.append("|status-code=" + boost::lexical_cast<std::string>
@@ -924,6 +918,12 @@ int iota::AdminManagerService::post_service_json(
           if (code_i == pion::http::types::RESPONSE_CODE_CREATED) {
             response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
                                             i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
+          }
+          else if (code != -1 ){
+            response_from_iotagent_nok.insert(std::pair<std::string, std::string>
+                                              (all_dest.at(
+                                                 i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
+            PION_LOG_ERROR(m_log, param_request + "|content=" + resp_http->get_content());
           }
           PION_LOG_INFO(m_log, param_request);
         }
@@ -936,7 +936,7 @@ int iota::AdminManagerService::post_service_json(
 
     // If no OK in all
     if (response_from_iotagent.size() == 0) {
-      code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
+      code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
       reason.append("Every IoTA returns NOK");
     }
     /*
@@ -997,6 +997,7 @@ int iota::AdminManagerService::put_service_json(
 
     // For each protocol, endpoints
     std::map<std::string, std::string> response_from_iotagent;
+    std::map<std::string, std::string> response_from_iotagent_nok;
     for (int j = 0; j < obj_protocols.size(); j++) {
 
       std::string protocol_filter = obj_protocols[j].getStringField(
@@ -1014,14 +1015,13 @@ int iota::AdminManagerService::put_service_json(
                      all_dest.size());
       for (int i = 0; i < all_dest.size(); i++) {
         try {
-          mongo::BSONObj trim_obj = obj_protocols[j].removeField(iota::store::types::PROTOCOL_DESCRIPTION);
+          mongo::BSONObj trim_obj = obj_protocols[j].removeField(
+                                      iota::store::types::PROTOCOL_DESCRIPTION).removeField(
+                                      iota::store::types::PROTOCOL);
           mongo::BSONObjBuilder obj_to_send;
-          mongo::BSONArrayBuilder services;
           mongo::BSONObjBuilder srv_to_send;
-          srv_to_send.appendElements(trim_obj);
-          srv_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
-          services.append(srv_to_send.obj());
-          obj_to_send.appendArray(iota::store::types::SERVICES, services.obj());
+          obj_to_send.appendElements(trim_obj);
+          obj_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
           mongo::BSONObj to_send = obj_to_send.obj();
           iota::IoTUrl dest(all_dest.at(i).endpoint);
 
@@ -1057,6 +1057,10 @@ int iota::AdminManagerService::put_service_json(
 
           // If no successful response, nothing
           if (code_i == pion::http::types::RESPONSE_CODE_NO_CONTENT) {
+            response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
+                                            i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
+          }
+          else if (code_i != -1) {
             response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
                                             i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
           }

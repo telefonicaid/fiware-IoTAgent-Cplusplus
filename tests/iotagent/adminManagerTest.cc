@@ -719,7 +719,8 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
-
+  std::string req_sent = http_mock->get_last();
+  std::cout << req_sent << std::endl;
 
   http_mock->stop();
   std::cout << "END@UT@ testServiceManagement" << std::endl;
