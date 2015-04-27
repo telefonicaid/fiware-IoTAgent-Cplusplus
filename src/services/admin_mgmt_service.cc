@@ -496,7 +496,7 @@ std::string iota::AdminManagerService::post_multiple_devices(
     DeviceToBeAdded& dev = v_devices_endpoint_in[i];
 
     std::string url_endpoint = dev.get_endpoint();
-    url_endpoint.append("/");
+   // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
 
     int res = operation_device_iotagent(url_endpoint,dev.get_device_json(),service,
@@ -662,7 +662,7 @@ int iota::AdminManagerService::put_multiple_devices(std::vector<DeviceToBeAdded>
     DeviceToBeAdded& dev = v_devices_endpoint_in[i];
 
     std::string url_endpoint = dev.get_endpoint();
-    url_endpoint.append("/");
+   // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
     url_endpoint.append("/");
     url_endpoint.append(device_id);
