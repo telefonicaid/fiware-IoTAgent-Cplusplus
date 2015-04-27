@@ -87,12 +87,12 @@ class AdminManagerService : public iota::AdminService {
 
     /**
     @name add_device_iotagent
-    @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a POST request. The result
+    @brief it adds the device_json to the endpoint represented by iotagent_endpoint in a HTTP request. The result
     is returned in HTTP code.
     */
-    int add_device_iotagent(std::string iotagent_endpoint,
+    int operation_device_iotagent(std::string iotagent_endpoint,
                             const std::string& device_json,std::string service, std::string sub_service,
-                            std::string x_auth_token);
+                            std::string x_auth_token,const std::string& method);
 
     /**
     @name resolve_endpoints
@@ -171,6 +171,30 @@ class AdminManagerService : public iota::AdminService {
       pion::http::response& http_response,
       std::string& response,
       std::string token = "");
+
+
+    std::string protocol_from_device(const std::string& json);
+
+    /**
+    @name put_multiple_devices
+    @brief this function will propagate the PUT device operation to the endpoints.
+    @return
+    A JSON with individual HTTP result code for each endpoint.
+    */
+    int put_multiple_devices(std::vector<DeviceToBeAdded>&
+                                      v_devices_endpoint_in,const std::string& idDevice,std::string service,std::string sub_service,
+                                      std::string x_auth_token);
+
+
+    virtual int put_device_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& device_id,
+      const std::string& body,
+      pion::http::response& http_response,
+      std::string& response,
+      const std::string& x_auth_token);
+
 
 
     void protocols(pion::http::request_ptr& http_request_ptr,
@@ -260,6 +284,9 @@ class AdminManagerService : public iota::AdminService {
 
     int check_alarm(pion::http::response_ptr& http_resp,
                      boost::shared_ptr<iota::HttpClient>& http_client);
+
+
+
 
     std::string _class_name;
 

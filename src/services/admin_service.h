@@ -204,7 +204,8 @@ class AdminService :
       const std::string& device_id,
       const std::string& body,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      const std::string& x_auth_token = "");
 
     /**
        * @name    post_json

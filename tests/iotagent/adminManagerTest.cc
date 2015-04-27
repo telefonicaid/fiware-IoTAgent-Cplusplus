@@ -29,6 +29,7 @@
 #include <cmath>
 #include <ctime>
 #include "services/admin_mgmt_service.h"
+#include "util/iota_exception.h"
 
 #define PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 
@@ -376,8 +377,8 @@ void AdminManagerTest::testAddDevicesToEndpoints() {
 
 
   std::cout << "Endpoint: " << endpoint << std::endl;
-  int res = manager_service.add_device_iotagent(endpoint,device,"s1","/ss1",
-            "test");
+  int res = manager_service.operation_device_iotagent(endpoint,device,"s1","/ss1",
+            "test","POST");
   CPPUNIT_ASSERT(res == 200);
   //sleep(4);
   //CLEAN UP
@@ -507,7 +508,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
             std::endl;
 
   CPPUNIT_ASSERT(
-    !response.empty());  //<- I have to change this and use a proper assertion
+    !response.empty());  //<- TODO: I have to change this and use a proper assertion
   sleep(2);
   http_mock->stop();
 }
@@ -754,5 +755,101 @@ void AdminManagerTest::testBADServiceManagement() {
   "{\"reason\":\"The request is not well formed\",\"details\":\"No exists protocol no_exists\"}") == 0);
 
   std::cout << "END@UT@ testBADServiceManagement" << std::endl;
+
+}
+
+void AdminManagerTest::testPutJSONDevice_Wrong(){
+
+  std::cout << "START @UT@START testPutJSONDevice_Wrong (missing protocol)" << std::endl;
+  std::string
+  device_missing_protocol("{\"device_id\": \"device_1\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
+           "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+           "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+           "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+           "}");
+
+  std::string
+  device_missing_entity("{\"protocol\": \"UL20\"}");
+
+  iota::AdminManagerService manager_service;
+  pion::http::response http_response;
+  std::string response;
+  std::string token("1234");
+
+
+
+  CPPUNIT_ASSERT_THROW_MESSAGE ("Missing protocol, Exception expected.", manager_service.put_device_json("s1","/ss1","device_1",device_missing_protocol,http_response,response,token)
+                                  ,iota::IotaException);
+
+
+  CPPUNIT_ASSERT_THROW_MESSAGE ("Wrong JSON. Exception expected",manager_service.put_device_json("s1","/ss1","device_1",device_missing_entity,http_response,response,token)
+                                  ,iota::IotaException);
+
+  CPPUNIT_ASSERT_THROW_MESSAGE ("Empty Services. Exception expected",manager_service.put_device_json("","/ss1","device_1",device_missing_protocol,http_response,response,token)
+                                  ,iota::IotaException);
+
+
+  std::cout << "END@UT@ testPutJSONDevice_Wrong" << std::endl;
+}
+
+
+void AdminManagerTest::testPutJSONDevice(){
+
+  std::string
+  s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
+       +boost::lexical_cast<std::string>(wserver->get_port())+"/iot\","
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+  std::string device_put ("{\"protocol\":\"PDI-IoTA-UltraLight\",\"device_id\": \"device_id_post\","
+                          "\"entity_name\": \"entity_put\"}");
+
+  std::string device_id("device_id_post");
+
+  iota::ServiceMgmtCollection table1;
+  iota::DeviceCollection table_device;
+
+  table1.createTableAndIndex();
+  table_device.createTableAndIndex();
+
+  iota::UL20Service ul20_service;
+
+  adm->add_service("/iot/d",&ul20_service);
+
+  mongo::BSONObj all;
+
+  table1.remove(all);
+
+  iota::Device borrar("","");
+
+  table_device.removed(borrar);
+
+  table1.insert(mongo::fromjson(s1_d));
+
+  //only one endpoint will be added.
+
+  iota::AdminManagerService manager_service;
+
+  std::string response;
+  pion::http::response http_response;
+
+  std::cout << "Test testPutJSONDevice STARTING" << std::endl;
+  //DEVICE POSTED using Manager's API.
+  manager_service.post_device_json("s1","/ss1",devices,http_response,
+                                   response,"");
+
+
+  int res = manager_service.put_device_json("s1","/ss1",device_id,device_put,http_response,response,"");
+  CPPUNIT_ASSERT ( res == 204);
+  std::cout << "Response " << res << std::endl;
+  std::string trace ("12345");
+  std::string token("");
+  std::string protocol("PDI-IoTA-UltraLight");
+  manager_service.get_a_device_json("s1","/ss1",device_id,http_response,response,trace,token,protocol);
+
+  std::cout << "Getting device: Response: " << response << std::endl;
+  //Now checking if the device has been added to the collection.
+
+  std::cout << "Test testPutJSONDevice DONE" << std::endl;
 
 }

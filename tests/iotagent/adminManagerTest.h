@@ -52,6 +52,8 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testBADServiceManagement);
 
     CPPUNIT_TEST(testPostJSONDevices);
+    CPPUNIT_TEST(testPutJSONDevice);
+    CPPUNIT_TEST(testPutJSONDevice_Wrong);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -112,6 +114,9 @@ protected:
   void testGetDevices();
   void testMultiplePostsWithResponse();
   void testPostJSONDevices();
+
+  void testPutJSONDevice_Wrong();
+  void testPutJSONDevice();
 
 private:
     void cleanDB();
