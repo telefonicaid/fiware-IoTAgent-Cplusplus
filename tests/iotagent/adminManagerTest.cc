@@ -730,6 +730,7 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
   http_mock->set_response(400, "{\"reason\": \"hola\", \"details\": \"adios\"}");
   code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "", "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
+  IOTASSERT(code_res == 404);
   std::cout << "PUT RESPONSE BAD " << response << std::endl;
   http_mock->stop();
   std::cout << "END@UT@ testServiceManagement" << std::endl;
