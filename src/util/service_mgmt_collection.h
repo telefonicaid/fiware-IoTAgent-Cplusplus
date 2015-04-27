@@ -75,6 +75,7 @@ class ServiceMgmtCollection : public ServiceCollection {
   private:
 
     static const std::string _POST_SCHEMA;
+    static const std::string _PUT_SCHEMA;
 
 }; // end class ServiceCollection
 
