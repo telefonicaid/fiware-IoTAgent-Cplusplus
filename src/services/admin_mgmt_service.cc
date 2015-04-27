@@ -849,7 +849,7 @@ int iota::AdminManagerService::post_service_json(
     PION_LOG_DEBUG(m_log, "Search protocol of service");
     mongo::BSONObj obj =  mongo::fromjson(body);
     std::vector<mongo::BSONObj> obj_protocols;
-    table->getElementsFromBSON(obj, obj_protocols);
+    manager_service_collection->getElementsFromBSON(obj, obj_protocols);
 
     // For each protocol, endpoints
     std::map<std::string, std::string> response_from_iotagent;
@@ -919,7 +919,7 @@ int iota::AdminManagerService::post_service_json(
             response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
                                             i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
           }
-          else if (code != -1 ){
+          else if (code != -1) {
             response_from_iotagent_nok.insert(std::pair<std::string, std::string>
                                               (all_dest.at(
                                                  i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
@@ -937,7 +937,12 @@ int iota::AdminManagerService::post_service_json(
     // If no OK in all
     if (response_from_iotagent.size() == 0) {
       code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
-      reason.append("Every IoTA returns NOK");
+      if (response_from_iotagent_nok.size() > 0) {
+        response = response_from_iotagent_nok.begin()->second;
+      }
+      else {
+        reason.append("Every IoTA returns NOK");
+      }
     }
     /*
     if (be.size() == 1) {
@@ -993,7 +998,7 @@ int iota::AdminManagerService::put_service_json(
     PION_LOG_DEBUG(m_log, "Search protocol of service");
     mongo::BSONObj obj =  mongo::fromjson(body);
     std::vector<mongo::BSONObj> obj_protocols;
-    table->getElementsFromBSON(obj, obj_protocols);
+    manager_service_collection->getElementsFromBSON(obj, obj_protocols);
 
     // For each protocol, endpoints
     std::map<std::string, std::string> response_from_iotagent;
@@ -1061,7 +1066,7 @@ int iota::AdminManagerService::put_service_json(
                                             i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
           }
           else if (code_i != -1) {
-            response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
+            response_from_iotagent_nok.insert(std::pair<std::string, std::string>(all_dest.at(
                                             i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
           }
           PION_LOG_INFO(m_log, param_request);
@@ -1076,7 +1081,12 @@ int iota::AdminManagerService::put_service_json(
     // If no OK in all
     if (response_from_iotagent.size() == 0) {
       code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
-      reason.append("Every IoTA returns NOK");
+      if (response_from_iotagent_nok.size() > 0) {
+        response = response_from_iotagent_nok.begin()->second;
+      }
+      else {
+        reason.append("Every IoTA returns NOK");
+      }
     }
     /*
     if (be.size() == 1) {
