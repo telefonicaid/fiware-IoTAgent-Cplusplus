@@ -976,7 +976,8 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       }
       else {
         code = delete_service_json(col, service, service_path,
-                                   service_in_url, apikey, resource, remove_devices, http_response, response);
+                                   service_in_url, apikey, resource, remove_devices,
+                                   http_response, response, token, trace_message);
         create_response(code, reason, error_details, http_response, response);
       }
     }
@@ -1168,7 +1169,8 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       }
       else {
         code = delete_service_json(col, service, service_path,
-                                   service_in_url, apikey, resource, remove_devices, http_response, response);
+                                   service_in_url, apikey, resource, remove_devices,
+                                   http_response, response, token, trace_message);
       }
     }
     else {
@@ -2033,7 +2035,9 @@ int iota::AdminService::delete_service_json(
   const std::string& resource,
   bool remove_devices,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  std::string x_auth_token,
+  std::string request_identifier) {
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string param_request("delete_service_json:service=" + service +
                             "|service_path=" +

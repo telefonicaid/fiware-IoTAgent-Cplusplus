@@ -422,7 +422,9 @@ class AdminService :
       const std::string& resource,
       bool remove_devices,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string x_auth_token,
+      std::string request_identifier);
 
 
     /**

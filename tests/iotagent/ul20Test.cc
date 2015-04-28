@@ -2370,8 +2370,9 @@ void Ul20Test::testPUSHCommand_MONGO() {
   }
 
   std::cout << "@UT@DELETE Service" << std::endl;
+  std::string token, trace_message;
   code_res = adminserv.delete_service_json(col, service, "/", service, apikey, "/iot/d", true,
-                     http_response, response);
+                     http_response, response, token, trace_message);
 
 
   cb_mock->stop();
@@ -2550,8 +2551,9 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   }
 
   std::cout << "@UT@DELETE Service" << std::endl;
+  std::string token, trace_message;
   code_res = adminserv.delete_service_json(col, service, "/", service, "apikey", "/iot/d", true,
-                     http_response, response);
+                     http_response, response, token, trace_message);
 
   cb_mock->stop();
   device_mock->stop();
@@ -2591,8 +2593,9 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
        "room_ut32", "type2", POST_DEVICE_CON2, cb_mock);
 
   std::cout << "@UT@DELETE Service" << std::endl;
+  std::string token, trace_message;
   code_res = adminserv.delete_service_json(col, service, subservice, service, "apikey", "/iot/d", true,
-                         http_response, response);
+                         http_response, response, token, trace_message);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 204);
 
@@ -2842,8 +2845,9 @@ void Ul20Test::testPollingCommand_MONGO(
   if (create_mock.get() == NULL){
       std::cout << "@UT@Delete Service" << std::endl;
 
+      std::string token, trace_message;
       code_res = adminserv.delete_service_json(  col, service, subservice, service, apikey, "/iot/d", true,
-                         http_response, response);
+                         http_response, response, token, trace_message);
       std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
       IOTASSERT(code_res == 204);
   }

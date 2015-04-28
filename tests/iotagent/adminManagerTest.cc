@@ -720,6 +720,11 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
+  std::cout << "@UT@DELETE" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/ssrv2", "application/json",
+                       "", headers, "protocol=UL20", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
 
   http_mock->stop();
   std::cout << "END@UT@ testServiceManagement" << std::endl;
