@@ -110,7 +110,7 @@ class AdminManagerService : public iota::AdminService {
     also included in the DeviceToBeAdded object. Extra information is needed like service, sub-service and x-auth-token for respective headers.
     @return JSON with results of all devices.
     */
-    std::string post_multiple_devices(std::vector<DeviceToBeAdded>&
+    int post_multiple_devices(std::vector<DeviceToBeAdded>&
                                       v_devices_endpoint_in,std::string service,std::string sub_service,
                                       std::string x_auth_token);
 

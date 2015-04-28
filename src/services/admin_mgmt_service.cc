@@ -160,11 +160,9 @@ int iota::AdminManagerService::operation_device_iotagent(std::string url_iotagen
     request->set_method(method);
     request->set_resource(resource);
 
-    std::string content("{\"devices\":[");
-    content.append(body);
-    content.append("]}");
 
-    request->set_content(content);
+
+    request->set_content(body);
     request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
 
 
@@ -481,17 +479,17 @@ void iota::AdminManagerService::receive_get_devices(
 }
 
 
-std::string iota::AdminManagerService::post_multiple_devices(
+int iota::AdminManagerService::post_multiple_devices(
   std::vector<DeviceToBeAdded>& v_devices_endpoint_in, std::string service,
   std::string sub_service, std::string x_auth_token) {
 
-  std::string response("{");
+
 
   std::string log_message("|service=" + service+"|sub_service="+sub_service);
   PION_LOG_DEBUG(m_log, log_message);
 
-  response.append("\"responses\":[");
 
+  int code = 201;
   for (int i=0; i<v_devices_endpoint_in.size(); i++) {
     DeviceToBeAdded& dev = v_devices_endpoint_in[i];
 
@@ -499,32 +497,24 @@ std::string iota::AdminManagerService::post_multiple_devices(
    // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
 
-    int res = operation_device_iotagent(url_endpoint,dev.get_device_json(),service,
+    std::string content("{\"devices\":[");
+    content.append(dev.get_device_json());
+    content.append("]}");
+
+    int res = operation_device_iotagent(url_endpoint,content,service,
                                   sub_service,x_auth_token,pion::http::types::REQUEST_METHOD_POST);
+
+    if (code < 400 && res >= code){
+      code = res;
+      PION_LOG_DEBUG(m_log,"Response code changed to : ["<< code << "]");
+    }
 
     PION_LOG_DEBUG(m_log,"Endpoint: ["<< url_endpoint<< "] Result: "
                    +boost::lexical_cast<std::string>(res));
 
-    if (i > 0) {
-      response.append(",");
-    }
-
-    response.append("{\"device\":[");
-    response.append(dev.get_device_json());
-    response.append("],");
-    response.append("\"endpoint\":\"");
-    response.append(url_endpoint);
-    response.append("\",");
-    response.append("\"result\":\"");
-    response.append(boost::lexical_cast<std::string>(res));
-    response.append("\"}");
-
-
   }
 
-  response.append("]}");
-  PION_LOG_DEBUG(m_log,"Final response: "+response);
-  return response;
+  return code;
 
 }
 
@@ -549,17 +539,21 @@ int iota::AdminManagerService::post_device_json(
 
   resolve_endpoints(v_endpoints,body,service,service_path);
   PION_LOG_DEBUG(m_log,
-                 "post_json_devices: endpoints found ["<<v_endpoints.size()<<"]");
-  response.assign(post_multiple_devices(v_endpoints,service,service_path,
-                                        token));
-  PION_LOG_DEBUG(m_log,"post_json_devices: POSTs processed: ["<<response<<"]");
-  if (!response.empty()) {
+                 "post_device_json: endpoints found ["<<v_endpoints.size()<<"]");
+  int code = post_multiple_devices(v_endpoints,service,service_path,
+                                        token);
+  http_response.set_status_code(code);
+
+  PION_LOG_DEBUG(m_log,"post_device_json: POSTs processed: ["<<code<<"]");
+
+  /*if (!response.empty()) {
     http_response.set_content(response);
     http_response.set_status_code(200);
   }
   else {
     http_response.set_status_code(404);
   }
+  */
 
   return http_response.get_status_code();
 
@@ -613,10 +607,9 @@ int iota::AdminManagerService::put_device_json(
 
   if (validate_json_schema(body, devTable,
                            pion::http::types::REQUEST_METHOD_PUT, error_details)) {
-    PION_LOG_DEBUG(m_log, "put_device_json: SCHEMA validated, sending request to "
-                   << v_endpoints_put.size() << " endpoints");
 
-    PION_LOG_DEBUG(m_log, "put_device_json: getting endpoints for protocol [" <<
+
+    PION_LOG_DEBUG(m_log, "put_device_json: SCHEMA validated, getting endpoints for protocol [" <<
                    protocol << "]");
     v_endpoint = _service_mgmt.get_iotagents_by_service(service, service_path,
                  protocol);
@@ -630,7 +623,8 @@ int iota::AdminManagerService::put_device_json(
       iota::DeviceToBeAdded dev_add(body, v_endpoint[j]);
       v_endpoints_put.push_back(dev_add);
     }
-
+    PION_LOG_DEBUG(m_log, "put_device_json:  sending request to "
+                   << v_endpoints_put.size() << " endpoints");
 
     int code = put_multiple_devices(v_endpoints_put, device_id, service,
                                     service_path, token);

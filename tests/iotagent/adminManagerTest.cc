@@ -229,19 +229,24 @@ AdminManagerTest::AdminManagerTest() {
   pion::process::initialize();
 
   admMgm = new iota::AdminManagerService();
+
+
   //adm->set_manager();
 
   // ul20serv_ptr = new iota::UL20Service();
   // ul20serv_ptr->set_resource("/iot/d");
-  adm = admMgm;
-  AdminService_ptr = adm;
+  //adm = admMgm;
+
+  AdminService_ptr = admMgm;
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
   wserver.reset(new pion::http::plugin_server(scheduler));
-  wserver->add_service("/iot", adm);
+  wserver->add_service("/iot", admMgm);
 
 
+  adm = new iota::AdminService();
 
-  // wserver->add_service("/iot/d",ul20serv_ptr);
+
+  wserver->add_service("/iotagent",adm);
 
   wserver->start();
 
@@ -472,8 +477,8 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
 
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
-  http_mock->set_response(204, "{}", h);
-  http_mock->set_response(204, "{}", h);
+  http_mock->set_response(201, "{}", h);
+  http_mock->set_response(201, "{}", h);
 
 
 
@@ -494,21 +499,21 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
            "}");
 
-  std::string endpoint("http://127.0.0.1:7777");
+  std::string endpoint("http://127.0.0.1:7777/iot");
 
   std::vector<iota::DeviceToBeAdded> v_devices;
 
   v_devices.push_back(iota::DeviceToBeAdded(device_1,endpoint));
   v_devices.push_back(iota::DeviceToBeAdded(device_2,endpoint));
 
-  std::string response(manager_service.post_multiple_devices(v_devices,"s1",
-                       "/ss1",""));
+  int res = manager_service.post_multiple_devices(v_devices,"s1",
+                       "/ss1","");
 
-  std::cout << "Test: testMultiplePostsWithResponse: result: "<< response<<
+  std::cout << "Test: testMultiplePostsWithResponse: result: "<< res<<
             std::endl;
 
-  CPPUNIT_ASSERT(
-    !response.empty());  //<- TODO: I have to change this and use a proper assertion
+  CPPUNIT_ASSERT( res == 201);
+
   sleep(2);
   http_mock->stop();
 }
@@ -522,7 +527,7 @@ void AdminManagerTest::testPostJSONDevices() {
   std::string
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
-       +boost::lexical_cast<std::string>(wserver->get_port())+"\","
+       +boost::lexical_cast<std::string>(wserver->get_port())+"/iotagent\","
        "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
   iota::ServiceMgmtCollection table1;
@@ -558,8 +563,8 @@ void AdminManagerTest::testPostJSONDevices() {
 
   std::cout << "Result " << response << std::endl;
 
-  CPPUNIT_ASSERT(http_response.get_status_code() == 200);
-  CPPUNIT_ASSERT(!response.empty());
+  CPPUNIT_ASSERT(http_response.get_status_code() == 201);
+
 
   //Now checking if the device has been added to the collection.
   iota::Device q1("device_id_post", "s1");
@@ -769,7 +774,7 @@ void AdminManagerTest::testPutJSONDevice_Wrong(){
            "}");
 
   std::string
-  device_missing_entity("{\"protocol\": \"UL20\"}");
+  device_missing_entity("{}");
 
   iota::AdminManagerService manager_service;
   pion::http::response http_response;
@@ -798,7 +803,7 @@ void AdminManagerTest::testPutJSONDevice(){
   std::string
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
-       +boost::lexical_cast<std::string>(wserver->get_port())+"/iot\","
+       +boost::lexical_cast<std::string>(wserver->get_port())+"/iotagent\","
        "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
   std::string device_put ("{\"protocol\":\"PDI-IoTA-UltraLight\",\"device_id\": \"device_id_post\","
