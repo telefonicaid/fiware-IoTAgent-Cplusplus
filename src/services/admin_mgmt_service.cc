@@ -244,7 +244,7 @@ int iota::AdminManagerService::get_all_devices_json(
                             (iota::store::types::ENTITY, entity));
     query_parameters.insert(std::pair<std::string, std::string>
                             (iota::store::types::DETAILED, detailed));
-
+    std::cout << "QUERY " << iota::make_query_string(query_parameters) << std::endl;
     // Build request
     pion::http::request_ptr request = create_request(
                                         pion::http::types::REQUEST_METHOD_GET,
@@ -319,7 +319,7 @@ int iota::AdminManagerService::get_all_devices_json(
   builder_json.append("count", total_count);
   builder_json.appendArray(iota::store::types::DEVICES, builder_array.obj());
   mongo::BSONObj result = builder_json.obj();
-  response = result.jsonString();
+  std::string content_response = result.jsonString();
   PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
 
   http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
@@ -328,7 +328,7 @@ int iota::AdminManagerService::get_all_devices_json(
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                      pion::http::types::RESPONSE_CODE_OK));
 
-  return create_response(pion::http::types::RESPONSE_CODE_OK, "", "",
+  return create_response(pion::http::types::RESPONSE_CODE_OK, content_response, "",
                          http_response,
                          response);
 }
@@ -433,8 +433,9 @@ int iota::AdminManagerService::get_a_device_json(
   builder_json.append("count", total_count);
   builder_json.appendArray(iota::store::types::DEVICES, builder_array.obj());
   mongo::BSONObj result = builder_json.obj();
+  std::string content_response;
   if (total_count != 0) {
-    response = result.jsonString();
+    content_response = result.jsonString();
     PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
     http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
                              iota::types::IOT_CONTENT_TYPE_JSON);
@@ -444,7 +445,7 @@ int iota::AdminManagerService::get_a_device_json(
     code = pion::http::types::RESPONSE_CODE_OK;
   }
 
-  return create_response(code, "", "", http_response,
+  return create_response(code, content_response, "", http_response,
                          response);
 
 }

@@ -233,15 +233,17 @@ std::string iota::make_query_string(std::multimap<std::string, std::string>&
                                     query_parameters) {
   std::string query_string;
   std::map<std::string, std::string>::iterator it = query_parameters.begin();
+  int i = 0;
   while (it != query_parameters.end()) {
-    query_string.append(it->first + "=" + it->second);
-    if (it != query_parameters.begin()) {
-      query_string += '&';
+    if (!it->second.empty()) {
+      if (i != 0) {
+        query_string += '&';
+      }
+      query_string += pion::algorithm::url_encode(it->first);
+      query_string += '=';
+      query_string += pion::algorithm::url_encode(it->second);
+      ++i;
     }
-    query_string += pion::algorithm::url_encode(it->first);
-    query_string += '=';
-    query_string += pion::algorithm::url_encode(it->second);
-
     ++it;
   }
   return query_string;
