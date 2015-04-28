@@ -203,10 +203,11 @@ You remove a subservice into a service. If Fiware-ServicePath is '/*' or '/#' re
 + Response 204
 
 
-## Devices [/devices{?limit,offset,detailed}]
+## Devices [/devices{?limit,offset,detailed,protocol}]
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
 - `device_id` (string, mandatory). Unique identifier into a service.
+- `protocol` (string, mandatory). Protocol assigned to device.
 - `entity_name` (string, optional). Entity name used for entity publication (overload default)
 - `entity_type` (string, optional). Entity type used for entity publication (overload entity_type defined in service).
 - `timezone` (optional, string). Not used in this version.
@@ -237,6 +238,8 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
     + `entity` (optional, string). It allows get a device from entity name.
 
+    + `protocol` (optional, string). It allows get devices with this protocol.
+
 + Request (application/json)
 
     + Headers
@@ -253,6 +256,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
               "devices": [
                 {
                   "device_id": "device_id",
+                  "protocol": "12345",
                   "entity_name": "entity_name",
                   "entity_type": "entity_type",
                   "timezone": "America/Santiago",
@@ -289,6 +293,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
                 "devices": [
                 {
                   "device_id": "device_id",
+                  "protocol": "12345",
                   "entity_name": "entity_name",
                   "entity_type": "entity_type",
                   "timezone": "America/Santiago",
@@ -343,6 +348,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
             {
               "device_id": "device_id",
+              "protocol": "121345",
               "entity_name": "entity_name",
               "entity_type": "entity_type",
               "timezone": "America/Santiago",
