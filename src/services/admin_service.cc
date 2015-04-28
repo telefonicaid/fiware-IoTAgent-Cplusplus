@@ -1613,16 +1613,6 @@ int iota::AdminService::put_device_json(
         }
       }
 
-      std::string protocol_name = setbo.getStringField(store::types::PROTOCOL_NAME);
-      if (!protocol_name.empty()){
-        boost::shared_ptr<iota::ServiceCollection> table(new ServiceCollection());
-        if(!check_device_protocol(protocol_name, service, service_path, table)) {
-          throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
-                                  " [ protocol: " + protocol_name + "]",
-                                  iota::types::RESPONSE_CODE_BAD_REQUEST);
-        }
-      }
-
       int count = devTable->update(query, setbo, false);
       if (count == 0) {
         PION_LOG_INFO(m_log, "put_device_json no device " <<
