@@ -562,10 +562,6 @@ int iota::AdminManagerService::post_device_json(
 
 }
 
-  std::string iota::AdminManagerService::get_role() {
-    return " [working as manager] ";
-  }
-
 int iota::AdminManagerService::put_device_json(
   const std::string& service,
   const std::string& service_path,
@@ -717,7 +713,7 @@ std::string iota::AdminManagerService::protocol_from_device (const std::string& 
 std::string iota::AdminManagerService::get_role() {
   return " [working as manager] ";
 }
- 
+
   std::string iota::AdminManagerService::get_class_name() {
     return _class_name;
   }
