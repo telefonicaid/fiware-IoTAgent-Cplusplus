@@ -42,14 +42,15 @@ int main(int argc, char* argv[]) {
   testing::GTEST_FLAG(throw_on_failure) = true;
   testing::InitGoogleMock(&argc, argv);
 
+/*
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(AdminManagerTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cerr));
   bool s = runner.run();
   return s ? 0 : 1;
-
-  /*CppUnit::TestResult    controller;
+*/
+  CppUnit::TestResult    controller;
   CppUnit::TestResultCollector result;
   controller.addListener(&result);
 
@@ -62,5 +63,5 @@ int main(int argc, char* argv[]) {
   CppUnit::XmlOutputter xmlOut(&result, xmlFileOut);
   xmlOut.write();
 
-  return result.wasSuccessful() ? 0 : 1;*/
+  return result.wasSuccessful() ? 0 : 1;
 }

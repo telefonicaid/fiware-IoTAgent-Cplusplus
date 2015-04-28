@@ -719,7 +719,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
       std::string content = http_request_ptr->get_content();
       boost::trim(content);
       code = put_device_json(service,  service_path, device_in_url,
-                             content, http_response, response);
+                             content, http_response, response,token);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
 
@@ -1560,7 +1560,9 @@ int iota::AdminService::put_device_json(
   const std::string& device_id,
   const std::string& body,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  const std::string& x_auth_token) {
+
   std::string param_request("put_device_json|service=" + service +
                             "|service_path=" +
                             service_path + "|device=" + device_id + "|content=" + body);
