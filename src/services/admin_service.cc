@@ -1592,6 +1592,15 @@ int iota::AdminService::put_device_json(
                                    iota::store::types::DEVICE_ID << device_id);
 
       std::string entity_name = setbo.getStringField(store::types::ENTITY_NAME);
+      std::string protocol_name = setbo.getStringField(store::types::PROTOCOL_NAME);
+      if (!protocol_name.empty()) {
+        boost::shared_ptr<iota::ServiceCollection> table(new ServiceCollection());
+        if (!check_device_protocol(protocol_name, service, service_path, table)) {
+          throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
+                                    " [ protocol: " + protocol_name + "]",
+                                    iota::types::RESPONSE_CODE_BAD_REQUEST);
+        }
+      }
       if (!entity_name.empty()) {
         // "entity_name" : 1, "service" : 1, "service_path" : 1
         devTable->find(BSON(store::types::ENTITY_NAME <<  entity_name <<
@@ -1672,6 +1681,10 @@ int iota::AdminService::get_all_devices_json(
   if (entity.empty() == false) {
     bson_query.append(iota::store::types::ENTITY_NAME, entity);
   }
+  if (!protocol_filter.empty()) {
+    bson_query.append(iota::store::types::PROTOCOL, protocol_filter);
+  }
+
   obj_query = bson_query.obj();
   int count = devTable.count(obj_query);
   res << "{ \"count\": " << count << ",";
@@ -2220,7 +2233,7 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
   PION_LOG_DEBUG(m_log, "check_device_protocol " << protocol_name);
 
   if (protocol_name.empty()) {
-    return true;
+    return false;
   }
 
   std::vector<std::string> resources;
@@ -2231,7 +2244,6 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
   for (std::vector<std::string>::iterator it = resources.begin();
        it != resources.end(); ++it) {
     resource = *it;
-    std::cout << "resource::" << resource << std::endl;
     plugin = get_service(resource);
     if (plugin != NULL) {
       iota::ProtocolData pro = plugin->get_protocol_data();

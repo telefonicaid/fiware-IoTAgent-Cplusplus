@@ -161,6 +161,7 @@ const std::string iota::ServiceMgmtCollection::_POST_SCHEMA(
   "}");
 
 
+
 int iota::ServiceMgmtCollection::createTableAndIndex() {
 
   int res = 200;

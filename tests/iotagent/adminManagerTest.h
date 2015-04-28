@@ -85,6 +85,7 @@ public:
     // SERVICE_MANAGEMENT
     static const std::string URI_SERVICES_MANAGEMET;
     static const std::string POST_SERVICE_MANAGEMENT1;
+    static const std::string PUT_SERVICE_MANAGEMENT1;
     static const std::string POST_SERVICE_MANAGEMENT2;
     static const std::string POST_BAD_SERVICE_MANAGEMENT1;
     static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;

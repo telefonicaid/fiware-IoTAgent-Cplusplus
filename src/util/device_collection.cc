@@ -408,7 +408,7 @@ const std::string iota::DeviceCollection::_POST_SCHEMA(
                          "}"
                    "}"
                "}"
-                 ",\"required\": [\"device_id\"]"
+                 ",\"required\": [\"device_id\", \"protocol\"]"
              "}"
        "}"
    "}"

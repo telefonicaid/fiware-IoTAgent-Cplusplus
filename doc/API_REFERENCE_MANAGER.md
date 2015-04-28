@@ -94,7 +94,7 @@ Fields in JSON object representing a service are:
 - `description` (string, mandatory). It is the description of the protocol.
 - `apikey` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
 - `token` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
-- `cbroker`(string, mandatory). Context Broker endpoint assigned to this service, it must be a real uri.
+- `cbroker`(string, optional). Context Broker endpoint assigned to this service, it must be a real uri.
 - `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
 - `resource` (string, mandatory). Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
 - `entity_type` (string, optional). Entity type used in entity publication (overload default).
@@ -177,7 +177,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
 
 ### Create a service [POST]
-With one subservice defined in Fiware-ServicePath header. Only if it fails for ALL agents, returns 404.
+With one subservice defined in Fiware-ServicePath header.
 
 + Request (application/json)
 
@@ -195,8 +195,33 @@ With one subservice defined in Fiware-ServicePath header. Only if it fails for A
                   "apikey": "apikey3",
                   "token": "token2",
                   "cbroker": "http://127.0.0.1:1026",
-                  "entity_type": "thing",
-                  "resource": "/iot/d"
+                  "entity_type": "thing"
+                }
+               ]
+             }
+
++ Response 201
+
+### Modify a service [PUT]
+With one subservice defined in Fiware-ServicePath header.
+
++ Request (application/json)
+
+    + Headers
+
+            Fiware-Service: TestService
+            Fiware-ServicePath: /TestSubservice
+
+    + Body
+
+            {
+              "services": [
+                {
+                  "protocol": ["55261958d31fc2151cc44c70", "1234"],
+                  "apikey": "apikey3",
+                  "token": "token2",
+                  "cbroker": "http://127.0.0.1:1026",
+                  "entity_type": "thing"
                 }
                ]
              }

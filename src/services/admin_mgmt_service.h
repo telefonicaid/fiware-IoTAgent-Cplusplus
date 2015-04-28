@@ -284,6 +284,7 @@ class AdminManagerService : public iota::AdminService {
 
     int check_alarm(pion::http::response_ptr& http_resp,
                      boost::shared_ptr<iota::HttpClient>& http_client);
+    void build_errors(std::map<std::string, std::string>& resp_nok, mongo::BSONObjBuilder& builder);
 
 
 
