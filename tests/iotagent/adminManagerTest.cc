@@ -158,6 +158,7 @@ AdminManagerTest::POST_BAD_SERVICE_MANAGEMENT1("{\"services\": [{"
        "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
      "}]}");
 
+
 const std::string
 AdminManagerTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
@@ -719,6 +720,19 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+  std::string req_sent = http_mock->get_last();
+  std::cout << req_sent << std::endl;
+  std::cout << "@UT@PUT" << std::endl;
+  http_mock->set_response(204, "{}", h);
+  code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "", "application/json",
+                       POST_SERVICE_MANAGEMENT1, headers, "", response);
+  IOTASSERT(code_res == 204);
+  http_mock->set_response(400, "{\"reason\": \"hola\", \"details\": \"adios\"}");
+  code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "", "application/json",
+                       POST_SERVICE_MANAGEMENT1, headers, "", response);
+  IOTASSERT(code_res == 404);
+  std::cout << "PUT RESPONSE BAD " << response << std::endl;
 
   std::cout << "@UT@DELETE" << std::endl;
   code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/ssrv2", "application/json",
