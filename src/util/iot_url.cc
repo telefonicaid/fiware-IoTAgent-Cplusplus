@@ -107,7 +107,7 @@ iota::IoTUrl::IoTUrl(std::string url):
   }
   catch (std::exception& e) {
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER + "[" + _url + "]",
-                              e.what(),
+                              url + " is not a correct uri",
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 }

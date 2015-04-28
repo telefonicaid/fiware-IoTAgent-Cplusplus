@@ -919,9 +919,12 @@ int iota::AdminManagerService::post_service_json(
             PION_LOG_ERROR(m_log, param_request + "|content=" + resp_http->get_content());
           }
           PION_LOG_INFO(m_log, param_request);
+          iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
+                       iota::types::ERROR, "post_service_json");
         }
         catch (std::exception& e) {
-          PION_LOG_ERROR(m_log, "Processing endpoint " << all_dest.at(i).endpoint);
+          iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
+                       iota::types::ERROR, e.what());
         }
       }
 
@@ -969,7 +972,7 @@ int iota::AdminManagerService::delete_service_json(
       std::string x_auth_token,
       std::string request_identifier)
 {
-  std::string param_request("service=" + service +
+  std::string param_request("delete_service_json=" + service +
                             "|service_path=" +
                             service_path);
   PION_LOG_DEBUG(m_log, param_request);
@@ -1027,8 +1030,10 @@ int iota::AdminManagerService::delete_service_json(
           boost::property_tree::ptree additional_info;
 
           param_request.append("|endpoint=" + http_client->getRemoteEndpoint());
+          PION_LOG_DEBUG(m_log, "sending delete|" + param_request);
           pion::http::response_ptr resp_http = http_client->send(request, _timeout, "");
           int code_i = check_alarm(resp_http, http_client);
+          PION_LOG_DEBUG(m_log, "response delete|code:" << code_i);
 
           param_request.append("|error-conn=" + http_client->get_error().message());
           param_request.append("|status-code=" + boost::lexical_cast<std::string>
@@ -1039,10 +1044,12 @@ int iota::AdminManagerService::delete_service_json(
             response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
                                             i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
           }
-          PION_LOG_INFO(m_log, param_request);
+          iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
+                       iota::types::ERROR, "delete_service_json");
         }
         catch (std::exception& e) {
-          PION_LOG_ERROR(m_log, "Processing endpoint " << all_dest.at(i).endpoint);
+          iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
+                       iota::types::ERROR, e.what());
         }
       } //end for
 
@@ -1175,9 +1182,12 @@ int iota::AdminManagerService::put_service_json(
                                                  i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
           }
           PION_LOG_INFO(m_log, param_request);
+          iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
+                       iota::types::ERROR, "put_service_json");
         }
         catch (std::exception& e) {
-          PION_LOG_ERROR(m_log, "Processing endpoint " << all_dest.at(i).endpoint);
+          iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
+                       iota::types::ERROR, e.what());
         }
       }
 
