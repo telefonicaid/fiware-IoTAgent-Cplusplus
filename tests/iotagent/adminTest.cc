@@ -67,7 +67,7 @@ const std::string AdminTest::URI_DEVICE("/devices");
 //POST
 const std::string
 AdminTest::POST_DEVICE("{\"devices\": "
-                       "[{\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -83,7 +83,7 @@ AdminTest::BAD_PROTOCOL_POST_DEVICE("{\"devices\": "
 
 const std::string
 AdminTest::BAD_POST_DEVICE("{\"devices\": "
-                           "[{\"device_id\": \"device_id\",\"entity_namee\": \"entity_namee\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                           "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_namee\": \"entity_namee\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                            "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -98,14 +98,14 @@ BAD_PROTOCOL_POST_DEVICE("{\"devices\": "
 
 const std::string
 AdminTest::BAD_POST_DEVICE2("{\"devices\": "
-                            "[{\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                            "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                             "\"commands\": [{\"namee\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                             "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                             "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                             "}]}");
 const std::string
 AdminTest::BAD_POST_DEVICE3("{\"devices\": "
-                            "[{\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                            "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                             "\"commands\": [{\"bomba\":\"bomba\",\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                             "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                             "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -115,7 +115,7 @@ AdminTest::BAD_POST_DEVICE3("{\"devices\": "
 const int AdminTest::POST_RESPONSE_CODE = 201;
 const std::string AdminTest::POST_RESPONSE("");
 const std::string
-AdminTest::POST_DEVICE_NO_DEVICE_ID("{\"devices\": [{\"device_idd\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"timezone\": \"America/Santiago\"}]}");
+AdminTest::POST_DEVICE_NO_DEVICE_ID("{\"devices\": [{\"device_idd\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"timezone\": \"America/Santiago\"}]}");
 const int AdminTest::POST_RESPONSE_CODE_NO_DEVICE_ID = 400;
 const std::string AdminTest::POST_RESPONSE_NO_DEVICE_ID("");
 
@@ -267,6 +267,8 @@ AdminTest::AdminTest() {
 
   adm = new iota::AdminService();
 
+  plugin.set_resource("/iot/d");
+  adm->add_service("/iot/d", &plugin);
   // This urls are only for testing
   std::map<std::string,std::string> filters;
 
