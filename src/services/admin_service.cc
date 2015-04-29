@@ -1594,15 +1594,9 @@ int iota::AdminService::put_device_json(
                                    iota::store::types::DEVICE_ID << device_id);
 
       std::string entity_name = setbo.getStringField(store::types::ENTITY_NAME);
-      std::string protocol_name = setbo.getStringField(store::types::PROTOCOL_NAME);
-      if (!protocol_name.empty()) {
-        boost::shared_ptr<iota::ServiceCollection> table(new ServiceCollection());
-        if (!check_device_protocol(protocol_name, service, service_path, table)) {
-          throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
-                                    " [ protocol: " + protocol_name + "]",
-                                    iota::types::RESPONSE_CODE_BAD_REQUEST);
-        }
-      }
+
+      // Protocol cannot be modified. Remove this field.
+      setbo.removeField(iota::store::types::PROTOCOL);
       if (!entity_name.empty()) {
         // "entity_name" : 1, "service" : 1, "service_path" : 1
         devTable->find(BSON(store::types::ENTITY_NAME <<  entity_name <<
