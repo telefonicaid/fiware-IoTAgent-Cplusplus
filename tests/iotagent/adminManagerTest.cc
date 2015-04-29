@@ -176,6 +176,17 @@ AdminManagerTest::POST_DEVICE_MANAGEMENT1("{\"devices\": "
                            "}]}");
 
 const std::string
+AdminManagerTest::PUT_DEVICE("{\"entity_name\": \"entity_name2\"}");
+//
+const std::string
+AdminManagerTest::POST_DEVICE("{\"devices\": "
+                       "[{\"device_id_new\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                       "}]}");
+
+const std::string
 AdminManagerTest::GET_DEVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
 std::string
@@ -879,5 +890,65 @@ void AdminManagerTest::testPutJSONDevice(){
   //Now checking if the device has been added to the collection.
 
   std::cout << "Test testPutJSONDevice DONE" << std::endl;
+
+}
+
+void AdminManagerTest::testPutProtocolDevice(){
+
+
+  std::cout << "START @UT@START testPutProtocolDevice" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string("");
+
+  int code_res;
+  std::string response;
+  std::string service= "ss1" ;
+  std::cout << "@UT@service " << service << std::endl;
+
+  std::string uri_query(URI_DEVICES_MANAGEMEMT);
+  uri_query.append("/device_id_new");
+
+  //missing protocol in query
+  std::cout << "@UT@1POST" << std::endl;
+  code_res = http_test(uri_query, "PUT", service, "", "application/json",
+                       PUT_DEVICE, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+        "{\"reason\":\"A parameter is missing in the request\",\"details\":\"protocol parameter is mandatory\"}") == 0);
+
+  pion::http::response http_response;
+
+  std::string
+  s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
+       +boost::lexical_cast<std::string>(wserver->get_port())+"/iotagent\","
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+  //Add positive test
+  adm->post_device_json("ss1","/ss1",POST_DEVICE,http_response,response,"1234");
+
+  iota::ServiceMgmtCollection table1;
+
+
+  table1.createTableAndIndex();
+
+  iota::UL20Service ul20_service;
+
+  adm->add_service("/iot/d",&ul20_service);//would this fail?
+
+  mongo::BSONObj all;
+
+  table1.remove(all);
+
+  table1.insert(mongo::fromjson(s1_d));
+  query_string.assign("protocol=PDI-IoTA-UltraLight");
+
+  code_res = http_test(uri_query, "PUT", service, "", "application/json",
+                       PUT_DEVICE, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 204);
+
+  std::cout << "END@UT@ testPutProtocolDevice" << std::endl;
 
 }

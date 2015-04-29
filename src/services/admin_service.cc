@@ -718,6 +718,9 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     if (method.compare(pion::http::types::REQUEST_METHOD_PUT) == 0) {
       std::string content = http_request_ptr->get_content();
       boost::trim(content);
+
+      check_required_put_parameters(query_parameters);
+
       code = put_device_json(service,  service_path, device_in_url,
                              content, http_response, response,token);
     }

@@ -1497,3 +1497,22 @@ void iota::AdminManagerService::build_errors(
   }
   builder.appendArray("errors", errors_builder.arr());
 }
+
+void iota::AdminManagerService::check_required_put_parameters(std::multimap<std::string,std::string>& query_params){
+
+  std::string protocol_filter;
+  //Following access to protocol_filter can be taken to a method.
+  std::multimap<std::string, std::string>::iterator it = query_params.begin();
+  it = query_params.find(iota::store::types::PROTOCOL);
+  if (it != query_params.end()) {
+        protocol_filter = it->second;
+        if (!protocol_filter.empty()){
+          return;
+        }
+  }
+
+   throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
+                              "protocol parameter is mandatory",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+
+}

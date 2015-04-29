@@ -266,7 +266,7 @@ class AdminManagerService : public iota::AdminService {
 
   private:
 
-
+    virtual void check_required_put_parameters(std::multimap<std::string, std::string>& query_parameters);
 
     pion::logger m_log;
 
