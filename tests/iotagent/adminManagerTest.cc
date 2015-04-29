@@ -629,11 +629,11 @@ int AdminManagerTest::http_test(const std::string& uri,
 
 
 void AdminManagerTest::testProtocol_ServiceManagement(){
-  std::cout << "START @UT@START testProtocol" << std::endl;
+  std::cout << "START @UT@START testProtocol_ServiceManagement" << std::endl;
   std::map<std::string, std::string> headers;
   std::string query_string;
   int code_res;
-  std::string response;
+  std::string response, cb_last;
 
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
@@ -726,6 +726,7 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
+
   std::string req_sent = http_mock->get_last();
   std::cout << req_sent << std::endl;
   std::cout << "@UT@PUT" << std::endl;
@@ -738,8 +739,20 @@ void AdminManagerTest::testProtocol_ServiceManagement(){
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   IOTASSERT(code_res == 404);
   std::cout << "PUT RESPONSE BAD " << response << std::endl;
+  cb_last = http_mock->get_last();
+  std::cout << "@UT@iotagent mock: " <<  cb_last << std::endl;
+
+  std::cout << "@UT@DELETE" << std::endl;
+  http_mock->set_response(204, "{}", h);
+  code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/ssrv2", "application/json",
+                       "", headers, "protocol=UL20", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == DELETE_RESPONSE_CODE);
+  cb_last = http_mock->get_last();
+  std::cout << "@UT@iotagent mock: " <<  cb_last << std::endl;
+
   http_mock->stop();
-  std::cout << "END@UT@ testServiceManagement" << std::endl;
+  std::cout << "END@UT@ testProtocol_ServiceManagement" << std::endl;
 
 }
 

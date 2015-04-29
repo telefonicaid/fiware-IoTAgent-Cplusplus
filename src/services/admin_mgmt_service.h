@@ -247,6 +247,19 @@ class AdminManagerService : public iota::AdminService {
       std::string token,
       std::string request_dientifier);
 
+    virtual int delete_service_json(
+      const boost::shared_ptr<iota::ServiceCollection>& table,
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& id_service,
+      const std::string& apikey,
+      const std::string& resource,
+      bool remove_devices,
+      pion::http::response& http_response,
+      std::string& response,
+      std::string x_auth_token,
+      std::string request_identifier);
+
   protected:
     virtual std::string get_class_name();
     virtual std::string get_role();
