@@ -85,7 +85,7 @@ It retrieves all protocols.
               ]
             }
 
-## Services [/services{?limit,offset}]
+## Services [/services{?limit,offset,protocol}]
 Services are the higher level in IoT Platform. When you manipulate a service, you use a Fiware-Service header with its name. Parameters apply to different operations.
 
 ### Service Model
