@@ -86,13 +86,12 @@ int iota::ServiceCollection::fill_all_resources(const std::string& service,
   find(query, field_return);
   mongo::BSONObj obj;
   std::string resource;
-  if (more()) {
+  while(more()) {
     obj =  next();
     std::cout << obj << std::endl;
     resource = obj.getStringField(iota::store::types::RESOURCE);
     if (!resource.empty()){
         resources.push_back(resource);
-        std::cout << "push_back" << resource << std::endl;
         result++;
       }
   }

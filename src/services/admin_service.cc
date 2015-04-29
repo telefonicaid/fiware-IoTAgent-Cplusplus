@@ -2245,18 +2245,22 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
   std::string resource;
   iota::RestHandle* plugin;
   table->fill_all_resources(service_name, service_path, resources);
-
+  PION_LOG_DEBUG(m_log, "Number of elements in resources:" << resources.size());
   for (std::vector<std::string>::iterator it = resources.begin();
        it != resources.end(); ++it) {
     resource = *it;
     plugin = get_service(resource);
+    PION_LOG_DEBUG(m_log, "Checking resource " << resource);
     if (plugin != NULL) {
       iota::ProtocolData pro = plugin->get_protocol_data();
-      std::cout << "protocol::" << pro.protocol << std::endl;
+      PION_LOG_DEBUG(m_log, "Protocol in resource " << pro.protocol);
       if (protocol_name.compare(pro.protocol) ==0) {
         PION_LOG_DEBUG(m_log, "exists plugin:" << protocol_name);
         return true;
       }
+    }
+    else {
+      PION_LOG_ERROR(m_log, "Plugin NULL checking resource " << resource);
     }
   }
 
