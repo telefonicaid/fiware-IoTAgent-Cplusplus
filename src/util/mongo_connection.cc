@@ -37,6 +37,8 @@ namespace iota {
 extern std::string logger;
 }
 
+const int MONGO_TIMEOUT = 3;
+
 iota::MongoConnection::MongoConnection():m_logger(PION_GET_LOGGER(
         iota::logger)) {
   _conex_pool = NULL;
@@ -115,13 +117,13 @@ void iota::MongoConnection::reconnect(){
       }
       catch (std::exception& e) {
         PION_LOG_ERROR(m_logger, "Error in config, bad timeuot defined, use default");
-        _timeout = 0;
+        _timeout = MONGO_TIMEOUT;
       }
     }
     else {
       PION_LOG_DEBUG(m_logger,
                      "in storage no timeout defined, using 0 by default");
-      _timeout = 0;
+      _timeout = MONGO_TIMEOUT;
     }
 
     if (storage.HasMember(iota::store::types::DBNAME.c_str())) {

@@ -41,3 +41,4 @@
 - FIX IDAS-20198: Function name in logs does not correct. Update library log4cplus (1.1.3-rc4)
 - FIX IDAS-20389: attribute default type is string
 - FIX IDAS-20378: push command with 202, thread with response ok is faster than thread with delivered (202 response) son in CB ok response is lost
+- FIX IDAS-20409: Set mongo default timeout (tcp timeout for read/write) in 3 seconds.
