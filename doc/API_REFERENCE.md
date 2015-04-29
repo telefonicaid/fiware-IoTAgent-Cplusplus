@@ -369,7 +369,8 @@ A device is a resource that publish information to IoT Platform and it uses the 
             }
 
 ### Update a device [PUT]
-If you want modify only a field, you can do it.
+If you want modify only a field, you can do it, exception field `protocol`.
+
 + Request (application/json)
 
     + Headers
