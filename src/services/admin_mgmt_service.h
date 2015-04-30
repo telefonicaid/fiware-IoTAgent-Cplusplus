@@ -92,7 +92,7 @@ class AdminManagerService : public iota::AdminService {
     */
     int operation_device_iotagent(std::string iotagent_endpoint,
                             const std::string& device_json,std::string service, std::string sub_service,
-                            std::string x_auth_token,const std::string& method);
+                            std::string x_auth_token,const std::string& method,std::string& response);
 
     /**
     @name resolve_endpoints
@@ -112,7 +112,7 @@ class AdminManagerService : public iota::AdminService {
     */
     int post_multiple_devices(std::vector<DeviceToBeAdded>&
                                       v_devices_endpoint_in,std::string service,std::string sub_service,
-                                      std::string x_auth_token);
+                                      std::string x_auth_token,std::string& response);
 
 
 
@@ -190,7 +190,7 @@ class AdminManagerService : public iota::AdminService {
     */
     int put_multiple_devices(std::vector<DeviceToBeAdded>&
                                       v_devices_endpoint_in,const std::string& idDevice,std::string service,std::string sub_service,
-                                      std::string x_auth_token);
+                                      std::string x_auth_token,std::string&);
 
     int delete_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
                         const std::string& device_id, std::string service,
