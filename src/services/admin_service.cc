@@ -1752,10 +1752,10 @@ int iota::AdminService::get_a_device_json(
   }
   else {
     code = iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND;
-    response = iota::types::RESPONSE_MESSAGE_NO_DEVICE;
+    res << iota::types::RESPONSE_MESSAGE_NO_DEVICE;
   }
 
-  return create_response(code, res.str(), device_id, http_response, response);
+  return create_response(code, res.str(), device_id, http_response, response, true);
 
 }
 
