@@ -374,7 +374,7 @@ void AdminManagerTest::testAddDevicesToEndpoints() {
   boost::shared_ptr<HttpMock> http_mock;
   http_mock.reset(new HttpMock(7777, "/iot/devices", false));
   http_mock->init();
-
+  std::string response;
 
 
   iota::AdminManagerService manager_service;
@@ -396,7 +396,7 @@ void AdminManagerTest::testAddDevicesToEndpoints() {
 
   std::cout << "Endpoint: " << endpoint << std::endl;
   int res = manager_service.operation_device_iotagent(endpoint,device,"s1","/ss1",
-            "test","POST");
+            "test","POST",response);
   CPPUNIT_ASSERT(res == 200);
   //sleep(4);
   //CLEAN UP
@@ -487,7 +487,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   //scheduler.startup();
 
   iota::AdminManagerService manager_service;
-
+  std::string response;
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
   http_mock->set_response(201, "{}", h);
@@ -520,7 +520,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   v_devices.push_back(iota::DeviceToBeAdded(device_2,endpoint));
 
   int res = manager_service.post_multiple_devices(v_devices,"s1",
-                       "/ss1","");
+                       "/ss1","",response);
 
   std::cout << "Test: testMultiplePostsWithResponse: result: "<< res<<
             std::endl;
@@ -530,6 +530,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   sleep(2);
   http_mock->stop();
 }
+
 
 void AdminManagerTest::testPostJSONDevices() {
 
@@ -910,7 +911,7 @@ void AdminManagerTest::testPutProtocolDevice(){
   uri_query.append("/device_id_new");
 
   //missing protocol in query
-  std::cout << "@UT@1POST" << std::endl;
+  std::cout << "@UT@1PUT" << std::endl;
   code_res = http_test(uri_query, "PUT", service, "", "application/json",
                        PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -957,5 +958,62 @@ void AdminManagerTest::testPutProtocolDevice(){
   IOTASSERT(code_res == 204);
 
   std::cout << "END@UT@ testPutProtocolDevice" << std::endl;
+
+}
+
+void AdminManagerTest::testPostJSONDeviceErrorHandling(){
+
+  std::cout << "START @UT@START testPostJSONDeviceErrorHandling" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string("");
+
+
+  std::string
+  s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
+       +boost::lexical_cast<std::string>(wserver->get_port())+"/iotagent\","
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+  int code_res;
+  std::string response;
+  std::string service= "s1" ;
+  std::cout << "@UT@service " << service << std::endl;
+
+  std::string uri_query(URI_DEVICES_MANAGEMEMT);
+
+
+  iota::ServiceMgmtCollection table1;
+
+
+  table1.createTableAndIndex();
+
+
+  mongo::BSONObj all;
+
+  table1.remove(all);
+  //Insert endpoint for ss1 service
+  table1.insert(mongo::fromjson(s1_d));
+  //missing protocol in query
+  std::cout << "@UT@1POST" << std::endl;
+  std::multimap<std::string, std::string> query_parameters;
+  query_parameters.insert(std::make_pair<std::string, std::string>("protocol","PDI-IoTA-UltraLight"));
+  query_string = iota::make_query_string(query_parameters);
+  code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+                       POST_DEVICE, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.compare(
+        "{\"reason\":\"There are conflicts, protocol is not correct\",\"details\":\" [ protocol: PDI-IoTA-UltraLight]\"}") == 0);
+
+
+  //Add positive test
+
+//  iota::UL20Service ul20_service;
+
+ // adm->add_service("/iot/d",&ul20_service);
+
+
+
+  std::cout << "END@UT@ testPostJSONDeviceErrorHandling" << std::endl;
 
 }
