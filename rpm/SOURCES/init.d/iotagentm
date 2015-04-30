@@ -1,0 +1,104 @@
+#!/bin/bash
+# Copyright 2015 Telefonica Investigación y Desarrollo, S.A.U
+# 
+# This file is part of fiware-IoTagent-Cplusplus (FI-WARE project).
+# 
+# iotagent manager         Start/Stop iotagent manager
+#
+# chkconfig: 2345 99 60
+# description: iotagent manager
+
+. /etc/rc.d/init.d/functions
+
+PARAM=$1
+NAME=iotagent
+EXECUTABLE=/usr/local/iot/bin/${NAME}
+ENV_FILE=/usr/local/iot/config/${NAME}
+
+# Load the environment
+if [[ -f ${ENV_FILE} ]]; then
+	. ${ENV_FILE}
+else
+   echo "Configuration file ${ENV_FILE} not found"
+   echo "Please read the documentation for information on setting up ${NAME}"
+   exit 1
+fi
+
+# Check if the config.json is loaded
+if [[ ! -f ${IOTAGENT_CONFIG_FILE} ]]; then
+   echo "Configuration file ${IOTAGENT_CONFIG_FILE} not found"
+   echo "Please read the documentation for information on setting up ${NAME}"
+   exit 1
+fi
+
+# Mandatory parameters
+IOTAGENT_OPTS="-m                            \
+			   -n ${IOTAGENT_SERVER_NAME}    \
+			   -v ${IOTAGENT_LOG_LEVEL}      \
+			   -i ${IOTAGENT_SERVER_ADDRESS} \
+			   -p ${IOTAGENT_SERVER_PORT}    \
+			   -d ${IOTAGENT_LIBRARY_DIR}    \
+			   -c ${IOTAGENT_CONFIG_FILE}"
+
+iotagent_start()
+{
+	printf "%-50s" "Starting ${NAME}..."
+	if [[ -x ${EXECUTABLE} ]]; then
+		su ${NAME} -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
+		${EXECUTABLE} ${IOTAGENT_OPTS} &" &> /dev/null 
+		ps -ef | grep ${EXECUTABLE} | grep -v grep | awk '{print $2}' > ${IOTAGENT_PID_FILE}
+		sleep 2 # wait some time to leave iotagent start
+		PID=$(cat ${IOTAGENT_PID_FILE})
+		if [[ -z "${PID}" ]]; then
+			printf "%s" "pidfile not found"
+			printf "%s\n" "$(failure)" 
+			exit 1
+		else
+			printf "%s\n" "$(success)"
+		fi
+	else
+		printf "%s\n" "Fail - missing ${EXECUTABLE} executable"
+		exit 1
+	fi
+}
+
+iotagent_stop()
+{
+	printf "%-50s" "Stopping $NAME..."
+	if [ -f "${IOTAGENT_PID_FILE}" ]; then
+		kill $(cat ${IOTAGENT_PID_FILE})
+		rm -f ${IOTAGENT_PID_FILE}
+		printf "%s\n" "$(success)"
+	else
+		printf "%s\n" "$(failure)"
+	fi
+}
+
+iotagent_status()
+{
+	status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE}
+}
+
+
+case ${PARAM} in
+
+	'start')
+		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} && exit 0
+		iotagent_start
+		;;
+
+	'stop')
+		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} || exit 0
+		iotagent_stop
+		;;
+
+	'restart')
+		iotagent_stop
+		iotagent_start
+		;;
+
+	'status')
+		iotagent_status
+		;;
+
+esac
