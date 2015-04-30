@@ -40,7 +40,7 @@
 namespace iota {
 boost::uuids::random_generator RandomGenerator;
 boost::mutex _mRandomGen;
-unsigned long counter;
+unsigned long counter = 0;
 boost::mt19937 ran(time(NULL));
 boost::uuids::basic_random_generator<boost::mt19937> gen(&ran);
 }
