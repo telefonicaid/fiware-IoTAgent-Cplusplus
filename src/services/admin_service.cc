@@ -696,6 +696,15 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     std::string service_path(http_request_ptr->get_header(
                                iota::types::FIWARE_SERVICEPATH));
 
+    std::string protocol_filter;
+    //Following access to protocol_filter can be taken to a method.
+    std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
+    it = query_parameters.find(iota::store::types::PROTOCOL);
+    if (it != query_parameters.end()) {
+       protocol_filter = it->second;
+    }
+
+
     if (service.empty() || (!service_path.empty() && service_path[0] != '/')) {
       reason.append(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
       error_details.append(iota::types::FIWARE_SERVICE + "/" +
@@ -718,18 +727,13 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     if (method.compare(pion::http::types::REQUEST_METHOD_PUT) == 0) {
       std::string content = http_request_ptr->get_content();
       boost::trim(content);
+
       code = put_device_json(service,  service_path, device_in_url,
-                             content, http_response, response,token);
+                             content, http_response, response,token,protocol_filter);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
 
-      std::string protocol_filter;
-      //Following access to protocol_filter can be taken to a method.
-      std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
-      it = query_parameters.find(iota::store::types::PROTOCOL);
-      if (it != query_parameters.end()) {
-        protocol_filter = it->second;
-      }
+
       code = get_a_device_json(service, service_path, device_in_url, http_response,
                                response,trace_message,token,protocol_filter);
     }
@@ -1568,7 +1572,8 @@ int iota::AdminService::put_device_json(
   const std::string& body,
   pion::http::response& http_response,
   std::string& response,
-  const std::string& x_auth_token) {
+  const std::string& x_auth_token,
+  const std::string& protocol) {
 
   std::string param_request("put_device_json|service=" + service +
                             "|service_path=" +
@@ -1599,15 +1604,9 @@ int iota::AdminService::put_device_json(
                                    iota::store::types::DEVICE_ID << device_id);
 
       std::string entity_name = setbo.getStringField(store::types::ENTITY_NAME);
-      std::string protocol_name = setbo.getStringField(store::types::PROTOCOL_NAME);
-      if (!protocol_name.empty()) {
-        boost::shared_ptr<iota::ServiceCollection> table(new ServiceCollection());
-        if (!check_device_protocol(protocol_name, service, service_path, table)) {
-          throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
-                                    " [ protocol: " + protocol_name + "]",
-                                    iota::types::RESPONSE_CODE_BAD_REQUEST);
-        }
-      }
+
+      // Protocol cannot be modified. Remove this field.
+      setbo.removeField(iota::store::types::PROTOCOL);
       if (!entity_name.empty()) {
         // "entity_name" : 1, "service" : 1, "service_path" : 1
         devTable->find(BSON(store::types::ENTITY_NAME <<  entity_name <<
@@ -2251,18 +2250,22 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
   std::string resource;
   iota::RestHandle* plugin;
   table->fill_all_resources(service_name, service_path, resources);
-
+  PION_LOG_DEBUG(m_log, "Number of elements in resources:" << resources.size());
   for (std::vector<std::string>::iterator it = resources.begin();
        it != resources.end(); ++it) {
     resource = *it;
     plugin = get_service(resource);
+    PION_LOG_DEBUG(m_log, "Checking resource " << resource);
     if (plugin != NULL) {
       iota::ProtocolData pro = plugin->get_protocol_data();
-      std::cout << "protocol::" << pro.protocol << std::endl;
+      PION_LOG_DEBUG(m_log, "Protocol in resource " << pro.protocol);
       if (protocol_name.compare(pro.protocol) ==0) {
         PION_LOG_DEBUG(m_log, "exists plugin:" << protocol_name);
         return true;
       }
+    }
+    else {
+      PION_LOG_ERROR(m_log, "Plugin NULL checking resource " << resource);
     }
   }
 

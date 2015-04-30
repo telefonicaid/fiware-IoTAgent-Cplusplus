@@ -395,7 +395,12 @@ If there are more than one IoT Agent (that is different endpoint), device name c
 
 
 ### Update a device [PUT]
-If you want modify only a field, you can do it. Protocol is mandatory, so that it has to be part of the JSON.
+If you want modify only a field, you can do it, except if field is `protocol`.
+
++ Parameters [protocol]
+
+    + `protocol` (mandatory, string). Modify a devices with a specific protocol.
+
 + Request (application/json)
 
     + Headers
@@ -406,7 +411,6 @@ If you want modify only a field, you can do it. Protocol is mandatory, so that i
     + Body
 
             {
-		"protocol": "55261958d31fc2151cc44c70",
                "entity_name": "entity_name"
             }
 
