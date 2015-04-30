@@ -120,7 +120,8 @@ class AdminService :
       const std::string& content,
       const std::string& error_details,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      bool create_json = false);
 
     pion::http::plugin_server_ptr get_web_server();
 
@@ -262,7 +263,8 @@ class AdminService :
       const std::string& service_path,
       const std::string& id_device,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      std::string token);
 
     /**
        * @name    check_device_protocol
