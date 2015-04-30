@@ -173,7 +173,7 @@ class AdminManagerService : public iota::AdminService {
       std::string token = "");
 
 
-    std::string protocol_from_device(const std::string& json);
+
 
     /**
     @name put_multiple_devices
@@ -193,7 +193,8 @@ class AdminManagerService : public iota::AdminService {
       const std::string& body,
       pion::http::response& http_response,
       std::string& response,
-      const std::string& x_auth_token);
+      const std::string& x_auth_token,
+      const std::string& protocol);
 
 
 
