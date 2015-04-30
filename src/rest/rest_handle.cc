@@ -318,7 +318,7 @@ void iota::RestHandle::receive_event_from_manager(
   if (response_ptr.get() != NULL) {
     code = response_ptr->get_status_code();
   }
-  if (error || code != pion::http::types::RESPONSE_CODE_OK) {
+  if (error || code != pion::http::types::RESPONSE_CODE_CREATED) {
     PION_LOG_ERROR(m_logger,
                    "|resource=" + get_resource() + "|code=" + boost::lexical_cast<std::string>
                    (code) + "|error=" + error.message());
