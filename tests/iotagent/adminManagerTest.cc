@@ -30,6 +30,7 @@
 #include <ctime>
 #include "services/admin_mgmt_service.h"
 #include "util/iota_exception.h"
+#include "util/FuncUtil.h"
 
 #define PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 
@@ -176,11 +177,11 @@ AdminManagerTest::POST_DEVICE_MANAGEMENT1("{\"devices\": "
                            "}]}");
 
 const std::string
-AdminManagerTest::PUT_DEVICE("{\"entity_name\": \"entity_name2\"}");
+AdminManagerTest::PUT_DEVICE("{\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name_mod\"}");
 //
 const std::string
 AdminManagerTest::POST_DEVICE("{\"devices\": "
-                       "[{\"device_id_new\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"device_id_new\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -801,14 +802,14 @@ void AdminManagerTest::testPutJSONDevice_Wrong(){
 
   std::cout << "START @UT@START testPutJSONDevice_Wrong (missing protocol)" << std::endl;
   std::string
-  device_missing_protocol("{\"device_id\": \"device_1\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
+  device_put("{\"device_id\": \"device_1\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
            "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
            "}");
 
-  std::string
-  device_missing_entity("{}");
+  std::string protocol("PDI-Ultra-Light");
+
 
   iota::AdminManagerService manager_service;
   pion::http::response http_response;
@@ -817,14 +818,12 @@ void AdminManagerTest::testPutJSONDevice_Wrong(){
 
 
 
-  CPPUNIT_ASSERT_THROW_MESSAGE ("Missing protocol, Exception expected.", manager_service.put_device_json("s1","/ss1","device_1",device_missing_protocol,http_response,response,token)
+  CPPUNIT_ASSERT_THROW_MESSAGE ("Missing protocol, Exception expected.", manager_service.put_device_json("s1","/ss1","device_1",device_put,http_response,response,token,"")
                                   ,iota::IotaException);
 
 
-  CPPUNIT_ASSERT_THROW_MESSAGE ("Wrong JSON. Exception expected",manager_service.put_device_json("s1","/ss1","device_1",device_missing_entity,http_response,response,token)
-                                  ,iota::IotaException);
 
-  CPPUNIT_ASSERT_THROW_MESSAGE ("Empty Services. Exception expected",manager_service.put_device_json("","/ss1","device_1",device_missing_protocol,http_response,response,token)
+  CPPUNIT_ASSERT_THROW_MESSAGE ("Empty Services. Exception expected",manager_service.put_device_json("","/ss1","device_1",device_put,http_response,response,token,protocol)
                                   ,iota::IotaException);
 
 
@@ -844,7 +843,9 @@ void AdminManagerTest::testPutJSONDevice(){
                           "\"entity_name\": \"entity_put\"}");
 
   std::string device_id("device_id_post");
-
+  std::string trace ("12345");
+  std::string token("");
+  std::string protocol("PDI-IoTA-UltraLight");
   iota::ServiceMgmtCollection table1;
   iota::DeviceCollection table_device;
 
@@ -878,12 +879,10 @@ void AdminManagerTest::testPutJSONDevice(){
                                    response,"");
 
 
-  int res = manager_service.put_device_json("s1","/ss1",device_id,device_put,http_response,response,"");
+  int res = manager_service.put_device_json("s1","/ss1",device_id,device_put,http_response,response,"",protocol);
   CPPUNIT_ASSERT ( res == 204);
   std::cout << "Response " << res << std::endl;
-  std::string trace ("12345");
-  std::string token("");
-  std::string protocol("PDI-IoTA-UltraLight");
+
   manager_service.get_a_device_json("s1","/ss1",device_id,http_response,response,trace,token,protocol);
 
   std::cout << "Getting device: Response: " << response << std::endl;
@@ -902,7 +901,7 @@ void AdminManagerTest::testPutProtocolDevice(){
 
   int code_res;
   std::string response;
-  std::string service= "ss1" ;
+  std::string service= "s1" ;
   std::cout << "@UT@service " << service << std::endl;
 
   std::string uri_query(URI_DEVICES_MANAGEMEMT);
@@ -926,25 +925,31 @@ void AdminManagerTest::testPutProtocolDevice(){
        "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
 
   //Add positive test
-  adm->post_device_json("ss1","/ss1",POST_DEVICE,http_response,response,"1234");
+
+  iota::UL20Service ul20_service;
+
+  adm->add_service("/iot/d",&ul20_service);
+
+
+  //POST Device directly onto endpoint.
+  adm->post_device_json("s1","/ss1",POST_DEVICE,http_response,response,"1234");
 
   iota::ServiceMgmtCollection table1;
 
 
   table1.createTableAndIndex();
 
-  iota::UL20Service ul20_service;
-
-  adm->add_service("/iot/d",&ul20_service);//would this fail?
 
   mongo::BSONObj all;
 
   table1.remove(all);
-
+  //Insert endpoint for ss1 service
   table1.insert(mongo::fromjson(s1_d));
-  query_string.assign("protocol=PDI-IoTA-UltraLight");
 
-  code_res = http_test(uri_query, "PUT", service, "", "application/json",
+  std::multimap<std::string, std::string> query_parameters;
+  query_parameters.insert(std::make_pair<std::string, std::string>("protocol","PDI-IoTA-UltraLight"));
+  query_string = iota::make_query_string(query_parameters);
+  code_res = http_test(uri_query, "PUT", service, "/ss1", "application/json",
                        PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 204);

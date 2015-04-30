@@ -570,7 +570,8 @@ int iota::AdminManagerService::put_device_json(
   const std::string& body,
   pion::http::response& http_response,
   std::string& response,
-  const std::string& token) {
+  const std::string& token,
+  const std::string& protocol) {
 
   PION_LOG_DEBUG(m_log,
                  get_class_name() + ": put_device_json: validating input");
@@ -593,9 +594,11 @@ int iota::AdminManagerService::put_device_json(
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  std::string protocol = protocol_from_device(
-                           body);//Throws exception when not found
-
+  if (protocol.empty()){
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
+                              "protocol parameter is mandatory",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+  }
 
   std::vector<iota::DeviceToBeAdded> v_endpoints_put;
 
@@ -678,40 +681,6 @@ int iota::AdminManagerService::put_multiple_devices(std::vector<DeviceToBeAdded>
 }
 
 
-std::string iota::AdminManagerService::protocol_from_device (const std::string& json){
-
-  rapidjson::Document document;
-  char buffer[json.length()];
-
-  strcpy(buffer, json.c_str());
-  if (document.ParseInsitu<0>(buffer).HasParseError()) {
-    std::ostringstream what;
-    what << "AdminManagerService: ";
-    what << document.GetParseError();
-    what << "[";
-    what << document.GetErrorOffset();
-    what << "]";
-    throw std::runtime_error(what.str());
-
-  }
-
-  if (document.HasMember("protocol")) {
-
-    const rapidjson::Value& protocol = document["protocol"];
-    std::string str_protocol(protocol.GetString());
-    if ("" != str_protocol){
-      return str_protocol;
-    }
-
-  }
-
-
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
-                              "protocol parameter is mandatory in Device JSON",
-                              iota::types::RESPONSE_CODE_BAD_REQUEST);
-
-
-}
 
 std::string iota::AdminManagerService::get_role() {
   return " [working as manager] ";
@@ -1498,21 +1467,3 @@ void iota::AdminManagerService::build_errors(
   builder.appendArray("errors", errors_builder.arr());
 }
 
-void iota::AdminManagerService::check_required_put_parameters(std::multimap<std::string,std::string>& query_params){
-
-  std::string protocol_filter;
-  //Following access to protocol_filter can be taken to a method.
-  std::multimap<std::string, std::string>::iterator it = query_params.begin();
-  it = query_params.find(iota::store::types::PROTOCOL);
-  if (it != query_params.end()) {
-        protocol_filter = it->second;
-        if (!protocol_filter.empty()){
-          return;
-        }
-  }
-
-   throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
-                              "protocol parameter is mandatory",
-                              iota::types::RESPONSE_CODE_BAD_REQUEST);
-
-}

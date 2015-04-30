@@ -205,7 +205,8 @@ class AdminService :
       const std::string& body,
       pion::http::response& http_response,
       std::string& response,
-      const std::string& x_auth_token = "");
+      const std::string& x_auth_token = "",
+      const std::string& protocol ="");
 
     /**
        * @name    post_json
