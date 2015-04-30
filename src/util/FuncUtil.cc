@@ -41,6 +41,8 @@ namespace iota {
 boost::uuids::random_generator RandomGenerator;
 boost::mutex _mRandomGen;
 unsigned long counter;
+boost::mt19937 ran(time(NULL));
+boost::uuids::basic_random_generator<boost::mt19937> gen(&ran);
 }
 
 std::vector<std::string> iota::riot_tokenizer(std::string& str,
@@ -80,10 +82,12 @@ std::string iota::riot_uuid(void) {
   boost::mutex::scoped_lock lck(iota::_mRandomGen);
 
   // This is the way boost says avoid a false positive in valgrind
+  /*
   boost::mt19937 ran;
   ran.seed(time(NULL));
   boost::uuids::basic_random_generator<boost::mt19937> gen(&ran);
-  boost::uuids::uuid u = gen();
+  */
+  boost::uuids::uuid u = iota::gen();
   if (counter >= ULONG_MAX) {
     counter = 0;
   }
