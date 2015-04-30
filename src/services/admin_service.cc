@@ -696,6 +696,15 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     std::string service_path(http_request_ptr->get_header(
                                iota::types::FIWARE_SERVICEPATH));
 
+    std::string protocol_filter;
+    //Following access to protocol_filter can be taken to a method.
+    std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
+    it = query_parameters.find(iota::store::types::PROTOCOL);
+    if (it != query_parameters.end()) {
+       protocol_filter = it->second;
+    }
+
+
     if (service.empty() || (!service_path.empty() && service_path[0] != '/')) {
       reason.append(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
       error_details.append(iota::types::FIWARE_SERVICE + "/" +
@@ -718,18 +727,13 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     if (method.compare(pion::http::types::REQUEST_METHOD_PUT) == 0) {
       std::string content = http_request_ptr->get_content();
       boost::trim(content);
+
       code = put_device_json(service,  service_path, device_in_url,
-                             content, http_response, response,token);
+                             content, http_response, response,token,protocol_filter);
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_GET) == 0) {
 
-      std::string protocol_filter;
-      //Following access to protocol_filter can be taken to a method.
-      std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
-      it = query_parameters.find(iota::store::types::PROTOCOL);
-      if (it != query_parameters.end()) {
-        protocol_filter = it->second;
-      }
+
       code = get_a_device_json(service, service_path, device_in_url, http_response,
                                response,trace_message,token,protocol_filter);
     }
@@ -1563,7 +1567,8 @@ int iota::AdminService::put_device_json(
   const std::string& body,
   pion::http::response& http_response,
   std::string& response,
-  const std::string& x_auth_token) {
+  const std::string& x_auth_token,
+  const std::string& protocol) {
 
   std::string param_request("put_device_json|service=" + service +
                             "|service_path=" +

@@ -205,7 +205,8 @@ class AdminService :
       const std::string& body,
       pion::http::response& http_response,
       std::string& response,
-      const std::string& x_auth_token = "");
+      const std::string& x_auth_token = "",
+      const std::string& protocol ="");
 
     /**
        * @name    post_json
@@ -450,6 +451,7 @@ class AdminService :
 
   private:
 
+    virtual void check_required_put_parameters(std::multimap<std::string, std::string>& query_parameters){};
 
     void remove_from_cache(Device& device);
     void check_uri(const std::string& data);
