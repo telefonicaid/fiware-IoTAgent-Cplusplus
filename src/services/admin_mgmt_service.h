@@ -172,6 +172,13 @@ class AdminManagerService : public iota::AdminService {
       std::string& response,
       std::string token = "");
 
+    virtual int delete_device_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& id_device,
+      pion::http::response& http_response,
+      std::string& response,
+      std::string token);
 
 
 
@@ -184,6 +191,10 @@ class AdminManagerService : public iota::AdminService {
     int put_multiple_devices(std::vector<DeviceToBeAdded>&
                                       v_devices_endpoint_in,const std::string& idDevice,std::string service,std::string sub_service,
                                       std::string x_auth_token,std::string&);
+
+    int delete_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
+                        const std::string& device_id, std::string service,
+                        std::string sub_service, std::string x_auth_token);
 
 
     virtual int put_device_json(

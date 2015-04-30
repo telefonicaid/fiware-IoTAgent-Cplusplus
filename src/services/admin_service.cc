@@ -739,7 +739,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_DELETE) == 0) {
       code = delete_device_json(service, service_path,
-                                device_in_url, http_response, response);
+                                device_in_url, http_response, response, token);
     }
     else {
       code = iota::types::RESPONSE_CODE_METHOD_NOT_ALLOWED;
@@ -1217,7 +1217,8 @@ int iota::AdminService::create_response(
   const std::string& content,
   const std::string& error_details,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  bool create_json) {
   std::ostringstream stream;
   if (status_code >= 299) {
     if (!content.empty() && !error_details.empty()) {
@@ -1227,7 +1228,11 @@ int iota::AdminService::create_response(
       response.assign(stream.str());
     }
   }
-  else {
+  else if (create_json && !content.empty()){
+    stream << "{"
+             <<   "\"reason\":\"" << content << "\"}";
+    response.assign(stream.str());
+  }else{
     response.assign(content);
   }
 
@@ -1747,10 +1752,10 @@ int iota::AdminService::get_a_device_json(
   }
   else {
     code = iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND;
-    response = iota::types::RESPONSE_MESSAGE_NO_DEVICE;
+    res << iota::types::RESPONSE_MESSAGE_NO_DEVICE;
   }
 
-  return create_response(code, res.str(), "", http_response, response);
+  return create_response(code, res.str(), device_id, http_response, response, true);
 
 }
 
@@ -1759,7 +1764,8 @@ int iota::AdminService::delete_device_json(
   const std::string& service_path,
   const std::string& id_device,
   pion::http::response& http_response,
-  std::string& response) {
+  std::string& response,
+  std::string token) {
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string param_request("delete_device_json|service=" + service +
                             "|service_path=" +
