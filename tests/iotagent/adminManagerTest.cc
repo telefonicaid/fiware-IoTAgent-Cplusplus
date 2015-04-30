@@ -519,10 +519,6 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   http_mock->stop();
 }
 
-/**
-There's something wrong with the protocol provisioning. Check again once Fago has tested his code.
-*/
-
 void AdminManagerTest::testPostJSONDevices() {
 
   std::string
@@ -572,7 +568,13 @@ void AdminManagerTest::testPostJSONDevices() {
   q1._service_path.assign("/ss1");
   int code = table_device.findd(q1);
   std::cout << "DEVICE FOUND?: " << (code < 0?"NO":"YES") << std::endl;
-  //TODO CPPUNIT_ASSERT(code >= 0);
+  CPPUNIT_ASSERT(code >= 0);
+
+  std::cout << "Test delete STARTING" << std::endl;
+  manager_service.delete_device_json("s1","/ss1","device_id_post",http_response,
+                                   response,"");
+
+
   std::cout << "Test testPostJSONDevices DONE" << std::endl;
 
 }
