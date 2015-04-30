@@ -82,7 +82,7 @@ Ul20Test::POST_SERVICE("{\"services\": [{"
 
 const std::string
 Ul20Test::POST_DEVICE_SIN("{\"devices\": "
-                       "[{\"device_id\": \"dev_SIN\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"dev_SIN\", \"protocol\": \"PDI-IoTA-UltraLight\", \"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"dev_SIN@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -90,7 +90,7 @@ Ul20Test::POST_DEVICE_SIN("{\"devices\": "
 
 const std::string
 Ul20Test::POST_DEVICE_SIN_ENTITY_NAME("{\"devices\": "
-                       "[{\"device_id\": \"dev_SIN_ENTITY_NAME\",\"entity_type\": \"type_SIN_ENTITY_NAME\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"dev_SIN_ENTITY_NAME\",\"protocol\": \"PDI-IoTA-UltraLight\", \"entity_type\": \"type_SIN_ENTITY_NAME\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"dev_SIN_ENTITY_NAME@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -98,7 +98,7 @@ Ul20Test::POST_DEVICE_SIN_ENTITY_NAME("{\"devices\": "
 
 const std::string
 Ul20Test::POST_DEVICE_SIN_ENTITY_TYPE("{\"devices\": "
-                       "[{\"device_id\": \"dev_SIN_ENTITY_TYPE\",\"entity_name\": \"ent_SIN_ENTITY_TYPE\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"dev_SIN_ENTITY_TYPE\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"ent_SIN_ENTITY_TYPE\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"dev_SIN_ENTITY_TYPE@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -106,7 +106,7 @@ Ul20Test::POST_DEVICE_SIN_ENTITY_TYPE("{\"devices\": "
 
 const std::string
 Ul20Test::POST_DEVICE("{\"devices\": "
-                       "[{\"device_id\": \"device_id\",\"entity_name\": \"room_ut1\",\"entity_type\": \"type2\",\"endpoint\": \"http://127.0.0.1:9999/device\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut1\",\"entity_type\": \"type2\",\"endpoint\": \"http://127.0.0.1:9999/device\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"device_id@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -114,21 +114,21 @@ Ul20Test::POST_DEVICE("{\"devices\": "
 
 const std::string
 Ul20Test::POST_DEVICE2("{\"devices\": "
-                       "[{\"device_id\": \"device_id\",\"entity_name\": \"room_ut1\",\"entity_type\": \"type2\",\"endpoint\": \"http://127.0.0.1:9999/device\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut1\",\"entity_type\": \"type2\",\"endpoint\": \"http://127.0.0.1:9999/device\",\"timezone\": \"America/Santiago\","
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
 
 const std::string
 Ul20Test::POST_DEVICE_CON("{\"devices\": "
-                       "[{\"device_id\": \"unitTest_dev3_polling\",\"entity_name\": \"room_ut3\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"unitTest_dev3_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut3\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"unitTest_dev3_polling@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
 const std::string
 Ul20Test::POST_DEVICE_CON2("{\"devices\": "
-                       "[{\"device_id\": \"unitTest_dev32_polling\",\"entity_name\": \"room_ut32\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"unitTest_dev32_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut32\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"unitTest_dev32_polling@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -2278,6 +2278,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
   iota::AdminService adminserv;
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
+  adminserv.add_service("/iot/d", &ul20serv);
 
   boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
 
@@ -2295,7 +2296,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
   apikey.append(mock_port);
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port  % mock_port);
   code_res = adminserv.post_service_json( col, service, subservice, postSRV,
-                     http_response, response);
+                     http_response, response, "1234", "5678");
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
@@ -2370,8 +2371,9 @@ void Ul20Test::testPUSHCommand_MONGO() {
   }
 
   std::cout << "@UT@DELETE Service" << std::endl;
+  std::string token, trace_message;
   code_res = adminserv.delete_service_json(col, service, "/", service, apikey, "/iot/d", true,
-                     http_response, response);
+                     http_response, response, token, trace_message);
 
 
   cb_mock->stop();
@@ -2446,7 +2448,7 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   std::cout << "@UT@POST create Service" << std::endl;
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
   code_res = adminserv.post_service_json(col, service, subservice, postSRV,
-                     http_response, response);
+                     http_response, response, "1234", "5678");
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
@@ -2550,8 +2552,9 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   }
 
   std::cout << "@UT@DELETE Service" << std::endl;
+  std::string token, trace_message;
   code_res = adminserv.delete_service_json(col, service, "/", service, "apikey", "/iot/d", true,
-                     http_response, response);
+                     http_response, response, token, trace_message);
 
   cb_mock->stop();
   device_mock->stop();
@@ -2566,6 +2569,10 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
   pion::http::response http_response;
   std::string response;
   iota::AdminService adminserv;
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+  // asociamos
+  adminserv.add_service("/iot/d", &ul20serv);
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
   start_cbmock(cb_mock, "mongodb");
@@ -2581,7 +2588,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
 
   std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
   int code_res = adminserv.post_service_json( col, service, subservice, postSRV,
-                         http_response, response);
+                         http_response, response, "1234", "5678");
 
   std::cout << "@UT@First command" <<  service << std::endl;
   testPollingCommand_MONGO("unitTest_dev3_polling",
@@ -2591,8 +2598,9 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
        "room_ut32", "type2", POST_DEVICE_CON2, cb_mock);
 
   std::cout << "@UT@DELETE Service" << std::endl;
+  std::string token, trace_message;
   code_res = adminserv.delete_service_json(col, service, subservice, service, "apikey", "/iot/d", true,
-                         http_response, response);
+                         http_response, response, token, trace_message);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 204);
 
@@ -2656,7 +2664,8 @@ void Ul20Test::testPollingCommand_MONGO(
   iota::AdminService adminserv;
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
-
+  // asociamos
+  adminserv.add_service("/iot/d", &ul20serv);
   std::string response;
   int code_res;
   std::string service= "service" ;
@@ -2674,7 +2683,7 @@ void Ul20Test::testPollingCommand_MONGO(
 
       std::string postSRV = boost::str(boost::format(POST_SERVICE) % mock_port % mock_port);
       code_res = adminserv.post_service_json( col, service, subservice, postSRV,
-                         http_response, response);
+                         http_response, response, "1234", "5678");
       std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
       IOTASSERT(code_res == POST_RESPONSE_CODE);
   }
@@ -2842,8 +2851,9 @@ void Ul20Test::testPollingCommand_MONGO(
   if (create_mock.get() == NULL){
       std::cout << "@UT@Delete Service" << std::endl;
 
+      std::string token, trace_message;
       code_res = adminserv.delete_service_json(  col, service, subservice, service, apikey, "/iot/d", true,
-                         http_response, response);
+                         http_response, response, token, trace_message);
       std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
       IOTASSERT(code_res == 204);
   }

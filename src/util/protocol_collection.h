@@ -62,6 +62,8 @@ class ProtocolCollection : public Collection {
     virtual const std::string &getPostSchema() const;
     virtual const std::string &getPutSchema() const;
 
+    std::vector<iota::Protocol> get_endpoint_by_protocol(std::string protocol);
+
   protected:
 
     iota::Protocol BSON2Obj(const mongo::BSONObj& obj);

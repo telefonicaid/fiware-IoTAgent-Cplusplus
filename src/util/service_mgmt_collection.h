@@ -65,6 +65,8 @@ class ServiceMgmtCollection : public ServiceCollection {
     virtual void getElementsFromBSON(mongo::BSONObj &obj,
                            std::vector<mongo::BSONObj>& result);
 
+    virtual const std::string & get_resource_name();
+
   protected:
 
 
@@ -73,6 +75,7 @@ class ServiceMgmtCollection : public ServiceCollection {
   private:
 
     static const std::string _POST_SCHEMA;
+    static const std::string _PUT_SCHEMA;
 
 }; // end class ServiceCollection
 

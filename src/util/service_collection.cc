@@ -69,6 +69,10 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 
 }*/
 
+const std::string & iota::ServiceCollection::get_resource_name(){
+  return iota::store::types::RESOURCE;
+}
+
 int iota::ServiceCollection::fill_all_resources(const std::string& service,
                                                  const std::string& service_path,
                                                  std::vector<std::string>& resources) {
@@ -82,13 +86,12 @@ int iota::ServiceCollection::fill_all_resources(const std::string& service,
   find(query, field_return);
   mongo::BSONObj obj;
   std::string resource;
-  if (more()) {
+  while(more()) {
     obj =  next();
     std::cout << obj << std::endl;
     resource = obj.getStringField(iota::store::types::RESOURCE);
     if (!resource.empty()){
         resources.push_back(resource);
-        std::cout << "push_back" << resource << std::endl;
         result++;
       }
   }

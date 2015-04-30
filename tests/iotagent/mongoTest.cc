@@ -43,6 +43,7 @@
 #define  PATH_CONFIG "../../tests/iotagent/config_mongo.json"
 #define  PATH_BAD_CONFIG "../../tests/iotagent/config_bad_mongo.json"
 #define  PATH_REPLICA_CONFIG "../../tests/iotagent/config_mongo_replica.json"
+#define  PATH_NO_MONGO_CONFIG "../../tests/iotagent/config_no_mongo.json"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MongoTest);
 
@@ -321,8 +322,35 @@ void MongoTest::testReplica() {
   std::cout << "END testReplica" << std::endl;
 }
 
+void MongoTest::testMongoAlone() {
+  std::cout << "START testReplica" << std::endl;
+
+  iota::Configurator::initialize(PATH_NO_MONGO_CONFIG);
+  int num_threads=1;
+  const char * val = ::getenv( "UNIT_TEST_THREADS" );
+  if ( val != 0 ) {
+      num_threads = boost::lexical_cast<int>(val);
+  }
+  int milis_threads=1;
+  const char * valmilis = ::getenv( "UNIT_TEST_MILLIS" );
+  if ( valmilis != 0 ) {
+      milis_threads = boost::lexical_cast<int>(valmilis);
+  }
+
+  boost::thread_group g;
+  std::cout << "nonum threads:" << num_threads << " milis: " << milis_threads << std::endl;
+  for (int i =0; i < num_threads; i++){
+    g.add_thread(new boost::thread(MongoTest::workerFunc));
+    boost::this_thread::sleep(boost::posix_time::milliseconds(milis_threads));
+  }
+
+  g.join_all();
+  std::cout << "END testReplica" << std::endl;
+}
+
 void MongoTest::workerFunc(){
   std::cout << "START workerFunc" << std::endl;
+  try{
   iota::Collection table1("PRUEBA");
 
   mongo::BSONObj p = BSON("name" << "Joe" << "desc" << "ssss");
@@ -338,7 +366,9 @@ void MongoTest::workerFunc(){
   if (q1.more()){
       q1.next();
   }
-
+  }catch(std::exception exc){
+    std::cout << "ERROR " << exc.what() << std::endl;
+  }
   std::cout << "END workerFunc " << std::endl;
 }
 

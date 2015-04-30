@@ -19,29 +19,51 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_TESTS_IOTAGENT_ADMINMGMTEST_H_
-#define SRC_TESTS_IOTAGENT_ADMINMGMTEST_H_
+#ifndef SRC_TESTS_ADMIN_MANAGERTEST_H_
+#define	SRC_TESTS_ADMIN_MANAGERTEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
+
+
+
+#include "gmock/gmock.h"
+#include "gtest/gtest.h"
+
+#include "../mocks/http_mock.h"
+
+#include <boost/property_tree/ptree.hpp>
+#include <pion/logger.hpp>
+#include <pion/logger.hpp>
+#include "services/admin_mgmt_service.h"
 #include "services/admin_service.h"
-#include <mongo/client/dbclient.h>
-#include <mongo/client/dbclientcursor.h>
 
-class AdminMgmTest : public CPPUNIT_NS::TestFixture {
-    CPPUNIT_TEST_SUITE(AdminMgmTest);
+#include "util/service_collection.h"
+#include "ultra_light/ul20_service.h"
 
+
+class AdminManagerTest : public CPPUNIT_NS::TestFixture {
+    CPPUNIT_TEST_SUITE(AdminManagerTest);
+    CPPUNIT_TEST(testDeviceToBeAdded);
+    CPPUNIT_TEST(testGetEndpointsFromDevices);
+    CPPUNIT_TEST(testAddDevicesToEndpoints);
+    CPPUNIT_TEST(testGetDevices);
+    CPPUNIT_TEST(testMultiplePostsWithResponse);
     CPPUNIT_TEST(testProtocol_ServiceManagement);
     CPPUNIT_TEST(testBADServiceManagement);
 
+    CPPUNIT_TEST(testPostJSONDevices);
+    CPPUNIT_TEST(testPutJSONDevice);
+    CPPUNIT_TEST(testPutJSONDevice_Wrong);
+
     CPPUNIT_TEST_SUITE_END();
 
-  public:
-    AdminMgmTest();
-    virtual ~AdminMgmTest();
+public:
+    AdminManagerTest();
+    virtual ~AdminManagerTest();
     void setUp();
     void tearDown();
 
-    static const std::string HOST;
+        static const std::string HOST;
     static const std::string CONTENT_JSON;
 
     static const int POST_RESPONSE_CODE;
@@ -57,11 +79,13 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
     static const std::string POST_PROTOCOLS2;
     static const std::string POST_PROTOCOLS3;
     static const std::string POST_PROTOCOLS4;
+    static const std::string POST_PROTOCOLS2_RERE;
     static const std::string GET_PROTOCOLS_RESPONSE;
 
     // SERVICE_MANAGEMENT
     static const std::string URI_SERVICES_MANAGEMET;
     static const std::string POST_SERVICE_MANAGEMENT1;
+    static const std::string PUT_SERVICE_MANAGEMENT1;
     static const std::string POST_SERVICE_MANAGEMENT2;
     static const std::string POST_BAD_SERVICE_MANAGEMENT1;
     static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
@@ -82,15 +106,33 @@ class AdminMgmTest : public CPPUNIT_NS::TestFixture {
                   const std::string& query_string,
                   std::string& response);
 
-  private:
+
+protected:
+
+  void testDeviceToBeAdded();
+  void testGetEndpointsFromDevices();
+  void testAddDevicesToEndpoints();
+  void testGetDevices();
+  void testMultiplePostsWithResponse();
+  void testPostJSONDevices();
+
+  void testPutJSONDevice_Wrong();
+  void testPutJSONDevice();
+
+private:
+    void cleanDB();
 
     void testProtocol_ServiceManagement();
     void testBADServiceManagement();
 
     iota::AdminService* adm;
+    iota::AdminManagerService* admMgm;
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
+
+
+
 };
 
-#endif
+#endif	/* _H */
 

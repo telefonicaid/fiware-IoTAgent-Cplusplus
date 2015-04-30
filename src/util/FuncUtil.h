@@ -57,7 +57,8 @@ bool isEqualString(bool case_sensitive, std::string str1, std::string str2);
 std::string str_to_hex(std::string& fr);
 std::string str_to_hex(boost::asio::mutable_buffer& fr);
 std::string writeDictionaryTerm(pion::http::response& resp_http);
-
+std::string make_query_string(std::multimap<std::string, std::string>&
+                                    query_parameters);
 };
 
 #endif

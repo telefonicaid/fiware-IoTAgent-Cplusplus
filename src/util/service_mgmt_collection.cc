@@ -161,6 +161,7 @@ const std::string iota::ServiceMgmtCollection::_POST_SCHEMA(
   "}");
 
 
+
 int iota::ServiceMgmtCollection::createTableAndIndex() {
 
   int res = 200;
@@ -260,6 +261,7 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   return result;
 }
 
+
 void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
                                 std::vector<mongo::BSONObj> &result){
 
@@ -297,4 +299,8 @@ void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
          }
       }
    }
+}
+
+const std::string & iota::ServiceMgmtCollection::get_resource_name(){
+  return iota::store::types::PROTOCOL;
 }

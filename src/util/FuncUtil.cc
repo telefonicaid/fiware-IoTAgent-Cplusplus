@@ -39,7 +39,8 @@
 #include <pion/algorithm.hpp>
 
 
-std::vector<std::string> iota::riot_tokenizer(std::string& str, std::string& sep) {
+std::vector<std::string> iota::riot_tokenizer(std::string& str,
+    std::string& sep) {
 
   // Aplica el tokenizer boost
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
@@ -84,7 +85,8 @@ std::string iota::riot_uuid(void) {
   return ss.str();
 };
 
-bool iota::riot_getQueryParams(std::string q_str, std::vector<iota::KVP>& q_param) {
+bool iota::riot_getQueryParams(std::string q_str,
+                               std::vector<iota::KVP>& q_param) {
   if (q_str.empty()) {
     return false;
   }
@@ -178,7 +180,8 @@ bool iota::isControl(int c) {
   return ((c >= 0 && c <= 31) || c == 127);
 };
 
-bool iota::isEqualString(bool case_sensitive, std::string str1, std::string str2) {
+bool iota::isEqualString(bool case_sensitive, std::string str1,
+                         std::string str2) {
   if (str1.size() == str2.size()) {
     if (case_sensitive == true) {
       if (str1.compare(str2) == 0) {
@@ -224,6 +227,26 @@ std::string iota::writeDictionaryTerm(pion::http::response& resp_http) {
     echo.append(val->first + ":" + val->second + "\n");
   }
   return echo;
+}
+
+std::string iota::make_query_string(std::multimap<std::string, std::string>&
+                                    query_parameters) {
+  std::string query_string;
+  std::map<std::string, std::string>::iterator it = query_parameters.begin();
+  int i = 0;
+  while (it != query_parameters.end()) {
+    if (!it->second.empty()) {
+      if (i != 0) {
+        query_string += '&';
+      }
+      query_string += pion::algorithm::url_encode(it->first);
+      query_string += '=';
+      query_string += pion::algorithm::url_encode(it->second);
+      ++i;
+    }
+    ++it;
+  }
+  return query_string;
 }
 
 //FF

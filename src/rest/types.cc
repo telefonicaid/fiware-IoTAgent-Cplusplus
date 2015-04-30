@@ -42,7 +42,7 @@ const std::string types::CONF_FILE_FILE_NAME("FileName");
 const std::string types::CONF_FILE_TIMEOUT("timeout");
 const std::string types::CONF_FILE_DIR_LOG("dir_log");
 const std::string types::CONF_FILE_TIMEZONES("timezones");
-
+const std::string types::CONF_FILE_TCP_SERVERS("tcp_servers");
 const std::string types::CONF_FILE_IOTA_MANAGER("iota_manager");
 
 
@@ -193,17 +193,21 @@ const unsigned int types::RESPONSE_CODE_DATA_NOT_FOUND  =404;
 ///ALARMS
 const unsigned int types::ALARM_CODE_NO_MONGO = 100;
 const unsigned int types::ALARM_CODE_NO_CB = 200;
+const unsigned int types::ALARM_CODE_NO_IOTA = 300;
 
 const std::string
 types::ALARM_MESSAGE_NO_MONGO("couldn't connect to mongo ");
 const std::string
 types::ALARM_MESSAGE_NO_CB("couldn't connect to context broker ");
+const std::string
+types::ALARM_MESSAGE_NO_IOTA("couldn't connect to IoTA ");
 
 const std::string types::ERROR_DELIMITER = "@@ERROR_DELIMITER@@";
 const std::string types::ERROR_BAD_REQUEST = "@@ERROR_BAD_REQUEST@@";
 
 const std::string types::HEADER_TRACE_MESSAGES("X-Trace-Message");
 const std::string types::HEADER_OUTGOING_ROUTE("X-M2M-Outgoing-Route");
+const std::string types::HEADER_INTERNAL_TYPE("X-Async-Internal");
 
 const std::string types::STAT_TRAFFIC("traffic");
 const std::string types::STAT_TRAFFIC_IN("in");

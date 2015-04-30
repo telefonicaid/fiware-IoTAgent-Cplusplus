@@ -29,6 +29,8 @@
 #include <log4cplus/fileappender.h>
 #include "util/common.h"
 #include "mongo/client/init.h"
+#include "rest/tcp_service.h"
+#include "services/admin_mgmt_service.h"
 
 namespace iota {
 std::string logger = "main";
@@ -311,25 +313,59 @@ int main(int argc, char* argv[]) {
           pion_scheduler,
           cfg_endpoint));
 
+    // Map to store tcp servers
+    std::map<boost::asio::ip::tcp::endpoint, pion::tcp::server_ptr> tcp_servers;
+    try {
+      const iota::JsonValue& tcp_s = iota::Configurator::instance()->get(
+                                             iota::types::CONF_FILE_TCP_SERVERS.c_str());
+      if (!tcp_s.IsArray()) {
+        PION_LOG_ERROR(main_log, "ERROR in Config File " << service_config_file <<
+                       " Configuration error [tcp_servers]");
 
+      }
+      else {
+
+        try {
+          for (rapidjson::SizeType it_r = 0; it_r < tcp_s.Size(); it_r++) {
+
+            std::string endpoint(tcp_s[it_r].GetString());
+            std::size_t p_points = endpoint.find(':');
+            boost::asio::ip::address address = boost::asio::ip::address::from_string(endpoint.substr(0, p_points));
+            boost::asio::ip::tcp::endpoint e(address, boost::lexical_cast<unsigned short>(endpoint.substr(p_points+1)));
+            PION_LOG_DEBUG(main_log, "tcp server: "  << e.address() << ":" << e.port());
+            pion::tcp::server_ptr tcp_server(new iota::TcpService(e));
+            tcp_servers[e] = tcp_server;
+          }
+        }
+        catch (std::exception& e) {
+          PION_LOG_FATAL(main_log, e.what());
+        }
+      }
+    }
+    catch (std::exception& e) {
+      PION_LOG_ERROR(main_log, e.what());
+    }
     // static service
-    AdminService_ptr = new iota::AdminService(web_server);
+
+    if (manager){
+      AdminService_ptr = new iota::AdminManagerService(web_server);
+    }else{
+      AdminService_ptr = new iota::AdminService(web_server);
+    }
+
     AdminService_ptr->set_log_file(log_file);
     // Argument with url-base
     std::string adm_service_url(iota::URL_BASE);
     web_server->add_service(adm_service_url, AdminService_ptr);
 
-    if (!manager) {
-      iota::NgsiService* ngsi_ptr = new iota::NgsiService();
-      std::string url_ngsi_common(iota::URL_BASE);
-      url_ngsi_common.append("/");
-      url_ngsi_common.append(iota::NGSI_SERVICE);
-      web_server->add_service(url_ngsi_common, ngsi_ptr);
-      AdminService_ptr->add_service(url_ngsi_common, ngsi_ptr);
-    }
-    else {
-      AdminService_ptr->set_manager();
-    }
+
+    iota::NgsiService* ngsi_ptr = new iota::NgsiService();
+    std::string url_ngsi_common(iota::URL_BASE);
+    url_ngsi_common.append("/");
+    url_ngsi_common.append(iota::NGSI_SERVICE);
+    web_server->add_service(url_ngsi_common, ngsi_ptr);
+    AdminService_ptr->add_service(url_ngsi_common, ngsi_ptr);
+
 
     if (ssl_flag) {
 #ifdef PION_HAVE_SSL

@@ -25,6 +25,19 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "services/admin_service.h"
 
+class TestPlugin:
+  public iota::RestHandle {
+  public:
+    TestPlugin() {};
+    virtual ~TestPlugin() {};
+    virtual iota::ProtocolData get_protocol_data() {
+      iota::ProtocolData protocol_data;
+      protocol_data.description = "Ultra Light Propietary Protocol";
+      protocol_data.protocol = "PDI-IoTA-UltraLight";
+      return protocol_data;
+    };
+};
+
 class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminTest);
 
@@ -67,7 +80,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     static const std::string BAD_PROTOCOL_POST_DEVICE;
     static const std::string BAD_POST_DEVICE;
     static const std::string BAD_POST_DEVICE2;
-     static const std::string BAD_POST_DEVICE3;
+    static const std::string BAD_POST_DEVICE3;
     static const int POST_RESPONSE_CODE;
     static const std::string POST_RESPONSE;
     static const std::string POST_DEVICE_NO_DEVICE_ID;
@@ -172,6 +185,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
+    TestPlugin plugin;
 };
 
 #endif
