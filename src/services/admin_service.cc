@@ -1226,11 +1226,6 @@ int iota::AdminService::create_response(
              <<   "\"details\":\"" << error_details << "\"}";
       response.assign(stream.str());
     }
-  }
-  else if (!content.empty()){
-    stream << "{"
-             <<   "\"reason\":\"" << content << "\"}";
-    response.assign(stream.str());
   }else{
     response.assign(content);
   }
