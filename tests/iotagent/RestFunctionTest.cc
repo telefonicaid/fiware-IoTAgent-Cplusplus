@@ -24,6 +24,7 @@
 #include "rest/iot_statistic.h"
 #include "rest/iot_duration.h"
 #include "rest/iot_stat_value.h"
+#include "util/FuncUtil.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(RestFunctionTest);
 
@@ -184,4 +185,10 @@ void RestFunctionTest::testStatistic() {
 
 void RestFunctionTest::testFilter() {
 
+}
+
+void RestFunctionTest::testUuid() {
+  std::string uuid_1 = iota::riot_uuid("/iot");
+  std::string uuid_2 = iota::riot_uuid("/iot");
+  CPPUNIT_ASSERT_MESSAGE("Different uuid ", uuid_1.compare(uuid_2) != 0);
 }
