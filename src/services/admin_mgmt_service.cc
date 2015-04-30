@@ -76,7 +76,10 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
     what << "[";
     what << document.GetErrorOffset();
     what << "]";
-    throw std::runtime_error(what.str());
+
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                              what.str(),
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
 
   }
 
@@ -87,7 +90,10 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
     const rapidjson::Value& devices = document["devices"];
     if (!devices.IsArray()) {
 
-      throw std::runtime_error("AdminManagerService: not proper formatted [devices]: not an array");
+
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                              "not proper formatted [devices]: not an array",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
 
     }
     PION_LOG_DEBUG(m_log, "resolve_endpoints: size of elements [" << devices.Size()
@@ -127,7 +133,10 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
     }
   }
   else {
-    throw std::runtime_error("AmdinManagerService: not proper formatted [devices] : not found");
+
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                              "not proper formatted [devices] : not found",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
 
@@ -141,11 +150,11 @@ int iota::AdminManagerService::operation_device_iotagent(std::string url_iotagen
   boost::shared_ptr<iota::HttpClient> http_client;
   pion::http::response_ptr http_response;
 
-  response.assign("{\"reason\":\"Generic error\"}");
+  response.assign("");
 
   int code_res = 404;
   try {
-    iota::IoTUrl                 dest(url_iotagent);
+    iota::IoTUrl  dest(url_iotagent);
     std::string resource = dest.getPath();
     std::string query    = dest.getQuery();
     std::string server   = dest.getHost();
@@ -189,6 +198,7 @@ int iota::AdminManagerService::operation_device_iotagent(std::string url_iotagen
     PION_LOG_ERROR(m_log, e.what());
     iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, url_iotagent,
                        iota::types::ERROR, e.what());
+
   }
   // TODO check remove (sync)
   //remove_connection(http_client);
@@ -196,9 +206,12 @@ int iota::AdminManagerService::operation_device_iotagent(std::string url_iotagen
     code_res = http_response->get_status_code();
     response.assign(http_response->get_content());
     PION_LOG_DEBUG(m_log,"Response: CODE: "<<code_res);
+    return code_res;
   }
-  return code_res;
 
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NONE,
+                              "No response from iotagent: "+url_iotagent,
+                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
 
 }
 
@@ -531,7 +544,7 @@ void iota::AdminManagerService::receive_get_devices(
   std::string sub_service, std::string x_auth_token) {
 
 
-
+  std::string response;
   std::string log_message("|service=" + service+"|sub_service="+sub_service);
   PION_LOG_DEBUG(m_log, log_message);
 
@@ -550,7 +563,7 @@ void iota::AdminManagerService::receive_get_devices(
 
     int res = operation_device_iotagent(url_endpoint,content,service,
                                   sub_service,x_auth_token,
-                                  pion::http::types::REQUEST_METHOD_DELETE);
+                                  pion::http::types::REQUEST_METHOD_DELETE,response);
 
     if (code < 400 && res >= code){
       code = res;
@@ -727,7 +740,7 @@ int iota::AdminManagerService::put_device_json(
   }
   else {
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
-                              "",
+                              error_details,
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
   return http_response.get_status_code();
