@@ -365,6 +365,7 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
   // Add header to trace
   http_request_ptr->add_header(iota::types::HEADER_TRACE_MESSAGES,
                                riot_uuid(get_resource()));
+  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
   if (_pre_filters.size() > 0) {
     execute_filters(http_request_ptr, tcp_conn, 0);
   }
@@ -376,7 +377,7 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
 void iota::RestHandle::execute_filters(
   pion::http::request_ptr& http_request_ptr, pion::tcp::connection_ptr& tcp_conn,
   int num_filter, int status) {
-
+  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
   PION_LOG_DEBUG(m_logger, "execute_filters status:  " << status);
 
   if (status != iota::types::RESPONSE_CODE_OK) {
@@ -410,7 +411,7 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
     http_request_ptr,
     pion::tcp::connection_ptr& tcp_conn,
     int num_filter, int status) {
-
+  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
   PION_LOG_DEBUG(m_logger, "End filters status " << status);
   if (status != pion::http::types::RESPONSE_CODE_OK) {
 
@@ -436,7 +437,7 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
 }
 void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
                                       pion::tcp::connection_ptr& tcp_conn, int status) {
-
+  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
   PION_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
   bool finish = false;
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(

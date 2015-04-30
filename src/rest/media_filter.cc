@@ -48,7 +48,7 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
 
   bool allowed = true;
 
-  PION_LOG_DEBUG(m_logger, "MediaFilter handle_request");
+  PION_LOG_DEBUG(m_logger, "MediaFilter handle_request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
 
   unsigned int resu = iota::types::RESPONSE_CODE_OK;
 
