@@ -502,7 +502,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
                        (dev_resu._lazy.size()));
 
         if (dev_resu._commands.size() != 0
-            || dev_resu._lazy.size() == 0) {
+            || dev_resu._lazy.size() != 0) {
           std::vector<iota::ContextRegistration> context_registrations;
           iota::ContextRegistration  cr;
           std::string cb_response;
@@ -609,7 +609,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
                          (register_device._lazy.size()));
 
           if (register_device._commands.size() != 0
-              || register_device._lazy.size() == 0) {
+              || register_device._lazy.size() != 0) {
 
             std::vector<iota::ContextRegistration> context_registrations;
             iota::ContextRegistration  cr;
