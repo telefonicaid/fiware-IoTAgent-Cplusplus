@@ -359,7 +359,7 @@ void AdminManagerTest::testAddDevicesToEndpoints() {
   boost::shared_ptr<HttpMock> http_mock;
   http_mock.reset(new HttpMock(7777, "/iot/devices", false));
   http_mock->init();
-
+  std::string response;
 
 
   iota::AdminManagerService manager_service;
@@ -471,7 +471,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
 
 
   iota::AdminManagerService manager_service;
-
+  std::string response;
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
   http_mock->set_response(201, "{}", h);
@@ -514,6 +514,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   sleep(2);
   http_mock->stop();
 }
+
 
 void AdminManagerTest::testPostJSONDevices() {
 
@@ -903,7 +904,7 @@ void AdminManagerTest::testPutProtocolDevice() {
   uri_query.append("/device_id_new");
 
   //missing protocol in query
-  std::cout << "@UT@1POST" << std::endl;
+  std::cout << "@UT@1PUT" << std::endl;
   code_res = http_test(uri_query, "PUT", service, "", "application/json",
                        PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
