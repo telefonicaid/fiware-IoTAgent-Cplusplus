@@ -51,6 +51,9 @@ iota::Collection::Collection(Collection& c) : m_logger(
 }
 
 iota::Collection::~Collection() {
+  if (a_cursor.get() != NULL) {
+      a_cursor->decouple();
+    }
 };
 
 const std::string iota::Collection::_EMPTY;

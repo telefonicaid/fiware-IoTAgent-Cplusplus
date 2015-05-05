@@ -62,10 +62,15 @@ class ServiceMgmtCollection : public ServiceCollection {
               const std::string &protocol_name,
               int limit, int skip);
 
+    void fillServices(const std::string &iotagent,
+                      const std::string &resource,
+                      std::map<std::string,mongo::BSONObj> &result);
+
     virtual void getElementsFromBSON(mongo::BSONObj &obj,
                            std::vector<mongo::BSONObj>& result);
 
     virtual const std::string & get_resource_name();
+
 
   protected:
 
