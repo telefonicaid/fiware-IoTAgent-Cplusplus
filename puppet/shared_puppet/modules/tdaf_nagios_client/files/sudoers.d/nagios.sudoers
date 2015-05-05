@@ -1,2 +1,0 @@
-# root permissions to execute /usr/lib64/nagios/plugins/ without password prompt
-nagios ALL=(ALL) NOPASSWD: /usr/lib64/nagios/plugins/

@@ -4,9 +4,8 @@
 
 #### Index
 1. [Introduction](#def-introduction)
-2. [Puppet procedure](#def-puppet)
-3. [Using RPMs](#def-rpms)
-4. [Iotagent configuration](#def-configuration)
+2. [Using RPMs](#def-rpms)
+3. [Iotagent configuration](#def-configuration)
     1. [Resources](#def-resources)
     2. [Storage](#def-storage)
         1. [File storage](#def-file-storage)
@@ -20,9 +19,9 @@
     9. [Examples](#def-examples)
         1. [Example mongo storage, example resource](#def-examples1)
         2. [Example file storage](#def-examples2)
-5. [Check Instalation with HTTP request with curls](#def-check)
-6. [Monitoring Events and Alarms](#def-alarms)
-7. [Using SmartM2M VPNs](VPNs.md)
+4. [Check Instalation with HTTP request with curls](#def-check)
+5. [Monitoring Events and Alarms](#def-alarms)
+6. [Using SmartM2M VPNs](VPNs.md)
 
 <a name="def-introduction"></a>
 ## 1. Introduction
@@ -33,173 +32,8 @@ However, there are some cases where devices may use a non-HTTP based protocol. I
 This is the relationship between the main elements for non-HTTP protocols.
 ```Device entry point``` <-> ```PION Module``` <-> ```URL into HTTP server```.
 
-The IoT Agent can be installed following two procedures: puppet recipes, or manual installation of RPMs.
-
-<a name="def-puppet"></a>
-## 2. Puppet procedure.
-
-Following this process, the IoT Agent will be installed and configured along with MongoDB for local use. By means of a Hieradata file, users can configure what protocols (or Plugins) are deployed in that particular instance.
-
-We do not support puppet master infraestructure, so upon downloading the RPM with our puppet code, you have to run a ```puppet apply``` command.
-
-The very first step is to install puppet (we recommend 3.2.7 or above). The installation process is well documented on their website and therefore, not covered in this guide.
-
-### 1. Setting up Repositories.
-
-All dependencies that our IoT Agent needs are stored in TID repositories. Including MongoDB RPM.
-
-#### MongoDB Repository.
-
-```
-[mongodb]
-name=mongodb Common Repository
-baseurl=http://artifactory.hi.inet/artifactory/simple/common/mongodb/x86_64/
-gpgcheck=0
-enabled=1
-metadata_expire=30
-priority=1
-proxy=http://prod-epg-ost-proxy-01.hi.inet:6666
-```
-Note: proxy may not be necessary
-
-#### Puppet modules
-
-```
-[puppet-code]
-name=Puppet-Code Repo
-baseurl=http://artifactory.hi.inet/artifactory/simple/yum-puppet/x86_64/
-enable=1
-gpgcheck=0
-proxy=http://prod-epg-ost-proxy-01.hi.inet:6666
-```
-
-#### Common dependencies
-Like Monit, or Mosquitto
-```
-[SBC-Common]
-baseurl=http://artifactory.hi.inet/artifactory/simple/yum-sbc/common6.5/x86_64/
-proxy=http://prod-epg-ost-proxy-01.hi.inet:6666
-metadata_expire=30
-gpgcheck=0
-enabled=1
-name=SBC Common repository Artifactory
-priority=1
-```
-#### Main Repository for IoT Agent packages
-
-```
-[SBC-Repo]
-baseurl=http://artifactory.hi.inet/artifactory/simple/yum-sbc/iot-agent/x86_64/
-proxy=http://prod-epg-ost-proxy-01.hi.inet:6666
-metadata_expire=30
-gpgcheck=0
-enabled=1
-name=SBC repository Artifactory
-priority=1
-```
-
-As usual, you may wan to run ´´´yum makecache´´´ and check that all repositories are accessible.
-
-### 2. Installing puppet code
-
-Once repositories have been added (and checked they are accessible) and puppet installed, you can just install locally the puppet code. (As mentioned before, we don't support Puppet Master, so all puppet recipes must be downloaded locally to the host).
-
-```
-sudo yum install iot-agent-puppet
-```
-
-The expected outcome is that all puppet code were copied to ```/user/local/iot/puppet```
-
-
-### 3. Local files creation.
-Before running ```puppet apply``` command, two files must be created: the host's manifest and its corresponding hieradata.
-
-#### Manifest.
-Using the example file ```iota.pp``` recipe that can be found within ```/usr/local/iot/puppet/manifests/nodes``` you can just rename it to your host name and on the new file, change the name of the node.
-
-
-#### Hieradata file explanation.
-Same procedure has to be done for the hieradata file, which contains all main configuration parameters for the IoT Agent. The file is named ```iota.yaml``` and can be found at ```/usr/local/iot/puppet/hieradata/nodes```. Again, it has to be renamed to the host name and keeping the extension so puppet can use it for variable lookup.
-
-Apart from rename it, configuration has to be carefully set in order to make IoT Agent run properly. Let's look at its main sections:
-
-##### Main IoT Agent parameters
-```
-iota::base::mongodb_host: 127.0.0.1
-iota::base::mongodb_port: 27017
-iota::base::iota_server_address: 10.0.2.15
-iota::base::iota_server_port: 80
-iota::base::iota_server_name: qa
-iota::base::iota_log_level: DEBUG
-```
-This will configure the IP and port of MongoDB that IoT Agent will connect to (it will be installed by default locally). It will also configure the IP and port that IoT Agent will bind to. Server Name is concatenated to "iotagent" and it will appear like that under monit status.
-Log level is self explanatory.
-
-##### NGSI Configuration
-```
-iota::ngsi::context_broker_endpoint: 'http://127.0.0.1:1026'
-iota::ngsi::update_context_path: /NGSI10/updateContext
-iota::ngsi::register_context_path: /NGSI9/registerContext
-iota::ngsi::query_context_path: /NGSI10/queryContext
-```
-This section configures where Orion Context Broker is listening to. This will be in a separate host to IoT Agent.
-
-##### Authorization
-```
-iota::authorization::trust_token_url: ''
-iota::authorization::trust_token_user: iotagent
-iota::authorization::trust_token_password: iotagent
-iota::authorization::pep_domain: admin_domain
-iota::authorization::pep_user: pep
-iota::authorization::pep_password: pep
-iota::authorization::user_token_url: ''
-iota::authorization::user_roles_url: ''
-iota::authorization::user_subservices_url: ''
-iota::authorization::user_access_control_url: ''
-iota::authorization::timeout: 5
-```
-When IoT Agent requires authentication (with integrated [PEP](pep.md) features), this set of parameters must be filled in with the right values. To disable authentication just leave them as above.
-
-##### Plugins to be installed
-
-```
-iota_protocols:
- - iotagentul
- - iotagentmqtt
- - iotagenttt
-```
-The protocols that IoT Agent can handle in a particular instance can be changed using this section, they can be added or removed. So this means that when deployed, it can install one, two or all three supported protocols. As explained before, each protocol will have a separate module (or HTTP Plugin) in PION. The three protocols supported as of now (IoT Agent v1.0) are: Ultra Light 2.0 (iotagengul), MQTT (iotagentmqtt) and ThinkingThings (iotagenttt).
-At least one must be specified.
-
-### 4 Running Puppet Apply.
-
-Final step, once hieradata has been configured accordingly, it's time to run the command for deploying the IoT Agent
-
-```
-sudo puppet apply --hiera_config /etc/hiera.yaml --modulepath=/usr/local/iot/puppet/modules/ /usr/local/iot/puppet/manifests/site.pp
-```
-
-After running it, puppet will install and configure IoT Agent and MongoDB (2.4.9).
-When MQTT protocol is selected, Mosquitto broker will be also installed. You can find out more about how to configure it here [MQTT Agent](modules.md).
-
-### Using MongoDB on a separate instance
-
-IoT Agent relies on Mongodb for internal storage. Hence it's always installed locally. However, if there is an existing MongoDB instance on a different host and there is no need for a local installation, so for this particular scenario, the manifest for your host has to be slightly changed. Just remove the inheritance from 'default' so the manifest stays like this:
-
-```
-node 'myhost.domain' {
-
- class{'iotagent':
-
- }
-
-}
-```
-The 'default' node declares the installation of MongoDB, and can be found in ```basenode.pp``` file.
-
-
 <a name="def-rpms"></a>
-## 3. Using RPMs
+## 2. Using RPMs
 
 ### Iota rpms installation
 
@@ -286,7 +120,7 @@ cd /usr/local/iot/mongodb-linux-x86_64-2.4.11/bin
 
 
 <a name="def-configuration"></a>
-## 4. Iotagent configuration
+## 3. Iotagent configuration
 
 Iotagent needs a configuration file,  usually named config.json, an example could be:
 
@@ -636,7 +470,7 @@ You can change for your specific values and use these files.
        }
 
 <a name="def-check"></a>
-## 5. Check Instalation with HTTP request with curls
+## 4. Check Instalation with HTTP request with curls
 
 
 You can send some HTTP request  to iotagent in order to create an servicem and a device.
@@ -679,7 +513,7 @@ db.DEVICE.find()
 ```
 
 <a name="def-alarms"></a>
-## 6. Monitoring Events and Alarms
+## 5. Monitoring Events and Alarms
 
 Alarms
 

@@ -1,4 +1,0 @@
-Provides a set of defined resource types for managing stunnel on RedHat systems.
-Example usage can be found in the test directory or module documentation.
-
-Has only been tested in RedHat 5.8

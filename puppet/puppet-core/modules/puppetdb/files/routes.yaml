@@ -1,8 +1,0 @@
-##########################################################################
-# This file is centrally managed, any manual changes will be OVERWRITTEN #
-##########################################################################
----
-master:
-  facts:
-    terminus: puppetdb
-    cache: yaml

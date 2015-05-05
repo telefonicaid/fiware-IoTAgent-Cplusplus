@@ -1,7 +1,0 @@
-if ! echo ${PATH} |grep -q /opt/ec2-api-tools/bin ; then
-PATH="$PATH:/opt/ec2-api-tools/bin"
-fi
-export EC2_HOME=/opt/ec2-api-tools
-[ $(env | grep -i JAVA_HOME) ] || export JAVA_HOME=/usr/java/default
-export AWS_ACCESS_KEY=<%= @EC2_USER %>
-export AWS_SECRET_KEY=<%= @EC2_PASS %>
