@@ -1065,3 +1065,67 @@ void AdminManagerTest::testPostJSONDeviceErrorHandling() {
   std::cout << "END@UT@ testPostJSONDeviceErrorHandling" << std::endl;
 
 }
+
+void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
+
+ std::cout << "START @UT@START testNoEndpoints_Bug_IDAS20444" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string("");
+
+
+  std::string
+  s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
+       + boost::lexical_cast<std::string>(wserver->get_port()) + "/iotagent\","
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+  int code_res;
+  std::string response;
+  std::string service = "s1" ;
+  std::cout << "@UT@service " << service << std::endl;
+
+  std::string uri_query(URI_DEVICES_MANAGEMEMT);
+
+
+  iota::ServiceMgmtCollection table1;
+
+
+  table1.createTableAndIndex();
+
+
+  mongo::BSONObj all;
+
+
+  //First Scenario: no endpoints found, 404 expected.
+  table1.remove(all);
+
+  std::cout << "@UT@1POST" << std::endl;
+  std::multimap<std::string, std::string> query_parameters;
+  query_parameters.insert(std::make_pair<std::string, std::string>("protocol",
+                          "PDI-IoTA-UltraLight"));
+  query_string = iota::make_query_string(query_parameters);
+  code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+                       POST_DEVICE, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+
+  IOTASSERT(response.compare(
+              "{\"reason\":\"Field or data not found\",\"details\":\"No endpoints found\"}")
+            == 0);
+
+//Insert endpoint for ss1 service
+  table1.insert(mongo::fromjson(s1_d));
+  //Second Scenario: inexistent service
+  code_res = http_test(uri_query, "POST", "nanana", "/ss1", "application/json",
+                       POST_DEVICE, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+
+
+
+
+
+  std::cout << "END@UT@ testNoEndpoints_Bug_IDAS20444" << std::endl;
+
+
+}
