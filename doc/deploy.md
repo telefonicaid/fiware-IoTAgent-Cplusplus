@@ -203,13 +203,7 @@ The 'default' node declares the installation of MongoDB, and can be found in ```
 
 ### Iota rpms installation
 
-Iotagent  rpms can be obtained from iota artifactory:
-
-```
-  http://artifactory.hi.inet/artifactory/simple/yum-sbc/iot-agent/x86_64/
-```
-
-or view [Build](build.md) section for more information.
+View [Build](build.md) section for more information about how rpms are built from source.
 
 Base RPM is mandatory and optionally several plugins can be installed. For example if you want to use UL20 protocol, you need to install two packages :
 
