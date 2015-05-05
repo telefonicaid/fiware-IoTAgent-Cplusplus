@@ -1740,6 +1740,7 @@ int iota::AdminService::get_a_device_json(
                                << iota::store::types::SERVICE << service
                                << iota::store::types::SERVICE_PATH << service_path);
   devTable.find(query);
+  std::string details;
   if (devTable.more()) {
     elto = devTable.next();
     res << elto.jsonString();
@@ -1747,9 +1748,10 @@ int iota::AdminService::get_a_device_json(
   else {
     code = iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND;
     res << iota::types::RESPONSE_MESSAGE_NO_DEVICE;
+    details =  device_id;
   }
 
-  return create_response(code, res.str(), device_id, http_response, response);
+  return create_response(code, res.str(), details, http_response, response);
 
 }
 
