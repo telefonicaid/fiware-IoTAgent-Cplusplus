@@ -561,10 +561,11 @@ int iota::AdminManagerService::post_multiple_devices(
     url_endpoint.append(device_id);
 
     std::string content;
+    std::string temp_res;
 
     int res = operation_device_iotagent(url_endpoint,content,service,
                                   sub_service,x_auth_token,
-                                  pion::http::types::REQUEST_METHOD_DELETE,response);
+                                  pion::http::types::REQUEST_METHOD_DELETE,temp_res);
 
     if (code < 400 && res >= code){
       code = res;
@@ -581,46 +582,6 @@ int iota::AdminManagerService::post_multiple_devices(
 
 }
 
-int iota::AdminManagerService::delete_multiple_devices(
-  std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
-  const std::string& device_id, std::string service,
-  std::string sub_service, std::string x_auth_token) {
-
-
-  std::string response;
-  std::string log_message("|service=" + service + "|sub_service=" + sub_service);
-  PION_LOG_DEBUG(m_log, log_message);
-
-
-  int code = 204;
-  for (int i = 0; i < v_devices_endpoint_in.size(); i++) {
-    DeviceToBeAdded& dev = v_devices_endpoint_in[i];
-
-    std::string url_endpoint = dev.get_endpoint();
-    // url_endpoint.append("/");
-    url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
-    url_endpoint.append("/");
-    url_endpoint.append(device_id);
-
-    std::string content;
-
-    int res = operation_device_iotagent(url_endpoint, content, service,
-                                        sub_service, x_auth_token,
-                                        pion::http::types::REQUEST_METHOD_DELETE, response);
-
-    if (code < 400 && res >= code) {
-      code = res;
-      PION_LOG_DEBUG(m_log, "Response code changed to : [" << code << "]");
-    }
-
-    PION_LOG_DEBUG(m_log, "Endpoint: [" << url_endpoint << "] Result: "
-                   + boost::lexical_cast<std::string>(res));
-
-  }
-
-  return code;
-
-}
 
 
 int iota::AdminManagerService::delete_device_json(
