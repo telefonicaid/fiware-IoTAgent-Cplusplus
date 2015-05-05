@@ -128,6 +128,27 @@ AdminManagerTest::POST_PROTOCOLS2_RERE("{\"iotagent\": \"host2\","
                                        "\"entity_type\": \"thing\""
                                        "}]}");
 
+const std::string
+AdminManagerTest::POST_PROTOCOLS2_RERERE("{\"iotagent\": \"host2\","
+                          "\"resource\": \"/iot/mqtt\","
+                          "\"protocol\": \"MQTT\","
+                          "\"description\": \"mqtt example\","
+                          "\"services\": [{"
+                                "\"apikey\": \"apikey3\","
+                                "\"service\": \"service2\","
+                                "\"service_path\": \"/ssrv2\","
+                                "\"token\": \"token2rere\","
+                                "\"cbroker\": \"http://127.0.0.1:1026\","
+                                "\"resource\": \"/iot/mqtt\","
+                                "\"entity_type\": \"thingrere\""
+                          "}]}");
+
+const std::string
+AdminManagerTest::POST_PROTOCOLS2_RERERE_EMPTY("{\"iotagent\": \"host2\","
+                          "\"resource\": \"/iot/mqtt\","
+                          "\"protocol\": \"MQTT\","
+                          "\"description\": \"mqtt example\","
+                          "\"services\": []}");
 
 const std::string
 AdminManagerTest::POST_PROTOCOLS4("TODO");
@@ -634,6 +655,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::string query_string;
   int code_res;
   std::string response, cb_last;
+  std::string service="service2";
 
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
@@ -650,6 +672,21 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
                        POST_PROTOCOLS1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+  std::cout << "@UT@GET " << std::endl;
+  code_res = http_test(URI_PROTOCOLS, "GET", "", "",
+                       "application/json", "",
+                       headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == GET_RESPONSE_CODE);
+  IOTASSERT_MESSAGE("only return one",
+                    response.find("\"count\": 1,\"protocols\"")!= std::string::npos);
+  code_res = http_test(URI_SERVICES_MANAGEMET , "GET", service, "",
+                           "application/json", "",
+                           headers, query_string, response);
+  IOTASSERT(code_res == GET_RESPONSE_CODE);
+  IOTASSERT_MESSAGE("only return one",
+                    response.find("\"count\": 0,\"services\"")!= std::string::npos);
 
   std::cout << "@UT@Post iotagents with a service" << std::endl;
   std::cout << "@UT@POST" << std::endl;
@@ -696,8 +733,6 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   IOTASSERT_MESSAGE("no modified data reregister",
                     response.find("token2rere") != std::string::npos);
 
-  std::cout << "@UT@ no delete for protocols, by now " << std::endl;
-
   std::cout << "END@UT@ testProtocol" << std::endl;
 
   srand(time(NULL));
@@ -708,7 +743,8 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
   http_mock->set_response(201, "{}", h);
-  std::string service = "service" ;
+
+  service= "service" ;
   service.append(boost::lexical_cast<std::string>(rand()));
   std::cout << "@UT@service " << service << std::endl;
 
@@ -754,6 +790,29 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   IOTASSERT(code_res == DELETE_RESPONSE_CODE);
   cb_last = http_mock->get_last();
   std::cout << "@UT@iotagent mock: " <<  cb_last << std::endl;
+
+  std::cout << "@UT@POST reregister POST_PROTOCOLS2_RERERE" << std::endl;
+  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+                       "application/json",
+                       POST_PROTOCOLS2_RERERE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+  //debe de haber un servicio menos
+
+  std::cout << "@UT@POST reregister POST_PROTOCOLS2_RERERE_EMPTY" << std::endl;
+  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+                       "application/json",
+                       POST_PROTOCOLS2_RERERE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+  code_res = http_test(URI_SERVICES_MANAGEMET , "GET", "service2", "/*",
+                           "application/json", "",
+                           headers, query_string, response);
+  IOTASSERT(code_res == GET_RESPONSE_CODE);
+  IOTASSERT_MESSAGE("only return one",
+                    response.find("\"count\": 0,\"services\"")!= std::string::npos);
+
 
   http_mock->stop();
   std::cout << "END@UT@ testProtocol_ServiceManagement" << std::endl;

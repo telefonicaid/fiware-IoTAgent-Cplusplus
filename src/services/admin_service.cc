@@ -1217,8 +1217,7 @@ int iota::AdminService::create_response(
   const std::string& content,
   const std::string& error_details,
   pion::http::response& http_response,
-  std::string& response,
-  bool create_json) {
+  std::string& response) {
   std::ostringstream stream;
   if (status_code >= 299) {
     if (!content.empty() && !error_details.empty()) {
@@ -1227,11 +1226,6 @@ int iota::AdminService::create_response(
              <<   "\"details\":\"" << error_details << "\"}";
       response.assign(stream.str());
     }
-  }
-  else if (create_json && !content.empty()){
-    stream << "{"
-             <<   "\"reason\":\"" << content << "\"}";
-    response.assign(stream.str());
   }else{
     response.assign(content);
   }
@@ -1746,6 +1740,7 @@ int iota::AdminService::get_a_device_json(
                                << iota::store::types::SERVICE << service
                                << iota::store::types::SERVICE_PATH << service_path);
   devTable.find(query);
+  std::string details;
   if (devTable.more()) {
     elto = devTable.next();
     res << elto.jsonString();
@@ -1753,9 +1748,10 @@ int iota::AdminService::get_a_device_json(
   else {
     code = iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND;
     res << iota::types::RESPONSE_MESSAGE_NO_DEVICE;
+    details =  device_id;
   }
 
-  return create_response(code, res.str(), device_id, http_response, response, true);
+  return create_response(code, res.str(), details, http_response, response);
 
 }
 
