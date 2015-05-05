@@ -131,6 +131,14 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
       }
 
     }
+
+    if (v_devices_endpoint_out.size() == 0){
+
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATA_NOT_FOUND,
+                              "No endpoints found",
+                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+    }
+
   }
   else {
 

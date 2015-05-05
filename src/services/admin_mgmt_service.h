@@ -99,6 +99,10 @@ class AdminManagerService : public iota::AdminService {
     @brief Based on the information given in devices_protocols_in, the method will produce as result an array of objects with the
     endpoint where the JSON will be posted. This JSON is the same coming in the original post but linked to the endpoint. The relationship
     is given by what IoTManager knows about  endpoints - protocols - services.
+    @throw iota::IotaException
+      - When JSON is incorrect (missing devices, protocols, etc...)
+      - When no endpoints are found.
+
     */
     void resolve_endpoints(std::vector<DeviceToBeAdded>& v_devices_endpoint_out,
                            const std::string& devices_protocols_in,std::string service,
