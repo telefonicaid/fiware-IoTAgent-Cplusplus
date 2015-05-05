@@ -120,7 +120,8 @@ class AdminService :
       const std::string& content,
       const std::string& error_details,
       pion::http::response& http_response,
-      std::string& response);
+      std::string& response,
+      bool create_json = false);
 
     pion::http::plugin_server_ptr get_web_server();
 
