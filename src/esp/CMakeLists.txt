@@ -17,8 +17,7 @@ file(GLOB SRC_ESP_MQTT ./logger/*.cpp
 		./plugins/postprocessor_ul20/*.cpp
 		./source/*.cpp
 		./tinyxml/*.cpp)
-file(GLOB to_remove ./source/main.cpp)
-list(REMOVE_ITEM SRC_ESP_MQTT ${to_remove})
+
 add_library(esp_mqtt STATIC ${SRC_ESP_MQTT})
 target_compile_definitions(esp_mqtt PUBLIC USE_MQTT USE_IOT USE_JSON)
 set_target_properties(esp_mqtt PROPERTIES OUTPUT_NAME EspMqtt)
@@ -37,8 +36,7 @@ file(GLOB SRC_ESP ./logger/*.cpp
 		./tinyxml/*.cpp)
 
 #add_definitions (-DUSE_IOT -DUSE_JSON -DUSE_TTOPEN)
-file(GLOB to_remove ./source/main.cpp)
-list(REMOVE_ITEM SRC_ESP ${to_remove})
+
 #add_library(esp SHARED ${SRC_ESP})
 #add_library(esp STATIC ${SRC_ESP})
 
