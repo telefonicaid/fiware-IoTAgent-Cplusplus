@@ -66,6 +66,7 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST (testPushCommandExecution);
     CPPUNIT_TEST (testPushCommandResponse);
     CPPUNIT_TEST (testPostprocessorJSON_IoTOutput_cmd);
+    CPPUNIT_TEST (testLocationContextBroker);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -103,6 +104,8 @@ protected:
     void testPushCommandExecution();
 
     void testPostprocessorJSON_IoTOutput_cmd();
+
+    void testLocationContextBroker();
 
 
 private:
