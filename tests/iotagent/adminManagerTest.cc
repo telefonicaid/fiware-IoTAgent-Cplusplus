@@ -92,7 +92,7 @@ AdminManagerTest::POST_PROTOCOLS2("{\"iotagent\": \"host2\","
                                   "\"entity_type\": \"thing\""
                                   "}]}");
 const std::string
-AdminManagerTest::POST_PROTOCOLS3("{\"iotagent\": \"host3\","
+AdminManagerTest::POST_PROTOCOLS3("{\"iotagent\": \"host2\","
                                   "\"resource\": \"/iot/d\","
                                   "\"protocol\": \"UL20\","
                                   "\"description\": \"Ultralight 2.0\","

@@ -56,7 +56,9 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testPutJSONDevice_Wrong);
     CPPUNIT_TEST(testPutProtocolDevice);
     CPPUNIT_TEST(testPostJSONDeviceErrorHandling);
+
     CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
+
 
     CPPUNIT_TEST_SUITE_END();
 
