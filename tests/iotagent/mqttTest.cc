@@ -1183,6 +1183,71 @@ std::cout << "TEST: testPostprocessorJSON_IoTOutput_cmd starting... " << std::en
 
 }
 
+void MqttTest::testLocationContextBroker(){
+  std::cout << "testLocationContextBroker  starting .... " << std::endl;
+
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock("/mock"));
+  start_cbmock(cb_mock);
+
+  std::string entity;
+
+
+
+  std::string expected = "";
+
+  const iota::JsonValue& service_object =
+    iota::Configurator::instance()->getServicebyApiKey("/iot/mqtt", "1234");
+
+  if (service_object.HasMember("entity_type")) {
+    entity.assign(service_object["entity_type"].GetString());
+  }
+
+
+  expected.append("{\"updateAction\":\"APPEND\",\"contextElements\":");
+  expected.append("[{\"id\":\"room_uttest\",\"type\":\"");
+  expected.append("thing");
+  expected.append("\",\"isPattern\":\"false\",\"attributes\"");
+  expected.append(":[{\"name\":\"position\",\"type\":\"coords\",\"value\":\"23.2234,33.23424243\",\"metadatas\"");
+  expected.append(":[{\"name\":\"location\",\"type\":\"string\",\"value\":\"WGS84\"}");
+
+
+
+
+  std::string actual = "";
+  std::string apikey = "1234";
+  std::string device = "unitTest_mqtt_location";
+
+  std::string jsonMqtt = "";
+  jsonMqtt.append(std::string("{\"name\" : \""));
+  jsonMqtt.append("l");
+  jsonMqtt.append("\",\"type\":\"string\",");
+  jsonMqtt.append(std::string("\"value\" : \""));
+  jsonMqtt.append("23.2234/33.23424243");
+  jsonMqtt.append(std::string("\"}"));
+
+
+  actual.assign(cbPublish->publishContextBroker(jsonMqtt, apikey, device));
+  boost::trim(actual);
+  boost::erase_all(actual, "\n");
+  boost::erase_all(actual, "\r");
+
+  std::cout << "EXPECTED:" << expected <<  std::endl;
+  std::cout << "TEST RESULT:" << actual << std::endl;
+
+
+
+  CPPUNIT_ASSERT(actual.find(expected) != std::string::npos);
+  CPPUNIT_ASSERT(
+    actual.find(expected) != std::string::npos);
+
+
+
+  cb_mock->stop();
+  std::cout << "Test testLocationContextBroker done!" << std::endl;
+
+}
+
 
 int MqttTest::stubReadClient(int id, char* buffer, int len) {
   if (buffer == NULL) {
