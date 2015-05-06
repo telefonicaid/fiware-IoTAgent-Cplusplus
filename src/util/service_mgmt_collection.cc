@@ -301,6 +301,25 @@ void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
    }
 }
 
+void iota::ServiceMgmtCollection::fillServices(const std::string &iotagent,
+                                               const std::string &resource,
+                                std::map<std::string,mongo::BSONObj> &result){
+
+    mongo::BSONObj query = BSON( iota::store::types::IOTAGENT <<
+          iotagent << iota::store::types::PROTOCOL << resource);
+    find(query);
+
+    mongo::BSONObj elto;
+    std::string key;
+    while (more()){
+      elto = next();
+      key.append(elto.getStringField(iota::store::types::SERVICE));
+      key.append("|");
+      key.append(elto.getStringField(iota::store::types::SERVICE_PATH));
+      result.insert( std::pair<std::string,mongo::BSONObj>(key,elto) );
+    }
+}
+
 const std::string & iota::ServiceMgmtCollection::get_resource_name(){
   return iota::store::types::PROTOCOL;
 }

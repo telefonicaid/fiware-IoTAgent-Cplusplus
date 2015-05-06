@@ -1,6 +1,0 @@
-Renombrar el fichero de Vagrant correspondiente al SO necesario a Vagrantfile
-Ejecutar vagrant up
-Ejecutar vagrant ssh para acceder a la máquina virtual
-El directorio /vagrant/ de la VM es sincronizado con el directorio del host.
-Ejecutar el script pre.sh una única vez
-Para sincronizar posteriormente y ejecutar puppet, el script actualizar.sh

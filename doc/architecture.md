@@ -5,16 +5,97 @@
 
 These IoT Agents are based on Pion Network Library (http://pion.sourceforge.ne/).
 
+## Definitions
+###### Service
+A service is a concept like tenant. It is the most high level in hierarchy of resources. Every request has a Fiware-Service header indicating the service.
+###### Subservice
+A service could have subservices (next level). Every request has a Fiware-ServicePath indicatin the subservice. If a request affects to level service, Fiware--ServicePath is considered "/".
+
 ## Components
 
 ![IoT Agent architecture](imgs/architecture.png) 
 
 - IoTAgent-Core: it could be seen like an C++ platform to build IoT Agents. It provides a HTTP server with common functionalities (provision and configuration, PEP, utilities to publish and future common features). In this server, you can configure URLs. Each url is associated with a protocol and its functionality is implemented as a module or plugin. You can see [Features](#../README.md) in order to learn what this component provides.
 - Plugins or Modules:  Functionally, a module is an IoT Agent because it understands a protocol and it builds Orion Context Broker's entity with protocol information.
-- MongoDB: provisioned information is stored in Mongo database. In [Deploy](deploy.md) section you can see how MongoDB is configured. Collections used by IoTAgent are (a field is explain in API section).
+- MongoDB: provisioned information is stored in Mongo database. In [Deploy](deploy.md) section you can see how MongoDB is configured. Collections used by IoTAgent are:
 
-  + SERVICE: stores service configuration ({`apikey`, `cbroker`, `entity_type`, `resource`, `service`, `service_path`}). This collection is indexed by service, service_path and resource.
-  + DEVICE: stores device configuration ({`device_id`, `entity_type`, `entity_name`, `timezone`, `attributes`, `commands`, `service`, `service_path`}). This collection is indexed by device_id, service and service_path.
+  + SERVICE: stores service configuration. 
+      - _id: It is an unique identifier assigned by MongoDB.
+      - service: Name of service (related with Fiware-Service).
+      - service_path: Name of subservice (related with Fiware-ServicePath).
+      - apikey: It is a key used by devices in order to publish. It could be empty.
+      - resource: It is path into HTTP server used as iotagent container.
+      - cbroker: (optional) A service could have a specific Context Broker. This field stores Context Broker URL.
+      - entity_type: (optional) Default entity type.
+      - token: (optional) If IoTA works in oauth environment, this field stores a trust token to identify IoTA as authorized application.
+      - outgoing_route: (optional) GRE tunnel identifier.
+      - attributes: (optional) It stores a common mapping of protocol parameters. It is an array with following fields:
+          - object_id: Name of parameter to map.
+          - type: Type for entity attribute type.
+          - name: Name of attribute. (object_id will be mapped to this name).
+      - static_attributes: It is an array of attributes provided by an operator. A static attribute is not related with information from device.
+          - name: Name of attribute.
+          - type: Type for entity attribute.
+          - value: Attribute value.
+  This collection is indexed by service, service_path and resource.
+      
+  + DEVICE: stores device configuration. 
+      - _id: It is an unique identifier assigned by MongoDB.
+      - device_id: Name/identifier of device.
+      - entity_name: Name of entity used to plublish information.
+      - entity_type: Type of entity used to publish information.
+      - endpoint: (optional) URL to send commands (push commands).
+      - timezone: (optional, nor used). 
+      - service: Name of service (related with Fiware-Service).
+      - service_path: Name of subservice (related with Fiware-ServicePath).
+      - protocol: Protocol used by device.
+      - attributes: (optional) It stores a common mapping of protocol parameters. It is an array with following fields:
+          - object_id: Name of parameter to map.
+          - type: Type for entity attribute type.
+          - name: Name of attribute. (object_id will be mapped to this name).
+      - static_attributes: It is an array of attributes provided by an operator. A static attribute is not related with information from device.
+          - name: Name of attribute.
+          - type: Type for entity attribute.
+          - value: Attribute value.
+      - commands: (optional) It stores attributes used as commands. It is an array with following fields:
+          - value: Raw command to send.
+          - type: "command".
+          - name: Name of attribute. (object_id will be mapped to this name).
+  This collection is indexed by device_id, service and service_path.
+  
+  + COMMAND: stores status of commands. 
+      - _id: It is an unique identifier assigned by MongoDB.
+      - name: command (name of attribute).
+      - node: Name/identifier of device.
+      - entity_name: Name of entity used to plublish information.
+      - entity_type: Type of entity used to publish information.
+      - uri: (optional) Where command was sent (push commands).
+      - service: Name of service (related with Fiware-Service).
+      - service_path: Name of subservice (related with Fiware-ServicePath).
+      - expired: deprecated an not used.
+      - timeout: Waiting time for response.
+      - id: command identifier.
+      - sequence: (not used).
+      - status: Status of command (0-Ready for read, 1-Expired read, 2-Delivered, 3-Expired delivery, 4-Executed, 5-Not delivered.
+          
+  This collection is indexed by id, service and service_path.
+  
+When IoTA works as manager (is started with -m option), it does not use plugins/modules for protocol implementations and MongoDB collections are:
+   
+   + PROTOCOL: It stores information of protocols.
+      - _id: It is an unique identifier.
+      - protocol: Identifier/name of protocol.
+      - description: Description of protocol.
+      - endpoints: It is an array
+         - endpoint: IoTA with protocol.
+         - resource: Path in IoTA for this protocol.
+    This collection is indexed by protocol.
+   + SERVICE_MGMT: It stores information of services. (Others fields as SERVICE collection).
+      - _id: It is an unique identifier.
+      - protocol: Identifier/name of protocol.
+      - description: Description of protocol.
+      - iotagent: IoTA with this service and protocol. 
+   This collection is indexed by service, service_path, iotagent and protocol.
 
 IoT Agent based on PION loads modules as HTTP plugins associated with an URL. This URL (_resource_ field in configuration) identifies a point of entry into HTTP server and could be the point of entry for devices using HTTP protocol.
 
@@ -22,11 +103,7 @@ When devices use a protocol no HTTP, a module associated with an URL into HTTP s
 ```Device Point of Entry``` <-> ```PION Module``` <-> ```URL into HTTP server```.
 
 
-## Definitions
-###### Service
-A service is a concept like tenant. It is the most high level in hierarchy of resources. Every request has a Fiware-Service header indicating the service.
-###### Subservice
-A service could have subservices (next level). Every request has a Fiware-ServicePath indicatin the subservice. If a request affects to level service, Fiware--ServicePath is considered "/".
+
 
 ## Data Flow
 Flows may be classified in provision, publication and commands.

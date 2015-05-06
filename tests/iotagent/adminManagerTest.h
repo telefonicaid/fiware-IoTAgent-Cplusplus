@@ -56,6 +56,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testPutJSONDevice_Wrong);
     CPPUNIT_TEST(testPutProtocolDevice);
     CPPUNIT_TEST(testPostJSONDeviceErrorHandling);
+    CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -82,6 +83,8 @@ public:
     static const std::string POST_PROTOCOLS3;
     static const std::string POST_PROTOCOLS4;
     static const std::string POST_PROTOCOLS2_RERE;
+    static const std::string POST_PROTOCOLS2_RERERE;
+    static const std::string POST_PROTOCOLS2_RERERE_EMPTY;
     static const std::string GET_PROTOCOLS_RESPONSE;
 
     // SERVICE_MANAGEMENT
@@ -128,6 +131,7 @@ protected:
   void testPutProtocolDevice();
 
   void testPostJSONDeviceErrorHandling();
+  void testNoEndpoints_Bug_IDAS20444();
 
 private:
     void cleanDB();
