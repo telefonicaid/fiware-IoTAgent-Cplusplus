@@ -979,6 +979,11 @@ int iota::AdminManagerService::post_protocol_json(
   pion::http::response& http_response,
   std::string& response) {
 
+  std::string param_request("post_protocol_json|service="+
+                            service +
+                            "|service_path=" +
+                            service_path);
+  PION_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason, srv, srv_path;
   std::multimap<std::string,mongo::BSONObj>::iterator it;
@@ -1062,7 +1067,8 @@ int iota::AdminManagerService::post_protocol_json(
       PION_LOG_DEBUG(m_log, "there are services to delete");
       std::map<std::string, mongo::BSONObj>::iterator iter;
       for (iter = services_in_mongo.begin(); iter != services_in_mongo.end(); ++iter) {
-        service_table.remove(iter->second);
+        //TODO service_table.remove(iter->second);
+        PION_LOG_DEBUG(m_log, iter->second.jsonString());
       }
     }
 
