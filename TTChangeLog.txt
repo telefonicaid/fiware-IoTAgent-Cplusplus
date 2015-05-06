@@ -4,6 +4,7 @@
 - FEATURE IDAS-20008: IoTA for Thinking Things protocol.
 - FEATURE IDAS-20204: P1 and B will always produce default response to TT device
 - FEATURE IDAS-20160: Adding GPS module to IotAgent TT.
+- FEATURE IDAS-20368: Add protocol description (IoTA Manager integration).
 - FIX IDAS-20215: sleepcond and sleeptime values were retained from previous measure (TT).
 - FIX IDAS-20211: body on TT Request must include &quot;cadena=&quot; and the TT frame encoded for URL. Tests have been changed accordingly so has config xml file.
 - FIX IDAS-20202: GM and GC weren&#39;t working. The problem was due to misconfiguration.

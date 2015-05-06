@@ -43,20 +43,23 @@
 
 class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminManagerTest);
-/*    CPPUNIT_TEST(testDeviceToBeAdded);
+    CPPUNIT_TEST(testDeviceToBeAdded);
     CPPUNIT_TEST(testGetEndpointsFromDevices);
     CPPUNIT_TEST(testAddDevicesToEndpoints);
     CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST(testMultiplePostsWithResponse);
- */   CPPUNIT_TEST(testProtocol_ServiceManagement);
- /*   CPPUNIT_TEST(testBADServiceManagement);
+    CPPUNIT_TEST(testProtocol_ServiceManagement);
+    CPPUNIT_TEST(testBADServiceManagement);
 
     CPPUNIT_TEST(testPostJSONDevices);
     CPPUNIT_TEST(testPutJSONDevice);
     CPPUNIT_TEST(testPutJSONDevice_Wrong);
     CPPUNIT_TEST(testPutProtocolDevice);
     CPPUNIT_TEST(testPostJSONDeviceErrorHandling);
-*/
+
+    CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
+
+
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -130,6 +133,7 @@ protected:
   void testPutProtocolDevice();
 
   void testPostJSONDeviceErrorHandling();
+  void testNoEndpoints_Bug_IDAS20444();
 
 private:
     void cleanDB();
