@@ -64,6 +64,7 @@ typedef std::pair<std::string, std::string> CC_ParamsPair;
 #ifdef WIN32
 #define SLEEP(X) _sleep(X);
 #else
+#include <unistd.h>
 #define SLEEP(X) usleep(X * 1000);
 #endif // WIN32
 
