@@ -102,6 +102,8 @@ types::RESPONSE_MESSAGE_SUBSCRIPTION_ID_NOT_FOUND("The subscriptionId does not c
 const std::string
 types::RESPONSE_MESSAGE_MISSING_PARAMETER("A parameter is missing in the request");
 const std::string
+types::RESPONSE_MESSAGE_MISSING_IOTAGENTS("there aren't iotagents for this operation");
+const std::string
 types::RESPONSE_MESSAGE_INVALID_PARAMETER("A parameter of the request is invalid/not allowed");
 const std::string
 types::RESPONSE_MESSAGE_ERROR_IN_METADATA("Generic error in metadata (e.g. 'expires' older than 'timestamp')");
