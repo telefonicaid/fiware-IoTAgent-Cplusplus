@@ -199,6 +199,9 @@ AdminManagerTest::POST_DEVICE_MANAGEMENT1("{\"devices\": "
 
 const std::string
 AdminManagerTest::PUT_DEVICE("{\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name_mod\"}");
+
+const std::string
+AdminManagerTest::PUT_DEVICE2("{\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name_org\"}");
 //
 const std::string
 AdminManagerTest::POST_DEVICE("{\"devices\": "
@@ -1221,13 +1224,13 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
   table1.insert(mongo::fromjson(s1_d));
   //Second Scenario: inexistent service
   code_res = http_test(uri_query+"/device_id", "PUT", service, "/ss1", "application/json",
-                       POST_DEVICE, headers, query_string, response);
+                       PUT_DEVICE2, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);
 
 
   code_res = http_test(uri_query+"/device_id", "PUT", "nanan", "/ss1", "application/json",
-                       POST_DEVICE, headers, query_string, response);
+                       PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);
 

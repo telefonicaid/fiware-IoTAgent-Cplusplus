@@ -106,6 +106,7 @@ public:
     static const std::string GET_DEVICE_MANAGEMENT_RESPONSE;
     static const std::string POST_DEVICE;
     static const std::string PUT_DEVICE;
+    static const std::string PUT_DEVICE2;
 
 
 

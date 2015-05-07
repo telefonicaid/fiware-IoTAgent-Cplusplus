@@ -137,13 +137,6 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
       }
     }
 
-    if (v_devices_endpoint_out.size() == 0){
-
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATA_NOT_FOUND,
-                              "No endpoints found",
-                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
-    }
-
   }
   else {
 
@@ -245,7 +238,7 @@ int iota::AdminManagerService::get_all_devices_json(
 
   PION_LOG_DEBUG(m_log, "AdminManagerService: get_all_devices_json, starting...");
 
-  if ((!detailed.empty()) && 
+  if ((!detailed.empty()) &&
       (detailed.compare(iota::store::types::ON) != 0) &&
       (detailed.compare(iota::store::types::OFF) != 0))  {
     PION_LOG_DEBUG(m_log, "status=" <<
@@ -687,15 +680,6 @@ int iota::AdminManagerService::post_device_json(
 
   PION_LOG_DEBUG(m_log, "post_device_json: POSTs processed: [" << code << "]");
 
-  /*if (!response.empty()) {
-    http_response.set_content(response);
-    http_response.set_status_code(200);
-  }
-  else {
-    http_response.set_status_code(404);
-  }
-  */
-
   return http_response.get_status_code();
 
 }
@@ -769,13 +753,6 @@ int iota::AdminManagerService::put_device_json(
       v_endpoints_put.push_back(dev_add);
     }
 
-/*
-    if (v_endpoints_put.size() == 0){
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
-                              error_details,
-                              iota::types::RESPONSE_CODE_BAD_REQUEST);
-    }
-*/
     PION_LOG_DEBUG(m_log, "put_device_json:  sending request to "
                    << v_endpoints_put.size() << " endpoints");
 
