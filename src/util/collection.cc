@@ -158,8 +158,8 @@ mongo::BSONObj iota::Collection::aggregate(
   }
 
   getLastError(bbdd, res);
-  PION_LOG_DEBUG(m_logger, "Find and notify query:" << r.toString());
-  PION_LOG_DEBUG(m_logger, "Find and notify result:" << res.toString());
+  PION_LOG_DEBUG(m_logger, "aggregate query:" << r.toString());
+  PION_LOG_DEBUG(m_logger, "aggregate result:" << res.toString());
 
   return res;
 
@@ -182,7 +182,7 @@ mongo::BSONObj iota::Collection::distinct(
 
   r = obj.obj();
 
-  std::string param_request("Collection:aggregate|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:distinct|bbdd=" + bbdd + "|data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -210,8 +210,8 @@ mongo::BSONObj iota::Collection::distinct(
   }
 
   getLastError(bbdd, res);
-  PION_LOG_DEBUG(m_logger, "Find and notify query:" << r.toString());
-  PION_LOG_DEBUG(m_logger, "Find and notify result:" << res.toString());
+  PION_LOG_DEBUG(m_logger, "distinct query:" << r.toString());
+  PION_LOG_DEBUG(m_logger, "distinct result:" << res.toString());
 
   return res;
 

@@ -120,6 +120,7 @@ struct types {
   static const std::string RESPONSE_MESSAGE_DEVICE_NO_ACTIVE;
   static const std::string RESPONSE_MESSAGE_COMMAND_BAD;
   static const std::string RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS;
+  static const std::string RESPONSE_MESSAGE_MISSING_IOTAGENTS;
 
   static const std::string REASON_MALFORMED_HEADER;
   static const std::string REASON_MALFORMED_DATA;

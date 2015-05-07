@@ -245,6 +245,17 @@ int iota::AdminManagerService::get_all_devices_json(
 
   PION_LOG_DEBUG(m_log, "AdminManagerService: get_all_devices_json, starting...");
 
+  if ((!detailed.empty()) && 
+      (detailed.compare(iota::store::types::ON) != 0) &&
+      (detailed.compare(iota::store::types::OFF) != 0))  {
+    PION_LOG_DEBUG(m_log, "status=" <<
+                   pion::http::types::RESPONSE_CODE_BAD_REQUEST);
+    return create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
+                           types::RESPONSE_MESSAGE_BAD_REQUEST,
+                           "parameter detailed must be on or off",
+                           http_response, response);
+  }
+
   std::string log_message("|id-request=" + request_identifier);
   PION_LOG_DEBUG(m_log, log_message);
 
@@ -551,7 +562,7 @@ int iota::AdminManagerService::post_multiple_devices(
 
 }
 
-  int iota::AdminManagerService::delete_multiple_devices(
+int iota::AdminManagerService::delete_multiple_devices(
   std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
   const std::string& device_id, std::string service,
   std::string sub_service, std::string x_auth_token) {
@@ -567,7 +578,7 @@ int iota::AdminManagerService::post_multiple_devices(
     DeviceToBeAdded& dev = v_devices_endpoint_in[i];
 
     std::string url_endpoint = dev.get_endpoint();
-   // url_endpoint.append("/");
+    // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
     url_endpoint.append("/");
     url_endpoint.append(device_id);
@@ -576,10 +587,10 @@ int iota::AdminManagerService::post_multiple_devices(
     std::string temp_res;
 
     int res = operation_device_iotagent(url_endpoint,content,service,
-                                  sub_service,x_auth_token,
-                                  pion::http::types::REQUEST_METHOD_DELETE, temp_res);
+                                        sub_service,x_auth_token,
+                                        pion::http::types::REQUEST_METHOD_DELETE, temp_res);
 
-    if (code < 400 && res >= code){
+    if (code < 400 && res >= code) {
       code = res;
       PION_LOG_DEBUG(m_log, "Response code changed to : [" << code << "]");
       response.assign(temp_res);
@@ -602,10 +613,17 @@ int iota::AdminManagerService::delete_device_json(
   const std::string& id_device,
   pion::http::response& http_response,
   std::string& response,
-  std::string token) {
+  std::string token,
+  const std::string &protocol ) {
 
   PION_LOG_DEBUG(m_log,
                  "AdminManagerService: delete_device_json: validating input");
+
+  if (protocol.empty()) {
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
+                              "protocol parameter is mandatory",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+  }
 
   if (service.empty() || service_path.empty()) {
     PION_LOG_ERROR(m_log, "Missing Service or Service_path");
@@ -617,8 +635,11 @@ int iota::AdminManagerService::delete_device_json(
   std::vector<iota::DeviceToBeAdded> v_endpoints;
   std::vector <IotagentType> v_endpoint;
 
+  PION_LOG_DEBUG(m_log,
+                   "delete_device_json: [" << protocol << "]");
   v_endpoint = _service_mgmt.get_iotagents_by_service(service, service_path,
-               "");
+                 protocol);
+
   for (int j = 0; j < v_endpoint.size(); j++) {
     iota::DeviceToBeAdded dev_add("", v_endpoint[j]);
     v_endpoints.push_back(dev_add);
@@ -1076,7 +1097,6 @@ int iota::AdminManagerService::post_protocol_json(
       std::map<std::string, mongo::BSONObj>::iterator iter;
       for (iter = services_in_mongo.begin(); iter != services_in_mongo.end(); ++iter) {
         //TODO service_table.remove(iter->second);
-        PION_LOG_DEBUG(m_log, iter->second.jsonString());
       }
     }
 

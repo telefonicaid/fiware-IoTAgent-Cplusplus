@@ -548,6 +548,10 @@ int iota::DeviceCollection::createTableAndIndex() {
   ///db.DEVICE.ensureIndex( { "device_id": 1, "service":1, "service_path":1 }, { unique: true } )
   mongo::BSONObj indexUni = BSON("device_id" << 1
                << "service" << 1 << "service_path" << 1);
-
-  return createIndex(indexUni, true);
+  int res1 = createIndex(indexUni, true);
+  // entity_name and entity_type is unique in service service_path
+  ///db.DEVICE.ensureIndex( { "entity_name": 1, "entity_type": 1, "service":1, "service_path":1 }, { unique: true } )
+  mongo::BSONObj indexUni2 = BSON("entity_name" << 1 << "entity_type" << 1
+               << "service" << 1 << "service_path" << 1);
+  return createIndex(indexUni2, true);
 }
