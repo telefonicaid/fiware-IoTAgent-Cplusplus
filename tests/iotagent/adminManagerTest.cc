@@ -671,14 +671,14 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   admMgm->delete_all_protocol_json(http_response, "", response);
 
   std::cout << "@UT@Post iotagents without services" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
                        POST_PROTOCOLS1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
   std::cout << "@UT@GET " << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "GET", "", "",
+  code_res = http_test(URI_PROTOCOLS, "GET", "ss", "",
                        "application/json", "",
                        headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -694,21 +694,21 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
 
   std::cout << "@UT@Post iotagents with a service" << std::endl;
   std::cout << "@UT@POST" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
                        POST_PROTOCOLS2, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
   std::cout << "@UT@Post iotagents with a service" << std::endl;
   std::cout << "@UT@POST" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
                        POST_PROTOCOLS3, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
   std::cout << "@UT@POST reregister POST_PROTOCOLS2_RERE" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
                        POST_PROTOCOLS2_RERE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -716,7 +716,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
 
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "GET", "", "",
+  code_res = http_test(URI_PROTOCOLS, "GET", "ss", "",
                        "application/json", "",
                        headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -806,7 +806,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "@UT@iotagent mock: " <<  cb_last << std::endl;
 
   std::cout << "@UT@POST reregister POST_PROTOCOLS2_RERERE" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
                        POST_PROTOCOLS2_RERERE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -814,7 +814,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   //debe de haber un servicio menos
 
   std::cout << "@UT@POST reregister POST_PROTOCOLS2_RERERE_EMPTY" << std::endl;
-  code_res = http_test(URI_PROTOCOLS, "POST", "", "",
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
                        POST_PROTOCOLS2_RERERE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;

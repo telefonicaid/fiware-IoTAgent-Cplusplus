@@ -122,6 +122,12 @@ struct types {
   static const std::string RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS;
   static const std::string RESPONSE_MESSAGE_MISSING_IOTAGENTS;
 
+  static const std::string REASON_MALFORMED_HEADER;
+  static const std::string REASON_MALFORMED_DATA;
+
+  static const std::string DETAILS_HEADER_FIWARE_SERVICE;
+  static const std::string DETAILS_HEADER_FIWARE_SERVICE_PATH;
+
   static const unsigned int RESPONSE_CODE_NONE;
   static const unsigned int RESPONSE_CODE_OK;
   static const unsigned int RESPONSE_CODE_FOUND;
@@ -153,7 +159,11 @@ struct types {
   static const unsigned int RESPONSE_CODE_ENTITY_ALREADY_EXISTS;
   static const unsigned int RESPONSE_CODE_DATA_NOT_FOUND;
 
-///ALARMS
+  // Special codes
+  static const unsigned int RESPONSE_CODE_FIWARE_SERVICE_ERROR;
+  static const unsigned int RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR;
+
+  ///ALARMS
   static const unsigned int ALARM_CODE_NO_MONGO;
   static const unsigned int ALARM_CODE_NO_CB;
   static const unsigned int ALARM_CODE_NO_IOTA;

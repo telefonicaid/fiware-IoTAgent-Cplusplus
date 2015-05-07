@@ -92,6 +92,8 @@ class RestHandle: public pion::http::plugin_service,
     bool add_pre_filter(boost::shared_ptr<iota::HTTPFilter> filter);
     bool add_post_filter(boost::shared_ptr<iota::HTTPFilter> filter);
     virtual void error_response(pion::http::response& http_response,
+                                std::string reason,
+                                std::string details,
                                 std::string& buffer,
                                 unsigned int status_code = 0);
     std::string get_statistics();
