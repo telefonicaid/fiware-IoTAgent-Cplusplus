@@ -104,6 +104,11 @@ make
 
 as a result we obtain  ./src/libVariant.a
 
+Note: You can disable XML with -DLIBVARIANT_ENABLE_XML=OFF executing cmake.
+
+#### GMock and GTest
+In README file you can find a recommendation in order to use this libraries: join them in .a file with  `ar -rv libgmock.a gtest-all.o gmock-all.o`. You can find these files in _src_ and _gtest/src_. Then you must execute `ar -rv libgmock.a gtest/src/gtest-all.o src/gmock-all.o` and copy libgmock.a in directory _lib_.
+
 
 ### Configure build environment
 To build IoT Agents you need cmake 2.8.12 (minimum version). In order to find dependencies following environment variables can be used:
