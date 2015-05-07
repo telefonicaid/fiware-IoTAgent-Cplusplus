@@ -370,7 +370,9 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
   // Add header to trace
   http_request_ptr->add_header(iota::types::HEADER_TRACE_MESSAGES,
                                riot_uuid(get_resource()));
-  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
+  PION_LOG_DEBUG(m_logger,
+                 "Processing request " << http_request_ptr->get_header(
+                   iota::types::HEADER_TRACE_MESSAGES));
   if (_pre_filters.size() > 0) {
     execute_filters(http_request_ptr, tcp_conn, 0);
   }
@@ -382,7 +384,9 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
 void iota::RestHandle::execute_filters(
   pion::http::request_ptr& http_request_ptr, pion::tcp::connection_ptr& tcp_conn,
   int num_filter, int status) {
-  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
+  PION_LOG_DEBUG(m_logger,
+                 "Processing request " << http_request_ptr->get_header(
+                   iota::types::HEADER_TRACE_MESSAGES));
   PION_LOG_DEBUG(m_logger, "execute_filters status:  " << status);
 
   if (status != iota::types::RESPONSE_CODE_OK) {
@@ -416,7 +420,9 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
     http_request_ptr,
     pion::tcp::connection_ptr& tcp_conn,
     int num_filter, int status) {
-  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
+  PION_LOG_DEBUG(m_logger,
+                 "Processing request " << http_request_ptr->get_header(
+                   iota::types::HEADER_TRACE_MESSAGES));
   PION_LOG_DEBUG(m_logger, "End filters status " << status);
   if (status != pion::http::types::RESPONSE_CODE_OK) {
 
@@ -425,14 +431,26 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
     pion::http::response_writer_ptr writer(
       pion::http::response_writer::create(tcp_conn, *http_request_ptr,
                                           boost::bind(&iota::RestHandle::finish, this, tcp_conn)));
+    std::string reason(iota::types::RESPONSE_MESSAGE_BAD_REQUEST);
+    std::string details;
     if (status == iota::types::RESPONSE_CODE_NOT_ACCEPTABLE) {
-      response_buffer =iota::types::RESPONSE_MESSAGE_NOT_ACCEPTABLE;
+      details = iota::types::RESPONSE_MESSAGE_NOT_ACCEPTABLE;
     }
     else if (status == iota::types::RESPONSE_CODE_UNSUPPORTED_MEDIA_TYPE) {
-      response_buffer = iota::types::RESPONSE_MESSAGE_UNSUPPORTED_MEDIA_TYPE;
+      details = iota::types::RESPONSE_MESSAGE_UNSUPPORTED_MEDIA_TYPE;
+    }
+    else if (status == iota::types::RESPONSE_CODE_FIWARE_SERVICE_ERROR) {
+      reason = iota::types::REASON_MALFORMED_HEADER;
+      details = iota::types::DETAILS_HEADER_FIWARE_SERVICE;
+      status = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
+    }
+    else if (status == iota::types::RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR) {
+      reason = iota::types::REASON_MALFORMED_HEADER;
+      details = iota::types::DETAILS_HEADER_FIWARE_SERVICE_PATH;
+      status = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
     }
 
-    error_response(writer->get_response(), response_buffer, status);
+    error_response(writer->get_response(), reason, details, response_buffer, status);
     send_http_response(writer, response_buffer);
   }
   else {
@@ -442,7 +460,9 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
 }
 void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
                                       pion::tcp::connection_ptr& tcp_conn, int status) {
-  PION_LOG_DEBUG(m_logger, "Processing request " << http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES));
+  PION_LOG_DEBUG(m_logger,
+                 "Processing request " << http_request_ptr->get_header(
+                   iota::types::HEADER_TRACE_MESSAGES));
   PION_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
   bool finish = false;
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
@@ -488,7 +508,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
       }
     }
     if (it_handle == _handlers.end()) {
-      error_response(writer->get_response(), response_buffer);
+      error_response(writer->get_response(), iota::types::RESPONSE_MESSAGE_BAD_REQUEST, "", response_buffer);
       finish = true;
     }
     else {
@@ -505,8 +525,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
   }
   catch (std::exception& e) {
     // Response
-    response_buffer.assign(e.what());
-    error_response(writer->get_response(), response_buffer);
+    error_response(writer->get_response(), iota::types::RESPONSE_MESSAGE_BAD_REQUEST, e.what(), response_buffer);
     finish = true;
   }
 
@@ -542,6 +561,8 @@ bool iota::RestHandle::add_post_filter(boost::shared_ptr<iota::HTTPFilter>
 }
 
 void iota::RestHandle::error_response(pion::http::response& http_response,
+                                      std::string reason,
+                                      std::string details,
                                       std::string& buffer,
                                       unsigned int status_code) {
   if (status_code != 0) {
@@ -554,12 +575,16 @@ void iota::RestHandle::error_response(pion::http::response& http_response,
     http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                        pion::http::types::RESPONSE_CODE_NOT_FOUND));
   }
-  if (buffer.empty() == false) {
-    std::string error_content(buffer);
+  if (reason.empty() == false) {
     buffer.clear();
     buffer.assign("{");
     buffer.append("\"reason\": \"");
-    buffer.append(error_content);
+    buffer.append(reason);
+    buffer.append("\",");
+    if (details.empty() == false) {
+      buffer.append("\"details\": \"");
+      buffer.append(details);
+    }
     buffer.append("\"}");
   }
 }

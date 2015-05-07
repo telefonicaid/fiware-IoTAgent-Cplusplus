@@ -41,6 +41,10 @@ Anyway, this API needs two headers in order to manage requests:
 - `Fiware-Service` : Represents a tenant, the higher level in resources hierachy in IoT Platform environment. If this header is not present an error is returned.
 - `Fiware-ServicePath` : Represents the second level. Its value must be start by character '/'. If this header is not present we assume '/'. There are operations that is allowed '/*'.
 
+## Naming conventions
+- `Fiware-Service`: a service string must not be longer than 50 characters and may only contain underscores and alphanumeric characters and lowercases.
+- `Fiware-ServicePath`: a service path string must only contain underscores and alphanumeric characters and starts with character /.
+
 ## API Access
 All URIs are relative to an specific url, where IoT Agent is raised. For example, `http://127.0.0.1:8080/iot/`.
 

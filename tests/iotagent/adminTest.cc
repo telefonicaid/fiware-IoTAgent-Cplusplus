@@ -317,6 +317,8 @@ void AdminTest::testGetConf() {
                  boost::asio::ip::address::from_string(HOST), wserver->get_port());
   pion::http::request http_request("/iot/agents?conf");
   http_request.set_method("GET");
+  http_request.add_header("Fiware-Service", "ss");
+  http_request.add_header("Fiware-ServicePath", "/ss");
   http_request.send(tcp_conn, error_code);
   pion::http::response http_response(http_request);
   http_response.receive(tcp_conn, error_code);
@@ -330,6 +332,8 @@ void AdminTest::testGetConf() {
     boost::asio::ip::address::from_string(HOST), wserver->get_port());
   pion::http::request http_request1("/iot/agents?conf");
   http_request1.set_method("DELETE");
+  http_request1.add_header("Fiware-Service", "ss");
+  http_request1.add_header("Fiware-ServicePath", "/ss");
   http_request1.send(tcp_conn, error_code);
   pion::http::response http_response1(http_request1);
   http_response1.receive(tcp_conn, error_code);
@@ -388,7 +392,8 @@ void AdminTest::testPostConf() {
   pion::http::request http_request("/iot/agents");
   http_request.set_method("POST");
   http_request.set_content(conf->getAll());
-
+  http_request.add_header("Fiware-Service", "ss");
+  http_request.add_header("Fiware-ServicePath", "/ss");
   http_request.send(tcp_conn, error_code);
   pion::http::response http_response(http_request);
   http_response.receive(tcp_conn, error_code);
@@ -405,6 +410,8 @@ void AdminTest::testPostConf() {
   std::cout << "POST agent configuration" << std::endl;
   pion::http::request http_request_1("/iot/agents/res");
   http_request_1.set_method("POST");
+  http_request_1.add_header("Fiware-Service", "ss");
+  http_request_1.add_header("Fiware-ServicePath", "/ss");
   std::string
   mod_res("{\"statistics\": \"true\",\"services\": [{\"service\": \"change\"}]}");
   http_request_1.set_content(mod_res);
@@ -425,7 +432,8 @@ void AdminTest::testPostConf() {
   http_request_2.set_method("PUT");
   std::string mod_res_nok("{\[\"services\": [{\"service\": \"change\"}]}");
   http_request_2.set_content(mod_res_nok);
-
+  http_request_2.add_header("Fiware-Service", "ss");
+  http_request_2.add_header("Fiware-ServicePath", "/ss");
   http_request_2.send(tcp_conn, error_code);
   pion::http::response http_response_2(http_request_2);
   http_response_2.receive(tcp_conn, error_code);
@@ -437,6 +445,8 @@ void AdminTest::testPostConf() {
   std::cout << "PUT agent configuration 2" << std::endl;
   pion::http::request http_request_3("/iot/agents/evadts");
   http_request_3.set_method("PUT");
+  http_request_3.add_header("Fiware-Service", "ss");
+  http_request_3.add_header("Fiware-ServicePath", "/ss");
   std::string
   ss("{\"services\": [{\"apikey\": \"apikey3\",\"cbroker\": \"http:://0.0.0.0:1026\", \"service\": \"6664\",\"entity_type\": \"thing\",\"service_path\": \"servicepath3\",\"token\": \"token3\"}]}");
   http_request_3.set_content(ss);
@@ -473,6 +483,8 @@ void AdminTest::testGetAgents() {
                  boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
   pion::http::request http_request("/iot/agents");
   http_request.set_method("GET");
+  http_request.add_header("Fiware-Service", "ss");
+  http_request.add_header("Fiware-ServicePath", "/ss");
   http_request.send(tcp_conn, error_code);
   pion::http::response http_response(http_request);
   http_response.receive(tcp_conn, error_code);
@@ -483,6 +495,8 @@ void AdminTest::testGetAgents() {
                  boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
   pion::http::request http_request_1("/iot/agents/noexist");
   http_request_1.set_method("GET");
+  http_request_1.add_header("Fiware-Service", "ss");
+  http_request_1.add_header("Fiware-ServicePath", "/ss");
   http_request_1.send(tcp_conn, error_code);
   pion::http::response http_response1(http_request_1);
   http_response1.receive(tcp_conn, error_code);
@@ -495,6 +509,8 @@ void AdminTest::testGetAgents() {
                  boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
   pion::http::request http_request_2("/iot/agents");
   http_request_2.set_method("DELETE");
+  http_request_2.add_header("Fiware-Service", "ss");
+  http_request_2.add_header("Fiware-ServicePath", "/ss");
   http_request_2.send(tcp_conn, error_code);
   pion::http::response http_response2(http_request_2);
   http_response2.receive(tcp_conn, error_code);
@@ -540,6 +556,9 @@ void AdminTest::testCsvProvision() {
   http_request.set_method("POST");
   http_request.set_content_type(
     pion::http::types::CONTENT_TYPE_MULTIPART_FORM_DATA);
+
+  http_request.add_header("Fiware-Service", "ss");
+  http_request.add_header("Fiware-ServicePath", "/ss");
   http_request.send(tcp_conn, error_code);
   pion::http::response http_response(http_request);
   http_response.receive(tcp_conn, error_code);
@@ -560,6 +579,8 @@ void AdminTest::testCsvProvision() {
                      "\r\n"
                      "item1,item2, item3\nvalue1, value2, value3\r\n");
   http_request_csv.set_content(csv_ok);
+  http_request_csv.add_header("Fiware-Service", "ss");
+  http_request_csv.add_header("Fiware-ServicePath", "/ss");
   http_request_csv.send(tcp_conn, error_code);
   pion::http::response http_response_csv(http_request_csv);
   http_response_csv.receive(tcp_conn, error_code);
@@ -972,7 +993,7 @@ void  AdminTest::testPostService() {
   std::cout << "@UT@DELETE " << service << std::endl;
   std::string delete_query_error(query_string);
   delete_query_error.append("&device=true");
-  code_res = http_test("/iot/services/" + service, "DELETE", "/*", "",
+  code_res = http_test("/iot/services/" + service, "DELETE", "ss", "/*",
                        "application/json", "",
                        headers, delete_query_error, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;

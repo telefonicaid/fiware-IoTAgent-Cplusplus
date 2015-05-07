@@ -16,6 +16,8 @@
 - FEATURE IDAS-20256: Oauth flows in commands from Context Broker.
 - FEATURE IDAS-20368: IoTA Manager is the entry point to IoT Agent cluster.
 - FEATURE IDAS-20255: Attributes and static attributes can be configured by service.
+- FEATURE IDAS-20459: Check Fiware-Service and Fiware-ServicePath (naming
+  conventions).
 - FIX IDAS-20249: Duplicated headers in authorization requests.
 - FIX IDAS-20248: Command response must not be forwarded to CB after command timeout
 - FIX IDAS-20231: expired commands don&#39;t send to the correct CB

@@ -45,7 +45,7 @@ namespace iota {
 
 // Namespace UUID
 const boost::uuids::uuid namespace_uuid = {{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}};
-
+const int FIWARE_SERVICE_LENGTH = 50;
 
 std::vector<std::string> riot_tokenizer(std::string& str, std::string& sep);
 std::string riot_uuid(std::string str_key);
@@ -59,6 +59,9 @@ std::string str_to_hex(boost::asio::mutable_buffer& fr);
 std::string writeDictionaryTerm(pion::http::response& resp_http);
 std::string make_query_string(std::multimap<std::string, std::string>&
                                     query_parameters);
+void check_fiware_service_name(std::string& header_fiware_service);
+void check_fiware_service_path_name(std::string& header_fiware_service_path);
+void check_name(std::string& name);
 };
 
 #endif
