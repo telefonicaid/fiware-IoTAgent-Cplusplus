@@ -253,9 +253,20 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
 
   mongo::BSONObj res = iota::Collection::distinct("iotagent" , bson_query.obj(), 0);
 
+  int count_eltos=0;
   mongo::BSONObjIterator fields (res.getObjectField ("values"));
   while(fields.more()) {
     result.push_back(fields.next().str ());
+    count_eltos++;
+  }
+
+  // if there is no limit and count is 0, then throw an exception for no data
+  if (count_eltos == 0 && limit ==0 && skip ==0){
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_IOTAGENTS,
+                              "[protocol:" + protocol_id+
+                              "|service: " + service +
+                              "|service_path:" + service_path+"]",
+                              iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND);
   }
 
   return result;
