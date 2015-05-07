@@ -30,6 +30,8 @@
 //TODO#include <RiotSOSDef.h>
 #include "FuncUtil.h"
 #include "RiotISO8601.h"
+#include "rest/types.h"
+#include "util/iota_exception.h"
 #include <boost/tokenizer.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -262,6 +264,69 @@ std::string iota::make_query_string(std::multimap<std::string, std::string>&
   }
   return query_string;
 }
+
+void iota::check_fiware_service_name(std::string& header_fiware_service) {
+
+  // Length
+  bool error = false;
+  std::string reason = iota::types::REASON_MALFORMED_HEADER;
+  std::string details = iota::types::DETAILS_HEADER_FIWARE_SERVICE;
+  int code = iota::types::RESPONSE_CODE_FIWARE_SERVICE_ERROR;
+  if (header_fiware_service.empty()
+      || header_fiware_service.size() > iota::FIWARE_SERVICE_LENGTH) {
+    error = true;
+  }
+
+  // aphanum and '_' and lowercase
+  int i = 0;
+  for (i = 0; (i< header_fiware_service.size() && !error); i++) {
+    int c = header_fiware_service[i];
+    if ((!isalnum(c) && c != '_') || (isalpha(c) && !islower(c))) {
+      error = true;
+    }
+  }
+
+  if (error) {
+    throw iota::IotaException(reason, details, code);
+  }
+};
+void iota::check_fiware_service_path_name(std::string&
+    header_fiware_service_path) {
+
+  if (header_fiware_service_path.empty() == true) {
+    return;
+  }
+  bool error = false;
+  std::string reason = iota::types::REASON_MALFORMED_HEADER;
+  std::string details = iota::types::DETAILS_HEADER_FIWARE_SERVICE_PATH;
+  int code = iota::types::RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR;
+  // aphanum and '_' and start '/'
+  int i = 0;
+  int start = 1;
+  if (header_fiware_service_path[0] != '/') {
+    error = true;
+  }
+  bool wild_card = false;
+  if (header_fiware_service_path[1] == '*') {
+    wild_card = true;
+    start = 2;
+    if (header_fiware_service_path.size() > 2) {
+      error = true;
+    }
+  }
+  for (i = start; (i< header_fiware_service_path.size() && !error); i++) {
+    int c = header_fiware_service_path[i];
+    if (!isalnum(c) && c != '_') {
+      error = true;
+    }
+  }
+
+  if (error) {
+    throw iota::IotaException(reason, details, code);
+  }
+};
+void iota::check_name(std::string& name) {
+};
 
 //FF
 /*
