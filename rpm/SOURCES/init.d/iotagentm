@@ -11,8 +11,9 @@
 . /etc/rc.d/init.d/functions
 
 PARAM=$1
-NAME=iotagent
-EXECUTABLE=/usr/local/iot/bin/${NAME}
+USERNAME=iotagent
+NAME=iotagentm
+EXECUTABLE=/usr/local/iot/bin/iotagent
 ENV_FILE=/usr/local/iot/config/${NAME}
 
 # Load the environment
@@ -44,9 +45,8 @@ iotagent_start()
 {
 	printf "%-50s" "Starting ${NAME}..."
 	if [[ -x ${EXECUTABLE} ]]; then
-		su ${NAME} -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
-		${EXECUTABLE} ${IOTAGENT_OPTS} &" &> /dev/null 
-		ps -ef | grep ${EXECUTABLE} | grep -v grep | awk '{print $2}' > ${IOTAGENT_PID_FILE}
+		su ${USERNAME} -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
+		${EXECUTABLE} ${IOTAGENT_OPTS} & echo \$! > ${IOTAGENT_PID_FILE}" &> /dev/null 
 		sleep 2 # wait some time to leave iotagent start
 		PID=$(cat ${IOTAGENT_PID_FILE})
 		if [[ -z "${PID}" ]]; then
@@ -76,19 +76,19 @@ iotagent_stop()
 
 iotagent_status()
 {
-	status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE}
+	status -p ${IOTAGENT_PID_FILE} ${NAME}
 }
 
 
 case ${PARAM} in
 
 	'start')
-		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} && exit 0
+		status -p ${IOTAGENT_PID_FILE} ${NAME} && exit 0
 		iotagent_start
 		;;
 
 	'stop')
-		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} || exit 0
+		status -p ${IOTAGENT_PID_FILE} ${NAME} || exit 0
 		iotagent_stop
 		;;
 
