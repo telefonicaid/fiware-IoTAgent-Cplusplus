@@ -1085,7 +1085,7 @@ int iota::AdminManagerService::post_protocol_json(
       PION_LOG_DEBUG(m_log, "there are services to delete");
       std::map<std::string, mongo::BSONObj>::iterator iter;
       for (iter = services_in_mongo.begin(); iter != services_in_mongo.end(); ++iter) {
-        service_table.remove(iter->second);
+        //TODO service_table.remove(iter->second);
       }
     }
 
