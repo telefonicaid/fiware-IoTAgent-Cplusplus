@@ -32,6 +32,8 @@
 #include "util/alarm.h"
 #include "util/iota_exception.h"
 #include <boost/property_tree/ptree.hpp>
+#include <ctime>
+#include <iostream>
 
 #include "util/device.h"
 #include "util/command.h"
@@ -298,6 +300,8 @@ void MongoTest::testNoMongo() {
 
 void MongoTest::testReplica() {
   std::cout << "START testReplica" << std::endl;
+  std::clock_t    start;
+  start = std::clock();
 
   iota::Configurator::initialize(PATH_REPLICA_CONFIG);
   int num_threads=1;
@@ -319,6 +323,7 @@ void MongoTest::testReplica() {
   }
 
   g.join_all();
+  std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
   std::cout << "END testReplica" << std::endl;
 }
 
@@ -355,7 +360,10 @@ void MongoTest::workerFunc(){
 
   mongo::BSONObj p = BSON("name" << "Joe" << "desc" << "ssss");
   std::cout << "before insert" << std::endl;
-  table1.insert(p);
+  for (int i=0; i < 100; i++){
+    table1.insert(p);
+  }
+
 
   iota::Collection q1("PRUEBA");
   mongo::BSONObj p2 = BSON("name" << "Joe");

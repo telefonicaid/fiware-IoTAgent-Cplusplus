@@ -31,6 +31,7 @@ class RestFunctionTest: public CppUnit::TestFixture  {
     CPPUNIT_TEST(testRegexPattern);
     CPPUNIT_TEST(testStatistic);
     CPPUNIT_TEST(testFilter);
+    CPPUNIT_TEST(testUuid);
     CPPUNIT_TEST_SUITE_END();
   public:
     void setUp() {};
@@ -40,5 +41,6 @@ class RestFunctionTest: public CppUnit::TestFixture  {
     void testRegexPattern();
     void testStatistic();
     void testFilter();
+    void testUuid();
 };
 #endif

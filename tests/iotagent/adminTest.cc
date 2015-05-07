@@ -681,6 +681,13 @@ void  AdminTest::testPostDevice() {
   IOTASSERT(code_res == GET_RESPONSE_CODE);
   IOTASSERT(GET_EMPTY_RESPONSE_DEVICES.compare(response) == 0);
 
+  std::cout << "@UT@GET The device does not exist" << std::endl;
+  code_res = http_test("/iot/devices/noexists", "GET", service, "",
+                       "application/json", "", headers, query_string, response);
+  boost::algorithm::trim(response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+  IOTASSERT(response.compare("{\"reason\":\"The device does not exist\",\"details\":\"noexists\"}") == 0);
 
   std::cout << "@UT@POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",

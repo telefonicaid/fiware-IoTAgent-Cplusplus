@@ -92,13 +92,17 @@ class AdminManagerService : public iota::AdminService {
     */
     int operation_device_iotagent(std::string iotagent_endpoint,
                             const std::string& device_json,std::string service, std::string sub_service,
-                            std::string x_auth_token,const std::string& method);
+                            std::string x_auth_token,const std::string& method,std::string& response);
 
     /**
     @name resolve_endpoints
     @brief Based on the information given in devices_protocols_in, the method will produce as result an array of objects with the
     endpoint where the JSON will be posted. This JSON is the same coming in the original post but linked to the endpoint. The relationship
     is given by what IoTManager knows about  endpoints - protocols - services.
+    @throw iota::IotaException
+      - When JSON is incorrect (missing devices, protocols, etc...)
+      - When no endpoints are found.
+
     */
     void resolve_endpoints(std::vector<DeviceToBeAdded>& v_devices_endpoint_out,
                            const std::string& devices_protocols_in,std::string service,
@@ -112,7 +116,7 @@ class AdminManagerService : public iota::AdminService {
     */
     int post_multiple_devices(std::vector<DeviceToBeAdded>&
                                       v_devices_endpoint_in,std::string service,std::string sub_service,
-                                      std::string x_auth_token);
+                                      std::string x_auth_token,std::string& response);
 
 
 
@@ -172,8 +176,15 @@ class AdminManagerService : public iota::AdminService {
       std::string& response,
       std::string token = "");
 
+    virtual int delete_device_json(
+      const std::string& service,
+      const std::string& service_path,
+      const std::string& id_device,
+      pion::http::response& http_response,
+      std::string& response,
+      std::string token);
 
-    std::string protocol_from_device(const std::string& json);
+
 
     /**
     @name put_multiple_devices
@@ -183,7 +194,11 @@ class AdminManagerService : public iota::AdminService {
     */
     int put_multiple_devices(std::vector<DeviceToBeAdded>&
                                       v_devices_endpoint_in,const std::string& idDevice,std::string service,std::string sub_service,
-                                      std::string x_auth_token);
+                                      std::string x_auth_token,std::string&);
+
+    int delete_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
+                        const std::string& device_id, std::string service,
+                        std::string sub_service, std::string x_auth_token);
 
 
     virtual int put_device_json(
@@ -193,7 +208,8 @@ class AdminManagerService : public iota::AdminService {
       const std::string& body,
       pion::http::response& http_response,
       std::string& response,
-      const std::string& x_auth_token);
+      const std::string& x_auth_token,
+      const std::string& protocol);
 
 
 

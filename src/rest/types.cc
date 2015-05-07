@@ -147,7 +147,7 @@ const std::string
 types::RESPONSE_MESSAGE_BAD_PROTOCOL("There are conflicts, protocol is not correct");
 
 const std::string
-types::RESPONSE_MESSAGE_DATA_NOT_FOUND("Field or data not founded");
+types::RESPONSE_MESSAGE_DATA_NOT_FOUND("Field or data not found");
 
 
 const std::string

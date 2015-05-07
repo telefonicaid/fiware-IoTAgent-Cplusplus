@@ -37,7 +37,13 @@
 #include <boost/format.hpp>
 #include <sstream>
 #include <pion/algorithm.hpp>
-
+namespace iota {
+boost::uuids::random_generator RandomGenerator;
+boost::mutex _mRandomGen;
+unsigned long counter = 0;
+boost::mt19937 ran(time(NULL));
+boost::uuids::basic_random_generator<boost::mt19937> gen(&ran);
+}
 
 std::vector<std::string> iota::riot_tokenizer(std::string& str,
     std::string& sep) {
@@ -73,15 +79,23 @@ std::string iota::riot_id(std::string& str_key) {
 };
 
 std::string iota::riot_uuid(void) {
-  boost::mutex::scoped_lock lck(_mRandomGen);
+  boost::mutex::scoped_lock lck(iota::_mRandomGen);
 
   // This is the way boost says avoid a false positive in valgrind
+  /*
   boost::mt19937 ran;
   ran.seed(time(NULL));
   boost::uuids::basic_random_generator<boost::mt19937> gen(&ran);
-  boost::uuids::uuid u = gen();
+  */
+  boost::uuids::uuid u = iota::gen();
+  if (counter >= ULONG_MAX) {
+    counter = 0;
+  }
+
   std::ostringstream ss;
   ss << u;
+  ss << "-";
+  ss << counter++;
   return ss.str();
 };
 

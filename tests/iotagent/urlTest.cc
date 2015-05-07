@@ -166,7 +166,5 @@ void UrlTest::testPtree2String() {
   CPPUNIT_ASSERT_MESSAGE("float2 bad ",f2 == comparaf);
   CPPUNIT_ASSERT_MESSAGE("alarms clean ",active == false);
 
-
-
 }
 

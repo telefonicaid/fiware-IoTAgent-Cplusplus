@@ -9,7 +9,7 @@
     "timezones": "/etc/iot/date_time_zonespec.csv",
     "storage": {
         "replicaset":"iota",
-        "host": "ci-sbc-build-01:27017,ci-sbc-build-01:27018,ci-sbc-build-01:27016",
+        "host": "host1:27017,host2:27018,host3:27016",
         "type": "mongodb",
         "dbname": "iotest"
     }

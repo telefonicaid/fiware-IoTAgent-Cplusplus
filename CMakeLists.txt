@@ -207,14 +207,12 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/specs/iot-agent-mocks.spec.in" "${CM
 set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/iot-agent-mocks.spec")
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/specs/iot-agent-tt.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-tt.spec" @ONLY IMMEDIATE)
 set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/iot-agent-tt.spec")
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/specs/iot-agent-puppet.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-puppet.spec" @ONLY IMMEDIATE)
-set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/iot-agent-puppet.spec")
+
 add_custom_target(package
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-base.spec
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-ul.spec
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-mqtt.spec
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-mocks.spec
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-tt.spec
-      COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-puppet.spec
     )
 
