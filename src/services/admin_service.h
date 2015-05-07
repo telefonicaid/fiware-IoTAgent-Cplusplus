@@ -263,7 +263,8 @@ class AdminService :
       const std::string& id_device,
       pion::http::response& http_response,
       std::string& response,
-      std::string token);
+      std::string token,
+      const std::string &protocol="");
 
     /**
        * @name    check_device_protocol

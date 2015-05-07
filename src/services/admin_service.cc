@@ -739,7 +739,8 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     }
     else if (method.compare(pion::http::types::REQUEST_METHOD_DELETE) == 0) {
       code = delete_device_json(service, service_path,
-                                device_in_url, http_response, response, token);
+                                device_in_url, http_response, response, token,
+                                protocol_filter);
     }
     else {
       code = iota::types::RESPONSE_CODE_METHOD_NOT_ALLOWED;
@@ -1761,7 +1762,8 @@ int iota::AdminService::delete_device_json(
   const std::string& id_device,
   pion::http::response& http_response,
   std::string& response,
-  std::string token) {
+  std::string token,
+  const std::string &protocol) {
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string param_request("delete_device_json|service=" + service +
                             "|service_path=" +

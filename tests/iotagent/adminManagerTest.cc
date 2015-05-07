@@ -591,7 +591,8 @@ void AdminManagerTest::testPostJSONDevices() {
   std::cout << "Test delete STARTING" << std::endl;
   manager_service.delete_device_json("s1", "/ss1", "device_id_post",
                                      http_response,
-                                     response, "");
+                                     response, "",
+                                     "PDI-IoTA-UltraLight");
 
 
   std::cout << "Test testPostJSONDevices DONE" << std::endl;
@@ -764,6 +765,16 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
+  std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", service, "",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+  IOTASSERT(response.find(
+    "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+
+
   std::string req_sent = http_mock->get_last();
   std::cout << req_sent << std::endl;
   std::cout << "@UT@PUT" << std::endl;
@@ -845,6 +856,35 @@ void AdminManagerTest::testBADServiceManagement() {
   IOTASSERT(code_res == 400);
   IOTASSERT(response.compare(
               "{\"reason\":\"The request is not well formed\",\"details\":\"No exists protocol no_exists\"}")
+            == 0);
+
+  std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+"/nodevice", "GET", service, "",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+  IOTASSERT( response.find(
+     "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+
+
+  std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET, "GET", service, "",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare(
+              "{ \"count\": 0,\"services\": []}")
+            == 0);
+
+  code_res = http_test(URI_SERVICES_MANAGEMET+ "/nodevice", "GET", "nodevice", "",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare(
+              "{ \"count\": 0,\"services\": []}")
             == 0);
 
   std::cout << "END@UT@ testBADServiceManagement" << std::endl;
@@ -1108,10 +1148,8 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);
-
-  IOTASSERT(response.compare(
-              "{\"reason\":\"Field or data not found\",\"details\":\"No endpoints found\"}")
-            == 0);
+  IOTASSERT(response.find(
+      "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
 
 //Insert endpoint for ss1 service
   table1.insert(mongo::fromjson(s1_d));
