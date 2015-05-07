@@ -248,14 +248,13 @@ int iota::AdminManagerService::get_all_devices_json(
   if ((!detailed.empty()) && 
       (detailed.compare(iota::store::types::ON) != 0) &&
       (detailed.compare(iota::store::types::OFF) != 0))  {
-    PION_LOG_DEBUG(m_log, "|status=" <<
+    PION_LOG_DEBUG(m_log, "status=" <<
                    pion::http::types::RESPONSE_CODE_BAD_REQUEST);
     return create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                            types::RESPONSE_MESSAGE_BAD_REQUEST,
                            "parameter detailed must be on or off",
                            http_response, response);
   }
-  //Fin: RBL
 
   std::string log_message("|id-request=" + request_identifier);
   PION_LOG_DEBUG(m_log, log_message);
