@@ -442,10 +442,12 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
     else if (status == iota::types::RESPONSE_CODE_FIWARE_SERVICE_ERROR) {
       reason = iota::types::REASON_MALFORMED_HEADER;
       details = iota::types::DETAILS_HEADER_FIWARE_SERVICE;
+      status = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
     }
     else if (status == iota::types::RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR) {
       reason = iota::types::REASON_MALFORMED_HEADER;
       details = iota::types::DETAILS_HEADER_FIWARE_SERVICE_PATH;
+      status = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
     }
 
     error_response(writer->get_response(), reason, details, response_buffer, status);

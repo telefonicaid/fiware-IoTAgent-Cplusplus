@@ -993,7 +993,7 @@ void  AdminTest::testPostService() {
   std::cout << "@UT@DELETE " << service << std::endl;
   std::string delete_query_error(query_string);
   delete_query_error.append("&device=true");
-  code_res = http_test("/iot/services/" + service, "DELETE", "/*", "",
+  code_res = http_test("/iot/services/" + service, "DELETE", "ss", "/*",
                        "application/json", "",
                        headers, delete_query_error, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
