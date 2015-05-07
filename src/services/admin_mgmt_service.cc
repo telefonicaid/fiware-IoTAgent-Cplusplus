@@ -510,10 +510,10 @@ void iota::AdminManagerService::receive_get_devices(
 
 }
 
+int iota::AdminManagerService::post_multiple_devices(std::vector<DeviceToBeAdded>&
+                                      v_devices_endpoint_in,std::string service,std::string sub_service,
+                                      std::string x_auth_token,std::string& response) {
 
-int iota::AdminManagerService::post_multiple_devices(
-  std::vector<DeviceToBeAdded>& v_devices_endpoint_in, std::string service,
-  std::string sub_service, std::string x_auth_token, std::string& response) {
 
 
 
@@ -747,6 +747,14 @@ int iota::AdminManagerService::put_device_json(
       iota::DeviceToBeAdded dev_add(body, v_endpoint[j]);
       v_endpoints_put.push_back(dev_add);
     }
+
+/*
+    if (v_endpoints_put.size() == 0){
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                              error_details,
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+    }
+*/
     PION_LOG_DEBUG(m_log, "put_device_json:  sending request to "
                    << v_endpoints_put.size() << " endpoints");
 

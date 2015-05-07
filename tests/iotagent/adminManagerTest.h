@@ -59,6 +59,8 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
 
+    CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
+
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -134,6 +136,7 @@ protected:
 
   void testPostJSONDeviceErrorHandling();
   void testNoEndpoints_Bug_IDAS20444();
+  void testNoDeviceError_Bug_IDAS20463();
 
 private:
     void cleanDB();
