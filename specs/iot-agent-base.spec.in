@@ -59,8 +59,8 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/src/services/date_time_zonespec.csv %{buildroot}/e
 cp @CMAKE_CURRENT_SOURCE_DIR@/tests/iotagent/devices.json %{buildroot}/etc/iot
 
 mkdir -p %{buildroot}/usr/local/iot/config
-cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagent %{buildroot}/usr/local/iot/config
-cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagentm %{buildroot}/usr/local/iot/config
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagent.conf %{buildroot}/usr/local/iot/config
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagentm.conf %{buildroot}/usr/local/iot/config
 
 mkdir -p %{buildroot}/usr/local/iot/init.d
 cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/init.d/iotagent %{buildroot}/usr/local/iot/init.d

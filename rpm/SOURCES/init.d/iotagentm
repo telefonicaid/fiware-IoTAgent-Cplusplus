@@ -14,7 +14,7 @@ PARAM=$1
 USERNAME=iotagent
 NAME=iotagentm
 EXECUTABLE=/usr/local/iot/bin/iotagent
-ENV_FILE=/usr/local/iot/config/${NAME}
+ENV_FILE=/usr/local/iot/config/${NAME}.conf
 
 # Load the environment
 if [[ -f ${ENV_FILE} ]]; then
