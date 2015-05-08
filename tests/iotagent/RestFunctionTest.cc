@@ -236,4 +236,14 @@ void RestFunctionTest::testHeaders() {
   catch(iota::IotaException& e) {
     CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
   }
+  std::string fsp_length("/");
+  for (int i = 0; i < 51; i++) {
+    fsp_length.append("a");
+  }
+   try {
+    iota::check_fiware_service_path_name(fsp_length);
+  }
+  catch(iota::IotaException& e) {
+    CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
+  }
 }
