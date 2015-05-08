@@ -151,6 +151,12 @@ types::RESPONSE_MESSAGE_BAD_PROTOCOL("There are conflicts, protocol is not corre
 const std::string
 types::RESPONSE_MESSAGE_DATA_NOT_FOUND("Field or data not found");
 
+const std::string types::REASON_MALFORMED_HEADER("Malformed header");
+const std::string types::REASON_MALFORMED_DATA("Malformed data");
+
+const std::string types::DETAILS_HEADER_FIWARE_SERVICE("Fiware-Service not accepted - a service string must not be longer than 50 characters and may only contain underscores and alphanumeric characters and lowercase");
+const std::string types::DETAILS_HEADER_FIWARE_SERVICE_PATH("Fiware-ServicePath not accepted - a service path string must only contain underscores and alphanumeric characters and starts with character /");
+
 
 const std::string
 types::RESPONSE_MESSAGE_INTERNAL_ERROR("Conctact with your administrator, there was an internal error");
@@ -190,6 +196,10 @@ const unsigned int types::RESPONSE_CODE_NO_REGISTERED_DEVICE = 404;
 const unsigned int types::RESPONSE_CODE_NO_COMMAND = 400;
 const unsigned int types::RESPONSE_CODE_NO_DEVICE_NO_COMMAND = 400;
 const unsigned int types::RESPONSE_CODE_DATA_NOT_FOUND  =404;
+
+// Special codes
+const unsigned int types::RESPONSE_CODE_FIWARE_SERVICE_ERROR = 1000;
+const unsigned int types::RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR = 1001;
 
 
 ///ALARMS

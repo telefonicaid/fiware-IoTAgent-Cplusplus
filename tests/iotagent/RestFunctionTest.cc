@@ -25,6 +25,7 @@
 #include "rest/iot_duration.h"
 #include "rest/iot_stat_value.h"
 #include "util/FuncUtil.h"
+#include "util/iota_exception.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(RestFunctionTest);
 
@@ -168,7 +169,8 @@ void RestFunctionTest::testStatistic() {
   delete v;
   CPPUNIT_ASSERT(boost::accumulators::count(*stat_1["stat1"]) == 1);
   CPPUNIT_ASSERT(boost::accumulators::max(*stat_1["stat1"]) == 10);
-  std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> > a =
+  std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >
+  a =
     stat_1.get_counters();
   CPPUNIT_ASSERT(a.size() == 1);
 
@@ -191,4 +193,61 @@ void RestFunctionTest::testUuid() {
   std::string uuid_1 = iota::riot_uuid("/iot");
   std::string uuid_2 = iota::riot_uuid("/iot");
   CPPUNIT_ASSERT_MESSAGE("Different uuid ", uuid_1.compare(uuid_2) != 0);
+}
+
+void RestFunctionTest::testHeaders() {
+  // Fiware-Service
+  std::string more_length;
+  for (int i = 0; i < 52; i++) {
+    more_length.append("a");
+  }
+  try {
+    iota::check_fiware_service_name(more_length);
+  }
+  catch(iota::IotaException& e) {
+    CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
+  }
+
+  //Alfanum and _
+  std::string noalpha("no-valid");
+  try {
+    iota::check_fiware_service_name(noalpha);
+  }
+  catch(iota::IotaException& e) {
+    CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
+  }
+
+   std::string upper("Aa124");
+  try {
+    iota::check_fiware_service_name(upper);
+  }
+  catch(iota::IotaException& e) {
+    CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
+  }
+  std::string f("_123abc_");
+  iota::check_fiware_service_name(f);
+  std::string good("1234_abc");
+  iota::check_fiware_service_name(good);
+
+  // Fiware-ServicePath
+   try {
+    iota::check_fiware_service_path_name(good);
+  }
+  catch(iota::IotaException& e) {
+    CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
+  }
+  std::string fsp_length("/");
+  for (int i = 0; i < 51; i++) {
+    fsp_length.append("a");
+  }
+   try {
+    iota::check_fiware_service_path_name(fsp_length);
+  }
+  catch(iota::IotaException& e) {
+    CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
+  }
+  std::string e;
+  std::string w("/#");
+  iota::check_fiware_service_path_name(e);
+  iota::check_fiware_service_path_name(w);
 }
