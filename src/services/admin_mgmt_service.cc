@@ -99,6 +99,7 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
     PION_LOG_DEBUG(m_log, "resolve_endpoints: size of elements [" << devices.Size()
                    <<
                    "]");
+    try{
     for (rapidjson::SizeType i = 0; i < devices.Size(); i++) {
 
       if (devices[i].HasMember("protocol")) {
@@ -135,6 +136,11 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
       else {
         PION_LOG_ERROR(m_log, "protocol is empty");
       }
+    }
+    }catch (iota::IotaException& ie){
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                             ie.what(),
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
 
   }
@@ -217,7 +223,7 @@ int iota::AdminManagerService::operation_device_iotagent(
 
   throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NONE,
                             "No response from iotagent: " + url_iotagent,
-                            iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+                            iota::types::RESPONSE_CODE_BAD_REQUEST);
 
 }
 

@@ -1150,9 +1150,9 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 404);
+  IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
-      "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+      "{\"reason\":\"The request is not well formed\"") != std::string::npos);
 
 //Insert endpoint for ss1 service
   table1.insert(mongo::fromjson(s1_d));
@@ -1160,7 +1160,7 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   code_res = http_test(uri_query, "POST", "nanana", "/ss1", "application/json",
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 404);
+  IOTASSERT(code_res == 400);
 
 
 
