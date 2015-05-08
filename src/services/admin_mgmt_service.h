@@ -319,6 +319,7 @@ class AdminManagerService : public iota::AdminService {
 
 
 
+
     std::string _class_name;
 
 };

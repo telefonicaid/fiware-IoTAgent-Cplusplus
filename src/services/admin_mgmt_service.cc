@@ -99,6 +99,7 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
     PION_LOG_DEBUG(m_log, "resolve_endpoints: size of elements [" << devices.Size()
                    <<
                    "]");
+    try{
     for (rapidjson::SizeType i = 0; i < devices.Size(); i++) {
 
       if (devices[i].HasMember("protocol")) {
@@ -136,12 +137,10 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
         PION_LOG_ERROR(m_log, "protocol is empty");
       }
     }
-
-    if (v_devices_endpoint_out.size() == 0){
-
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATA_NOT_FOUND,
-                              "No endpoints found",
-                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+    }catch (iota::IotaException& ie){
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                             ie.what(),
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
 
   }
@@ -224,7 +223,7 @@ int iota::AdminManagerService::operation_device_iotagent(
 
   throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NONE,
                             "No response from iotagent: " + url_iotagent,
-                            iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+                            iota::types::RESPONSE_CODE_BAD_REQUEST);
 
 }
 
@@ -245,7 +244,7 @@ int iota::AdminManagerService::get_all_devices_json(
 
   PION_LOG_DEBUG(m_log, "AdminManagerService: get_all_devices_json, starting...");
 
-  if ((!detailed.empty()) && 
+  if ((!detailed.empty()) &&
       (detailed.compare(iota::store::types::ON) != 0) &&
       (detailed.compare(iota::store::types::OFF) != 0))  {
     PION_LOG_DEBUG(m_log, "status=" <<
@@ -521,10 +520,10 @@ void iota::AdminManagerService::receive_get_devices(
 
 }
 
+int iota::AdminManagerService::post_multiple_devices(std::vector<DeviceToBeAdded>&
+                                      v_devices_endpoint_in,std::string service,std::string sub_service,
+                                      std::string x_auth_token,std::string& response) {
 
-int iota::AdminManagerService::post_multiple_devices(
-  std::vector<DeviceToBeAdded>& v_devices_endpoint_in, std::string service,
-  std::string sub_service, std::string x_auth_token, std::string& response) {
 
 
 
@@ -687,15 +686,6 @@ int iota::AdminManagerService::post_device_json(
 
   PION_LOG_DEBUG(m_log, "post_device_json: POSTs processed: [" << code << "]");
 
-  /*if (!response.empty()) {
-    http_response.set_content(response);
-    http_response.set_status_code(200);
-  }
-  else {
-    http_response.set_status_code(404);
-  }
-  */
-
   return http_response.get_status_code();
 
 }
@@ -768,6 +758,7 @@ int iota::AdminManagerService::put_device_json(
       iota::DeviceToBeAdded dev_add(body, v_endpoint[j]);
       v_endpoints_put.push_back(dev_add);
     }
+
     PION_LOG_DEBUG(m_log, "put_device_json:  sending request to "
                    << v_endpoints_put.size() << " endpoints");
 
