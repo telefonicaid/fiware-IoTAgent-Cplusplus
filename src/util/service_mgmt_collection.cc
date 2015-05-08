@@ -266,7 +266,7 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
                               "[protocol:" + protocol_id+
                               "|service: " + service +
                               "|service_path:" + service_path+"]",
-                              iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND);
+                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
   }
 
   return result;
