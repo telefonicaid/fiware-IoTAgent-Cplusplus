@@ -45,7 +45,7 @@ Anyway, this API needs two headers in order to manage requests:
 
 ## Naming conventions
 - `Fiware-Service`: a service string must not be longer than 50 characters and may only contain underscores and alphanumeric characters and lowercases.
-- `Fiware-ServicePath`: a service path string must only contain underscores and alphanumeric characters and starts with character /.
+- `Fiware-ServicePath`: a service path string must only contain underscores and alphanumeric characters and starts with character /. Maximum length is 51 characters (with /).
 
 ## API Access
 All URIs are relative to an specific url, where IoT Agent is raised. For example, `http://127.0.0.1:8080/iot/`.
