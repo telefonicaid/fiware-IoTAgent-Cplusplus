@@ -314,6 +314,12 @@ void iota::check_fiware_service_path_name(std::string&
       error = true;
     }
   }
+
+  // Length
+  if (header_fiware_service_path.size() > iota::FIWARE_SERVICE_LENGTH +1) {
+    error = true;
+  }
+
   for (i = start; (i< header_fiware_service_path.size() && !error); i++) {
     int c = header_fiware_service_path[i];
     if (!isalnum(c) && c != '_') {
