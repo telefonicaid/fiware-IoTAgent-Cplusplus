@@ -32,6 +32,22 @@ and
 {"id":"thing:dev_agus","type":"thing","isPattern":"false","attributes":[{"name":"t","type":"","value":"10","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2015-02-12T08:41:54.864249Z"}]},{"name":"TimeInstant","type":"ISO8601","value":"2015-02-12T08:41:54.864249Z"}]}
 ```
 
+### Conversion to Location Entity for ContextBroker ###
+
+When a device is provisioned, some basic conversions can be set using the field named "static attributes". That can be configured using the devices provisioning API. ContextBroker supports a native attribute format for location measures. Thus it makes sense to offer this type of conversion as built-in. Both UltraLight and MQTT plugins can benefit from this by just having their devices provisioned with an specific static attribute as detailed below:
+
+```	
+	{
+           "object_id":"l",
+           "type": "coords",
+           "name":"position"
+   	}
+```
+
+Where __"object_id"__ is the name of the original attribute coming in the message. UL will typically use one letter, but MQTT can have a longer name. __"type"__ has to be "coords" as the conversion is built-in. Lastly, __"name"__ is the name of the attribute sent to the ContextBroker.
+
+
+
 You can review protocol reference in [Ultra-Light](UL20_protocol.md).
 
 ## MQTT Agent ###

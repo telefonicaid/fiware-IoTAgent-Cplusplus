@@ -1139,7 +1139,7 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   mongo::BSONObj all;
 
 
-  //First Scenario: no endpoints found, 404 expected.
+  //First Scenario: no endpoints found, 400 expected.
   table1.remove(all);
 
   std::cout << "@UT@1POST" << std::endl;
@@ -1213,7 +1213,7 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
   code_res = http_test(uri_query+"/device_id", "PUT", service, "/ss1", "application/json",
                        PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  //IOTASSERT(code_res == 400);
+  IOTASSERT(code_res == 404);
 
   /*IOTASSERT(response.compare(
               "{\"reason\":\"Field or data not found\",\"details\":\"No endpoints found\"}")
