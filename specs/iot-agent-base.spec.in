@@ -59,12 +59,11 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/src/services/date_time_zonespec.csv %{buildroot}/e
 cp @CMAKE_CURRENT_SOURCE_DIR@/tests/iotagent/devices.json %{buildroot}/etc/iot
 
 mkdir -p %{buildroot}/usr/local/iot/config
-cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagent.conf %{buildroot}/usr/local/iot/config
-cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagentm.conf %{buildroot}/usr/local/iot/config
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagent_protocol.conf %{buildroot}/usr/local/iot/config
+cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/config/iotagent_manager.conf %{buildroot}/usr/local/iot/config
 
 mkdir -p %{buildroot}/usr/local/iot/init.d
 cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/init.d/iotagent %{buildroot}/usr/local/iot/init.d
-cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/init.d/iotagentm %{buildroot}/usr/local/iot/init.d
 
 mkdir -p %{buildroot}/etc/cron.d
 cp @CMAKE_CURRENT_SOURCE_DIR@/rpm/SOURCES/cron.d/cron-logrotate-iotagent-size %{buildroot}/etc/cron.d
@@ -87,7 +86,6 @@ chown %{_owner}:%{_owner} %{_run_dir}
 
 echo "[INFO] Creating links..."
 ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
-ln -s /usr/local/iot/init.d/iotagentm /etc/init.d/iotagentm
 
 # -------------------------------------------------------------------------------------------- #
 # pre-uninstall section:

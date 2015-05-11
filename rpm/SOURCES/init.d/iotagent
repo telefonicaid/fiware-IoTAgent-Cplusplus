@@ -11,42 +11,65 @@
 . /etc/rc.d/init.d/functions
 
 PARAM=$1
-NAME=iotagent
-EXECUTABLE=/usr/local/iot/bin/${NAME}
-ENV_FILE=/usr/local/iot/config/${NAME}.conf
-
-# Load the environment
-if [[ -f ${ENV_FILE} ]]; then
-	. ${ENV_FILE}
-else
-   echo "Configuration file ${ENV_FILE} not found"
-   echo "Please read the documentation for information on setting up ${NAME}"
-   exit 1
-fi
-
-# Check if the config.json is loaded
-if [[ ! -f ${IOTAGENT_CONFIG_FILE} ]]; then
-   echo "Configuration file ${IOTAGENT_CONFIG_FILE} not found"
-   echo "Please read the documentation for information on setting up ${NAME}"
-   exit 1
-fi
-
-# Mandatory parameters
-IOTAGENT_OPTS="-n ${IOTAGENT_SERVER_NAME}    \
-			   -v ${IOTAGENT_LOG_LEVEL}      \
-			   -i ${IOTAGENT_SERVER_ADDRESS} \
-			   -p ${IOTAGENT_SERVER_PORT}    \
-			   -d ${IOTAGENT_LIBRARY_DIR}    \
-			   -c ${IOTAGENT_CONFIG_FILE}"
+INSTANCE=$2
+USERNAME=iotagent
+EXECUTABLE=/usr/local/iot/bin/iotagent
+CONFIG_PATH=/usr/local/iot/config
 
 iotagent_start()
 {
-	printf "%-50s" "Starting ${NAME}..."
-	if [[ -x ${EXECUTABLE} ]]; then
-		su ${NAME} -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
+
+
+	local result=0
+	local instance=${1}
+
+	if [[ ! -x ${EXECUTABLE} ]]; then
+		printf "%s\n" "Fail - missing ${EXECUTABLE} executable"
+		exit 1
+	fi
+
+	if [[ -z ${instance} ]]; then
+		list_instances="${CONFIG_PATH}/iotagent_*.conf"
+	else
+		list_instances="${CONFIG_PATH}/iotagent_${instance}.conf"
+	fi
+
+	for instance_config in ${list_instances}
+	do
+		local NAME
+		NAME=${instance_config%.conf}
+		NAME=${NAME#*iotagent_}
+
+		source ${instance_config}
+
+		local IOTAGENT_PID_FILE="/var/run/iot/iotagent_${NAME}.pid"
+
+		printf "Starting iotagent ${NAME}..."
+
+		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} &> /dev/null 
+		if [[ ${?} -eq 0 ]]; then
+			printf "%s\n" " Already running, skipping $(success)"
+			continue
+		fi
+
+
+		# Load the environment
+		set -a
+		source ${instance_config}
+
+		# Mandatory parameters
+		IOTAGENT_OPTS="   ${IS_MANAGER}              \
+					   -n ${IOTAGENT_SERVER_NAME}    \
+					   -v ${IOTAGENT_LOG_LEVEL}      \
+					   -i ${IOTAGENT_SERVER_ADDRESS} \
+					   -p ${IOTAGENT_SERVER_PORT}    \
+					   -d ${IOTAGENT_LIBRARY_DIR}    \
+					   -c ${IOTAGENT_CONFIG_FILE}"
+
+		su ${USERNAME} -c "LD_LIBRARY_PATH=\"${IOTAGENT_LIBRARY_DIR}\" \
 		${EXECUTABLE} ${IOTAGENT_OPTS} & echo \$! > ${IOTAGENT_PID_FILE}" &> /dev/null 
 		sleep 2 # wait some time to leave iotagent start
-		PID=$(cat ${IOTAGENT_PID_FILE})
+		local PID=$(cat ${IOTAGENT_PID_FILE})
 		if [[ -z "${PID}" ]]; then
 			printf "%s" "pidfile not found"
 			printf "%s\n" "$(failure)" 
@@ -54,49 +77,104 @@ iotagent_start()
 		else
 			printf "%s\n" "$(success)"
 		fi
-	else
-		printf "%s\n" "Fail - missing ${EXECUTABLE} executable"
-		exit 1
-	fi
+	done
+
+	return ${result}
+
 }
 
 iotagent_stop()
 {
-	printf "%-50s" "Stopping $NAME..."
-	if [ -f "${IOTAGENT_PID_FILE}" ]; then
-		kill $(cat ${IOTAGENT_PID_FILE})
-		rm -f ${IOTAGENT_PID_FILE}
-		printf "%s\n" "$(success)"
+	local result=0
+	local iotagent_instance=${1}
+
+
+	if [[ -z ${iotagent_instance} ]]; then
+		list_run_instances="/var/run/iot/iotagent_*.pid"
 	else
-		printf "%s\n" "$(failure)"
+		list_run_instances="/var/run/iot/iotagent_${iotagent_instance}.pid"
 	fi
+
+	if [[ $(ls -l ${list_run_instances} 2> /dev/null | wc -l) -eq 0 ]]; then
+		printf "%s\n" "There aren't any instance of IoTAgent ${iotagent_instance} running $(success)"
+		return 0
+	fi
+
+	for run_instance in ${list_run_instances}
+	do
+
+		local NAME
+		NAME=${run_instance%.pid}
+		NAME=${NAME#*iotagent_}
+
+		printf "%s" "Stopping IoTAgent ${NAME}..."
+
+		local RUN_PID=$(cat ${run_instance})
+		kill ${RUN_PID}  &> /dev/null
+		sleep 2 # time to die properly
+		local KILLED_PID=$(ps -ef | grep ${RUN_PID} | grep -v grep | awk '{print $2}')
+		if [[ -z ${KILLED_PID} ]]; then
+			printf "%s\n" "$(success)"
+		else
+			printf "%s\n" "$(failure)"
+			result=$((${result}+1))
+		fi
+
+		rm -f ${run_instance} &> /dev/null 
+
+	done
+	return ${result}
 }
 
 iotagent_status()
 {
-	status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE}
+	local result=0
+	local iotagent_instance=${1}
+
+	if [[ -z ${iotagent_instance} ]]; then
+		list_run_instances="/var/run/iot/iotagent_*.pid"
+	else
+		list_run_instances="/var/run/iot/iotagent_${iotagent_instance}.pid"
+	fi
+
+	if [[ $(ls -l ${list_run_instances} 2> /dev/null | wc -l) -eq 0 ]]; then
+		printf "%s\n" "There aren't any instance of IoTAgent ${iotagent_instance} running."
+		return 1
+	fi
+
+	for run_instance in ${list_run_instances}
+	do
+
+		local NAME
+		NAME=${run_instance%.pid}
+		NAME=${NAME#*iotagent_}
+
+		printf "%s\n" "IoTAgent ${NAME} status..."
+		status -p ${run_instance} ${NODE_EXEC}
+		result=$((${result}+${?}))
+
+	done
+
+	return ${result}
 }
 
 
 case ${PARAM} in
 
 	'start')
-		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} && exit 0
-		iotagent_start
+		iotagent_start ${INSTANCE}
 		;;
 
 	'stop')
-		status -p ${IOTAGENT_PID_FILE} ${EXECUTABLE} || exit 0
-		iotagent_stop
-		;;
+		iotagent_stop ${INSTANCE}
+		;; 
 
 	'restart')
-		iotagent_stop
-		iotagent_start
+		iotagent_stop ${INSTANCE}
+		iotagent_start ${INSTANCE}
 		;;
 
 	'status')
-		iotagent_status
+		iotagent_status ${INSTANCE}
 		;;
-
 esac
