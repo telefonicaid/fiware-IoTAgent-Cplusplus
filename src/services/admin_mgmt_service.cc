@@ -144,6 +144,17 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
                                 iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
 
+    if (v_devices_endpoint_out.size() == 0){
+      std::string error_details(iota::types::RESPONSE_MESSAGE_MISSING_IOTAGENTS);
+      error_details.append("[service|");
+      error_details.append(service);
+      error_details.append("|sub-service|");
+      error_details.append(sub_service);
+      error_details.append("]");
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                                error_details,
+                                iota::types::RESPONSE_CODE_BAD_REQUEST);
+    }
   }
   else {
 
