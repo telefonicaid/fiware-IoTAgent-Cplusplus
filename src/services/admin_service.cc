@@ -624,7 +624,6 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
         protocol_filter = it->second;
       }
 
-
       code = get_all_devices_json(service, service_path, limit, offset, detailed,
                                   entity,
                                   http_response, response,trace_message,token,protocol_filter);
@@ -1230,10 +1229,9 @@ int iota::AdminService::create_response(
   }else{
     response.assign(content);
   }
-
   if (!content.empty()) {
     http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
-                             "application/json");
+                             iota::types::IOT_CONTENT_TYPE_JSON);
   }
   http_response.set_status_code(status_code);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
