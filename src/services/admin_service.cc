@@ -1229,10 +1229,9 @@ int iota::AdminService::create_response(
   }else{
     response.assign(content);
   }
-
   if (!content.empty()) {
     http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
-                             "application/json");
+                             iota::types::IOT_CONTENT_TYPE_JSON);
   }
   http_response.set_status_code(status_code);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
