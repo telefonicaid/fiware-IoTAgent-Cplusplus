@@ -33,6 +33,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <boost/algorithm/string/erase.hpp>
 #include <pion/process.hpp>
 #include "version.h"
 #include "util/device_collection.h"
@@ -700,7 +701,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     std::multimap<std::string, std::string>::iterator it = query_parameters.begin();
     it = query_parameters.find(iota::store::types::PROTOCOL);
     if (it != query_parameters.end()) {
-       protocol_filter = it->second;
+      protocol_filter = it->second;
     }
 
 
@@ -1221,12 +1222,17 @@ int iota::AdminService::create_response(
   std::ostringstream stream;
   if (status_code >= 299) {
     if (!content.empty() && !error_details.empty()) {
+      std::string o_content(content);
+      std::string o_details(error_details);
+      boost::erase_all(o_content, "\"");
+      boost::erase_all(o_details, "\"");
       stream << "{"
-             <<   "\"reason\":\"" << content << "\","
-             <<   "\"details\":\"" << error_details << "\"}";
+             <<   "\"reason\":\"" << o_content << "\","
+             <<   "\"details\":\"" << o_details << "\"}";
       response.assign(stream.str());
     }
-  }else{
+  }
+  else {
     response.assign(content);
   }
   if (!content.empty()) {
@@ -1761,7 +1767,7 @@ int iota::AdminService::delete_device_json(
   pion::http::response& http_response,
   std::string& response,
   std::string token,
-  const std::string &protocol) {
+  const std::string& protocol) {
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string param_request("delete_device_json|service=" + service +
                             "|service_path=" +

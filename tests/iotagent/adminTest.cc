@@ -1341,7 +1341,7 @@ void AdminTest::testBADPostDevice() {
             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
-              "{\"reason\":\"The request is not well formed\",\"details\":\"String does not match pattern \"^/\" [/services[0]/resource]\"}")
+              "{\"reason\":\"The request is not well formed\"")
             !=
             std::string::npos);
 
