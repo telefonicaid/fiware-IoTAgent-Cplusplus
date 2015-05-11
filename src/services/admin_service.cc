@@ -624,7 +624,6 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
         protocol_filter = it->second;
       }
 
-
       code = get_all_devices_json(service, service_path, limit, offset, detailed,
                                   entity,
                                   http_response, response,trace_message,token,protocol_filter);
