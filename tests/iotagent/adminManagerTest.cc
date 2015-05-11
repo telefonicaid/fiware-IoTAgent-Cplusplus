@@ -212,6 +212,14 @@ AdminManagerTest::POST_DEVICE("{\"devices\": "
                               "}]}");
 
 const std::string
+AdminManagerTest::POST_DEVICE_NO_PROTOCOL("{\"devices\": "
+                              "[{\"device_id\": \"device_id_new\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                              "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                              "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                              "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                              "}]}");
+
+const std::string
 AdminManagerTest::GET_DEVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
 std::string
@@ -1163,7 +1171,18 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   IOTASSERT(code_res == 400);
 
 
+  //Scenario: no protocol on endpoint
+  code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+                       POST_DEVICE, headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
 
+  //Scenario: no protocol on JSON
+
+   code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+                       POST_DEVICE_NO_PROTOCOL, headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
 
 
   std::cout << "END@UT@ testNoEndpoints_Bug_IDAS20444" << std::endl;

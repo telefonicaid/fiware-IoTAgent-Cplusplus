@@ -53,22 +53,24 @@ Services are the higher level in IoT Platform. When you manipulate a service, yo
 
 ### Service Model
 Fields in JSON object representing a service are:
-- `apikey` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
-- `token` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
-- `cbroker`(string, mandatory). Context Broker endpoint assigned to this service, it must be a real uri.
-- `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
-- `resource` (string, mandatory). Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
-- `entity_type` (string, optional). Entity type used in entity publication (overload default).
-- `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
+- `apikey`. It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
+- `token`. If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
+- `cbroker`. Context Broker endpoint assigned to this service, it must be a real uri.
+- `outgoing_route`. It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
+- `resource`. Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
+- `entity_type`. Entity type used in entity publication (overload default).
+- `attributes`. Mapping for protocol parameters to entity attributes.
 `object_id` (string, mandatory): protocol parameter to be mapped.
 `name` (string, mandatory): attribute name to publish.
 `type`: (string, mandatory): attribute type to publish.
-- `static_attributes` (optional, array). Attributes published as defined.
+- `static_attributes`. Attributes published as defined.
 `name` (string, mandatory): attribute name to publish.
 `type` (string, mandatory): attribute type to publish.
 `value` (string, mandatory): attribute value to publish.
 
 `static_attributes` and `attributes` are used if device has not this information.
+
+Mandatory fields are identified in every operation.
 
 ### Retrieve a service [GET]
 
@@ -86,7 +88,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /*
 
 + Response 200
@@ -112,7 +114,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -136,13 +138,13 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
 
 ### Create a service [POST]
-With one subservice defined in Fiware-ServicePath header.
+With one subservice defined in Fiware-ServicePath header. From service model, mandatory fields are: apikey, resource (cbroker field is temporary mandatory).
 
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -163,7 +165,7 @@ With one subservice defined in Fiware-ServicePath header.
 
 
 ### Update a service/subservice [PUT]
-If you want modify only a field, you can do it. ("/*" is not allowed).
+If you want modify only a field, you can do it. You cannot modify an element into an array field, but whole array. ("/*" is not allowed). 
 
 + Parameters [apikey, resource]
 
@@ -175,7 +177,7 @@ If you want modify only a field, you can do it. ("/*" is not allowed).
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -201,21 +203,21 @@ You remove a subservice into a service. If Fiware-ServicePath is '/*' or '/#' re
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 204
 
 
-## Devices [/devices{?limit,offset,detailed,protocol}]
+## Devices [/devices{?limit,offset,detailed,protocol,entity}]
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
-- `device_id` (string, mandatory). Unique identifier into a service.
-- `protocol` (string, mandatory). Protocol assigned to device.
-- `entity_name` (string, optional). Entity name used for entity publication (overload default)
-- `entity_type` (string, optional). Entity type used for entity publication (overload entity_type defined in service).
-- `timezone` (optional, string). Not used in this version.
-- `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
+- `device_id`. Unique identifier into a service.
+- `protocol`. Protocol assigned to device. This field is easily provided by IoTA Manager if it is used. Every module implmenting a protocol has an identifier.
+- `entity_name`. Entity name used for entity publication (overload default)
+- `entity_type`. Entity type used for entity publication (overload entity_type defined in service).
+- `timezone`. Not used in this version.
+- `attributes`. Mapping for protocol parameters to entity attributes.
 `object_id` (string, mandatory): protocol parameter to be mapped.
 `name` (string, mandatory): attribute name to publish.
 `type`: (string, mandatory): attribute type to publish.
@@ -229,9 +231,11 @@ A device is a resource that publish information to IoT Platform and it uses the 
 `type` (string, mandatory). It must be 'command'.
 `value` (string, mandatory): command representation depends on protocol.
 
+Mandatory fields are identified in every operation.
+
 ### Retrieve all devices [GET]
 
-+ Parameters [limit, offset, detailed, entity]
++ Parameters [limit, offset, detailed, entity, protocol]
 
 
     + `limit` (optional, number). In order to specify the maximum number of devices (default is 20, maximun allowed is 1000).
@@ -248,7 +252,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testService
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -283,12 +287,13 @@ A device is a resource that publish information to IoT Platform and it uses the 
             }
 
 ### Create a device [POST]
+From device model, mandatory fields are: device_id and protocol.
 
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -338,12 +343,12 @@ A device is a resource that publish information to IoT Platform and it uses the 
 ## Device [/devices/{device_id}]
 
 ### Retrieve a device [GET]
-
+    
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -373,13 +378,13 @@ A device is a resource that publish information to IoT Platform and it uses the 
             }
 
 ### Update a device [PUT]
-If you want modify only a field, you can do it, except field `protocol`.
+If you want modify only a field, you can do it, except field `protocol` (this field, if provided it is removed from request).
 
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -397,7 +402,7 @@ If specific device is not found, we work as deleted.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 204

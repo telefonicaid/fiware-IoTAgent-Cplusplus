@@ -144,6 +144,17 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
                                 iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
 
+    if (v_devices_endpoint_out.size() == 0){
+      std::string error_details(iota::types::RESPONSE_MESSAGE_MISSING_IOTAGENTS);
+      error_details.append("[service|");
+      error_details.append(service);
+      error_details.append("|sub-service|");
+      error_details.append(sub_service);
+      error_details.append("]");
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                                error_details,
+                                iota::types::RESPONSE_CODE_BAD_REQUEST);
+    }
   }
   else {
 
@@ -369,8 +380,6 @@ int iota::AdminManagerService::get_all_devices_json(
   std::string content_response = result.jsonString();
   PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
 
-  http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
-                           iota::types::IOT_CONTENT_TYPE_JSON);
   http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                      pion::http::types::RESPONSE_CODE_OK));
@@ -495,7 +504,6 @@ int iota::AdminManagerService::get_a_device_json(
                                        pion::http::types::RESPONSE_CODE_OK));
     code = pion::http::types::RESPONSE_CODE_OK;
   }
-
   return create_response(code, content_response, "", http_response,
                          response);
 

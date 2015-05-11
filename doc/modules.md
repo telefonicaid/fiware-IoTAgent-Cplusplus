@@ -1,6 +1,12 @@
 # Southbound API
 ## Ultra Light Agent ###
 Ultra-Light (UL20) is a HTTP protocol to send short data.
+
+```
+Identifier: PDI-IoTA-UltraLight
+Description: Ultra Light Propietary Protocol
+```
+
 Previously, this module is configured in _/iot/d_ URI and the service provisioned has _apikey_ ('abc' in curl example). Parameters are:
 You can send data with HTTP GET (it use query parameters):
 ```
@@ -52,6 +58,11 @@ You can review protocol reference in [Ultra-Light](UL20_protocol.md).
 
 ## MQTT Agent ###
 
+```
+Identifier: PDI-IoTA-MQTT-UltraLight
+Description: MQTT with Propietary Protocol in topics and payload (UL-based)
+```
+
 MQTT is a M2M oriented protocol based on TCP that requires a broker for publishing and subscribing to messages based on topics hiearchy. In order to be able to publish and receive on IoTAgent-MQTT, services must be provisioned providing an api-key that will be used in the topics sent by devices belonging to that service as explained here [MQTT](MQTT_protocol.md). The typical port used is 1883 (no SSL).  
 
 As a reminder, the __config.json__ file has to contain at least one "resource" for MQTT like this:
@@ -93,6 +104,12 @@ __Note__: if ACS is used, mqtt clients have to use user-id that must be the same
 
 
 ## Thinking Things Agent ###
+
+```
+Identifier: PDI-IoTA-ThinkingThings
+Description: Thinking Things Protocol
+```
+
 Thinking Things devices use their own frame format over HTTP requests to send measures and take configuration changes. Thinking Things module for IoTAgent will transform those HTTP request into ContextBroker entities following the mapping described here: [Thinking Things](TT_protocol.md). One key thing that differentiates Thinking Things from others protocols is that there is no "apikey" for identifying services. Users will need to provision a "sub-service" within the given Service. For doing so, they have to provide a "trust_token" as credentials.
 
 Header for the service:

@@ -450,7 +450,8 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
       status = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
     }
 
-    error_response(writer->get_response(), reason, details, response_buffer, status);
+    error_response(writer->get_response(), reason, details, response_buffer,
+                   status);
     send_http_response(writer, response_buffer);
   }
   else {
@@ -508,7 +509,8 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
       }
     }
     if (it_handle == _handlers.end()) {
-      error_response(writer->get_response(), iota::types::RESPONSE_MESSAGE_BAD_REQUEST, "", response_buffer);
+      error_response(writer->get_response(),
+                     iota::types::RESPONSE_MESSAGE_BAD_REQUEST, "", response_buffer);
       finish = true;
     }
     else {
@@ -525,7 +527,8 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
   }
   catch (std::exception& e) {
     // Response
-    error_response(writer->get_response(), iota::types::RESPONSE_MESSAGE_BAD_REQUEST, e.what(), response_buffer);
+    error_response(writer->get_response(),
+                   iota::types::RESPONSE_MESSAGE_BAD_REQUEST, e.what(), response_buffer);
     finish = true;
   }
 
@@ -579,11 +582,15 @@ void iota::RestHandle::error_response(pion::http::response& http_response,
     buffer.clear();
     buffer.assign("{");
     buffer.append("\"reason\": \"");
-    buffer.append(reason);
+    std::string o_reason(reason);
+    boost::erase_all(o_reason, "\"");
+    buffer.append(o_reason);
     buffer.append("\",");
     if (details.empty() == false) {
+      std::string o_details(details);
+      boost::erase_all(o_details, "\"");
       buffer.append("\"details\": \"");
-      buffer.append(details);
+      buffer.append(o_details);
     }
     buffer.append("\"}");
   }
