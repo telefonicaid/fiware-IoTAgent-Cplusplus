@@ -1161,6 +1161,9 @@ void iota::RestHandle::send_http_response(pion::http::response_writer_ptr&
         iota::types::STAT_TRAFFIC);
   double tr_out = get_payload_length(writer->get_response());
   IoTValue v_out((*stat)[iota::types::STAT_TRAFFIC_OUT], tr_out);
+  int status_code = writer->get_response().get_status_code();
+  writer->get_response().set_status_message(iota::Configurator::instance()->getHttpMessage(
+                                       status_code));
   writer->write_no_copy(response_buffer);
   //writer->write_no_copy(pion::http::types::STRING_CRLF);
   //writer->write_no_copy(pion::http::types::STRING_CRLF);
