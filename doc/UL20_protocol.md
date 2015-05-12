@@ -49,7 +49,8 @@ For example, alias "t" will be mapped to "temperature" when measure is published
 In this example, a device sends three measures (t|10, m|15 and gps|12.1/14.2).
 
 Different observations are separated with #
-Multivalue are separated with /
+Multivalue are separated with /. You could use mapping features to send a location to Context Broker [Conversion to location](modules.md).
+
 
 <a name="def-command"></a>
 ## 5. Receive a command and send response
