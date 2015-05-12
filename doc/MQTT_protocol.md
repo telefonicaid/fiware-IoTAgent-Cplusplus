@@ -129,6 +129,7 @@ This is what is publised on ContextBroker:
 				}]
 	   }
 
+This payload (value) follows [Ultra Light](UL20_protocol.md) format for value. You could use mapping features to send a location to Context Broker [Conversion to location](modules.md).
 
 <a name="def-multi"></a>
 ## 7. Devices sending multiple measures per message
@@ -198,6 +199,8 @@ Therefore, the entity published on ContextBroker will contain two attributes wit
 				  "value":"2015-03-19T14:39:14.924961Z"
 				}]
 	   }
+
+You could review [Ultra Light](UL20_protocol.md) for more information about this feature.
 
 <a name="def-commands"></a>
 ## 8. Commands.
