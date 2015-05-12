@@ -55,10 +55,10 @@ Protocols are the rules that define the communication with different devices. It
 
 ### Protocol Model
 Fields in JSON object representing a protocol are:
-- `_id` (string, mandatory). It is a internal identifier.
-- `protocol` (string, mandatory). It is a name or identifier provided by IoT Agent.
-- `description`(string, mandatory). It is a description about protocol provided by IoT Agent.
-- `enpoints` (array, mandatory). It is an array with information about where this protocol is deployed. An endpoint is defined by `endpoint` (including ip address and port) and `resource` (including path or uri where protocol is deployed into IoT Agent).
+- `_id`. It is a internal identifier.
+- `protocol`. It is a name or identifier provided by IoT Agent.
+- `description`. It is a description about protocol provided by IoT Agent.
+- `enpoints`. It is an array with information about where this protocol is deployed. An endpoint is defined by `endpoint` (including ip address and port) and `resource` (including path or uri where protocol is deployed into IoT Agent).
 
 ### Retrieve a protocol [GET]
 
@@ -94,24 +94,26 @@ Services are the higher level in IoT Platform. When you manipulate a service, yo
 
 ### Service Model
 Fields in JSON object representing a service are:
-- `protocol` (string, mandatory). It is the unique identifier of the protocol.
-- `description` (string, mandatory). It is the description of the protocol.
-- `apikey` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
-- `token` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
-- `cbroker`(string, optional). Context Broker endpoint assigned to this service, it must be a real uri.
-- `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
-- `resource` (string, mandatory). Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
-- `entity_type` (string, optional). Entity type used in entity publication (overload default).
-- `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
+- `protocol`. It is the unique identifier of the protocol.
+- `description`. It is the description of the protocol.
+- `apikey`. It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
+- `token`. If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
+- `cbroker`. Context Broker endpoint assigned to this service, it must be a real uri.
+- `outgoing_route`. It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
+- `resource`. Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
+- `entity_type`. Entity type used in entity publication (overload default).
+- `attributes`. Mapping for protocol parameters to entity attributes.
 `object_id` (string, mandatory): protocol parameter to be mapped.
 `name` (string, mandatory): attribute name to publish.
 `type`: (string, mandatory): attribute type to publish.
-- `static_attributes` (optional, array). Attributes published as defined.
+- `static_attributes`. Attributes published as defined.
 `name` (string, mandatory): attribute name to publish.
 `type` (string, mandatory): attribute type to publish.
 `value` (string, mandatory): attribute value to publish.
 
 `static_attributes` and `attributes` are used if device has not this information.
+
+Mandatory fields are identified in every operation.
 
 ### Retrieve a service [GET]
 
