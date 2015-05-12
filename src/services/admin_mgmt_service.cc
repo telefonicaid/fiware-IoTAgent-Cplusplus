@@ -409,7 +409,7 @@ int iota::AdminManagerService::get_a_device_json(
 
   std::vector<iota::IotagentType> all_dest =
     manager_service_collection.get_iotagents_by_service(service, service_path,
-        protocol_filter);
+        protocol_filter, iota::types::LIMIT_MAX, 0);
 
   std::map<std::string, std::string> response_from_iotagent;
   std::map<std::string, std::string> response_from_iotagent_nok;
@@ -496,14 +496,14 @@ int iota::AdminManagerService::get_a_device_json(
   builder_json.appendArray(iota::store::types::DEVICES, builder_array.obj());
   mongo::BSONObj result = builder_json.obj();
   std::string content_response;
-  if (total_count != 0) {
-    content_response = result.jsonString();
-    PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
-    http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
-    http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
+
+  content_response = result.jsonString();
+  PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
+  http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
+  http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                        pion::http::types::RESPONSE_CODE_OK));
-    code = pion::http::types::RESPONSE_CODE_OK;
-  }
+  code = pion::http::types::RESPONSE_CODE_OK;
+
   return create_response(code, content_response, "", http_response,
                          response);
 
@@ -1101,7 +1101,7 @@ int iota::AdminManagerService::post_protocol_json(
       std::map<std::string, mongo::BSONObj>::iterator iter;
       for (iter = services_in_mongo.begin(); iter != services_in_mongo.end();
            ++iter) {
-        //TODO service_table.remove(iter->second);
+        service_table.remove(iter->second);
       }
     }
 

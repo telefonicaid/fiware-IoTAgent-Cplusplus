@@ -6,8 +6,9 @@ add_subdirectory(services)
 add_subdirectory(esp)
 if(MOSQUITTO_FOUND)
 add_subdirectory(mqtt)
-endif()
 add_subdirectory(thinkingthings)
+endif()
+
 add_subdirectory(ultra_light)
 add_subdirectory(sample_test)
 
