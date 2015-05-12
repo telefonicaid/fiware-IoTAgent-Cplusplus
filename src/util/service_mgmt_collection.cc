@@ -321,7 +321,6 @@ void iota::ServiceMgmtCollection::fillServices(const std::string &iotagent,
     find(query);
 
     mongo::BSONObj elto;
-    std::string key;
     while (more()){
       elto = next();
       std::string key(elto.getStringField(iota::store::types::SERVICE));
