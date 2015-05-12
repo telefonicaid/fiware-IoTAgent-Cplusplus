@@ -781,9 +781,8 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
                        "application/json",
                        "", headers, "", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 404);
-  IOTASSERT(response.find(
-    "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
 
 
   std::string req_sent = http_mock->get_last();
@@ -874,9 +873,8 @@ void AdminManagerTest::testBADServiceManagement() {
                        "application/json",
                        "", headers, "", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 404);
-  IOTASSERT( response.find(
-     "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
 
 
   std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
@@ -897,6 +895,13 @@ void AdminManagerTest::testBADServiceManagement() {
   IOTASSERT(response.compare(
               "{ \"count\": 0,\"services\": []}")
             == 0);
+
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", "noservice", "",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
 
   std::cout << "END@UT@ testBADServiceManagement" << std::endl;
 
