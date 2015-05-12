@@ -60,6 +60,8 @@ Fields in JSON object representing a protocol are:
 - `description`. It is a description about protocol provided by IoT Agent.
 - `enpoints`. It is an array with information about where this protocol is deployed. An endpoint is defined by `endpoint` (including ip address and port) and `resource` (including path or uri where protocol is deployed into IoT Agent).
 
+All fields are mandatory.
+
 ### Retrieve a protocol [GET]
 
 It retrieves all protocols.
