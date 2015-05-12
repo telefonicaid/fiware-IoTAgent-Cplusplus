@@ -509,8 +509,15 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
           std::string reg_id;
           std::string reg_time;
 
-          iota::Entity entity(dev_resu._entity_name, dev_resu._entity_type, "false");
-          cr.add_entity(entity);
+          boost::property_tree::ptree service_ptree;
+          get_service_by_name(service_ptree, srv);
+          boost::shared_ptr<Device> item_dev(new Device(dev_resu));
+
+          PION_LOG_DEBUG(m_logger, "setting env info");
+          cr.set_env_info(service_ptree, item_dev);
+
+          iota::Entity entity(item_dev->_entity_name, item_dev->_entity_type,
+                                "false");
           cr.add_provider(_myProvidingApp);
 
           if (! dev_resu._registration_id.empty()) {
@@ -617,10 +624,15 @@ void iota::CommandHandle::send_register_device(Device& device) {
             std::string reg_id;
             std::string reg_time;
 
-            iota::Entity entity(register_device._entity_name, register_device._entity_type,
-                                "false");
-            cr.add_entity(entity);
+            boost::property_tree::ptree service_ptree;
+            get_service_by_name(service_ptree, srv);
+            boost::shared_ptr<Device> item_dev(new Device(register_device));
 
+            PION_LOG_DEBUG(m_logger, "setting env info");
+            cr.set_env_info(service_ptree, item_dev);
+
+            iota::Entity entity(item_dev->_entity_name, item_dev->_entity_type,
+                                "false");
             cr.add_provider(_myProvidingApp);
 
             if (! register_device._registration_id.empty()) {
