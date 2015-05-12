@@ -324,9 +324,10 @@ void iota::ServiceMgmtCollection::fillServices(const std::string &iotagent,
     std::string key;
     while (more()){
       elto = next();
-      key.append(elto.getStringField(iota::store::types::SERVICE));
+      std::string key(elto.getStringField(iota::store::types::SERVICE));
       key.append("|");
       key.append(elto.getStringField(iota::store::types::SERVICE_PATH));
+      PION_LOG_DEBUG(m_logger, "fillServices: " + key);
       result.insert( std::pair<std::string,mongo::BSONObj>(key,elto) );
     }
 }

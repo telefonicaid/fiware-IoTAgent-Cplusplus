@@ -1092,6 +1092,9 @@ int iota::AdminManagerService::post_protocol_json(
         if (it != services_in_mongo.end()) {
           // lo borramos para quedarno solo con los que hay que borrar
           services_in_mongo.erase(it);
+          PION_LOG_DEBUG(m_log, "erase mappp|service:"+ srv + "|" + srv_path);
+        }else{
+          PION_LOG_DEBUG(m_log, "no in mappp|service:"+ srv + "|" + srv_path);
         }
       }
     }
