@@ -55,10 +55,12 @@ Protocols are the rules that define the communication with different devices. It
 
 ### Protocol Model
 Fields in JSON object representing a protocol are:
-- `_id` (string, mandatory). It is a internal identifier.
-- `protocol` (string, mandatory). It is a name or identifier provided by IoT Agent.
-- `description`(string, mandatory). It is a description about protocol provided by IoT Agent.
-- `enpoints` (array, mandatory). It is an array with information about where this protocol is deployed. An endpoint is defined by `endpoint` (including ip address and port) and `resource` (including path or uri where protocol is deployed into IoT Agent).
+- `_id`. It is a internal identifier.
+- `protocol`. It is a name or identifier provided by IoT Agent.
+- `description`. It is a description about protocol provided by IoT Agent.
+- `enpoints`. It is an array with information about where this protocol is deployed. An endpoint is defined by `endpoint` (including ip address and port) and `resource` (including path or uri where protocol is deployed into IoT Agent).
+
+All fields are mandatory.
 
 ### Retrieve a protocol [GET]
 
@@ -94,24 +96,26 @@ Services are the higher level in IoT Platform. When you manipulate a service, yo
 
 ### Service Model
 Fields in JSON object representing a service are:
-- `protocol` (string, mandatory). It is the unique identifier of the protocol.
-- `description` (string, mandatory). It is the description of the protocol.
-- `apikey` (string, mandatory). It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
-- `token` (string, optional). If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
-- `cbroker`(string, optional). Context Broker endpoint assigned to this service, it must be a real uri.
-- `outgoing_route`(string, optional). It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
-- `resource` (string, mandatory). Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
-- `entity_type` (string, optional). Entity type used in entity publication (overload default).
-- `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
+- `protocol`. It is the unique identifier of the protocol.
+- `description`. It is the description of the protocol.
+- `apikey`. It is a key used for devices belonging to this service. If "", service does not use apikey, but it must be specified.
+- `token`. If authentication/authorization system is configured, IoT Agent works as user when it publishes information. That token allows that other components to verify the identity of IoT Agent. Depends on authentication and authorization system.
+- `cbroker`. Context Broker endpoint assigned to this service, it must be a real uri.
+- `outgoing_route`. It is an identifier for VPN/GRE tunnel. It is used when device is into a VPN and a command is sent.
+- `resource`. Path in IoTAgent. When protocol is HTTP a device could send information to this uri. In general, it is a uri in a HTTP server needed to load and execute a module.
+- `entity_type`. Entity type used in entity publication (overload default).
+- `attributes`. Mapping for protocol parameters to entity attributes.
 `object_id` (string, mandatory): protocol parameter to be mapped.
 `name` (string, mandatory): attribute name to publish.
 `type`: (string, mandatory): attribute type to publish.
-- `static_attributes` (optional, array). Attributes published as defined.
+- `static_attributes`. Attributes published as defined.
 `name` (string, mandatory): attribute name to publish.
 `type` (string, mandatory): attribute type to publish.
 `value` (string, mandatory): attribute value to publish.
 
 `static_attributes` and `attributes` are used if device has not this information.
+
+Mandatory fields are identified in every operation.
 
 ### Retrieve a service [GET]
 
@@ -129,7 +133,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /*
 
 + Response 200
@@ -157,7 +161,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -181,13 +185,13 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
 
 ### Create a service [POST]
-With one subservice defined in Fiware-ServicePath header.
+With one subservice defined in Fiware-ServicePath header. From service model, mandatory fields are:  protocol, description, apikey, resource. 
 
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -213,7 +217,7 @@ With one subservice defined in Fiware-ServicePath header.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -236,33 +240,34 @@ With one subservice defined in Fiware-ServicePath header.
 ## Devices [/devices{?protocol,limit,offset,detailed}]
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
-- `protocol` (string, mandatory). Unique identifier for the protocol of the device. Available protocols could be retrieved from IoTA Manager.
-- `device_id` (string, mandatory). Unique identifier into a service.
-- `entity_name` (string, optional). Entity name used for entity publication (overload default)
-- `entity_type` (string, optional). Entity type used for entity publication (overload entity_type defined in service).
-- `timezone` (optional, string). Not used in this version.
-- `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
+- `protocol`. Unique identifier for the protocol of the device. Available protocols could be retrieved from IoTA Manager.
+- `device_id`. Unique identifier into a service.
+- `entity_name`. Entity name used for entity publication (overload default)
+- `entity_type`. Entity type used for entity publication (overload entity_type defined in service).
+- `timezone`. Not used in this version.
+- `attributes`. Mapping for protocol parameters to entity attributes.
 `object_id` (string, mandatory): protocol parameter to be mapped.
 `name` (string, mandatory): attribute name to publish.
 `type`: (string, mandatory): attribute type to publish.
-- `static_attributes` (optional, array). Attributes published as defined.
+- `static_attributes`. Attributes published as defined.
 `name` (string, mandatory): attribute name to publish.
 `type` (string, mandatory): attribute type to publish.
 `value` (string, mandatory): attribute value to publish.
-- `endpoint` (optional, string): when a device uses push commands.
-- `commands` (optional, array). Attributes working as commands.
+- `endpoint`. when a device uses push commands.
+- `commands`. Attributes working as commands.
 `name` (string, mandatory): command identifier.
 `type` (string, mandatory). It must be 'command'.
 `value` (string, mandatory): command representation depends on protocol.
 
 
 ### Create a device [POST]
+From device model, mandatory fields are:  protocol, device_id and protocol.
 
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -319,7 +324,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -363,7 +368,7 @@ If there are more than one IoT Agent (that is different endpoint), device name c
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -409,7 +414,7 @@ If you want modify only a field, you can do it, except if field is `protocol`.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
