@@ -214,23 +214,6 @@ void iota::ContextRegistration::set_env_info(boost::property_tree::ptree
 
 
   add_entity(ent);
-
-
-    // Add commands
-     if (_device_info->_commands.size() > 0) {
-      std::map<std::string, std::string>::iterator it =
-        _device_info->_commands.begin();
-      while (it != _device_info->_commands.end()) {
-
-        std::string attr_name = it->first;
-        std::string attr_type = iota::types::COMMAND_TYPE;
-
-        iota::AttributeRegister attribute(attr_name, attr_type, "false");
-        add_attribute( attribute);
-
-        ++it;
-      }
-    }
 }
 
 
