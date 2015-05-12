@@ -131,7 +131,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /*
 
 + Response 200
@@ -159,7 +159,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -183,13 +183,13 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
 
 ### Create a service [POST]
-With one subservice defined in Fiware-ServicePath header.
+With one subservice defined in Fiware-ServicePath header. From service model, mandatory fields are:  protocol, description, apikey, resource. 
 
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -215,7 +215,7 @@ With one subservice defined in Fiware-ServicePath header.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -238,33 +238,34 @@ With one subservice defined in Fiware-ServicePath header.
 ## Devices [/devices{?protocol,limit,offset,detailed}]
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
-- `protocol` (string, mandatory). Unique identifier for the protocol of the device. Available protocols could be retrieved from IoTA Manager.
-- `device_id` (string, mandatory). Unique identifier into a service.
-- `entity_name` (string, optional). Entity name used for entity publication (overload default)
-- `entity_type` (string, optional). Entity type used for entity publication (overload entity_type defined in service).
-- `timezone` (optional, string). Not used in this version.
-- `attributes` (optional, array). Mapping for protocol parameters to entity attributes.
+- `protocol`. Unique identifier for the protocol of the device. Available protocols could be retrieved from IoTA Manager.
+- `device_id`. Unique identifier into a service.
+- `entity_name`. Entity name used for entity publication (overload default)
+- `entity_type`. Entity type used for entity publication (overload entity_type defined in service).
+- `timezone`. Not used in this version.
+- `attributes`. Mapping for protocol parameters to entity attributes.
 `object_id` (string, mandatory): protocol parameter to be mapped.
 `name` (string, mandatory): attribute name to publish.
 `type`: (string, mandatory): attribute type to publish.
-- `static_attributes` (optional, array). Attributes published as defined.
+- `static_attributes`. Attributes published as defined.
 `name` (string, mandatory): attribute name to publish.
 `type` (string, mandatory): attribute type to publish.
 `value` (string, mandatory): attribute value to publish.
-- `endpoint` (optional, string): when a device uses push commands.
-- `commands` (optional, array). Attributes working as commands.
+- `endpoint`. when a device uses push commands.
+- `commands`. Attributes working as commands.
 `name` (string, mandatory): command identifier.
 `type` (string, mandatory). It must be 'command'.
 `value` (string, mandatory): command representation depends on protocol.
 
 
 ### Create a device [POST]
+From device model, mandatory fields are:  protocol, device_id and protocol.
 
 + Request (application/json)
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
@@ -321,7 +322,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -365,7 +366,7 @@ If there are more than one IoT Agent (that is different endpoint), device name c
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
 + Response 200
@@ -411,7 +412,7 @@ If you want modify only a field, you can do it, except if field is `protocol`.
 
     + Headers
 
-            Fiware-Service: TestService
+            Fiware-Service: testservice
             Fiware-ServicePath: /TestSubservice
 
     + Body
