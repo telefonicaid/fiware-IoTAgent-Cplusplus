@@ -144,7 +144,7 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
                                 iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
 
-    if (v_devices_endpoint_out.size() == 0){
+    if (v_devices_endpoint_out.size() == 0) {
       std::string error_details(iota::types::RESPONSE_MESSAGE_MISSING_IOTAGENTS);
       error_details.append("[service|");
       error_details.append(service);
@@ -276,7 +276,7 @@ int iota::AdminManagerService::get_all_devices_json(
                service_path,
                protocol_filter);
   }
-  catch(iota::IotaException& e) {
+  catch (iota::IotaException& e) {
     PION_LOG_ERROR(log_message, e.what());
   }
   std::map<std::string, std::string> response_from_iotagent;
@@ -501,7 +501,7 @@ int iota::AdminManagerService::get_a_device_json(
   PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
   http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
-                                       pion::http::types::RESPONSE_CODE_OK));
+                                     pion::http::types::RESPONSE_CODE_OK));
   code = pion::http::types::RESPONSE_CODE_OK;
 
   return create_response(code, content_response, "", http_response,
@@ -1093,7 +1093,8 @@ int iota::AdminManagerService::post_protocol_json(
           // lo borramos para quedarno solo con los que hay que borrar
           services_in_mongo.erase(it);
           PION_LOG_DEBUG(m_log, "erase mappp|service:"+ srv + "|" + srv_path);
-        }else{
+        }
+        else {
           PION_LOG_DEBUG(m_log, "no in mappp|service:"+ srv + "|" + srv_path);
         }
       }
@@ -1104,7 +1105,7 @@ int iota::AdminManagerService::post_protocol_json(
       std::map<std::string, mongo::BSONObj>::iterator iter;
       for (iter = services_in_mongo.begin(); iter != services_in_mongo.end();
            ++iter) {
-        service_table.remove(iter->second);
+          service_table.remove(iter->second);
       }
     }
 
@@ -1337,7 +1338,14 @@ int iota::AdminManagerService::put_service_json(
 
           // Query Parameters
           std::multimap<std::string, std::string> query_parameters;
-          query_parameters.insert(std::pair<std::string, std::string>(iota::store::types::RESOURCE, all_dest.at(i).resource));
+          query_parameters.insert(std::pair<std::string, std::string>
+                                  (iota::store::types::RESOURCE, all_dest.at(i).resource));
+          std::string api_key = obj_protocols[j].getStringField(
+                                  iota::store::types::APIKEY);
+          if (!api_key.empty()) {
+            query_parameters.insert(std::pair<std::string, std::string>
+                                    (iota::store::types::APIKEY, api_key));
+          }
           // Build request
           pion::http::request_ptr request = create_request(
                                               pion::http::types::REQUEST_METHOD_PUT,
