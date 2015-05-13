@@ -199,10 +199,21 @@ AdminManagerTest::POST_DEVICE_MANAGEMENT1("{\"devices\": "
 
 const std::string
 AdminManagerTest::PUT_DEVICE("{\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name_mod\"}");
+
+const std::string
+AdminManagerTest::PUT_DEVICE2("{\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name_org\"}");
 //
 const std::string
 AdminManagerTest::POST_DEVICE("{\"devices\": "
                               "[{\"device_id\": \"device_id_new\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                              "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                              "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                              "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                              "}]}");
+
+const std::string
+AdminManagerTest::POST_DEVICE_NO_PROTOCOL("{\"devices\": "
+                              "[{\"device_id\": \"device_id_new\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
                               "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
                               "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                               "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -770,9 +781,8 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
                        "application/json",
                        "", headers, "", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 404);
-  IOTASSERT(response.find(
-    "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
 
 
   std::string req_sent = http_mock->get_last();
@@ -863,9 +873,8 @@ void AdminManagerTest::testBADServiceManagement() {
                        "application/json",
                        "", headers, "", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 404);
-  IOTASSERT( response.find(
-     "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
 
 
   std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
@@ -886,6 +895,13 @@ void AdminManagerTest::testBADServiceManagement() {
   IOTASSERT(response.compare(
               "{ \"count\": 0,\"services\": []}")
             == 0);
+
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", "noservice", "",
+                       "application/json",
+                       "", headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
 
   std::cout << "END@UT@ testBADServiceManagement" << std::endl;
 
@@ -1136,7 +1152,7 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   mongo::BSONObj all;
 
 
-  //First Scenario: no endpoints found, 404 expected.
+  //First Scenario: no endpoints found, 400 expected.
   table1.remove(all);
 
   std::cout << "@UT@1POST" << std::endl;
@@ -1147,9 +1163,9 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 404);
+  IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
-      "{\"reason\":\"there aren't iotagents for this operation\"") != std::string::npos);
+      "{\"reason\":\"The request is not well formed\"") != std::string::npos);
 
 //Insert endpoint for ss1 service
   table1.insert(mongo::fromjson(s1_d));
@@ -1157,13 +1173,94 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   code_res = http_test(uri_query, "POST", "nanana", "/ss1", "application/json",
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+
+
+  //Scenario: no protocol on endpoint
+  code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+                       POST_DEVICE, headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+
+  //Scenario: no protocol on JSON
+
+   code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+                       POST_DEVICE_NO_PROTOCOL, headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+
+
+  std::cout << "END@UT@ testNoEndpoints_Bug_IDAS20444" << std::endl;
+
+
+}
+
+void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
+ std::cout << "START @UT@START testNoDeviceError_Bug_IDAS20463" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string("");
+
+
+  std::string
+  s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+       "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
+       + boost::lexical_cast<std::string>(wserver->get_port()) + "/iotagent\","
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+
+  int code_res;
+  std::string response;
+  std::string service = "s1" ;
+  std::cout << "@UT@service " << service << std::endl;
+
+  std::string uri_query(URI_DEVICES_MANAGEMEMT);
+
+
+  iota::ServiceMgmtCollection table1;
+
+
+  table1.createTableAndIndex();
+
+
+  mongo::BSONObj all;
+
+
+  //First Scenario: no device found
+  table1.remove(all);
+
+  std::cout << "@UT@1POST" << std::endl;
+  std::multimap<std::string, std::string> query_parameters;
+  query_parameters.insert(std::make_pair<std::string, std::string>("protocol",
+                          "PDI-IoTA-UltraLight"));
+
+  query_string = iota::make_query_string(query_parameters);
+
+  code_res = http_test(uri_query+"/device_id", "PUT", service, "/ss1", "application/json",
+                       PUT_DEVICE, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+
+  /*IOTASSERT(response.compare(
+              "{\"reason\":\"Field or data not found\",\"details\":\"No endpoints found\"}")
+            == 0);
+*/
+
+//Insert endpoint for ss1 service
+  table1.insert(mongo::fromjson(s1_d));
+  //Second Scenario: inexistent service
+  code_res = http_test(uri_query+"/device_id", "PUT", service, "/ss1", "application/json",
+                       PUT_DEVICE2, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+
+
+  code_res = http_test(uri_query+"/device_id", "PUT", "nanan", "/ss1", "application/json",
+                       PUT_DEVICE, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);
 
 
 
 
-
-  std::cout << "END@UT@ testNoEndpoints_Bug_IDAS20444" << std::endl;
-
+  std::cout << "END@UT@ testNoDeviceError_Bug_IDAS20463" << std::endl;
 
 }

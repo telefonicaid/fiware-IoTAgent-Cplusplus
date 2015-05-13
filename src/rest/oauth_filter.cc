@@ -21,6 +21,7 @@
 */
 #include "oauth_filter.h"
 #include "rest/types.h"
+#include "rest/rest_handle.h"
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/list_of.hpp>
@@ -28,6 +29,7 @@
 
 namespace iota {
 extern std::string logger;
+extern std::string URL_BASE;
 std::map<std::string, std::string> actions =
   boost::assign::map_list_of("GET","read")("POST","create")("PUT","update")
   ("DELETE","delete");
@@ -62,54 +64,71 @@ bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
 
   bool allowed = true;
 
-  PION_LOG_DEBUG(m_logger, "OAuthFilter handle_request");
-
-  // Headers
-  std::string fiware_service = http_request_ptr->get_header(
-                                 HTTP_HEADER_FIWARE_SERVICE);
-  std::string fiware_servicepath = http_request_ptr->get_header(
-                                     HTTP_HEADER_FIWARE_SERVICEPATH);
-  if (fiware_servicepath.empty()) {
-    fiware_servicepath = "/";
-  }
-  std::string x_auth_token = http_request_ptr->get_header(HTTP_HEADER_AUTH);
-  int status = pion::http::types::RESPONSE_CODE_UNAUTHORIZED;
-  PION_LOG_DEBUG(m_logger, "|Fiware-Service=" + fiware_service +
-                 "|Fiware-ServicePath=" + fiware_servicepath +
-                 "|X-Auth-Token=" + x_auth_token +
-                 "|endpoint-validate=" + _auth_endpoint_validate +
-                 "|endpoint-roles=" + _auth_endpoint_roles +
-                 "|endpoint-projects=" + _auth_endpoint_projects +
-                 "|endpoint-access-control=" + _ac_endpoint +
-                 "|user=" + _user +
-                 "|password=" + _password +
-                 "|domain=" + _domain);
-  if (fiware_service.empty() || fiware_servicepath.empty() ||
-      x_auth_token.empty() ||
-      _auth_endpoint_validate.empty() ||
-      _auth_endpoint_roles.empty() ||
-      _auth_endpoint_projects.empty() ||
-      _user.empty() ||
-      _password.empty() ||
-      _domain.empty() ||
-      _ac_endpoint.empty()) {
-    // This function add event with post
-    handle_no_allowed(http_request_ptr, tcp_conn, status);
+  // URI for protocols is not authorized
+  // Exception for about and protocols
+  if (http_request_ptr->get_resource().compare(iota::URL_BASE +
+      iota::ADMIN_SERVICE_ABOUT) == 0 ||
+      http_request_ptr->get_resource().compare(iota::URL_BASE +
+          iota::ADMIN_SERVICE_PROTOCOLS) == 0
+     ) {
+    tcp_conn->get_io_service().post(boost::bind(
+                                      &iota::OAuthFilter::call_to_callback, shared_from_this(),
+                                      http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
+                                      pion::http::types::RESPONSE_CODE_OK));
   }
   else {
-    boost::shared_ptr<iota::OAuth> oauth_comm(new iota::OAuth(_timeout));
-    oauth_comm->set_oauth_validate(_auth_endpoint_validate);
-    oauth_comm->set_oauth_roles(_auth_endpoint_roles);
-    oauth_comm->set_oauth_projects(_auth_endpoint_projects);
-    oauth_comm->set_async_service(_io_service);
-    oauth_comm->set_identity(_domain, _user, _password);
-    oauth_comm->set_domain(fiware_service);
-    oauth_comm->set_project(fiware_servicepath);
-    //add_connection(oauth_comm);
-    oauth_comm->validate_user_token(x_auth_token,
-                                    boost::bind(&iota::OAuthFilter::authorize, this, http_request_ptr,
-                                        tcp_conn,
-                                        _1));
+
+    PION_LOG_DEBUG(m_logger,
+                   "OAuthFilter handle_request " << http_request_ptr->get_header(
+                     iota::types::HEADER_TRACE_MESSAGES));
+
+    // Headers
+    std::string fiware_service = http_request_ptr->get_header(
+                                   HTTP_HEADER_FIWARE_SERVICE);
+    std::string fiware_servicepath = http_request_ptr->get_header(
+                                       HTTP_HEADER_FIWARE_SERVICEPATH);
+    if (fiware_servicepath.empty()) {
+      fiware_servicepath = "/";
+    }
+    std::string x_auth_token = http_request_ptr->get_header(HTTP_HEADER_AUTH);
+    int status = pion::http::types::RESPONSE_CODE_UNAUTHORIZED;
+    PION_LOG_DEBUG(m_logger, "|Fiware-Service=" + fiware_service +
+                   "|Fiware-ServicePath=" + fiware_servicepath +
+                   "|X-Auth-Token=" + x_auth_token +
+                   "|endpoint-validate=" + _auth_endpoint_validate +
+                   "|endpoint-roles=" + _auth_endpoint_roles +
+                   "|endpoint-projects=" + _auth_endpoint_projects +
+                   "|endpoint-access-control=" + _ac_endpoint +
+                   "|user=" + _user +
+                   "|password=" + _password +
+                   "|domain=" + _domain);
+    if (fiware_service.empty() || fiware_servicepath.empty() ||
+        x_auth_token.empty() ||
+        _auth_endpoint_validate.empty() ||
+        _auth_endpoint_roles.empty() ||
+        _auth_endpoint_projects.empty() ||
+        _user.empty() ||
+        _password.empty() ||
+        _domain.empty() ||
+        _ac_endpoint.empty()) {
+      // This function add event with post
+      handle_no_allowed(http_request_ptr, tcp_conn, status);
+    }
+    else {
+      boost::shared_ptr<iota::OAuth> oauth_comm(new iota::OAuth(_timeout));
+      oauth_comm->set_oauth_validate(_auth_endpoint_validate);
+      oauth_comm->set_oauth_roles(_auth_endpoint_roles);
+      oauth_comm->set_oauth_projects(_auth_endpoint_projects);
+      oauth_comm->set_async_service(_io_service);
+      oauth_comm->set_identity(_domain, _user, _password);
+      oauth_comm->set_domain(fiware_service);
+      oauth_comm->set_project(fiware_servicepath);
+      //add_connection(oauth_comm);
+      oauth_comm->validate_user_token(x_auth_token,
+                                      boost::bind(&iota::OAuthFilter::authorize, this, http_request_ptr,
+                                          tcp_conn,
+                                          _1));
+    }
   }
   return allowed;
 };

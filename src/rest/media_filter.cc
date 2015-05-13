@@ -53,7 +53,7 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
 
   PION_LOG_DEBUG(m_logger,
                  "MediaFilter handle_request " << http_request_ptr->get_header(
-                   iota::types::HEADER_TRACE_MESSAGES));
+                   iota::types::HEADER_TRACE_MESSAGES) << http_request_ptr->get_resource());
 
   unsigned int resu = iota::types::RESPONSE_CODE_OK;
 
@@ -64,11 +64,13 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
     std::string service_path(http_request_ptr->get_header(
                                iota::types::FIWARE_SERVICEPATH));
 
-    // Exception for about
-    if (http_request_ptr->get_original_resource().compare(iota::URL_BASE +
-        iota::ADMIN_SERVICE_ABOUT) != 0) {
+    // Exception for about and protocols
+    if (http_request_ptr->get_resource().compare(iota::URL_BASE +
+        iota::ADMIN_SERVICE_ABOUT) != 0 &&
+        http_request_ptr->get_resource().compare(iota::URL_BASE +
+          iota::ADMIN_SERVICE_PROTOCOLS) != 0
+       ) {
       iota::check_fiware_service_name(service);
-      std::cout << "FIWARE " << service_path << std::endl;
       iota::check_fiware_service_path_name(service_path);
     }
 

@@ -307,7 +307,8 @@ void iota::check_fiware_service_path_name(std::string&
     error = true;
   }
   bool wild_card = false;
-  if (header_fiware_service_path[1] == '*') {
+  if (header_fiware_service_path[1] == '*' ||
+      header_fiware_service_path[1] == '#') {
     wild_card = true;
     start = 2;
     if (header_fiware_service_path.size() > 2) {

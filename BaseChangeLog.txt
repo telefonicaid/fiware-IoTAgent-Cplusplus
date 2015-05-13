@@ -46,3 +46,5 @@
 - FIX IDAS-20409: Set mongo default timeout (tcp timeout for read/write) in 3 seconds.
 - FIX IDAS-20479: crash when manager starts and iota_manager is defined in
   configuration file.
+- FIX IDAS-20477: Error in RegisterContext from a device with no entity_name and no entity_type.
+- FIX IDAS-20478: Duplicated commands in RegisterContext.
