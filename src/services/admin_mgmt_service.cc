@@ -1331,13 +1331,13 @@ int iota::AdminManagerService::put_service_json(
           mongo::BSONObjBuilder obj_to_send;
           mongo::BSONObjBuilder srv_to_send;
           obj_to_send.appendElements(trim_obj);
-          obj_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
+          //obj_to_send.append(iota::store::types::RESOURCE, all_dest.at(i).resource);
           mongo::BSONObj to_send = obj_to_send.obj();
           iota::IoTUrl dest(all_dest.at(i).endpoint);
 
           // Query Parameters
           std::multimap<std::string, std::string> query_parameters;
-
+          query_parameters.insert(std::pair<std::string, std::string>(iota::store::types::RESOURCE, all_dest.at(i).resource));
           // Build request
           pion::http::request_ptr request = create_request(
                                               pion::http::types::REQUEST_METHOD_PUT,
