@@ -1,6 +1,12 @@
 # Southbound API
 ## Ultra Light Agent ###
 Ultra-Light (UL20) is a HTTP protocol to send short data.
+
+```
+Identifier: PDI-IoTA-UltraLight
+Description: Ultra Light Propietary Protocol
+```
+
 Previously, this module is configured in _/iot/d_ URI and the service provisioned has _apikey_ ('abc' in curl example). Parameters are:
 You can send data with HTTP GET (it use query parameters):
 ```
@@ -32,9 +38,54 @@ and
 {"id":"thing:dev_agus","type":"thing","isPattern":"false","attributes":[{"name":"t","type":"","value":"10","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2015-02-12T08:41:54.864249Z"}]},{"name":"TimeInstant","type":"ISO8601","value":"2015-02-12T08:41:54.864249Z"}]}
 ```
 
+<a name="location"></a>
+### Conversion to Location Entity for ContextBroker ###
+
+When a device is provisioned, some basic conversions can be set using the device's "attributes". Those can be configured using the devices provisioning API. ContextBroker supports a native attribute format for location measures. Thus it makes sense to offer this type of conversion as built-in. Both UltraLight and MQTT plugins can benefit from this by just having their devices provisioned with an specific attribute as detailed below:
+
+
+```	
+	{
+           "object_id":"l",
+           "type": "coords",
+           "name":"position"
+   	}
+```
+
+That is part of the device's attributes. If this is not added to the JSON when creating a device, the conversion will not happen. The  __"object_id"__ is the name of the original attribute coming in the message. UL will typically use one letter, but MQTT can have a longer name. This is whatever identifies the actual location information sent by the device. The __"type"__ field has to be "coords" as the conversion is built-in. Lastly, __"name"__ is the name of the attribute sent to the ContextBroker. 
+
+For a message coming from a device like this: 
+
+UltraLight:
+```
+l|33.000/-3.234234
+```
+
+The Attribute sent to the ContextBroker will be:
+
+```
+{
+	"name":"position",
+	"type":"coords",
+	"value":"33.000,-3.234234",
+	"metadatas":[
+	{
+		"name":"location",
+		"type":"string",
+		"value":"WGS84"
+	}]
+}
+```
+
+
 You can review protocol reference in [Ultra-Light](UL20_protocol.md).
 
 ## MQTT Agent ###
+
+```
+Identifier: PDI-IoTA-MQTT-UltraLight
+Description: MQTT with Propietary Protocol in topics and payload (UL-based)
+```
 
 MQTT is a M2M oriented protocol based on TCP that requires a broker for publishing and subscribing to messages based on topics hiearchy. In order to be able to publish and receive on IoTAgent-MQTT, services must be provisioned providing an api-key that will be used in the topics sent by devices belonging to that service as explained here [MQTT](MQTT_protocol.md). The typical port used is 1883 (no SSL).  
 
@@ -75,8 +126,53 @@ __Note__: if ACS is used, mqtt clients have to use user-id that must be the same
 {"id":"my_device","type":"thing","isPattern":"false","attributes":[{"name":"test","type":"string","value":"44","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]},{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]}
 ```
 
+### Conversion to Location Entity ####
+As it has been explained [here](#location) a device can be provisioned with the built-in location conversion for ContextBroker. In this case the name "object_id" will be the topic that represents the measure. Following a similar example to the UltraLight scenario, for a device provisioned with:
+
+
+```	
+	{
+           "object_id":"location",
+           "type": "coords",
+           "name":"position"
+   	}
+```
+
+And a MQTT message of this kind:
+
+Topic: 
+```
+ /<api-key>/<device-id>/location
+```
+Payload:
+```
+33.000/-3.234234
+```
+
+The Attribute sent to the ContextBroker will be:
+
+```
+{
+	"name":"position",
+	"type":"coords",
+	"value":"33.000,-3.234234",
+	"metadatas":[
+	{
+		"name":"location",
+		"type":"string",
+		"value":"WGS84"
+	}]
+}
+```
+
 
 ## Thinking Things Agent ###
+
+```
+Identifier: PDI-IoTA-ThinkingThings
+Description: Thinking Things Protocol
+```
+
 Thinking Things devices use their own frame format over HTTP requests to send measures and take configuration changes. Thinking Things module for IoTAgent will transform those HTTP request into ContextBroker entities following the mapping described here: [Thinking Things](TT_protocol.md). One key thing that differentiates Thinking Things from others protocols is that there is no "apikey" for identifying services. Users will need to provision a "sub-service" within the given Service. For doing so, they have to provide a "trust_token" as credentials.
 
 Header for the service:

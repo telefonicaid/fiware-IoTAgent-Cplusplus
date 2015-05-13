@@ -132,7 +132,8 @@ Iotagent needs a configuration file,  usually named config.json, an example coul
         "queryContext": "/NGSI10/queryContext"
     },
     "timeout": 10,
-    "http_proxy": "192.0.0.2:3128"
+    "http_proxy": "192.0.0.2:3128",
+    "public_ip": "10.95.200.200:20000",
     "dir_log": "/tmp/",
     "timezones": "/etc/iot/date_time_zonespec.csv",
     "storage": {
@@ -152,15 +153,7 @@ Iotagent needs a configuration file,  usually named config.json, an example coul
 }
 ```
 
-If installation requires high availability and a load balancer will be used, ip:port of balancer should be configured in a field "public_ip" into "ngsi_url". An example should be :
-```
-"ngsi_url": {
-        "updateContext": "/NGSI10/updateContext",
-        "registerContext": "/NGSI9/registerContext",
-        "queryContext": "/NGSI10/queryContext",
-        "public_ip": "10.95.200.200:20000"
-    },
-```
+If installation requires high availability and a load balancer will be used, ip:port of balancer should be configured in a field "public_ip".
 
 You can get more information in next sections.
 

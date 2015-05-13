@@ -899,6 +899,7 @@ std::map<unsigned int, std::string> iota::Configurator::createMessagesMap() {
     pion::http::types::RESPONSE_MESSAGE_NOT_IMPLEMENTED;
   messages[pion::http::types::RESPONSE_CODE_CONTINUE] =
     pion::http::types::RESPONSE_MESSAGE_CONTINUE;
+  messages[409] = "Conflict";
   return messages;
 }
 

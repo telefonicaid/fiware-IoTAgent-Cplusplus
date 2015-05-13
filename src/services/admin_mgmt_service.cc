@@ -14,7 +14,7 @@ extern std::string logger;
 }
 
 iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr
-    web_server):
+    web_server): iota::AdminService(web_server),
   _timeout(5),
   m_log(PION_GET_LOGGER(
           iota::logger)),
@@ -99,51 +99,62 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
     PION_LOG_DEBUG(m_log, "resolve_endpoints: size of elements [" << devices.Size()
                    <<
                    "]");
-    for (rapidjson::SizeType i = 0; i < devices.Size(); i++) {
+    try {
+      for (rapidjson::SizeType i = 0; i < devices.Size(); i++) {
 
-      if (devices[i].HasMember("protocol")) {
-        const std::string protocol(devices[i]["protocol"].GetString());
-        PION_LOG_DEBUG(m_log, "resolve_endpoints: Processing first Device: protocol ["
-                       <<
-                       protocol << "]");
-        std::vector <IotagentType> v_endpoint = map_endpoints[protocol];
-
-        if (v_endpoint.size() == 0) {
-          PION_LOG_DEBUG(m_log, "resolve_endpoints: getting endpoints for protocol [" <<
+        if (devices[i].HasMember("protocol")) {
+          const std::string protocol(devices[i]["protocol"].GetString());
+          PION_LOG_DEBUG(m_log, "resolve_endpoints: Processing first Device: protocol ["
+                         <<
                          protocol << "]");
-          v_endpoint = _service_mgmt.get_iotagents_by_service(service, sub_service,
-                       protocol);
-          map_endpoints[protocol] =  v_endpoint;
-          PION_LOG_DEBUG(m_log, "resolve_endpoints: endpoints [" << v_endpoint.size()
-                         << "] found for device");
+          std::vector <IotagentType> v_endpoint = map_endpoints[protocol];
+
+          if (v_endpoint.size() == 0) {
+            PION_LOG_DEBUG(m_log, "resolve_endpoints: getting endpoints for protocol [" <<
+                           protocol << "]");
+            v_endpoint = _service_mgmt.get_iotagents_by_service(service, sub_service,
+                         protocol);
+            map_endpoints[protocol] =  v_endpoint;
+            PION_LOG_DEBUG(m_log, "resolve_endpoints: endpoints [" << v_endpoint.size()
+                           << "] found for device");
+          }
+
+          //Now link endpoints with device.
+          for (int j = 0; j < v_endpoint.size(); j++) {
+
+            rapidjson::StringBuffer string_buffer;
+            rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(string_buffer);
+            devices[i].Accept(writer);
+
+            iota::DeviceToBeAdded dev_add(string_buffer.GetString(), v_endpoint[j]);
+            v_devices_endpoint_out.push_back(dev_add);
+            PION_LOG_DEBUG(m_log, "resolve_endpoints: adding endpoint [" << v_endpoint[j] <<
+                           "] for device [" << string_buffer.GetString() << "]");
+          }
+
         }
-
-        //Now link endpoints with device.
-        for (int j = 0; j < v_endpoint.size(); j++) {
-
-          rapidjson::StringBuffer string_buffer;
-          rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(string_buffer);
-          devices[i].Accept(writer);
-
-          iota::DeviceToBeAdded dev_add(string_buffer.GetString(), v_endpoint[j]);
-          v_devices_endpoint_out.push_back(dev_add);
-          PION_LOG_DEBUG(m_log, "resolve_endpoints: adding endpoint [" << v_endpoint[j] <<
-                         "] for device [" << string_buffer.GetString() << "]");
+        else {
+          PION_LOG_ERROR(m_log, "protocol is empty");
         }
-
       }
-      else {
-        PION_LOG_ERROR(m_log, "protocol is empty");
-      }
+    }
+    catch (iota::IotaException& ie) {
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                                ie.what(),
+                                iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
 
     if (v_devices_endpoint_out.size() == 0) {
-
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATA_NOT_FOUND,
-                                "No endpoints found",
-                                iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+      std::string error_details(iota::types::RESPONSE_MESSAGE_MISSING_IOTAGENTS);
+      error_details.append("[service|");
+      error_details.append(service);
+      error_details.append("|sub-service|");
+      error_details.append(sub_service);
+      error_details.append("]");
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                                error_details,
+                                iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
-
   }
   else {
 
@@ -224,7 +235,7 @@ int iota::AdminManagerService::operation_device_iotagent(
 
   throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NONE,
                             "No response from iotagent: " + url_iotagent,
-                            iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+                            iota::types::RESPONSE_CODE_BAD_REQUEST);
 
 }
 
@@ -259,10 +270,15 @@ int iota::AdminManagerService::get_all_devices_json(
   std::string log_message("|id-request=" + request_identifier);
   PION_LOG_DEBUG(m_log, log_message);
 
-  std::vector<iota::IotagentType> all_dest =
-    manager_service_collection.get_iotagents_by_service(service, service_path,
-        protocol_filter);
-
+  std::vector<iota::IotagentType> all_dest;
+  try {
+    all_dest = manager_service_collection.get_iotagents_by_service(service,
+               service_path,
+               protocol_filter);
+  }
+  catch (iota::IotaException& e) {
+    PION_LOG_ERROR(log_message, e.what());
+  }
   std::map<std::string, std::string> response_from_iotagent;
   std::map<std::string, std::string> response_from_iotagent_nok;
   for (int i = 0; i < all_dest.size(); i++) {
@@ -283,7 +299,6 @@ int iota::AdminManagerService::get_all_devices_json(
                               (iota::store::types::ENTITY, entity));
       query_parameters.insert(std::pair<std::string, std::string>
                               (iota::store::types::DETAILED, detailed));
-      std::cout << "QUERY " << iota::make_query_string(query_parameters) << std::endl;
       // Build request
       pion::http::request_ptr request = create_request(
                                           pion::http::types::REQUEST_METHOD_GET,
@@ -365,8 +380,6 @@ int iota::AdminManagerService::get_all_devices_json(
   std::string content_response = result.jsonString();
   PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
 
-  http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
-                           iota::types::IOT_CONTENT_TYPE_JSON);
   http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                      pion::http::types::RESPONSE_CODE_OK));
@@ -396,7 +409,7 @@ int iota::AdminManagerService::get_a_device_json(
 
   std::vector<iota::IotagentType> all_dest =
     manager_service_collection.get_iotagents_by_service(service, service_path,
-        protocol_filter);
+        protocol_filter, iota::types::LIMIT_MAX, 0);
 
   std::map<std::string, std::string> response_from_iotagent;
   std::map<std::string, std::string> response_from_iotagent_nok;
@@ -483,16 +496,13 @@ int iota::AdminManagerService::get_a_device_json(
   builder_json.appendArray(iota::store::types::DEVICES, builder_array.obj());
   mongo::BSONObj result = builder_json.obj();
   std::string content_response;
-  if (total_count != 0) {
-    content_response = result.jsonString();
-    PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
-    http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
-                             iota::types::IOT_CONTENT_TYPE_JSON);
-    http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
-    http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
-                                       pion::http::types::RESPONSE_CODE_OK));
-    code = pion::http::types::RESPONSE_CODE_OK;
-  }
+
+  content_response = result.jsonString();
+  PION_LOG_DEBUG(m_log, log_message + "|content=" + response);
+  http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
+  http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
+                                     pion::http::types::RESPONSE_CODE_OK));
+  code = pion::http::types::RESPONSE_CODE_OK;
 
   return create_response(code, content_response, "", http_response,
                          response);
@@ -521,10 +531,11 @@ void iota::AdminManagerService::receive_get_devices(
 
 }
 
-
 int iota::AdminManagerService::post_multiple_devices(
-  std::vector<DeviceToBeAdded>& v_devices_endpoint_in, std::string service,
-  std::string sub_service, std::string x_auth_token, std::string& response) {
+  std::vector<DeviceToBeAdded>&
+  v_devices_endpoint_in,std::string service,std::string sub_service,
+  std::string x_auth_token,std::string& response) {
+
 
 
 
@@ -687,15 +698,6 @@ int iota::AdminManagerService::post_device_json(
 
   PION_LOG_DEBUG(m_log, "post_device_json: POSTs processed: [" << code << "]");
 
-  /*if (!response.empty()) {
-    http_response.set_content(response);
-    http_response.set_status_code(200);
-  }
-  else {
-    http_response.set_status_code(404);
-  }
-  */
-
   return http_response.get_status_code();
 
 }
@@ -768,6 +770,7 @@ int iota::AdminManagerService::put_device_json(
       iota::DeviceToBeAdded dev_add(body, v_endpoint[j]);
       v_endpoints_put.push_back(dev_add);
     }
+
     PION_LOG_DEBUG(m_log, "put_device_json:  sending request to "
                    << v_endpoints_put.size() << " endpoints");
 
@@ -1089,6 +1092,10 @@ int iota::AdminManagerService::post_protocol_json(
         if (it != services_in_mongo.end()) {
           // lo borramos para quedarno solo con los que hay que borrar
           services_in_mongo.erase(it);
+          PION_LOG_DEBUG(m_log, "erase mappp|service:"+ srv + "|" + srv_path);
+        }
+        else {
+          PION_LOG_DEBUG(m_log, "no in mappp|service:"+ srv + "|" + srv_path);
         }
       }
     }
@@ -1098,7 +1105,7 @@ int iota::AdminManagerService::post_protocol_json(
       std::map<std::string, mongo::BSONObj>::iterator iter;
       for (iter = services_in_mongo.begin(); iter != services_in_mongo.end();
            ++iter) {
-        //TODO service_table.remove(iter->second);
+          service_table.remove(iter->second);
       }
     }
 
@@ -1333,11 +1340,11 @@ int iota::AdminManagerService::put_service_json(
           std::multimap<std::string, std::string> query_parameters;
           query_parameters.insert(std::pair<std::string, std::string>
                                   (iota::store::types::RESOURCE, all_dest.at(i).resource));
-          std::string apikey = obj_protocols[j].getStringField(
-                                 iota::store::types::APIKEY);
-          if (!apikey.empty()) {
+          std::string api_key = obj_protocols[j].getStringField(
+                                  iota::store::types::APIKEY);
+          if (!api_key.empty()) {
             query_parameters.insert(std::pair<std::string, std::string>
-                                    (iota::store::types::APIKEY, apikey));
+                                    (iota::store::types::APIKEY, api_key));
           }
           // Build request
           pion::http::request_ptr request = create_request(
