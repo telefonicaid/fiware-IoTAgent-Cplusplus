@@ -14,7 +14,7 @@ extern std::string logger;
 }
 
 iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr
-    web_server):
+    web_server): iota::AdminService(web_server),
   _timeout(5),
   m_log(PION_GET_LOGGER(
           iota::logger)),
