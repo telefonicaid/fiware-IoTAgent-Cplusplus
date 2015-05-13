@@ -137,11 +137,11 @@ void iota::AdminManagerService::resolve_endpoints(std::vector<DeviceToBeAdded>&
       }
     }
 
-    if (v_devices_endpoint_out.size() == 0){
+    if (v_devices_endpoint_out.size() == 0) {
 
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATA_NOT_FOUND,
-                              "No endpoints found",
-                              iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
+                                "No endpoints found",
+                                iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
     }
 
   }
@@ -545,9 +545,9 @@ int iota::AdminManagerService::post_multiple_devices(
     content.append("]}");
 
     int res = operation_device_iotagent(url_endpoint,content,service,
-                                  sub_service,x_auth_token,pion::http::types::REQUEST_METHOD_POST,temp_res);
+                                        sub_service,x_auth_token,pion::http::types::REQUEST_METHOD_POST,temp_res);
 
-    if (code < 400 && res >= code){
+    if (code < 400 && res >= code) {
       code = res;
       PION_LOG_DEBUG(m_log,"Response code changed to : ["<< code << "]");
       response.assign(temp_res);
@@ -614,7 +614,7 @@ int iota::AdminManagerService::delete_device_json(
   pion::http::response& http_response,
   std::string& response,
   std::string token,
-  const std::string &protocol ) {
+  const std::string& protocol) {
 
   PION_LOG_DEBUG(m_log,
                  "AdminManagerService: delete_device_json: validating input");
@@ -636,9 +636,9 @@ int iota::AdminManagerService::delete_device_json(
   std::vector <IotagentType> v_endpoint;
 
   PION_LOG_DEBUG(m_log,
-                   "delete_device_json: [" << protocol << "]");
+                 "delete_device_json: [" << protocol << "]");
   v_endpoint = _service_mgmt.get_iotagents_by_service(service, service_path,
-                 protocol);
+               protocol);
 
   for (int j = 0; j < v_endpoint.size(); j++) {
     iota::DeviceToBeAdded dev_add("", v_endpoint[j]);
@@ -1066,36 +1066,38 @@ int iota::AdminManagerService::post_protocol_json(
         srv_path= srvObj.getStringField(iota::store::types::SERVICE_PATH);
         it = services_in_mongo.find(srv+ "|" + srv_path);
         if (it == services_in_mongo.end() ||
-            srvObj != it->second){
+            srvObj != it->second) {
           PION_LOG_DEBUG(m_log, "services changed, update:"+ srv + "|" + srv_path);
-            mongo::BSONObjBuilder query;
-            query.append(iota::store::types::SERVICE,
-                     srvObj.getStringField(iota::store::types::SERVICE));
-            query.append(iota::store::types::SERVICE_PATH,
-                     srvObj.getStringField(iota::store::types::SERVICE_PATH));
+          mongo::BSONObjBuilder query;
+          query.append(iota::store::types::SERVICE,
+                       srvObj.getStringField(iota::store::types::SERVICE));
+          query.append(iota::store::types::SERVICE_PATH,
+                       srvObj.getStringField(iota::store::types::SERVICE_PATH));
 
-            query.append(iota::store::types::IOTAGENT, endpoint);
-            query.append(iota::store::types::PROTOCOL, protocol_name);
-            query.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
+          query.append(iota::store::types::IOTAGENT, endpoint);
+          query.append(iota::store::types::PROTOCOL, protocol_name);
+          query.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
 
-            srvObj = srvObj.removeField(iota::store::types::SERVICE);
-            srvObj = srvObj.removeField(iota::store::types::SERVICE_PATH);
-            srvObj = srvObj.removeField(iota::store::types::RESOURCE);
-            service_table.update(query.obj(), srvObj, true,0);
-        }else{
-            PION_LOG_DEBUG(m_log, "services no changed|service:"+ srv + "|" + srv_path);
+          srvObj = srvObj.removeField(iota::store::types::SERVICE);
+          srvObj = srvObj.removeField(iota::store::types::SERVICE_PATH);
+          srvObj = srvObj.removeField(iota::store::types::RESOURCE);
+          service_table.update(query.obj(), srvObj, true,0);
+        }
+        else {
+          PION_LOG_DEBUG(m_log, "services no changed|service:"+ srv + "|" + srv_path);
         }
         if (it != services_in_mongo.end()) {
           // lo borramos para quedarno solo con los que hay que borrar
-          services_in_mongo.erase (it);
+          services_in_mongo.erase(it);
         }
       }
     }
 
-    if (services_in_mongo.size() > 0){
+    if (services_in_mongo.size() > 0) {
       PION_LOG_DEBUG(m_log, "there are services to delete");
       std::map<std::string, mongo::BSONObj>::iterator iter;
-      for (iter = services_in_mongo.begin(); iter != services_in_mongo.end(); ++iter) {
+      for (iter = services_in_mongo.begin(); iter != services_in_mongo.end();
+           ++iter) {
         //TODO service_table.remove(iter->second);
       }
     }
@@ -1329,7 +1331,14 @@ int iota::AdminManagerService::put_service_json(
 
           // Query Parameters
           std::multimap<std::string, std::string> query_parameters;
-          query_parameters.insert(std::pair<std::string, std::string>(iota::store::types::RESOURCE, all_dest.at(i).resource));
+          query_parameters.insert(std::pair<std::string, std::string>
+                                  (iota::store::types::RESOURCE, all_dest.at(i).resource));
+          std::string apikey = obj_protocols[j].getStringField(
+                                 iota::store::types::APIKEY);
+          if (!apikey.empty()) {
+            query_parameters.insert(std::pair<std::string, std::string>
+                                    (iota::store::types::APIKEY, apikey));
+          }
           // Build request
           pion::http::request_ptr request = create_request(
                                               pion::http::types::REQUEST_METHOD_PUT,
@@ -1464,7 +1473,7 @@ int iota::AdminManagerService::delete_service_json(
         // Query Parameters
         std::multimap<std::string, std::string> query_parameters;
         //resource is mandatory in iotagents
-        query_parameters.insert (
+        query_parameters.insert(
           std::pair<std::string, std::string>(store::types::RESOURCE,
                                               all_dest.at(i).resource));
 
