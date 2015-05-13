@@ -14,7 +14,7 @@ extern std::string logger;
 }
 
 iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr
-    web_server):
+    web_server): iota::AdminService(web_server),
   _timeout(5),
   m_log(PION_GET_LOGGER(
           iota::logger)),
@@ -245,7 +245,7 @@ int iota::AdminManagerService::get_all_devices_json(
 
   PION_LOG_DEBUG(m_log, "AdminManagerService: get_all_devices_json, starting...");
 
-  if ((!detailed.empty()) && 
+  if ((!detailed.empty()) &&
       (detailed.compare(iota::store::types::ON) != 0) &&
       (detailed.compare(iota::store::types::OFF) != 0))  {
     PION_LOG_DEBUG(m_log, "status=" <<

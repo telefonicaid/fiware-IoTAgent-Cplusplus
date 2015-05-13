@@ -44,3 +44,5 @@
 - FIX IDAS-20389: attribute default type is string
 - FIX IDAS-20378: push command with 202, thread with response ok is faster than thread with delivered (202 response) son in CB ok response is lost
 - FIX IDAS-20409: Set mongo default timeout (tcp timeout for read/write) in 3 seconds.
+- FIX IDAS-20479: crash when manager starts and iota_manager is defined in
+  configuration file.
