@@ -89,7 +89,7 @@ boost::shared_ptr<iota::Command> command_from_mongo(
 
 iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
   m_asyncCommands(iota::types::MAX_SIZE_CACHE, false) {
-
+  PION_LOG_DEBUG(m_logger, "iota::CommandHandle::CommandHandle");
   m_asyncCommands.set_timeout_function(boost::bind(
                                          &iota::CommandHandle::timeout_f, this, _1));
 
@@ -119,6 +119,8 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
   catch (...) {
     PION_LOG_DEBUG(m_logger, " Problem with devices config file");
   }
+
+  //TODO start_thread_registrations();
 }
 
 iota::CommandHandle::~CommandHandle() {

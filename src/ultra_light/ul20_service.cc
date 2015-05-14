@@ -92,8 +92,6 @@ void iota::UL20Service::start() {
   catch (...) {
     PION_LOG_DEBUG(m_logger, " Problem reading timeout");
   }
-
-  start_thread_registrations();
 }
 
 void iota::UL20Service::op_ngsi(pion::http::request_ptr& http_request_ptr,
