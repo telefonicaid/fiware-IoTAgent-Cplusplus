@@ -48,3 +48,4 @@
   configuration file.
 - FIX IDAS-20477: Error in RegisterContext from a device with no entity_name and no entity_type.
 - FIX IDAS-20478: Duplicated commands in RegisterContext.
+- FIX IDAS-20489: PUT /services in manager accepts apikey as parameter to modify apikey.

@@ -91,7 +91,7 @@ It retrieves all protocols.
               ]
             }
 
-## Services [/services{?limit,offset,protocol}]
+## Services [/services{?limit,offset,protocol,apikey}]
 Services are the higher level in IoT Platform. When you manipulate a service, you use a Fiware-Service header with its name. Parameters apply to different operations.
 
 ### Service Model
@@ -185,7 +185,7 @@ With Fiware-ServicePath you can retrieve a subservice or all subservices.
 
 
 ### Create a service [POST]
-With one subservice defined in Fiware-ServicePath header. From service model, mandatory fields are:  protocol, description, apikey, resource. 
+With one subservice defined in Fiware-ServicePath header. From service model, mandatory fields are:  protocol, apikey.
 
 + Request (application/json)
 
@@ -211,7 +211,8 @@ With one subservice defined in Fiware-ServicePath header. From service model, ma
 + Response 201
 
 ### Modify a service [PUT]
-With one subservice defined in Fiware-ServicePath header.
+With one subservice defined in Fiware-ServicePath header. In order to modify _apikey_ you can define the apikey as parameter in query to identify, if needed,
+the service (in body you set the new apikey).
 
 + Request (application/json)
 
@@ -261,7 +262,7 @@ A device is a resource that publish information to IoT Platform and it uses the 
 
 
 ### Create a device [POST]
-From device model, mandatory fields are:  protocol, device_id and protocol.
+From device model, mandatory fields are:  device_id and protocol.
 
 + Request (application/json)
 
