@@ -1617,8 +1617,10 @@ int iota::AdminService::put_device_json(
                                     iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
         }
       }
-
-      int count = devTable->update(query, setbo, false);
+      mongo::BSONObjBuilder put_builder;
+      put_builder.appendElements(setbo);
+      put_builder.append(iota::store::types::REGISTRATION_ID, "");
+      int count = devTable->update(query, put_builder.obj(), false);
       if (count == 0) {
         PION_LOG_INFO(m_log, "put_device_json no device " <<
                       "|service=" << service << "|service_path=" <<
@@ -1628,7 +1630,12 @@ int iota::AdminService::put_device_json(
                                   iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
       }
       else {
-        Device device(device_id, service);
+        std::string new_device(device_id);
+        std::string new_device_json = setbo.getStringField(iota::store::types::DEVICE_ID);
+        if (!new_device_json.empty()) {
+          new_device.assign(new_device_json);
+        }
+        Device device(new_device, service);
         device._service_path = service_path;
         deploy_device(device);
 
