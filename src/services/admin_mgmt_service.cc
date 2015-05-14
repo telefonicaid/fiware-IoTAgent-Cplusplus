@@ -1069,7 +1069,7 @@ int iota::AdminManagerService::post_protocol_json(
         srv_path= srvObj.getStringField(iota::store::types::SERVICE_PATH);
         it = services_in_mongo.find(srv+ "|" + srv_path);
         if (it == services_in_mongo.end() ||
-            srvObj != it->second) {
+            srvObj.woCompare(it->second) != 0) {
           PION_LOG_DEBUG(m_log, "services changed, update:"+ srv + "|" + srv_path);
           mongo::BSONObjBuilder query;
           query.append(iota::store::types::SERVICE,
