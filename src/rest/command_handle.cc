@@ -120,7 +120,7 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
     PION_LOG_DEBUG(m_logger, " Problem with devices config file");
   }
 
-  start_thread_registrations();
+  //TODO start_thread_registrations();
 }
 
 iota::CommandHandle::~CommandHandle() {
