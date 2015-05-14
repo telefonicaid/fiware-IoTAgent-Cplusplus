@@ -1342,9 +1342,9 @@ int iota::AdminManagerService::put_service_json(
                                   (iota::store::types::RESOURCE, all_dest.at(i).resource));
           std::string api_key = obj_protocols[j].getStringField(
                                   iota::store::types::APIKEY);
-          if (!api_key.empty()) {
+          if (!apikey.empty()) {
             query_parameters.insert(std::pair<std::string, std::string>
-                                    (iota::store::types::APIKEY, api_key));
+                                    (iota::store::types::APIKEY, apikey));
           }
           // Build request
           pion::http::request_ptr request = create_request(
