@@ -193,7 +193,7 @@ const std::string iota::ServiceCollection::_POST_SCHEMA(
   "}"
   "}"
   "}"
-  ",\"required\": [\"apikey\", \"resource\", \"cbroker\"]"
+  ",\"required\": [\"apikey\", \"resource\"]"
   "}"
   "}"
   "}"

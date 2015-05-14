@@ -421,6 +421,21 @@ void iota::CommandHandle::send_all_registrations() {
             PION_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
           }
 
+          std::map<std::string, std::string>::iterator p;
+          for (p = item_dev->_commands.begin(); p!=item_dev->_commands.end();
+               ++p) {
+              std::string attr_name = p->first;
+              std::string attr_type = p->second;
+
+              if ((attr_type.compare(iota::types::STATUS) !=0) &&
+                  (attr_type.compare(iota::types::INFO) != 0)) {
+                attr_type = iota::types::COMMAND_TYPE;
+              }
+
+              iota::AttributeRegister attribute(attr_name, attr_type, "false");
+              cr.add_attribute(attribute);
+          }
+
           context_registrations.push_back(cr);
 
           PION_LOG_DEBUG(m_logger, "sending to CB");

@@ -48,6 +48,7 @@ class ServiceMgmtCollection : public ServiceCollection {
     int createTableAndIndex();
 
     virtual const std::string &getPostSchema() const;
+    virtual const std::string &getPutSchema() const;
 
     std::vector<ServiceType> get_services_by_protocol(
               const std::string &protocol_name,
