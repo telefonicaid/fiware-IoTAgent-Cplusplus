@@ -1299,7 +1299,7 @@ int iota::AdminManagerService::put_service_json(
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
   else if (validate_json_schema(body,  manager_service_collection,
-                                "POST", error_details)) {
+                                "PUT", error_details)) {
 
     PION_LOG_DEBUG(m_log, "Search protocol of service");
     mongo::BSONObj obj =  mongo::fromjson(body);
