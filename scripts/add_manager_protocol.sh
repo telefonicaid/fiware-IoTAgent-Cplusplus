@@ -1,5 +1,5 @@
 
-curl -X POST http://127.0.0.1:8070/iot/protocols \
+curl -X POST http://127.0.0.1:8081/iot/protocols \
 -i \
 -H "Accept: application/json,text/json" \
 -H "Content-Type: application/json" \
