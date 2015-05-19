@@ -225,6 +225,9 @@ std::string iota::RestHandle::get_public_ip() {
     public_ip.append(":");
     public_ip.append(boost::lexical_cast<std::string>(my_port));
   }
+  if (!public_ip.empty() && public_ip.find("http://", 0, 7) == std::string::npos) {
+    public_ip.insert(0, "http://");
+  }
   return public_ip;
 }
 
