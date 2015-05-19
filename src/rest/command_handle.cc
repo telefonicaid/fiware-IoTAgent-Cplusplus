@@ -120,7 +120,6 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
     PION_LOG_DEBUG(m_logger, " Problem with devices config file");
   }
 
-  //TODO start_thread_registrations();
 }
 
 iota::CommandHandle::~CommandHandle() {
@@ -301,7 +300,7 @@ bool iota::CommandHandle::find_service_name(std::string srv) {
 
 void iota::CommandHandle::make_registrations(void) {
 
-  PION_LOG_INFO(m_logger, "Start thread registrations");
+  PION_LOG_INFO(m_logger, "Start thread make_registrations");
 
   _reg_timeout = DEFAULT_REG_TIMEOUT;
 
@@ -1584,6 +1583,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
     }
     _myProvidingApp += my_resource;
 
+    start_thread_registrations();
   }
 }
 
