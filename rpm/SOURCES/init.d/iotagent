@@ -70,7 +70,8 @@ iotagent_start()
 		${EXECUTABLE} ${IOTAGENT_OPTS} & echo \$! > ${IOTAGENT_PID_FILE}" &> /dev/null 
 		sleep 2 # wait some time to leave iotagent start
 		local PID=$(cat ${IOTAGENT_PID_FILE})
-		if [[ -z "${PID}" ]]; then
+		local var_pid=$(ps -ef | grep ${PID} | grep -v grep)
+		if [[ -z "${var_pid}" ]]; then
 			printf "%s" "pidfile not found"
 			printf "%s\n" "$(failure)" 
 			exit 1
@@ -111,7 +112,6 @@ iotagent_stop()
 
 		local RUN_PID=$(cat ${run_instance})
 		kill ${RUN_PID}  &> /dev/null
-		sleep 2 # time to die properly
 		local KILLED_PID=$(ps -ef | grep ${RUN_PID} | grep -v grep | awk '{print $2}')
 		if [[ -z ${KILLED_PID} ]]; then
 			printf "%s\n" "$(success)"
