@@ -56,19 +56,21 @@ With root privileges, install  base and ul rpms :
   rpm -i  iot-agent-base-1.0.0-95.g250ee6f.x86_64.rpm
   rpm -i  iot-agent-ul-1.0.0-95.g250ee6f.x86_64.rpm
 ```
-
+Other protocols like mqtt or ThinkingThings have to be installed separately using their respective RPMs. 
 Binaries will be installated in path  ```/usr/local/iot/bin``` and libraries in path ```/usr/local/iot/lib```
+After successfully installing all desired plugins, the next step will be to configure the IoTAgent. All configuration is stored in ```/etc/iot``` folder. 
+See [Iotagent configuration](#def-configuration) for more information.
 
 
 ### Mongo db installation
 
-Download mongodb v 2.4 from:
+Download mongodb v 2.6 from:
 
 ```
 https://www.mongodb.org/dl/linux/x86_64
 ```
 
-You can download for example mongodb-linux-x86_64-2.4.11.tar , and copy it to CentOS 6.5 VM.
+You can download this file mongodb-linux-x86_64-2.6.9.tgz (or choose the one for your Linux distribution) , and copy it to your machine.
 
 Choose an installation path for mongo,  for example :
 
@@ -79,15 +81,15 @@ Choose an installation path for mongo,  for example :
 With root privileges:
 
 ```
-cp mongodb-linux-x86_64-2.4.11.tar   /usr/local/iot
+cp mongodb-linux-x86_64-2.6.9.tgz   /usr/local/iot
 cd /usr/local/iot
-tar xvf mongodb-linux-x86_64-2.4.11.tar
+tar xvf mongodb-linux-x86_64-2.6.9.tgz
 ```
 
 Create  log  and  data  directories :
 
 ```
-cd /usr/local/iot/mongodb-linux-x86_64-2.4.11
+cd /usr/local/iot/mongodb-linux-x86_64-2.6.9
 mkdir ./log
 mkdir ./data
 cd data
@@ -97,11 +99,11 @@ mkdir db
 You can create a mongod start script
 
 ```
-cd /usr/local/iot/mongodb-linux-x86_64-2.4.11/
+cd /usr/local/iot/mongodb-linux-x86_64-2.6.9/
 
 vi start_mongod.sh
 
-/usr/local/iot/mongodb-linux-x86_64-2.4.11/bin/mongod --dbpath /usr/local/iot/mongodb-linux-x86_64-2.4.11/data/db --port 27017 --logpath /usr/local/iot/mongodb-linux-x86_64-2.4.11/log/mongoc.log --pidfilepath /usr/local/iot/mongodb-linux-x86_64-2.4.11/log/mongod.pid --logappend  &
+/usr/local/iot/mongodb-linux-x86_64-2.6.9/bin/mongod --dbpath /usr/local/iot/mongodb-linux-x86_64-2.6.9/data/db --port 27017 --logpath /usr/local/iot/mongodb-linux-x86_64-2.6.9/log/mongoc.log --pidfilepath /usr/local/iot/mongodb-linux-x86_64-2.6.9/log/mongod.pid --logappend  &
 ```
 
 Ensure exceution privileges :
@@ -113,7 +115,7 @@ chmod a+x  start_mongod.sh
 In order to connect to mongodb:
 
 ```
-cd /usr/local/iot/mongodb-linux-x86_64-2.4.11/bin
+cd /usr/local/iot/mongodb-linux-x86_64-2.6.9/bin
 
 ./mongo
 ```
@@ -122,7 +124,7 @@ cd /usr/local/iot/mongodb-linux-x86_64-2.4.11/bin
 <a name="def-configuration"></a>
 ## 3. Iotagent configuration
 
-Iotagent needs a configuration file,  usually named config.json, an example could be:
+Iotagent requires a configuration file,  named config.json and placed in ```/etc/iot```. The file has different sections that will be explained below. A minimal working file will look like this:
 
 ```
 {
@@ -151,18 +153,9 @@ Iotagent needs a configuration file,  usually named config.json, an example coul
    ]
 }
 ```
+That file will be valid for an IoTAgent with no authentication, no load balancer, one plugin (UltraLight) and using a local mongodb as storage. 
 
-If installation requires high availability and a load balancer will be used, ip:port of balancer should be configured in a field "public_ip" into "ngsi_url". An example should be :
-```
-"ngsi_url": {
-        "updateContext": "/NGSI10/updateContext",
-        "registerContext": "/NGSI9/registerContext",
-        "queryContext": "/NGSI10/queryContext",
-        "public_ip": "10.95.200.200:20000"
-    },
-```
-
-You can get more information in next sections.
+#### Starting IoTAgent
 
 Now you can create an start script, for example  init_iotagent.sh
 
@@ -174,6 +167,11 @@ Now you can create an start script, for example  init_iotagent.sh
 
 Replace  x.x.x.x  with  VM IP address. By default  iotagent listen in port 8080
 
+#### Starting IoTAgent as a Service
+
+After installing iot-agent-base RPM an init.d script can be found in this folder ```/usr/local/iot/init.d```. Such script will take all input parameters for starting the IoTAgent process from a config file located in ```/usr/local/iot/config``` and named __iotagent_protocol.conf__ or __iotagent_manager.conf__ (for starting the IoTAgent as manager).
+
+You can configure the script as any other Linux service. Then you would start the IoTAgent by using ```sudo service iotagent start protocol``` for Normal IoTAgent operation. For Manager, you would issue the following command ```sudo service iotagent start manager```. 
 
 
 <a name="def-resources"></a>
@@ -316,6 +314,8 @@ This section configures how and where information is published by IoT Agent.
 | registerContext | uri to register device    |
 | queryContext | uri to ask information to context broker   |
 
+
+
 ```
 "ngsi_url": {
       "cbroker": "http://127.0.0.1:1026",
@@ -325,6 +325,19 @@ This section configures how and where information is published by IoT Agent.
   }
 ```
 Every service could define a different Context Broker in order to publish information. But a default endpoint can be defined (field _cbroker_). Other fields define paths for every operation.
+
+#### Using a Load Balancer.
+
+If installation requires high availability and a load balancer will be used, ip:port of balancer should be configured in a field __public_ip__ into "ngsi_url". An example should be :
+```
+"ngsi_url": {
+        "updateContext": "/NGSI10/updateContext",
+        "registerContext": "/NGSI9/registerContext",
+        "queryContext": "/NGSI10/queryContext",
+        "public_ip": "10.95.200.200:20000"
+    },
+```
+
 <a name="def-logs"></a>
 ### 5. Logs configuration
 Command line to start IoT Agent define the log level (option -v). The folder where log file is generated is defined by _dir_log_ field. The name of log file is _IoTAgent-{name}.log_, where _{name}_ is provided with option -n in command line. When log file reaches 10 MB, the active file is renamed to _IoTAgent-{name}.log.1_. Maximum number of saved files is 5.
