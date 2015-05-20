@@ -166,6 +166,9 @@ Now you can create an start script, for example  init_iotagent.sh
   /usr/local/iot/bin/iotagent -n qa -i  x.x.x.x -d /usr/local/iot/lib -c ./config.json -v DEBUG  &
 ```
 
+#### Starting IoTAgent as Manager
+For doing so, you have to include another parameter into the command line: "-m". Please be aware that it will start a new process with IP and Port as specified by command line, so if you plan to start both iotagent and iotagent-manager in the same machine, ports must be different. 
+
 Replace  x.x.x.x  with  VM IP address. By default  iotagent listen in port 8080
 
 #### Starting IoTAgent as a Service
