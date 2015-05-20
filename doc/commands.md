@@ -555,7 +555,7 @@ ContextBroker will response with an updateContextResponse:
             "type" : "ISO8601",
             "value" : ""
           },
-{
+          {
             "name" : "att_name",
             "type" : "string",
             "value" : "",
@@ -578,7 +578,7 @@ ContextBroker will response with an updateContextResponse:
 }
 ```
 
-If command response arrives before command timeout expires, IotAgent will send to contextBroker an updateContextRequest, on with an attribute _status to "OK". 
+If command response arrives before command timeout expires, IotAgent will send to contextBroker an updateContextRequest with attribute _status to "OK". 
 
-If command timeout expires, IotAgent will send to contextBroker an updateContextRequest with an attribute _status to "expired read".
+If command timeout expires, IotAgent will send to contextBroker an updateContextRequest with attribute _status to "expired read".
 
