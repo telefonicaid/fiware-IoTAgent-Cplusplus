@@ -449,7 +449,7 @@ In ngsi_update_cmd.json  file:
         {
           "name": "ping",
           "type": "command",
-          "value": "OK"
+          "value": "ALIVE"
         }
       ]
     }
@@ -458,3 +458,127 @@ In ngsi_update_cmd.json  file:
 ```
 
 ContextBroker will forward this updateContextRequest to iotagent. If HTTP request received by iotagent includes an accept header this one must indicate payload in json format, otherwise iotagent will return HTTP error 406. If accept header is not present, Content-Type header must indicate payload in json format, otherwise an error 415 will be returned.
+
+IotAgent will receive from contextBroker an updateContextRequest with payload:
+
+```
+{
+  "contextElements" : [
+    {
+      "type" : "entity_type",
+      "isPattern" : "false",
+      "id" : "entity_name",
+      "attributes" : [
+        {
+          "name" : "ping",
+          "type" : "command",
+          "value" : "ALIVE"
+        }
+      ]
+    }
+  ],
+  "updateAction" : "UPDATE"
+}
+```
+
+In this example, a device with polling commands is used, then IotAgent will send to  contextBroker an updateContextRequest with attribute _status "pending".
+
+```
+{
+  "updateAction": "APPEND",
+  "contextElements": [
+    {
+      "id": "entity_name",
+      "type": "entity_type",
+      "isPattern": "",
+      "attributes": [
+        {
+          "name": "ping_status",
+          "type": "string",
+          "value": "pending",
+          "metadatas": [
+            {
+              "name": "TimeInstant",
+              "type": "ISO8601",
+              "value": "2015-05-20T09:07:13.821236Z"
+            }
+          ]
+        },
+        {
+          "name": "TimeInstant",
+          "type": "ISO8601",
+          "value": "2015-05-20T09:07:13.821356Z"
+        },
+        {
+          "name": "att_name",
+          "type": "string",
+          "value": "value",
+          "metadatas": [
+            {
+              "name": "TimeInstant",
+              "type": "ISO8601",
+              "value": "2015-05-20T09:07:13.821549Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+ContextBroker will response with an updateContextResponse:
+
+```
+{
+  "contextResponses" : [
+    {
+      "contextElement" : {
+        "type" : "entity_type",
+        "isPattern" : "false",
+        "id" : "entity_name",
+        "attributes" : [
+          {
+            "name" : "ping_status",
+            "type" : "string",
+            "value" : "",
+            "metadatas" : [
+              {
+                "name" : "TimeInstant",
+                "type" : "ISO8601",
+                "value" : "2015-05-20T09:07:13.821236Z"
+              }
+            ]
+          },
+          {
+            "name" : "TimeInstant",
+            "type" : "ISO8601",
+            "value" : ""
+          },
+{
+            "name" : "att_name",
+            "type" : "string",
+            "value" : "",
+            "metadatas" : [
+              {
+                "name" : "TimeInstant",
+                "type" : "ISO8601",
+                "value" : "2015-05-20T09:07:13.821549Z"
+              }
+            ]
+          }
+        ]
+      },
+      "statusCode" : {
+        "code" : "200",
+        "reasonPhrase" : "OK"
+      }
+    }
+  ]
+}
+```
+
+If command response arrives before command timeout expires, IotAgent will send to contextBroker an updateContextRequest, on with an attribute _status to "OK". 
+
+If command timeout expires, IotAgent will send to contextBroker an updateContextRequest with an attribute _status to "expired read".
+
