@@ -175,7 +175,10 @@ Replace  x.x.x.x  with  VM IP address. By default  iotagent listen in port 8080
 
 After installing iot-agent-base RPM an init.d script can be found in this folder ```/usr/local/iot/init.d```. Such script will take all input parameters for starting the IoTAgent process from a config file located in ```/usr/local/iot/config``` and named __iotagent_protocol.conf__ or __iotagent_manager.conf__ (for starting the IoTAgent as manager).
 
-You can configure the script as any other Linux service. Then you would start the IoTAgent by using ```sudo service iotagent start protocol``` for Normal IoTAgent operation. For Manager, you would issue the following command ```sudo service iotagent start manager```. 
+You can configure the script as any other Linux service. Then you would start the IoTAgent by using
+```sudo service iotagent start protocol``` for Normal IoTAgent operation. 
+For Manager, you would issue the following command: 
+```sudo service iotagent start manager```. 
 
 
 <a name="def-resources"></a>
