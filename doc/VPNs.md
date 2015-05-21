@@ -18,7 +18,7 @@ sysctl –w net.ipv4.ip_forward=1
 ```
 
 Before starting the installation process, disabling SELinux is required.
-Execute:
+Execute: 
 ```
 getenforce
 ```
