@@ -1287,6 +1287,8 @@ int iota::AdminManagerService::put_service_json(
                             service_path);
   PION_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
+  int code_from_iota = pion::http::types::RESPONSE_CODE_NO_CONTENT;
+
   std::string reason;
   std::string error_details;
   boost::shared_ptr<iota::ServiceMgmtCollection> manager_service_collection(
@@ -1382,6 +1384,7 @@ int iota::AdminManagerService::put_service_json(
             response_from_iotagent_nok.insert(std::pair<std::string, std::string>
                                               (all_dest.at(
                                                  i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
+            code_from_iota =  resp_http->get_status_code();
           }
           PION_LOG_INFO(m_log, param_request);
           iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
@@ -1400,6 +1403,10 @@ int iota::AdminManagerService::put_service_json(
       code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
       if (response_from_iotagent_nok.size() > 0) {
         response = response_from_iotagent_nok.begin()->second;
+        if (code_from_iota != pion::http::types::RESPONSE_CODE_NO_CONTENT) {
+           PION_LOG_DEBUG(m_log, "Setting status received from agent");
+           code = code_from_iota; 
+        }
       }
       else {
         reason.append("Every IoTA returns NOK");
