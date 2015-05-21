@@ -6,7 +6,8 @@
 # var environment MOSQUITTO_ROOT
 find_library(MOSQUITTO_LIBRARY
               PATHS
-              ${IOTAGENT_DEPENDENCIES_PATHS} $ENV{MOSQUITTO_ROOT}/lib
+              ${_MOSQUITTO_IOT}/lib
+              $ENV{MOSQUITTO_ROOT}/lib
               ${MOSQUITO_ROOT}/lib
               NAMES mosquittopp mosquitto NO_DEFAULT_PATH)
 include(FindPackageHandleStandardArgs)

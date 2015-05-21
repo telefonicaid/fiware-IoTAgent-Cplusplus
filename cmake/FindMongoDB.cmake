@@ -9,9 +9,9 @@
 # var environment MongoDB_ROOT
 
 find_path(MongoDB_INCLUDE_DIR mongo/client/dbclient.h
-               ${IOTAGENT_DEPENDENCIES_PATHS}
-               $ENV{MongoDB_ROOT}/lib
-               ${MongoDB_ROOT}/lib)
+               ${_MONGOCLIENT_IOT}/include
+               $ENV{MongoDB_ROOT}/include
+               ${MongoDB_ROOT}/include)
 if (MONGODB_USE_STATIC_LIBS STREQUAL "ON")
 set(_mongodb_LIB_NAME "libmongoclient.a")
 else()
@@ -19,7 +19,7 @@ set(_mongodb_LIB_NAME "mongoclient")
 endif()
 find_library(_MongoDB_LIBRARIES NAMES ${_mongodb_LIB_NAME}
                PATHS
-               ${IOTAGENT_DEPENDENCIES_PATHS}
+               ${_MONGOCLIENT_IOT}/lib
                $ENV{MongoDB_ROOT}/lib
                ${MongoDB_ROOT}/lib
                NO_DEFAULT_PATH

@@ -28,7 +28,7 @@ find_path(LOG4CPLUS_INCLUDE_DIR
            NAMES
            log4cplus/logger.h log4cplus/version.h
            PATHS
-           ${IOTAGENT_DEPENDENCIES_PATHS}
+           ${_LOG4CPLUS_IOT}/include
            $ENV{LOG4CPLUS_ROOT}/include
            ${LOG4CPLUS_ROOT}/include
            NO_DEFAULT_PATH
@@ -44,7 +44,7 @@ find_library(_LOG4CPLUS_LIBRARIES
               NAMES
               ${_log4cplus_LIB_NAME}
               PATHS
-              ${IOTAGENT_DEPENDENCIES_PATHS}
+              ${_LOG4CPLUS_IOT}/lib
               $ENV{LOG4CPLUS_ROOT}/lib
               ${LOG4CPLUS_ROOT}/lib
               NO_DEFAULT_PATH

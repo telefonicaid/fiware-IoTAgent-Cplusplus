@@ -2,7 +2,7 @@
 # GTEST_INCLUDE_DIR where to find gtest.h
 # GTEST_FOUND If false, do not try to use Google Test
 find_path ( GTEST_INCLUDE_DIR gtest/gtest.h
-PATHS ${IOTAGENT_DEPENDENCIES_PATHS}
+PATHS ${_GMOCK_IOT}/include
 NO_DEFAULT_PATH )
 # handle the QUIETLY and REQUIRED arguments and set GTEST_FOUND to TRUE if
 # all listed variables are TRUE

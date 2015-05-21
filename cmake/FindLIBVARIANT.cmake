@@ -9,14 +9,14 @@
 # var environment LIBVARIANT_ROOT
 
 find_path(LIBVARIANT_INCLUDE_DIR Variant/VariantDefines.h
-               ${IOTAGENT_DEPENDENCIES_PATHS}
-               $ENV{LIBVARIANT_ROOT}/lib
-               ${LIBVARIANT_ROOT}/lib)
+               ${_LIBVARIANT_IOT}/include
+               $ENV{LIBVARIANT_ROOT}/include
+               ${LIBVARIANT_ROOT}/include)
 
 set(LIBVARIANT_LIB_NAME "libVariant.a")
 find_library(LIBVARIANT_LIBRARIES NAMES ${LIBVARIANT_LIB_NAME}
                PATHS
-               ${IOTAGENT_DEPENDENCIES_PATHS}
+               ${_LIBVARIANT_IOT}/lib
                $ENV{LIBVARIANT_ROOT}/lib
                ${LIBVARIANT_ROOT}/lib
                NO_DEFAULT_PATH
