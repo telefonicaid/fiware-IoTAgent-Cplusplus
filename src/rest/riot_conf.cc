@@ -75,6 +75,13 @@ void iota::Configurator::set_listen_port(int p) {
   listen_port = p;
 }
 
+std::string iota::Configurator::get_listen_ip() {
+  return listen_ip;
+}
+
+void iota::Configurator::set_listen_ip(std::string ip) {
+  listen_ip = ip;
+}
 
 /**
    flush all data from istream to ptree in memmory
