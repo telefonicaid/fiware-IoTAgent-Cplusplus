@@ -218,8 +218,9 @@ std::string iota::RestHandle::get_public_ip() {
     // Own endpoint to register
     boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
       AdminService_ptr->get_web_server()->get_endpoint();
-    boost::asio::ip::address own_addr = my_endpoint.address();
-    std::string my_ip = own_addr.to_string();
+
+    std::string my_ip = iota::Configurator::instance()->get_listen_ip();
+
     unsigned short my_port =  my_endpoint.port();
     public_ip.append(my_ip);
     public_ip.append(":");
