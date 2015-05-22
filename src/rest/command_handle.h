@@ -77,9 +77,6 @@ class CommandHandle :
                       const std::string& sequence,
                       iota::ContextResponses& response);
 
-    int queryContext(iota::QueryContext& queryContext,
-                     const boost::property_tree::ptree& service_ptree,
-                     iota::ContextResponses&  context_responses);
 
     void default_op_ngsi(pion::http::request_ptr& http_request_ptr,
                          std::map<std::string, std::string>& url_args,
@@ -393,7 +390,7 @@ class CommandHandle :
     // Asynchronous operation
     bool _callback;
 
-    void populate_command_attributes(const boost::shared_ptr<Device>&device,iota::ContextElement& entity_context_element);
+    void populate_command_attributes(const boost::shared_ptr<Device>&device,iota::ContextElement& entity_context_element){};
 
 
 };

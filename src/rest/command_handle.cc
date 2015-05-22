@@ -710,11 +710,6 @@ void iota::CommandHandle::send_register_device(Device& device) {
   }
 }
 
-int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
-                                       const boost::property_tree::ptree& service_ptree,
-                                       iota::ContextResponses&  context_responses) {
-    return -1;
-}
 
 int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
                                        const boost::property_tree::ptree& service_ptree,
