@@ -77,6 +77,10 @@ class CommandHandle :
                       const std::string& sequence,
                       iota::ContextResponses& response);
 
+    int queryContext(iota::QueryContext& queryContext,
+                     const boost::property_tree::ptree& service_ptree,
+                     iota::ContextResponses&  context_responses);
+
     void default_op_ngsi(pion::http::request_ptr& http_request_ptr,
                          std::map<std::string, std::string>& url_args,
                          std::multimap<std::string, std::string>& query_parameters,
