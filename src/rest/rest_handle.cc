@@ -237,9 +237,9 @@ void iota::RestHandle::register_iota_manager() {
   std::string iota_manager_endpoint = get_iota_manager_endpoint();
   std::string log_message;
   log_message.append(typeid(this).name());
-  log_message.append("register_iota_manager|resource=");
+  log_message.append("register_iota_manager resource=");
   log_message.append(get_resource());
-  log_message.append("|manager=");
+  log_message.append(" manager=");
   log_message.append(iota_manager_endpoint);
   PION_LOG_DEBUG(m_logger, log_message);
   if (iota_manager_endpoint.empty()) {
@@ -329,8 +329,8 @@ void iota::RestHandle::receive_event_from_manager(
   }
   if (error || code != pion::http::types::RESPONSE_CODE_CREATED) {
     PION_LOG_ERROR(m_logger,
-                   "|resource=" + get_resource() + "|code=" + boost::lexical_cast<std::string>
-                   (code) + "|error=" + error.message());
+                   " resource=" + get_resource() + " code=" + boost::lexical_cast<std::string>
+                   (code) + " error=" + error.message());
   }
 }
 
@@ -1108,7 +1108,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device(
   else {
     std::string text_error;
     text_error.append("RestHandle:: in get_device, no device, return null");
-    text_error.append("|");
+    text_error.append(" ");
     text_error.append(name);
     text_error.append(":");
     text_error.append(service);
