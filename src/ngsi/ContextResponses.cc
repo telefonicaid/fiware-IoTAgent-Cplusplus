@@ -93,7 +93,8 @@ std::string iota::ContextResponses::get_message_response() {
   }else{
       for (int i=0; i < _context_responses.size(); i++){
           if ( i > 0) {
-              res.append( "|" );
+              // remove | because of splac
+              res.append( " " );
           }
           res.append( _context_responses.at(i).get_reason());
       }
