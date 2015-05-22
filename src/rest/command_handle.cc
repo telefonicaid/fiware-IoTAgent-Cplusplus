@@ -1708,5 +1708,50 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
                                        const boost::property_tree::ptree& service_ptree,
                                        iota::ContextResponses&  context_responses){
 
-  PION_LOG_DEBUG(m_logger,)
+  PION_LOG_DEBUG(m_logger,"queryContext");
+
+  std::string service = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
+  std::string service_path = service_ptree.get<std::string>(iota::store::types::SERVICE_PATH
+                         , "");
+
+  if (service.empty() || service_path.empty()){
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                "Service or Sub_service are missing",iota::types::RESPONSE_CODE_BAD_REQUEST);
+  }
+
+  //TODO: declare BSONObj to return the result
+
+
+  try {
+
+      std::vector<iota::Entity> v_entities =  queryContext.get_entities();
+
+      //get entities one by one.
+      for (int i = 0; i< v_entities.size(); i++){
+       //get device, using a query to Mongo.
+
+      std::string id = v_entities[i].get_id();
+      std::string type = v_entities[i].get_type();
+
+      iota::ContextElement entity_context_element(id, type, v_entities[i].get_is_pattern());
+
+      boost::shared_ptr<iota::Device> device =  get_device_by_entity(id,type,service,service_path);
+
+      if (device.get() != NULL){
+          populate_command_attributes(device,entity_context_element);
+
+      }
+
+
+      }
+
+
+
+
+
+    }
+    catch (mongo::MsgAssertionException& e) {
+
+    }
+
 }

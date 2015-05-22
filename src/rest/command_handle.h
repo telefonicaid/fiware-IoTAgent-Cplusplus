@@ -28,6 +28,7 @@
 #include <rest/rest_handle.h>
 #include <string>
 #include <ngsi/UpdateContext.h>
+#include <ngsi/QueryContext.h>
 #include <ngsi/ContextElement.h>
 #include <ngsi/ContextResponses.h>
 #include <boost/property_tree/ptree.hpp>
@@ -65,7 +66,7 @@ class CommandHandle :
     int get_duration_seconds(std::string data);
     void make_registrations(void);
 
-    int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
+    int queryContext(iota::QueryContext& queryContext,
                                        const boost::property_tree::ptree& service_ptree,
                                        iota::ContextResponses&  context_responses);
 
@@ -387,6 +388,8 @@ class CommandHandle :
 
     // Asynchronous operation
     bool _callback;
+
+    void populate_command_attributes(const boost::shared_ptr<Device>&device,iota::ContextElement& entity_context_element);
 
 
 };
