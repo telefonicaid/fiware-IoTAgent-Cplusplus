@@ -1574,8 +1574,9 @@ int iota::AdminService::put_device_json(
   const std::string& protocol) {
 
   std::string param_request("put_device_json service=" + service +
-                             service_path=" +
+                            " service_path=" +
                             service_path + " device=" + device_id + " content=" + body);
+
   PION_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string reason;
