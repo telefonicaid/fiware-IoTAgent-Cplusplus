@@ -28,6 +28,7 @@
 #include <rest/rest_handle.h>
 #include <string>
 #include <ngsi/UpdateContext.h>
+#include <ngsi/QueryContext.h>
 #include <ngsi/ContextElement.h>
 #include <ngsi/ContextResponses.h>
 #include <boost/property_tree/ptree.hpp>
@@ -69,6 +70,10 @@ class CommandHandle :
                       const boost::property_tree::ptree& service,
                       const std::string& sequence,
                       iota::ContextResponses& response);
+
+    int queryContext(iota::QueryContext& queryContext,
+                     const boost::property_tree::ptree& service_ptree,
+                     iota::ContextResponses&  context_responses);
 
     void default_op_ngsi(pion::http::request_ptr& http_request_ptr,
                          std::map<std::string, std::string>& url_args,
