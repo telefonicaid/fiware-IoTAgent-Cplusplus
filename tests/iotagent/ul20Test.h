@@ -76,6 +76,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testCommandHandle);
 
     CPPUNIT_TEST(testQueryContext);
+    CPPUNIT_TEST(testQueryContextAPI);
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -160,6 +161,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void testBAD_PUSHCommand_MONGO();
 
     void testQueryContext();
+    void testQueryContextAPI();
 
 };
 
