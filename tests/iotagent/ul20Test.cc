@@ -2859,3 +2859,40 @@ void Ul20Test::testPollingCommand_MONGO(
   }
 
 }
+
+
+/***
+  *  POST http://10.95.26.51:8002/d?i=Device_UL2_0_RESTv2&k=4orh3jl3h40qkd7fk2qrc52ggb
+  *     ${#Project#END_TIME2}|t|${Properties#value}
+  *     ${#Project#END_TIME2}|t|${Properties#value}#t|${Properties#value2}
+  *     ${#Project#END_TIME}|t|${Properties#value}#l|${Properties#value2}/${Properties#value2_1}
+  **/
+void Ul20Test::testQueryContext() {
+  std::cout << "START testQueryContext" << std::endl;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+  std::string service = "service2";
+  std::string apikey = "apikey3";
+  boost::property_tree::ptree service_ptree;
+
+  // queryContext  recibido del CB
+  iota::ContextElement cb_elto("pruDevice1", "thing", "false");
+  iota::Attribute att("PING", "command", "22");
+  cb_elto.add_attribute(att);
+
+  std::string oper="updateContext";
+  iota::QueryContext op(oper);
+  op.add_context_element(cb_elto);
+
+
+
+  iota::ContextResponses  context_responses;
+  ul20serv.queryContext(op, service_ptree, "", context_responses);
+  std::cout << context_responses.get_string() << std::endl;
+
+
+
+  std::cout << "END testQueryContext" << std::endl;
+}

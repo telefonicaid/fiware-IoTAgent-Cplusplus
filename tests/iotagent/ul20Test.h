@@ -74,6 +74,9 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testBAD_PUSHCommand_MONGO);
 
     CPPUNIT_TEST(testCommandHandle);
+
+    CPPUNIT_TEST(testQueryContext);
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -155,6 +158,8 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void testPollingCommand_MONGO_SIN_ENTITY_TYPE();
     void testPollingCommand_MONGO_SIN();
     void testBAD_PUSHCommand_MONGO();
+
+    void testQueryContext();
 
 };
 
