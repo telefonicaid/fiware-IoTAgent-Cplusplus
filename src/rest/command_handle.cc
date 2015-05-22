@@ -1703,3 +1703,10 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
   }
 
 }
+
+int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
+                                       const boost::property_tree::ptree& service_ptree,
+                                       iota::ContextResponses&  context_responses){
+
+  PION_LOG_DEBUG(m_logger,)
+}

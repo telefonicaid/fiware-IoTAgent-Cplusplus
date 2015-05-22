@@ -65,6 +65,12 @@ class CommandHandle :
     int get_duration_seconds(std::string data);
     void make_registrations(void);
 
+    int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
+                                       const boost::property_tree::ptree& service_ptree,
+                                       iota::ContextResponses&  context_responses);
+
+
+
     int updateContext(iota::UpdateContext& updateContext,
                       const boost::property_tree::ptree& service,
                       const std::string& sequence,
@@ -329,6 +335,9 @@ class CommandHandle :
     * @brief   set command interface to be asynchronous.
     */
     void set_async_commands();
+
+
+
 
   protected:
 
