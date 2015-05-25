@@ -56,7 +56,7 @@ iota::QueryContext::QueryContext(const std::istringstream& str_query) {
     add_entity(entitiy);
   }
 
-  if (!document.HasMember(iota::ngsi::NGSI_ATTRIBUTES.c_str()) ||
+  if (document.HasMember(iota::ngsi::NGSI_ATTRIBUTES.c_str()) &&
       !document[iota::ngsi::NGSI_ATTRIBUTES.c_str()].IsArray()) {
     std::ostringstream what;
     what << "QueryContext: ";
@@ -64,6 +64,7 @@ iota::QueryContext::QueryContext(const std::istringstream& str_query) {
     what << iota::ngsi::NGSI_ATTRIBUTES;
     what << "]";
     throw std::runtime_error(what.str());
+
   }
   const rapidjson::Value& attributes = document["attributes"];
 
