@@ -204,7 +204,7 @@ int iota::esp::MqttService::execute_mqtt_command(std::string apikey,
 
   std::map<std::string, std::string> cparams;
 
-  std::string payload("cmdid ");
+  std::string payload("cmdid|");
   payload.append(command_id);
   payload.append("#");
   payload.append(command_payload);
