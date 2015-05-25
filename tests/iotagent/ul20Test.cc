@@ -2907,6 +2907,7 @@ void Ul20Test::testQueryContext() {
   **/
 void Ul20Test::testQueryContextAPI() {
   std::cout << "START testQueryContextAPI" << std::endl;
+  std::string responseOK( "{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":\"room_ut111\",\"type\":\"type2\",\"isPattern\":\"false\",\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"%s\"},{\"name\":\"RAW\",\"type\":\"command\",\"value\":\"%s\"}]}}]}");
 
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
@@ -2916,7 +2917,7 @@ void Ul20Test::testQueryContextAPI() {
 
   // POST  queryContext
   std::string querySTR = "";
-  std::string bodySTR = "{\"entities\":[{\"type\":\"thing\",\"isPattern\":\"false\",\"id\":\"entity_1\" }]}";
+  std::string bodySTR = "{\"entities\":[{\"type\":\"type2\",\"isPattern\":\"false\",\"id\":\"room_ut111\" }]}";
   {
     pion::http::request_ptr http_request(new pion::http::request("/iot/ngsi/d/queryContext"));
     http_request->set_method("POST");
@@ -2933,11 +2934,12 @@ void Ul20Test::testQueryContextAPI() {
                      http_response, response);
 
     std::cout << "POST queryContext " <<
-        http_response.get_status_code() << response <<
-              std::endl;
-   // IOTASSERT_MESSAGE("response code not is 200",
-   //                        http_response.get_status_code() == RESPONSE_CODE_NGSI);
-
+        http_response.get_status_code() <<
+                 ":" << http_response.get_content() << std::endl;
+    //IOTASSERT_MESSAGE("response code not is 200",
+    //                       http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    //IOTASSERT_MESSAGE("@UT@OK, response is not correct" ,
+    //        responseOK.compare(http_response.get_content()) ==0);
 
   }
   // GET queryContext
