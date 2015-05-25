@@ -1097,7 +1097,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   // RBL_BORRAR prueba
 /*******************************
   http_response.set_status_code(200);
-  
+
   std::string MYresponseOK( "{"
    "\"contextResponses\": ["
    "{"
@@ -1126,15 +1126,15 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   "]"
   "}");
 
-  response = MYresponseOK; 
+  response = MYresponseOK;
 
   PION_LOG_INFO(m_logger, "RBL_BORRAR response: " + response);
 
-   
+
   std::string c_t(iota::types::IOT_CONTENT_TYPE_JSON + "; charset=UTF-8");
   http_response.set_content_type(c_t);
   return;
-*****************************************/ 
+*****************************************/
   // RBL_BORRAR Fin prueba
 
   int iresponse= 200;
@@ -1763,12 +1763,11 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
                 "Service or Sub_service are missing",iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  //TODO: declare BSONObj to return the result
-
-
   try {
 
       std::vector<iota::Entity> v_entities =  queryContext.get_entities();
+
+      //create contextResponses.
 
       //get entities one by one.
       for (int i = 0; i< v_entities.size(); i++){
