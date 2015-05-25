@@ -149,7 +149,7 @@ void iota::MongoConnection::reconnect(){
       PION_LOG_DEBUG(m_logger, "in storage no pwd defined, mongo without auth");
       _password = "";
     }
-    db_info.assign("|mongodb=" + _host + "/" + _database);
+    db_info.assign(" mongodb=" + _host + "/" + _database);
 
 
 

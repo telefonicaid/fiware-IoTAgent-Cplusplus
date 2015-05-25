@@ -143,7 +143,7 @@ void iota::OAuthFilter::authorize(pion::http::request_ptr& http_request_ptr,
   std::string subservice_id = oauth_comm->get_subserviceId();
   std::string service_id = oauth_comm->get_serviceId();
   boost::property_tree::ptree roles = oauth_comm->get_roles();
-  pion::user_ptr user(new pion::user(user_id + "|" + domain + "|" + project));
+  pion::user_ptr user(new pion::user(user_id + " " + domain + " " + project));
   http_request_ptr->set_user(user);
   std::vector<std::string> user_subservice_roles;
   std::string resource_id(get_resource(domain, project,

@@ -204,7 +204,7 @@ int iota::esp::MqttService::execute_mqtt_command(std::string apikey,
 
   std::map<std::string, std::string> cparams;
 
-  std::string payload("cmdid|");
+  std::string payload("cmdid ");
   payload.append(command_id);
   payload.append("#");
   payload.append(command_payload);
@@ -257,11 +257,11 @@ void iota::esp::MqttService::respond_mqtt_command(std::string apikey,
   if (commandPtr.get() == NULL) {
     PION_LOG_ERROR(m_logger,
                    "processCommandResponse: already responded, command not in cache id: " <<
-                   command_id << "| service:" <<  srv << " service path: " << srv_path);
+                   command_id << " service:" <<  srv << " service path: " << srv_path);
   }
   else {
     PION_LOG_DEBUG(m_logger, "processCommandResponse: command in cache id: " <<
-                   command_id << " | service:" <<  srv << " service path: " << srv_path);
+                   command_id << "  service:" <<  srv << " service path: " << srv_path);
     command = commandPtr->get_name();
     commandPtr->cancel();
     // It is very important to remove command

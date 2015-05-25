@@ -56,9 +56,9 @@ With root privileges, install  base and ul rpms :
   rpm -i  iot-agent-base-1.0.0-95.g250ee6f.x86_64.rpm
   rpm -i  iot-agent-ul-1.0.0-95.g250ee6f.x86_64.rpm
 ```
-Other protocols like mqtt or ThinkingThings have to be installed separately using their respective RPMs. 
+Other protocols like mqtt or ThinkingThings have to be installed separately using their respective RPMs.
 Binaries will be installated in path  ```/usr/local/iot/bin``` and libraries in path ```/usr/local/iot/lib```
-After successfully installing all desired plugins, the next step will be to configure the IoTAgent. All configuration is stored in ```/etc/iot``` folder. 
+After successfully installing all desired plugins, the next step will be to configure the IoTAgent. All configuration is stored in ```/etc/iot``` folder.
 See [Iotagent configuration](#def-configuration) for more information.
 
 
@@ -154,7 +154,7 @@ Iotagent requires a configuration file,  named config.json and placed in ```/etc
    ]
 }
 ```
-That file will be valid for an IoTAgent with no authentication, no load balancer, one plugin (UltraLight) and using a local mongodb as storage. 
+That file will be valid for an IoTAgent with no authentication, no load balancer, one plugin (UltraLight) and using a local mongodb as storage.
 
 #### Starting IoTAgent
 
@@ -167,7 +167,7 @@ Now you can create an start script, for example  init_iotagent.sh
 ```
 
 #### Starting IoTAgent as Manager
-For doing so, you have to include another parameter into the command line: "-m". Please be aware that it will start a new process with IP and Port as specified by command line, so if you plan to start both iotagent and iotagent-manager in the same machine, ports must be different. 
+For doing so, you have to include another parameter into the command line: "-m". Please be aware that it will start a new process with IP and Port as specified by command line, so if you plan to start both iotagent and iotagent-manager in the same machine, ports must be different.
 
 Replace  x.x.x.x  with  VM IP address. By default  iotagent listen in port 8080
 
@@ -176,9 +176,9 @@ Replace  x.x.x.x  with  VM IP address. By default  iotagent listen in port 8080
 After installing iot-agent-base RPM an init.d script can be found in this folder ```/usr/local/iot/init.d```. Such script will take all input parameters for starting the IoTAgent process from a config file located in ```/usr/local/iot/config``` and named __iotagent_protocol.conf__ or __iotagent_manager.conf__ (for starting the IoTAgent as manager).
 
 You can configure the script as any other Linux service. Then you would start the IoTAgent by using
-```sudo service iotagent start protocol``` for Normal IoTAgent operation. 
-For Manager, you would issue the following command: 
-```sudo service iotagent start manager```. 
+```sudo service iotagent start protocol``` for Normal IoTAgent operation.
+For Manager, you would issue the following command:
+```sudo service iotagent start manager```.
 
 
 <a name="def-resources"></a>
@@ -538,7 +538,7 @@ db.DEVICE.find()
 Alarms
 
 Alarms is logged in FATAL level, and an alarm means that a communication between an other component is broken.
-When the communication is restored other fatal log is written with event=END-ALARM, pay attention, only FATAL logs must be consider, logs in DEBUG level are normal and cannot be considered.
+When the communication is restored other error log is written with event=END-ALARM, pay attention, only ERROR logs must be consider, logs in DEBUG level are normal and cannot be considered.
 
 Every alarm has a code to identify it.
 
@@ -546,16 +546,18 @@ Every alarm has a code to identify it.
 | ------------- |:-------------:           |
 | 100   | No comunication with mongo database     |
 | 200 | No comunication with Context broker     |
+| 300 | No comunication with IoT Agent (IoT Agent Manager throws this alarm)     |
+| XXXX | Code used in modules (user alarms) |
 
 Example of broken communications with mongo database
 
 ```
-060315T065804,524.785UTC|lvl=FATAL|comp=iota:dev|op=put|[140148919482400:alarm.cc:81] |event=ALARM|code=100|origin= 127.0.0.1:27017|info=socket exception [CONNECT_ERROR] for 127.0.0.1:27017
-060315T065804,524.785UTC|lvl=FATAL|comp=iota:dev|op=put|[140148919482400:alarm.cc:81] |event=ALARM|code=100|origin= 127.0.0.1:27017|info=socket exception [CONNECT_ERROR] for 127.0.0.1:27017
+time=2015-05-25T07-56-03,971.888CEST | lvl=ERROR | comp=iota:dev | op=put | file=[140148919482400:alarm.cc:81] | msg=event=ALARM code=100 origin= 127.0.0.1:27017 info=socket exception [CONNECT_ERROR] for 127.0.0.1:27017
+time=2015-05-25T07-58-03,971.888CEST | lvl=ERROR | comp=iota:dev | op=put | file=[140148919482400:alarm.cc:81] | msg=event=ALARM code=100 origin= 127.0.0.1:27017 info=socket exception [CONNECT_ERROR] for 127.0.0.1:27017
 
 ...   Connection recovered  ...
 
-060315T123808,396.176UTC|lvl=FATAL|comp=iota:dev|op=remove|[140148573378304:alarm.cc:96] |event=END-ALARM|code=100|origin= 127.0.0.1:27017|info=MongoConnection OK
+time=2015-05-25T07-59-03,971.888CEST | lvl=ERROR | comp=iota:dev | op=remove | file=[140148573378304:alarm.cc:96] | msg=event=END-ALARM code=100 origin= 127.0.0.1:27017 info=MongoConnection OK
 
-060315T123808,396.176UTC|lvl=DEBUG|comp=iota:dev|op=remove|[140148573378304:alarm.cc:96] |event=END-ALARM|code=100|origin= 127.0.0.1:27017|info=MongoConnection OK
+time=2015-05-25T07-59-03,971.888CEST | lvl=DEBUG | comp=iota:dev | op=remove | file=[140148573378304:alarm.cc:96] | msg=event=END-ALARM code=100 origin= 127.0.0.1:27017 info=MongoConnection OK
 ```

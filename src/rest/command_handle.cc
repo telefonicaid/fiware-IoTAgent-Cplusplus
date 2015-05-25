@@ -617,7 +617,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
 
       if (srv.compare(device._service) == 0) {
-        PION_LOG_DEBUG(m_logger, "|service=" <<  srv);
+        PION_LOG_DEBUG(m_logger, " service=" <<  srv);
         dev_table.findd(device);
 
         while (dev_table.more()) {
@@ -1078,7 +1078,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
     command_id.assign(sequence_id);
   }
 
-  PION_LOG_DEBUG(m_logger, "resultcommand|" << command_id << " " << result);
+  PION_LOG_DEBUG(m_logger, "resultcommand " << command_id << " " << result);
 };
 
 void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&

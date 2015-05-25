@@ -62,7 +62,7 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
                                    const boost::system::error_code& read_error,
                                    std::size_t bytes_read) {
   PION_LOG_DEBUG(m_logger,
-                 "|read_error=" << read_error << "|bytes_read=" << bytes_read);
+                 " read_error=" << read_error << " bytes_read=" << bytes_read);
   std::string reading_buffer;
   if (!read_error) {
     std::string reading_buffer(tcp_conn->get_read_buffer().data(),
@@ -75,7 +75,7 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
   while (it != c_handlers.end()) {
     iota::TcpService::IotaRequestHandler h = it->second;
     if (h) {
-      PION_LOG_DEBUG(m_logger, "|client=" + it->first);
+      PION_LOG_DEBUG(m_logger, " client=" + it->first);
       h(tcp_conn, reading_buffer, read_error);
     }
     ++it;

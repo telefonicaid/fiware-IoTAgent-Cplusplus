@@ -358,8 +358,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
   PION_LOG_INFO(m_logger, "iota::UL20Service::service method:" +method +
           " trace_message:" + trace_message+
           " code: " + boost::lexical_cast<std::string>(code_resp)+
-          " response:" + response+ "|");
-
+          " response:" + response+ " ");
 }
 
 
