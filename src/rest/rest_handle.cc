@@ -589,8 +589,9 @@ void iota::RestHandle::error_response(pion::http::response& http_response,
     std::string o_reason(reason);
     boost::erase_all(o_reason, "\"");
     buffer.append(o_reason);
-    buffer.append("\",");
+
     if (details.empty() == false) {
+      buffer.append("\",");
       std::string o_details(details);
       boost::erase_all(o_details, "\"");
       buffer.append("\"details\": \"");
