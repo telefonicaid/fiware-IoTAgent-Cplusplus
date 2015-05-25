@@ -83,6 +83,12 @@ class CommandHandle :
                          std::multimap<std::string, std::string>& query_parameters,
                          pion::http::response& http_response, std::string& response);
 
+    void default_queryContext_ngsi(pion::http::request_ptr&
+                        http_request_ptr,
+                        std::map<std::string, std::string>& url_args,
+                        std::multimap<std::string, std::string>& query_parameters,
+                        pion::http::response& http_response, std::string& response);
+
     void getCommandLine(const std::string& command_name,
                         const std::string& updateCommand_value,
                         const std::string& sequence_id,
@@ -346,7 +352,8 @@ class CommandHandle :
 
     void enable_ngsi_service(std::map<std::string, std::string>& filters,
                              iota::RestHandle::HandleFunction_t handle,
-                             iota::RestHandle* context);
+                             iota::RestHandle* context,
+                             iota::RestHandle::HandleFunction_t handle_query = NULL);
 
     std::string get_ngsi_operation(const std::string& operation);
 
@@ -390,7 +397,11 @@ class CommandHandle :
     // Asynchronous operation
     bool _callback;
 
-    void populate_command_attributes(const boost::shared_ptr<Device>&device,iota::ContextElement& entity_context_element){};
+    /**
+     *  fill entity_context_element  with command of device
+     **/
+    void populate_command_attributes(const boost::shared_ptr<Device>& device,
+                               iota::ContextElement& entity_context_element);
 
 
 };
