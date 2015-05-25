@@ -1185,6 +1185,106 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   }
 }
 
+void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
+    http_request_ptr,
+    std::map<std::string, std::string>& url_args,
+    std::multimap<std::string, std::string>& query_parameters,
+    pion::http::response& http_response, std::string& response) {
+
+  std::string trace_message = http_request_ptr->get_header(
+                                iota::types::HEADER_TRACE_MESSAGES);
+  std::string method = http_request_ptr->get_method();
+  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_queryContext_ngsi trace_message:" +
+                trace_message);
+
+  int iresponse= 200;
+  response = "OK";
+  iota::ContextResponses context_response;
+
+  try {
+    //read updateContext
+    std::string method = http_request_ptr->get_method();
+    PION_LOG_DEBUG(m_logger, "method:" << method);
+    std::string resource_o = http_request_ptr->get_original_resource();
+    PION_LOG_DEBUG(m_logger, "resource_o:" <<resource_o);
+    std::string resource = http_request_ptr->get_resource();
+    PION_LOG_DEBUG(m_logger, "resource:" <<resource);
+
+
+    std::string item_dev_ip = http_request_ptr->get_remote_ip().to_string();
+    PION_LOG_DEBUG(m_logger, "item_dev_ip:" <<item_dev_ip);
+    std::string s_query = http_request_ptr->get_query_string();
+    PION_LOG_DEBUG(m_logger, "s_query:" <<s_query);
+    std::string content = http_request_ptr->get_content();
+    PION_LOG_DEBUG(m_logger, "content:" <<content);
+
+    if (http_request_ptr->has_header(iota::types::FIWARE_SERVICE)) {
+      std::string service = http_request_ptr->get_header(
+                              iota::types::FIWARE_SERVICE);
+      PION_LOG_DEBUG(m_logger, "service:" <<service);
+      std::string service_path = http_request_ptr->get_header(
+                                   iota::types::FIWARE_SERVICEPATH);
+
+      //check service
+      boost::property_tree::ptree service_ptree;
+      get_service_by_name(service_ptree, service, service_path);
+
+      // Add proxy
+
+
+      std::istringstream ss(content);
+      iota::QueryContext op_queryContext(ss);
+
+      iresponse = queryContext(op_queryContext, service_ptree,
+                                context_response);
+
+      response = create_ngsi_response(iresponse,
+                                      context_response.get_message_response(),"");
+      iresponse = 200;
+    }
+    else {
+      PION_LOG_ERROR(m_logger,
+                     "you need a header with " << iota::types::FIWARE_SERVICEPATH);
+      iresponse = 200;
+      response = create_ngsi_response(types::RESPONSE_CODE_BAD_REQUEST,
+                                      "you need a header with Fiware-Service" , "");
+    }
+
+  }
+  catch (iota::IotaException e) {
+    PION_LOG_ERROR(m_logger,"Capturada: IotaException in default_query_ngsi");
+    PION_LOG_ERROR(m_logger,e.what());
+    iresponse = 200;
+    response = create_ngsi_response(e.status(), e.reason(), e.what());
+  }
+  catch (std::runtime_error e) {
+    iresponse = 200;
+    response = create_ngsi_response(500, e.what(), e.what());
+  }
+  catch (std::exception& e) {
+    iresponse = 200;
+    response = create_ngsi_response(500, e.what(), e.what());
+  }
+  catch (...) {
+    iresponse = 200;
+    response = create_ngsi_response(
+                 types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR,
+                 iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR, " ---");
+  }
+  //write response
+
+  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_query_ngsi trace_message:" +
+                trace_message+
+                " code: " + boost::lexical_cast<std::string>(iresponse)+
+                " response:" + response);
+  http_response.set_status_code(iresponse);
+
+  if (!response.empty()) {
+    std::string c_t(iota::types::IOT_CONTENT_TYPE_JSON + "; charset=UTF-8");
+    http_response.set_content_type(c_t);
+  }
+}
+
 std::string iota::CommandHandle::create_ngsi_response(int code,
     const std::string& reason,
     const std::string& details) {
@@ -1538,11 +1638,12 @@ int iota::CommandHandle::get_cache_size() {
 
 void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>&
     filters,
-    iota::RestHandle::HandleFunction_t handle,
-    iota::RestHandle* context) {
+    iota::RestHandle::HandleFunction_t handle_update,
+    iota::RestHandle* context,
+    iota::RestHandle::HandleFunction_t handle_query) {
 
   iota::RestHandle* ngsi_service = NULL;
-  std::string url_ngsi;
+  std::string url_ngsi_update;
   if (AdminService_ptr != NULL) {
     std::string ngsi_service_str(iota::URL_BASE);
     ngsi_service_str.append("/");
@@ -1551,11 +1652,29 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
 
   }
   if (ngsi_service != NULL) {
-    std::string ngsi_operation(get_resource());
-    ngsi_operation.append("/<operation>");
-    url_ngsi = ngsi_service->add_url(ngsi_operation,
+
+    if (handle_update == NULL){
+      PION_LOG_DEBUG(m_logger, "default updateContext added");
+      handle_query =  REST_HANDLE(&iota::CommandHandle::default_op_ngsi);
+    }
+
+    std::string ngsi_update(get_resource());
+    ngsi_update.append("/updateContext");
+    url_ngsi_update = ngsi_service->add_url(ngsi_update,
                                      filters,
-                                     handle, context);
+                                     handle_update, context);
+
+    // add queryContext
+    if (handle_query == NULL){
+      PION_LOG_DEBUG(m_logger, "default queryContext added");
+      handle_query =  REST_HANDLE(&iota::CommandHandle::default_queryContext_ngsi);
+    }
+    std::string ngsi_query(get_resource());
+    ngsi_query.append("/queryContext");
+    url_ngsi_update = ngsi_service->add_url(ngsi_query,
+                                     filters,
+                                     handle_query, context);
+
     init_services_by_resource();
     // Obtaining ip and port from pion
 
@@ -1567,10 +1686,10 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
     unsigned short my_port =  my_endpoint.port();
     PION_LOG_DEBUG(m_logger, "admin service  port: " << my_port);
 
-    std::string my_resource = url_ngsi;
-    size_t pos = url_ngsi.find("/<operation>");
+    std::string my_resource = url_ngsi_update;
+    size_t pos = url_ngsi_update.find("/updateContext");
     if (pos != std::string::npos) {
-      my_resource =url_ngsi.substr(0,pos);
+      my_resource =url_ngsi_update.substr(0,pos);
     }
 
     std::string public_ip = get_public_ip();
@@ -1753,5 +1872,19 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
     catch (mongo::MsgAssertionException& e) {
 
     }
+
+}
+
+
+void iota::CommandHandle::populate_command_attributes(
+                     const boost::shared_ptr<Device>& device,
+                     iota::ContextElement& entity_context_element){
+
+
+  std::map<std::string, std::string>::iterator it ;
+  for(it = device->_commands.begin(); it != device->_commands.end(); it++) {
+    iota::Attribute attribute(it->first, "command", it->second);
+    entity_context_element.add_attribute(attribute);
+  }
 
 }
