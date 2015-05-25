@@ -27,6 +27,7 @@
 #include "ultra_light/ULInsertObservation.h"
 #include "util/RiotISO8601.h"
 #include "util/command.h"
+#include "util/device.h"
 #include "util/command_cache.h"
 #include "ngsi/ContextResponses.h"
 #include "rest/command_handle.h"
@@ -2859,3 +2860,125 @@ void Ul20Test::testPollingCommand_MONGO(
   }
 
 }
+
+
+/***
+  *  POST http://10.95.26.51:8002/d?i=Device_UL2_0_RESTv2&k=4orh3jl3h40qkd7fk2qrc52ggb
+  *     ${#Project#END_TIME2}|t|${Properties#value}
+  *     ${#Project#END_TIME2}|t|${Properties#value}#t|${Properties#value2}
+  *     ${#Project#END_TIME}|t|${Properties#value}#l|${Properties#value2}/${Properties#value2_1}
+  **/
+void Ul20Test::testQueryContext() {
+  std::cout << "START testQueryContext" << std::endl;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  std::string responseOK( "{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":\"room_ut111\",\"type\":\"type2\",\"isPattern\":\"false\",\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"%s\"},{\"name\":\"RAW\",\"type\":\"command\",\"value\":\"%s\"}]}}]}");
+
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+  std::string service = "service2";
+  std::string subservice = "/ssrv2";
+  boost::property_tree::ptree service_ptree;
+  ul20serv.get_service_by_name(service_ptree, service, subservice);
+
+  // queryContext  recibido del CB
+  iota::QueryContext op;
+  iota::Entity entity("room_ut111", "type2", "false");
+  op.add_entity(entity);
+  //q.add_attribute("ping");
+
+  iota::ContextResponses  context_responses;
+  //queryContext(op, service_ptree, context_responses, ul20serv);
+  ul20serv.queryContext(op, service_ptree, context_responses);
+  std::string response = context_responses.get_string();
+  std::cout << "@UT@response: " << response << std::endl;
+  IOTASSERT_MESSAGE("@UT@OK, response is not correct" ,
+            response.compare(responseOK) ==0);
+
+  std::cout << "END testQueryContext" << std::endl;
+}
+
+
+/***
+  *  POST http://10.95.26.51:8002/d?i=Device_UL2_0_RESTv2&k=4orh3jl3h40qkd7fk2qrc52ggb
+  *     ${#Project#END_TIME2}|t|${Properties#value}
+  *     ${#Project#END_TIME2}|t|${Properties#value}#t|${Properties#value2}
+  *     ${#Project#END_TIME}|t|${Properties#value}#l|${Properties#value2}/${Properties#value2_1}
+  **/
+void Ul20Test::testQueryContextAPI() {
+  std::cout << "START testQueryContextAPI" << std::endl;
+  std::string responseOK( "{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":\"room_ut111\",\"type\":\"type2\",\"isPattern\":\"false\",\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"%s\"},{\"name\":\"RAW\",\"type\":\"command\",\"value\":\"%s\"}]}}]}");
+
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+  std::string service = "service2";
+  std::string subservice = "service2";
+  std::string apikey = "apikey3";
+
+  // POST  queryContext
+  std::string querySTR = "";
+  std::string bodySTR = "{\"entities\":[{\"type\":\"type2\",\"isPattern\":\"false\",\"id\":\"room_ut111\" }]}";
+  {
+    pion::http::request_ptr http_request(new pion::http::request("/iot/ngsi/d/queryContext"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR);
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, subservice);
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    pion::http::response http_response;
+    std::string response;
+    ul20serv.service(http_request, url_args, query_parameters,
+                     http_response, response);
+
+    std::cout << "POST queryContext " <<
+        http_response.get_status_code() <<
+                 ":" << http_response.get_content() << std::endl;
+    //IOTASSERT_MESSAGE("response code not is 200",
+    //                       http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    //IOTASSERT_MESSAGE("@UT@OK, response is not correct" ,
+    //        responseOK.compare(http_response.get_content()) ==0);
+
+  }
+  // GET queryContext
+/*  {
+    bodySTR = "";
+    pion::http::request_ptr http_request(new pion::http::request("/iot/ngsi/d/queryContext/entity_1"));
+    http_request->set_method("GET");
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR_no_mapping);
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, subservice);
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    pion::http::response http_response;
+    std::string response;
+    ul20serv.service(http_request, url_args, query_parameters,
+                     http_response, response);
+
+    std::cout << "GET query context " <<
+        http_response.get_status_code() << response <<
+              std::endl;
+    IOTASSERT_MESSAGE("response code not is 200",
+                           http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    IOTASSERT_MESSAGE("translate the name of device",
+                           cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                           std::string::npos);
+    IOTASSERT_MESSAGE(" observation",
+                           cb_last.find("{\"name\":\"nomap\",\"type\":\"string\",\"value\":\"23\"")
+                           !=
+                           std::string::npos);
+    IOTASSERT_MESSAGE("add statis attributes",
+                           cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
+                           !=
+                           std::string::npos);
+
+  }*/
+
+  std::cout << "END testQueryContextAPI " << std::endl;
+}
+
+
