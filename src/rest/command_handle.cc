@@ -1093,6 +1093,50 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi trace_message:" +
                 trace_message);
 
+
+  // RBL_BORRAR prueba
+/*******************************
+  http_response.set_status_code(200);
+  
+  std::string MYresponseOK( "{"
+   "\"contextResponses\": ["
+   "{"
+   "\"contextElement\": {"
+    "\"attributes\": ["
+    "{"
+      "\"name\": \"PING\","
+      "\"type\": \"command\","
+      "\"value\": \"\""
+    "},"
+    "{"
+      "\"name\": \"RAW\","
+      "\"type\": \"command\","
+      "\"value\": \"\""
+    "}"
+    "],"
+    "\"id\": \"room_ut1\","
+    "\"isPattern\": \"false\","
+    "\"type\": \"type2\""
+  "},"
+  "\"statusCode\": {"
+    "\"code\": \"200\","
+    "\"reasonPhrase\": \"OK\""
+  "}"
+  "}"
+  "]"
+  "}");
+
+  response = MYresponseOK; 
+
+  PION_LOG_INFO(m_logger, "RBL_BORRAR response: " + response);
+
+   
+  std::string c_t(iota::types::IOT_CONTENT_TYPE_JSON + "; charset=UTF-8");
+  http_response.set_content_type(c_t);
+  return;
+*****************************************/ 
+  // RBL_BORRAR Fin prueba
+
   int iresponse= 200;
   response = "OK";
   iota::ContextResponses context_response;

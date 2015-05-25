@@ -2872,6 +2872,8 @@ void Ul20Test::testQueryContext() {
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string responseOK( "{"
+   "\"contextResponses\": ["
+   "{"
    "\"contextElement\": {"
     "\"attributes\": ["
     "{"
@@ -2893,6 +2895,8 @@ void Ul20Test::testQueryContext() {
     "\"code\": \"200\","
     "\"reasonPhrase\": \"OK\""
   "}"
+  "}"
+  "]"
 "}");
 
 
