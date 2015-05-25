@@ -1938,8 +1938,12 @@ void iota::CommandHandle::populate_command_attributes(
 
   std::map<std::string, std::string>::iterator it ;
   for(it = device->_commands.begin(); it != device->_commands.end(); it++) {
-    PION_LOG_DEBUG(m_logger,"command:"<<it->first);
-    iota::Attribute attribute(it->first, "command", it->second);
+    std::string value = it->second;
+    if (value.empty()){
+      PION_LOG_DEBUG(m_logger,"command:"<< it->first << " with empty value");
+      value = " ";
+    }
+    iota::Attribute attribute(it->first, "command", value);
     entity_context_element.add_attribute(attribute);
   }
 
