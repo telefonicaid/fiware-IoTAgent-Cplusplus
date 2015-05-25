@@ -366,8 +366,8 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
   if (count_eltos == 0 && limit ==0 && skip ==0){
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_IOTAGENTS,
                               "[protocol:" + protocol_id+
-                              "|service: " + service +
-                              "|service_path:" + service_path+"]",
+                              " service: " + service +
+                              " service_path:" + service_path+"]",
                               iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
   }
 

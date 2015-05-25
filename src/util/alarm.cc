@@ -60,11 +60,11 @@ std::string iota::Alarm::message(int code,
              const std::string& text) {
 
   std::string message;
-  message.append("|code=");
+  message.append(" code=");
   message.append( boost::lexical_cast<std::string > (code) );
-  message.append("|origin=");
+  message.append(" origin=");
   message.append(endpoint);
-  message.append("|info=");
+  message.append(" info=");
   message.append(text);
 
   return message;
@@ -76,7 +76,7 @@ void iota::Alarm::put(int code,
              const std::string& status,
              const std::string& text) {
    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-   std::string errorSTR ="|event=ALARM";
+   std::string errorSTR =" event=ALARM";
    errorSTR.append(message(code, endpoint, status, text));
 
    PION_LOG_ERROR(m_log, errorSTR);
@@ -89,7 +89,7 @@ void iota::Alarm::remove(int code,
              const std::string& status,
              const std::string& text) {
     boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-    std::string errorSTR ="|event=END-ALARM";
+    std::string errorSTR =" event=END-ALARM";
     errorSTR.append(message(code, endpoint, status, text));
 
     int num = _alarms.erase(get_key(code, endpoint, status));

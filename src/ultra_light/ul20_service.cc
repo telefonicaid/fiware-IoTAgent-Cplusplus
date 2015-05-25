@@ -110,8 +110,8 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
 
   std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_logger, "iota::UL20Service::service|method:" +method +
-          "|trace_message:" + trace_message);
+  PION_LOG_INFO(m_logger, "iota::UL20Service::service method:" +method +
+          " trace_message:" + trace_message);
 
   //HTTPResponse http_response(*http_request_ptr);
   std::string respuesta;
@@ -281,11 +281,11 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
         if (commandPtr.get() == NULL) {
           PION_LOG_ERROR(m_logger,
                          "already responsed, command not in cache id_command:" <<
-                         id_command << "|service:"<<  srv << " " << srv_path);
+                         id_command << " service:"<<  srv << " " << srv_path);
         }
         else {
           PION_LOG_DEBUG(m_logger, "command in cache id_command:" <<
-                         id_command << "|service:"<<  srv << " " << srv_path);
+                         id_command << " service:"<<  srv << " " << srv_path);
           command = commandPtr->get_name();
           commandPtr->cancel();
           remove_command(id_command, srv,  srv_path);
@@ -355,10 +355,10 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
     response.append(commandsSTR);
   }
 
-  PION_LOG_INFO(m_logger, "iota::UL20Service::service|method:" +method +
-          "|trace_message:" + trace_message+
-          "|code: " + boost::lexical_cast<std::string>(code_resp)+
-          "|response:" + response+ "|");
+  PION_LOG_INFO(m_logger, "iota::UL20Service::service method:" +method +
+          " trace_message:" + trace_message+
+          " code: " + boost::lexical_cast<std::string>(code_resp)+
+          " response:" + response+ " ");
 
 }
 

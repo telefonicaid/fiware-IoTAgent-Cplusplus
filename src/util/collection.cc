@@ -80,7 +80,7 @@ mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
   r = obj.obj();
   std::string bbdd = getDatabaseName();
 
-  std::string param_request("Collection:findAndModify|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:findAndModify bbdd=" + bbdd + " data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -130,7 +130,7 @@ mongo::BSONObj iota::Collection::aggregate(
 
   r = obj.obj();
 
-  std::string param_request("Collection:aggregate|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:aggregate bbdd=" + bbdd + " data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -182,7 +182,7 @@ mongo::BSONObj iota::Collection::distinct(
 
   r = obj.obj();
 
-  std::string param_request("Collection:distinct|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:distinct bbdd=" + bbdd + " data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -230,7 +230,7 @@ int iota::Collection::getLastError(const std::string& bbdd,
     if (ok == 0) {
       // se ha producido un error
       std::string errorSTR = errObj.getStringField("err");
-      errorSTR += " | mongoiota::store:: ";
+      errorSTR += "   mongoiota::store:: ";
       errorSTR += bbdd;
       errorSTR += "::getLastError";
       PION_LOG_ERROR(m_logger, errorSTR);
@@ -275,7 +275,7 @@ int iota::Collection::insert(const mongo::BSONObj& data,
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:insert|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:insert bbdd=" + bbdd + " data=" +
                             data.toString());
   PION_LOG_DEBUG(m_logger, param_request);
 
@@ -379,9 +379,9 @@ int iota::Collection::update_r(
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:update|bbdd="
+  std::string param_request("Collection:update bbdd="
                             + bbdd + "query=" + query.toString() +
-                            "|data=" +
+                            " data=" +
                             setData.toString());
   PION_LOG_DEBUG(m_logger, param_request);
 

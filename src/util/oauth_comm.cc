@@ -167,10 +167,10 @@ void iota::OAuth::receive_event_renew_token(
   pion::http::response_ptr response,
   const boost::system::error_code& error) {
   PION_LOG_DEBUG(m_logger,
-                 "receive_event_renew_token|is_pep=" << boost::lexical_cast<std::string>
+                 "receive_event_renew_token is_pep=" << boost::lexical_cast<std::string>
                  (is_pep()) <<
-                 "|oauth=" << connection->getRemoteEndpoint() <<
-                 "|conn_error=" << connection->get_error());
+                 " oauth=" << connection->getRemoteEndpoint() <<
+                 " conn_error=" << connection->get_error());
   if (response.get() != NULL &&
       (response->get_status_code() == pion::http::types::RESPONSE_CODE_OK ||
        response->get_status_code() == pion::http::types::RESPONSE_CODE_ACCEPTED ||
@@ -181,19 +181,19 @@ void iota::OAuth::receive_event_renew_token(
     _data._subject_token = response->get_header(HTTP_HEADER_TOKEN);
     _data._timestamp = boost::posix_time::second_clock::universal_time();
     PION_LOG_DEBUG(m_logger,
-                   "renew_token|is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
-                   "|oauth=" << connection->getRemoteEndpoint() <<
-                   "|conn_error=" << connection->get_error() <<
-                   "|http_code=" << response->get_status_code() <<
-                   "|subject-token=" << _data._subject_token.empty());
+                   "renew_token is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
+                   " oauth=" << connection->getRemoteEndpoint() <<
+                   " conn_error=" << connection->get_error() <<
+                   " http_code=" << response->get_status_code() <<
+                   " subject-token=" << _data._subject_token.empty());
   }
   else {
     _data._subject_token.clear();
     PION_LOG_ERROR(m_logger,
-                   "renew_token|is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
-                   "|oauth=" << connection->getRemoteEndpoint() <<
-                   "|conn_error=" << connection->get_error() <<
-                   "|subject-token=" << _data._subject_token.empty());
+                   "renew_token is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
+                   " oauth=" << connection->getRemoteEndpoint() <<
+                   " conn_error=" << connection->get_error() <<
+                   " subject-token=" << _data._subject_token.empty());
   }
   //remove_connection(connection);
 
@@ -217,9 +217,9 @@ std::string iota::OAuth::receive_event_get_user(
   std::string str_response;
   if (response.get() != NULL) {
     str_response = response->get_content();
-    PION_LOG_INFO(m_logger, "receive_event_get_user|conn_error=" <<
+    PION_LOG_INFO(m_logger, "receive_event_get_user conn_error=" <<
                   connection->get_error() <<
-                  "|http_resp=" << str_response <<
+                  " http_resp=" << str_response <<
                   "[" << response->get_status_code() << "]");
 
 
@@ -238,8 +238,8 @@ std::string iota::OAuth::receive_event_get_user(
       _service_id = ptree_user.get<std::string>("token.user.domain.id", "");
     }
   }
-  PION_LOG_DEBUG(m_logger, "receive_event_get_user|user=" << _user_id <<
-                 "|domain=" << _domain);
+  PION_LOG_DEBUG(m_logger, "receive_event_get_user user=" << _user_id <<
+                 " domain=" << _domain);
   if (is_pep() && _io_service.get() != NULL) {
 
     if (_user_id.empty()) {
@@ -281,7 +281,7 @@ void iota::OAuth::renew_token(std::string scope) {
   if (_io_service.get() != NULL) {
 
     PION_LOG_DEBUG(m_logger,
-                   "renew_token|is_pep=" << is_pep() << "|oauth=" << server << "|timeout=" <<
+                   "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
                    _timeout);
     http_client.reset(new iota::HttpClient(*_io_service, server, dest.getPort()));
     //add_connection(http_client);
@@ -291,7 +291,7 @@ void iota::OAuth::renew_token(std::string scope) {
   }
   else {
     PION_LOG_DEBUG(m_logger,
-                   "renew_token|is_pep=" << is_pep() << "|oauth=" << server << "|timeout=" <<
+                   "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
                    _timeout);
     http_client.reset(new iota::HttpClient(server, dest.getPort()));
     //add_connection(http_client);
@@ -304,7 +304,7 @@ void iota::OAuth::renew_token(std::string scope) {
 
 std::string  iota::OAuth::get_user(std::string token, std::string token_pep) {
   PION_LOG_DEBUG(m_logger,
-                 "get_user|pep-token=" << token_pep << "|user-token=" << token);
+                 "get_user pep-token=" << token_pep << " user-token=" << token);
   std::string str_response;
   _user_id.clear();
   boost::property_tree::ptree headers;
@@ -330,9 +330,9 @@ std::string iota::OAuth::receive_event_get_subservice(
   if (response.get() != NULL) {
     str_response = response->get_content();
     status_code = response->get_status_code();
-    PION_LOG_INFO(m_logger, "receive_event_get_subservice|conn_error=" <<
+    PION_LOG_INFO(m_logger, "receive_event_get_subservice conn_error=" <<
                   connection->get_error() <<
-                  "|http_resp=" << str_response <<
+                  " http_resp=" << str_response <<
                   "[" << status_code << "]");
 
 
@@ -367,17 +367,17 @@ std::string iota::OAuth::receive_event_get_subservice(
     }
     catch (std::exception& e) {
       PION_LOG_ERROR(m_logger,
-                     "get_subservice|is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
-                     "|projects=" << e.what() <<
-                     "|token-pep=" << _data._subject_token.empty());
+                     "get_subservice is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
+                     " projects=" << e.what() <<
+                     " token-pep=" << _data._subject_token.empty());
     }
   }
   else {
 
     PION_LOG_ERROR(m_logger,
-                   "get_subservice|is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
-                   "|projects=" << str_response <<
-                   "|token-pep=" << _data._subject_token.empty());
+                   "get_subservice is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
+                   " projects=" << str_response <<
+                   " token-pep=" << _data._subject_token.empty());
   }
   if (is_pep() && _io_service.get() != NULL) {
     // When result is not from a OK response, we finalize.
@@ -402,9 +402,9 @@ std::string iota::OAuth::receive_event_get_user_roles(
   std::string str_response;
   if (response.get() != NULL) {
     str_response = response->get_content();
-    PION_LOG_INFO(m_logger, "receive_event_get_user_roles|conn_error=" <<
+    PION_LOG_INFO(m_logger, "receive_event_get_user_roles conn_error=" <<
                   connection->get_error() <<
-                  "|http_resp=" << str_response <<
+                  " http_resp=" << str_response <<
                   "[" << response->get_status_code() << "]");
 
 
@@ -447,7 +447,7 @@ boost::property_tree::ptree iota::OAuth::validate_user_token(std::string token,
   _application_callback = callback;
   if (!token.empty()) {
     PION_LOG_DEBUG(m_logger,
-                   "validate_user_token|is_pep=" << boost::lexical_cast<std::string>(is_pep()));
+                   "validate_user_token is_pep=" << boost::lexical_cast<std::string>(is_pep()));
     if (!is_pep()) {
       return user_from_auth_token;
     }
@@ -464,9 +464,9 @@ boost::property_tree::ptree iota::OAuth::validate_user_token(std::string token,
 
   }
   PION_LOG_DEBUG(m_logger,
-                 "validate_user_token|is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
-                 "|token=" << token.empty() <<
-                 "|user_from_auth_token=" << user_from_auth_token.empty());
+                 "validate_user_token is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
+                 " token=" << token.empty() <<
+                 " user_from_auth_token=" << user_from_auth_token.empty());
   return user_from_auth_token;
 }
 
@@ -539,9 +539,9 @@ std::string iota::OAuth::send_request(std::string endpoint,
                                        boost::property_tree::ptree headers,
                                        std::string f,
                                        oauth_comm_t handler) {
-  std::string p_request("|operation=" + f + "|endpoint=" +  endpoint + "|method="
+  std::string p_request(" operation=" + f + " endpoint=" +  endpoint + " method="
                         + method +
-                        "|content=" + content + "|query=" + query);
+                        " content=" + content + " query=" + query);
   std::string str_response;
   IoTUrl dest(endpoint);
   std::string resource = dest.getPath();
