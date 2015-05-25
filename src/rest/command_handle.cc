@@ -1882,6 +1882,7 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
                 "Service or Sub_service are missing",iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
+  PION_LOG_DEBUG(m_logger,"queryContext: service ["<<service<<"] sub-service ["<< service_path<<"]");
 
 
   std::vector<iota::Entity> v_entities =  queryContext.get_entities();
@@ -1906,6 +1907,8 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
     service, service_path);
 
     if (device.get() != NULL) {
+
+      PION_LOG_DEBUG(m_logger,"queryContext: Device retrieved id ["<<id<<"] type: ["<<type<<"]");
       populate_command_attributes(device, entity_context_element);
 
       if (entity_context_element.get_attributes().size() == 0) {
