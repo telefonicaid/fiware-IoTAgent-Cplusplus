@@ -204,6 +204,25 @@
                   "value": "value"
                 }
             ]
+        },{
+            "device_id": "unitTest_dev111_endpoint",
+            "endpoint": "http://127.0.0.1:9999/device",
+            "entity_name": "room_ut111",
+            "entity_type": "type2",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "%s"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "%s"
+                }
+            ]
         },
         {
             "device_id": "unitTest_dev2_inactive",

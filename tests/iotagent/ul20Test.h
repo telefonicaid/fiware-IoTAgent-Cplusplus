@@ -163,6 +163,17 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void testQueryContext();
     void testQueryContextAPI();
 
+
+
+    void populate_command_attributes(
+                     const boost::shared_ptr<iota::Device>& device,
+                     iota::ContextElement& entity_context_element);
+
+int queryContext(iota::QueryContext& queryContext,
+                                       const boost::property_tree::ptree& service_ptree,
+                                       iota::ContextResponses&  context_responses,
+                                       iota::UL20Service& ul);
+
 };
 
 #endif  /* UL20TEST_H */
