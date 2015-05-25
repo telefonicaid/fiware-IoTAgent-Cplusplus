@@ -1094,49 +1094,6 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
                 trace_message);
 
 
-  // RBL_BORRAR prueba
-/*******************************
-  http_response.set_status_code(200);
-
-  std::string MYresponseOK( "{"
-   "\"contextResponses\": ["
-   "{"
-   "\"contextElement\": {"
-    "\"attributes\": ["
-    "{"
-      "\"name\": \"PING\","
-      "\"type\": \"command\","
-      "\"value\": \"\""
-    "},"
-    "{"
-      "\"name\": \"RAW\","
-      "\"type\": \"command\","
-      "\"value\": \"\""
-    "}"
-    "],"
-    "\"id\": \"room_ut1\","
-    "\"isPattern\": \"false\","
-    "\"type\": \"type2\""
-  "},"
-  "\"statusCode\": {"
-    "\"code\": \"200\","
-    "\"reasonPhrase\": \"OK\""
-  "}"
-  "}"
-  "]"
-  "}");
-
-  response = MYresponseOK;
-
-  PION_LOG_INFO(m_logger, "RBL_BORRAR response: " + response);
-
-
-  std::string c_t(iota::types::IOT_CONTENT_TYPE_JSON + "; charset=UTF-8");
-  http_response.set_content_type(c_t);
-  return;
-*****************************************/
-  // RBL_BORRAR Fin prueba
-
   int iresponse= 200;
   response = "OK";
   iota::ContextResponses context_response;
@@ -1690,6 +1647,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
 
   iota::RestHandle* ngsi_service = NULL;
   std::string url_ngsi_update;
+  std::string url_ngsi_query;
   if (AdminService_ptr != NULL) {
     std::string ngsi_service_str(iota::URL_BASE);
     ngsi_service_str.append("/");
@@ -1717,7 +1675,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
     }
     std::string ngsi_query(get_resource());
     ngsi_query.append("/queryContext");
-    url_ngsi_update = ngsi_service->add_url(ngsi_query,
+    url_ngsi_query = ngsi_service->add_url(ngsi_query,
                                      filters,
                                      handle_query, context);
 
