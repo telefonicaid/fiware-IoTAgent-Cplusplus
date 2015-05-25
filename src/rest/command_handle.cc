@@ -1278,10 +1278,13 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
 
       std::istringstream ss(content);
       iota::QueryContext op_queryContext(ss);
+      PION_LOG_DEBUG( m_logger, "queryContext:" << op_queryContext.get_string());
 
       iresponse = queryContext(op_queryContext, service_ptree,
                                 context_response);
 
+      PION_LOG_DEBUG( m_logger, "response queryContext:" << iresponse <<
+                                " " << context_response.get_message_response());
       response = create_ngsi_response(iresponse,
                                       context_response.get_message_response(),"");
       iresponse = 200;
