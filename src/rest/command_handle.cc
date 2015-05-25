@@ -1882,39 +1882,46 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
                 "Service or Sub_service are missing",iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  try {
 
-      std::vector<iota::Entity> v_entities =  queryContext.get_entities();
 
-      //create contextResponses.
+  std::vector<iota::Entity> v_entities =  queryContext.get_entities();
 
-      //get entities one by one.
-      for (int i = 0; i< v_entities.size(); i++){
-       //get device, using a query to Mongo.
+  if (v_entities.size() == 0) {
+    PION_LOG_WARN(m_logger, "QueryContext has no entities");
+  }
 
-      std::string id = v_entities[i].get_id();
-      std::string type = v_entities[i].get_type();
 
-      iota::ContextElement entity_context_element(id, type, v_entities[i].get_is_pattern());
+  //get entities one by one.
+  int i = 0;
+  for (i = 0; i < v_entities.size(); i++) {
+    //get device, using a query to Mongo.
 
-      boost::shared_ptr<iota::Device> device =  get_device_by_entity(id,type,service,service_path);
+    std::string id = v_entities[i].get_id();
+    std::string type = v_entities[i].get_type();
 
-      if (device.get() != NULL){
-          populate_command_attributes(device,entity_context_element);
+    iota::ContextElement entity_context_element(id, type,
+    v_entities[i].get_is_pattern());
 
+    boost::shared_ptr<iota::Device> device =  get_device_by_entity(id, type,
+    service, service_path);
+
+    if (device.get() != NULL) {
+      populate_command_attributes(device, entity_context_element);
+
+      if (entity_context_element.get_attributes().size() == 0) {
+        PION_LOG_WARN(m_logger, "Device [" << id << "] has no commands to return");
       }
+      PION_LOG_DEBUG(m_logger,"Device [" << id << "] returns ["<<entity_context_element.get_attributes().size()<<"] attributes");
 
 
-      }
-
-
-
-
+      iota::ContextResponse context_resp;
+      context_resp.add_context_element(entity_context_element);
+      context_responses.add_context_response(context_resp);
 
     }
-    catch (mongo::MsgAssertionException& e) {
 
-    }
+  }
+  PION_LOG_DEBUG(m_logger,"QueryContext returning  ["<<i<<"] entities");
 
 }
 
