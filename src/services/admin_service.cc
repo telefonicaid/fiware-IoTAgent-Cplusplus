@@ -1619,7 +1619,7 @@ int iota::AdminService::put_device_json(
       }
       mongo::BSONObjBuilder put_builder;
       put_builder.appendElements(setbo);
-      put_builder.append(iota::store::types::REGISTRATION_ID, "");
+      //put_builder.append(iota::store::types::REGISTRATION_ID, "");
       int count = devTable->update(query, put_builder.obj(), false);
       if (count == 0) {
         PION_LOG_INFO(m_log, "put_device_json no device " <<
