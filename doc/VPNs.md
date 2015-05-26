@@ -1,6 +1,7 @@
 # Using SmartM2M VPNs (draft in progress)
 The goal is to configure a Linux cluster to keep active a GRE tunnel and receive requests on a _squid_ proxy (http://www.squid-cache.org). This tunnel connects the IoTA infrastructure with the M2M router.
 
+
 ## HA configuration
 Activate _ip forwarding_ editing _/etc/sysctl.conf_ (as root if needed):
 
