@@ -1394,7 +1394,7 @@ int iota::CommandHandle::send_register(
 
     PION_LOG_DEBUG(m_logger, "Adding registrationId: " << regId);
     reg.add_registrationId(regId);
-    reg.add_duration("P1S");
+    reg.add_duration("PT1S");
     ContextBrokerCommunicator cb_communicator_unreg;
     cb_communicator_unreg.send(cb_url, reg.get_string(), pt_cb);
 
