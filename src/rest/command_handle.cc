@@ -1391,10 +1391,16 @@ int iota::CommandHandle::send_register(
   }
 
   if (! regId.empty()) {
+
     PION_LOG_DEBUG(m_logger, "Adding registrationId: " << regId);
     reg.add_registrationId(regId);
-  }
+    reg.add_duration("P1S");
+    ContextBrokerCommunicator cb_communicator_unreg;
+    cb_communicator_unreg.send(cb_url, reg.get_string(), pt_cb);
 
+  }
+  reg.add_duration("");
+  reg.add_registrationId("");
   PION_LOG_DEBUG(m_logger, "Sending to cb :" << cb_url);
   PION_LOG_DEBUG(m_logger, "RegisterContext : " << reg.get_string());
 
