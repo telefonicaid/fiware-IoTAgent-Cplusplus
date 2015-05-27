@@ -24,6 +24,12 @@ macro(log4cplus_get_version _include_PATH vmajor vminor vpatch)
  endif()
 endmacro()
 
+set(LOG4CPLUS_FIND_OPTIONS ${IOT_FIND_OPTIONS})
+if (LOG4CPLUS_ROOT)
+set(LOG4CPLUS_FIND_OPTIONS NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+endif()
+
+
 find_path(LOG4CPLUS_INCLUDE_DIR
            NAMES
            log4cplus/logger.h log4cplus/version.h
@@ -31,7 +37,7 @@ find_path(LOG4CPLUS_INCLUDE_DIR
            ${_LOG4CPLUS_IOT}/include
            $ENV{LOG4CPLUS_ROOT}/include
            ${LOG4CPLUS_ROOT}/include
-           ${IOT_FIND_OPTIONS} 
+           ${LOG4CPLUS_FIND_OPTIONS} 
 )
 
 if(Log4Cplus_USE_STATIC_LIBS)
@@ -47,7 +53,7 @@ find_library(_LOG4CPLUS_LIBRARIES
               ${_LOG4CPLUS_IOT}/lib
               $ENV{LOG4CPLUS_ROOT}/lib
               ${LOG4CPLUS_ROOT}/lib
-              ${IOT_FIND_OPTIONS} 
+              ${LOG4CPLUS_FIND_OPTIONS} 
 )
 
 if(LOG4CPLUS_INCLUDE_DIR)
