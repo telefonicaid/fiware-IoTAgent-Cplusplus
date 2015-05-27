@@ -91,6 +91,7 @@ ln -s /usr/local/iot/init.d/iotagent /etc/init.d/iotagent
 # pre-uninstall section:
 # -------------------------------------------------------------------------------------------- #
 %preun
+if [ $1 = 0 ]; then
 
 echo "[INFO] Deleting %{_owner} user..."
 getent passwd %{_owner} > /dev/null && userdel -r %{_owner}
@@ -103,6 +104,7 @@ rm -rf /etc/iot
 
 echo "[INFO] Done!"
 
+fi
 # -------------------------------------------------------------------------------------------- #
 # post-uninstall section:
 # clean section:

@@ -63,8 +63,8 @@ bool iota::AccessControl::authorize(std::vector<std::string> roles,
                                      app_callback_t callback) {
   // Addictional info contains headers
   PION_LOG_DEBUG(m_logger,
-                 "access_control_authorize|roles=" << roles.size() << "|resource_id=" <<
-                 resource_id << "|action=" << action);
+                 "access_control_authorize roles=" << roles.size() << " resource_id=" <<
+                 resource_id << " action=" << action);
 
   _application_callback = callback;
   std::string str_response;
@@ -98,13 +98,13 @@ void iota::AccessControl::receive_event(
   pion::http::response_ptr response,
   const boost::system::error_code& error) {
   PION_LOG_DEBUG(m_logger,
-                 "receive_event=access_control|conn_error=" << connection->get_error());
+                 "receive_event=access_control conn_error=" << connection->get_error());
   bool authorized = false;
   std::string str_response;
   if (response.get() != NULL) {
     PION_LOG_DEBUG(m_logger,
-                   "receive_event=access_control|content=" << response->get_content() <<
-                   "|http-status=" << response->get_status_code());
+                   "receive_event=access_control content=" << response->get_content() <<
+                   " http-status=" << response->get_status_code());
     if (response->get_status_code() == pion::http::types::RESPONSE_CODE_OK) {
       str_response = response->get_content();
       if (str_response.find("Permit") != std::string::npos) {

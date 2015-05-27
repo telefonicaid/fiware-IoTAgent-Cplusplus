@@ -35,8 +35,11 @@ set(IOTAGENT_LIBS "")
 # View cmake directory. NO_DEFAULT_PATH is defined in cmake modules to find
 # dependencies
 
-if(IOT_ROOT)
+# Search options
+set(IOT_FIND_OPTIONS)
 
+if(IOT_ROOT)
+set(IOT_FIND_OPTIONS NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
 file(GLOB_RECURSE _PION_I_  ${IOT_ROOT}/libpion-5.0.so)
 if(_PION_I_)
 list(GET _PION_I_ 0 _PION_I_)

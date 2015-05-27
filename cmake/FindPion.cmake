@@ -31,7 +31,7 @@ find_path(Pion_INCLUDE_DIR
            ${_PION_IOT}/include
            $ENV{PION_ROOT}/include
            ${PION_ROOT}/include
-           NO_DEFAULT_PATH
+					 ${IOT_FIND_OPTIONS}
 )
 if(Pion_USE_STATIC_LIBS STREQUAL "ON")
  set(_Pion_LIB_NAME "libpion.a")
@@ -46,7 +46,7 @@ find_library(_Pion_LIBRARIES
                ${_PION_IOT}/lib
                $ENV{PION_ROOT}/lib
                ${PION_ROOT}/lib
-               NO_DEFAULT_PATH
+					     ${IOT_FIND_OPTIONS}
 )
 
 if(Pion_INCLUDE_DIR)

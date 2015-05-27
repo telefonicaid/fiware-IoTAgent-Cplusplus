@@ -165,7 +165,7 @@ With one subservice defined in Fiware-ServicePath header. From service model, ma
 
 
 ### Update a service/subservice [PUT]
-If you want modify only a field, you can do it. You cannot modify an element into an array field, but whole array. ("/*" is not allowed). 
+If you want modify only a field, you can do it. You cannot modify an element into an array field, but whole array. ("/*" is not allowed).
 
 + Parameters [apikey, resource]
 
@@ -259,7 +259,7 @@ Mandatory fields are identified in every operation.
 
     + Body
 
-            {
+           {
               "count": 1,
               "devices": [
                 {
@@ -298,7 +298,7 @@ From device model, mandatory fields are: device_id and protocol.
 
     + Body
 
-            {
+           {
                 "devices": [
                 {
                   "device_id": "device_id",
@@ -325,9 +325,10 @@ From device model, mandatory fields are: device_id and protocol.
             }
 
 
+
 + Response 201
 
-    	+ Headers (only if ONE device is in request)
+    + Headers (only if ONE device is in request)
 
             Location: /iot/devices/device_id
 
@@ -343,7 +344,7 @@ From device model, mandatory fields are: device_id and protocol.
 ## Device [/devices/{device_id}]
 
 ### Retrieve a device [GET]
-    
+
 + Request (application/json)
 
     + Headers

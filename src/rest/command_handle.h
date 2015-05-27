@@ -28,6 +28,7 @@
 #include <rest/rest_handle.h>
 #include <string>
 #include <ngsi/UpdateContext.h>
+#include <ngsi/QueryContext.h>
 #include <ngsi/ContextElement.h>
 #include <ngsi/ContextResponses.h>
 #include <boost/property_tree/ptree.hpp>
@@ -65,15 +66,28 @@ class CommandHandle :
     int get_duration_seconds(std::string data);
     void make_registrations(void);
 
+    int queryContext(iota::QueryContext& queryContext,
+                                       const boost::property_tree::ptree& service_ptree,
+                                       iota::ContextResponses&  context_responses);
+
+
+
     int updateContext(iota::UpdateContext& updateContext,
                       const boost::property_tree::ptree& service,
                       const std::string& sequence,
                       iota::ContextResponses& response);
 
+
     void default_op_ngsi(pion::http::request_ptr& http_request_ptr,
                          std::map<std::string, std::string>& url_args,
                          std::multimap<std::string, std::string>& query_parameters,
                          pion::http::response& http_response, std::string& response);
+
+    void default_queryContext_ngsi(pion::http::request_ptr&
+                        http_request_ptr,
+                        std::map<std::string, std::string>& url_args,
+                        std::multimap<std::string, std::string>& query_parameters,
+                        pion::http::response& http_response, std::string& response);
 
     void getCommandLine(const std::string& command_name,
                         const std::string& updateCommand_value,
@@ -330,12 +344,16 @@ class CommandHandle :
     */
     void set_async_commands();
 
+
+
+
   protected:
 
 
     void enable_ngsi_service(std::map<std::string, std::string>& filters,
                              iota::RestHandle::HandleFunction_t handle,
-                             iota::RestHandle* context);
+                             iota::RestHandle* context,
+                             iota::RestHandle::HandleFunction_t handle_query = NULL);
 
     std::string get_ngsi_operation(const std::string& operation);
 
@@ -378,6 +396,12 @@ class CommandHandle :
 
     // Asynchronous operation
     bool _callback;
+
+    /**
+     *  fill entity_context_element  with command of device
+     **/
+    void populate_command_attributes(const boost::shared_ptr<Device>& device,
+                               iota::ContextElement& entity_context_element);
 
 
 };

@@ -92,16 +92,16 @@ bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
     }
     std::string x_auth_token = http_request_ptr->get_header(HTTP_HEADER_AUTH);
     int status = pion::http::types::RESPONSE_CODE_UNAUTHORIZED;
-    PION_LOG_DEBUG(m_logger, "|Fiware-Service=" + fiware_service +
-                   "|Fiware-ServicePath=" + fiware_servicepath +
-                   "|X-Auth-Token=" + x_auth_token +
-                   "|endpoint-validate=" + _auth_endpoint_validate +
-                   "|endpoint-roles=" + _auth_endpoint_roles +
-                   "|endpoint-projects=" + _auth_endpoint_projects +
-                   "|endpoint-access-control=" + _ac_endpoint +
-                   "|user=" + _user +
-                   "|password=" + _password +
-                   "|domain=" + _domain);
+    PION_LOG_DEBUG(m_logger, " Fiware-Service=" + fiware_service +
+                   " Fiware-ServicePath=" + fiware_servicepath +
+                   " X-Auth-Token=" + x_auth_token +
+                   " endpoint-validate=" + _auth_endpoint_validate +
+                   " endpoint-roles=" + _auth_endpoint_roles +
+                   " endpoint-projects=" + _auth_endpoint_projects +
+                   " endpoint-access-control=" + _ac_endpoint +
+                   " user=" + _user +
+                   " password=" + _password +
+                   " domain=" + _domain);
     if (fiware_service.empty() || fiware_servicepath.empty() ||
         x_auth_token.empty() ||
         _auth_endpoint_validate.empty() ||
@@ -143,7 +143,7 @@ void iota::OAuthFilter::authorize(pion::http::request_ptr& http_request_ptr,
   std::string subservice_id = oauth_comm->get_subserviceId();
   std::string service_id = oauth_comm->get_serviceId();
   boost::property_tree::ptree roles = oauth_comm->get_roles();
-  pion::user_ptr user(new pion::user(user_id + "|" + domain + "|" + project));
+  pion::user_ptr user(new pion::user(user_id + " " + domain + " " + project));
   http_request_ptr->set_user(user);
   std::vector<std::string> user_subservice_roles;
   std::string resource_id(get_resource(domain, project,
@@ -170,18 +170,18 @@ void iota::OAuthFilter::authorize(pion::http::request_ptr& http_request_ptr,
   catch (std::exception& e) {
 
     PION_LOG_ERROR(m_logger, "authorize=" << e.what() <<
-                   "|roles=" << user_subservice_roles.size() <<
-                   "|resource" << resource_id <<
-                   "|action=" << action);
+                   " roles=" << user_subservice_roles.size() <<
+                   " resource" << resource_id <<
+                   " action=" << action);
   }
   //http_request_ptr->set_user(user);
   int status = pion::http::types::RESPONSE_CODE_UNAUTHORIZED;
 
   PION_LOG_INFO(m_logger,
-                "authorize|user_id=" << user_id << "|domain=" << domain <<
-                "|project=" << project << "|service_id=" << service_id << "|subservice_id=" <<
-                subservice_id << "|roles=" <<
-                user_subservice_roles.size() << "|resource=" << resource_id);
+                "authorize user_id=" << user_id << " domain=" << domain <<
+                " project=" << project << " service_id=" << service_id << " subservice_id=" <<
+                subservice_id << " roles=" <<
+                user_subservice_roles.size() << " resource=" << resource_id);
   if (user_id.empty() || roles.size() == 0 || resource_id.empty()
       || action.empty() || _ac_endpoint.empty()) {
     handle_no_allowed(http_request_ptr, tcp_conn, status);

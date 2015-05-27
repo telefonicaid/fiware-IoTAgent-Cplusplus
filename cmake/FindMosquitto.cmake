@@ -9,7 +9,7 @@ find_library(MOSQUITTO_LIBRARY
               ${_MOSQUITTO_IOT}/lib
               $ENV{MOSQUITTO_ROOT}/lib
               ${MOSQUITO_ROOT}/lib
-              NAMES mosquittopp mosquitto NO_DEFAULT_PATH)
+              NAMES mosquittopp mosquitto ${IOT_FIND_OPTIONS})
 include(FindPackageHandleStandardArgs)
 
 if(MOSQUITTO_LIBRARY)

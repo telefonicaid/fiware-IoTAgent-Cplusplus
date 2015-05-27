@@ -797,7 +797,8 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "",
                        "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
-  IOTASSERT(code_res == 404);
+  IOTASSERT(code_res == 400);
+
   std::cout << "PUT RESPONSE BAD " << response << std::endl;
   cb_last = http_mock->get_last();
   std::cout << "@UT@iotagent mock: " <<  cb_last << std::endl;

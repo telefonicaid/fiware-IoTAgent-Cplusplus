@@ -75,6 +75,13 @@ void iota::Configurator::set_listen_port(int p) {
   listen_port = p;
 }
 
+std::string iota::Configurator::get_listen_ip() {
+  return listen_ip;
+}
+
+void iota::Configurator::set_listen_ip(std::string ip) {
+  listen_ip = ip;
+}
 
 /**
    flush all data from istream to ptree in memmory
@@ -744,9 +751,9 @@ const iota::JsonValue& iota::Configurator::Resource::get_service(
       if (found !=  _services.end()) {
         std::string text_error;
         text_error.append("Service : more than one");
-        text_error.append("|");
+        text_error.append(" ");
         text_error.append(service);
-        text_error.append("|");
+        text_error.append(" ");
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MORE_ONE_SERVICE, text_error,
                               iota::types::RESPONSE_CODE_MORE_ONE_SERVICE);
       }
@@ -762,11 +769,11 @@ const iota::JsonValue& iota::Configurator::Resource::get_service(
   }
 
   std::string text_error;
-  text_error.append("|");
+  text_error.append(" ");
   text_error.append(service);
-  text_error.append("|");
+  text_error.append(" ");
   text_error.append("/#");
-  text_error.append("|");
+  text_error.append(" ");
   throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
                               iota::types::RESPONSE_CODE_NO_SERVICE);
 
@@ -792,7 +799,7 @@ const iota::JsonValue& iota::Configurator::Resource::get_service(
   text_error.append("Service not found");
   text_error.append("[service:");
   text_error.append(service);
-  text_error.append("|service_path:");
+  text_error.append(" service_path:");
   text_error.append(service_path);
   text_error.append("]");
   throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,

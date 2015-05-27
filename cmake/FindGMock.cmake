@@ -2,11 +2,11 @@
 # GMOCK_INCLUDE_DIR where to find gmock.h
 find_path ( GMOCK_INCLUDE_DIR gmock/gmock.h
 ${_GMOCK_IOT}/include
-NO_DEFAULT_PATH )
+${IOT_FIND_OPTIONS})
 find_library(GMOCK_LIBRARY
 	NAMES gmock
 	PATHS ${_GMOCK_IOT}/lib
-	NO_DEFAULT_PATH)
+	${IOT_FIND_OPTIONS})
 if (GMOCK_LIBRARY)
   get_filename_component(GMOCK_LIBS_DIR ${GMOCK_LIBRARY} DIRECTORY)
 	set(GMOCK_LIBRARIES "gmock gtest")

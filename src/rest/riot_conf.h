@@ -87,6 +87,10 @@ class Configurator {
     int get_listen_port();
     void set_listen_port(int p);
 
+    std::string get_listen_ip();
+    void set_listen_ip(std::string ip);
+
+
   protected:
   private:
 
@@ -119,6 +123,7 @@ class Configurator {
     std::string _filename;
     std::string _error;
     int listen_port;
+    std::string listen_ip; 
 
     static Configurator* pinstance;
 

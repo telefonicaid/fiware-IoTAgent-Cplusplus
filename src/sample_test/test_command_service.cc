@@ -93,7 +93,7 @@ int iota::TestCommandService::execute_command(const std::string& endpoint,
 
   int codigo_respuesta = pion::http::types::RESPONSE_CODE_OK;
 
-  PION_LOG_DEBUG(m_logger, "execute_command |endpoint:" << endpoint );
+  PION_LOG_DEBUG(m_logger, "execute_command  endpoint:" << endpoint );
   std::string body = command_to_send.get(iota::store::types::BODY, "");
   response.assign(body);
   response.append("|command_response");
@@ -217,8 +217,8 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
       PION_LOG_DEBUG(m_logger, "CONTENT " << content);
     }
 
-    PION_LOG_DEBUG(m_logger, "device sends command result|device:" <<
-                    device << "|" <<content );
+    PION_LOG_DEBUG(m_logger, "device sends command result device:" <<
+                    device << " " <<content );
     boost::property_tree::ptree service_ptree;
     boost::shared_ptr<iota::Device> dev;
 
@@ -239,11 +239,11 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
     iota::CommandPtr commandPtr = get_command(id_command,srv,srv_path);
     if (commandPtr.get() == NULL) {
           PION_LOG_ERROR(m_logger, "already responsed, command not in cache id_command:" <<
-                 id_command << "|service:"<<  srv << " " << srv_path);
+                 id_command << " service:"<<  srv << " " << srv_path);
     }
     else {
           PION_LOG_DEBUG(m_logger, "command in cache id_command:" <<
-                 id_command << "|service:"<<  srv << " " << srv_path);
+                 id_command << " service:"<<  srv << " " << srv_path);
           command = commandPtr->get_name();
           commandPtr->cancel();
           // It is very important to remove command

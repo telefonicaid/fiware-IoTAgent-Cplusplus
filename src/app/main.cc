@@ -54,6 +54,9 @@ void config_error(const std::string& err) {
 int main(int argc, char* argv[]) {
 
   static const unsigned int DEFAULT_PORT = 8080;
+  static const std::string  ZERO_IP = "0.0.0.0";
+
+  std::string prov_ip = ZERO_IP;
 
   mongo::client::initialize();
 
@@ -95,7 +98,8 @@ int main(int argc, char* argv[]) {
       else if (argv[argnum][1] == 'i' && argv[argnum][2] == '\0' &&
                argnum+1 < argc) {
         // set ip address
-        cfg_endpoint.address(boost::asio::ip::address::from_string(argv[++argnum]));
+        cfg_endpoint.address(boost::asio::ip::address::from_string(ZERO_IP));
+        prov_ip = argv[++argnum];
       }
       else if (argv[argnum][1] == 'u' && argv[argnum][2] == '\0'
                && argnum+1 < argc) {
@@ -200,6 +204,7 @@ int main(int argc, char* argv[]) {
   */
 
   iota::Configurator::instance()->set_listen_port(port);
+  iota::Configurator::instance()->set_listen_ip(prov_ip);
 
   // Path logs
   std::string dir_log("/tmp/");
@@ -232,8 +237,8 @@ int main(int argc, char* argv[]) {
                                         true));
 
   log4cplus::tstring pattern =
-    LOG4CPLUS_TEXT("%D{%d%m%yT%H%M%S,%Q%Z}|lvl=%5p|comp=" + component_name +
-                   "|op=%M|[%t:%b:%L] %m %n");
+    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H-%M-%S,%Q%Z} | lvl=%5p | comp=" + component_name +
+                   " | op=%M | file=[%t:%b:%L] | msg=%m %n");
   //LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
 
   ptrApp->setLayout(std::auto_ptr<log4cplus::Layout>(

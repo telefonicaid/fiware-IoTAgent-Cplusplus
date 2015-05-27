@@ -31,7 +31,7 @@ find_path(LOG4CPLUS_INCLUDE_DIR
            ${_LOG4CPLUS_IOT}/include
            $ENV{LOG4CPLUS_ROOT}/include
            ${LOG4CPLUS_ROOT}/include
-           NO_DEFAULT_PATH
+           ${IOT_FIND_OPTIONS} 
 )
 
 if(Log4Cplus_USE_STATIC_LIBS)
@@ -47,7 +47,7 @@ find_library(_LOG4CPLUS_LIBRARIES
               ${_LOG4CPLUS_IOT}/lib
               $ENV{LOG4CPLUS_ROOT}/lib
               ${LOG4CPLUS_ROOT}/lib
-              NO_DEFAULT_PATH
+              ${IOT_FIND_OPTIONS} 
 )
 
 if(LOG4CPLUS_INCLUDE_DIR)

@@ -80,7 +80,7 @@ mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
   r = obj.obj();
   std::string bbdd = getDatabaseName();
 
-  std::string param_request("Collection:findAndModify|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:findAndModify bbdd=" + bbdd + " data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -130,7 +130,7 @@ mongo::BSONObj iota::Collection::aggregate(
 
   r = obj.obj();
 
-  std::string param_request("Collection:aggregate|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:aggregate bbdd=" + bbdd + " data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -182,7 +182,7 @@ mongo::BSONObj iota::Collection::distinct(
 
   r = obj.obj();
 
-  std::string param_request("Collection:distinct|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:distinct bbdd=" + bbdd + " data=" +
                             r.toString());
   PION_LOG_DEBUG(m_logger, param_request);
   //int errCode = 0;
@@ -230,7 +230,7 @@ int iota::Collection::getLastError(const std::string& bbdd,
     if (ok == 0) {
       // se ha producido un error
       std::string errorSTR = errObj.getStringField("err");
-      errorSTR += " | mongoiota::store:: ";
+      errorSTR += "   mongoiota::store:: ";
       errorSTR += bbdd;
       errorSTR += "::getLastError";
       PION_LOG_ERROR(m_logger, errorSTR);
@@ -275,7 +275,7 @@ int iota::Collection::insert(const mongo::BSONObj& data,
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:insert|bbdd=" + bbdd + "|data=" +
+  std::string param_request("Collection:insert bbdd=" + bbdd + " data=" +
                             data.toString());
   PION_LOG_DEBUG(m_logger, param_request);
 
@@ -324,7 +324,7 @@ int iota::Collection::insert(const mongo::BSONObj& data,
   catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    PION_LOG_ERROR(m_logger,"OperationException " << errCode << "|" << errObj);
+    PION_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -379,9 +379,9 @@ int iota::Collection::update_r(
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:update|bbdd="
+  std::string param_request("Collection:update bbdd="
                             + bbdd + "query=" + query.toString() +
-                            "|data=" +
+                            " data=" +
                             setData.toString());
   PION_LOG_DEBUG(m_logger, param_request);
 
@@ -430,7 +430,7 @@ int iota::Collection::update_r(
   catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    PION_LOG_ERROR(m_logger,"OperationException " << errCode << "|" << errObj);
+    PION_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -473,8 +473,8 @@ int iota::Collection::remove(const mongo::BSONObj& query,
   bbdd.append(a_bbdd);
   int n = 0;
 
-  std::string param_request("Collection:remove|bbdd="
-                            + bbdd + "query=" + query.toString());
+  std::string param_request("Collection:remove bbdd="
+                            + bbdd + " query=" + query.toString());
   PION_LOG_DEBUG(m_logger, param_request);
 
   try {
@@ -521,7 +521,7 @@ int iota::Collection::remove(const mongo::BSONObj& query,
   catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    PION_LOG_ERROR(m_logger,"OperationException " << errCode << "|" << errObj);
+    PION_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -594,8 +594,8 @@ int iota::Collection::ensureIndex(
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:ensureIndex|bbdd=" + bbdd +
-         "|key:" );
+  std::string param_request("Collection:ensureIndex bbdd=" + bbdd +
+         " key:" );
   PION_LOG_DEBUG(m_logger, param_request <<  index);
 
   mongo::DBClientBase* conn;
@@ -632,7 +632,7 @@ int iota::Collection::dropIndexes() {
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:dropIndex|bbdd=" + bbdd );
+  std::string param_request("Collection:dropIndex bbdd=" + bbdd );
   PION_LOG_DEBUG(m_logger, param_request );
 
   mongo::DBClientBase* conn;
@@ -672,7 +672,7 @@ int iota::Collection::createIndex(const mongo::BSONObj& index,
   int num_index = indexCol.count(BSON("ns" << bbdd));
   bool dropIndex = false;
 
-  PION_LOG_DEBUG(m_logger, bbdd << "|checkIndex|");
+  PION_LOG_DEBUG(m_logger, bbdd << " checkIndex");
   if (num_index == 2) {
     // check if the index exists
     if (uniqueIndex){
@@ -688,7 +688,7 @@ int iota::Collection::createIndex(const mongo::BSONObj& index,
   }
 
   if (dropIndex){
-    PION_LOG_DEBUG(m_logger, bbdd << "|dropIndex an create|" << index);
+    PION_LOG_DEBUG(m_logger, bbdd << " dropIndex an create " << index);
     dropIndexes();
 
     ensureIndex("shardKey", index, uniqueIndex);
@@ -711,10 +711,10 @@ int iota::Collection::find(int queryOptions,
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:find|bbdd=" + bbdd +
-                              "|query=" + queryObj.toString());
-  PION_LOG_DEBUG(m_logger, param_request << "|limit=" << limit << "|offset=" <<skip<<
-                     "|options=" <<  queryOptions);
+  std::string param_request("Collection:find bbdd=" + bbdd +
+                              " query=" + queryObj.toString());
+  PION_LOG_DEBUG(m_logger, param_request << " limit=" << limit << " offset=" <<skip<<
+                     " options=" <<  queryOptions);
 
   mongo::BSONObj fields_to_return;
   mongo::DBClientBase* conn;
@@ -800,7 +800,7 @@ int iota::Collection::find(int queryOptions,
   catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    PION_LOG_ERROR(m_logger,"OperationException " << errCode << "|" << errObj);
+    PION_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -844,8 +844,8 @@ int iota::Collection::count(const mongo::BSONObj& query,
     bbdd.append(".");
     bbdd.append(a_bbdd);
 
-    std::string param_request("Collection:count|bbdd=" + bbdd + "|options=" +
-                              "|query=" + query.toString());
+    std::string param_request("Collection:count bbdd=" + bbdd + " options=" +
+                              " query=" + query.toString());
     PION_LOG_DEBUG(m_logger, param_request);
 
     result = conn->count(bbdd, query);
@@ -857,7 +857,7 @@ int iota::Collection::count(const mongo::BSONObj& query,
     PION_LOG_ERROR(m_logger,staux);
     PION_LOG_ERROR(m_logger,e.what());
     std::ostringstream stream;
-    stream << "error: " << a_bbdd << ": " << query << "|what=" << e.what();
+    stream << "error: " << a_bbdd << ": " << query << " what=" << e.what();
     std::string obj = stream.str();
     iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
                        types::ERROR, obj);
@@ -932,7 +932,7 @@ mongo::BSONObj iota::Collection::next() {
   }
   catch (mongo::DBException& e) {
     std::string msg = "fetch";
-    msg += " | Error: ";
+    msg += "  Error: ";
     msg += e.what();
     iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
                        types::ERROR, msg);

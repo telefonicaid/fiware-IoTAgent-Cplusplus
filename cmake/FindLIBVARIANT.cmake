@@ -11,7 +11,8 @@
 find_path(LIBVARIANT_INCLUDE_DIR Variant/VariantDefines.h
                ${_LIBVARIANT_IOT}/include
                $ENV{LIBVARIANT_ROOT}/include
-               ${LIBVARIANT_ROOT}/include)
+               ${LIBVARIANT_ROOT}/include
+							 ${IOT_FIND_OPTIONS})
 
 set(LIBVARIANT_LIB_NAME "libVariant.a")
 find_library(LIBVARIANT_LIBRARIES NAMES ${LIBVARIANT_LIB_NAME}
@@ -19,7 +20,7 @@ find_library(LIBVARIANT_LIBRARIES NAMES ${LIBVARIANT_LIB_NAME}
                ${_LIBVARIANT_IOT}/lib
                $ENV{LIBVARIANT_ROOT}/lib
                ${LIBVARIANT_ROOT}/lib
-               NO_DEFAULT_PATH
+               ${IOT_FIND_OPTIONS} 
 )
 if(LIBVARIANT_INCLUDE_DIR AND LIBVARIANT_LIBRARIES)
  get_filename_component(LIBVARIANT_LIBS_DIR ${LIBVARIANT_LIBRARIES} DIRECTORY)

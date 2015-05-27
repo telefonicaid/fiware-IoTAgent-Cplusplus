@@ -8,7 +8,7 @@
 FIND_PATH(CPPUNIT_INCLUDE_DIR cppunit/TestCase.h
 	PATHS
   ${_CPPUNIT_IOT}/include
-  NO_DEFAULT_PATH
+  ${IOT_FIND_OPTIONS} 
 )
 
 if (CPPUNIT_USE_STATIC_LIBS)
@@ -19,7 +19,8 @@ endif()
 FIND_LIBRARY(_CPPUNIT_LIBRARIES NAMES ${_cppunit_LIB_NAME}
 	             PATHS
                ${_CPPUNIT_IOT}/lib
-               NO_DEFAULT_PATH)
+               ${IOT_FIND_OPTIONS} 
+            )
 
 IF(CPPUNIT_INCLUDE_DIR AND _CPPUNIT_LIBRARIES)
     SET(CPPUNIT_FOUND TRUE)
