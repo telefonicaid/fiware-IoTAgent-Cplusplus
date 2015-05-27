@@ -27,6 +27,7 @@
 
 #include <pion/logger.hpp>
 #include "mongo/client/dbclient.h"
+#include <boost/lockfree/queue.hpp>
 
 namespace iota {
 
@@ -35,19 +36,16 @@ class MongoConnection {
 
   public:
 
-    MongoConnection();
-    MongoConnection(const std::string& ip, const std::string& puerto,
-                    const std::string& dbname, const std::string& user, const std::string& pwd);
+    static MongoConnection* instance();
+    static void release();
 
     virtual ~MongoConnection();
 
     void reconnect();
-    void reconnect(const std::string& ip, const std::string& puerto,
-                const std::string& dbname, const std::string& user, const std::string& pwd);
+    mongo::DBClientBase * createConnection();
 
     mongo::DBClientBase* conn();
-
-    bool is_valid();
+    void done(mongo::DBClientBase*);
 
     std::string get_host() {
       return _host;
@@ -66,6 +64,12 @@ class MongoConnection {
     std::string get_endpoint() ;
 
   private:
+
+    static MongoConnection* pinstance;
+
+    MongoConnection();
+
+    boost::mutex _m;
 
     pion::logger m_logger;
 
@@ -87,7 +91,7 @@ class MongoConnection {
     /**  socket Timeout in seconds, default 0 **/
     double _timeout;
 
-    mongo::DBClientBase *_conex_pool;
+    boost::lockfree::queue<mongo::DBClientBase*> _conex_pool;
 };
 
 

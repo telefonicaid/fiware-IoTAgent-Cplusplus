@@ -33,15 +33,21 @@
 #include "store_const.h"
 #include "alarm.h"
 
+#define SIZE_POOL 10
+#define MAX_SIZE_POOL 1000
+
 namespace iota {
 extern std::string logger;
 }
 
+iota::MongoConnection* iota::MongoConnection::pinstance = 0;// Inicializar el puntero
+
 const int MONGO_TIMEOUT = 3;
 
-iota::MongoConnection::MongoConnection():m_logger(PION_GET_LOGGER(
-        iota::logger)) {
-  _conex_pool = NULL;
+iota::MongoConnection::MongoConnection():
+       _conex_pool(SIZE_POOL),
+       m_logger(PION_GET_LOGGER(iota::logger)) {
+
   try{
     reconnect();
   }catch(std::exception exc){
@@ -49,20 +55,9 @@ iota::MongoConnection::MongoConnection():m_logger(PION_GET_LOGGER(
   }
 }
 
-iota::MongoConnection::MongoConnection(const std::string& ip,
-                                       const std::string& puerto,
-                                       const std::string& dbname,
-                                       const std::string& user,
-                                       const std::string& pwd) {
-  try{
-    reconnect(ip, puerto, dbname, user, pwd);
-  }catch(std::exception exc){
-    PION_LOG_ERROR(m_logger, "error in MongoConnection " << exc.what() );
-  }
-}
-
 
 void iota::MongoConnection::reconnect(){
+  boost::mutex::scoped_lock lock(_m);
   std::string db_info;
   try {
     const JsonValue& storage=
@@ -91,6 +86,18 @@ void iota::MongoConnection::reconnect(){
       PION_LOG_DEBUG(m_logger,
                      "in storage no host defined, using localhost by default");
       _host.assign("127.0.0.1");
+    }
+
+    if (storage.HasMember(iota::store::types::POOL_SIZE.c_str())) {
+      std::string pool_sizeSTR(storage[iota::store::types::POOL_SIZE.c_str()].GetString());
+      try {
+        int pool_size = boost::lexical_cast<int>(pool_sizeSTR);
+        _conex_pool.reserve(pool_size);
+        PION_LOG_DEBUG(m_logger, "pool size " << pool_size);
+      }
+      catch (std::exception& e) {
+        PION_LOG_ERROR(m_logger, "Error in config, bad pool size, use default");
+      }
     }
 
     if (storage.HasMember(iota::store::types::REPLICA_SET.c_str())) {
@@ -151,9 +158,33 @@ void iota::MongoConnection::reconnect(){
     }
     db_info.assign(" mongodb=" + _host + "/" + _database);
 
+    mongo::DBClientBase * con;
+    bool no_empty_pool  =true;
+    for (int i=0; no_empty_pool && i < MAX_SIZE_POOL; i++){
+      con = createConnection();
+      if (con != NULL){
+        no_empty_pool = _conex_pool.push(createConnection());
+      }
+    }
 
+    iota::Alarm::info(types::ALARM_CODE_NO_MONGO, _replica + " " + _host,
+                      types::INFO, "MongoConnection OK");
+  }
+  catch (mongo::DBException& exc) {
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO,
+                       _replica + " " + _host,
+                       types::ERROR, exc.what());
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR +
+                              " [" + db_info + "]", exc.what(),
+                              iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+  }
+}
 
-    if (!_replica.empty()) {
+mongo::DBClientBase * iota::MongoConnection::createConnection()
+{
+      mongo::DBClientBase *res = NULL;
+
+      if (!_replica.empty()) {
       PION_LOG_DEBUG(m_logger, "Replica is defined " <<  _replica);
       std::vector<mongo::HostAndPort> hosts;
 
@@ -171,7 +202,7 @@ void iota::MongoConnection::reconnect(){
                      "timeout in seconds:" << _timeout);
       mongo::DBClientReplicaSet *rpSet = new mongo::DBClientReplicaSet(_replica, hosts, _timeout);
       rpSet->connect();
-      _conex_pool = rpSet;
+      res = rpSet;
     }
     else {
       PION_LOG_DEBUG(m_logger,
@@ -182,12 +213,12 @@ void iota::MongoConnection::reconnect(){
 
       mongo::DBClientConnection *conn = new mongo::DBClientConnection(true, 0,_timeout);
       conn->connect(_host);
-      _conex_pool = conn;
+      res = conn;
     }
 
     if (!_usuario.empty()){
         std::string errmsg;
-        if (_conex_pool->auth(_database, _usuario, _password,errmsg)){
+        if (res->auth(_database, _usuario, _password,errmsg)){
             PION_LOG_ERROR(m_logger,
                 " Mongodb auth ok user: " << _usuario);
         }else{
@@ -197,87 +228,45 @@ void iota::MongoConnection::reconnect(){
 
     }
 
-    iota::Alarm::info(types::ALARM_CODE_NO_MONGO, _replica + " " + _host,
-                      types::INFO, "MongoConnection OK");
-  }
-  catch (mongo::DBException& exc) {
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO,
-                       _replica + " " + _host,
-                       types::ERROR, exc.what());
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR +
-                              " [" + db_info + "]", exc.what(),
-                              iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
-  }
-}
-
-void iota::MongoConnection::reconnect(const std::string& ip,
-                                       const std::string& puerto,
-                                       const std::string& dbname,
-                                       const std::string& user,
-                                       const std::string& pwd) {
-  _host.assign(ip);
-  if (!puerto.empty()){
-     _host.append(";");
-     _host.append(puerto);
-  }
-
-  _database = dbname;
-  _usuario = user;
-  _password = pwd;
-
-  try {
-    PION_LOG_DEBUG(m_logger,
-                   "Conex Mongo DBClientConnection " << _host <<
-                   "/" << _database << " " <<  _usuario);
-
-    mongo::DBClientConnection *conn = new mongo::DBClientConnection(true, 0,_timeout);
-    conn->connect(_host);
-    _conex_pool = conn;
-
-
-    if (!_usuario.empty()){
-        std::string errmsg;
-        if (_conex_pool->auth(_database, _usuario, _password,errmsg)){
-            PION_LOG_ERROR(m_logger,
-                " Mongodb auth ok user: " << _usuario);
-        }else{
-           PION_LOG_ERROR(m_logger,
-             "Error in authenticate Conexion MongoDB " << errmsg);
-        }
-
-    }
-
-    iota::Alarm::info(types::ALARM_CODE_NO_MONGO, _host,
-                      types::INFO, "MongoConnection OK");
-  }
-  catch (mongo::DBException& exc) {
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, _host,
-                       types::ERROR, exc.what());
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR+
-                              " [" + _host + "]", exc.what(),
-                              iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
-  }
-
+    return res;
 };
 
 iota::MongoConnection::~MongoConnection() {
-
-   if (_conex_pool != NULL){
-       delete _conex_pool;
-       _conex_pool = NULL;
-   }
+    boost::mutex::scoped_lock lock(_m);
+    mongo::DBClientBase *con;
+    while (_conex_pool.pop(con)){
+      if (con != NULL){
+        delete con;
+      }
+    }
 };
 
 mongo::DBClientBase* iota::MongoConnection::conn() {
+  boost::mutex::scoped_lock lock(_m);
   mongo::DBClientBase* conexion = 0;
 
-  if (_conex_pool == 0) {
-     reconnect();
+  if (!_conex_pool.pop(conexion)){
+    PION_LOG_ERROR(m_logger,
+             "It has reached the maximum mongo pool, create a new con");
   }
 
-  conexion = _conex_pool;
+  if (conexion == 0) {
+     conexion = createConnection();
+  }
 
   return conexion;
+}
+
+ void iota::MongoConnection::done(mongo::DBClientBase* conexion) {
+  boost::mutex::scoped_lock lock(_m);
+  if (!_conex_pool.push(conexion)){
+    PION_LOG_ERROR(m_logger,
+             "It has reached the maximum mongo pool, delete con");
+  }
+
+  if (conexion != NULL) {
+     delete conexion;
+  }
 }
 
 std::string iota::MongoConnection::get_endpoint(){
@@ -289,12 +278,16 @@ std::string iota::MongoConnection::get_endpoint(){
 
 }
 
-bool iota::MongoConnection::is_valid() {
-  if (_conex_pool == 0) {
-    return false;
-  }else{
-    return _conex_pool->isStillConnected ();
+iota::MongoConnection* iota::MongoConnection::instance() {
+  if (pinstance == 0) {
+    pinstance = new MongoConnection();
   }
+  return pinstance;
 }
 
-
+void iota::MongoConnection::release() {
+  if (pinstance != 0) {
+    delete pinstance;
+    pinstance = 0;
+  }
+}
