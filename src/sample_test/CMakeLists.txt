@@ -1,0 +1,13 @@
+file(GLOB SRC_FILES *.cc)
+include_directories(../ ./)
+add_library(testsrv_objs OBJECT ${SRC_FILES})
+add_library(TestService MODULE $<TARGET_OBJECTS:testsrv_objs>)
+add_library(stestsrv STATIC $<TARGET_OBJECTS:testsrv_objs>)
+add_library(testsrv SHARED $<TARGET_OBJECTS:testsrv_objs>)
+set_target_properties(stestsrv PROPERTIES OUTPUT_NAME TestService)
+set_target_properties(testsrv PROPERTIES OUTPUT_NAME TestService)
+target_link_libraries(TestService iota ${IOTAGENT_LIBS})
+target_link_libraries(stestsrv iota_a)
+target_link_libraries(testsrv iota_a)
+
+install(TARGETS TestService stestsrv testsrv DESTINATION lib/${CMAKE_BUILD_TYPE})

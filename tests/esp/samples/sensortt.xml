@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<espsensor name="dcasensor" vendor="ios">
+        <!-- ADDONS TO ADD CAPABILITIES -->
+        <plugins>
+                <plugininput name="ip"/>
+				<plugininput name="buffer"/>
+                <pluginparser name="binaryparser"/>
+                <pluginoutput name="file"/>
+                <pluginoutput name="sbc"/>
+                <pluginpreprocessor name="lua"/>
+		<pluginpostprocessor name="ul20"/>
+		<pluginpostprocessor name="text"/>
+                <pluginpostprocessor name="sensorml"/>
+        </plugins>
+
+        <!-- PREPROCESSORS -->
+        <preprocessors>
+
+        </preprocessors>
+
+        <!-- INPUT -->
+        <inputs>
+				<!--input type="http" mode="server" port="808" name="html"/-->
+        </inputs>
+
+        <!-- POSTPROCESSOR -->
+        <postprocessors>
+			<postprocessor type="text" name="post-text"/>
+			<postprocessor type="ul20" name="post-ul20">
+					<measure ref="payload"/>
+					<bypass ref="type" value="mul20"/>
+					<alias ref="type" />
+			</postprocessor>
+	
+			<postprocessor type="TT" name="post-thinking"/>
+				
+			</postprocessor>
+			
+			<postprocessor type="sensorml_cmd" name="postcmd">
+				<keyword value="cmdname-res" />
+				<commandresponse refname="cmdname-res" ref="cmdid">	
+					<transformer type="resultCommand" name="result">
+						<transformer type="Text" ref="resultcommand"/>
+					</transformer>
+				</commandresponse>		
+			</postprocessor>				
+		</postprocessors>
+
+        <!-- OUTPUT -->
+        <outputs>
+                <output type="file" postprocessors="post-text" name="output-test.txt" />
+        </outputs>
+
+        <!-- COMMANDS -->
+        <commands>
+
+			<!-- Test command-->
+			<command name="main">
+				<params>
+				</params>
+				<parser>
+					<!-- Header -->
+					<tag type="header">
+					</tag>
+
+					<!-- Body -->
+					<tag type="body">
+						<!-- Read Topic -->
+						<tag type="constraint" datatype="string" valuestring="#"/>
+						<tag type="value" datatype="string" datacode="stringdelim" name="request" valuestring=","/>
+						<tag type="constraint" datatype="string" valuestring="#"/>
+						<tag type="result"/>
+						<tag type="clear"/>								
+						
+						<tag type="loop" iterations="-1" breakonempty="true">									
+							<tag type="value" datatype="string" datacode="stringdelim" name="busid" valuestring=","/>
+							<tag type="value" datatype="string" datacode="stringdelim" name="module" valuestring=","/>
+							<tag type="loop" iterations="-1" breakonempty="true">
+								<tag type="value" datatype="string" datacode="string" name="_temp" datasize="1" byteoffset="1" resetend="true"/>
+								<tag type="switch" valueref="_temp">
+									<tag type="option" valuestring="#">												
+										<tag type="read" byteoffset="1"/>
+										<tag type="break"/>
+									</tag>											
+									<tag type="option">
+										<tag type="value" datatype="string" datacode="stringdelim" name="_temp" valuestring="," resetend="true"/>
+										<tag type="condition" valueref="_temp" operation="notcontains" valuestring="$">
+											<tag type="value" datatype="string" datacode="stringdelim" name="param_$" valuestring=","/>
+										</tag>
+										<tag type="condition" valueref="_temp" operation="contains" valuestring="$">  												<tag type="value" datatype="string" datacode="stringdelim" name="sleeptime" valuestring="$"/>
+											<tag type="value" datatype="string" datacode="stringdelim" name="sleepcondition" valuestring=","/>
+											
+										</tag>
+									</tag>
+								</tag>											
+							</tag>
+							<tag type="result"/>
+							<tag type="clear"/>
+						</tag>
+								
+						
+						<tag type="close"/>
+					</tag>
+
+					<!-- Footer -->
+					<tag type="footer">
+					</tag>
+				</parser>
+			</command>
+			
+			<command name="ttoutput">
+				<params>
+				</params>			
+				<parser>
+					<tag type="body">
+						<tag type="switch" valueref="_module">
+							<tag type="option" valuestring="P1">
+								<tag type="write" valuestring="#"/>
+								<tag type="write" valueref="busid"/>
+								<tag type="write" valuestring=","/>
+								<tag type="write" valueref="_module"/>
+								<tag type="write" valuestring=","/>
+								<tag type="write" valueref="A"/>
+								<tag type="write" valuestring=","/>						
+								<tag type="write" valueref="B"/>
+								<tag type="write" valuestring=","/>
+								<tag type="write" valueref="sleeptime"/>
+								<tag type="write" valuestring="$"/>
+								<tag type="write" valueref="sleepcondition"/>
+								<tag type="write" valuestring=","/>
+							</tag>
+							<tag type="option" valuestring="P2">
+								<tag type="write" valuestring="#"/>
+								<tag type="write" valueref="busid"/>
+								<tag type="write" valuestring=","/>
+								<tag type="write" valueref="C"/>
+								<tag type="write" valuestring=","/>						
+								<tag type="write" valueref="D"/>
+								<tag type="write" valuestring=","/>
+								<tag type="write" valueref="sleeptime"/>
+								<tag type="write" valuestring="$"/>
+								<tag type="write" valueref="sleepcondition"/>
+								<tag type="write" valuestring=","/>
+							</tag>					
+						</tag>
+					</tag>
+				</parser>				
+			</command>
+
+        </commands>
+</espsensor>

@@ -1,0 +1,30 @@
+Name:          @CPACK_PACKAGE_NAME@-mocks
+Version:       @CPACK_PACKAGE_VERSION@
+Release:       @CPACK_PACKAGE_RELEASE@
+Summary:       IoT - IoTAgent
+Group:         PDI-IoT
+License:       PDI
+BuildArch:     x86_64
+BuildRoot:     @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM/%{name}
+AutoReqProv:   no
+Prefix: /usr/local/iot
+#requires:
+%define _rpmdir @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM
+%define _rpmfilename %{name}-@CPACK_PACKAGE_FILE_NAME@.rpm
+%define _unpackaged_files_terminate_build 0
+%define _topdir @CMAKE_CURRENT_BINARY_DIR@/pack/Linux/RPM
+
+%description
+IoT - IoTAgent
+%install
+pwd
+mkdir -p %{buildroot}/usr/local/iot/mocks/bin
+cp @CMAKE_CURRENT_SOURCE_DIR@/tests/simulators/simucb/simuCB.py %{buildroot}/usr/local/iot/mocks/bin
+
+%clean
+rm -rf %{buildroot}
+%pre
+%post
+%preun
+%files
+/usr/local/iot/mocks/bin/*

@@ -1,0 +1,4 @@
+* Fri Mar 6 2015 Agustin Gonzalez <lucas@tid.es> 1.0.0
+
+* Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
+- FEATURE IDAS-20368: Add protocol description (IoTA Manager integration).
