@@ -8,7 +8,7 @@ find_library(MOSQUITTO_LIBRARY
               PATHS
               ${_MOSQUITTO_IOT}/lib
               $ENV{MOSQUITTO_ROOT}/lib
-              ${MOSQUITO_ROOT}/lib
+              ${MOSQUITTO_ROOT}/lib
               NAMES mosquittopp mosquitto ${IOT_FIND_OPTIONS})
 include(FindPackageHandleStandardArgs)
 

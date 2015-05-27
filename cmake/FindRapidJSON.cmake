@@ -6,7 +6,7 @@
 #   RapidJSON_FOUND         - True if RapidJSON is found.
 #
 
-FIND_PATH (RapidJSON_INCLUDE_DIR rapidjson PATHS ${_JSON_IOT}/include ${IOT_FIND_OPTIONS})
+FIND_PATH (RapidJSON_INCLUDE_DIR rapidjson PATHS $ENV{RAPIDJSON_ROOT}/include ${RAPIDJSON_ROOT}/include ${_JSON_IOT}/include ${IOT_FIND_OPTIONS})
 
 INCLUDE (FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(RapidJSON REQUIRED_VARS RapidJSON_INCLUDE_DIR)

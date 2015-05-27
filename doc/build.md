@@ -112,21 +112,16 @@ In README file you can find a recommendation in order to use this libraries: joi
 
 ### Configure build environment
 To build IoT Agents you need cmake 2.8.12 (minimum version). In order to find dependencies following environment variables can be used:
+- IOT_ROOT: If dependencies are under a directory, use this variable.
 - BOOST_ROOT: path where *boost* are installed.
 - PION_ROOT: path where *Pion Network Library* is installed.
 - LOG4CPLUS_ROOT: where *log4cplus* is installed.
 - MONGODB_ROOT: where *mongodb cplusplus driver* is installed.
+- CPPUNIT_ROOT: where *cppunit* is installed.
+- GMOCK_ROOT: where *gmock/gtest* are installed.
+- LIBVARIANT_ROOT: where *libVariant* is installed.
+- MOSQUITTO_ROOT: where *mosquitto* is installed.
 
-Take a look to cmake directory. You can find there cmake scripts to find dependencies. Dependencies are not searched in default directories. You can set IOTAGENT_DEPENDENCIES_ROOT in CMakeList.txt in order to set where cmake looks for dependencies ++(cmake includes a module to look for boost libraries. You need to use environment variable to help cmake to find boost)++. For example:
-
-`set(IOTAGENT_DEPENDENCIES_ROOT /home/develop/iot/pion-5.0.6
-                                /home/develop/iot/log4cplus
-                                /home/develop/iot/mongo-cxx-driver
-                                /home/develop/iot/json
-                                /home/develop/iot/cppunit/cppunit-1.12.1
-                                /home/develop/iot/gmock-1.7.0
-                                /home/develop/iot/libVariant
-                                /home/develop/iot/mosquitto-1.3.5)`
 
 If you need modify the behavior of build environment, you can do it modifying CMakeLists.txt file.
 

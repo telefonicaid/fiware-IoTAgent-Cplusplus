@@ -7,6 +7,8 @@
 
 FIND_PATH(CPPUNIT_INCLUDE_DIR cppunit/TestCase.h
 	PATHS
+	${CPPUNIT_ROOT}/include
+	$ENV{CPPUNIT_ROOT}/include
   ${_CPPUNIT_IOT}/include
   ${IOT_FIND_OPTIONS} 
 )
@@ -18,6 +20,8 @@ set(_cppunit_LIB_NAME "cppunit")
 endif()
 FIND_LIBRARY(_CPPUNIT_LIBRARIES NAMES ${_cppunit_LIB_NAME}
 	             PATHS
+	             ${CPPUNIT_ROOT}/lib
+	             $ENV{CPPUNIT_ROOT}/lib
                ${_CPPUNIT_IOT}/lib
                ${IOT_FIND_OPTIONS} 
             )
