@@ -32,6 +32,8 @@
 
 int main(int argc, char* argv[]) {
 
+  mongo::client::initialize();
+
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(SampleTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),

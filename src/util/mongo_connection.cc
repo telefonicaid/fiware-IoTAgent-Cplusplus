@@ -269,9 +269,6 @@ mongo::DBClientBase* iota::MongoConnection::conn() {
              "It has reached the maximum mongo pool, delete con");
   }
 
-  if (conexion != NULL) {
-     delete conexion;
-  }
 }
 
 std::string iota::MongoConnection::get_endpoint(){
