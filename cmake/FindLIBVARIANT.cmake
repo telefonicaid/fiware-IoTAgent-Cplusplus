@@ -8,18 +8,24 @@
 #
 # var environment LIBVARIANT_ROOT
 
+set(LIBVARIANT_FIND_OPTIONS ${IOT_FIND_OPTIONS})
+if (LIBVARIANT_ROOT)
+set(LIBVARIANT_FIND_OPTIONS NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+ endif()
+
 find_path(LIBVARIANT_INCLUDE_DIR Variant/VariantDefines.h
-               ${IOTAGENT_DEPENDENCIES_PATHS}
-               $ENV{LIBVARIANT_ROOT}/lib
-               ${LIBVARIANT_ROOT}/lib)
+               ${_LIBVARIANT_IOT}/include
+               $ENV{LIBVARIANT_ROOT}/include
+               ${LIBVARIANT_ROOT}/include
+							 ${LIBVARIANT_FIND_OPTIONS})
 
 set(LIBVARIANT_LIB_NAME "libVariant.a")
 find_library(LIBVARIANT_LIBRARIES NAMES ${LIBVARIANT_LIB_NAME}
                PATHS
-               ${IOTAGENT_DEPENDENCIES_PATHS}
+               ${_LIBVARIANT_IOT}/lib
                $ENV{LIBVARIANT_ROOT}/lib
                ${LIBVARIANT_ROOT}/lib
-               NO_DEFAULT_PATH
+               ${LIBVARIANT_FIND_OPTIONS} 
 )
 if(LIBVARIANT_INCLUDE_DIR AND LIBVARIANT_LIBRARIES)
  get_filename_component(LIBVARIANT_LIBS_DIR ${LIBVARIANT_LIBRARIES} DIRECTORY)

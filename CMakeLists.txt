@@ -34,17 +34,84 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake ${CMAKE_MODULE_PATH})
 set(IOTAGENT_LIBS "")
 # View cmake directory. NO_DEFAULT_PATH is defined in cmake modules to find
 # dependencies
-set(IOTAGENT_DEPENDENCIES_ROOT /home/develop/iot/pion506
-                                /home/develop/iot/log4cplus113
-                                /home/develop/iot/mongo-cxx-driver
-                                /home/develop/iot/json
-                                /home/develop/iot/cppunit/cppunit-1.12.1
-                                /home/develop/iot/gmock-1.7.0
-                                /home/develop/iot/libVariant
-                                /home/develop/iot/mosquitto-1.3.5)
-foreach(_dep_path ${IOTAGENT_DEPENDENCIES_ROOT})
-  set(IOTAGENT_DEPENDENCIES_PATHS ${IOTAGENT_DEPENDENCIES_PATHS} ${_dep_path}/include ${_dep_path}/lib)
-endforeach()
+
+# Search options
+set(IOT_FIND_OPTIONS)
+
+if(IOT_ROOT)
+set(IOT_FIND_OPTIONS NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+file(GLOB_RECURSE _PION_I_  ${IOT_ROOT}/libpion-5.0.so)
+if(_PION_I_)
+list(GET _PION_I_ 0 _PION_I_)
+get_filename_component(_PION_IOT ${_PION_I_} PATH)
+set(_PION_IOT ${_PION_IOT}/..)
+endif(_PION_I_)
+
+file(GLOB_RECURSE _LOG4CPLUS_I_  ${IOT_ROOT}/liblog4cplus.so)
+if(_LOG4CPLUS_I_)
+list(GET _LOG4CPLUS_I_ 0 _LOG4CPLUS_I_)
+get_filename_component(_LOG4CPLUS_IOT ${_LOG4CPLUS_I_} PATH)
+set(_LOG4CPLUS_IOT ${_LOG4CPLUS_IOT}/..)
+endif(_LOG4CPLUS_I_)
+
+file(GLOB_RECURSE _MONGOCLIENT_I_  ${IOT_ROOT}/libmongoclient.so)
+if(_MONGOCLIENT_I_)
+list(GET _MONGOCLIENT_I_ 0 _MONGOCLIENT_I_)
+get_filename_component(_MONGOCLIENT_IOT ${_MONGOCLIENT_I_} PATH)
+set(_MONGOCLIENT_IOT ${_MONGOCLIENT_IOT}/..)
+endif(_MONGOCLIENT_I_)
+
+# check for boost 1.55
+if(BOOST_ROOT)
+message(STATUS "BOOST_ROOT:" ${BOOST_ROOT})
+else()
+file(GLOB_RECURSE _BOOST_I_  ${IOT_ROOT}/libboost_filesystem.so.1.55.0)
+if(_BOOST_I_)
+list(GET _BOOST_I_ 0 _BOOST_I_)
+get_filename_component(_BOOST_IOT ${_BOOST_I_} PATH)
+set(_BOOST_IOT ${_BOOST_IOT}/..)
+set(BOOST_ROOT ${_BOOST_IOT})
+message(STATUS "BOOST_ROOT:" ${BOOST_ROOT})
+endif(_BOOST_I_)
+endif(BOOST_ROOT)
+
+file(GLOB_RECURSE _JSON_I_  ${IOT_ROOT}/rapidjson.h)
+if(_JSON_I_)
+list(GET _JSON_I_ 0 _JSON_I_)
+get_filename_component(_JSON_IOT ${_JSON_I_} PATH)
+set(_JSON_IOT ${_JSON_IOT}/../..)
+endif(_JSON_I_)
+file(GLOB_RECURSE _MOSQUITTO_I_  ${IOT_ROOT}/libmosquitto.so)
+if(_MOSQUITTO_I_)
+list(GET _MOSQUITTO_I_ 0 _MOSQUITTO_I_)
+get_filename_component(_MOSQUITTO_IOT ${_MOSQUITTO_I_} PATH)
+set(_MOSQUITTO_IOT ${_MOSQUITTO_IOT}/..)
+endif(_MOSQUITTO_I_)
+file(GLOB_RECURSE _LIBVARIANT_I_  ${IOT_ROOT}/libVariant.a)
+if(_LIBVARIANT_I_)
+list(GET _LIBVARIANT_I_ 0 _LIBVARIANT_I_)
+get_filename_component(_LIBVARIANT_IOT ${_LIBVARIANT_I_} PATH)
+set(_LIBVARIANT_IOT ${_LIBVARIANT_IOT}/..)
+endif(_LIBVARIANT_I_)
+file(GLOB_RECURSE _GMOCK_I_  ${IOT_ROOT}/libgmock.a)
+if(_GMOCK_I_)
+list(GET _GMOCK_I_ 0 _GMOCK_I_)
+get_filename_component(_GMOCK_IOT_L ${_GMOCK_I_} PATH)
+set(_GMOCK_IOT ${_GMOCK_IOT_L}/..)
+endif(_GMOCK_I_)
+file(GLOB_RECURSE _CPPUNIT_I_  ${IOT_ROOT}/libcppunit.a)
+
+if(_CPPUNIT_I_)
+FOREACH(infileName ${_CPPUNIT_I_})
+  get_filename_component(_CPPUNIT_I_L ${infileName} PATH)
+  set(CPPUNIT_TESTRUNNER ${_CPPUNIT_I_L}/../include/cppunit/TestRunner.h)
+  if(EXISTS ${CPPUNIT_TESTRUNNER})
+    set(_CPPUNIT_IOT ${_CPPUNIT_I_L}/..)
+  endif()
+ENDFOREACH(infileName)
+endif(_CPPUNIT_I_)
+
+endif(IOT_ROOT)
 
 # This version only is tested and checked with dynamic libraries
 # Dependencies are included in rpms.
@@ -86,6 +153,7 @@ if (LOG4CPLUS_FOUND)
   include_directories(${LOG4CPLUS_INCLUDE_DIR})
   if (NOT Log4Cplus_USE_STATIC_LIBS)
    link_directories(${LOG4CPLUS_LIBS_DIR})
+   message(STATUS "link:" ${LOG4CPLUS_LIBS_DIR})
    set(INSTALL_LOG4CPLUS ${LOG4CPLUS_LIBS_DIR}/lib${LOG4CPLUS_LIBRARIES}-${LOG4CPLUS_VER_MAJOR}.${LOG4CPLUS_VER_MINOR}.so)
   endif()
   set(IOTAGENT_LIBS ${IOTAGENT_LIBS} ${LOG4CPLUS_LIBRARIES})
@@ -131,6 +199,7 @@ find_package(CppUnit)
 if(CPPUNIT_FOUND)
  include_directories(${CPPUNIT_INCLUDE_DIR})
   if (NOT CPPUNIT_USE_STATIC_LIBS)
+   message(STATUS "link cppunit: " ${CPPUNIT_LIBS_DIR})
    link_directories(${CPPUNIT_LIBS_DIR})
   endif()
   set(TEST_LIBS ${CPPUNIT_LIBRARIES})

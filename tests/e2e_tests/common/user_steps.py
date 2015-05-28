@@ -1,8 +1,9 @@
 from iotqautils.gtwRest import Rest_Utils_SBC
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE
+from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT
 from lettuce import world
 
 api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
+api2 = Rest_Utils_SBC(server_root=MANAGER_SERVER_ROOT+'/iot')
 
 URLTypes = {
     "IoTUL2": "/iot/d",
@@ -10,6 +11,12 @@ URLTypes = {
     "IoTEvadts": "/iot/evadts",
     "IoTTT": "/iot/tt",
     "IoTMqtt": "/iot/mqtt"
+}
+
+ProtocolTypes = {
+    "IoTUL2": "PDI-IoTA-UltraLight",
+    "IoTTT": "PDI-IoTA-ThinkingThings",
+    "IoTMqtt": "PDI-IoTA-MQTT-UltraLight"
 }
 
 def is_number(s):
@@ -61,7 +68,7 @@ class UserSteps(object):
         else:
             return False
             
-    def create_device(self, service_name, device_name, service_path={}, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
+    def create_device(self, service_name, device_name, service_path={}, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}, protocol={}, manager={}):
         headers = {}
         if not service_name=='void':
             headers[CBROKER_HEADER] = str(service_name)
@@ -95,11 +102,18 @@ class UserSteps(object):
             device['devices'][0]['attributes'] = attributes
         if static_attributes:
             device['devices'][0]['static_attributes'] = static_attributes
-        req = api.post_device(device,headers)
+        if protocol:
+            if protocol=="void":
+                protocol=""
+            device['devices'][0]['protocol'] = protocol
+        if manager:
+            req = api2.post_device(device,headers)
+        else:
+            req = api.post_device(device,headers)
 #        assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(device_name)
         return req
         
-    def create_service(self, service_name, protocol):
+    def create_service(self, service_name, protocol, attributes={}, static_attributes={}):
         headers = {}
         headers[CBROKER_HEADER] = service_name
         headers[CBROKER_PATH_HEADER] = '/path_' + str(service_name)
@@ -118,12 +132,16 @@ class UserSteps(object):
                 }
                 ]
                 }
+        if attributes:
+            service['services'][0]['attributes'] = attributes
+        if static_attributes:
+            service['services'][0]['static_attributes'] = static_attributes
         req = api.post_service(service, headers)
         assert req.status_code == 201, 'ERROR: ' + req.text + "El servicio {} no se ha creado correctamente".format(service_name)
         world.service_exists = True            
         return req
 
-    def create_service_with_params(self, service_name, service_path, resource, apikey, cbroker, entity_type={}, token={}):
+    def create_service_with_params(self, service_name, service_path, resource={}, apikey={}, cbroker={}, entity_type={}, token={}, attributes={}, static_attributes={}, protocol={}):
         world.protocol={}
         headers = {}
         if not service_name == 'void':
@@ -137,11 +155,12 @@ class UserSteps(object):
                 }
                 ]
                 }
-        if not resource == 'void':
-            if not resource == 'null':
-                service['services'][0]['resource'] = resource
-        else:
-            service['services'][0]['resource'] = ""
+        if resource:
+            if not resource == 'void':
+                if not resource == 'null':
+                    service['services'][0]['resource'] = resource
+            else:
+                service['services'][0]['resource'] = ""
 #        if not apikey == 'void':
         if apikey:
             if not apikey == 'null':
@@ -157,7 +176,24 @@ class UserSteps(object):
             service['services'][0]['entity_type'] = entity_type
         if token:
             service['services'][0]['token'] = token
-        req = api.post_service(service, headers)
+        if attributes:
+            service['services'][0]['attributes'] = attributes
+        if static_attributes:
+            service['services'][0]['static_attributes'] = static_attributes
+        if protocol:
+            if not protocol == 'void':
+                if not protocol == 'null':
+                    resource = URLTypes.get(protocol)
+                    prot = ProtocolTypes.get(protocol)
+                    if not prot:
+                        prot = protocol
+                    service['services'][0]['protocol']= [prot]
+            else:
+                resource = protocol
+                service['services'][0]['protocol'] = []
+            req = api2.post_service(service, headers)
+        else:
+            req = api.post_service(service, headers)
         if req.status_code == 201 or req.status_code == 409:
             world.remember.setdefault(service_name, {})
             if service_path == 'void':
@@ -211,14 +247,15 @@ class UserSteps(object):
             headers[CBROKER_PATH_HEADER] = str(service_path)
         else:
             headers[CBROKER_PATH_HEADER] = '/path_' + str(service_name)
+        print params
         req = api.delete_service('', headers, params)
         assert req.status_code == 204, 'ERROR: ' + req.text + "El servicio {} no se ha borrado correctamente".format(service_name)
         return req
 
-    def service_precond(self, service_name, protocol):
+    def service_precond(self, service_name, protocol, attributes={}, static_attributes={}):
         world.service_name = service_name
         if not self.service_created(service_name):
-            service = self.create_service(service_name, protocol)
+            service = self.create_service(service_name, protocol, attributes, static_attributes)
             assert service.status_code == 201, 'Error al crear el servcio {} '.format(service_name)
             print 'Servicio {} creado '.format(service_name)
         else:
@@ -227,11 +264,11 @@ class UserSteps(object):
         world.remember.setdefault(service_name, {})
         world.service_exists = True
 
-    def service_with_params_precond(self, service_name, service_path, resource, apikey, cbroker={}, entity_type={}, token={}):
+    def service_with_params_precond(self, service_name, service_path, resource, apikey, cbroker={}, entity_type={}, token={}, attributes={}, static_attributes={}):
         world.protocol={}
         world.service_name = service_name
         if not self.service_created(service_name, service_path, resource):
-            service = self.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token)
+            service = self.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token, attributes, static_attributes)
             assert service.status_code == 201, 'Error al crear el servcio {} '.format(service_name)
             print 'Servicio {} creado '.format(service_name)
         else:
@@ -248,10 +285,11 @@ class UserSteps(object):
             world.service_exists = True
             world.service_path_exists = True
 
-    def device_precond(self, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
+    def device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
         if not self.device_created(world.service_name, device_id):
-            device = self.create_device(world.service_name, device_id, {}, endpoint, commands, entity_name, entity_type, attributes, static_attributes)
+            prot = ProtocolTypes.get(protocol)
+            device = self.create_device(world.service_name, device_id, {}, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
             assert device.status_code == 201, 'Error al crear el device {} '.format(device_id)
             print 'Device {} creado '.format(device_id)
         else:
@@ -260,16 +298,21 @@ class UserSteps(object):
         world.remember[world.service_name]['device'].add(device_id)
         world.device_exists = True
        
-    def device_of_service_precond(self, service_name, service_path, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
+    def device_of_service_precond(self, service_name, service_path, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}, protocol={}, manager={}):
         world.device_id = device_id
         if not self.device_created(service_name, device_id, service_path):
-            device = self.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes)
+            prot = ProtocolTypes.get(protocol)
+            device = self.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot, manager)
             assert device.status_code == 201, 'Error al crear el device {} '.format(device_id)
             print 'Device {} con path {} creado '.format(device_id, service_path)
         else:
             print 'El device {} existe '.format(device_id)
-        world.remember[service_name][service_path].setdefault('device', set())
-        world.remember[service_name][service_path]['device'].add(device_id)
+        if service_path=='void':
+            service_path2='/'
+        else:
+            service_path2=service_path
+        world.remember[service_name][service_path2].setdefault('device', set())
+        world.remember[service_name][service_path2]['device'].add(device_id)
         world.device_exists = True
 
     def clean(self,dirty):

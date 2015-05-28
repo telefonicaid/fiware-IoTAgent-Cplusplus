@@ -24,14 +24,18 @@ macro(pion_get_version _include_PATH vmajor vminor vpatch)
  endif()
 endmacro()
 
+set(PION_FIND_OPTIONS ${IOT_FIND_OPTIONS})
+if (PION_ROOT)
+set(PION_FIND_OPTIONS NO_DEFAULT_PATH NO_CMAKE_FIND_ROOT_PATH)
+endif()
 find_path(Pion_INCLUDE_DIR
            NAMES
            pion/config.hpp
            PATHS
-           ${IOTAGENT_DEPENDENCIES_PATHS}
+           ${_PION_IOT}/include
            $ENV{PION_ROOT}/include
            ${PION_ROOT}/include
-           NO_DEFAULT_PATH
+					 ${PION_FIND_OPTIONS}
 )
 if(Pion_USE_STATIC_LIBS STREQUAL "ON")
  set(_Pion_LIB_NAME "libpion.a")
@@ -43,10 +47,10 @@ find_library(_Pion_LIBRARIES
                NAMES
                ${_Pion_LIB_NAME}
                PATHS
-               ${IOTAGENT_DEPENDENCIES_PATHS}
+               ${_PION_IOT}/lib
                $ENV{PION_ROOT}/lib
                ${PION_ROOT}/lib
-               NO_DEFAULT_PATH
+					     ${PION_FIND_OPTIONS}
 )
 
 if(Pion_INCLUDE_DIR)

@@ -1,6 +1,6 @@
 from lettuce import step, world
 from iotqautils.gtwRest import Rest_Utils_SBC
-from common.user_steps import UserSteps
+from common.user_steps import UserSteps, URLTypes, ProtocolTypes
 from common.gw_configuration import IOT_SERVER_ROOT,CBROKER_HEADER,CBROKER_PATH_HEADER
 
 
@@ -8,12 +8,14 @@ api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
 user_steps = UserSteps()
 
 
-@step('two Services with name "([^"]*)", paths "([^"]*)" and "([^"]*)", resources "([^"]*)" and "([^"]*)" and apikey "([^"]*)" created')
-def service_precond(step, service_name, service_path, service_path2, resource, resource2, apikey):
+@step('two Services with name "([^"]*)", paths "([^"]*)" and "([^"]*)", protocols "([^"]*)" and "([^"]*)" and apikey "([^"]*)" created')
+def service_precond(step, service_name, service_path, service_path2, protocol, protocol2, apikey):
     world.service_name = service_name
     world.service_path = service_path
     world.service_path2 = service_path2
+    resource = URLTypes.get(protocol)
     world.resource = resource
+    resource2 = URLTypes.get(protocol2)
     world.resource2 = resource2
     world.apikey = apikey
     if service_path:
@@ -21,17 +23,17 @@ def service_precond(step, service_name, service_path, service_path2, resource, r
     if service_path2:
         user_steps.service_with_params_precond(service_name, service_path2, resource2, apikey, 'http://myurl:80')
 
-@step('devices for services with name "([^"]*)", paths "([^"]*)" and "([^"]*)" created')
-def device_created_precond(step, service_name, service_path, service_path2):
+@step('devices for services with name "([^"]*)", paths "([^"]*)" and "([^"]*)" and protocols "([^"]*)" and "([^"]*)" created')
+def device_created_precond(step, service_name, service_path, service_path2, protocol, protocol2):
     world.device_name={}
     world.device_name2={}
     if service_path:
         device_name='device1'
-        user_steps.device_of_service_precond(service_name, service_path, device_name)
+        user_steps.device_of_service_precond(service_name, service_path, device_name, {}, {}, {}, {}, {}, {}, protocol)
         world.device_name=device_name
     if service_path2:
         device_name2='device2'
-        user_steps.device_of_service_precond(service_name, service_path2, device_name2)
+        user_steps.device_of_service_precond(service_name, service_path2, device_name2, {}, {}, {}, {}, {}, {}, protocol2)
         world.device_name2=device_name2
 
 @step('I delete the service "([^"]*)" with path "([^"]*)"')
