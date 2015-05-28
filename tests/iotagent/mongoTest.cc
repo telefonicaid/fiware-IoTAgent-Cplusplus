@@ -419,12 +419,12 @@ void MongoTest::workerFunc(){
       for (int i=0; i < num_actions_delete; i++){
         iota::Collection q1("PRUEBA");
         mongo::BSONObj p2 = BSON("name" << "Joe");
-        std::cout << "before find" << std::endl;
         int code_res = q1.find(p2);
         CPPUNIT_ASSERT_MESSAGE("no inserted data",
                              q1.more());
         if (q1.more()){
             mongo::BSONObj o = q1.next();
+            std::cout << "before remove" << o.jsonString() << std::endl;
             q1.remove(o);
         }
       }

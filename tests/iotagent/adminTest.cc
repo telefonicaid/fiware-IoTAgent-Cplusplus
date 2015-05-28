@@ -890,6 +890,13 @@ void  AdminTest::testPostService() {
   IOTASSERT_MESSAGE(service + "|entity_type2",
                     response.find("entity_type2") != std::string::npos);
 
+  std::cout << "@UT@GET with bad resource" << std::endl;
+  code_res = http_test("/iot/services", "GET", service, "", "application/json",
+                       "",
+                       headers, "dd=d&resource=/io/kk", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE("query parameter resource does not work",
+                    response.compare("{ \"count\": 0,\"services\": []}") == 0);
 
   std::cout << "@UT@POST" << std::endl;
   code_res = http_test("/iot/services", "POST", service, "",

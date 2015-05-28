@@ -88,15 +88,17 @@ void iota::MongoConnection::reconnect(){
       _host.assign("127.0.0.1");
     }
 
+    int pool_size;
     if (storage.HasMember(iota::store::types::POOL_SIZE.c_str())) {
-      std::string pool_sizeSTR(storage[iota::store::types::POOL_SIZE.c_str()].GetString());
+      std::string pool_sizeSTR = storage[iota::store::types::POOL_SIZE.c_str()].GetString();
       try {
-        int pool_size = boost::lexical_cast<int>(pool_sizeSTR);
+        pool_size = boost::lexical_cast<int>(pool_sizeSTR);
         _conex_pool.reserve(pool_size);
         PION_LOG_DEBUG(m_logger, "pool size " << pool_size);
       }
       catch (std::exception& e) {
         PION_LOG_ERROR(m_logger, "Error in config, bad pool size, use default");
+        pool_size = SIZE_POOL;
       }
     }
 
@@ -160,13 +162,15 @@ void iota::MongoConnection::reconnect(){
 
     mongo::DBClientBase * con;
     bool no_empty_pool  =true;
-    for (int i=0; no_empty_pool && i < MAX_SIZE_POOL; i++){
+    int num_conns=0;
+    for (int i=0; no_empty_pool && i < pool_size; i++){
       con = createConnection();
       if (con != NULL){
-        no_empty_pool = _conex_pool.push(createConnection());
+        no_empty_pool = _conex_pool.push(con);
+        num_conns++;
       }
     }
-
+    PION_LOG_DEBUG(m_logger, "mongo pool size:" <<  num_conns);
     iota::Alarm::info(types::ALARM_CODE_NO_MONGO, _replica + " " + _host,
                       types::INFO, "MongoConnection OK");
   }
@@ -247,13 +251,14 @@ mongo::DBClientBase* iota::MongoConnection::conn() {
 
   if (!_conex_pool.pop(conexion)){
     PION_LOG_ERROR(m_logger,
-             "It has reached the maximum mongo pool, create a new con");
+             "It has reached the maximum mongo pool");
   }
 
   if (conexion == 0) {
+    PION_LOG_ERROR(m_logger,  "create a new con");
      conexion = createConnection();
   }
-
+  PION_LOG_DEBUG(m_logger, "MongoConnection::conn returns " << conexion);
   return conexion;
 }
 
