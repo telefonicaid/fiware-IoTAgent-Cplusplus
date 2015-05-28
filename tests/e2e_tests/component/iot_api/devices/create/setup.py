@@ -1,6 +1,6 @@
 from lettuce import step, world
 from iotqautils.gtwRest import Rest_Utils_SBC
-from common.user_steps import UserSteps
+from common.user_steps import UserSteps, URLTypes, ProtocolTypes
 from common.gw_configuration import IOT_SERVER_ROOT,CBROKER_HEADER,CBROKER_PATH_HEADER
 
 
@@ -8,14 +8,18 @@ api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
 user_steps = UserSteps()
 
 
-@step('a Service with name "([^"]*)" and path "([^"]*)" created')
-def service_created_precond(step, service_name, service_path):
+@step('a Service with name "([^"]*)", path "([^"]*)" and protocol "([^"]*)" created')
+def service_precond(step, service_name, service_path, protocol):
     world.service_name = service_name
     world.service_path = service_path
     if (service_name == 'void'):
         return
-    resource = '/iot/d'
-    apikey='apikey_' + str(service_name)
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    prot = ProtocolTypes.get(protocol)
+    world.prot = prot
+    apikey='apikey_' + str(service_name)    
+    world.apikey = apikey
     user_steps.service_with_params_precond(service_name, service_path, resource, apikey, 'http://myurl:80')
 
 @step('a Device with name "([^"]*)" and path "([^"]*)" not created')
@@ -34,14 +38,15 @@ def device_not_created(step, device_name, service_path):
         world.remember[world.service_name][service_path2]['device'].add(device_name)
         world.device_exists = True
 
-@step('I create a Device with name "([^"]*)", entity_name "([^"]*)", entity_type "([^"]*)" and endpoint "([^"]*)"')
-def create_device(step, dev_name, entity_name, entity_type, endpoint):
+@step('I create a Device with name "([^"]*)", entity_name "([^"]*)", entity_type "([^"]*)", endpoint "([^"]*)" and protocol "([^"]*)"')
+def create_device(step, dev_name, entity_name, entity_type, endpoint, protocol):
     world.typ1 = {}
     world.typ2 = {}
     world.entity_name = entity_name
     world.entity_type = entity_type
     world.endpoint = endpoint
-    req=user_steps.create_device(world.service_name, dev_name, world.service_path, endpoint, {}, entity_name, entity_type)
+    prot = ProtocolTypes.get(protocol)    
+    req=user_steps.create_device(world.service_name, dev_name, world.service_path, endpoint, {}, entity_name, entity_type, {}, {}, prot)
     assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
     assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
     print 'Se ha creado el device {}'.format(dev_name)
@@ -53,8 +58,8 @@ def create_device(step, dev_name, entity_name, entity_type, endpoint):
     world.remember[world.service_name][service_path]['device'].add(dev_name)
     world.device_exists = True
 
-@step('I create a Device with name "([^"]*)", atributes and/or commands "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
-def create_device_with_attrs_cmds(step, dev_name, typ1, typ2, name1, name2, type1, type2, value1, value2):
+@step('I create a Device with name "([^"]*)", protocol "([^"]*)", atributes and/or commands "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
+def create_device_with_attrs_cmds(step, dev_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
     world.entity_name = {}
     world.entity_type = {}
     world.endpoint = {}
@@ -116,7 +121,8 @@ def create_device_with_attrs_cmds(step, dev_name, typ1, typ2, name1, name2, type
               }
         world.type2 = 'command'
         commands.append(command)
-    req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes)
+    prot = ProtocolTypes.get(protocol)    
+    req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes, prot)
     assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
     assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
     print 'Se ha creado el device {}'.format(dev_name)
@@ -128,12 +134,16 @@ def create_device_with_attrs_cmds(step, dev_name, typ1, typ2, name1, name2, type
     world.remember[world.service_name][service_path]['device'].add(dev_name)
     world.device_exists = True
 
-@step('I try to create a Device with name "([^"]*)" and atribute or command "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)"')
-def create_device_failed(step, dev_name, typ, name, type1, value):
+@step('I try to create a Device with name "([^"]*)", protocol "([^"]*)" and atribute or command "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)"')
+def create_device_failed(step, dev_name, protocol, typ, name, type1, value):
     commands=[]
     attributes=[]
     st_attributes=[]
     world.device_name = dev_name
+    if protocol:
+        prot = ProtocolTypes.get(protocol)
+    else:
+        prot = {}    
     if typ=='attr':
         attributes=[
              {
@@ -187,9 +197,18 @@ def create_device_failed(step, dev_name, typ, name, type1, value):
             commands[0]['value']=value
     if typ=='ent_name':
         world.entity_name=name
-        world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, name, {}, attributes, st_attributes)
+        world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, name, {}, attributes, st_attributes, prot)
+    elif typ=='protocol':
+        if not name=='null':
+            prot = ProtocolTypes.get(name)
+            if prot:
+                world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes, prot)
+            else:
+                world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes, name)
+        else:
+            world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes)
     else:        
-        world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes)
+        world.req=user_steps.create_device(world.service_name, dev_name, world.service_path, {}, commands, {}, {}, attributes, st_attributes, prot)
     assert world.req.status_code != 201, 'ERROR: ' + world.req.text + "El device {} se ha podido crear".format(dev_name)
     print 'No se ha creado el device {}'.format(dev_name)
 
@@ -226,7 +245,7 @@ def device_created(step, dev_name):
             assert response['attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
             assert response['attributes'][0]['object_id'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['attributes'][0]['object_id']
             attributes+=1
-        if world.typ1 == 'st_attr':
+        if world.typ1 == 'st_att':
             assert response['static_attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['static_attributes'][0]['name']
             assert response['static_attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
             assert response['static_attributes'][0]['value'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['static_attributes'][0]['value']
@@ -241,7 +260,7 @@ def device_created(step, dev_name):
             assert response['attributes'][attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['attributes'][attributes]['name']
             assert response['attributes'][attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['attributes'][attributes]['type']
             assert response['attributes'][attributes]['object_id'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['attributes'][attributes]['object_id']
-        if world.typ2 == 'st_attr':
+        if world.typ2 == 'st_att':
             assert response['static_attributes'][st_attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['name']
             assert response['static_attributes'][st_attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['type']
             assert response['static_attributes'][st_attributes]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['value']
@@ -249,6 +268,8 @@ def device_created(step, dev_name):
             assert response['commands'][commands]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['commands'][commands]['name']
             assert response['commands'][commands]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['commands'][commands]['type']
             assert response['commands'][commands]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['commands'][commands]['value']
+    if world.prot:
+        assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
     
 @step('user receives the "([^"]*)" and the "([^"]*)"')
 def assert_device_created_failed(step, http_status, error_text):
