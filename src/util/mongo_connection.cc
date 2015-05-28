@@ -88,7 +88,7 @@ void iota::MongoConnection::reconnect(){
       _host.assign("127.0.0.1");
     }
 
-    int pool_size;
+    int pool_size = SIZE_POOL;
     if (storage.HasMember(iota::store::types::POOL_SIZE.c_str())) {
       std::string pool_sizeSTR = storage[iota::store::types::POOL_SIZE.c_str()].GetString();
       try {
@@ -170,7 +170,6 @@ void iota::MongoConnection::reconnect(){
         num_conns++;
       }
     }
-    PION_LOG_DEBUG(m_logger, "mongo pool size:" <<  num_conns);
     iota::Alarm::info(types::ALARM_CODE_NO_MONGO, _replica + " " + _host,
                       types::INFO, "MongoConnection OK");
   }
