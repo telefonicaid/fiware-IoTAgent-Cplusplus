@@ -1,6 +1,6 @@
 from lettuce import step, world
 from iotqautils.gtwRest import Rest_Utils_SBC
-from common.user_steps import UserSteps
+from common.user_steps import UserSteps, URLTypes, ProtocolTypes
 from common.gw_configuration import IOT_SERVER_ROOT,CBROKER_HEADER,CBROKER_PATH_HEADER
 
 
@@ -8,20 +8,24 @@ api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
 user_steps = UserSteps()
 
 
-@step('a Service with name "([^"]*)" and path "([^"]*)" created')
-def service_created_precond(step, service_name, service_path):
+@step('a Service with name "([^"]*)", path "([^"]*)" and protocol "([^"]*)" created')
+def service_precond(step, service_name, service_path, protocol):
     world.service_name = service_name
     world.service_path = service_path
     if (service_name == 'void'):
         return
-    resource = '/iot/d'
-    apikey='apikey_' + str(service_name)
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    prot = ProtocolTypes.get(protocol)
+    world.prot = prot
+    apikey='apikey_' + str(service_name)    
+    world.apikey = apikey
     user_steps.service_with_params_precond(service_name, service_path, resource, apikey, 'http://myurl:80')
 
-@step('a Device with name "([^"]*)", entity_name "([^"]*)" and entity_type "([^"]*)" created')
-def device_created_precond(step, dev_name, entity_name, entity_type):
+@step('a Device with name "([^"]*)", entity_name "([^"]*)", entity_type "([^"]*)" and protocol "([^"]*)" created')
+def device_created_precond(step, dev_name, entity_name, entity_type, protocol):
     world.device_name=dev_name
-    user_steps.device_of_service_precond(world.service_name, world.service_path, dev_name, {}, {}, entity_name, entity_type)
+    user_steps.device_of_service_precond(world.service_name, world.service_path, dev_name, {}, {}, entity_name, entity_type, {}, {}, protocol)
 
 @step('I delete the device "([^"]*)"')
 def delete_service_data(step, device_name):

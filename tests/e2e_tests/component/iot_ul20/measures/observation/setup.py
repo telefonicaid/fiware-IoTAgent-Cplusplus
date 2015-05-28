@@ -1,6 +1,6 @@
 from lettuce import step, world
 from iotqautils.gtwMeasures import Gw_Measures_Utils
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,IOT_SERVER_ROOT,UL20_APIKEY,DEF_ENTITY_TYPE
+from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,IOT_SERVER_ROOT,UL20_APIKEY,DEF_ENTITY_TYPE,DEF_TYPE
 from common.user_steps import UserSteps
 import requests
 import time,datetime
@@ -14,13 +14,9 @@ def service_created_precond(step, service_name, protocol):
         world.service_name = service_name
         user_steps.service_precond(service_name, protocol)
 
-@step('a device with device id "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
-def device_with_entity_values_created_precond(step, device_id, ent_type, ent_name):
-    user_steps.device_precond(device_id, {}, {}, ent_name, ent_type)
-    world.device_id=device_id
-
-@step('a device with device id "([^"]*)", atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
-def device_with_attributes_created_precond(step, device_id, typ1, typ2, name1, name2, type1, type2, value1, value2):
+@step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
+def service_with_attritubes_created_precond(step, service_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    world.service_name = service_name
     attributes=[]
     st_attributes=[]
     world.typ1 = typ1
@@ -31,7 +27,7 @@ def device_with_attributes_created_precond(step, device_id, typ1, typ2, name1, n
     world.type2 = type2
     world.value1 = value1
     world.value2 = value2
-    if typ1=='attr':
+    if typ1=='srv_attr':
         attributes=[
              {
               "name": name1,
@@ -39,14 +35,14 @@ def device_with_attributes_created_precond(step, device_id, typ1, typ2, name1, n
               "object_id": value1
               }
              ]
-    if typ2=='attr':
+    if typ2=='srv_attr':
         attribute={
               "name": name2,
               "type": type2,
               "object_id": value2
               }
         attributes.append(attribute)
-    if typ1=='st_att':
+    if typ1=='srv_st_att':
         st_attributes=[
              {
               "name": name1,
@@ -54,14 +50,63 @@ def device_with_attributes_created_precond(step, device_id, typ1, typ2, name1, n
               "value": value1
               }
              ]
-    if typ2=='st_att':
+    if typ2=='srv_st_att':
         st_attribute={
               "name": name2,
               "type": type2,
               "value": value2
               }
         st_attributes.append(st_attribute)
-    user_steps.device_precond(device_id, {}, {}, {}, {}, attributes, st_attributes)
+    user_steps.service_precond(service_name, protocol, attributes, st_attributes)
+
+@step('a device with device id "([^"]*)", protocol "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
+def device_with_entity_values_created_precond(step, device_id, protocol, ent_type, ent_name):
+    user_steps.device_precond(device_id, {}, protocol, {}, ent_name, ent_type)
+    world.device_id=device_id
+
+@step('a device with device id "([^"]*)", protocol "([^"]*)", atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
+def device_with_attributes_created_precond(step, device_id, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    attributes=[]
+    st_attributes=[]
+    world.typ1 = typ1
+    world.typ2 = typ2
+    world.name1 = name1
+    world.name2 = name2
+    world.type1 = type1
+    world.type2 = type2
+    world.value1 = value1
+    world.value2 = value2
+    if typ1=='dev_attr':
+        attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "object_id": value1
+              }
+             ]
+    if typ2=='dev_attr':
+        attribute={
+              "name": name2,
+              "type": type2,
+              "object_id": value2
+              }
+        attributes.append(attribute)
+    if typ1=='dev_st_att':
+        st_attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "value": value1
+              }
+             ]
+    if typ2=='dev_st_att':
+        st_attribute={
+              "name": name2,
+              "type": type2,
+              "value": value2
+              }
+        st_attributes.append(st_attribute)
+    user_steps.device_precond(device_id, {}, protocol, {}, {}, {}, attributes, st_attributes)
     world.device_id=device_id
 
 @step('I send a measure to the GW with apikey, id "([^"]*)", protocol "([^"]*)", alias "([^"]*)", timestamp "([^"]*)" and value "([^"]*)"')
@@ -313,17 +358,17 @@ def check_measure_with_attributes_cbroker(step, asset, phenom_name, value):
     assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
     typeElement = contextElement['type']
     assert typeElement == DEF_ENTITY_TYPE, 'ERROR: ' + DEF_ENTITY_TYPE + ' type expected, ' + typeElement + ' received'
-    if (world.typ1=='attr') & (phenom_name==world.value1):
+    if ('attr' in world.typ1) & (phenom_name==world.value1):
         check_attribute(contextElement, world.name1, world.type1, value)
-    elif (world.typ2=='attr') & (phenom_name==world.value2):
+    elif ('attr' in world.typ2) & (phenom_name==world.value2):
         check_attribute(contextElement, world.name2, world.type2, value)
     else:
-        check_attribute(contextElement, phenom_name, "", value)
+        check_attribute(contextElement, phenom_name, DEF_TYPE, value)
     attrs+=1
-    if world.typ1=='st_att':
+    if 'st_att' in world.typ1:
         check_attribute(contextElement, world.name1, world.type1, world.value1)
         attrs+=1
-    if world.typ2=='st_att':
+    if 'st_att' in world.typ2:
         check_attribute(contextElement, world.name2, world.type2, world.value2)
         attrs+=1
     nameTime = contextElement['attributes'][attrs]['name']
