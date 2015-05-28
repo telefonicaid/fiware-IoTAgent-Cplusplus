@@ -339,7 +339,7 @@ void MongoTest::testMongoAlone() {
   std::clock_t    start;
   start = std::clock();
 
-  iota::Configurator::initialize(PATH_NO_MONGO_CONFIG);
+  iota::Configurator::initialize(PATH_CONFIG);
   int num_threads=1;
   const char * val = ::getenv( "UNIT_TEST_THREADS" );
   if ( val != 0 ) {
