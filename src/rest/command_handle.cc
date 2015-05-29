@@ -1018,7 +1018,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
     const boost::property_tree::ptree& service,
     std::string& command_id,
     boost::property_tree::ptree& command_line) {
-  std::cout << "rrrr" << std::endl;
+
   PION_LOG_DEBUG(m_logger,
                  "transform_command:: " << command_value << " updateCommand_value:" <<
                  updateCommand_value);
@@ -1753,7 +1753,7 @@ int iota::CommandHandle::transform_response(const std::string& str_command_resp,
     const int& cmd_status,
     std::string& command_response,
     std::string& id_command) {
-  std::cout << "TRANSFORM " << std::endl;
+
   command_response.assign(str_command_resp);
   id_command.assign("");
 }
