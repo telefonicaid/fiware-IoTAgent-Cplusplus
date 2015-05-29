@@ -1797,20 +1797,23 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     }
 
     iota::CommandPtr pt = get_command(cmd_data.command_id,
-               service_name, service_path);
-    if (pt.get()!= NULL){
-        PION_LOG_DEBUG(m_logger, cmd_data.command_id << " change status command, delivered");
-        pt->set_status (iota::types::DELIVERED);
+                                      service_name, service_path);
+    if (pt.get()!= NULL) {
+      PION_LOG_DEBUG(m_logger,
+                     cmd_data.command_id << " change status command, delivered");
+      pt->set_status(iota::types::DELIVERED);
     }
 
-    if (n > 0){
-       send_updateContext(cmd_data.command_name, iota::types::STATUS,
-                       iota::types::STATUS_TYPE,
-                       iota::types::DELIVERED_MESSAGE,
-                       cmd_data.item_dev, cmd_data.service,
-                       iota::types::STATUS_OP);
-    }else{
-      PION_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
+    if (n > 0) {
+      send_updateContext(cmd_data.command_name, iota::types::STATUS,
+                         iota::types::STATUS_TYPE,
+                         iota::types::DELIVERED_MESSAGE,
+                         cmd_data.item_dev, cmd_data.service,
+                         iota::types::STATUS_OP);
+    }
+    else {
+      PION_LOG_ERROR(m_logger,
+                     "no command in cache, timeout or response received ," << cmd_data.command_id);
     }
 
     PION_LOG_DEBUG(m_logger,
@@ -1831,21 +1834,24 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
 }
 
 int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
-                                       const boost::property_tree::ptree& service_ptree,
-                                       iota::ContextResponses&  context_responses){
+                                      const boost::property_tree::ptree& service_ptree,
+                                      iota::ContextResponses&  context_responses) {
 
   PION_LOG_DEBUG(m_logger,"queryContext");
   int iresponse=200;
-  std::string service = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-  std::string service_path = service_ptree.get<std::string>(iota::store::types::SERVICE_PATH
-                         , "");
+  std::string service = service_ptree.get<std::string>
+                        (iota::store::types::SERVICE, "");
+  std::string service_path = service_ptree.get<std::string>
+                             (iota::store::types::SERVICE_PATH
+                              , "");
 
-  if (service.empty() || service_path.empty()){
+  if (service.empty() || service_path.empty()) {
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
-                "Service or Sub_service are missing",iota::types::RESPONSE_CODE_BAD_REQUEST);
+                              "Service or Sub_service are missing",iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  PION_LOG_DEBUG(m_logger,"queryContext: service ["<<service<<"] sub-service ["<< service_path<<"]");
+  PION_LOG_DEBUG(m_logger,
+                 "queryContext: service ["<<service<<"] sub-service ["<< service_path<<"]");
 
 
   std::vector<iota::Entity> v_entities =  queryContext.get_entities();
@@ -1860,28 +1866,31 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
   for (i = 0; i < v_entities.size(); i++) {
     //get device, using a query to Mongo.
     iota::ContextResponse res;
-+   try{
-    std::string id = v_entities[i].get_id();
-    std::string type = v_entities[i].get_type();
+    try {
+      std::string id = v_entities[i].get_id();
+      std::string type = v_entities[i].get_type();
 
-    iota::ContextElement entity_context_element(id, type,
-    v_entities[i].get_is_pattern());
+      iota::ContextElement entity_context_element(id, type,
+          v_entities[i].get_is_pattern());
 
-    boost::shared_ptr<iota::Device> device =  get_device_by_entity(id, type,
-    service, service_path);
+      boost::shared_ptr<iota::Device> device =  get_device_by_entity(id, type,
+          service, service_path);
 
-    if (device.get() != NULL) {
+      if (device.get() != NULL) {
 
-      PION_LOG_DEBUG(m_logger,"queryContext: Device retrieved id ["<<id<<"] type: ["<<type<<"]");
-      populate_command_attributes(device, entity_context_element);
+        PION_LOG_DEBUG(m_logger,
+                       "queryContext: Device retrieved id ["<<id<<"] type: ["<<type<<"]");
+        populate_command_attributes(device, entity_context_element);
 
-      if (entity_context_element.get_attributes().size() == 0) {
-        PION_LOG_WARN(m_logger, "Device [" << id << "] has no commands to return");
+        if (entity_context_element.get_attributes().size() == 0) {
+          PION_LOG_WARN(m_logger, "Device [" << id << "] has no commands to return");
+        }
+        PION_LOG_DEBUG(m_logger,
+                       "Device [" << id <<
+                       "] returns ["<<entity_context_element.get_attributes().size()<<"] attributes");
+
       }
-      PION_LOG_DEBUG(m_logger,"Device [" << id << "] returns ["<<entity_context_element.get_attributes().size()<<"] attributes");
-
     }
-  }
     catch (iota::IotaException& e) {
       PION_LOG_DEBUG(m_logger,
                      "CommandHandle::updateContext capturada IotaException "<< e.what());
@@ -1897,8 +1906,8 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
       res.set_reason(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
       res.set_details(e.what());
       res.set_code(pion::http::types::RESPONSE_CODE_SERVER_ERROR);
- }
-  context_responses.add_context_response(res);
+    }
+    context_responses.add_context_response(res);
   }  //end for
 
   PION_LOG_DEBUG(m_logger,"QueryContext returning  ["<<i<<"] entities");
