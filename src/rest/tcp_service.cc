@@ -81,9 +81,10 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
     ++it;
   }
 
-  if (read_error) {
+  //if (read_error) {
     finish(tcp_conn);
-  }
+  //}
+
 };
 
 void iota::TcpService::send_response(pion::tcp::connection_ptr& tcp_conn,

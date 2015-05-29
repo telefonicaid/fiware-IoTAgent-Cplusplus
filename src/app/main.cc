@@ -237,7 +237,8 @@ int main(int argc, char* argv[]) {
                                         true));
 
   log4cplus::tstring pattern =
-    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H-%M-%S,%Q%Z} | lvl=%5p | comp=" + component_name +
+    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H-%M-%S,%Q%Z} | lvl=%5p | comp=" +
+                   component_name +
                    " | op=%M | file=[%t:%b:%L] | msg=%m %n");
   //LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
 
@@ -322,7 +323,7 @@ int main(int argc, char* argv[]) {
     std::map<boost::asio::ip::tcp::endpoint, pion::tcp::server_ptr> tcp_servers;
     try {
       const iota::JsonValue& tcp_s = iota::Configurator::instance()->get(
-                                             iota::types::CONF_FILE_TCP_SERVERS.c_str());
+                                       iota::types::CONF_FILE_TCP_SERVERS.c_str());
       if (!tcp_s.IsArray()) {
         PION_LOG_ERROR(main_log, "ERROR in Config File " << service_config_file <<
                        " Configuration error [tcp_servers]");
@@ -335,8 +336,10 @@ int main(int argc, char* argv[]) {
 
             std::string endpoint(tcp_s[it_r].GetString());
             std::size_t p_points = endpoint.find(':');
-            boost::asio::ip::address address = boost::asio::ip::address::from_string(endpoint.substr(0, p_points));
-            boost::asio::ip::tcp::endpoint e(address, boost::lexical_cast<unsigned short>(endpoint.substr(p_points+1)));
+            boost::asio::ip::address address = boost::asio::ip::address::from_string(
+                                                 endpoint.substr(0, p_points));
+            boost::asio::ip::tcp::endpoint e(address,
+                                             boost::lexical_cast<unsigned short>(endpoint.substr(p_points+1)));
             PION_LOG_DEBUG(main_log, "tcp server: "  << e.address() << ":" << e.port());
             pion::tcp::server_ptr tcp_server(new iota::TcpService(e));
             tcp_servers[e] = tcp_server;
@@ -352,9 +355,10 @@ int main(int argc, char* argv[]) {
     }
     // static service
 
-    if (manager){
+    if (manager) {
       AdminService_ptr = new iota::AdminManagerService(web_server);
-    }else{
+    }
+    else {
       AdminService_ptr = new iota::AdminService(web_server);
     }
 
@@ -450,6 +454,13 @@ int main(int argc, char* argv[]) {
 
     // Start
     web_server->start();
+    std::map<boost::asio::ip::tcp::endpoint, pion::tcp::server_ptr>::iterator it_tcp
+      = tcp_servers.begin();
+    while (it_tcp != tcp_servers.end()) {
+      it_tcp->second->start();
+      it_tcp++;
+    }
+
     pion::process::wait_for_shutdown();
     std::cout << "Server shutdown finish " << std::endl;
 
