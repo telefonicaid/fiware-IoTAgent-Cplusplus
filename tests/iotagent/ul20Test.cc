@@ -154,7 +154,7 @@ const int
 Ul20Test::RESPONSE_CODE_NGSI = 200;
 
 const std::string
-Ul20Test::RESPONSE_MESSAGE_NGSI_OK("{ \"statusCode\" : { \"code\":200, \"reasonPhrase\":\"OK\"}}");
+Ul20Test::RESPONSE_MESSAGE_NGSI_OK("{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":");
 
 
 const std::string Ul20Test::HOST("127.0.0.1");
@@ -1823,7 +1823,7 @@ void Ul20Test::testBADPUSHCommand() {
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
     IOTASSERT_MESSAGE("Waiting for 200 and receive ",
-                           response.find("{ \"code\":200, \"reasonPhrase\":\"OK\"}") != std::string::npos);
+                           response.find(RESPONSE_MESSAGE_NGSI_OK) != std::string::npos);
     IOTASSERT(http_response.get_status_code() == 200);
     IOTASSERT_MESSAGE("@UT@DELIVERED, 200" ,
                            response.find("200") !=std::string::npos);

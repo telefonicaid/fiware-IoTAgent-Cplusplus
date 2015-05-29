@@ -311,7 +311,7 @@ void JsonTest::testContext() {
 }
 
 void JsonTest::testResponse() {
-
+  std::cout << "START testResponse " << std::endl;
   iota::ContextResponse response("200", "OK");
   CPPUNIT_ASSERT(response.get_code().compare("200") == 0);
   CPPUNIT_ASSERT(response.get_reason().compare("OK") == 0);
@@ -321,7 +321,10 @@ void JsonTest::testResponse() {
   iota::ContextResponses context_responses;
   context_responses.add_context_response(response);
   CPPUNIT_ASSERT(context_responses.get_context_responses().size() == 1);
-  std::istringstream is(context_responses.get_string());
+
+  std::string res = context_responses.get_string();
+  std::cout << "@UT@RES " << res << std::endl;
+  std::istringstream is(res);
   iota::ContextResponses c_responses(is);
   CPPUNIT_ASSERT(c_responses.get_context_responses().size() == 1);
   iota::ContextResponse cr = c_responses.get_context_responses()[0];
@@ -329,6 +332,8 @@ void JsonTest::testResponse() {
   CPPUNIT_ASSERT(cr.get_reason().compare("OK") == 0);
   iota::ContextElement cr_ce = cr.get_context_element();
   CPPUNIT_ASSERT(cr_ce.get_id().compare("iden") == 0);
+
+  std::cout << "START testResponse " << std::endl;
 }
 
 void JsonTest::testQueryContext() {

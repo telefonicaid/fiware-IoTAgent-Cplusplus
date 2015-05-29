@@ -1089,7 +1089,6 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
 
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
-  std::string method = http_request_ptr->get_method();
   PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi trace_message:" +
                 trace_message);
 
@@ -1097,7 +1096,6 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   int iresponse= 200;
   response = "OK";
   iota::ContextResponses context_response;
-
   try {
     //read updateContext
     std::string method = http_request_ptr->get_method();
@@ -1139,8 +1137,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
                                 sequence,
                                 context_response);
 
-      response = create_ngsi_response(iresponse,
-                                      context_response.get_message_response(),"");
+      response = context_response.get_string();
       iresponse = 200;
     }
     else {
@@ -1172,6 +1169,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
                  types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR,
                  iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR, " ---");
   }
+
   //write response
 
   PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi trace_message:" +
@@ -1192,17 +1190,16 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
     std::multimap<std::string, std::string>& query_parameters,
     pion::http::response& http_response, std::string& response) {
 
-  std::string trace_message = http_request_ptr->get_header(
-                                iota::types::HEADER_TRACE_MESSAGES);
-  std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_queryContext_ngsi trace_message:" +
-                trace_message);
-
   int iresponse= 200;
-  response = "OK";
-  iota::ContextResponses context_response;
-
+  std::string trace_message = http_request_ptr->get_header(
+                                  iota::types::HEADER_TRACE_MESSAGES);
+  PION_LOG_INFO(m_logger,
+                  "iota::CommandHandle::default_queryContext_ngsi trace_message:" +
+                  trace_message);
   try {
+    response = "OK";
+    iota::ContextResponses context_response;
+
     //read updateContext
     std::string method = http_request_ptr->get_method();
     PION_LOG_DEBUG(m_logger, "method:" << method);
@@ -1235,13 +1232,13 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
 
       std::istringstream ss(content);
       iota::QueryContext op_queryContext(ss);
-      PION_LOG_DEBUG( m_logger, "queryContext:" << op_queryContext.get_string());
+      PION_LOG_DEBUG(m_logger, "queryContext:" << op_queryContext.get_string());
 
       iresponse = queryContext(op_queryContext, service_ptree,
-                                context_response);
+                               context_response);
 
-      PION_LOG_DEBUG( m_logger, "response queryContext:" << iresponse <<
-                                " " << context_response.get_string());
+      PION_LOG_DEBUG(m_logger, "response queryContext:" << iresponse <<
+                     " " << context_response.get_string());
       response = context_response.get_string();
       iresponse = 200;
     }
@@ -1253,9 +1250,10 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
                                       "you need a header with Fiware-Service" , "");
     }
 
+    //write response
   }
   catch (iota::IotaException e) {
-    PION_LOG_ERROR(m_logger,"Capturada: IotaException in default_query_ngsi");
+    PION_LOG_ERROR(m_logger,"Capturada: IotaException in default_op_ngsi");
     PION_LOG_ERROR(m_logger,e.what());
     iresponse = 200;
     response = create_ngsi_response(e.status(), e.reason(), e.what());
@@ -1274,9 +1272,9 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
                  types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR,
                  iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR, " ---");
   }
-  //write response
 
-  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_query_ngsi trace_message:" +
+  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_query_ngsi trace_message:"
+                +
                 trace_message+
                 " code: " + boost::lexical_cast<std::string>(iresponse)+
                 " response:" + response);
@@ -1838,6 +1836,7 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
                                        iota::ContextResponses&  context_responses){
 
   PION_LOG_DEBUG(m_logger,"queryContext");
+  int iresponse=200;
 
   std::string service = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
   std::string service_path = service_ptree.get<std::string>(iota::store::types::SERVICE_PATH
@@ -1862,7 +1861,8 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
   int i = 0;
   for (i = 0; i < v_entities.size(); i++) {
     //get device, using a query to Mongo.
-
+    iota::ContextResponse res;
+    try{
     std::string id = v_entities[i].get_id();
     std::string type = v_entities[i].get_type();
 
@@ -1882,16 +1882,31 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
       }
       PION_LOG_DEBUG(m_logger,"Device [" << id << "] returns ["<<entity_context_element.get_attributes().size()<<"] attributes");
 
-
-      iota::ContextResponse context_resp;
-      context_resp.add_context_element(entity_context_element);
-      context_responses.add_context_response(context_resp);
-
+      res.add_context_element(entity_context_element);
     }
 
-  }
-  PION_LOG_DEBUG(m_logger,"QueryContext returning  ["<<i<<"] entities");
+   }
+    catch (iota::IotaException& e) {
+      PION_LOG_DEBUG(m_logger,
+                     "CommandHandle::updateContext capturada IotaException "<< e.what());
+      iresponse=e.status();
+      res.set_code(e.status());
+      res.set_reason(e.reason());
+      res.set_details(e.what());
+    }
+    catch (std::exception& e) {
+      PION_LOG_DEBUG(m_logger,
+                     "CommandHandle::updateContext capturada std::exception"<< e.what());
+      iresponse= iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
+      res.set_reason(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
+      res.set_details(e.what());
+      res.set_code(pion::http::types::RESPONSE_CODE_SERVER_ERROR);
+    }
 
+    context_responses.add_context_response(res);
+  }  //end for
+  PION_LOG_DEBUG(m_logger,"QueryContext returning  ["<<i<<"] entities");
+  return iresponse;
 }
 
 

@@ -28,19 +28,19 @@
 class MongoTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(MongoTest);
 
-   /* CPPUNIT_TEST(testGenericCollection);
+    CPPUNIT_TEST(testGenericCollection);
     CPPUNIT_TEST(testCommandCollection);
     CPPUNIT_TEST(testDeviceCollection);
     //TODO CPPUNIT_TEST(testNoMongo);
     // to test testReplica  you need a replicaSet in mongo
     // and configure it in tests/iotagent/config_mongo_replica.json
     CPPUNIT_TEST(testReplica);
-   /*/ CPPUNIT_TEST(testMongoAlone);
-   /* CPPUNIT_TEST(testException);
+    CPPUNIT_TEST(testMongoAlone);
+    CPPUNIT_TEST(testException);
 
     CPPUNIT_TEST(testProtocolCollection);
     CPPUNIT_TEST(testServiceMgmtCollection);
-*/
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
