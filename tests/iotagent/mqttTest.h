@@ -141,7 +141,7 @@ private:
 
     int stubConnect(const char* host, int port, int keepalive);
 
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,const std::string& type = "file");
+    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,const std::string& type = "mongodb");
 
     void defineExpectationsMqttPublisher();
 

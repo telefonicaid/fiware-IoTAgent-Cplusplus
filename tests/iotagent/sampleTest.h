@@ -31,9 +31,9 @@
 class SampleTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(SampleTest);
 
-    CPPUNIT_TEST(testNormalPOST);
+    /*CPPUNIT_TEST(testNormalPOST);
     CPPUNIT_TEST(testCommandNormalPOST);
-    CPPUNIT_TEST(testPUSHCommand);
+    CPPUNIT_TEST(testPUSHCommand);*/
     CPPUNIT_TEST(testPollingCommand);
 
     CPPUNIT_TEST_SUITE_END();

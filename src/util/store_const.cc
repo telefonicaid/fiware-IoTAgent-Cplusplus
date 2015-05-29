@@ -94,6 +94,7 @@ const std::string types::ENDPOINT_AG("endpoint");
 const std::string types::STORAGE("storage");
 const std::string types::FILE("file");
 const std::string types::HOST("host");
+const std::string types::POOL_SIZE("pool_size");
 const std::string types::REPLICA_SET("replicaset");
 const std::string types::PORT("port");
 const std::string types::USER("user");

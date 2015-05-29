@@ -41,6 +41,23 @@
                     "token": "token3"
                 }
             ]
+        },
+        {
+            "resource": "/iot/mqtt",
+            "options": {
+                "ConfigFile": "MqttService.xml",
+                "FileName": "IoTAgent-mqtt"
+            },
+            "services": [
+                {
+                    "apikey": "1234",
+                    "service": "service2",
+                    "service_path": "/ssrv2",
+                    "token": "token6",
+                    "entity_type": "thing",
+                    "cbroker": "http://127.0.0.1:1026"
+                }
+            ]
         }
     ]
 }

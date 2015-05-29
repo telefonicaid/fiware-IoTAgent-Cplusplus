@@ -164,10 +164,10 @@ std::string iota::Configurator::update_conf(std::stringstream& is) {
 }
 
 iota::Configurator* iota::Configurator::instance() {
-  if (pinstance == 0) { // ¿Es la primera llamada?
-    pinstance = new Configurator(); // Creamos la instancia
+  if (pinstance == 0) {
+    pinstance = new Configurator();
   }
-  return pinstance; // Retornamos la dirección de la instancia
+  return pinstance;
 }
 
 iota::Configurator* iota::Configurator::initialize(const std::string&
