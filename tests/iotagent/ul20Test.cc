@@ -154,7 +154,7 @@ const int
 Ul20Test::RESPONSE_CODE_NGSI = 200;
 
 const std::string
-Ul20Test::RESPONSE_MESSAGE_NGSI_OK("{ \"statusCode\" : { \"code\":200, \"reasonPhrase\":\"OK\"}}");
+Ul20Test::RESPONSE_MESSAGE_NGSI_OK("{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":");
 
 
 const std::string Ul20Test::HOST("127.0.0.1");
@@ -1823,7 +1823,7 @@ void Ul20Test::testBADPUSHCommand() {
     std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
               response << std::endl;
     IOTASSERT_MESSAGE("Waiting for 200 and receive ",
-                           response.find("{ \"code\":200, \"reasonPhrase\":\"OK\"}") != std::string::npos);
+                           response.find(RESPONSE_MESSAGE_NGSI_OK) != std::string::npos);
     IOTASSERT(http_response.get_status_code() == 200);
     IOTASSERT_MESSAGE("@UT@DELIVERED, 200" ,
                            response.find("200") !=std::string::npos);
@@ -2474,7 +2474,7 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
     std::cout << "@UT@RESPONSE no device:" << http_response.get_status_code() << " " <<
               response << std::endl;
     IOTASSERT(response.find(
-    "{ \"errorCode\" : { \"code\":404, \"reasonPhrase\":\"The device does not exist\"}") !=
+    "{\"contextResponses\":[{\"statusCode\":{\"code\":\"404\",\"reasonPhrase\":\"The device does not exist\"") !=
                    std::string::npos);
     IOTASSERT(http_response.get_status_code() == 200);
 
@@ -2506,11 +2506,11 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
                      http_response, response);
 
     //respuesta al update de contextBroker
-    std::cout << "@UT@RESPONSE no command:" << http_response.get_status_code() << " " <<
-              response << std::endl;
-    IOTASSERT(response.find(
-    "{ \"errorCode\" : { \"code\":404, \"reasonPhrase\":\"the device does not have implemented this command\"}") !=
-                   std::string::npos);
+    std::cout << "@UT@RESPONSE no command:" << http_response.get_status_code() << std::endl;
+    std::cout << "@UT@RESPONSE " << response << std::endl;
+    std::string resOK= "{\"contextResponses\":[{\"statusCode\":{\"code\":\"404\",\"reasonPhrase\":\"the device does not have implemented this command\"";
+    std::cout << "@UT@RESPONSE " << resOK << std::endl;
+    IOTASSERT(response.find(resOK) != std::string::npos);
     IOTASSERT(http_response.get_status_code() == 200);
 
   }
@@ -2546,7 +2546,7 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
     std::cout << "@UT@RESPONSE no command:" << http_response.get_status_code() << " " <<
               response << std::endl;
     IOTASSERT(response.find(
-    "{ \"errorCode\" : { \"code\":409, \"reasonPhrase\":\"The device is not active") !=
+    "{\"contextResponses\":[{\"statusCode\":{\"code\":\"409\",\"reasonPhrase\":\"The device is not active") !=
                    std::string::npos);
     IOTASSERT(http_response.get_status_code() == 200);
 
