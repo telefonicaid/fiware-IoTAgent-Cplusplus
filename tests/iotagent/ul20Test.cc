@@ -2507,6 +2507,7 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
     //respuesta al update de contextBroker
     std::cout << "@UT@RESPONSE no command:" << http_response.get_status_code() << " " <<
               response << std::endl;
+    std::string resOK= "{\"contextResponses\":[{\"statusCode\":{\"code\":\"404\",\"reasonPhrase\":\"the device does not have implemented this command\"";
     IOTASSERT(response.find(resOK) != std::string::npos);
     IOTASSERT(http_response.get_status_code() == 200);
 
