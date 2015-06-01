@@ -129,7 +129,7 @@ Ul20Test::POST_DEVICE_CON("{\"devices\": "
                        "}]}");
 const std::string
 Ul20Test::POST_DEVICE_CON2("{\"devices\": "
-                       "[{\"device_id\": \"unitTest_dev32_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut32\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"unitTest_dev32_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"unitTest_dev32_polling@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -155,6 +155,7 @@ Ul20Test::RESPONSE_CODE_NGSI = 200;
 
 const std::string
 Ul20Test::RESPONSE_MESSAGE_NGSI_OK("{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":");
+
 
 const std::string Ul20Test::HOST("127.0.0.1");
 const std::string Ul20Test::CONTENT_JSON("aplication/json");
@@ -2505,9 +2506,10 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
                      http_response, response);
 
     //respuesta al update de contextBroker
-    std::cout << "@UT@RESPONSE no command:" << http_response.get_status_code() << " " <<
-              response << std::endl;
+    std::cout << "@UT@RESPONSE no command:" << http_response.get_status_code() << std::endl;
+    std::cout << "@UT@RESPONSE " << response << std::endl;
     std::string resOK= "{\"contextResponses\":[{\"statusCode\":{\"code\":\"404\",\"reasonPhrase\":\"the device does not have implemented this command\"";
+    std::cout << "@UT@RESPONSE " << resOK << std::endl;
     IOTASSERT(response.find(resOK) != std::string::npos);
     IOTASSERT(http_response.get_status_code() == 200);
 
@@ -2594,7 +2596,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
        "room_ut3", "type2", POST_DEVICE_CON, cb_mock);
   std::cout << "@UT@Second command" <<  service << std::endl;
   testPollingCommand_MONGO("unitTest_dev32_polling",
-       "room_ut32", "type2", POST_DEVICE_CON2, cb_mock);
+       "unitTest_dev32_polling:type2", "type2", POST_DEVICE_CON2, cb_mock);
 
   std::cout << "@UT@DELETE Service" << std::endl;
   std::string token, trace_message;

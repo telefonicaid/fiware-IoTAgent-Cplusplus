@@ -1328,8 +1328,10 @@ int iota::CommandHandle::send(
   iota::UpdateContext op(updateAction);
   op.add_context_element(ngsi_context_element);
 
-  return cb_comm->async_send(cb_url, op.get_string(), service,
-                             boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
+  std::string toCV = op.get_string();
+  PION_LOG_DEBUG(m_logger, ":send2CB:" <<cb_url << ":body:" << toCV);
+  return cb_comm->async_send(cb_url, toCV, service,
+                              boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
 }
 
 std::string iota::CommandHandle::get_ngsi_operation(const std::string&
@@ -1436,7 +1438,6 @@ int iota::CommandHandle::send_updateContext(
   std::string date_to_cb = mi_hora.toUTC().toString();
   iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
   ngsi_context_element.add_attribute(timeAT);
-  PION_LOG_DEBUG(m_logger,"<<<" << ngsi_context_element.get_string());
 
   ngsi_context_element.set_env_info(service, item_dev);
 
@@ -1473,7 +1474,6 @@ int iota::CommandHandle::send_updateContext(
   std::string date_to_cb = mi_hora.toUTC().toString();
   iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
   ngsi_context_element.add_attribute(timeAT);
-  PION_LOG_DEBUG(m_logger,"<<<" << ngsi_context_element.get_string());
 
   ngsi_context_element.set_env_info(service, item_dev);
 
@@ -1513,7 +1513,7 @@ void iota::CommandHandle::save_command(const std::string& command_name,
                  " id:" <<  command_id << " service:" << service <<
                  " service_path:" << service_path <<
                  " name:" << command_name <<
-                 " sequence:" << sequence << "device:" << item_dev->_name <<
+                 " sequence:" << sequence << "device:" << item_dev->get_real_name() <<
                  " endpoint:" << endpoint << "timeout:" << timeout);
 
   boost::shared_ptr<Command> item(new Command(command_id, command_name,

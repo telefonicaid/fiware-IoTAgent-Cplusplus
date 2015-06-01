@@ -102,6 +102,7 @@ void SampleTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
      <<   "\"storage\": {"
      <<   "\"host\": \"127.0.0.1\","
      <<   "\"type\": \"" <<  type << "\","
+     <<   "\"pool_size\": \"2\","
      <<   "\"port\": \"27017\","
      <<   "\"dbname\": \"iot\","
      <<   "\"file\": \"../../tests/iotagent/devices.json\""
@@ -342,9 +343,27 @@ void SampleTest::testPollingCommand() {
   std::cout << __LINE__ << "@UT@START testPollingCommand" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "mongodb");
 
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+  try{
+    iota::Collection table(iota::store::types::DEVICE_TABLE);
+    mongo::BSONObj p = BSON( "_id" << "unit_test" <<
+            "device_id"<< "unitTest_devtest_noendpoint" <<
+            "entity_name"<< "room_uttestno"<<
+            "service"<< "srvtest"<<
+            "service_path"<< "/srvpathtest"<<
+            "commands"<< BSON_ARRAY(
+            BSON("name"<< "PING"<< "type"<< "command"<<"value"<< "") <<
+            BSON("name"<< "RAW"<<"type"<< "command"<<"value"<< ""))<<
+            "attributes" << BSON_ARRAY(
+            BSON("object_id"<<"attr_name"<<"name"<<"temperature")<<
+            BSON("object_id"<<"l"<<"type"<< "coords"<<"name"<<"position")));
+
+    std::cout << "insert device unitTest_devtest_noendpoint" << std::endl;
+    table.insert(p);
+  }catch(std::exception exc){
+    std::cout << "unitTest_devtest_noendpoint already exists" << exc.what() << std::endl;
+  }
 
   iota::TestCommandService plugin;
   plugin.set_resource("/iot/test");
