@@ -3,7 +3,6 @@ from lettuce import step, world
 from iotqautils.cbUtils import CBUtils
 from iotqautils.gtwRest import Rest_Utils_SBC
 from common.user_steps import UserSteps
-from common.gw_mqtt_commands import mqtt_command
 from threading import Thread
 from iotqautils.gtwMeasures import Gw_Measures_Utils
 from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,GW_HOSTNAME,IOT_PORT,PATH_MQTT_COMMAND,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,TIMEOUT_COMMAND
