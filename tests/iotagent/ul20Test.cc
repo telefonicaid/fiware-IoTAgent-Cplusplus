@@ -129,7 +129,7 @@ Ul20Test::POST_DEVICE_CON("{\"devices\": "
                        "}]}");
 const std::string
 Ul20Test::POST_DEVICE_CON2("{\"devices\": "
-                       "[{\"device_id\": \"unitTest_dev32_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut32\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
+                       "[{\"device_id\": \"unitTest_dev32_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"unitTest_dev32_polling@command|%s\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
@@ -2596,7 +2596,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
        "room_ut3", "type2", POST_DEVICE_CON, cb_mock);
   std::cout << "@UT@Second command" <<  service << std::endl;
   testPollingCommand_MONGO("unitTest_dev32_polling",
-       "room_ut32", "type2", POST_DEVICE_CON2, cb_mock);
+       "type2:unitTest_dev32_polling", "type2", POST_DEVICE_CON2, cb_mock);
 
   std::cout << "@UT@DELETE Service" << std::endl;
   std::string token, trace_message;
