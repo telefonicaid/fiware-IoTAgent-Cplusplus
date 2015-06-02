@@ -159,6 +159,12 @@ class CommandHandle :
                       const std::string& regId,
                       std::string& cb_response);
 
+    int send_register(std::vector<iota::ContextRegistration> context_registrations,
+                      boost::property_tree::ptree& service,
+                      const boost::shared_ptr<Device> device,
+                      const std::string& regId,
+                      std::string& cb_response);
+
     int send(
       iota::ContextElement ngsi_context_element,
       const std::string& opSTR,

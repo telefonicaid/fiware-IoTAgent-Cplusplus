@@ -1412,6 +1412,66 @@ int iota::CommandHandle::send_register(
 
 }
 
+int iota::CommandHandle::send_register(
+  std::vector<iota::ContextRegistration> context_registrations,
+  boost::property_tree::ptree& pt_cb,
+  const boost::shared_ptr<Device> device,
+  const std::string& regId,
+  std::string& cb_response) {
+  iota::RegisterContext reg;
+
+  std::string cb_url;
+  std::string entity_type("thing");
+  try {
+    std::string cbrokerSTR = pt_cb.get<std::string>("cbroker", "");
+    if (!cbrokerSTR.empty()) {
+      cb_url.assign(cbrokerSTR);
+      cb_url.append(get_ngsi_operation("registerContext"));
+    }
+    std::string entity_typeSTR = pt_cb.get<std::string>("entity_type", "");
+    if (!entity_typeSTR.empty()) {
+      entity_type.assign(entity_typeSTR);
+    }
+
+    // Setting Accept to "application/json,text/json"
+    pt_cb.put<std::string>(iota::types::IOT_HTTP_HEADER_ACCEPT,
+                           iota::types::IOT_CONTENT_TYPE_JSON);
+
+    PION_LOG_DEBUG(m_logger, "updatContext Device:" << device->_name);
+    send_updateContext ( "", "", "", "",
+        device, pt_cb, iota::types::STATUS_OP);
+  }
+  catch (std::exception& e) {
+    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+  }
+
+  int i = 0;
+  for (i = 0; i < context_registrations.size(); i++) {
+    reg.add_context_registration(context_registrations[i]);
+  }
+
+  if (! regId.empty()) {
+
+    PION_LOG_DEBUG(m_logger, "Adding registrationId: " << regId);
+    reg.add_registrationId(regId);
+    reg.add_duration("PT1S");
+    ContextBrokerCommunicator cb_communicator_unreg;
+    cb_communicator_unreg.send(cb_url, reg.get_string(), pt_cb);
+
+  }
+  reg.add_duration("");
+  reg.add_registrationId("");
+  PION_LOG_DEBUG(m_logger, "Sending to cb :" << cb_url);
+  PION_LOG_DEBUG(m_logger, "RegisterContext : " << reg.get_string());
+
+  ContextBrokerCommunicator cb_communicator;
+  cb_response.append(cb_communicator.send(cb_url, reg.get_string(), pt_cb));
+
+
+  return pion::http::types::RESPONSE_CODE_OK;
+
+}
+
 /**
   *  command_name,   the name of command, for example ping, set, ...
   *  command_att, specificied attribue command ( command, status, info)
@@ -1428,22 +1488,32 @@ int iota::CommandHandle::send_updateContext(
   const boost::property_tree::ptree& service,
   const std::string& opSTR) {
 
+  int code_resp = -1;
   iota::ContextElement ngsi_context_element;
   std::string cb_response;
-  ContextBrokerCommunicator::add_updateContext(command_name, command_att,
+
+  if (!command_name.empty()){
+    ContextBrokerCommunicator::add_updateContext(command_name, command_att,
       type,
       value, item_dev,
       service, ngsi_context_element);
 
-  iota::RiotISO8601 mi_hora;
-  std::string date_to_cb = mi_hora.toUTC().toString();
-  iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
-  ngsi_context_element.add_attribute(timeAT);
+    iota::RiotISO8601 mi_hora;
+    std::string date_to_cb = mi_hora.toUTC().toString();
+    iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
+    ngsi_context_element.add_attribute(timeAT);
+  }else{
+    ngsi_context_element.set_is_pattern("false");
+  }
 
-  ngsi_context_element.set_env_info(service, item_dev);
+  if (item_dev.get()!= NULL ){
+    ngsi_context_element.set_env_info(service, item_dev);
 
-  int code_resp = send(ngsi_context_element, opSTR, service, cb_response);
-  PION_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
+    code_resp = send(ngsi_context_element, opSTR, service, cb_response);
+    PION_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
+  }else{
+    PION_LOG_ERROR(m_logger,"no device in send_updateContext, so do nothing" );
+  }
 
   return code_resp;
 }
