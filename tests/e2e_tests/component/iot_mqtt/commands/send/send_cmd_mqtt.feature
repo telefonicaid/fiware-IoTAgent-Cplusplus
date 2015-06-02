@@ -3,7 +3,7 @@ Feature: MQTT Command Send
 	As a MQTT subscriber
 	I want to receive messages from SBC
 	
-	@mqtt @IDAS-18382
+	@iot_mqtt @iot_cmd_mqtt @IDAS-18382
 	Scenario: send a command with parameters
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", device name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
@@ -18,7 +18,7 @@ Feature: MQTT Command Send
 			|dev1_2		|room1_2	 |servicemqtt	|IoTMqtt	|attr_1_dev_1_2	|ping1_2#p1=v1#p2=v2#p3=v3#p4=v4|dev1_2@%s#%s#%s#%s#%s	|pull	  |					|OK		|dev1_2@ping1_2#p1=v1#p2=v2#p3=v3#p4=v4	|
 			|dev1_3		|room1_3	 |servicemqtt	|IoTMqtt	|attr_1_dev_1_3	|ping1_3#p1=v1#p2=v2			|dev1_3@%s#%s#%s		|push	  |http://myurl.com	|OK		|dev1_3@ping1_3#p1=v1#p2=v2				|
 		
-	@mqtt @IDAS-18381
+	@iot_mqtt @iot_cmd_mqtt @IDAS-18381
 	Scenario: send a command without parameters
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", device name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
@@ -32,7 +32,7 @@ Feature: MQTT Command Send
 			|dev2_1		|room2_1	 |servicemqtt	|IoTMqtt	|attr_1_dev_2_1	|ping2_1	|dev2_1@%s	|push	  |http://myurl.com	|dev2_1@ping2_1Result#Command_OK	|OK			|	
 		
 		
-	@mqtt @IDAS-18380
+	@iot_mqtt @iot_cmd_mqtt @IDAS-18380
 	Scenario: send a command without response
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", device name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created

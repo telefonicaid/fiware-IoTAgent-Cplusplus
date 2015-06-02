@@ -34,6 +34,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <ctime>
 #include <iostream>
+#include <boost/chrono/thread_clock.hpp>
 
 #include "util/device.h"
 #include "util/command.h"
@@ -298,6 +299,12 @@ void MongoTest::testNoMongo() {
   std::cout << "END testNoMongo " << std::endl;
 }
 
+/**
+ *  export variables for multi threads
+ *  UNIT_TEST_THREADS  number of threads
+ *  UNIT_TEST_MILLIS   miliseconds  waiting between  threads starting
+ *  UNIT_TEST_ACTIONS  numbers os operations with the same connection
+ **/
 void MongoTest::testReplica() {
   std::cout << "START testReplica" << std::endl;
   std::clock_t    start;
@@ -323,14 +330,16 @@ void MongoTest::testReplica() {
   }
 
   g.join_all();
-  std::cout << "Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+  std::cout << "Time testReplica: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
   std::cout << "END testReplica" << std::endl;
 }
 
 void MongoTest::testMongoAlone() {
-  std::cout << "START testReplica" << std::endl;
+  std::cout << "START testMongoAlone" << std::endl;
+  std::clock_t    start;
+  start = std::clock();
 
-  iota::Configurator::initialize(PATH_NO_MONGO_CONFIG);
+  iota::Configurator::initialize(PATH_CONFIG);
   int num_threads=1;
   const char * val = ::getenv( "UNIT_TEST_THREADS" );
   if ( val != 0 ) {
@@ -341,6 +350,10 @@ void MongoTest::testMongoAlone() {
   if ( valmilis != 0 ) {
       milis_threads = boost::lexical_cast<int>(valmilis);
   }
+  iota::Collection table1("PRUEBA");
+
+  mongo::BSONObj p = BSON("name" << "Inicio prueba testMongoAlone" );
+  table1.insert(p);
 
   boost::thread_group g;
   std::cout << "nonum threads:" << num_threads << " milis: " << milis_threads << std::endl;
@@ -350,33 +363,76 @@ void MongoTest::testMongoAlone() {
   }
 
   g.join_all();
-  std::cout << "END testReplica" << std::endl;
+  std::cout << "Time testMongoAlone: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
+  std::cout << "END testMongoAlone" << std::endl;
 }
 
 void MongoTest::workerFunc(){
   std::cout << "START workerFunc" << std::endl;
+  std::clock_t    start;
+  start = std::clock();
+
+  int num_actions_inserts=1;
+  const char * val = ::getenv( "UNIT_TEST_ACTIONS_INSERTS" );
+  if ( val != 0 ) {
+      num_actions_inserts = boost::lexical_cast<int>(val);
+  }
+  int num_actions_find=1;
+  val = ::getenv( "UNIT_TEST_ACTIONS_FIND" );
+  if ( val != 0 ) {
+      num_actions_find = boost::lexical_cast<int>(val);
+  }
+  int num_actions_delete=1;
+  val = ::getenv( "UNIT_TEST_ACTIONS_DELETE" );
+  if ( val != 0 ) {
+      num_actions_delete = boost::lexical_cast<int>(val);
+  }
+
+  int num_actions_col=1;
+  val = ::getenv( "UNIT_TEST_ACTIONS_COL" );
+  if ( val != 0 ) {
+      num_actions_col = boost::lexical_cast<int>(val);
+  }
+
   try{
-  iota::Collection table1("PRUEBA");
+    for (int j=0; j < num_actions_col; j++){
+      iota::Collection table1("PRUEBA");
 
-  mongo::BSONObj p = BSON("name" << "Joe" << "desc" << "ssss");
-  std::cout << "before insert" << std::endl;
-  for (int i=0; i < 100; i++){
-    table1.insert(p);
-  }
+      mongo::BSONObj p = BSON("name" << "Joe" << "desc" << "ssss");
+      std::cout << "before insert" << std::endl;
+      for (int i=0; i < num_actions_inserts; i++){
+        table1.insert(p);
+      }
 
+      for (int i=0; i < num_actions_find; i++){
+        iota::Collection q1("PRUEBA");
+        mongo::BSONObj p2 = BSON("name" << "Joe");
+        std::cout << "before find" << std::endl;
+        int code_res = q1.find(p2);
+        CPPUNIT_ASSERT_MESSAGE("no inserted data",
+                             q1.more());
+        if (q1.more()){
+            q1.next();
+        }
+      }
 
-  iota::Collection q1("PRUEBA");
-  mongo::BSONObj p2 = BSON("name" << "Joe");
-  std::cout << "before find" << std::endl;
-  int code_res = q1.find(p2);
-  CPPUNIT_ASSERT_MESSAGE("no inserted data",
-                         q1.more());
-  if (q1.more()){
-      q1.next();
-  }
+      for (int i=0; i < num_actions_delete; i++){
+        iota::Collection q1("PRUEBA");
+        mongo::BSONObj p2 = BSON("name" << "Joe");
+        int code_res = q1.find(p2);
+        CPPUNIT_ASSERT_MESSAGE("no inserted data",
+                             q1.more());
+        if (q1.more()){
+            mongo::BSONObj o = q1.next();
+            std::cout << "before remove" << o.jsonString() << std::endl;
+            q1.remove(o);
+        }
+      }
+    }
   }catch(std::exception exc){
     std::cout << "ERROR " << exc.what() << std::endl;
   }
+  std::cout << "Time workerFunc: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl;
   std::cout << "END workerFunc " << std::endl;
 }
 

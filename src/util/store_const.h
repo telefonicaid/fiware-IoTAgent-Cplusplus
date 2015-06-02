@@ -71,6 +71,7 @@ struct types {
   static const std::string STORAGE;
   static const std::string FILE;
   static const std::string HOST;
+  static const std::string POOL_SIZE;
   static const std::string REPLICA_SET;
   static const std::string PORT;
   static const std::string USER;
