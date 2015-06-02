@@ -2596,7 +2596,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
        "room_ut3", "type2", POST_DEVICE_CON, cb_mock);
   std::cout << "@UT@Second command" <<  service << std::endl;
   testPollingCommand_MONGO("unitTest_dev32_polling",
-       "unitTest_dev32_polling:type2", "type2", POST_DEVICE_CON2, cb_mock);
+       "type2:unitTest_dev32_polling", "type2", POST_DEVICE_CON2, cb_mock);
 
   std::cout << "@UT@DELETE Service" << std::endl;
   std::string token, trace_message;
