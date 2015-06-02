@@ -326,16 +326,17 @@ def check_NOT_command_cbroker(asset_name, response, cmd_type):
     #print 'Metadatas {}'.format(metasElement)
     assert assetElement != "{}".format(asset_name), 'ERROR: device: ' + str(asset_name) + " found in: " + str(contextElement)
     print "Command is NOT received"
-    resp = world.req_text
     if world.code==4000:
+        resp = world.req_text
         assert response in resp
         return
     if world.code:
-        assert resp['errorCode']['code'] == world.code, 'ERROR: code error expected ' + str(world.code) + " received " + str(resp['errorCode']['code'])
+        resp = world.req_text['contextResponses'][0]
+        assert resp['statusCode']['code'] == str(world.code), 'ERROR: code error expected ' + str(world.code) + " received " + str(resp['statusCode']['code'])
         if world.response:
-            assert resp['errorCode']['reasonPhrase'] == str(world.response), 'ERROR: text error expected ' + str(world.response) + " received " + resp['errorCode']['reasonPhrase']
+            assert resp['statusCode']['reasonPhrase'] == str(world.response), 'ERROR: text error expected ' + str(world.response) + " received " + resp['statusCode']['reasonPhrase']
         else:
-            assert resp['errorCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['errorCode']['reasonPhrase']
+            assert resp['statusCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['statusCode']['reasonPhrase']
     
 def check_timestamp (timestamp):
     st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')

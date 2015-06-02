@@ -11,7 +11,7 @@ been supplied.
 '''
 
 HEADERS={'content-type': 'application/json'}
-MQTT_BROKER_HOSTNAME='sbc04'
+MQTT_BROKER_HOSTNAME='iotagent'
 MQTT_BROKER_PORT='1883'
 GW_HOSTNAME='iotagent'
 GW_PORT='8002'
