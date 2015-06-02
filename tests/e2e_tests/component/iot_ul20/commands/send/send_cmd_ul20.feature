@@ -4,7 +4,7 @@ Feature: UL20 Command Send
     	 In order to assure IotAgent_UL20-Cbroker integration
   
     	
-    	@iot_cmd_ul20 @IDAS-20170
+    	@iot_ul20 @iot_cmd_ul20 @IDAS-20170
     	Scenario Outline: Send a single command
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", device name "<device_name>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
@@ -18,7 +18,7 @@ Feature: UL20 Command Send
             |dev1_2		|room1_2	 |serviceul20	|IoTUL2		|attr_3_dev_1_2	|ping1_2#p1=v1#p2=v2	|dev1_2@%s#%s#%s	|dev1_2@ping1_2#p1=v1#p2=v2		|OK			|			|
 
 
-    	@iot_cmd_ul20 @IDAS-20236
+    	@iot_ul20 @iot_cmd_ul20 @IDAS-20236
     	Scenario Outline: Send a pooling command
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", device name "<device_name>", endpoint "<endpoint>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
@@ -35,7 +35,7 @@ Feature: UL20 Command Send
             |dev6_3		|room6_3	 |serviceul20	|IoTUL2		|attr_1_dev_6_3	|ping6_3		|dev6_3@%s		|			|ping6_3_expired	|delivered but no respond	|			|
             |dev6_4		|room6_4	 |serviceul20	|IoTUL2		|attr_1_dev_6_4	|ping6_4		|dev6_4@%s		|			|not_read			|expired read				|			|
 
-    	@iot_cmd_ul20 @IDAS-20169
+    	@iot_ul20 @iot_cmd_ul20 @IDAS-20169
     	Scenario Outline: Send a wrong command
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", device name "<device_name>", endpoint "<endpoint>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
@@ -54,7 +54,7 @@ Feature: UL20 Command Send
             |dev5		|room5		 |serviceMqtt	|			|attr_1_dev_5	|ping5		|			|																|fail		|nonexistent_service	|Fiware-Service not accepted														|        
 
 
-    	@iot_cmd_ul20 @IDAS-20171
+    	@iot_ul20 @iot_cmd_ul20 @IDAS-20171
     	Scenario Outline: Send a command for a device with entity name 
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", entity type "<ent_type>", entity name "<ent_name>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
