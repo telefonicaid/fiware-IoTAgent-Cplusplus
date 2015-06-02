@@ -1,0 +1,13 @@
+-   name: allOf success
+    data: 10
+    schema:
+        allOf:
+            - type: integer
+            - minimum: 5
+-   name: allOf failure
+    data: 1
+    schema:
+        allOf:
+            - type: integer
+            - minimum: 5
+    fail: true

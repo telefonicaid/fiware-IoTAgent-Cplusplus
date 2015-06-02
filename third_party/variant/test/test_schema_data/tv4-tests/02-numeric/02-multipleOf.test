@@ -1,0 +1,1 @@
+[{"data": 5, "name": "multipleOf", "schema": {"multipleOf": 2.5}}, {"fail": true, "data": 5, "name": "multipleOf failure", "schema": {"multipleOf": 0.75}}]

@@ -1,0 +1,1 @@
+[{"data": 10, "name": "allOf success", "schema": {"allOf": [{"type": "integer"}, {"minimum": 5}]}}, {"fail": true, "data": 1, "name": "allOf failure", "schema": {"allOf": [{"type": "integer"}, {"minimum": 5}]}}]

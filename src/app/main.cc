@@ -26,7 +26,13 @@
 #include "services/ngsi_service.h"
 #include "rest/riot_conf.h"
 #include "rest/types.h"
+#ifdef IOTA_USE_LOG4CPP
+#include <log4cpp/Category.hh>
+#include <log4cpp/RollingFileAppender.hh>
+#include <log4cpp/PatternLayout.hh>
+#else
 #include <log4cplus/fileappender.h>
+#endif
 #include "util/common.h"
 #include "mongo/client/init.h"
 #include "rest/tcp_service.h"
@@ -220,6 +226,8 @@ int main(int argc, char* argv[]) {
   }
 
   pion::process::initialize();
+  pion::logger pion_log(PION_GET_LOGGER("pion"));
+  pion::logger main_log(PION_GET_LOGGER("main"));
 
   std::string log_file(dir_log);
   log_file.append("IoTAgent");
@@ -230,25 +238,10 @@ int main(int argc, char* argv[]) {
   }
 
   log_file.append(".log");
-  log4cplus::SharedAppenderPtr ptrApp(new log4cplus::RollingFileAppender(
-                                        log_file,
-                                        10*1024*1024,
-                                        5,
-                                        true));
 
-  log4cplus::tstring pattern =
-    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H-%M-%S,%Q%Z} | lvl=%5p | comp=" + component_name +
-                   " | op=%M | file=[%t:%b:%L] | msg=%m %n");
-  //LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
 
-  ptrApp->setLayout(std::auto_ptr<log4cplus::Layout>(
-                      new log4cplus::PatternLayout(pattern)));
 
-  pion::logger pion_log(PION_GET_LOGGER("pion"));
-  pion::logger main_log(PION_GET_LOGGER("main"));
 
-  pion_log.addAppender(ptrApp);
-  main_log.addAppender(ptrApp);
 
 
 
@@ -282,6 +275,37 @@ int main(int argc, char* argv[]) {
     PION_LOG_SETLEVEL_ERROR(pion_log);
     PION_LOG_SETLEVEL_ERROR(main_log);
   }
+#ifdef IOTA_USE_LOG4CPP
+  log4cpp::Appender* ptrApp = new log4cpp::RollingFileAppender("cppApp",
+                                        log_file,
+                                        10*1024*1024,
+                                        5,
+                                        true);
+  std::string pattern = "time=%d{%Y-%m-%dT%H:%M:%S,%l%Z} | lvl=%5p | comp=" + component_name + " | op=M | file=[%t:file:line] | msg=%m %n";
+  log4cpp::Layout *layout = new log4cpp::PatternLayout();
+   ((log4cpp::PatternLayout *)layout)->setConversionPattern(pattern);
+  ptrApp->setLayout(layout);
+  log4cpp::Category::getRoot().setAppender(ptrApp);
+
+#else
+  log4cplus::SharedAppenderPtr ptrApp(new log4cplus::RollingFileAppender(
+                                        log_file,
+                                        10*1024*1024,
+                                        5,
+                                        true));
+
+  log4cplus::tstring pattern =
+    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%5p | comp=" + component_name +
+                   " | op=%M | file=[%t:%b:%L] | msg=%m %n");
+  //LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
+
+  ptrApp->setLayout(std::auto_ptr<log4cplus::Layout>(
+                      new log4cplus::PatternLayout(pattern)));
+
+  pion_log.addAppender(ptrApp);
+  main_log.addAppender(ptrApp);
+
+#endif
   if (iotagent_name.empty() == true) {
     PION_LOG_CONFIG_BASIC;
   }

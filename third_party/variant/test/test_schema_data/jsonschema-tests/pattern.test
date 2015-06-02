@@ -1,0 +1,1 @@
+[{"fail": false, "data": "aaa", "name": "pattern validation -- a matching pattern is valid", "schema": {"pattern": "^a*$"}}, {"fail": true, "data": "abc", "name": "pattern validation -- a non-matching pattern is invalid", "schema": {"pattern": "^a*$"}}, {"fail": false, "data": true, "name": "pattern validation -- ignores non-strings", "schema": {"pattern": "^a*$"}}]

@@ -1,0 +1,1 @@
+[{"data": [1, 2, 3, 4], "name": "plain item success", "schema": {"items": {"type": "integer"}}}, {"fail": true, "data": [1, 2, true, 4], "name": "plain item failure", "schema": {"items": {"type": "integer"}}}]

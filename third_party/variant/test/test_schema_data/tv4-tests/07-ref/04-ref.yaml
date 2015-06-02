@@ -1,0 +1,12 @@
+-   name: internal $ref 1
+    schema: { type: array, items: { "$ref": "#" } }
+    data: [[],[[]]]
+-   name: internal $ref 2
+    schema: { type: array, items: { "$ref": "#" } }
+    data: [1,2,3,4]
+    fail: true
+-   name: internal $ref 2
+    schema: { type: array, items: { "$ref": "#" } }
+    data: [[false],[[]]]
+    fail: true
+

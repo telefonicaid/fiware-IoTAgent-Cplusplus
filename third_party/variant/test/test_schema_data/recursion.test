@@ -1,0 +1,16 @@
+[
+	{
+		"name": "infinite recursion test",
+		"schema": {
+			"definitions": {
+				"a": { "$ref": "#/definitions/b" },
+				"b": { "$ref": "#/definitions/a" }
+			},
+			"properties": {
+				"a": { "$ref": "#/definitions/a" }
+			}
+		},
+		"data": { "a": { "a": {} } },
+		"fail": true
+	}
+]

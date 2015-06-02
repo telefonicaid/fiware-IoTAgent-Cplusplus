@@ -1,0 +1,7 @@
+-   name: items success
+    data: [1, true, "one"]
+    schema: { items: [ { type: integer} , { type: boolean } ] }
+-   name: items failure
+    data: [1, null, "one"]
+    schema: { items: [ { type: integer} , { type: boolean } ] }
+    fail: true

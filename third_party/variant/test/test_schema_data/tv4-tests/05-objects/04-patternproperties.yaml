@@ -1,0 +1,23 @@
+-   name: patternProperties success
+    data: { intKey: 1, intKey2: 5 }
+    schema:
+        properties:
+            intKey: { type: integer }
+        patternProperties:
+            "^int": { minimum: 0 }
+-   name: patternProperties failure 1
+    data: { intKey: 1, intKey2: 5 }
+    schema:
+        properties:
+            intKey: { minimum: 5 }
+        patternProperties:
+            "^int": { type: integer }
+    fail: true
+-   name: patternProperties failure 2
+    data: { intkey: 10, intKey2: "string value" }
+    schema:
+        properties:
+            intKey: { minimum: 5 }
+        patternProperties:
+            "^int": { type: integer }
+    fail: true

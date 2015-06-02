@@ -1,0 +1,1 @@
+[{"fail": false, "data": {"definitions": {"foo": {"type": "integer"}}}, "name": "valid definition -- valid definition schema", "schema": {"$ref": "http://json-schema.org/draft-04/schema#"}}, {"fail": true, "data": {"definitions": {"foo": {"type": 1}}}, "name": "invalid definition -- invalid definition schema", "schema": {"$ref": "http://json-schema.org/draft-04/schema#"}}]

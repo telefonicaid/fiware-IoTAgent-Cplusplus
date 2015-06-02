@@ -1,0 +1,1 @@
+[{"data": {"key3": 3, "key2": 2, "key1": 1}, "name": "required success", "schema": {"required": ["key1", "key2"]}}, {"fail": true, "data": {"key3": 3, "key2": 2, "key1": 1}, "name": "required failure", "schema": {"required": ["key1", "notDefined"]}}]

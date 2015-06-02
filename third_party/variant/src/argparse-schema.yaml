@@ -1,0 +1,91 @@
+
+"$schema": "http://json-schema.org/draft-04/schema#"
+definitions:
+    actions:
+        enum: 
+            - store
+            - store_const
+            - store_true
+            - store_false
+            - append
+            - count
+            - help
+            - adv_help
+            - config
+            - config_json
+            - config_yaml
+            - config_plist
+            - config_print
+    types:
+        enum:
+            - string
+            - boolean
+            - integer
+            - number
+            - 'null'
+            - null
+
+    optionBase:
+        properties:
+            title: { type: string }
+            description: { type: string }
+            action: { "$ref": '#/definitions/actions' }
+            type: { "$ref": '#/definitions/types' }
+            default: {}
+            const: {}
+            required: { type: boolean, default: false }
+            advanced: { type: boolean, default: false }
+            enum:
+                type: array
+                minItems: 1
+                uniqueItems: true
+                items: { type: [ boolean, integer, number, string ] }
+# Specific to type "number" and "integer"
+            minimum: { type: number }
+            maximum: { type: number }
+# Specific to type "string"
+            minLength: { type: integer, minimum: 0 }
+            maxLength: { type: integer, minimum: 0 }
+            pattern: { type: string, format: regex }
+# Specific to action "append"
+            minArgs: { type: integer, minimum: 0 }
+            maxArgs: { type: integer, minimum: 0 }
+        required: [ title, description, action ]
+
+type: object
+properties:
+    title: { type: string }
+    description: { type: string }
+    epilog: { type: string }
+    options:
+        type: object
+        additionalProperties:
+            type: object
+            properties:
+                longOption: { type: string }
+                shortOption: { type: string, maxLength: 1, minLength: 1 }
+                env: { type: string }
+            allOf: [ { "$ref": '#/definitions/optionBase' } ]
+            anyOf:
+                - { required: [ shortOption ] }
+                - { required: [ longOption ] }
+    groups:
+        type: object
+        additionalProperties:
+            type: object
+            properties:
+                title: { type: string }
+                description: { type: string }
+                mutually exclusive: { type: boolean }
+                required: { type: boolean }
+                advanced: { type: boolean, default: false }
+                members: { type: array, unique: true, items: { type: string } }
+    arguments:
+        type: array
+        items:
+            type: object
+            properties:
+                keypath: { type: string }
+            allOf: [ { "$ref": '#/definitions/optionBase' } ]
+            required: [ keypath ]
+

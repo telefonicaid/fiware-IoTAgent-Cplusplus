@@ -1,0 +1,1 @@
+[{"data": "hello", "name": "anyOf success", "schema": {"anyOf": [{"type": "integer"}, {"type": "string"}, {"minlength": 1}]}}, {"fail": true, "data": true, "name": "anyOf failure", "schema": {"anyOf": [{"type": "integer"}, {"type": "string"}]}}]

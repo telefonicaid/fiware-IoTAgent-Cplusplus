@@ -1,0 +1,9 @@
+#!/bin/sh
+
+(echo "// This file was generated using gen-json-schema and json-schema-v4.json";
+echo "// To change edit those files and regenarate.";
+echo "namespace libvariant {";
+echo "extern const char JSON_SCHEMA_V4_SCHEMA[];";
+echo "const char JSON_SCHEMA_V4_SCHEMA[] = {";
+xxd -i < json-schema-v4.json;
+echo ", 0 }; }") > json-schema-v4.cc

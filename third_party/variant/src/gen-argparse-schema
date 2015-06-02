@@ -1,0 +1,9 @@
+#!/bin/sh
+
+(echo "// This file was generated using gen-argparse-schema and argparse-schema.yaml";
+echo "// To change edit those files and regenarate.";
+echo "namespace libvariant {";
+echo "extern const char ARG_PARSE_SCHEMA_STR[];";
+echo "const char ARG_PARSE_SCHEMA_STR[] = {";
+python -c 'import json,yaml,sys; json.dump(yaml.load(sys.stdin), sys.stdout);' < argparse-schema.yaml | xxd -i;
+echo ", 0 }; }") > argparse-schema.cc

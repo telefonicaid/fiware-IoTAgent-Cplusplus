@@ -1,0 +1,14 @@
+-   name: minimum length success
+    data: { key: 1, key2: 2, key3: 3 }
+    schema: { minProperties: 3 }
+-   name: minimum length failure
+    data: { key: 1, key2: 2, key3: 3 }
+    schema: { minProperties: 5 }
+    fail: true
+-   name: maximum length success
+    data: { key: 1, key2: 2, key3: 3 }
+    schema: { maxProperties: 5 }
+-   name: maximum length failure
+    data: { key: 1, key2: 2, key3: 3 }
+    schema: { maxProperties: 2 }
+    fail: true

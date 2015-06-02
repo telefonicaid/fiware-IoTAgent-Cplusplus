@@ -1,0 +1,7 @@
+-   name: uniqueItems success
+    data: [1, true, "1"]
+    schema: { uniqueItems: true }
+-   name: uniqueItems failure
+    data: [1, true, "1", 1]
+    schema: { uniqueItems: true }
+    fail: true

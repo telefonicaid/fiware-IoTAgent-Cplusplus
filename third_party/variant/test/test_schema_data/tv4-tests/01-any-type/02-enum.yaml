@@ -1,0 +1,30 @@
+-   name: enum [1], was 1
+    data: 1
+    schema: { enum: [1] }
+-   name: enum[1], was "1"
+    data: "1"
+    schema: { enum: [1] }
+    fail: true
+-   name: enum [{}], was {}
+    data: {}
+    schema: { enum: [{}] }
+-   name: enum [{"key":"value"}], was {}
+    data: {}
+    schema: { enum: [{ key: value}] }
+    fail: true
+-   name: 'enum [{"key":"value", was {"key": "value"}'
+    data: { key: value }
+    schema: { enum: [{ key: value }] }
+    fail: false
+-   name: Enum with array value - success
+    data: [ 1, true, 0]
+    schema: { enum: [[1, true, 0], 5, {}] }
+    fail: false
+-   name: Enum with array value - failure 1
+    data: [1, true, 0, 5]
+    schema: { enum: [[1, true, 0], 5, {}] }
+    fail: true
+-   name: Enum with array value - failure 2
+    data: [1, true, 5]
+    schema: { enum: [[1, true, 0], 5, {}] }
+    fail: true

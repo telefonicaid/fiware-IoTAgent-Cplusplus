@@ -172,6 +172,7 @@ void SimplePluginTest::testRegisterIoTA() {
   ASYNC_TIME_WAIT
   std::string r_1 = cb_mock->get_last();
   CPPUNIT_ASSERT_MESSAGE("POST manager ", r_1.find("HOLA") != std::string::npos);
+  cb_mock->stop();
 }
 void SimplePluginTest::testFilter() {
   std::cout << "START testFilter" << std::endl;

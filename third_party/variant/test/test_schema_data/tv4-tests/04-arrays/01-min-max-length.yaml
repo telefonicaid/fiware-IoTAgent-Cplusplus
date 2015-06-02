@@ -1,0 +1,17 @@
+-   name: no length contraints
+    data: [1,2,3]
+    schema: {}
+-   name: minimum length success
+    data: [1,2,3]
+    schema: { minItems: 3 }
+-   name: minimum length failure
+    data: [1,2,3]
+    schema: { minItems: 5 }
+    fail: true
+-   name: maximum length success
+    data: [1,2,3,4,5]
+    schema: { maxItems: 10 }
+-   name: maximum length failure
+    data: [1,2,3,4,5]
+    schema: { maxItems: 3 }
+    fail: true

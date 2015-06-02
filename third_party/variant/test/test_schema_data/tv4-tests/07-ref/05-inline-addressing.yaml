@@ -1,0 +1,20 @@
+-   name: inline addressing for fragments
+    data: [0, false]
+    schema:
+        type: array
+        items: { "$ref": "#test" }
+        testSchema:
+            id: "#test"
+            type: boolean
+    fail: true
+-   name: "don't trust non sub-paths"
+    data: [0, false]
+    schema:
+        id: 'http://example.com/123/schema'
+        type: array
+        items: { "$ref": "other-schema" }
+        testSchema:
+            id: "/other-schema"
+            type: boolean
+    missing:
+        - 'http://example.com/123/other-schema'

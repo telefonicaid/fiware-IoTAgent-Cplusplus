@@ -277,7 +277,7 @@ int iota::AdminManagerService::get_all_devices_json(
                protocol_filter);
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(log_message, e.what());
+    PION_LOG_ERROR(m_log, log_message + "," + e.what());
   }
   std::map<std::string, std::string> response_from_iotagent;
   std::map<std::string, std::string> response_from_iotagent_nok;

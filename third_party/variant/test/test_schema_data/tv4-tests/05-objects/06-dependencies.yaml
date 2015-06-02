@@ -1,0 +1,21 @@
+-   name: string dependency success
+    data: { key1: 5, key2: string }
+    schema: { dependencies: { key1: key2 } }
+-   name: string dependency failure
+    data: { key1: 5 }
+    schema: { dependencies: { key1: key2 } }
+    fail: true
+-   name: array dependency success
+    data: { key1: 5, key2: string }
+    schema: { dependencies: { key1: [ key2 ] } }
+-   name: array dependency failure
+    data: { key1: 5 }
+    schema: { dependencies: { key1: [ key2 ] } }
+    fail: true
+-   name: schema dependency success
+    data: { key1: 5, key2: string }
+    schema: { dependencies: { key1: { properties: { key2: { type: string } } } } }
+-   name: schema dependency failure
+    data: { key1: 5, key2: 5 }
+    schema: { dependencies: { key1: { properties: { key2: { type: string } } } } }
+    fail: true
