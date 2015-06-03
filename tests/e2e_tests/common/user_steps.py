@@ -2,8 +2,8 @@ from iotqautils.gtwRest import Rest_Utils_SBC
 from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT
 from lettuce import world
 
-api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
-api2 = Rest_Utils_SBC(server_root=MANAGER_SERVER_ROOT+'/iot')
+iotagent = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
+manager = Rest_Utils_SBC(server_root=MANAGER_SERVER_ROOT+'/iot')
 
 URLTypes = {
     "IoTUL2": "/iot/d",
@@ -42,11 +42,13 @@ class UserSteps(object):
             headers[CBROKER_PATH_HEADER] = '/path_' + str(service_name)
         if resource:
             params['resource']= resource
-        service =  api.get_service('', headers, params)
+        service =  iotagent.get_service('', headers, params)
         if service.status_code == 200:
             serv = service.json()
             if serv['count'] == 1:
                 world.service_exists = True
+                if resource:
+                    world.service_path_exists = True
                 return True
             else:
                 return False
@@ -61,7 +63,7 @@ class UserSteps(object):
                 headers[CBROKER_PATH_HEADER] = str(service_path)
         else:
             headers[CBROKER_PATH_HEADER] = '/path_' + str(service_name)
-        device = api.get_device(device_name, headers)
+        device = iotagent.get_device(device_name, headers)
         if device.status_code == 200:
             world.device_exists=True
             return True
@@ -107,9 +109,9 @@ class UserSteps(object):
                 protocol=""
             device['devices'][0]['protocol'] = protocol
         if manager:
-            req = api2.post_device(device,headers)
+            req = manager.post_device(device,headers)
         else:
-            req = api.post_device(device,headers)
+            req = iotagent.post_device(device,headers)
 #        assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(device_name)
         return req
         
@@ -136,7 +138,7 @@ class UserSteps(object):
             service['services'][0]['attributes'] = attributes
         if static_attributes:
             service['services'][0]['static_attributes'] = static_attributes
-        req = api.post_service(service, headers)
+        req = iotagent.post_service(service, headers)
         assert req.status_code == 201, 'ERROR: ' + req.text + "El servicio {} no se ha creado correctamente".format(service_name)
         world.service_exists = True            
         return req
@@ -191,7 +193,7 @@ class UserSteps(object):
             else:
                 resource = protocol
                 service['services'][0]['protocol'] = []
-            req = api2.post_service(service, headers)
+            req = manager.post_service(service, headers)
         else:
             req = api.post_service(service, headers)
         if req.status_code == 201 or req.status_code == 409:
