@@ -149,8 +149,8 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
   boost::shared_ptr<Command> item) {
   boost::property_tree::ptree service_ptree;
 
-  PION_LOG_INFO(m_logger, "timeout command: device:" <<
-                item->get_device() << " service:" << item->get_service()
+  PION_LOG_INFO(m_logger, "timeout command: entity:" <<
+                item->get_entity() << " service:" << item->get_service()
                 << " service_path:" << item->get_service_path()
                 << " command_id" << item->get_id());
   try {
@@ -167,10 +167,10 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
     else {
       statusSTR = iota::types::ERROR;
     }
-    boost::shared_ptr<Device> dev(new Device(item->get_device(),
+    boost::shared_ptr<Device> dev(new Device("",
                                   item->get_service()));
     dev->_entity_type =  item->get_entity_type();
-    dev->_entity_name =  item->get_device();
+    dev->_entity_name =  item->get_entity();
 
 
     get_service_by_name(service_ptree, item->get_service(),
@@ -603,9 +603,8 @@ void iota::CommandHandle::send_register_device(Device& device) {
 
   Device& register_device = device;
   try {
-    iota::DeviceCollection dev_table;
     std::string srv, service_path;
-
+    iota::DeviceCollection dev_table;
     iota::Collection srv_table(iota::store::types::SERVICE_TABLE);
 
     PION_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
@@ -615,9 +614,11 @@ void iota::CommandHandle::send_register_device(Device& device) {
     while (srv_table.more()) {
       mongo::BSONObj srv_resu =srv_table.next();
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
+      service_path = srv_resu.getStringField(iota::store::types::SERVICE_PATH);
 
-      if (srv.compare(device._service) == 0) {
-        PION_LOG_DEBUG(m_logger, " service=" <<  srv);
+      if (srv.compare(device._service) == 0 &&
+          service_path.compare(device._service_path)) {
+        PION_LOG_DEBUG(m_logger, " service=" <<  srv << " service_path=" << service_path);
         dev_table.findd(device);
 
         while (dev_table.more()) {
@@ -641,7 +642,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
             std::string reg_time;
 
             boost::property_tree::ptree service_ptree;
-            get_service_by_name(service_ptree, srv);
+            get_service_by_name(service_ptree, srv, service_path);
             boost::shared_ptr<Device> item_dev(new Device(register_device));
 
             PION_LOG_DEBUG(m_logger, "setting env info");
@@ -1401,7 +1402,7 @@ int iota::CommandHandle::send_register(
   }
   reg.add_duration("");
   reg.add_registrationId("");
-  PION_LOG_DEBUG(m_logger, "Sending to cb :" << cb_url);
+  PION_LOG_DEBUG(m_logger, "send2CB :" << cb_url);
   PION_LOG_DEBUG(m_logger, "RegisterContext : " << reg.get_string());
 
   ContextBrokerCommunicator cb_communicator;
