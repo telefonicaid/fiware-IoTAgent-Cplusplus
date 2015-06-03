@@ -22,7 +22,11 @@ Other dependencies only applied to specific IoT Agent.
 We are built most dependencies from source. You might need to visit dependency web site in order to build such dependenies.
 
 #### boost
-It provides a script `bootstrap.sh` to build them.
+It provides a script `bootstrap.sh` to build them. We recommend you supply the path where you want to install them with the option `--prefix`. This path will be used later on when building the project. 
+Depending on your system, you may need to download python-dev package in order to compile Boost.
+
+
+
 #### log4cplus
 The log format used in IoTAgent writes function name. This functionality is provided by log4cplus when it finds a macro: \_\_FUNCTION\_\_ and \_\_PRETTY\_FUNCTION\_\_. You need disable \_\_PRETTY\_FUNCTION\_\_ macro modifying _configure_ script, **removing** these lines:
 
