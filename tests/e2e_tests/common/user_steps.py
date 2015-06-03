@@ -195,7 +195,7 @@ class UserSteps(object):
                 service['services'][0]['protocol'] = []
             req = manager.post_service(service, headers)
         else:
-            req = api.post_service(service, headers)
+            req = iotagent.post_service(service, headers)
         if req.status_code == 201 or req.status_code == 409:
             world.remember.setdefault(service_name, {})
             if service_path == 'void':
@@ -222,7 +222,7 @@ class UserSteps(object):
             headers[CBROKER_PATH_HEADER] = str(service_path)
         else:
             headers[CBROKER_PATH_HEADER] = '/path_' + str(service_name)
-        req = api.delete_device(device_name,headers)
+        req = iotagent.delete_device(device_name,headers)
         assert req.status_code == 204, 'ERROR: ' + req.text + "El device {} no se ha borrado correctamente".format(device_name)
         return req
 
@@ -250,7 +250,7 @@ class UserSteps(object):
         else:
             headers[CBROKER_PATH_HEADER] = '/path_' + str(service_name)
         print params
-        req = api.delete_service('', headers, params)
+        req = iotagent.delete_service('', headers, params)
         assert req.status_code == 204, 'ERROR: ' + req.text + "El servicio {} no se ha borrado correctamente".format(service_name)
         return req
 
