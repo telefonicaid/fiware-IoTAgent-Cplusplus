@@ -19,6 +19,7 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
+#include "util/iota_logger.h"
 #include <boost/asio.hpp>
 #include <pion/process.hpp>
 #include <pion/http/plugin_server.hpp>
@@ -275,7 +276,7 @@ int main(int argc, char* argv[]) {
                                         10*1024*1024,
                                         5,
                                         true);
-  std::string pattern = "time=%d{%Y-%m-%dT%H:%M:%S,%l%Z} | lvl=%5p | comp=" + component_name + " | op=M | file=[%t:file:line] | msg=%m %n";
+  std::string pattern = "time=%d{%Y-%m-%dT%H:%M:%S,%l%Z} | lvl=%5p | comp=" + component_name + " %m %n";
   log4cpp::Layout *layout = new log4cpp::PatternLayout();
    ((log4cpp::PatternLayout *)layout)->setConversionPattern(pattern);
   ptrApp->setLayout(layout);
@@ -290,7 +291,7 @@ int main(int argc, char* argv[]) {
 
   log4cplus::tstring pattern =
     LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%5p | comp=" + component_name +
-                   " | op=%M | file=[%t:%b:%L] | msg=%m %n");
+                   " %m %n");
   //LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
 
   ptrApp->setLayout(std::auto_ptr<log4cplus::Layout>(
