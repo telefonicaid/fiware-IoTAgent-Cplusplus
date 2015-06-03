@@ -106,6 +106,13 @@ void get_map_from_rapidjson(const JsonValue& value,
  */
 void bson_to_ptree(const mongo::BSONObj& bson, boost::property_tree::ptree& p_tree);
 
+/**
+ * Convert a rapidjson::Value to string
+ * @param attribute is a rapidjson::Value (string, array, null, ).
+ * @param p_tree is a boost::property_tree::ptree where result will be stored
+ */
+std::string get_str_value(const rapidjson::Value& attribute);
+
 };
 
 #endif

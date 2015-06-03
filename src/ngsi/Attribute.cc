@@ -25,6 +25,7 @@
 #include <rapidjson/reader.h>
 #include <stdexcept>
 #include <iostream>
+#include "util/json_util.h"
 
 iota::Attribute::Attribute(const std::istringstream& str_attribute) {
   rapidjson::Document document;
@@ -109,7 +110,8 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
   }
   if (attribute.HasMember("value")) {
     if (_type != "compound") {
-      _value.assign(attribute["value"].GetString());
+      const rapidjson::Value& data = attribute["value"];
+      _value.assign(iota::get_str_value(data));
     }
     else {
       const rapidjson::Value& data = attribute["value"];
@@ -157,4 +159,5 @@ void iota::Attribute::add_metadata(const iota::Attribute& metadata) {
 void iota::Attribute::add_value_compound(const iota::Attribute& val) {
   _value_compound.push_back(val);
 };
+
 
