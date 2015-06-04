@@ -440,8 +440,8 @@ void iota::CommandHandle::send_all_registrations() {
           PION_LOG_DEBUG(m_logger, "sending to CB");
           send_register(
             context_registrations,
-            service,
-            service_path,
+            service_ptree,
+            item_dev,
             reg_id,
             cb_response);
 
@@ -558,8 +558,8 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
           context_registrations.push_back(cr);
 
           send_register(context_registrations,
-                        srv,
-                        service_path,
+                        service_ptree,
+                        item_dev,
                         reg_id,
                         cb_response);
 
@@ -675,8 +675,8 @@ void iota::CommandHandle::send_register_device(Device& device) {
             context_registrations.push_back(cr);
 
             send_register(context_registrations,
-                          srv,
-                          service_path,
+                          service_ptree,
+                          item_dev,
                           reg_id,
                           cb_response);
 
@@ -1357,64 +1357,6 @@ std::string iota::CommandHandle::get_ngsi_operation(const std::string&
 
 int iota::CommandHandle::send_register(
   std::vector<iota::ContextRegistration> context_registrations,
-  const std::string& service,
-  const std::string& service_path,
-  const std::string& regId,
-  std::string& cb_response) {
-  iota::RegisterContext reg;
-
-  boost::property_tree::ptree pt_cb;
-  std::string cb_url;
-  std::string entity_type("thing");
-  try {
-    get_service_by_name(pt_cb, service, service_path);
-    std::string cbrokerSTR = pt_cb.get<std::string>("cbroker", "");
-    if (!cbrokerSTR.empty()) {
-      cb_url.assign(cbrokerSTR);
-      cb_url.append(get_ngsi_operation("registerContext"));
-    }
-    std::string entity_typeSTR = pt_cb.get<std::string>("entity_type", "");
-    if (!entity_typeSTR.empty()) {
-      entity_type.assign(entity_typeSTR);
-    }
-
-    // Setting Accept to "application/json,text/json"
-    pt_cb.put<std::string>(iota::types::IOT_HTTP_HEADER_ACCEPT,
-                           iota::types::IOT_CONTENT_TYPE_JSON);
-  }
-  catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
-  }
-
-  int i = 0;
-  for (i = 0; i < context_registrations.size(); i++) {
-    reg.add_context_registration(context_registrations[i]);
-  }
-
-  if (! regId.empty()) {
-
-    PION_LOG_DEBUG(m_logger, "Adding registrationId: " << regId);
-    reg.add_registrationId(regId);
-    reg.add_duration("PT1S");
-    ContextBrokerCommunicator cb_communicator_unreg;
-    cb_communicator_unreg.send(cb_url, reg.get_string(), pt_cb);
-
-  }
-  reg.add_duration("");
-  reg.add_registrationId("");
-  PION_LOG_DEBUG(m_logger, "send2CB :" << cb_url);
-  PION_LOG_DEBUG(m_logger, "RegisterContext : " << reg.get_string());
-
-  ContextBrokerCommunicator cb_communicator;
-  cb_response.append(cb_communicator.send(cb_url, reg.get_string(), pt_cb));
-
-
-  return pion::http::types::RESPONSE_CODE_OK;
-
-}
-
-int iota::CommandHandle::send_register(
-  std::vector<iota::ContextRegistration> context_registrations,
   boost::property_tree::ptree& pt_cb,
   const boost::shared_ptr<Device> device,
   const std::string& regId,
@@ -1438,7 +1380,7 @@ int iota::CommandHandle::send_register(
     pt_cb.put<std::string>(iota::types::IOT_HTTP_HEADER_ACCEPT,
                            iota::types::IOT_CONTENT_TYPE_JSON);
 
-    PION_LOG_DEBUG(m_logger, "updatContext Device:" << device->_name);
+    PION_LOG_DEBUG(m_logger, "updatContext Device::" << device->_name);
     send_updateContext ( "", "", "", "",
         device, pt_cb, iota::types::STATUS_OP);
   }
@@ -1462,7 +1404,7 @@ int iota::CommandHandle::send_register(
   }
   reg.add_duration("");
   reg.add_registrationId("");
-  PION_LOG_DEBUG(m_logger, "Sending to cb :" << cb_url);
+  PION_LOG_DEBUG(m_logger, "send2CB :" << cb_url);
   PION_LOG_DEBUG(m_logger, "RegisterContext : " << reg.get_string());
 
   ContextBrokerCommunicator cb_communicator;

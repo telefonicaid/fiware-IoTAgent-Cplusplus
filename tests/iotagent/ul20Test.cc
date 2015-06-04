@@ -1255,9 +1255,11 @@ void Ul20Test::testSendRegister() {
   cr.add_attribute(attribute);
 
   context_registrations.push_back(cr);
+  boost::shared_ptr<iota::Device> device(new iota::Device("dev1", "thingf"));
 
   ul20serv.send_register(context_registrations,
-                         "service2", "",
+                         pt_cb,
+                         device,
                          reg_id,
                          cb_response);
 
@@ -1269,12 +1271,12 @@ void Ul20Test::testSendRegister() {
     cb_last.find("\"providingApplication\":\"http://0.0.0.0/1026/iot/d\"") !=
     std::string::npos);
 
-  boost::shared_ptr<iota::Device> device(new iota::Device("entity1", "thingf", "service1"));
+  boost::shared_ptr<iota::Device> device2(new iota::Device("entity1", "thingf", "service1"));
 
   cb_mock->reset();
   ul20serv.send_register(context_registrations,
                          pt_cb,
-                         device,
+                         device2,
                          reg_id,
                          cb_response);
 
