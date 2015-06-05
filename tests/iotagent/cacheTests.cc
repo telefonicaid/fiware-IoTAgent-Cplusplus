@@ -320,7 +320,7 @@ void CacheTest::testCommand() {
   boost::shared_ptr<iota::Command> itemQid(cp);
   boost::shared_ptr<iota::Command> vitem = command_cache_1.get_by_id(itemQid);
   CPPUNIT_ASSERT(vitem.get() != NULL);
-  std::cout << "getById da " << vitem->get_id() << vitem->get_device() <<
+  std::cout << "getById da " << vitem->get_id() << vitem->get_entity() <<
             std::endl;
 
   // By entity
