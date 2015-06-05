@@ -20,6 +20,7 @@
 * please contact with iot_support at tid dot es
 */
 #include "TTCBPublisher.h"
+#include "util/iota_logger.h"
 
 namespace iota {
 extern std::string logger;
@@ -84,9 +85,9 @@ std::string iota::tt::TTCBPublisher::doPublishContextBroker(
   ContextBrokerCommunicator cb_communicator;
   cb_response.append(cb_communicator.send(cb_url, op.get_string(), pt_cb));
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  updateAction << ":cb:" << cb_url << ":op:" << op.get_string());
-  PION_LOG_DEBUG(m_logger, "RESPONSE: " << cb_response);
+  IOTA_LOG_DEBUG(m_logger, "RESPONSE: " << cb_response);
   return cb_response;
 }
 

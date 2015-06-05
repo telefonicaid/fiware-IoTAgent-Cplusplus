@@ -25,9 +25,9 @@
 #include <string>
 #include <map>
 #include <rapidjson/document.h>
-#include <pion/logger.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
+#include "util/iota_logger.h"
 #include "util/cache.h"
 #include "util/common.h"
 

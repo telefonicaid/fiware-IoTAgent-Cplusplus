@@ -36,7 +36,7 @@
 #include "services/ngsi_service.h"
 #include "../mocks/http_mock.h"
 #include <boost/property_tree/ptree.hpp>
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 #include <pion/process.hpp>
 #include <pion/http/request.hpp>
 #include <boost/filesystem/operations.hpp>

@@ -29,7 +29,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <util/common.h>
 #include <string>
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 
 namespace iota {
 namespace esp {

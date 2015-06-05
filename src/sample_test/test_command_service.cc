@@ -38,16 +38,16 @@ extern iota::AdminService* AdminService_ptr;
 
 iota::TestCommandService::TestCommandService(): m_logger(PION_GET_LOGGER(
         iota::logger)) {
-  PION_LOG_DEBUG(m_logger, "iota::TestCommandService::TestCommandService");
+  IOTA_LOG_DEBUG(m_logger, "iota::TestCommandService::TestCommandService");
 }
 
 iota::TestCommandService::~TestCommandService() {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Destructor iota::TestCommandService::TestCommandService");
 }
 
 void iota::TestCommandService::start() {
-  PION_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
+  IOTA_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
 
   std::map<std::string, std::string> filters;
   add_url("", filters, REST_HANDLE(&iota::TestCommandService::service), this);
@@ -64,7 +64,7 @@ void iota::TestCommandService::service(pion::http::request_ptr&
     std::multimap<std::string, std::string>& query_parameters,
     pion::http::response& http_response, std::string& response) {
 
-  PION_LOG_DEBUG(m_logger, "TestCommandService service");
+  IOTA_LOG_DEBUG(m_logger, "TestCommandService service");
 
   std::string method = http_request_ptr->get_method();
 
@@ -93,7 +93,7 @@ int iota::TestCommandService::execute_command(const std::string& endpoint,
 
   int codigo_respuesta = pion::http::types::RESPONSE_CODE_OK;
 
-  PION_LOG_DEBUG(m_logger, "execute_command  endpoint:" << endpoint );
+  IOTA_LOG_DEBUG(m_logger, "execute_command  endpoint:" << endpoint );
   std::string body = command_to_send.get(iota::store::types::BODY, "");
   response.assign(body);
   response.append("|command_response");
@@ -107,7 +107,7 @@ void iota::TestCommandService::receive_observations(pion::http::request_ptr& htt
                  std::multimap<std::string, std::string>& query_parameters,
                  pion::http::response& http_response,
                  std::string&response){
-  PION_LOG_DEBUG(m_logger, "TestCommandService receive_observations");
+  IOTA_LOG_DEBUG(m_logger, "TestCommandService receive_observations");
 
   boost::system::error_code error_code;
   int code_resp = pion::http::types::RESPONSE_CODE_OK;
@@ -125,7 +125,7 @@ void iota::TestCommandService::receive_observations(pion::http::request_ptr& htt
   try {
       int i = 0;
       for (i = 0; i < query.size(); i++) {
-        PION_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
+        IOTA_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
         if (query[i].getKey().compare("i") == 0) {
           device = query[i].getValue();
         }
@@ -136,12 +136,12 @@ void iota::TestCommandService::receive_observations(pion::http::request_ptr& htt
 
     }
     catch (...) {
-      PION_LOG_ERROR(m_logger, "translate error ");
+      IOTA_LOG_ERROR(m_logger, "translate error ");
       code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
     // Getting query parameters
-    PION_LOG_DEBUG(m_logger, "device sends observation");
+    IOTA_LOG_DEBUG(m_logger, "device sends observation");
 
     std::string content_type;
     int cl = 0;
@@ -149,9 +149,9 @@ void iota::TestCommandService::receive_observations(pion::http::request_ptr& htt
         && (http_request_ptr->get_content() != NULL)) {
       cl = http_request_ptr->get_content_length();
       content = http_request_ptr->get_content();
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "Message from " << ip << " to " << resource << " CONTENT " << content);
-      PION_LOG_DEBUG(m_logger, "CONTENT " << content);
+      IOTA_LOG_DEBUG(m_logger, "CONTENT " << content);
     }
 
     // Generating a NGSI updateContext and sending it to contextBroker
@@ -172,7 +172,7 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
                  std::multimap<std::string, std::string>& query_parameters,
                  pion::http::response& http_response,
                  std::string&response){
-  PION_LOG_DEBUG(m_logger, "receive_command_results service");
+  IOTA_LOG_DEBUG(m_logger, "receive_command_results service");
 
   boost::system::error_code error_code;
   int code_resp = pion::http::types::RESPONSE_CODE_OK;
@@ -190,7 +190,7 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
   try {
       int i = 0;
       for (i = 0; i < query.size(); i++) {
-        PION_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
+        IOTA_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
         if (query[i].getKey().compare("i") == 0) {
           device = query[i].getValue();
         }
@@ -201,7 +201,7 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
 
     }
     catch (...) {
-      PION_LOG_ERROR(m_logger, "translate error ");
+      IOTA_LOG_ERROR(m_logger, "translate error ");
       code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
@@ -212,12 +212,12 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
         && (http_request_ptr->get_content() != NULL)) {
       cl = http_request_ptr->get_content_length();
       content = http_request_ptr->get_content();
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "Message from " << ip << " to " << resource << " CONTENT " << content);
-      PION_LOG_DEBUG(m_logger, "CONTENT " << content);
+      IOTA_LOG_DEBUG(m_logger, "CONTENT " << content);
     }
 
-    PION_LOG_DEBUG(m_logger, "device sends command result device:" <<
+    IOTA_LOG_DEBUG(m_logger, "device sends command result device:" <<
                     device << " " <<content );
     boost::property_tree::ptree service_ptree;
     boost::shared_ptr<iota::Device> dev;
@@ -230,7 +230,7 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
     }else{
         id_command = content;
     }
-    PION_LOG_DEBUG(m_logger, "id_command:" <<id_command );
+    IOTA_LOG_DEBUG(m_logger, "id_command:" <<id_command );
     std::string srv = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
     std::string srv_path = service_ptree.get<std::string>(iota::store::types::SERVICE_PATH , "");
 
@@ -238,11 +238,11 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
 
     iota::CommandPtr commandPtr = get_command(id_command,srv,srv_path);
     if (commandPtr.get() == NULL) {
-          PION_LOG_ERROR(m_logger, "already responsed, command not in cache id_command:" <<
+          IOTA_LOG_ERROR(m_logger, "already responsed, command not in cache id_command:" <<
                  id_command << " service:"<<  srv << " " << srv_path);
     }
     else {
-          PION_LOG_DEBUG(m_logger, "command in cache id_command:" <<
+          IOTA_LOG_DEBUG(m_logger, "command in cache id_command:" <<
                  id_command << " service:"<<  srv << " " << srv_path);
           command = commandPtr->get_name();
           commandPtr->cancel();
@@ -259,7 +259,7 @@ void iota::TestCommandService::get_commands_polling(pion::http::request_ptr& htt
                  std::multimap<std::string, std::string>& query_parameters,
                  pion::http::response& http_response,
                  std::string&response){
-  PION_LOG_DEBUG(m_logger, "TestCommandService service");
+  IOTA_LOG_DEBUG(m_logger, "TestCommandService service");
 
   boost::system::error_code error_code;
   int code_resp = pion::http::types::RESPONSE_CODE_OK;
@@ -278,7 +278,7 @@ void iota::TestCommandService::get_commands_polling(pion::http::request_ptr& htt
   try {
       int i = 0;
       for (i = 0; i < query.size(); i++) {
-        PION_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
+        IOTA_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
         if (query[i].getKey().compare("i") == 0) {
           device = query[i].getValue();
         }
@@ -289,14 +289,14 @@ void iota::TestCommandService::get_commands_polling(pion::http::request_ptr& htt
 
     }
     catch (...) {
-      PION_LOG_ERROR(m_logger, "translate error ");
+      IOTA_LOG_ERROR(m_logger, "translate error ");
       code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
     iota::CommandVect cmdPtes;
-    PION_LOG_DEBUG(m_logger, "device asks for commands, returns all commands from a device, separated with #");
+    IOTA_LOG_DEBUG(m_logger, "device asks for commands, returns all commands from a device, separated with #");
     cmdPtes = get_all_command(device, apikey);
-    PION_LOG_DEBUG(m_logger,  "N. commands " << cmdPtes.size());
+    IOTA_LOG_DEBUG(m_logger,  "N. commands " << cmdPtes.size());
     std::string commandsSTR;
     iota::CommandVect::const_iterator i;
     iota::CommandPtr ptr;
@@ -311,7 +311,7 @@ void iota::TestCommandService::get_commands_polling(pion::http::request_ptr& htt
       }
     }
 
-    PION_LOG_DEBUG(m_logger,  "commands " << commandsSTR);
+    IOTA_LOG_DEBUG(m_logger,  "commands " << commandsSTR);
     http_response.set_status_code(code_resp);
     http_response.set_status_message(commandsSTR);
     response.assign(commandsSTR);

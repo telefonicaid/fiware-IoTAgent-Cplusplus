@@ -32,7 +32,7 @@
 
 #include "util/FuncUtil.h"
 #include "util/device.h"
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 
 #include <vector>
 #include <ngsi/ContextElement.h>

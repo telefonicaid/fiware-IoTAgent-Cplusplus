@@ -65,18 +65,18 @@ extern iota::AdminService* AdminService_ptr;
 
 
 iota::UL20Service::UL20Service(): m_logger(PION_GET_LOGGER(iota::logger)) {
-  PION_LOG_DEBUG(m_logger, "iota::UL20Service::UL20Service");
+  IOTA_LOG_DEBUG(m_logger, "iota::UL20Service::UL20Service");
 
   //_reg_timeout = DEFAULT_REG_TIMEOUT;
   //_myProvidingApp = UNKOWN_PROVIDING_APP;
 }
 
 iota::UL20Service::~UL20Service() {
-  PION_LOG_DEBUG(m_logger, "Destructor iota::UL20Service::UL20Service");
+  IOTA_LOG_DEBUG(m_logger, "Destructor iota::UL20Service::UL20Service");
 }
 
 void iota::UL20Service::start() {
-  PION_LOG_DEBUG(m_logger, "START PLUGIN UL2.0");
+  IOTA_LOG_DEBUG(m_logger, "START PLUGIN UL2.0");
 
   std::map<std::string, std::string> filters;
   add_url("", filters, REST_HANDLE(&iota::UL20Service::service), this);
@@ -90,7 +90,7 @@ void iota::UL20Service::start() {
     _reg_timeout = iota::Configurator::instance()->get("timeout").GetInt64();
   }
   catch (...) {
-    PION_LOG_DEBUG(m_logger, " Problem reading timeout");
+    IOTA_LOG_DEBUG(m_logger, " Problem reading timeout");
   }
 }
 
@@ -98,7 +98,7 @@ void iota::UL20Service::op_ngsi(pion::http::request_ptr& http_request_ptr,
                                 std::map<std::string, std::string>& url_args,
                                 std::multimap<std::string, std::string>& query_parameters,
                                 pion::http::response& http_response, std::string& response) {
-  PION_LOG_DEBUG(m_logger, "UL20Service op_ngsi");
+  IOTA_LOG_DEBUG(m_logger, "UL20Service op_ngsi");
   default_op_ngsi(http_request_ptr, url_args, query_parameters,
                   http_response, response);
 }
@@ -135,7 +135,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
 
   std::string resource = http_request_ptr->get_resource();
 
-  PION_LOG_DEBUG(m_logger, method << " " << resource_o);
+  IOTA_LOG_DEBUG(m_logger, method << " " << resource_o);
 
 
   std::string content;
@@ -159,7 +159,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
   try {
     int i = 0;
     for (i = 0; i < query.size(); i++) {
-      PION_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
+      IOTA_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
       if (query[i].getKey().compare("i") == 0) {
         KVP id("ID", query[i].getValue());
         querySBC.push_back(id);
@@ -199,7 +199,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
     }
 
     std::string version = http_request_ptr->get_version_string();
-    PION_LOG_DEBUG(m_logger, "apikey:" << apikey << "body:" << content);
+    IOTA_LOG_DEBUG(m_logger, "apikey:" << apikey << "body:" << content);
     //check if this key exists
     get_service_by_apiKey(service_ptree, apikey);
 
@@ -208,7 +208,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
                      service_ptree.get<std::string>(iota::store::types::SERVICE, ""),
                      service_ptree.get<std::string>(iota::store::types::SERVICE_PATH, ""));
     if (dev.get() == NULL) {
-      PION_LOG_DEBUG(m_logger, "Device "  << device << " is not registered;"
+      IOTA_LOG_DEBUG(m_logger, "Device "  << device << " is not registered;"
                      " apikey: " << apikey <<
                      " service: " << service_ptree.get<std::string>("service", "")<<
                      " service_path: " << service_ptree.get<std::string>("service_path", ""));
@@ -234,7 +234,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
            (boost::iequals(deflate_str, content_encoding)))
          ) {
 
-        PION_LOG_DEBUG(m_logger, "Hay que descomprimir " << content_encoding);
+        IOTA_LOG_DEBUG(m_logger, "Hay que descomprimir " << content_encoding);
         std::string method(content_encoding);
         std::string mi_content = http_request_ptr->get_content();
       }
@@ -244,9 +244,9 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
 
       content = content_aux;
 
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "Message from " << ip << " to " << resource << " CONTENT " << content);
-      PION_LOG_DEBUG(m_logger, "CONTENT " << content);
+      IOTA_LOG_DEBUG(m_logger, "CONTENT " << content);
 
     }
 
@@ -268,7 +268,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
         }
       }
       else {
-        PION_LOG_DEBUG(m_logger, "han mandado una respuesta a un comando " <<
+        IOTA_LOG_DEBUG(m_logger, "han mandado una respuesta a un comando " <<
                        id_command << "->" <<command_http_response_translate);
         command_resp = true;
 
@@ -279,12 +279,12 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
         std::string command;
         CommandPtr commandPtr = get_command(id_command, srv, srv_path);
         if (commandPtr.get() == NULL) {
-          PION_LOG_ERROR(m_logger,
+          IOTA_LOG_ERROR(m_logger,
                          "already responsed, command not in cache id_command:" <<
                          id_command << " service:"<<  srv << " " << srv_path);
         }
         else {
-          PION_LOG_DEBUG(m_logger, "command in cache id_command:" <<
+          IOTA_LOG_DEBUG(m_logger, "command in cache id_command:" <<
                          id_command << " service:"<<  srv << " " << srv_path);
           command = commandPtr->get_name();
           commandPtr->cancel();
@@ -298,15 +298,15 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
     }
   }
   catch (std::runtime_error& e) {
-    PION_LOG_ERROR(m_logger, "translate error runtime_error" << e.what());
+    IOTA_LOG_ERROR(m_logger, "translate error runtime_error" << e.what());
     code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "translate error exception" << e.what());
+    IOTA_LOG_ERROR(m_logger, "translate error exception" << e.what());
     code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "translate error ");
+    IOTA_LOG_ERROR(m_logger, "translate error ");
     code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
@@ -314,7 +314,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
   CommandVect cmdPtes;
   if ((method.compare("GET") == 0) || (get_cmd == true)) {
     cmdPtes = get_all_command(dev, service_ptree);
-    PION_LOG_DEBUG(m_logger,  "N. commands " << cmdPtes.size());
+    IOTA_LOG_DEBUG(m_logger,  "N. commands " << cmdPtes.size());
   }
 
 
@@ -374,7 +374,7 @@ int iota::UL20Service::isCommandResp(const std::string& str_command_resp,
   std::string result;
 
   id_command.assign(get_id_command(str_command_resp));
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "isCommandResp" << cmd_code << ":" << str_command_resp<< ":" <<id_command);
   if (id_command.empty() == false) {
     size_t p_id = str_command_resp.find_first_of("|");
@@ -405,7 +405,7 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
                                 std::string& response,
                                 iota::HttpClient::application_callback_t callback) {
 
-  PION_LOG_DEBUG(m_logger,"UL20Plugin sendHTTP(): " <<
+  IOTA_LOG_DEBUG(m_logger,"UL20Plugin sendHTTP(): " <<
                  endpoint << ":" << port << "//" << path <<
                  " " << operation <<  " proxy " << proxy_server <<
                  " timeout " << timeout << " query " << query <<
@@ -442,7 +442,7 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
                                               proxy_server);
       if (response_ptr.get() != NULL) {
         ret = response_ptr->get_status_code();
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "sendHTTP responses " << ret<< ":" << response_ptr->get_content());
         if ((response_ptr->get_content_length() != 0)
             && (response_ptr->get_content() != NULL)) {
@@ -460,7 +460,7 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
         errSTR.append("//");
         errSTR.append("path");
 
-        PION_LOG_ERROR(m_logger,  errSTR);
+        IOTA_LOG_ERROR(m_logger,  errSTR);
         ret = types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
         response.assign(errSTR);
       }
@@ -468,12 +468,12 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
     }
   }
   catch (std::exception const& ex) {
-    PION_LOG_ERROR(m_logger, "ul20Plugin sendHTTP(): Exception: " << ex.what());
+    IOTA_LOG_ERROR(m_logger, "ul20Plugin sendHTTP(): Exception: " << ex.what());
     ret = types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
     response.assign(ex.what());
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "ul20Plugin sendHTTP(): Envio error ");
+    IOTA_LOG_ERROR(m_logger, "ul20Plugin sendHTTP(): Envio error ");
     ret = types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
     response.assign("document instance parsing failed");
   }
@@ -481,7 +481,7 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
 
   //http_client->stop();
 
-  PION_LOG_DEBUG(m_logger,"UL20Plugin sendHTTP response(): " <<
+  IOTA_LOG_DEBUG(m_logger,"UL20Plugin sendHTTP response(): " <<
                  ret << ":" << response);
   return ret;
 }
@@ -506,7 +506,7 @@ int iota::UL20Service::execute_command(const std::string& destino,
     port = boost::lexical_cast<std::string > (url.getPort());
   }
   if (url.getSSL() == false) {
-    PION_LOG_DEBUG(m_logger,"NO SSL");
+    IOTA_LOG_DEBUG(m_logger,"NO SSL");
   }
 
   int timeout_plugin;
@@ -533,7 +533,7 @@ int iota::UL20Service::execute_command(const std::string& destino,
     if (code < 0) {
       std::string errSTR = "no ul20 response command:";
       errSTR.append(content_resp);
-      PION_LOG_ERROR(m_logger, "command response from " << destino << " " << errSTR);
+      IOTA_LOG_ERROR(m_logger, "command response from " << destino << " " << errSTR);
       response.assign(errSTR);
     }
     else {
@@ -557,10 +557,10 @@ std::string iota::UL20Service::get_id_command(std::string str_command) {
 
 void iota::UL20Service::send_optional_registration(std::string device,
     std::string service) {
-  PION_LOG_DEBUG(m_logger, "Sending one register if it is neccesary");
+  IOTA_LOG_DEBUG(m_logger, "Sending one register if it is neccesary");
 
   if (_myProvidingApp == UNKOWN_PROVIDING_APP) {
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "Registration is not sent because a valid ProvidingApp can not be obtained");
     return;
   }
@@ -575,19 +575,19 @@ void iota::UL20Service::send_optional_registration(std::string device,
 
     std::string entity_name;
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "Search Device: " << device << "with Service: " << service);
 
     boost::shared_ptr<Device> item_find(new Device(device, service));
     boost::shared_ptr<Device> item_dev = registeredDevices.get(item_find);
 
     if (item_dev != NULL) {
-      PION_LOG_DEBUG(m_logger, "Found Device: " << item_dev->_name);
+      IOTA_LOG_DEBUG(m_logger, "Found Device: " << item_dev->_name);
 
       if (((item_dev->_registration_id).empty())
           && ((item_dev->_commands.size() > 0))) {
 
-        PION_LOG_DEBUG(m_logger, "Must be registered Device: " << item_dev->_name);
+        IOTA_LOG_DEBUG(m_logger, "Must be registered Device: " << item_dev->_name);
 
 
         iota::Entity entity(item_dev->_entity_name, item_dev->_entity_type, "false");
@@ -596,7 +596,7 @@ void iota::UL20Service::send_optional_registration(std::string device,
 
         if (! item_dev->_registration_id.empty()) {
           reg_id = item_dev->_registration_id;
-          PION_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
+          IOTA_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
         }
 
         std::map<std::string, std::string>::iterator p;
@@ -618,7 +618,7 @@ void iota::UL20Service::send_optional_registration(std::string device,
           reg_id,
           cb_response);
 
-        PION_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
+        IOTA_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
 
         std::istringstream str_reg_response;
         str_reg_response.str(cb_response);
@@ -629,13 +629,13 @@ void iota::UL20Service::send_optional_registration(std::string device,
 
         reg_time =  resp.get_duration();
 
-        PION_LOG_DEBUG(m_logger, "registrationId: " <<  reg_id);
-        PION_LOG_DEBUG(m_logger, "duration: " <<  reg_time);
+        IOTA_LOG_DEBUG(m_logger, "registrationId: " <<  reg_id);
+        IOTA_LOG_DEBUG(m_logger, "duration: " <<  reg_time);
       }
     }
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "Error sending one registration");
+    IOTA_LOG_ERROR(m_logger, "Error sending one registration");
   }
 }
 
@@ -659,12 +659,12 @@ void iota::UL20Service::transform_command(const std::string& command_name,
     std::string err =
       "UL20 Command is not correct, it must be  name_device@command_name, but it is ";
     err.append(body);
-    PION_LOG_ERROR(m_logger,  err);
+    IOTA_LOG_ERROR(m_logger,  err);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_COMMAND_BAD, err,
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  PION_LOG_DEBUG(m_logger, "UL20Service new command id  " << command_id);
+  IOTA_LOG_DEBUG(m_logger, "UL20Service new command id  " << command_id);
 }
 
 int iota::UL20Service::transform_response(const std::string& str_command_resp,
@@ -701,7 +701,7 @@ std::string iota::UL20Service::get_ngsi_operation(const std::string&
     op.assign(op_url);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
   return op;
 }

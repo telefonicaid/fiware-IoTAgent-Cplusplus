@@ -35,14 +35,14 @@ extern std::string URL_BASE;
 }
 
 iota::NgsiService::NgsiService(): m_log(PION_GET_LOGGER(iota::logger)) {
-  PION_LOG_DEBUG(m_log, "iota::NgsiService::NgsiService");
+  IOTA_LOG_DEBUG(m_log, "iota::NgsiService::NgsiService");
 }
 
 iota::NgsiService::~NgsiService() {
 }
 
 void iota::NgsiService::start() {
-  PION_LOG_DEBUG(m_log, "Start NgsiService");
+  IOTA_LOG_DEBUG(m_log, "Start NgsiService");
   std::map<std::string, std::string> filters;
   //add_url("/<operation>", filters, REST_HANDLE(&iota::NgsiService::ngsi_operation), this);
 

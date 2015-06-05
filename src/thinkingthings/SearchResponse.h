@@ -24,7 +24,7 @@
 #include <string>
 
 #include "thinkingthings/QueryContextWrapper.h"
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 #include "TDA.h"
 
 #include "ngsi/Attribute.h"

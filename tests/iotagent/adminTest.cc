@@ -32,7 +32,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include "util/iota_exception.h"
 
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 #include <pion/process.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string.hpp>

@@ -76,7 +76,7 @@ boost::shared_ptr<iota::Device> get_func(boost::shared_ptr<iota::Device> item) {
 iota::RestHandle::RestHandle(): _enabled_stats(true),
   m_logger(PION_GET_LOGGER(iota::logger)),
   registeredDevices(iota::types::MAX_SIZE_CACHE, false), _manager_endpoint("") {
-  PION_LOG_DEBUG(m_logger, "RestHandle constructor");
+  IOTA_LOG_DEBUG(m_logger, "RestHandle constructor");
 
   _connectionManager.reset(new CommonAsyncManager(1));
   _connectionManager->run();
@@ -94,7 +94,7 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
         unsigned short tm = iota::Configurator::instance()->get("timeout").GetInt64();
         registeredDevices.set_time_to_life(tm);
 
-        PION_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
+        IOTA_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
         registeredDevices.set_function(boost::bind(get_func, _1));
         registeredDevices.set_entity_function(boost::bind(get_func, _1));
 
@@ -115,12 +115,12 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
       }
     }
     else {
-      PION_LOG_ERROR(m_logger, "Config file has not got storage");
+      IOTA_LOG_ERROR(m_logger, "Config file has not got storage");
     }
 
   }
   catch (...) {
-    PION_LOG_DEBUG(m_logger, " Problem with devices config file");
+    IOTA_LOG_DEBUG(m_logger, " Problem with devices config file");
   }
 
 }
@@ -144,7 +144,7 @@ void iota::RestHandle::register_plugin() {
     AdminService_ptr->add_service(get_resource(), this);
   }
   else {
-    PION_LOG_DEBUG(m_logger, "Module without registering " << get_resource());
+    IOTA_LOG_DEBUG(m_logger, "Module without registering " << get_resource());
   }
 
   iota::Configurator* configurator = iota::Configurator::instance();
@@ -158,7 +158,7 @@ void iota::RestHandle::register_plugin() {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_DEBUG(m_logger, "No internal stats information in configuration file "
+    IOTA_LOG_DEBUG(m_logger, "No internal stats information in configuration file "
                    << get_resource());
   }
 
@@ -241,7 +241,7 @@ void iota::RestHandle::register_iota_manager() {
   log_message.append(get_resource());
   log_message.append(" manager=");
   log_message.append(iota_manager_endpoint);
-  PION_LOG_DEBUG(m_logger, log_message);
+  IOTA_LOG_DEBUG(m_logger, log_message);
   if (iota_manager_endpoint.empty()) {
     return;
   }
@@ -260,7 +260,7 @@ void iota::RestHandle::register_iota_manager() {
       }
     }
     else {
-      PION_LOG_ERROR(m_logger, "Config file has not got storage");
+      IOTA_LOG_ERROR(m_logger, "Config file has not got storage");
     }
 
     if (using_database) {
@@ -310,11 +310,11 @@ void iota::RestHandle::register_iota_manager() {
       }
     }
     else {
-      PION_LOG_ERROR(m_logger, "No protocol information for " << get_resource());
+      IOTA_LOG_ERROR(m_logger, "No protocol information for " << get_resource());
     }
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, e.what());
+    IOTA_LOG_ERROR(m_logger, e.what());
   }
 }
 
@@ -328,7 +328,7 @@ void iota::RestHandle::receive_event_from_manager(
     code = response_ptr->get_status_code();
   }
   if (error || code != pion::http::types::RESPONSE_CODE_CREATED) {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    " resource=" + get_resource() + " code=" + boost::lexical_cast<std::string>
                    (code) + " error=" + error.message());
   }
@@ -339,7 +339,7 @@ std::string iota::RestHandle::add_url(std::string url,
                                       iota::RestHandle::HandleFunction_t handle,
                                       iota::RestHandle* context) {
   register_plugin();
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Add url " << url << " to url base " << iota::URL_BASE);
   struct ResourceHandler resource_handler;
   std::string url_base_plus_url(get_resource());
@@ -354,7 +354,7 @@ std::string iota::RestHandle::add_url(std::string url,
                                    _5);
   _handlers.insert(std::make_pair<std::string, ResourceHandler>(url,
                    resource_handler));
-  PION_LOG_DEBUG(m_logger, "Added url " << url_base_plus_url);
+  IOTA_LOG_DEBUG(m_logger, "Added url " << url_base_plus_url);
   _my_url_base = url_base_plus_url;
   return _my_url_base;
 }
@@ -374,7 +374,7 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
   // Add header to trace
   http_request_ptr->add_header(iota::types::HEADER_TRACE_MESSAGES,
                                riot_uuid(get_resource()));
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Processing request " << http_request_ptr->get_header(
                    iota::types::HEADER_TRACE_MESSAGES));
   if (_pre_filters.size() > 0) {
@@ -388,10 +388,10 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
 void iota::RestHandle::execute_filters(
   pion::http::request_ptr& http_request_ptr, pion::tcp::connection_ptr& tcp_conn,
   int num_filter, int status) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Processing request " << http_request_ptr->get_header(
                    iota::types::HEADER_TRACE_MESSAGES));
-  PION_LOG_DEBUG(m_logger, "execute_filters status:  " << status);
+  IOTA_LOG_DEBUG(m_logger, "execute_filters status:  " << status);
 
   if (status != iota::types::RESPONSE_CODE_OK) {
     handle_end_filters(http_request_ptr, tcp_conn, num_filter, status);
@@ -424,10 +424,10 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
     http_request_ptr,
     pion::tcp::connection_ptr& tcp_conn,
     int num_filter, int status) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Processing request " << http_request_ptr->get_header(
                    iota::types::HEADER_TRACE_MESSAGES));
-  PION_LOG_DEBUG(m_logger, "End filters status " << status);
+  IOTA_LOG_DEBUG(m_logger, "End filters status " << status);
   if (status != pion::http::types::RESPONSE_CODE_OK) {
 
     // Filters return NOK. End request
@@ -465,10 +465,10 @@ void iota::RestHandle::handle_end_filters(pion::http::request_ptr&
 }
 void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
                                       pion::tcp::connection_ptr& tcp_conn, int status) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Processing request " << http_request_ptr->get_header(
                    iota::types::HEADER_TRACE_MESSAGES));
-  PION_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
+  IOTA_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
   bool finish = false;
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
@@ -543,7 +543,7 @@ void iota::RestHandle::finish(pion::tcp::connection_ptr& tcp_conn) {
   // Close connection and remove buffer
   clear_buffer(tcp_conn);
   tcp_conn->finish();
-  PION_LOG_DEBUG(m_logger, "finish connection " << tcp_conn.use_count());
+  IOTA_LOG_DEBUG(m_logger, "finish connection " << tcp_conn.use_count());
 }
 
 void iota::RestHandle::clear_buffer(pion::tcp::connection_ptr& conn) {
@@ -609,7 +609,7 @@ std::string iota::RestHandle::remove_url_base(std::string url) {
 }
 
 std::string iota::RestHandle::get_statistics() {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Get statistics " << get_resource() << " Counters " << _statistics.size());
   boost::mutex::scoped_lock lock(m_mutex_stat);
   int i = 0;
@@ -678,7 +678,7 @@ std::string iota::RestHandle::get_statistics() {
       }
     }
     catch (std::exception& e) {
-      PION_LOG_ERROR(m_logger, "Stats " << e.what());
+      IOTA_LOG_ERROR(m_logger, "Stats " << e.what());
     }
     ++it_stats;
     if (stat_element.HasMember(stat_name.c_str())) {
@@ -783,7 +783,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device_by_entity(
       text_error.append(" entity type: ");
       text_error.append(entity_type);
 
-      PION_LOG_ERROR(m_logger, text_error);
+      IOTA_LOG_ERROR(m_logger, text_error);
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DEVICE_NO_ACTIVE,
                                 text_error,
                                 iota::types::RESPONSE_CODE_DEVICE_NO_ACTIVE);
@@ -799,7 +799,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device_by_entity(
     text_error.append(" entity type: ");
     text_error.append(entity_type);
 
-    PION_LOG_ERROR(m_logger, text_error);
+    IOTA_LOG_ERROR(m_logger, text_error);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_DEVICE, text_error,
                               iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND);
   }
@@ -874,14 +874,14 @@ int iota::RestHandle::get_service_by_name_bbdd(
     pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
   }
   else {
-    PION_LOG_ERROR(m_logger, "get_service_by_name_bbdd no service for "
+    IOTA_LOG_ERROR(m_logger, "get_service_by_name_bbdd no service for "
                    << name << " " << service_path <<
                    "resource:"<< resource);
     return ERROR_NO_SERVICE;
   }
 
   if (q1.more()) {
-    PION_LOG_ERROR(m_logger, "get_service_by_name_bbdd there are more than one"
+    IOTA_LOG_ERROR(m_logger, "get_service_by_name_bbdd there are more than one"
                    << name << " " << service_path << "resource:"<< resource);
     return ERROR_MORE_THAN_ONE;
   }
@@ -898,7 +898,7 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
   int default_timeout = get_default_timeout();
   std::string http_proxy = get_http_proxy();
 
-  PION_LOG_DEBUG(m_logger, "get_service_by_apiKey_bbdd " << apiKey);
+  IOTA_LOG_DEBUG(m_logger, "get_service_by_apiKey_bbdd " << apiKey);
 
   iota::Collection q1(iota::store::types::SERVICE_TABLE);
   mongo::BSONObjBuilder p2;
@@ -919,13 +919,13 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
     pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
   }
   else {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "get_service_by_apiKey_bbdd no service for apike" << apiKey);
     return ERROR_NO_SERVICE;
   }
 
   if (q1.more()) {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "get_service_by_apiKey_bbdd there are more than one" << apiKey);
     return ERROR_MORE_THAN_ONE;
   }
@@ -998,7 +998,7 @@ void iota::RestHandle::send_update_context(
   std::string cb_response;
   cb_communicator.send(ngsi_context_element,
                        "APPEND",  pt_cb, cb_response);
-  PION_LOG_DEBUG(m_logger, "cb resposne : " << cb_response);
+  IOTA_LOG_DEBUG(m_logger, "cb resposne : " << cb_response);
 }
 
 const iota::JsonValue& iota::RestHandle::get_service_by_apiKey_file(
@@ -1037,7 +1037,7 @@ iota::RestHandle::get_device_empty_service_path(
 
   boost::shared_ptr<iota::Device> result;
 
-  PION_LOG_DEBUG(m_logger, "Get all service path");
+  IOTA_LOG_DEBUG(m_logger, "Get all service path");
 
   try {
 
@@ -1051,13 +1051,13 @@ iota::RestHandle::get_device_empty_service_path(
       itemQ->_service_path = srvpath;
       result = registeredDevices.get(itemQ);
       if (result != NULL) {
-        PION_LOG_DEBUG(m_logger, "found device: " << result->_name);
+        IOTA_LOG_DEBUG(m_logger, "found device: " << result->_name);
         return result;
       }
     }
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
     throw e;
   }
 
@@ -1100,7 +1100,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device(
       text_error.append(service);
       text_error.append(" ");
       text_error.append(service_path);
-      PION_LOG_ERROR(m_logger, text_error);
+      IOTA_LOG_ERROR(m_logger, text_error);
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DEVICE_NO_ACTIVE,
                                 text_error,
                                 iota::types::RESPONSE_CODE_DEVICE_NO_ACTIVE);
@@ -1115,7 +1115,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device(
     text_error.append(service);
     text_error.append(":");
     text_error.append(service_path);
-    PION_LOG_ERROR(m_logger, text_error);
+    IOTA_LOG_ERROR(m_logger, text_error);
     boost::shared_ptr<iota::Device> result2;
     return result2;
   }
@@ -1141,7 +1141,7 @@ double iota::RestHandle::get_payload_length(pion::http::response&
 std::map<std::string, std::string> iota::RestHandle::get_multipart_content(
   pion::http::request_ptr& request_ptr) {
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Content-Type" << request_ptr->get_header(
                    pion::http::types::HEADER_CONTENT_TYPE));
   std::map<std::string, std::string> parts;
@@ -1188,7 +1188,7 @@ std::string iota::RestHandle::get_default_context_broker() {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_DEBUG(m_logger, "Default context broker endpoint not defined");
+    IOTA_LOG_DEBUG(m_logger, "Default context broker endpoint not defined");
   }
   return default_context_broker;
 }
@@ -1203,7 +1203,7 @@ void iota::RestHandle::set_iota_manager_endpoint(std::string manager_endpoint) {
     _manager_endpoint = manager_endpoint;
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(m_logger, e.what());
+    IOTA_LOG_ERROR(m_logger, e.what());
   }
 
 }
@@ -1221,7 +1221,7 @@ std::string iota::RestHandle::get_http_proxy() {
 
   }
   catch (std::exception& e) {
-    PION_LOG_DEBUG(m_logger, "proxy not defined");
+    IOTA_LOG_DEBUG(m_logger, "proxy not defined");
   }
   return http_proxy;
 }
@@ -1233,7 +1233,7 @@ int iota::RestHandle::get_default_timeout() {
     default_timeout = timeout.GetInt64();
   }
   catch (std::exception& e) {
-    PION_LOG_DEBUG(m_logger, "Default context broker endpoint not defined");
+    IOTA_LOG_DEBUG(m_logger, "Default context broker endpoint not defined");
   }
   return default_timeout;
 }

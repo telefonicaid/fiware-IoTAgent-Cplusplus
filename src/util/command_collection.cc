@@ -24,7 +24,8 @@
 #include "command_collection.h"
 #include "store_const.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
+
 
 iota::CommandCollection::CommandCollection():Collection(
     iota::store::types::COMMAND_TABLE) {

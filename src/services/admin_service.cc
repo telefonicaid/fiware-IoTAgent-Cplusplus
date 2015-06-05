@@ -69,14 +69,14 @@ iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
   _web_server(web_server),
   _class_name("iota::AdminService"),
   m_log(PION_GET_LOGGER(iota::logger)) {
-  PION_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
+  IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
   checkIndexes();
 
 }
 
 iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
   _class_name("iota::AdminService") {
-  PION_LOG_DEBUG(m_log, "iota::AdminService::AdminService2");
+  IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService2");
   // iota::AdminService::_web_server = NULL;
   checkIndexes();
 }
@@ -101,7 +101,7 @@ void iota::AdminService::checkIndexes() {
       _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
       PION_LOG_INFO(m_log, "type_store:" <<  _storage_type);
       if (_storage_type.compare(iota::store::types::MONGODB)==0) {
-        PION_LOG_DEBUG(m_log, "Check tables in mongo");
+        IOTA_LOG_DEBUG(m_log, "Check tables in mongo");
         iota::DeviceCollection devcol;
         devcol.createTableAndIndex();
         iota::ServiceCollection servcol;
@@ -116,7 +116,7 @@ void iota::AdminService::checkIndexes() {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log, "Check configuration, error in checkIndexes " <<
+    IOTA_LOG_ERROR(m_log, "Check configuration, error in checkIndexes " <<
                    e.what());
   }
 }
@@ -129,7 +129,7 @@ pion::http::plugin_server_ptr iota::AdminService::get_web_server() {
 void iota::AdminService::set_timezone_database(std::string timezones_file) {
 
   _timezone_database.load_from_file(timezones_file);
-  PION_LOG_DEBUG(m_log, "Load timezone database " << timezones_file);
+  IOTA_LOG_DEBUG(m_log, "Load timezone database " << timezones_file);
 }
 
 void  iota::AdminService::check_mongo_config() {
@@ -201,7 +201,7 @@ void iota::AdminService::add_oauth_media_filters() {
 
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log, "OAuth for northbound is not configured");
+    IOTA_LOG_ERROR(m_log, "OAuth for northbound is not configured");
   }
 
 
@@ -239,7 +239,7 @@ void iota::AdminService::start() {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_DEBUG(m_log, "Timezone database is not configured");
+    IOTA_LOG_DEBUG(m_log, "Timezone database is not configured");
   }
 
 
@@ -274,7 +274,7 @@ void iota::AdminService::about(pion::http::request_ptr& http_request_ptr,
   ss << __DATE__;
 
   response.append(ss.str());
-  PION_LOG_DEBUG(m_log, response);
+  IOTA_LOG_DEBUG(m_log, response);
 
 }
 
@@ -389,7 +389,7 @@ void iota::AdminService::agents(pion::http::request_ptr& http_request_ptr,
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
     get_agents.Accept(writer);
     response.assign(buffer.GetString());
-    PION_LOG_DEBUG(m_log, response);
+    IOTA_LOG_DEBUG(m_log, response);
   }
   else if (method.compare(pion::http::types::REQUEST_METHOD_DELETE) == 0) {
     error_response(http_response, response,
@@ -458,7 +458,7 @@ void iota::AdminService::agent(pion::http::request_ptr& http_request_ptr,
       rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
       get_agent.Accept(writer);
       response.assign(buffer.GetString());
-      PION_LOG_DEBUG(m_log, response);
+      IOTA_LOG_DEBUG(m_log, response);
     }
     catch (std::exception& e) {
       response.assign(e.what());
@@ -492,7 +492,7 @@ std::string iota::AdminService::conf_global_adm(pion::http::request_ptr&
 
 
   std::string method = http_request_ptr->get_method();
-  PION_LOG_DEBUG(m_log, get_class_name()+"::conf_adm " << method);
+  IOTA_LOG_DEBUG(m_log, get_class_name()+"::conf_adm " << method);
   iota::Configurator* configurator = iota::Configurator::instance();
   std::string global_configuration;
 
@@ -556,7 +556,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
       reason.append(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
       error_details.append(iota::types::FIWARE_SERVICE + "/" +
                            iota::types::FIWARE_SERVICEPATH + " not present or invalid");
-      PION_LOG_ERROR(m_log, response);
+      IOTA_LOG_ERROR(m_log, response);
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
@@ -592,11 +592,11 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
           limit = types::LIMIT_DEFAULT;
         }
         if (limit < 0) {
-          PION_LOG_ERROR(m_log, " bad limit using default");
+          IOTA_LOG_ERROR(m_log, " bad limit using default");
           limit = types::LIMIT_DEFAULT;
         }
         else if (limit > types::LIMIT_MAX) {
-          PION_LOG_ERROR(m_log, " bad limit using maximun");
+          IOTA_LOG_ERROR(m_log, " bad limit using maximun");
           limit = types::LIMIT_MAX;
         }
       }
@@ -637,8 +637,8 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
     }
   }
   catch (const boost::bad_lexical_cast& e) {
-    PION_LOG_ERROR(m_log,"Capturada boost::bad_lexical_cast en devices");
-    PION_LOG_ERROR(m_log,e.what());
+    IOTA_LOG_ERROR(m_log,"Capturada boost::bad_lexical_cast en devices");
+    IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
     error_details.assign(op + " must be a number but it is " + temp);
     code = 400;
@@ -646,15 +646,15 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(m_log,"Capturada: Exception en devices_json");
-    PION_LOG_ERROR(m_log,e.what());
+    IOTA_LOG_ERROR(m_log,"Capturada: Exception en devices_json");
+    IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(e.reason());
     error_details.assign(e.what());
     code = e.status();
     create_response(code, reason, error_details, http_response, response);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log,"Excepcion en devices_json");
+    IOTA_LOG_ERROR(m_log,"Excepcion en devices_json");
     reason.assign(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
     error_details.assign(e.what());
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
@@ -709,7 +709,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
       reason.append(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
       error_details.append(iota::types::FIWARE_SERVICE + "/" +
                            iota::types::FIWARE_SERVICEPATH + " not present or invalid");
-      PION_LOG_ERROR(m_log, response);
+      IOTA_LOG_ERROR(m_log, response);
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
@@ -749,16 +749,16 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(m_log,"Capturada: Exception en devices_json");
-    PION_LOG_ERROR(m_log,e.what());
+    IOTA_LOG_ERROR(m_log,"Capturada: Exception en devices_json");
+    IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(e.reason());
     error_details.assign(e.what());
     code = e.status();
     create_response(code, reason, error_details, http_response, response);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log,"Excepcion en devices_json");
-    PION_LOG_ERROR(m_log,"Excepcion en devices_json");
+    IOTA_LOG_ERROR(m_log,"Excepcion en devices_json");
+    IOTA_LOG_ERROR(m_log,"Excepcion en devices_json");
     reason.assign(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
     error_details.assign(e.what());
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
@@ -833,7 +833,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       reason.append(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
       error_details.append(iota::types::FIWARE_SERVICE + "/" +
                            iota::types::FIWARE_SERVICEPATH + " not present or invalid");
-      PION_LOG_ERROR(m_log, reason << " service:" << service << " service_path:" <<
+      IOTA_LOG_ERROR(m_log, reason << " service:" << service << " service_path:" <<
                      service_path);
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
@@ -874,11 +874,11 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
           limit = types::LIMIT_DEFAULT;
         }
         if (limit < 0) {
-          PION_LOG_ERROR(m_log, " bad limit using default");
+          IOTA_LOG_ERROR(m_log, " bad limit using default");
           limit = types::LIMIT_DEFAULT;
         }
         else if (limit > types::LIMIT_MAX) {
-          PION_LOG_ERROR(m_log, " bad limit using maximun");
+          IOTA_LOG_ERROR(m_log, " bad limit using maximun");
           limit = types::LIMIT_MAX;
         }
       }
@@ -992,23 +992,23 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (const boost::bad_lexical_cast& e) {
-    PION_LOG_ERROR(m_log,"Capturada boost::bad_lexical_cast en services");
-    PION_LOG_ERROR(m_log,e.what());
+    IOTA_LOG_ERROR(m_log,"Capturada boost::bad_lexical_cast en services");
+    IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
     error_details.assign(op + " must be a number but it is " + temp);
     code = 400;
     create_response(code, reason, error_details, http_response, response);
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(m_log,"Capturada: Exception en services");
-    PION_LOG_ERROR(m_log,e.what());
+    IOTA_LOG_ERROR(m_log,"Capturada: Exception en services");
+    IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(e.reason());
     error_details.assign(e.what());
     code = e.status();
     create_response(code, reason, error_details, http_response, response);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log,"Excepcion en services");
+    IOTA_LOG_ERROR(m_log,"Excepcion en services");
     reason.assign(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
     error_details.assign(e.what());
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
@@ -1184,15 +1184,15 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(m_log,"Capturada: Exception en services");
-    PION_LOG_ERROR(m_log,e.what());
+    IOTA_LOG_ERROR(m_log,"Capturada: Exception en services");
+    IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(e.reason());
     error_details.assign(e.what());
     code = e.status();
     create_response(code, reason, error_details, http_response, response);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log,"Excepcion en services");
+    IOTA_LOG_ERROR(m_log,"Excepcion en services");
     reason.assign(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
     error_details.assign(e.what());
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
@@ -1241,7 +1241,7 @@ int iota::AdminService::create_response(
   http_response.set_status_code(status_code);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                      status_code));
-  PION_LOG_DEBUG(m_log, "create_response: " << status_code <<
+  IOTA_LOG_DEBUG(m_log, "create_response: " << status_code <<
                  " " << response);
 
   return status_code;
@@ -1250,7 +1250,7 @@ int iota::AdminService::create_response(
 void iota::AdminService::error_response(pion::http::response& http_response,
                                         std::string& buffer,
                                         unsigned int status_code) {
-  PION_LOG_DEBUG(m_log, get_class_name()+"::error_response " << status_code);
+  IOTA_LOG_DEBUG(m_log, get_class_name()+"::error_response " << status_code);
   if (status_code != 0) {
     http_response.set_status_code(status_code);
     http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
@@ -1272,12 +1272,12 @@ void iota::AdminService::error_response(pion::http::response& http_response,
 }
 
 void iota::AdminService::remove_from_cache(Device& device) {
-  PION_LOG_DEBUG(m_log, "registeredDevices.remove ");
+  IOTA_LOG_DEBUG(m_log, "registeredDevices.remove ");
 
   for (std::map<std::string, iota::RestHandle*>::iterator it=
          _service_manager.begin();
        it!=_service_manager.end(); ++it) {
-    PION_LOG_DEBUG(m_log, "registeredDevices.remove " << it->first);
+    IOTA_LOG_DEBUG(m_log, "registeredDevices.remove " << it->first);
     it->second->remove_devices_from_cache(device);
   }
 
@@ -1286,7 +1286,7 @@ void iota::AdminService::remove_from_cache(Device& device) {
 void iota::AdminService::add_service(const std::string& resource,
                                      iota::RestHandle* service_ptr) {
 
-  PION_LOG_DEBUG(m_log, "Registering " << resource);
+  IOTA_LOG_DEBUG(m_log, "Registering " << resource);
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   std::pair<std::map<std::string, iota::RestHandle*>::iterator, bool> p;
   p = _service_manager.insert(std::pair<std::string, iota::RestHandle*>(resource,
@@ -1369,7 +1369,7 @@ void iota::AdminService::get_info_agent(iota::RestHandle* agent,
 boost::posix_time::ptime iota::AdminService::get_local_time_from_timezone(
   std::string timezone_str) {
 
-  PION_LOG_DEBUG(m_log, "UTC from " << timezone_str);
+  IOTA_LOG_DEBUG(m_log, "UTC from " << timezone_str);
   boost::posix_time::ptime utcNow =
     boost::posix_time::second_clock::universal_time();
   boost::local_time::time_zone_ptr tz = _timezone_database.time_zone_from_region(
@@ -1383,7 +1383,7 @@ boost::posix_time::ptime iota::AdminService::get_local_time_from_timezone(
   else {
     my_time = utcNow;
   }
-  PION_LOG_DEBUG(m_log, "End get_local_time_from_timezone " << my_time);
+  IOTA_LOG_DEBUG(m_log, "End get_local_time_from_timezone " << my_time);
   return my_time;
 }
 
@@ -1405,13 +1405,13 @@ bool iota::AdminService::validate_json_schema(
     std::string err = "validate_json_schema for ";
     err.append(table->getBBDD());
     err.append(" is not implemented");
-    PION_LOG_DEBUG(m_log, err);
+    IOTA_LOG_DEBUG(m_log, err);
     response.assign(err);
     return false;
   }
 
-  PION_LOG_DEBUG(m_log, "json:" << json_str);
-  PION_LOG_DEBUG(m_log, "jsonschema:" << table->getBBDD());
+  IOTA_LOG_DEBUG(m_log, "json:" << json_str);
+  IOTA_LOG_DEBUG(m_log, "jsonschema:" << table->getBBDD());
 
   try {
     libvariant::Variant data = libvariant::DeserializeGuess(json_str);
@@ -1431,18 +1431,18 @@ bool iota::AdminService::validate_json_schema(
       errorSTR << validation_error;
       errorSTR << " [" << data_path << "]";
       response.assign(errorSTR.str());
-      PION_LOG_DEBUG(m_log, "Validation error [" << response <<
+      IOTA_LOG_DEBUG(m_log, "Validation error [" << response <<
                      "/" << data_path <<
                      "]");
       res = false;
     }
     else {
-      PION_LOG_DEBUG(m_log, "validation ok");
+      IOTA_LOG_DEBUG(m_log, "validation ok");
     }
 
   }
   catch (const std::exception& exc) {
-    PION_LOG_ERROR(m_log, "error validating the json: "  <<exc.what());
+    IOTA_LOG_ERROR(m_log, "error validating the json: "  <<exc.what());
     response.assign(exc.what());
     res = false;
   }
@@ -1482,7 +1482,7 @@ int iota::AdminService::post_device_json(
   std::string param_request("post_device_json service=" + service +
                             " service_path=" +
                             service_path + " content=" + body);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_CREATED;
   std::string reason;
   std::string error_details;
@@ -1517,7 +1517,7 @@ int iota::AdminService::post_device_json(
       builder.append(iota::store::types::SERVICE, service);
       builder.append(iota::store::types::SERVICE_PATH, service_path);
       device_to_post.assign(bo.getField(iota::store::types::DEVICE_ID).String());
-      PION_LOG_DEBUG(m_log, "device:  " << device_to_post);
+      IOTA_LOG_DEBUG(m_log, "device:  " << device_to_post);
 
       mongo::BSONObj insertObj = builder.obj();
       std::string entity_name =
@@ -1577,7 +1577,7 @@ int iota::AdminService::put_device_json(
                             " service_path=" +
                             service_path + " device=" + device_id + " content=" + body);
 
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
   std::string reason;
   std::string error_details;
@@ -1652,7 +1652,7 @@ int iota::AdminService::put_device_json(
     code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
-  PION_LOG_DEBUG(m_log, param_request << " status=" << code);
+  IOTA_LOG_DEBUG(m_log, param_request << " status=" << code);
   return create_response(code, reason, error_details, http_response,
                          response);
 }
@@ -1678,7 +1678,7 @@ int iota::AdminService::get_all_devices_json(
                             " service_path=" +
                             service_path + " detailed=" +
                             detailed);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   DeviceCollection devTable;
   mongo::BSONObj elto;
   mongo::BSONObjBuilder bson_query;
@@ -1708,7 +1708,7 @@ int iota::AdminService::get_all_devices_json(
     bson_fields.append(iota::store::types::DEVICE_ID, 1);
   }
   else if (detailed.compare(iota::store::types::ON) != 0) {
-    PION_LOG_DEBUG(m_log, param_request << " status=" <<
+    IOTA_LOG_DEBUG(m_log, param_request << " status=" <<
                    pion::http::types::RESPONSE_CODE_BAD_REQUEST);
     return create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                            types::RESPONSE_MESSAGE_BAD_REQUEST,
@@ -1744,7 +1744,7 @@ int iota::AdminService::get_a_device_json(
   std::string param_request("get_a_device_json service=" + service +
                             " service_path=" +
                             service_path + " device=" + device_id);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   std::ostringstream res;
   Collection devTable(iota::store::types::DEVICE_TABLE);
   mongo::BSONObj elto;
@@ -1779,7 +1779,7 @@ int iota::AdminService::delete_device_json(
   std::string param_request("delete_device_json service=" + service +
                             " service_path=" +
                             service_path + " device=" + id_device);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   std::string reason;
   std::string error_details;
 
@@ -1818,7 +1818,7 @@ int iota::AdminService::post_service_json(
   std::string param_request("post_service_json service=" + service +
                             " service_path=" +
                             service_path);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason;
   std::string error_details;
@@ -1837,7 +1837,7 @@ int iota::AdminService::post_service_json(
 
     for (unsigned int i = 0; i<be.size(); i++) {
       mongo::BSONObjBuilder bo;
-      PION_LOG_DEBUG(m_log, "add service:" << be[i]);
+      IOTA_LOG_DEBUG(m_log, "add service:" << be[i]);
       bo.appendElements(be[i]);
       bo.append(iota::store::types::SERVICE_ID, service);
       bo.append(iota::store::types::SERVICE_PATH, service_path);
@@ -1857,7 +1857,7 @@ int iota::AdminService::post_service_json(
     code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
-  PION_LOG_DEBUG(m_log, param_request << " status=" + code);
+  IOTA_LOG_DEBUG(m_log, param_request << " status=" + code);
   return create_response(code, reason, error_details, http_response,
                          response);
 
@@ -1880,7 +1880,7 @@ int iota::AdminService::put_service_json(
                             " service_path=" +
                             service_path + " service_id=" + id +
                             " content=" + body + " resource=" + resource);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason;
   std::string error_details;
@@ -1956,7 +1956,7 @@ int iota::AdminService::get_all_services_json(
                             " service_path=" +
                             service_path +
                             " detailed=" + detailed + " resource=" + resource);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   std::ostringstream res;
   mongo::BSONObj elto;
   mongo::BSONObjBuilder query;
@@ -2019,7 +2019,7 @@ int iota::AdminService::get_a_service_json(
   std::string param_request("get_a_service_json service=" + service +
                             " service_path=" +
                             service_path + " id=" + id);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
 
   int code= pion::http::types::RESPONSE_CODE_OK;
   std::string res = get_service_json(table, service, service_path);
@@ -2037,7 +2037,7 @@ std::string iota::AdminService::get_service_json(
   std::string param_request("get_a_service_json service=" + service +
                             " service_path=" +
                             service_path);
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
   std::ostringstream res;
   mongo::BSONObj elto;
   mongo::BSONObjBuilder query;
@@ -2074,7 +2074,7 @@ int iota::AdminService::delete_service_json(
                             service_path + " apikey=" + apikey + " resource="
                             + resource + " r_devices=" +
                             boost::lexical_cast<std::string>(remove_devices));
-  PION_LOG_DEBUG(m_log, param_request);
+  IOTA_LOG_DEBUG(m_log, param_request);
 
   std::string reason;
   std::string error_details;
@@ -2149,7 +2149,7 @@ void iota::AdminService::deploy_device(Device& device) {
       }
     }
     catch (std::exception& e) {
-      PION_LOG_DEBUG(m_log, e.what());
+      IOTA_LOG_DEBUG(m_log, e.what());
     }
     ++it;
   }
@@ -2169,7 +2169,7 @@ void iota::AdminService::register_iota_manager() {
       }
     }
     catch (std::exception& e) {
-      PION_LOG_DEBUG(m_log, e.what());
+      IOTA_LOG_DEBUG(m_log, e.what());
     }
     ++it;
   }
@@ -2249,7 +2249,7 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
     const std::string& service_name,
     const std::string& service_path,
     const boost::shared_ptr<iota::ServiceCollection>& table) {
-  PION_LOG_DEBUG(m_log, "check_device_protocol " << protocol_name);
+  IOTA_LOG_DEBUG(m_log, "check_device_protocol " << protocol_name);
 
   if (protocol_name.empty()) {
     return false;
@@ -2259,22 +2259,22 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
   std::string resource;
   iota::RestHandle* plugin;
   table->fill_all_resources(service_name, service_path, resources);
-  PION_LOG_DEBUG(m_log, "Number of elements in resources:" << resources.size());
+  IOTA_LOG_DEBUG(m_log, "Number of elements in resources:" << resources.size());
   for (std::vector<std::string>::iterator it = resources.begin();
        it != resources.end(); ++it) {
     resource = *it;
     plugin = get_service(resource);
-    PION_LOG_DEBUG(m_log, "Checking resource " << resource);
+    IOTA_LOG_DEBUG(m_log, "Checking resource " << resource);
     if (plugin != NULL) {
       iota::ProtocolData pro = plugin->get_protocol_data();
-      PION_LOG_DEBUG(m_log, "Protocol in resource " << pro.protocol);
+      IOTA_LOG_DEBUG(m_log, "Protocol in resource " << pro.protocol);
       if (protocol_name.compare(pro.protocol) ==0) {
-        PION_LOG_DEBUG(m_log, "exists plugin:" << protocol_name);
+        IOTA_LOG_DEBUG(m_log, "exists plugin:" << protocol_name);
         return true;
       }
     }
     else {
-      PION_LOG_ERROR(m_log, "Plugin NULL checking resource " << resource);
+      IOTA_LOG_ERROR(m_log, "Plugin NULL checking resource " << resource);
     }
   }
 

@@ -54,7 +54,7 @@ ESPLib* iota::esp::TTService::getESPLib() {
 
 iota::esp::TTService::TTService() : m_logger(PION_GET_LOGGER(iota::logger)) {
   std::cout << "esp::TTService " << std::endl;
-  PION_LOG_DEBUG(m_logger,"iota::esp::TTService Running...  ");
+  IOTA_LOG_DEBUG(m_logger,"iota::esp::TTService Running...  ");
 
 
   //iota::tt::TTCBPublisher* cbPubImpl = new iota::tt::TTCBPublisher();
@@ -96,7 +96,7 @@ int iota::esp::TTService::initESPLib(std::string& pathToLog,
     }
   }
   else {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "Unexpected call to initESPLib. There are some sensors already in use: " <<
                    iota::esp::TTService::getESPLib()->sensors.size());
 
@@ -111,15 +111,15 @@ void iota::esp::TTService::set_option(const std::string& name,
                                 const std::string& value) {
 
   if (name.compare("ConfigFile") == 0) {
-    PION_LOG_DEBUG(m_logger,"Reading Config File: " << value);
+    IOTA_LOG_DEBUG(m_logger,"Reading Config File: " << value);
 
     try {
       read_xml(value, _service_configuration,
                boost::property_tree::xml_parser::no_comments);
-      PION_LOG_DEBUG(m_logger,"XML READ");
+      IOTA_LOG_DEBUG(m_logger,"XML READ");
 
       std::string sensors = _service_configuration.get<std::string>("Sensors");
-      PION_LOG_DEBUG(m_logger,"Sensors: " << sensors);
+      IOTA_LOG_DEBUG(m_logger,"Sensors: " << sensors);
 
       // Set LogPath
       std::string logpath = _service_configuration.get<std::string>("LogPath");
@@ -131,16 +131,16 @@ void iota::esp::TTService::set_option(const std::string& name,
     }
     catch (boost::exception& e) {
 
-      PION_LOG_DEBUG(m_logger,"boost::exception while parsing Config File ");
+      IOTA_LOG_DEBUG(m_logger,"boost::exception while parsing Config File ");
     }
     catch (std::exception& e) {
 
-      PION_LOG_DEBUG(m_logger,"std::exception: " << e.what());
+      IOTA_LOG_DEBUG(m_logger,"std::exception: " << e.what());
     }
   }
   else {
 
-    PION_LOG_DEBUG(m_logger,"OPTION:  " << name << " IS UNKNOWN");
+    IOTA_LOG_DEBUG(m_logger,"OPTION:  " << name << " IS UNKNOWN");
   }
 }
 
@@ -165,7 +165,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
   //3. Create NGSI publication.
 
 
-  PION_LOG_DEBUG(m_logger, "TT: service ");
+  IOTA_LOG_DEBUG(m_logger, "TT: service ");
   std::string keyword("cadena");
 
   std::string apikey;
@@ -183,7 +183,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
   std::string method = http_request_ptr->get_method();
   std::string orig_resource = http_request_ptr->get_original_resource();
 
-  PION_LOG_DEBUG(m_logger, method << ":" << orig_resource);
+  IOTA_LOG_DEBUG(m_logger, method << ":" << orig_resource);
 
 
   try {
@@ -192,7 +192,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
 
     strBuffer.assign(pion::algorithm::url_decode(http_request_ptr->get_content()));
 
-    PION_LOG_DEBUG(m_logger, "TT Request received: [" << strBuffer << "]");
+    IOTA_LOG_DEBUG(m_logger, "TT Request received: [" << strBuffer << "]");
 
 
     http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
@@ -202,7 +202,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
 
     //Now, ESPlib takes over:
     if (idSensor <= 0) {
-      PION_LOG_ERROR(m_logger,
+      IOTA_LOG_ERROR(m_logger,
                      "ESPlib was not started properly, nothing will be done.");
       http_response.set_status_code(500);
       http_response.set_status_message("IoTAgent not properly initialized");
@@ -224,12 +224,12 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
       boost::property_tree::ptree pt_cb;
 
       //add_info(pt_cb, get_resource(), "");
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "TTService: Getting searching device : [" << device_id << "]");
       boost::shared_ptr<Device> dev = get_device(device_id);
 
       if (dev.get() == NULL) {
-        PION_LOG_ERROR(m_logger,
+        IOTA_LOG_ERROR(m_logger,
                      "TTService:  device : [" << device_id << "] Not FOUND");
         std::string reason("Error: Device ");
         reason.append(device_id);
@@ -242,7 +242,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
       std::string service_tt(dev->_service);
       std::string sub_service(dev->_service_path);
 
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "TTService: Getting info: Service: [" << service_tt <<
                      "] sub service ["<<sub_service<<"]");
 
@@ -254,7 +254,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
       iota::esp::tt::QueryContextWrapper* queryC = new iota::esp::tt::QueryContextWrapper(
         &pt_cb);
 
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "TTService: Creating entity to be published: Service: [" << service_tt << "]");
 
       //This values will be overwritten later on.
@@ -262,7 +262,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
 
       cElem.set_env_info(pt_cb, dev);
 
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "TTService: Creating entity : [" << cElem.get_string() <<
                      "]"); //call to populate internal fields from cache, or by default, etc... not interesated in result
 
@@ -280,7 +280,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
           CC_AttributesType::iterator itModule = mainResult.attresults[i].find("module");
 
           if (itModule == mainResult.attresults[i].end()) {
-            PION_LOG_WARN(m_logger,"TTService:  Missing keyword: [module] in parser's output device: ["<< device_id <<"]");
+            IOTA_LOG_WARN(m_logger,"TTService:  Missing keyword: [module] in parser's output device: ["<< device_id <<"]");
             continue;
           }
           tt_post_ptr_->initialize();
@@ -291,17 +291,17 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
             attributes_result.push_back(mainResult.attresults[i]);
 
           }else if (!tt_post_ptr_->isResultValid()) {
-            PION_LOG_ERROR(m_logger,
+            IOTA_LOG_ERROR(m_logger,
             "TTService: ERROR-TT while processing module [" <<module << "] for id_device ["<< device_id<<"] " );
           }else{
-            PION_LOG_DEBUG(m_logger,
+            IOTA_LOG_DEBUG(m_logger,
                          "TTService: adding module to response processing : [" << module << "]");
             attributes_result.push_back(mainResult.attresults[i]);
             temp.assign(tt_post_ptr_->getResultData());
             decodeTT->parse(temp);
             vJsonTT_Processed.push_back(decodeTT->getProcessedJSON());
             vJsonTT_Plain.push_back(decodeTT->getPlainJSON());
-            PION_LOG_DEBUG(m_logger,
+            IOTA_LOG_DEBUG(m_logger,
                          "TTService: JSONS: [" << decodeTT->getPlainJSON() << "]");
           }
           tt_post_ptr_->terminate();
@@ -310,14 +310,14 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
       delete decodeTT;
 
       if (attributes_result.size() == 0){
-        PION_LOG_WARN(m_logger,"TTService: ignoring CB operations due to no valid modules found on the request for device:["<<device_id<<"]");
+        IOTA_LOG_WARN(m_logger,"TTService: ignoring CB operations due to no valid modules found on the request for device:["<<device_id<<"]");
         response.assign("");
         return;
       }
 
       response.assign(seeker.searchTTResponse(attributes_result, cElem.get_id(),
                                               cElem.get_type(), queryC));
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "TTService: Response after QueryContext: [" << response << "]");
 
       iota::RiotISO8601 timeInstant;
@@ -327,7 +327,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
       //no Response was found for the TT request.
       if (response == "") {
         //Need to publish new Attribute
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "TTService: No previous entries were found for these attributes, so publishing for the first time.");
 
 
@@ -337,12 +337,12 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
         cElemNew.set_env_info(pt_cb, dev);
 
         cElemNew.get_string(); //call to populate internal fields from cache, or by default, etc... not interesated in result
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "TTService: About to publish on CB for the First Time");
 
         responseCB.assign(contextBrokerPub->publishContextBroker(cElemNew,
                           vJsonTT_Plain, pt_cb, timeInstant));
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "TTService: Response from CB after Publishing FIRST TIME TT Events [" <<
                        responseCB << "]");
         //Now quering the CB again... although I should get the same I just posted, just in case a real change happens in between.
@@ -351,7 +351,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
         //response is what needs to be sent to the device.
         //What should I do if I get another 404 or empty response after publishing? is this even possible?
         if (response == ""){
-          PION_LOG_ERROR(m_logger,"TTService: unexpected empty response from ContextBroker.");
+          IOTA_LOG_ERROR(m_logger,"TTService: unexpected empty response from ContextBroker.");
           http_response.set_status_code(500);
           throw iota::IotaException("Empty response from CB","An unexpected empty response received from ContextBroker. Entity was not published",500);
         }
@@ -366,7 +366,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
       //Get the response, and log it.
       responseCB.assign(contextBrokerPub->publishContextBroker(cElem,
                         vJsonTT_Processed, pt_cb, timeInstant));
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "TTService: Response from CB after Publishing received TT Events [" <<
                      responseCB << "]");
 
@@ -374,7 +374,7 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
 
     }
     else {
-      PION_LOG_ERROR(m_logger, "[request] keyword not found in incoming TT message.");
+      IOTA_LOG_ERROR(m_logger, "[request] keyword not found in incoming TT message.");
       http_response.set_status_code(400);
       http_response.set_status_message("Bad Request");
       response.assign("Error: TT message not properly formatted");
@@ -385,12 +385,12 @@ void iota::esp::TTService::service(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (iota::IotaException& ex) {
-    PION_LOG_ERROR(m_logger, "Error: ["<<ex.what()<<"]");
+    IOTA_LOG_ERROR(m_logger, "Error: ["<<ex.what()<<"]");
     http_response.set_status_message("IoTAgent Error");
     response.assign(ex.what());
   }
   catch (std::runtime_error& excep) {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "An error has occured and the message couldn't get processed.");
     http_response.set_status_code(500);
     http_response.set_status_message("IoTAgent Internal Error");
@@ -416,7 +416,7 @@ void iota::esp::TTService::add_info(boost::property_tree::ptree& pt,
     std::string service_path = pt.get<std::string>("service_path", "");
     std::string token = pt.get<std::string>("token", "");
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "Config retrieved: token: "<< token <<" service_path: "<< service_path);
 
     pt.put("timeout", timeout);
@@ -425,7 +425,7 @@ void iota::esp::TTService::add_info(boost::property_tree::ptree& pt,
 
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "Configuration error for service: " << iotService << " [" << e.what() << "] ");
     throw e;
   }

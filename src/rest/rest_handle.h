@@ -29,6 +29,7 @@
 #include <boost/thread/mutex.hpp>
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/response_writer.hpp>
+#include "util/iota_logger.h"
 #include "http_filter.h"
 #include "riot_conf.h"
 #include "iot_statistic.h"

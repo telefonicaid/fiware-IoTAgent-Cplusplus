@@ -49,7 +49,7 @@ std::string iota::esp::tt::SearchResponse::doSearchTTResponse(
   GMResponse* gmResponse;
   iota::QueryContext q;
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "doSearchTTResponse name:["<<entity_name<<"] type:["<<entity_type<<"]");
 
   iota::Entity entity(entity_name, entity_type, "false");
@@ -69,11 +69,11 @@ std::string iota::esp::tt::SearchResponse::doSearchTTResponse(
 
     ::iota::ContextResponse cResp = cResponses.get_context_responses()[0];
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "doSearchTTResponse: response STATUS: ["<<cResp.get_code()<<"]");
     if (cResp.get_code()=="200") {
 
-      PION_LOG_DEBUG(m_logger,"doSearchTTResponse: Checking Attributes... ");
+      IOTA_LOG_DEBUG(m_logger,"doSearchTTResponse: Checking Attributes... ");
       ::iota::ContextResponse cResp = cResponses.get_context_responses()[0];
 
       ::iota::ContextElement& cElement = cResp.get_context_element();
@@ -94,7 +94,7 @@ std::string iota::esp::tt::SearchResponse::doSearchTTResponse(
           busid.assign(itBus->second.getValueAsString());
 
 
-          PION_LOG_DEBUG(m_logger,
+          IOTA_LOG_DEBUG(m_logger,
                          "doSearchTTResponse: Checking response for Module ["<< module
                          <<"] and entity ["<< entity_name << "] ");
 
@@ -107,21 +107,21 @@ std::string iota::esp::tt::SearchResponse::doSearchTTResponse(
                                               module);
 
           ttResponse->setBusId(busid);
-          PION_LOG_DEBUG(m_logger,
+          IOTA_LOG_DEBUG(m_logger,
                          "doSearchTTResponse: TTResponse object created obtaining info from CB Response:");
           ttResponse->processContextElement(cElement,attributes[i]);
-          PION_LOG_DEBUG(m_logger,
+          IOTA_LOG_DEBUG(m_logger,
                          "doSearchTTResponse: TTResponse object created obtaining info from CB Response: DONE");
 
           if (finalResponse != "") {
             finalResponse.append(",");
           }
 
-          PION_LOG_DEBUG(m_logger,
+          IOTA_LOG_DEBUG(m_logger,
                          "doSearchTTResponse: Response obtained: [ "<<ttResponse->toTTString()<<" ]");
           finalResponse.append(ttResponse->toTTString());
 
-          PION_LOG_DEBUG(m_logger,
+          IOTA_LOG_DEBUG(m_logger,
                          "doSearchTTResponse: TTResponse appended response: [ "<<finalResponse<<"]");
 
           delete ttResponse;
@@ -187,7 +187,7 @@ void iota::esp::tt::TTResponse::processContextElement(::iota::ContextElement&
     //some Modules may have their names stored in a different "param" within Cc_AttributesType
 
     if (attrib.get_name() == nameTTAttribute) {
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "TTResponse:processContextElement: Attribute Found: "<<nameTTAttribute);
       parseResponse(attrib);
       byDefault = false;
@@ -334,7 +334,7 @@ void iota::esp::tt::GCResponse::populateInternalFields(CC_AttributesType&
     value = itValue->second.getValueAsString();
   }
   else {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "GCResponse:populateInternalFields: Value [param_2] was not found, response won't be complete ");
   }
 
@@ -482,7 +482,7 @@ void iota::esp::tt::BResponse::populateInternalFields(CC_AttributesType& attribu
     estado_activacion_carga.assign(itEstado->second.getValueAsString());
   }
   else {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "BResponse::populateInternalFields: [param_2] not found, missing [estado_activacion]");
   }
 
@@ -490,7 +490,7 @@ void iota::esp::tt::BResponse::populateInternalFields(CC_AttributesType& attribu
     modo_carga.assign(itModo->second.getValueAsString());
   }
   else {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "BResponse::populateInternalFields: [param_5] not found, missing [modo_carga]");
   }
 
@@ -498,7 +498,7 @@ void iota::esp::tt::BResponse::populateInternalFields(CC_AttributesType& attribu
     tiempo_desconexion_stack.assign(itTiempo->second.getValueAsString());
   }
   else {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "BResponse::populateInternalFields: [param_6] not found, missing [tiempo_desco_stack]");
   }
 

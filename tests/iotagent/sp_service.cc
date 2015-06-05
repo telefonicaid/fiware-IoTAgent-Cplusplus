@@ -63,15 +63,15 @@ extern iota::AdminService* AdminService_ptr;
 
 
 iota::SPService::SPService(): m_logger(PION_GET_LOGGER(iota::logger)) {
-  PION_LOG_DEBUG(m_logger, "iota::SPService::SPService");
+  IOTA_LOG_DEBUG(m_logger, "iota::SPService::SPService");
 }
 
 iota::SPService::~SPService() {
-  PION_LOG_DEBUG(m_logger, "Destructor iota::SPService::SPService");
+  IOTA_LOG_DEBUG(m_logger, "Destructor iota::SPService::SPService");
 }
 
 void iota::SPService::start() {
-  PION_LOG_DEBUG(m_logger, "START PLUGIN SPService");
+  IOTA_LOG_DEBUG(m_logger, "START PLUGIN SPService");
 
   std::map<std::string, std::string> filters;
   add_url("", filters, REST_HANDLE(&iota::SPService::service), this);
@@ -118,7 +118,7 @@ void iota::SPService::service(pion::http::request_ptr& http_request_ptr,
                               std::multimap<std::string, std::string>& query_parameters,
                               pion::http::response& http_response, std::string& response) {
 
-  PION_LOG_DEBUG(m_logger, "service");
+  IOTA_LOG_DEBUG(m_logger, "service");
   int code_resp = pion::http::types::RESPONSE_CODE_OK;
 
   std::string apikey = "apikey1";
@@ -136,7 +136,7 @@ void iota::SPService::service(pion::http::request_ptr& http_request_ptr,
   boost::shared_ptr<Device> dev = get_device(device,
                                   service_ptree.get<std::string>("service", ""));
   if (dev.get() == NULL) {
-    PION_LOG_DEBUG(m_logger, "Device "  << device << "is not registered;"
+    IOTA_LOG_DEBUG(m_logger, "Device "  << device << "is not registered;"
                    << apikey << ":" << service_ptree.get<std::string>("service", ""));
     entity_type = service_ptree.get<std::string>("entity_type", "");
   }
@@ -163,11 +163,11 @@ void iota::SPService::service(pion::http::request_ptr& http_request_ptr,
       for (int ii=0; ii < cb_eltos.size(); ii++) {
         std::string cb_response;
         code_resp = send(cb_eltos[ii], "APPEND", service_ptree, cb_response);
-        PION_LOG_DEBUG(m_logger, "response cb "<< cb_response);
+        IOTA_LOG_DEBUG(m_logger, "response cb "<< cb_response);
       }
     }
     else {
-      PION_LOG_DEBUG(m_logger, "han mandado una respuesta a un comando " <<
+      IOTA_LOG_DEBUG(m_logger, "han mandado una respuesta a un comando " <<
                      id_command << "->" <<command_http_response_translate);
 
 
@@ -184,7 +184,7 @@ void iota::SPService::service(pion::http::request_ptr& http_request_ptr,
   CommandVect cmdPtes;
   if (method.compare("GET") == 0) {
     cmdPtes = get_all_command(dev, service_ptree);
-    PION_LOG_DEBUG(m_logger,  "N. commands " << cmdPtes.size());
+    IOTA_LOG_DEBUG(m_logger,  "N. commands " << cmdPtes.size());
   }
 
 
@@ -240,7 +240,7 @@ int iota::SPService::isCommandResp(const std::string& str_command_resp,
   std::string result;
 
   id_command.assign(get_id_command(str_command_resp));
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "isCommandResp" << cmd_code << ":" << str_command_resp<< ":" <<id_command);
   if (id_command.empty() == false) {
     size_t p_id = str_command_resp.find_first_of("|");
@@ -273,7 +273,7 @@ int iota::SPService::execute_command(const std::string& destino,
   int size_respuesta = 0;
 
 
-  PION_LOG_DEBUG(m_logger, "execute the command");
+  IOTA_LOG_DEBUG(m_logger, "execute the command");
   std::string response_from_device;
 
   std::string command_response;

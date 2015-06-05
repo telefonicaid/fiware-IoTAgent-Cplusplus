@@ -23,7 +23,7 @@
 #define IOTAMQTTSERVICEIMPL_H
 
 #include "IotaMqttService.h"
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>

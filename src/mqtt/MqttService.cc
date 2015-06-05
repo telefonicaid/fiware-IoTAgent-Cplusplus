@@ -50,7 +50,7 @@ ESPLib* iota::esp::MqttService::getESPLib() {
 
 iota::esp::MqttService::MqttService() : m_logger(PION_GET_LOGGER(iota::logger)) {
   std::cout << "iota::esp::MqttService " << std::endl;
-  PION_LOG_DEBUG(m_logger, "iota::esp::MqttService Running...  ");
+  IOTA_LOG_DEBUG(m_logger, "iota::esp::MqttService Running...  ");
   iota_mqtt_service_ptr_ = NULL;
   idsensor = -1;
 }
@@ -83,14 +83,14 @@ void iota::esp::MqttService::initESPLib(std::string& pathToLog,
 
 
   if (iota::esp::MqttService::getESPLib()->sensors.size() == 0) {
-    PION_LOG_DEBUG(m_logger, "Loading sensor from file: " << sensorFile);
+    IOTA_LOG_DEBUG(m_logger, "Loading sensor from file: " << sensorFile);
     idsensor = iota::esp::MqttService::getESPLib()->createSensor(sensorFile);
-    PION_LOG_DEBUG(m_logger, "Created Sensor, idSensor : " << idsensor);
+    IOTA_LOG_DEBUG(m_logger, "Created Sensor, idSensor : " << idsensor);
 
   }
   else {
 
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "More than one sensor is not supported on this version. Sorry.");
   }
 
@@ -108,15 +108,15 @@ void iota::esp::MqttService::setIotaMqttService(iota::esp::ngsi::IotaMqttService
   iota::esp::MqttService::getESPLib()->setUserData(idsensor, userData);
   iota::esp::MqttService::getESPLib()->registerResultCallback(idsensor,
       this, /*sensorResultCallback*/NULL); //NO CALLBACK selected
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "ContextBroker Publisher (IotaMqttService) registered for idsensor:" <<
                  idsensor);
 }
 
 void iota::esp::MqttService::startESP() {
-  PION_LOG_DEBUG(m_logger, "Starting idsensor: " << idsensor);
+  IOTA_LOG_DEBUG(m_logger, "Starting idsensor: " << idsensor);
   iota::esp::MqttService::getESPLib()->startSensor(idsensor, "main");
-  PION_LOG_DEBUG(m_logger, "Sensor  idsensor: " << idsensor<< " DONE");
+  IOTA_LOG_DEBUG(m_logger, "Sensor  idsensor: " << idsensor<< " DONE");
 
 }
 
@@ -125,15 +125,15 @@ void iota::esp::MqttService::set_option(const std::string& name,
                                   const std::string& value) {
 
   if (name.compare("ConfigFile") == 0) {
-    PION_LOG_DEBUG(m_logger, "Reading Config File: " << value);
+    IOTA_LOG_DEBUG(m_logger, "Reading Config File: " << value);
 
     try {
       read_xml(value, _service_configuration,
                boost::property_tree::xml_parser::no_comments);
-      PION_LOG_DEBUG(m_logger, "XML READ");
+      IOTA_LOG_DEBUG(m_logger, "XML READ");
 
       strSensorFile = _service_configuration.get<std::string>("Sensors");
-      PION_LOG_DEBUG(m_logger, "Sensor File: " << strSensorFile);
+      IOTA_LOG_DEBUG(m_logger, "Sensor File: " << strSensorFile);
 
       // Set LogPath
       pathLog = _service_configuration.get<std::string>("LogPath");
@@ -142,16 +142,16 @@ void iota::esp::MqttService::set_option(const std::string& name,
     }
     catch (boost::exception& e) {
 
-      PION_LOG_DEBUG(m_logger, "boost::exception ");
+      IOTA_LOG_DEBUG(m_logger, "boost::exception ");
     }
     catch (std::exception& e) {
 
-      PION_LOG_DEBUG(m_logger, "std::exception: " << e.what());
+      IOTA_LOG_DEBUG(m_logger, "std::exception: " << e.what());
     }
   }
   else {
 
-    PION_LOG_DEBUG(m_logger, "OPTION:  " << name << " IS UNKNOWN");
+    IOTA_LOG_DEBUG(m_logger, "OPTION:  " << name << " IS UNKNOWN");
   }
 }
 
@@ -216,7 +216,7 @@ int iota::esp::MqttService::execute_mqtt_command(std::string apikey,
 
   cparams.insert(std::pair<std::string, std::string>("cmdparams", payload));
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "MqttService::execute_mqtt_command :/" + apikey + " / " + device + " / " +
                  "cmd / " + name);
   ESP_Input_Base* input =
@@ -255,12 +255,12 @@ void iota::esp::MqttService::respond_mqtt_command(std::string apikey,
   iota::CommandPtr commandPtr = get_command(command_id, srv, srv_path);
 
   if (commandPtr.get() == NULL) {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "processCommandResponse: already responded, command not in cache id: " <<
                    command_id << " service:" <<  srv << " service path: " << srv_path);
   }
   else {
-    PION_LOG_DEBUG(m_logger, "processCommandResponse: command in cache id: " <<
+    IOTA_LOG_DEBUG(m_logger, "processCommandResponse: command in cache id: " <<
                    command_id << "  service:" <<  srv << " service path: " << srv_path);
     command = commandPtr->get_name();
     commandPtr->cancel();
@@ -303,7 +303,7 @@ int iota::esp::MqttService::execute_command(const std::string& endpoint,
   cmdPayload = command_to_send.get<std::string>(iota::store::types::BODY, "");
 
   cmdname = command_to_send.get<std::string>(iota::store::types::NAME,"");
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                    "MqttService::execute_command apikey: [" << apikey << "] device [" << iddevice
                    << "] name: ["<< cmdname<< "] payload [" << cmdPayload << "]");
 

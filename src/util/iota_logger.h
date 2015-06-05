@@ -23,10 +23,13 @@
 #ifndef SRC_UTIL_IOTA_LOGGER_H_
 #define SRC_UTIL_IOTA_LOGGER_H_
 
+#include <pion/logger.hpp>
+
 #define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
 #define IOTA_LOG_DEBUG(LOG, MSG) PION_LOG_DEBUG(LOG, "| op=" << __FUNCTION__ << " |file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
-#define IOTA_LOG_WARN(LOG, MSG) PION_LOG_DEBUG(LOG, "| op=" << __FUNCTION__ << " |file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
-#define IOTA_LOG_ERROR(LOG, MSG) PION_LOG_DEBUG(LOG, "| op=" << __FUNCTION__ << " |file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
+#define IOTA_LOG_INFO(LOG, MSG) PION_LOG_INFO(LOG, "| op=" << __FUNCTION__ << " |file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
+#define IOTA_LOG_WARN(LOG, MSG) PION_LOG_WARN(LOG, "| op=" << __FUNCTION__ << " |file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
+#define IOTA_LOG_ERROR(LOG, MSG) PION_LOG_ERROR(LOG, "| op=" << __FUNCTION__ << " |file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
 #define IOTA_LOG_FATAL(LOG, MSG) PION_LOG_DEBUG(LOG, "| op=" << __FUNCTION__ << " |file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
 
 #endif

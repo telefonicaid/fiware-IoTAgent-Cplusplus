@@ -38,15 +38,15 @@ extern iota::AdminService* AdminService_ptr;
 
 
 iota::TestService::TestService(): m_logger(PION_GET_LOGGER(iota::logger)) {
-  PION_LOG_DEBUG(m_logger, "iota::TestService::TestService");
+  IOTA_LOG_DEBUG(m_logger, "iota::TestService::TestService");
 }
 
 iota::TestService::~TestService() {
-  PION_LOG_DEBUG(m_logger, "Destructor iota::TestService::TestService");
+  IOTA_LOG_DEBUG(m_logger, "Destructor iota::TestService::TestService");
 }
 
 void iota::TestService::start() {
-  PION_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
+  IOTA_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
 
   std::map<std::string, std::string> filters;
   add_url("", filters, REST_HANDLE(&iota::TestService::service), this);
@@ -61,7 +61,7 @@ void iota::TestService::op_ngsi(pion::http::request_ptr& http_request_ptr,
                                    std::multimap<std::string, std::string>& query_parameters,
                                    pion::http::response& http_response, std::string& response) {
 
-  PION_LOG_DEBUG(m_logger, "op_ngsi TestService");
+  IOTA_LOG_DEBUG(m_logger, "op_ngsi TestService");
 
   http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
   response = "It should be a correct NGSI response";
@@ -73,7 +73,7 @@ void iota::TestService::service(pion::http::request_ptr& http_request_ptr,
                                    std::multimap<std::string, std::string>& query_parameters,
                                    pion::http::response& http_response, std::string& response) {
 
-  PION_LOG_DEBUG(m_logger, "TestService service");
+  IOTA_LOG_DEBUG(m_logger, "TestService service");
 
   boost::system::error_code error_code;
   int code_resp = pion::http::types::RESPONSE_CODE_OK;
@@ -85,7 +85,7 @@ void iota::TestService::service(pion::http::request_ptr& http_request_ptr,
   std::string resource_o = http_request_ptr->get_original_resource();
   std::string ip = http_request_ptr->get_remote_ip().to_string();
   std::string resource = http_request_ptr->get_resource();
-  PION_LOG_DEBUG(m_logger, method << " " << resource_o);
+  IOTA_LOG_DEBUG(m_logger, method << " " << resource_o);
 
   std::string content;
   std::string s_query = http_request_ptr->get_query_string();
@@ -98,7 +98,7 @@ void iota::TestService::service(pion::http::request_ptr& http_request_ptr,
   try {
     int i = 0;
     for (i = 0; i < query.size(); i++) {
-      PION_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
+      IOTA_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
       if (query[i].getKey().compare("i") == 0) {
         device = query[i].getValue();
       }
@@ -109,7 +109,7 @@ void iota::TestService::service(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "translate error ");
+    IOTA_LOG_ERROR(m_logger, "translate error ");
     code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   }
 
@@ -120,9 +120,9 @@ void iota::TestService::service(pion::http::request_ptr& http_request_ptr,
       && (http_request_ptr->get_content() != NULL)) {
     cl = http_request_ptr->get_content_length();
     content = http_request_ptr->get_content();
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "Message from " << ip << " to " << resource << " CONTENT " << content);
-    PION_LOG_DEBUG(m_logger, "CONTENT " << content);
+    IOTA_LOG_DEBUG(m_logger, "CONTENT " << content);
   }
 
   // Generating a NGSI updateContext and sending it to contextBroker
@@ -155,7 +155,7 @@ int iota::TestService::send_update_context(const std::string& dev,
 
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
 
   // Generating an updateContext
@@ -175,12 +175,12 @@ int iota::TestService::send_update_context(const std::string& dev,
 
 
   // Sending updateContext to contextBroker
-  PION_LOG_DEBUG(m_logger, "Sending to contextBroker URL : " << cb_url);
-  PION_LOG_DEBUG(m_logger, "NGSI updateContext json : " << uc.get_string());
+  IOTA_LOG_DEBUG(m_logger, "Sending to contextBroker URL : " << cb_url);
+  IOTA_LOG_DEBUG(m_logger, "NGSI updateContext json : " << uc.get_string());
 
   cb_response = cb_communicator.send(cb_url, uc.get_string(), pt_cb);
 
-  PION_LOG_DEBUG(m_logger, "contextBroker response : " << cb_response);
+  IOTA_LOG_DEBUG(m_logger, "contextBroker response : " << cb_response);
 
 
 }
