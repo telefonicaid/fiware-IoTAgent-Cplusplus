@@ -1105,7 +1105,7 @@ int iota::AdminManagerService::post_protocol_json(
       std::map<std::string, mongo::BSONObj>::iterator iter;
       for (iter = services_in_mongo.begin(); iter != services_in_mongo.end();
            ++iter) {
-          service_table.remove(iter->second);
+        service_table.remove(iter->second);
       }
     }
 
@@ -1222,15 +1222,13 @@ int iota::AdminManagerService::post_service_json(
             response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
                                             i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
           }
-          else if (code != -1) {
+          else if (code_i != -1) {
             response_from_iotagent_nok.insert(std::pair<std::string, std::string>
                                               (all_dest.at(
                                                  i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
             PION_LOG_ERROR(m_log, param_request + " content=" + resp_http->get_content());
           }
           PION_LOG_INFO(m_log, param_request);
-          iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
-                            iota::types::ERROR, "post_service");
         }
         catch (std::exception& e) {
           iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
@@ -1387,8 +1385,6 @@ int iota::AdminManagerService::put_service_json(
             code_from_iota =  resp_http->get_status_code();
           }
           PION_LOG_INFO(m_log, param_request);
-          iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
-                            iota::types::ERROR, "put_service");
         }
         catch (std::exception& e) {
           iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
@@ -1404,8 +1400,8 @@ int iota::AdminManagerService::put_service_json(
       if (response_from_iotagent_nok.size() > 0) {
         response = response_from_iotagent_nok.begin()->second;
         if (code_from_iota != pion::http::types::RESPONSE_CODE_NO_CONTENT) {
-           PION_LOG_DEBUG(m_log, "Setting status received from agent");
-           code = code_from_iota;
+          PION_LOG_DEBUG(m_log, "Setting status received from agent");
+          code = code_from_iota;
         }
       }
       else {
@@ -1454,7 +1450,7 @@ int iota::AdminManagerService::delete_service_json(
     new iota::ServiceMgmtCollection());
   iota::ProtocolCollection proto_collection;
   std::map<std::string, std::string> response_from_iotagent;
-
+  std::map<std::string, std::string> response_from_iotagent_nok;
   if (resource.empty()) {
     error_details.assign("protocol is mandatory");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
@@ -1525,8 +1521,11 @@ int iota::AdminManagerService::delete_service_json(
           response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
                                           i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
         }
-        iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
-                          iota::types::ERROR, "delete_service_json");
+        else if (code_i != -1) {
+          response_from_iotagent_nok.insert(std::pair<std::string, std::string>
+                                            (all_dest.at(
+                                               i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
+        }
       }
       catch (std::exception& e) {
         iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
