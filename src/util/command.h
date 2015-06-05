@@ -39,7 +39,7 @@ namespace iota {
 class Command: public virtual Timer {
   public:
 
-    Command(const std::string& id_nodo,
+    Command(const std::string& id_entity,
             const std::string& service,
             const std::string& service_path);
 
@@ -47,7 +47,7 @@ class Command: public virtual Timer {
             const std::string& service,
             const std::string& service_path,
             const std::string& sequence,
-            const std::string& id_nodo,
+            const std::string& id_entity,
             const std::string& responseURI,
             const boost::property_tree::ptree& cmd);
 
@@ -57,7 +57,7 @@ class Command: public virtual Timer {
             const std::string& service,
             const std::string& service_path,
             const std::string& sequence,
-            const std::string& id_nodo,
+            const std::string& id_entity,
             const std::string& entity_type,
             const std::string& responseURI,
             const int timeout,
@@ -119,7 +119,7 @@ class Command: public virtual Timer {
     }
 
     std::string unique_entity() const {
-      return _service+":"+_service_path + ":" + _nodo+":"+
+      return _service+":"+_service_path + ":" + _entity+":"+
              boost::lexical_cast<std::string>(_status);
     }
 
@@ -144,12 +144,12 @@ class Command: public virtual Timer {
       _sequence = sequence;
     };
 
-    std::string get_device(void) const {
-      return _nodo;
+    std::string get_entity(void) const {
+      return _entity;
     };
 
-    void set_device(const std::string& nodo) {
-      _nodo = nodo;
+    void set_entity(const std::string& nodo) {
+      _entity = nodo;
     };
 
     void set_id(const std::string& id) {
@@ -231,7 +231,7 @@ class Command: public virtual Timer {
     int _timeout;
 
     // Nodo destino al comando
-    std::string _nodo;
+    std::string _entity;
 
     std::string _entity_type;
 
