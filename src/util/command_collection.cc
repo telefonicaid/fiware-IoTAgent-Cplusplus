@@ -124,8 +124,8 @@ mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
       obj.append(iota::store::types::SERVICE_PATH, command.get_service_path());
     }
 
-  if (!command.get_device().empty()) {
-    obj.append(iota::store::types::DEVICE, command.get_device());
+  if (!command.get_entity().empty()) {
+    obj.append(iota::store::types::DEVICE, command.get_entity());
   }
 
   if (!command.get_entity_type().empty()) {

@@ -609,12 +609,14 @@ void iota::UL20Service::send_optional_registration(std::string device,
         }
 
         context_registrations.push_back(cr);
+        boost::property_tree::ptree service_ptree;
+          get_service_by_name(service_ptree, service);
 
         //TODO
         send_register(
           context_registrations,
-          service,
-          "/",
+          service_ptree,
+          item_dev,
           reg_id,
           cb_response);
 

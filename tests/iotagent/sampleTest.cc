@@ -55,7 +55,7 @@
          std::cout << "@" << __LINE__ << "@" << std::endl; \
          CPPUNIT_ASSERT(y)
 
-#define RESPONSE_MESSAGE_NGSI_OK "{ \"statusCode\" : { \"code\":200, \"reasonPhrase\":\"OK\"}}"
+#define RESPONSE_MESSAGE_NGSI_OK "{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":\"room_uttest\",\"type\":\"type2\""
 #define RESPONSE_CODE_NGSI 200
 
 #define  ASYNC_TIME_WAIT  boost::this_thread::sleep(boost::posix_time::milliseconds(100));

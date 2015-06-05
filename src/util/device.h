@@ -176,11 +176,11 @@ struct Device : public virtual Timer {
 
   std::string get_real_name() const {
     if (_entity_name.empty()) {
-        if (_entity_type.empty()){
-          return "thing:"+_name;
-        }else{
-          return _entity_type+":"+_name;
-        }
+      if (_entity_type.empty()){
+        return "thing:"+_name;
+      }else{
+        return _entity_type+":"+_name;
+      }
     }
     else {
       return _entity_name;

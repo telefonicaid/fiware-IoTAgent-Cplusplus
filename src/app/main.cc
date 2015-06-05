@@ -323,12 +323,12 @@ int main(int argc, char* argv[]) {
     pion::one_to_one_scheduler pion_scheduler;
     pion_scheduler.set_num_threads(8);
     if (!manager) {
-      PION_LOG_INFO(main_log,
+      IOTA_LOG_INFO(main_log,
                     "======= IoTAgent StartingWebServer: " << cfg_endpoint.address() <<
                     " ========");
     }
     else {
-      PION_LOG_INFO(main_log,
+      IOTA_LOG_INFO(main_log,
                     "======= IoTAgent Manager StartingWebServer: " << cfg_endpoint.address() <<
                     " ========");
     }

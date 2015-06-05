@@ -3,7 +3,7 @@ from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEAD
 from lettuce import world
 
 iotagent = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
-manager = Rest_Utils_SBC(server_root=MANAGER_SERVER_ROOT+'/iot')
+iota_manager = Rest_Utils_SBC(server_root=MANAGER_SERVER_ROOT+'/iot')
 
 URLTypes = {
     "IoTUL2": "/iot/d",
@@ -109,7 +109,7 @@ class UserSteps(object):
                 protocol=""
             device['devices'][0]['protocol'] = protocol
         if manager:
-            req = manager.post_device(device,headers)
+            req = iota_manager.post_device(device,headers)
         else:
             req = iotagent.post_device(device,headers)
 #        assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(device_name)
@@ -193,7 +193,7 @@ class UserSteps(object):
             else:
                 resource = protocol
                 service['services'][0]['protocol'] = []
-            req = manager.post_service(service, headers)
+            req = iota_manager.post_service(service, headers)
         else:
             req = iotagent.post_service(service, headers)
         if req.status_code == 201 or req.status_code == 409:
