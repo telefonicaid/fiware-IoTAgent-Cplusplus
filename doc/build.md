@@ -21,8 +21,16 @@ Other dependencies only applied to specific IoT Agent.
 
 We are built most dependencies from source. You might need to visit dependency web site in order to build such dependenies.
 
-#### boost
-It provides a script `bootstrap.sh` to build them.
+*Note*: our CMakeLists.txt requires `cmake 2.8.12` or higher to build the project. 
+
+#### Boost
+It provides a script `bootstrap.sh` to build them. We recommend you supply the path where you want to install them with the option `--prefix`. This path will be used later on when building the project. 
+
+Depending on your system, you may need to download python-dev package in order to compile Boost.
+You need to run `./b2` for building boost and `sudo ./bjam install` to install Boost libraries in the path you specify with `--prefix` option.
+
+Following elements will assume the root path for all dependencies is `/home/develop/iot/`. 
+
 #### log4cplus
 The log format used in IoTAgent writes function name. This functionality is provided by log4cplus when it finds a macro: \_\_FUNCTION\_\_ and \_\_PRETTY\_FUNCTION\_\_. You need disable \_\_PRETTY\_FUNCTION\_\_ macro modifying _configure_ script, **removing** these lines:
 
@@ -63,6 +71,13 @@ After that, you need execute something like that from directory where source is(
 ```
 ./configure --enable-release-version=yes --enable-so-version=no --prefix=/home/develop/iot/log4cplus113
 ```
+Then build the element using:
+```
+make
+make install
+``` 
+
+
 With this command, you get a shared library named _liblog4cplus-1.1.so_.
 
 #### Pion
@@ -70,6 +85,16 @@ From directory where Pion source is located, you need execute something like tha
 ```
 ./configure --with-boost=/home/develop/iot/boost_1_55_0 --with-log4cplus=/home/develop/iot/log4cplus113 --without-bzlib --prefix=/home/develop/iot/pion506
 ```
+
+Depending on your system, you may need to install other packages like `libssl-dev`. The environment variable `BOOST_ROOT` can also be used to indicate where boost was installed. 
+
+To build Pion just run usual commands:
+
+```
+make
+make install
+```
+
 Pion will be installed (in this example) in /home/develop/iot/pion506.
 
 #### MongoDB
@@ -79,14 +104,21 @@ Instuctions for download and compile  the C++ driver for mongodb (http://docs.mo
 repository  https://github.com/mongodb/mongo-cxx-driver
 
 To get a repository that you can build, you can clone the sources.
-
+```
 git clone https://github.com/mongodb/mongo-cxx-driver.git
-
-on 28 Jan legacy-1.0.0 was the offical branch.
+```
+On 28 Jan legacy-1.0.0 was the offical branch.
 
 The driver is compiled with these options (note boost path):
 
+```
 scons --prefix="/home/develop/iot/mongo-cxx-driver" --extrapath=/home/develop/iot/boost_1_55_0/ --sharedclient  install
+```
+Then:
+```
+make
+make install
+```
 
 And the result is the static and dynamic library (libmongoclient.so)
 
@@ -102,12 +134,30 @@ cmake .
 make
 ```
 
-as a result we obtain  ./src/libVariant.a
+As a result we obtain  ./src/libVariant.a
 
-Note: You can disable XML with -DLIBVARIANT_ENABLE_XML=OFF executing cmake.
+*Note*: You can disable XML with -DLIBVARIANT_ENABLE_XML=OFF executing cmake.
 
 #### GMock and GTest
-In README file you can find a recommendation in order to use this libraries: join them in .a file with  `ar -rv libgmock.a gtest-all.o gmock-all.o`. You can find these files in _src_ and _gtest/src_. Then you must execute `ar -rv libgmock.a gtest/src/gtest-all.o src/gmock-all.o` and copy libgmock.a in directory _lib_.
+We use the static library .a containing both gmock and gtest. To do so you need to build this project using:
+```
+make
+```
+And then join gmock and gtest by running:
+ ```
+ ar -rv libgmock.a gtest/src/gtest-all.o src/gmock-all.o
+ ```
+ 
+Once it's done, copy the file `libgmock.a` into the directory _lib_ within gmock base folder. You can find more information about how to build and use gmock in the README file.
+
+
+### Get the source 
+
+Run: 
+```
+git clone https://github.com/telefonicaid/fiware-IoTAgent-Cplusplus.git
+```
+
 
 
 ### Configure build environment
