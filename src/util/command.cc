@@ -22,13 +22,13 @@
 #include "command.h"
 #include "RiotISO8601.h"
 
-iota::Command::Command(const std::string& id_nodo,
+iota::Command::Command(const std::string& id_entity,
                  const std::string& service,
                  const std::string& service_path) {
 
   _service = service;
   _service_path = service_path;
-  _nodo = id_nodo;
+  _entity = id_entity;
 
 
   _id = "";
@@ -41,7 +41,7 @@ iota::Command::Command(const std::string& id_cmd,
                  const std::string& service,
                  const std::string& service_path,
                  const std::string& sequence,
-                 const std::string& id_nodo,
+                 const std::string& id_entity,
                  const std::string& responseURI,
                  const boost::property_tree::ptree& cmd) {
 
@@ -49,7 +49,7 @@ iota::Command::Command(const std::string& id_cmd,
   _service = service;
   _service_path = service_path;
   _sequence = sequence;
-  _nodo = id_nodo;
+  _entity = id_entity;
   _responseURI = responseURI;
   _command = cmd;
 
@@ -65,7 +65,7 @@ iota::Command::Command(const std::string& id_cmd,
                  const std::string& service,
                  const std::string& service_path,
                  const std::string& sequence,
-                 const std::string& id_nodo,
+                 const std::string& id_entity,
                  const std::string& entity_type,
                  const std::string& responseURI,
                  const int timeout,
@@ -76,7 +76,7 @@ iota::Command::Command(const std::string& id_cmd,
   _service = service;
   _service_path = service_path;
   _sequence = sequence;
-  _nodo = id_nodo;
+  _entity = id_entity;
   _entity_type = entity_type;
   _responseURI = responseURI;
   _command = cmd;

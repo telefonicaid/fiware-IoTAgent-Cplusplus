@@ -154,8 +154,8 @@ class CommandHandle :
     bool find_service_name(std::string srv);
 
     int send_register(std::vector<iota::ContextRegistration> context_registrations,
-                      const std::string& service,
-                      const std::string& service_path,
+                      boost::property_tree::ptree& service,
+                      const boost::shared_ptr<Device> device,
                       const std::string& regId,
                       std::string& cb_response);
 
