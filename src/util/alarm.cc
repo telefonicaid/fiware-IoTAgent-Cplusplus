@@ -79,7 +79,7 @@ void iota::Alarm::put(int code,
    std::string errorSTR =" event=ALARM";
    errorSTR.append(message(code, endpoint, status, text));
 
-   PION_LOG_ERROR(m_log, errorSTR);
+   IOTA_LOG_ERROR(m_log, errorSTR);
    _alarms.insert(std::pair<std::string,std::string>(
                   get_key(code, endpoint, status),errorSTR) );
 }
@@ -94,9 +94,9 @@ void iota::Alarm::remove(int code,
 
     int num = _alarms.erase(get_key(code, endpoint, status));
     if (num > 0){
-      PION_LOG_ERROR(m_log, errorSTR);
+      IOTA_LOG_ERROR(m_log, errorSTR);
     }else{
-      PION_LOG_DEBUG(m_log, errorSTR);
+      IOTA_LOG_DEBUG(m_log, errorSTR);
     }
 }
 

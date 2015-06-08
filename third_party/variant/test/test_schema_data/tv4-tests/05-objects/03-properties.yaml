@@ -1,0 +1,13 @@
+-   name: properties success
+    data: { intKey: 1, stringKey: "one" }
+    schema:
+        properties:
+            intKey: { type: integer }
+            stringKey: { type: string }
+-   name: properties failure
+    data: { intKey: 1, stringKey: false }
+    schema:
+        properties:
+            intKey: { type: integer }
+            stringKey: { type: string }
+    fail: true

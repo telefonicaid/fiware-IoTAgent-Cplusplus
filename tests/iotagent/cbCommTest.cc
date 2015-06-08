@@ -271,10 +271,10 @@ void cbCommTest::testAlarm() {
                                value, item_dev,
                                service, opSTR);
     CPPUNIT_ASSERT_MESSAGE("alarm not found", iota::Alarm::instance()->size() == 0);
+    device_mock->stop();
   }
 
   std::cout << "END testAlarm " << std::endl;
-
 
 
 

@@ -1,0 +1,31 @@
+-   name: additional items schema success
+    data: [1, true, "one", "uno"]
+    schema:
+        items:
+            - type: integer
+            - type: boolean
+        additionalItems: { type: string }
+-   name: additional items schema failure
+    data: [1, true, "one", 1]
+    schema:
+        items:
+            - type: integer
+            - type: boolean
+        additionalItems: { type: string }
+    fail: true
+-   name: additional items boolean success
+    data: [1, true, "one", "uno"]
+    schema:
+        items:
+            - type: integer
+            - type: boolean
+        additionalItems: true
+-   name: additional items boolean failure
+    data: [1, true, "one", "uno"]
+    schema:
+        items:
+            - type: integer
+            - type: boolean
+        additionalItems: false
+    fail: true
+

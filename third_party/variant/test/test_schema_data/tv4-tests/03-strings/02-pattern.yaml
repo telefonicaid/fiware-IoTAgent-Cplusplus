@@ -1,0 +1,7 @@
+-   name: pattern success
+    data: 9test
+    schema: { pattern: "^[0-9][a-zA-Z]*$" }
+-   name: pattern failure
+    data: 9test9
+    schema: { pattern: "^[0-9][a-zA-Z]*$" }
+    fail: true

@@ -89,7 +89,7 @@ boost::shared_ptr<iota::Command> command_from_mongo(
 
 iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
   m_asyncCommands(iota::types::MAX_SIZE_CACHE, false) {
-  PION_LOG_DEBUG(m_logger, "iota::CommandHandle::CommandHandle");
+  IOTA_LOG_DEBUG(m_logger, "iota::CommandHandle::CommandHandle");
   m_asyncCommands.set_timeout_function(boost::bind(
                                          &iota::CommandHandle::timeout_f, this, _1));
 
@@ -103,21 +103,21 @@ iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
                                        iota::store::types::STORAGE);
     if (storage.HasMember(iota::store::types::TYPE.c_str())) {
       _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
-      PION_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
+      IOTA_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
       if (_storage_type.compare(iota::store::types::MONGODB)==0) {
 
-        PION_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
+        IOTA_LOG_DEBUG(m_logger, "Setting function get in cache to find in mongo");
         m_asyncCommands.set_function(boost::bind(command_from_mongo, _1));
         m_asyncCommands.set_entity_function(boost::bind(command_from_mongo, _1));
         m_asyncCommands.set_id_function(boost::bind(command_from_mongo, _1));
       }
     }
     else {
-      PION_LOG_ERROR(m_logger, "Config file has not got storage");
+      IOTA_LOG_ERROR(m_logger, "Config file has not got storage");
     }
   }
   catch (...) {
-    PION_LOG_DEBUG(m_logger, " Problem with devices config file");
+    IOTA_LOG_DEBUG(m_logger, " Problem with devices config file");
   }
 
 }
@@ -133,7 +133,7 @@ void iota::CommandHandle::set_async_commands() {
 void iota::CommandHandle::handle_updateContext(
   const std::string& url,
   std::string response, int status) {
-  //TODO PION_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response << " " << status);
+  //TODO IOTA_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response << " " << status);
 
   if (status == 200) {
     iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url,
@@ -149,7 +149,7 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
   boost::shared_ptr<Command> item) {
   boost::property_tree::ptree service_ptree;
 
-  PION_LOG_INFO(m_logger, "timeout command: entity:" <<
+  IOTA_LOG_INFO(m_logger, "timeout command: entity:" <<
                 item->get_entity() << " service:" << item->get_service()
                 << " service_path:" << item->get_service_path()
                 << " command_id" << item->get_id());
@@ -186,16 +186,16 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
         dev, service_ptree, iota::types::STATUS_OP);
     }
     else {
-      PION_LOG_ERROR(m_logger, "timeout command:command_id" << item->get_id()<<
+      IOTA_LOG_ERROR(m_logger, "timeout command:command_id" << item->get_id()<<
                      " timeout but no command in cache, no sended data to CB");
     }
 
   }
   catch (iota::IotaException& e) {
-    PION_LOG_ERROR(m_logger, "IotaException in timeout function: " << e.what());
+    IOTA_LOG_ERROR(m_logger, "IotaException in timeout function: " << e.what());
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "Other Exception in timeout function");
+    IOTA_LOG_ERROR(m_logger, "Other Exception in timeout function");
   }
 
 
@@ -253,7 +253,7 @@ int iota::CommandHandle::get_duration_seconds(std::string data) {
   }
 
   if (!sresu.empty()) {
-    PION_LOG_DEBUG(m_logger, "sresu:  " << sresu);
+    IOTA_LOG_DEBUG(m_logger, "sresu:  " << sresu);
     int naux = atoi(sresu.c_str());
     if (naux >0) {
       result = naux * tseg;
@@ -266,7 +266,7 @@ int iota::CommandHandle::get_duration_seconds(std::string data) {
 void iota::CommandHandle::init_services_by_resource() {
   try {
 
-    PION_LOG_INFO(m_logger, "Init vector of services names by resource: " <<
+    IOTA_LOG_INFO(m_logger, "Init vector of services names by resource: " <<
                   get_resource());
     const JsonValue& res =
       iota::Configurator::instance()->getResourceObject(get_resource());
@@ -277,13 +277,13 @@ void iota::CommandHandle::init_services_by_resource() {
         for (rapidjson::SizeType i = 0; i < services.Size(); i++) {
           std::string service = services[i]["service"].GetString();
           _services_names.push_back(service);
-          PION_LOG_DEBUG(m_logger, "Found service: " << service);
+          IOTA_LOG_DEBUG(m_logger, "Found service: " << service);
         }
       }
     }
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
 }
 
@@ -300,7 +300,7 @@ bool iota::CommandHandle::find_service_name(std::string srv) {
 
 void iota::CommandHandle::make_registrations(void) {
 
-  PION_LOG_INFO(m_logger, "Start thread make_registrations");
+  IOTA_LOG_INFO(m_logger, "Start thread make_registrations");
 
   _reg_timeout = DEFAULT_REG_TIMEOUT;
 
@@ -329,15 +329,15 @@ void iota::CommandHandle::make_registrations(void) {
           send_all_registrations();
         }
         else {
-          PION_LOG_ERROR(m_logger, "incorrect type: " << type_store);
+          IOTA_LOG_ERROR(m_logger, "incorrect type: " << type_store);
         }
       }
       else {
-        PION_LOG_ERROR(m_logger, "in config devices store: no type defined");
+        IOTA_LOG_ERROR(m_logger, "in config devices store: no type defined");
       }
     }
     catch (std::exception& e) {
-      PION_LOG_ERROR(m_logger, "ERROR in conf devices_store");
+      IOTA_LOG_ERROR(m_logger, "ERROR in conf devices_store");
     }
   }
 
@@ -356,10 +356,10 @@ void iota::CommandHandle::start_thread_registrations(void) {
 }
 
 void iota::CommandHandle::send_all_registrations() {
-  PION_LOG_DEBUG(m_logger, "Sending all register");
+  IOTA_LOG_DEBUG(m_logger, "Sending all register");
 
   if (_myProvidingApp == UNKOWN_PROVIDING_APP) {
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "Registrations are not sent because a valid ProvidingApp can not be obtained");
     return;
   }
@@ -389,7 +389,7 @@ void iota::CommandHandle::send_all_registrations() {
           service_path = devices[i]["service_path"].GetString();
         }
 
-        PION_LOG_DEBUG(m_logger, "Search dev: " << dev_id);
+        IOTA_LOG_DEBUG(m_logger, "Search dev: " << dev_id);
 
         boost::shared_ptr<Device> item_find(new Device(dev_id, service));
         item_find->_service_path= service_path;
@@ -397,11 +397,11 @@ void iota::CommandHandle::send_all_registrations() {
         boost::shared_ptr<Device> item_dev = registeredDevices.get(item_find);
 
         if (! find_service_name(service)) {
-          PION_LOG_DEBUG(m_logger, "Not service of this resource: " << service);
+          IOTA_LOG_DEBUG(m_logger, "Not service of this resource: " << service);
         }
         else if (item_dev != NULL) {
 
-          PION_LOG_DEBUG(m_logger, "Found Device Entitiy: " << item_dev->_name);
+          IOTA_LOG_DEBUG(m_logger, "Found Device Entitiy: " << item_dev->_name);
 
           std::string original_entity_name = item_dev->_entity_name;
           std::string original_entity_type = item_dev->_entity_type;
@@ -410,14 +410,14 @@ void iota::CommandHandle::send_all_registrations() {
           boost::property_tree::ptree service_ptree;
           get_service_by_name(service_ptree, service);
 
-          PION_LOG_DEBUG(m_logger, "setting env info");
+          IOTA_LOG_DEBUG(m_logger, "setting env info");
           cr.set_env_info(service_ptree, item_dev);
 
           cr.add_provider(_myProvidingApp);
 
           if (! item_dev->_registration_id.empty()) {
             reg_id = item_dev->_registration_id;
-            PION_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
+            IOTA_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
           }
 
           std::map<std::string, std::string>::iterator p;
@@ -437,7 +437,7 @@ void iota::CommandHandle::send_all_registrations() {
 
           context_registrations.push_back(cr);
 
-          PION_LOG_DEBUG(m_logger, "sending to CB");
+          IOTA_LOG_DEBUG(m_logger, "sending to CB");
           send_register(
             context_registrations,
             service_ptree,
@@ -445,7 +445,7 @@ void iota::CommandHandle::send_all_registrations() {
             reg_id,
             cb_response);
 
-          PION_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
+          IOTA_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
 
           std::istringstream str_reg_response;
           str_reg_response.str(cb_response);
@@ -457,37 +457,37 @@ void iota::CommandHandle::send_all_registrations() {
           reg_time =  resp.get_duration();
           _reg_timeout = get_duration_seconds(reg_time);
 
-          PION_LOG_DEBUG(m_logger, "registrationId: " <<  reg_id);
-          PION_LOG_DEBUG(m_logger, "duration: " <<  reg_time);
+          IOTA_LOG_DEBUG(m_logger, "registrationId: " <<  reg_id);
+          IOTA_LOG_DEBUG(m_logger, "duration: " <<  reg_time);
 
           if ((original_entity_name != item_dev->_entity_name)
               || (original_entity_type != item_dev->_entity_type))  {
 
-            PION_LOG_DEBUG(m_logger, "Calculated entity name or type");
+            IOTA_LOG_DEBUG(m_logger, "Calculated entity name or type");
             boost::shared_ptr<Device> item_new(new Device(*item_dev));
             registeredDevices.remove(*item_dev);
             registeredDevices.insert(item_new);
-            PION_LOG_DEBUG(m_logger, "Calculated entity_name: " << item_new->_entity_name);
-            PION_LOG_DEBUG(m_logger, "Calculated entity_type: " << item_new->_entity_type);
+            IOTA_LOG_DEBUG(m_logger, "Calculated entity_name: " << item_new->_entity_name);
+            IOTA_LOG_DEBUG(m_logger, "Calculated entity_type: " << item_new->_entity_type);
           }
 
         }
       }
     }
     else {
-      PION_LOG_ERROR(m_logger, "devices is not array");
+      IOTA_LOG_ERROR(m_logger, "devices is not array");
     }
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Error sending registrations " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Error sending registrations " << e.what());
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "Other exception");
+    IOTA_LOG_ERROR(m_logger, "Other exception");
   }
 }
 
 void iota::CommandHandle::send_all_registrations_from_mongo() {
-  PION_LOG_DEBUG(m_logger, "Sending all register from devices collection");
+  IOTA_LOG_DEBUG(m_logger, "Sending all register from devices collection");
 
   try {
     iota::DeviceCollection dev_table;
@@ -495,23 +495,23 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
 
     iota::ServiceCollection srv_table;
 
-    PION_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
+    IOTA_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
     mongo::BSONObj srv_find = BSON("resource" << get_resource());
     int code_res = srv_table.find(srv_find);
 
     while (srv_table.more()) {
       mongo::BSONObj srv_resu =srv_table.next();
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
-      PION_LOG_DEBUG(m_logger, "Service: " <<  srv);
+      IOTA_LOG_DEBUG(m_logger, "Service: " <<  srv);
 
       Device dev_find("", srv);
       dev_table.findd(dev_find);
 
       while (dev_table.more()) {
         Device dev_resu = dev_table.nextd();
-        PION_LOG_DEBUG(m_logger, "Found device: " <<  dev_resu._name);
+        IOTA_LOG_DEBUG(m_logger, "Found device: " <<  dev_resu._name);
         // If no commands and no internal attributes, register is not needed.
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "commands=" << boost::lexical_cast<std::string>
                        (dev_resu._commands.size()) <<
                        " lazy=" << boost::lexical_cast<std::string>
@@ -529,7 +529,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
           get_service_by_name(service_ptree, srv);
           boost::shared_ptr<Device> item_dev(new Device(dev_resu));
 
-          PION_LOG_DEBUG(m_logger, "setting env info");
+          IOTA_LOG_DEBUG(m_logger, "setting env info");
           cr.set_env_info(service_ptree, item_dev);
 
           iota::Entity entity(item_dev->_entity_name, item_dev->_entity_type,
@@ -538,7 +538,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
 
           if (! dev_resu._registration_id.empty()) {
             reg_id = dev_resu._registration_id;
-            PION_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
+            IOTA_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
           }
 
           std::map<std::string, std::string>::iterator p;
@@ -563,7 +563,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
                         reg_id,
                         cb_response);
 
-          PION_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
+          IOTA_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
 
           std::istringstream str_reg_response;
           str_reg_response.str(cb_response);
@@ -583,15 +583,15 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
           Device dev_query(dev_resu._name, dev_resu._service);
           dev_table.updated(dev_query, dev_update);
 
-          PION_LOG_DEBUG(m_logger, "registrationId: " <<  reg_id);
-          PION_LOG_DEBUG(m_logger, "duration: " <<  reg_time);
+          IOTA_LOG_DEBUG(m_logger, "registrationId: " <<  reg_id);
+          IOTA_LOG_DEBUG(m_logger, "duration: " <<  reg_time);
 
         }
       }
     }
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "Error sending registrations");
+    IOTA_LOG_ERROR(m_logger, "Error sending registrations");
   }
 }
 
@@ -599,7 +599,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
   std::string p_request(" module=" + get_resource() + " device=" + device._name +
                         " service=" + device._service + " service_path="
                         + device._service_path);
-  PION_LOG_DEBUG(m_logger, p_request);
+  IOTA_LOG_DEBUG(m_logger, p_request);
 
   Device& register_device = device;
   try {
@@ -607,7 +607,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
     iota::DeviceCollection dev_table;
     iota::Collection srv_table(iota::store::types::SERVICE_TABLE);
 
-    PION_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
+    IOTA_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
     mongo::BSONObj srv_find = BSON("resource" << get_resource());
     int code_res = srv_table.find(srv_find);
 
@@ -618,15 +618,16 @@ void iota::CommandHandle::send_register_device(Device& device) {
 
       if (srv.compare(device._service) == 0 &&
           service_path.compare(device._service_path)) {
-        PION_LOG_DEBUG(m_logger, " service=" <<  srv << " service_path=" << service_path);
+        IOTA_LOG_DEBUG(m_logger, " service=" <<  srv << " service_path=" << service_path);
+
         dev_table.findd(device);
 
         while (dev_table.more()) {
           register_device = dev_table.nextd();
-          PION_LOG_DEBUG(m_logger, "Found device: " <<  register_device._name);
+          IOTA_LOG_DEBUG(m_logger, "Found device: " <<  register_device._name);
 
           // If no commands and no internal attributes, register is not needed.
-          PION_LOG_DEBUG(m_logger, p_request <<
+          IOTA_LOG_DEBUG(m_logger, p_request <<
                          " commands=" << boost::lexical_cast<std::string>
                          (register_device._commands.size()) <<
                          " lazy=" << boost::lexical_cast<std::string>
@@ -645,7 +646,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
             get_service_by_name(service_ptree, srv, service_path);
             boost::shared_ptr<Device> item_dev(new Device(register_device));
 
-            PION_LOG_DEBUG(m_logger, "setting env info");
+            IOTA_LOG_DEBUG(m_logger, "setting env info");
             cr.set_env_info(service_ptree, item_dev);
 
             iota::Entity entity(item_dev->_entity_name, item_dev->_entity_type,
@@ -654,7 +655,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
 
             if (! register_device._registration_id.empty()) {
               reg_id = register_device._registration_id;
-              PION_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
+              IOTA_LOG_DEBUG(m_logger, "Setting registrationId: " << reg_id);
             }
 
             std::map<std::string, std::string>::iterator p;
@@ -680,7 +681,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
                           reg_id,
                           cb_response);
 
-            PION_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
+            IOTA_LOG_DEBUG(m_logger, "cb_response: " <<  cb_response);
 
             std::istringstream str_reg_response;
             str_reg_response.str(cb_response);
@@ -699,7 +700,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
             Device dev_query(register_device._name, register_device._service);
             dev_table.updated(dev_query, dev_update);
 
-            PION_LOG_DEBUG(m_logger,
+            IOTA_LOG_DEBUG(m_logger,
                            p_request << " registrationId=" <<  reg_id << " duration=" << reg_time);
           }
         }
@@ -707,7 +708,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
     }
   }
   catch (...) {
-    PION_LOG_ERROR(m_logger, "Error sending registrations");
+    IOTA_LOG_ERROR(m_logger, "Error sending registrations");
   }
 }
 
@@ -717,7 +718,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
                                        const std::string& sequence,
                                        iota::ContextResponses&  context_responses) {
 
-  PION_LOG_DEBUG(m_logger, "updateContext");
+  IOTA_LOG_DEBUG(m_logger, "updateContext");
   int iresponse=200;
 
   std::vector<iota::ContextElement>::const_iterator i;
@@ -734,7 +735,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
     iota::ContextElement entity = *i;
     res.add_context_element(entity);
 
-    PION_LOG_DEBUG(m_logger,  registeredDevices.size() <<
+    IOTA_LOG_DEBUG(m_logger,  registeredDevices.size() <<
                    " getDevice:" <<  entity.get_id() << " " << entity.get_type()
                    << " of service:" << service
                    << " with service_path: " << service_path);
@@ -747,7 +748,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
         errSTR.append(entity.get_id());
         errSTR.append(" of service:");
         errSTR.append(service);
-        PION_LOG_ERROR(m_logger, errSTR);
+        IOTA_LOG_ERROR(m_logger, errSTR);
         res.set_code(iota::types::RESPONSE_CODE_NO_REGISTERED_DEVICE);
         res.set_reason(iota::types::RESPONSE_MESSAGE_NO_REGISTERED_DEVICE);
         res.set_details(errSTR);
@@ -756,11 +757,11 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
       else {
         std::string entity_type = item_dev->_entity_type;
         if (entity_type.empty()) {
-          PION_LOG_DEBUG(m_logger,
+          IOTA_LOG_DEBUG(m_logger,
                          "dev "<< item_dev->_name << " has not got entity_type");
           entity_type = service_ptree.get<std::string>("entity_type", "");
         }
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "devvvv "<< item_dev->_name << " entity_type " <<
                        entity_type << " " << item_dev->_service  <<
                        " " << item_dev->_service_path);
@@ -791,7 +792,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
       }
     }
     catch (iota::IotaException& e) {
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "CommandHandle::updateContext capturada IotaException "<< e.what());
       iresponse=e.status();
       res.set_code(e.status());
@@ -799,7 +800,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
       res.set_details(e.what());
     }
     catch (std::exception& e) {
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "CommandHandle::updateContext capturada std::exception"<< e.what());
       iresponse= iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
       res.set_reason(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
@@ -844,14 +845,14 @@ void iota::CommandHandle::getCommandLine(const std::string& command_name,
   if (item_dev.get() == NULL) {
     std::string err =  "no Device for command ";
     err.append(command_name);
-    PION_LOG_ERROR(m_logger, err);
+    IOTA_LOG_ERROR(m_logger, err);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER, err,
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
   if (command_name.empty()) {
     std::string err =  "need specify a command ";
-    PION_LOG_ERROR(m_logger, "need specify a command");
+    IOTA_LOG_ERROR(m_logger, "need specify a command");
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER, err,
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
@@ -864,7 +865,7 @@ void iota::CommandHandle::getCommandLine(const std::string& command_name,
     err.append(item_dev->_name);
     err.append(" has not a command called ");
     err.append(command_name);
-    PION_LOG_ERROR(m_logger, err);
+    IOTA_LOG_ERROR(m_logger, err);
     std::map<std::string, std::string>::iterator iter;
     std::string strCommands;
     strCommands.append("commands of device:{ ");
@@ -875,7 +876,7 @@ void iota::CommandHandle::getCommandLine(const std::string& command_name,
       strCommands.append(iter->second);
       strCommands.append(",");
     }
-    PION_LOG_DEBUG(m_logger, strCommands);
+    IOTA_LOG_DEBUG(m_logger, strCommands);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_DEVICE_NO_COMMAND,
                               err,
                               iota::types::RESPONSE_CODE_CONTEXT_ELEMENT_NOT_FOUND);
@@ -899,7 +900,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                                         const std::string& entity_type,
                                         const std::string& sequence,
                                         const boost::property_tree::ptree& service) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "updateCommand: "  <<  command_name  << "->" << parameters);
   int res_code = -1;
 
@@ -909,7 +910,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
   getCommandLine(command_name, parameters, sequence, item_dev, service,
                  command_id, command_to_send);
 
-  PION_LOG_DEBUG(m_logger, "command_id: "  <<  command_id);
+  IOTA_LOG_DEBUG(m_logger, "command_id: "  <<  command_id);
 
   int timeout = 0;
   const JsonValue& timeoutJSON = iota::Configurator::instance()->get(
@@ -917,7 +918,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
   if (timeoutJSON.IsNumber()) {
     timeout =  timeoutJSON.GetInt();
   }
-  PION_LOG_DEBUG(m_logger, "timeout by now is in config.json: "  <<  timeout);
+  IOTA_LOG_DEBUG(m_logger, "timeout by now is in config.json: "  <<  timeout);
 
   std::string resp_cmd;
   CommandData cmd_data;
@@ -943,7 +944,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                  cmd_data.service,
                  cmd_data.sequence,
                  iota::types::READY_FOR_READ);
-    PION_LOG_DEBUG(m_logger, "Device has endpoint, send command to " <<
+    IOTA_LOG_DEBUG(m_logger, "Device has endpoint, send command to " <<
                    item_dev->_endpoint);
     try {
       if (_callback) {
@@ -970,14 +971,14 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                                    service,
                                    resp_cmd);
 
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "response:" << res_code << "->" << resp_cmd);
         std::string service_name = service.get<std::string>(iota::store::types::SERVICE,
                                    "");
         std::string service_path = service.get<std::string>
                                    (iota::store::types::SERVICE_PATH, "");
         if (resp_cmd.empty()) {
-          PION_LOG_DEBUG(m_logger, "command response from plugin_terceros is empty");
+          IOTA_LOG_DEBUG(m_logger, "command response from plugin_terceros is empty");
           // empty is a good response, do not add anything
         }
         process_command_response(cmd_data, res_code, resp_cmd);
@@ -985,7 +986,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
 
     }
     catch (std::runtime_error& e) {
-      PION_LOG_ERROR(m_logger, "ERROR in execute_command:" << e.what());
+      IOTA_LOG_ERROR(m_logger, "ERROR in execute_command:" << e.what());
       res_code = types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
       resp_cmd.assign(e.what());
     }
@@ -996,7 +997,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                        iota::types::READY_FOR_READ_MESSAGE,
                        item_dev, service,
                        iota::types::STATUS_OP);
-    PION_LOG_DEBUG(m_logger, " POLLING command, item_dev has not got endpoint");
+    IOTA_LOG_DEBUG(m_logger, " POLLING command, item_dev has not got endpoint");
     save_command(command_name,
                  command_id, timeout,
                  command_to_send, item_dev,
@@ -1005,7 +1006,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                  service,
                  sequence,
                  iota::types::READY_FOR_READ);
-    PION_LOG_DEBUG(m_logger, " PUSH command id," << command_id);
+    IOTA_LOG_DEBUG(m_logger, " PUSH command id," << command_id);
   }
 
 }
@@ -1020,7 +1021,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
     std::string& command_id,
     boost::property_tree::ptree& command_line) {
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "transform_command:: " << command_value << " updateCommand_value:" <<
                  updateCommand_value);
   std::string result;
@@ -1034,7 +1035,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
       std::vector<std::string> params;
       boost::split(params, updateCommand_value,  boost::is_any_of("|"));
       int count = std::count(command_value.begin(), command_value.end(), '%');
-      PION_LOG_DEBUG(m_logger, "count:" << count << " size params:" << params.size());
+      IOTA_LOG_DEBUG(m_logger, "count:" << count << " size params:" << params.size());
       if (count ==0) {
         command_line.put(iota::store::types::BODY, command_value);
       }
@@ -1044,7 +1045,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
         errSTR.append(" in relation with ");
         errSTR.append(updateCommand_value);
         errSTR.append(".%s is replaced with  | value");
-        PION_LOG_ERROR(m_logger, errSTR);
+        IOTA_LOG_ERROR(m_logger, errSTR);
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
                                   errSTR,
                                   iota::types::RESPONSE_CODE_BAD_REQUEST);
@@ -1079,7 +1080,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
     command_id.assign(sequence_id);
   }
 
-  PION_LOG_DEBUG(m_logger, "resultcommand " << command_id << " " << result);
+  IOTA_LOG_DEBUG(m_logger, "resultcommand " << command_id << " " << result);
 };
 
 void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
@@ -1090,7 +1091,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
 
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
-  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi trace_message:" +
+  IOTA_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi trace_message:" +
                 trace_message);
 
 
@@ -1100,24 +1101,24 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
   try {
     //read updateContext
     std::string method = http_request_ptr->get_method();
-    PION_LOG_DEBUG(m_logger, "method:" << method);
+    IOTA_LOG_DEBUG(m_logger, "method:" << method);
     std::string resource_o = http_request_ptr->get_original_resource();
-    PION_LOG_DEBUG(m_logger, "resource_o:" <<resource_o);
+    IOTA_LOG_DEBUG(m_logger, "resource_o:" <<resource_o);
     std::string resource = http_request_ptr->get_resource();
-    PION_LOG_DEBUG(m_logger, "resource:" <<resource);
+    IOTA_LOG_DEBUG(m_logger, "resource:" <<resource);
 
 
     std::string item_dev_ip = http_request_ptr->get_remote_ip().to_string();
-    PION_LOG_DEBUG(m_logger, "item_dev_ip:" <<item_dev_ip);
+    IOTA_LOG_DEBUG(m_logger, "item_dev_ip:" <<item_dev_ip);
     std::string s_query = http_request_ptr->get_query_string();
-    PION_LOG_DEBUG(m_logger, "s_query:" <<s_query);
+    IOTA_LOG_DEBUG(m_logger, "s_query:" <<s_query);
     std::string content = http_request_ptr->get_content();
-    PION_LOG_DEBUG(m_logger, "content:" <<content);
+    IOTA_LOG_DEBUG(m_logger, "content:" <<content);
 
     if (http_request_ptr->has_header(iota::types::FIWARE_SERVICE)) {
       std::string service = http_request_ptr->get_header(
                               iota::types::FIWARE_SERVICE);
-      PION_LOG_DEBUG(m_logger, "service:" <<service);
+      IOTA_LOG_DEBUG(m_logger, "service:" <<service);
       std::string service_path = http_request_ptr->get_header(
                                    iota::types::FIWARE_SERVICEPATH);
 
@@ -1142,7 +1143,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
       iresponse = 200;
     }
     else {
-      PION_LOG_ERROR(m_logger,
+      IOTA_LOG_ERROR(m_logger,
                      "you need a header with " << iota::types::FIWARE_SERVICEPATH);
       iresponse = 200;
       response = create_ngsi_response(types::RESPONSE_CODE_BAD_REQUEST,
@@ -1151,8 +1152,8 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
 
   }
   catch (iota::IotaException e) {
-    PION_LOG_ERROR(m_logger,"Capturada: IotaException in default_op_ngsi");
-    PION_LOG_ERROR(m_logger,e.what());
+    IOTA_LOG_ERROR(m_logger,"Capturada: IotaException in default_op_ngsi");
+    IOTA_LOG_ERROR(m_logger,e.what());
     iresponse = 200;
     response = create_ngsi_response(e.status(), e.reason(), e.what());
   }
@@ -1173,7 +1174,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
 
   //write response
 
-  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi trace_message:" +
+  IOTA_LOG_INFO(m_logger, "iota::CommandHandle::default_op_ngsi trace_message:" +
                 trace_message+
                 " code: " + boost::lexical_cast<std::string>(iresponse)+
                 " response:" + response);
@@ -1194,7 +1195,7 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
   int iresponse= 200;
   std::string trace_message = http_request_ptr->get_header(
                                   iota::types::HEADER_TRACE_MESSAGES);
-  PION_LOG_INFO(m_logger,
+  IOTA_LOG_INFO(m_logger,
                   "iota::CommandHandle::default_queryContext_ngsi trace_message:" +
                   trace_message);
   try {
@@ -1203,24 +1204,24 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
 
     //read updateContext
     std::string method = http_request_ptr->get_method();
-    PION_LOG_DEBUG(m_logger, "method:" << method);
+    IOTA_LOG_DEBUG(m_logger, "method:" << method);
     std::string resource_o = http_request_ptr->get_original_resource();
-    PION_LOG_DEBUG(m_logger, "resource_o:" <<resource_o);
+    IOTA_LOG_DEBUG(m_logger, "resource_o:" <<resource_o);
     std::string resource = http_request_ptr->get_resource();
-    PION_LOG_DEBUG(m_logger, "resource:" <<resource);
+    IOTA_LOG_DEBUG(m_logger, "resource:" <<resource);
 
 
     std::string item_dev_ip = http_request_ptr->get_remote_ip().to_string();
-    PION_LOG_DEBUG(m_logger, "item_dev_ip:" <<item_dev_ip);
+    IOTA_LOG_DEBUG(m_logger, "item_dev_ip:" <<item_dev_ip);
     std::string s_query = http_request_ptr->get_query_string();
-    PION_LOG_DEBUG(m_logger, "s_query:" <<s_query);
+    IOTA_LOG_DEBUG(m_logger, "s_query:" <<s_query);
     std::string content = http_request_ptr->get_content();
-    PION_LOG_DEBUG(m_logger, "content:" <<content);
+    IOTA_LOG_DEBUG(m_logger, "content:" <<content);
 
     if (http_request_ptr->has_header(iota::types::FIWARE_SERVICE)) {
       std::string service = http_request_ptr->get_header(
                               iota::types::FIWARE_SERVICE);
-      PION_LOG_DEBUG(m_logger, "service:" <<service);
+      IOTA_LOG_DEBUG(m_logger, "service:" <<service);
       std::string service_path = http_request_ptr->get_header(
                                    iota::types::FIWARE_SERVICEPATH);
 
@@ -1233,18 +1234,18 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
 
       std::istringstream ss(content);
       iota::QueryContext op_queryContext(ss);
-      PION_LOG_DEBUG(m_logger, "queryContext:" << op_queryContext.get_string());
+      IOTA_LOG_DEBUG(m_logger, "queryContext:" << op_queryContext.get_string());
 
       iresponse = queryContext(op_queryContext, service_ptree,
                                context_response);
 
-      PION_LOG_DEBUG(m_logger, "response queryContext:" << iresponse <<
+      IOTA_LOG_DEBUG(m_logger, "response queryContext:" << iresponse <<
                      " " << context_response.get_string());
       response = context_response.get_string();
       iresponse = 200;
     }
     else {
-      PION_LOG_ERROR(m_logger,
+      IOTA_LOG_ERROR(m_logger,
                      "you need a header with " << iota::types::FIWARE_SERVICEPATH);
       iresponse = 200;
       response = create_ngsi_response(types::RESPONSE_CODE_BAD_REQUEST,
@@ -1254,8 +1255,8 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
     //write response
   }
   catch (iota::IotaException e) {
-    PION_LOG_ERROR(m_logger,"Capturada: IotaException in default_op_ngsi");
-    PION_LOG_ERROR(m_logger,e.what());
+    IOTA_LOG_ERROR(m_logger,"Capturada: IotaException in default_op_ngsi");
+    IOTA_LOG_ERROR(m_logger,e.what());
     iresponse = 200;
     response = create_ngsi_response(e.status(), e.reason(), e.what());
   }
@@ -1274,7 +1275,7 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
                  iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR, " ---");
   }
 
-  PION_LOG_INFO(m_logger, "iota::CommandHandle::default_query_ngsi trace_message:"
+  IOTA_LOG_INFO(m_logger, "iota::CommandHandle::default_query_ngsi trace_message:"
                 +
                 trace_message+
                 " code: " + boost::lexical_cast<std::string>(iresponse)+
@@ -1331,7 +1332,7 @@ int iota::CommandHandle::send(
   op.add_context_element(ngsi_context_element);
 
   std::string toCV = op.get_string();
-  PION_LOG_DEBUG(m_logger, ":send2CB:" <<cb_url << ":body:" << toCV);
+  IOTA_LOG_DEBUG(m_logger, ":send2CB:" <<cb_url << ":body:" << toCV);
   return cb_comm->async_send(cb_url, toCV, service,
                              boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1, _2));
 }
@@ -1350,7 +1351,7 @@ std::string iota::CommandHandle::get_ngsi_operation(const std::string&
     op.assign(op_url);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
   return op;
 }
@@ -1380,12 +1381,12 @@ int iota::CommandHandle::send_register(
     pt_cb.put<std::string>(iota::types::IOT_HTTP_HEADER_ACCEPT,
                            iota::types::IOT_CONTENT_TYPE_JSON);
 
-    PION_LOG_DEBUG(m_logger, "updatContext Device::" << device->_name);
+    IOTA_LOG_DEBUG(m_logger, "updatContext Device::" << device->_name);
     send_updateContext ( "", "", "", "",
         device, pt_cb, iota::types::STATUS_OP);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
 
   int i = 0;
@@ -1395,7 +1396,7 @@ int iota::CommandHandle::send_register(
 
   if (! regId.empty()) {
 
-    PION_LOG_DEBUG(m_logger, "Adding registrationId: " << regId);
+    IOTA_LOG_DEBUG(m_logger, "Adding registrationId: " << regId);
     reg.add_registrationId(regId);
     reg.add_duration("PT1S");
     ContextBrokerCommunicator cb_communicator_unreg;
@@ -1404,8 +1405,8 @@ int iota::CommandHandle::send_register(
   }
   reg.add_duration("");
   reg.add_registrationId("");
-  PION_LOG_DEBUG(m_logger, "send2CB :" << cb_url);
-  PION_LOG_DEBUG(m_logger, "RegisterContext : " << reg.get_string());
+  IOTA_LOG_DEBUG(m_logger, "send2CB :" << cb_url);
+  IOTA_LOG_DEBUG(m_logger, "RegisterContext : " << reg.get_string());
 
   ContextBrokerCommunicator cb_communicator;
   cb_response.append(cb_communicator.send(cb_url, reg.get_string(), pt_cb));
@@ -1451,11 +1452,10 @@ int iota::CommandHandle::send_updateContext(
 
   if (item_dev.get()!= NULL ){
     ngsi_context_element.set_env_info(service, item_dev);
-
     code_resp = send(ngsi_context_element, opSTR, service, cb_response);
-    PION_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
+    IOTA_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
   }else{
-    PION_LOG_ERROR(m_logger,"no device in send_updateContext, so do nothing" );
+    IOTA_LOG_ERROR(m_logger,"no device in send_updateContext, so do nothing" );
   }
 
   return code_resp;
@@ -1492,7 +1492,7 @@ int iota::CommandHandle::send_updateContext(
   ngsi_context_element.set_env_info(service, item_dev);
 
   int code_resp = send(ngsi_context_element, opSTR, service, cb_response);
-  PION_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
+  IOTA_LOG_DEBUG(m_logger,"<<<" << code_resp << ":" << cb_response);
 
   return code_resp;
 }
@@ -1517,13 +1517,13 @@ void iota::CommandHandle::save_command(const std::string& command_name,
     errSTR.append(command_name);
     errSTR.append(" of device ");
     errSTR.append(item_dev->_name);
-    PION_LOG_ERROR(m_logger, errSTR);
+    IOTA_LOG_ERROR(m_logger, errSTR);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
                               errSTR,
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  PION_LOG_DEBUG(m_logger, "save_command: " <<
+  IOTA_LOG_DEBUG(m_logger, "save_command: " <<
                  " id:" <<  command_id << " service:" << service <<
                  " service_path:" << service_path <<
                  " name:" << command_name <<
@@ -1540,7 +1540,7 @@ void iota::CommandHandle::save_command(const std::string& command_name,
   m_asyncCommands.insert(item);
 
   if (_storage_type.compare(iota::store::types::MONGODB)==0) {
-    PION_LOG_DEBUG(m_logger, "save_command in mongo");
+    IOTA_LOG_DEBUG(m_logger, "save_command in mongo");
     iota::CommandCollection table;
     table.insert(*(item.get()));
   }
@@ -1578,7 +1578,7 @@ iota::CommandVect iota::CommandHandle::get_all_command(const
     return res;
   }
 
-  PION_LOG_DEBUG(m_logger, "get_all_command: " << dev->get_real_name() <<
+  IOTA_LOG_DEBUG(m_logger, "get_all_command: " << dev->get_real_name() <<
                  " service:" <<  service << "  " << service_path);
 
   boost::shared_ptr<Command> item(new Command(dev->get_real_name(), service,
@@ -1592,7 +1592,7 @@ iota::CommandVect iota::CommandHandle::get_all_command(const
   for (CommandVect::iterator it = res.begin(); it != res.end(); ++it) {
     CommandPtr prt = *it;
     if (_storage_type.compare(iota::store::types::MONGODB)==0) {
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "update command status to delivered " << prt->get_id());
       mongo::BSONObj no = BSON(iota::store::types::COMMAND_ID << prt->get_id()
                                << iota::store::types::SERVICE << prt->get_service()
@@ -1613,7 +1613,7 @@ iota::CommandPtr iota::CommandHandle::get_command(
   const std::string& command_id,
   const std::string& service,
   const std::string& service_path) {
-  PION_LOG_DEBUG(m_logger, "get_command: " << command_id <<
+  IOTA_LOG_DEBUG(m_logger, "get_command: " << command_id <<
                  " service:" <<  service << " " << service_path);
 
   boost::shared_ptr<Command> item(new Command("", service, service_path));
@@ -1634,7 +1634,7 @@ int iota::CommandHandle::remove_command(
   const std::string& command_id,
   const std::string& service,
   const std::string& service_path) {
-  PION_LOG_DEBUG(m_logger, "remove_command: " << command_id <<
+  IOTA_LOG_DEBUG(m_logger, "remove_command: " << command_id <<
                  " service:" <<  service << " " << service_path);
   int removed_commands=1;
 
@@ -1644,7 +1644,7 @@ int iota::CommandHandle::remove_command(
   m_asyncCommands.remove(item);
 
   if (_storage_type.compare(iota::store::types::MONGODB)==0) {
-    PION_LOG_DEBUG(m_logger, "remove_command in mongo");
+    IOTA_LOG_DEBUG(m_logger, "remove_command in mongo");
     iota::CommandCollection table;
     removed_commands = table.remove(*(item.get()));
   }
@@ -1675,7 +1675,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
   if (ngsi_service != NULL) {
 
     if (handle_update == NULL){
-      PION_LOG_DEBUG(m_logger, "default updateContext added");
+      IOTA_LOG_DEBUG(m_logger, "default updateContext added");
       handle_query =  REST_HANDLE(&iota::CommandHandle::default_op_ngsi);
     }
 
@@ -1687,7 +1687,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
 
     // add queryContext
     if (handle_query == NULL){
-      PION_LOG_DEBUG(m_logger, "default queryContext added");
+      IOTA_LOG_DEBUG(m_logger, "default queryContext added");
       handle_query =  REST_HANDLE(&iota::CommandHandle::default_queryContext_ngsi);
     }
     std::string ngsi_query(get_resource());
@@ -1703,9 +1703,9 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
       AdminService_ptr->get_web_server()->get_endpoint();
     boost::asio::ip::address pru_addr = my_endpoint.address();
     std::string my_ip = pru_addr.to_string();
-    PION_LOG_DEBUG(m_logger, "admin service ip: " << my_ip);
+    IOTA_LOG_DEBUG(m_logger, "admin service ip: " << my_ip);
     unsigned short my_port =  my_endpoint.port();
-    PION_LOG_DEBUG(m_logger, "admin service  port: " << my_port);
+    IOTA_LOG_DEBUG(m_logger, "admin service  port: " << my_port);
 
     std::string my_resource = url_ngsi_update;
     size_t pos = url_ngsi_update.find("/updateContext");
@@ -1732,7 +1732,7 @@ void iota::CommandHandle::receive_command_response(
   boost::shared_ptr<iota::HttpClient> http_client,
   pion::http::response_ptr http_response,
   const boost::system::error_code& error) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "command response from " << http_client->getRemoteEndpoint());
   int res_code;
   std::string command_response;
@@ -1742,7 +1742,7 @@ void iota::CommandHandle::receive_command_response(
     command_response.append(" [");
     command_response.append(error.message());
     command_response.append("]");
-    PION_LOG_ERROR(m_logger,  command_response);
+    IOTA_LOG_ERROR(m_logger,  command_response);
     res_code = types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
   }
   else {
@@ -1750,13 +1750,13 @@ void iota::CommandHandle::receive_command_response(
     std::string resp_cmd = http_response->get_content();
     std::string id_command;
     if (transform_response(resp_cmd, res_code, command_response, id_command) < 0) {
-      PION_LOG_ERROR(m_logger,
+      IOTA_LOG_ERROR(m_logger,
                      "command response from " << http_client->getRemoteEndpoint() << " " <<
                      resp_cmd);
     }
 
   }
-  PION_LOG_DEBUG(m_logger, " response=" + command_response);
+  IOTA_LOG_DEBUG(m_logger, " response=" + command_response);
   process_command_response(cmd_data, res_code, command_response);
 }
 
@@ -1798,10 +1798,10 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     }
   }
   else if (res_code == 202) {
-    PION_LOG_DEBUG(m_logger, " accepted command, waiting for the result");
+    IOTA_LOG_DEBUG(m_logger, " accepted command, waiting for the result");
     int n=1;
     if (_storage_type.compare(iota::store::types::MONGODB)==0) {
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "update command status to delivered " << cmd_data.command_id);
       iota::Collection table(iota::store::types::COMMAND_TABLE);
 
@@ -1813,7 +1813,7 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     iota::CommandPtr pt = get_command(cmd_data.command_id,
                service_name, service_path);
     if (pt.get()!= NULL){
-        PION_LOG_DEBUG(m_logger, cmd_data.command_id << " change status command, delivered");
+        IOTA_LOG_DEBUG(m_logger, cmd_data.command_id << " change status command, delivered");
         pt->set_status (iota::types::DELIVERED);
     }
 
@@ -1824,10 +1824,10 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
                        cmd_data.item_dev, cmd_data.service,
                        iota::types::STATUS_OP);
     }else{
-      PION_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
+      IOTA_LOG_ERROR(m_logger, "no command in cache, timeout or response received ," << cmd_data.command_id);
     }
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    " response 202, accepted command id ," << cmd_data.command_id);
   }
   else {
@@ -1848,7 +1848,7 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
                                        const boost::property_tree::ptree& service_ptree,
                                        iota::ContextResponses&  context_responses){
 
-  PION_LOG_DEBUG(m_logger,"queryContext");
+  IOTA_LOG_DEBUG(m_logger,"queryContext");
   int iresponse=200;
 
   std::string service = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
@@ -1860,13 +1860,13 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
                 "Service or Sub_service are missing",iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  PION_LOG_DEBUG(m_logger,"queryContext: service ["<<service<<"] sub-service ["<< service_path<<"]");
+  IOTA_LOG_DEBUG(m_logger,"queryContext: service ["<<service<<"] sub-service ["<< service_path<<"]");
 
 
   std::vector<iota::Entity> v_entities =  queryContext.get_entities();
 
   if (v_entities.size() == 0) {
-    PION_LOG_WARN(m_logger, "QueryContext has no entities");
+    IOTA_LOG_WARN(m_logger, "QueryContext has no entities");
   }
 
 
@@ -1887,20 +1887,20 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
 
     if (device.get() != NULL) {
 
-      PION_LOG_DEBUG(m_logger,"queryContext: Device retrieved id ["<<id<<"] type: ["<<type<<"]");
+      IOTA_LOG_DEBUG(m_logger,"queryContext: Device retrieved id ["<<id<<"] type: ["<<type<<"]");
       populate_command_attributes(device, entity_context_element);
 
       if (entity_context_element.get_attributes().size() == 0) {
-        PION_LOG_WARN(m_logger, "Device [" << id << "] has no commands to return");
+        IOTA_LOG_WARN(m_logger, "Device [" << id << "] has no commands to return");
       }
-      PION_LOG_DEBUG(m_logger,"Device [" << id << "] returns ["<<entity_context_element.get_attributes().size()<<"] attributes");
+      IOTA_LOG_DEBUG(m_logger,"Device [" << id << "] returns ["<<entity_context_element.get_attributes().size()<<"] attributes");
 
       res.add_context_element(entity_context_element);
     }
 
    }
     catch (iota::IotaException& e) {
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "CommandHandle::updateContext capturada IotaException "<< e.what());
       iresponse=e.status();
       res.set_code(e.status());
@@ -1908,7 +1908,7 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
       res.set_details(e.what());
     }
     catch (std::exception& e) {
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "CommandHandle::updateContext capturada std::exception"<< e.what());
       iresponse= iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR;
       res.set_reason(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
@@ -1918,7 +1918,7 @@ int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
 
     context_responses.add_context_response(res);
   }  //end for
-  PION_LOG_DEBUG(m_logger,"QueryContext returning  ["<<i<<"] entities");
+  IOTA_LOG_DEBUG(m_logger,"QueryContext returning  ["<<i<<"] entities");
   return iresponse;
 }
 
@@ -1932,7 +1932,7 @@ void iota::CommandHandle::populate_command_attributes(
   for(it = device->_commands.begin(); it != device->_commands.end(); it++) {
     std::string value = it->second;
     if (value.empty()){
-      PION_LOG_DEBUG(m_logger,"command:"<< it->first << " with empty value");
+      IOTA_LOG_DEBUG(m_logger,"command:"<< it->first << " with empty value");
       value = " ";
     }
     iota::Attribute attribute(it->first, "command", value);

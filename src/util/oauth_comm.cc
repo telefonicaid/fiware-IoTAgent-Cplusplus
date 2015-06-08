@@ -166,7 +166,7 @@ void iota::OAuth::receive_event_renew_token(
   boost::shared_ptr<iota::HttpClient> connection,
   pion::http::response_ptr response,
   const boost::system::error_code& error) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "receive_event_renew_token is_pep=" << boost::lexical_cast<std::string>
                  (is_pep()) <<
                  " oauth=" << connection->getRemoteEndpoint() <<
@@ -180,7 +180,7 @@ void iota::OAuth::receive_event_renew_token(
     // Header
     _data._subject_token = response->get_header(HTTP_HEADER_TOKEN);
     _data._timestamp = boost::posix_time::second_clock::universal_time();
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "renew_token is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
                    " oauth=" << connection->getRemoteEndpoint() <<
                    " conn_error=" << connection->get_error() <<
@@ -189,7 +189,7 @@ void iota::OAuth::receive_event_renew_token(
   }
   else {
     _data._subject_token.clear();
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "renew_token is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
                    " oauth=" << connection->getRemoteEndpoint() <<
                    " conn_error=" << connection->get_error() <<
@@ -238,7 +238,7 @@ std::string iota::OAuth::receive_event_get_user(
       _service_id = ptree_user.get<std::string>("token.user.domain.id", "");
     }
   }
-  PION_LOG_DEBUG(m_logger, "receive_event_get_user user=" << _user_id <<
+  IOTA_LOG_DEBUG(m_logger, "receive_event_get_user user=" << _user_id <<
                  " domain=" << _domain);
   if (is_pep() && _io_service.get() != NULL) {
 
@@ -280,7 +280,7 @@ void iota::OAuth::renew_token(std::string scope) {
   pion::http::response_ptr response;
   if (_io_service.get() != NULL) {
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
                    _timeout);
     http_client.reset(new iota::HttpClient(*_io_service, server, dest.getPort()));
@@ -290,7 +290,7 @@ void iota::OAuth::renew_token(std::string scope) {
                                         shared_from_this(), _1, _2, _3));
   }
   else {
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
                    _timeout);
     http_client.reset(new iota::HttpClient(server, dest.getPort()));
@@ -303,7 +303,7 @@ void iota::OAuth::renew_token(std::string scope) {
 }
 
 std::string  iota::OAuth::get_user(std::string token, std::string token_pep) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "get_user pep-token=" << token_pep << " user-token=" << token);
   std::string str_response;
   _user_id.clear();
@@ -366,7 +366,7 @@ std::string iota::OAuth::receive_event_get_subservice(
       }
     }
     catch (std::exception& e) {
-      PION_LOG_ERROR(m_logger,
+      IOTA_LOG_ERROR(m_logger,
                      "get_subservice is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
                      " projects=" << e.what() <<
                      " token-pep=" << _data._subject_token.empty());
@@ -374,7 +374,7 @@ std::string iota::OAuth::receive_event_get_subservice(
   }
   else {
 
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "get_subservice is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
                    " projects=" << str_response <<
                    " token-pep=" << _data._subject_token.empty());
@@ -446,7 +446,7 @@ boost::property_tree::ptree iota::OAuth::validate_user_token(std::string token,
   boost::property_tree::ptree user_from_auth_token;
   _application_callback = callback;
   if (!token.empty()) {
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "validate_user_token is_pep=" << boost::lexical_cast<std::string>(is_pep()));
     if (!is_pep()) {
       return user_from_auth_token;
@@ -463,7 +463,7 @@ boost::property_tree::ptree iota::OAuth::validate_user_token(std::string token,
 
 
   }
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "validate_user_token is_pep=" << boost::lexical_cast<std::string>(is_pep()) <<
                  " token=" << token.empty() <<
                  " user_from_auth_token=" << user_from_auth_token.empty());
@@ -479,7 +479,7 @@ boost::property_tree::ptree iota::OAuth::get_ptree(std::string data) {
   }
   catch (...) {
     // No data
-    //PION_LOG_ERROR(m_logger, "No data to ptree");
+    //IOTA_LOG_ERROR(m_logger, "No data to ptree");
   }
   return pt_;
 }

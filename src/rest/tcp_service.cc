@@ -44,7 +44,7 @@ boost::shared_ptr<iota::TcpService> iota::TcpService::register_handler(
     your_tcp_service = shared_from_this();
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, e.what());
+    IOTA_LOG_ERROR(m_logger, e.what());
   }
   return your_tcp_service;
 }
@@ -61,7 +61,7 @@ void iota::TcpService::handle_connection(pion::tcp::connection_ptr& tcp_conn) {
 void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
                                    const boost::system::error_code& read_error,
                                    std::size_t bytes_read) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  " read_error=" << read_error << " bytes_read=" << bytes_read);
   std::string reading_buffer;
   if (!read_error) {
@@ -75,7 +75,7 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
   while (it != c_handlers.end()) {
     iota::TcpService::IotaRequestHandler h = it->second;
     if (h) {
-      PION_LOG_DEBUG(m_logger, " client=" + it->first);
+      IOTA_LOG_DEBUG(m_logger, " client=" + it->first);
       h(tcp_conn, reading_buffer, read_error);
     }
     ++it;
@@ -99,7 +99,7 @@ void iota::TcpService::send_response(pion::tcp::connection_ptr& tcp_conn,
                           boost::bind(&iota::TcpService::finish, this, tcp_conn, close_connection));
   }
   else {
-    PION_LOG_ERROR(m_logger, "Connection is closed");
+    IOTA_LOG_ERROR(m_logger, "Connection is closed");
   }
 
 }
@@ -111,7 +111,7 @@ void iota::TcpService::print_buffer(std::string& buffer, int bytes_read) {
   for (int i = 0; i < bytes_read; ++i) {
     ss << std::setw(2) << static_cast<unsigned>(buffer[i]);
   }
-  PION_LOG_DEBUG(m_logger, ss.str());
+  IOTA_LOG_DEBUG(m_logger, ss.str());
 }
 
 void iota::TcpService::finish(pion::tcp::connection_ptr& tcp_conn,
@@ -119,7 +119,7 @@ void iota::TcpService::finish(pion::tcp::connection_ptr& tcp_conn,
   if (close_connection) {
     tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
     tcp_conn->finish();
-    PION_LOG_DEBUG(m_logger, "finish connection " << tcp_conn.use_count());
+    IOTA_LOG_DEBUG(m_logger, "finish connection " << tcp_conn.use_count());
   }
 }
 

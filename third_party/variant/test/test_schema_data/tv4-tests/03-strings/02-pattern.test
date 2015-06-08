@@ -1,0 +1,1 @@
+[{"data": "9test", "name": "pattern success", "schema": {"pattern": "^[0-9][a-zA-Z]*$"}}, {"fail": true, "data": "9test9", "name": "pattern failure", "schema": {"pattern": "^[0-9][a-zA-Z]*$"}}]

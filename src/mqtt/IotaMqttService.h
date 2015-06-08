@@ -24,7 +24,7 @@
 
 #include <string>
 
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 
 #define MQTT_COMMAND_REQUEST "cmdget"
 #define MQTT_COMMAND_RESPONSE "cmdexe"

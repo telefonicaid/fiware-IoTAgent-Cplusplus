@@ -1,0 +1,104 @@
+#!/bin/sh
+
+ex=@CMAKE_CURRENT_BINARY_DIR@/test_argparse
+
+echo "Test required argument"
+if $ex; then exit 1; fi
+echo "Test append argument minimum"
+if $ex --append -1; then exit 1; fi
+echo "Test append argument maximum"
+if $ex --append 2; then exit 1; fi
+echo "Test store minimum"
+if $ex -s'-1' --append 1; then exit 1; fi
+echo "Test store maximum"
+if $ex -s'2' --append 1; then exit 1; fi
+
+echo "Testing store boolean"
+if ! echo '{ "store_bool": true }' | $ex --append 1 --store_bool=yes /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": true }' | $ex --append 1 --store_bool=Y /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": true }' | $ex --append 1 --store_bool=t /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": true }' | $ex --append 1 --store_bool=1 /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": false }' | $ex --append 1 --store_bool=N /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": false }' | $ex --append 1 --store_bool=no /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": false }' | $ex --append 1 --store_bool=0 /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": false }' | $ex --append 1 --store_bool=f /dev/stdin; then exit 1; fi
+if ! echo '{ "store_bool": true }' | TEST_STORE_BOOLEAN=yes $ex --append 1 /dev/stdin; then exit 1; fi
+
+echo "Test store integer"
+
+if $ex --append 1 --store_int -11; then exit 1; fi
+if $ex --append 1 --store_int 11; then exit 1; fi
+if $ex --append 1 --store_int 'abc'; then exit 1; fi
+if $ex --append 1 --store_int 1.4; then exit 1; fi
+if ! echo '{ "store_int": 4}' | $ex --append 1 --store_int 4 /dev/stdin; then exit 1; fi
+
+echo "Test store string"
+if $ex --append 1 --store_string "@#$^aaa"; then exit 1; fi
+if $ex --append 1 --store_string "a"; then exit 1; fi
+if $ex --append 1 --store_string "0123456789aaaaaa"; then exit 1; fi
+if ! echo '{ "store_string": "abc123" }' | $ex --append 1 /dev/stdin; then exit 1; fi
+if ! echo '{ "store_string": "7j34d" }' | $ex --append 1 --store_string 7j34d /dev/stdin; then exit 1; fi
+
+if $ex --append 1 --choice "aaaa"; then exit 1; fi
+if ! echo '{ "choice": "a" }' | $ex --append 1 --choice "a" /dev/stdin; then exit 1; fi
+if ! echo '{ "choice": "b" }' | $ex --append 1 --choice "b" /dev/stdin; then exit 1; fi
+
+echo "Test group mutual exclusion"
+if $ex --append 1 --abc-a=1 --abc-b=2; then exit 1; fi
+if ! echo '{ "abc": { "a": 1 } }' | $ex --append 1 --abc-a=1 /dev/stdin; then
+	exit 1
+fi
+if ! echo '{ "abc": { "b": 1 } }' | $ex --append 1 --abc-b=1 /dev/stdin; then
+	exit 1
+fi
+
+if $ex --append 1 --abc-c=1 --abc-d=2; then exit 1; fi
+if ! echo '{ "abc": { "c": 1 } }' | $ex --append 1 --abc-c=1 /dev/stdin; then
+	exit 1
+fi
+if ! echo '{ "abc": { "d": 1 } }' | $ex --append 1 --abc-d=1 /dev/stdin; then
+	exit 1
+fi
+if ! echo '{ "abc": { "c": 123 } }' | $ex --append 1 /dev/stdin; then exit 1; fi
+
+echo "Generic tests"
+expected='
+{
+	"append": [ 0.1 ],
+	"store": 0.54321,
+	"store_int": 0,
+	"store_string": "abc123",
+	"store_true": false,
+	"store_false": true
+}';
+
+if ! echo $expected | $ex --append 0.1 /dev/stdin; then exit 1; fi
+
+expected='
+{
+	"store": 0.5,
+	"append": [ 1, 0.4 ],
+	"store_bool": true,
+	"store_int": 5,
+	"store_string": "zxcv098784",
+	"store_undef": true,
+	"store_true": true,
+	"store_const": 123,
+	"store_false": false,
+	"count": 3,
+	"comp": [ "/dev/stdin" ]
+}
+';
+echo $expected | $ex --store 0.5 --append 1 --append 0.4 --store_bool yes --store_int 5 --store_string "zxcv098784" \
+ --store_undef true --store_true --store_false --count --store_const --count --count  /dev/stdin;
+if [[ $? != 0 ]]; then exit 1; fi;
+
+tmpfile=$(mktemp)
+echo $expected >$tmpfile
+echo $expected | $ex --config $tmpfile;
+if [[ $? != 0 ]]; then exit 1; fi;
+rm $tmpfile
+
+echo "PASS!!";
+exit 0;
+

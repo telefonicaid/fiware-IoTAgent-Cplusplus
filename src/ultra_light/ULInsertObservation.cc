@@ -55,7 +55,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
   // el retorno de carro sera el separador entre medidas
 
   // Analisis de la query
-  PION_LOG_DEBUG(m_logger, "ULInsertObservation::translate " << str_io);
+  IOTA_LOG_DEBUG(m_logger, "ULInsertObservation::translate " << str_io);
   boost::trim(str_io);
   boost::erase_all(str_io, "\n");
   boost::erase_all(str_io, "\r");
@@ -90,7 +90,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
 
   std::vector<std::string> tokens_msgs = riot_tokenizer(str_io, sep_medidas);
   num_medidas = tokens_msgs.size();
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "Numero de medidas " << num_medidas << "device:" << device_name << ":" <<
                  device_type);
   if (tokens_msgs.size() == 0) {
@@ -113,7 +113,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
     std::string separador = UL20_SEPARATOR;
 
     std::vector<std::string> tokens_io = riot_tokenizer(tokens_msgs[i], separador);
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "Analisis de la medida " << i << ":" << tokens_msgs[i]);
     if (tokens_io.size() < NUM_ELEMENTS_ULPROTOCOL) {
       // Lanzar excepcion error de protocolo.
@@ -144,11 +144,11 @@ void iota::ULInsertObservation::translate(std::string str_io,
       }
     }
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "UL_UNIVERSAL_CONCENTRATOR " << tokens_io[UL_UNIVERSAL_CONCENTRATOR]);
-    PION_LOG_DEBUG(m_logger, "ID RECUrSO " << tokens_io[UL_ID_RESOURCE]);
-    PION_LOG_DEBUG(m_logger, "SAMPLING TIME " << tokens_io[UL_SAMPLING_TIME]);
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger, "ID RECUrSO " << tokens_io[UL_ID_RESOURCE]);
+    IOTA_LOG_DEBUG(m_logger, "SAMPLING TIME " << tokens_io[UL_SAMPLING_TIME]);
+    IOTA_LOG_DEBUG(m_logger,
                    "OBSERVED PROPERTY " << tokens_io[UL_OBSERVED_PROPERTY]);
 
     // Si no tiene concentrador/recurso se coge el de la UrI
@@ -159,7 +159,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
       (tokens_io[UL_ID_RESOURCE].empty()) ||
       (tokens_io[UL_OBSERVED_PROPERTY].empty())) {
       // Lanzar excepcion error protocolo
-      PION_LOG_ERROR(m_logger, "Falta informacion de medida");
+      IOTA_LOG_ERROR(m_logger, "Falta informacion de medida");
       // Aseguramos que eliminamos los recursos introducidos en la cache
       // por este mensaje
       std::ostringstream what;
@@ -204,8 +204,8 @@ void iota::ULInsertObservation::translate(std::string str_io,
       assigned_sensor_id = v_tokens[0];
     }
 
-    PION_LOG_DEBUG(m_logger, "Sistema/AssignedSensorId " << assigned_sensor_id);
-    PION_LOG_DEBUG(m_logger, "Procedure " << procedure);
+    IOTA_LOG_DEBUG(m_logger, "Sistema/AssignedSensorId " << assigned_sensor_id);
+    IOTA_LOG_DEBUG(m_logger, "Procedure " << procedure);
 
     std::string nombre_recurso(tokens_io[UL_UNIVERSAL_CONCENTRATOR]);
     if (nombre_recurso.empty() == false) {
@@ -228,7 +228,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
       std::vector<std::string> stime_tokens = riot_tokenizer(
           tokens_io[UL_SAMPLING_TIME], sep_stime);
       int n_dates = stime_tokens.size();
-      PION_LOG_DEBUG(m_logger, "Numero de elementos " << n_dates);
+      IOTA_LOG_DEBUG(m_logger, "Numero de elementos " << n_dates);
       std::string frame("urn:x-ogc:def:trs:IDAS:1.0:ISO8601");
 
       if (n_dates == 0) {
@@ -244,14 +244,14 @@ void iota::ULInsertObservation::translate(std::string str_io,
         // IDAS-1928 tratamiento de tiempos epoch
         std::string s_time;
         try {
-          PION_LOG_DEBUG(m_logger, "Tratando formato epoch");
+          IOTA_LOG_DEBUG(m_logger, "Tratando formato epoch");
           iota::RiotISO8601 iso(stime_tokens[0]);
           s_time = iso.toString();
 
         }
         catch (std::runtime_error&  e) {
           // Se trata como formato iso (string).
-          PION_LOG_ERROR(m_logger,
+          IOTA_LOG_ERROR(m_logger,
                          "using now time, because error in date format: " << e.what());
           //ponemos la hora actual
           iota::RiotISO8601 mi_hora;
@@ -279,7 +279,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
         }
         catch (boost::bad_lexical_cast&) {
           // Se trata como formato iso (string).
-          PION_LOG_DEBUG(m_logger, "Tratando formato ISO");
+          IOTA_LOG_DEBUG(m_logger, "Tratando formato ISO");
           s_time_b = stime_tokens[0];
           s_time_e = stime_tokens[1];
         }
@@ -292,13 +292,13 @@ void iota::ULInsertObservation::translate(std::string str_io,
       // UC (UniversalIdentifierOfLogicalHub)
       //
       if (tokens_io[UL_UNIVERSAL_CONCENTRATOR].empty() == false) {
-        PION_LOG_DEBUG(m_logger, "Existe UniversalConcentrator");
+        IOTA_LOG_DEBUG(m_logger, "Existe UniversalConcentrator");
         std::string
         definition_uc("urn:x-ogc:def:identifier:IDAS:1.0:UniversalIdentifierOfLogicalHub");
         std::string gml_name;
         //swe::Text txt = createText("", gml_name, tokens_io[UL_UNIVERSAL_CONCENTRATOR]);
         //observacion->parameter(definition_uc, txt);
-        PION_LOG_DEBUG(m_logger, "Insertado parametro UniversalConcentrator");
+        IOTA_LOG_DEBUG(m_logger, "Insertado parametro UniversalConcentrator");
       }
 
       // Propiedad observada
@@ -306,21 +306,21 @@ void iota::ULInsertObservation::translate(std::string str_io,
       // Se intenta primero resolver como identificativo corto
       //
 
-      PION_LOG_DEBUG(m_logger,
+      IOTA_LOG_DEBUG(m_logger,
                      "observedProperty " << tokens_io[UL_OBSERVED_PROPERTY]);
 
       int j = NUM_ELEMENTS_ULPROTOCOL;
       int num_tokens = tokens_io.size();
 
       while (j < num_tokens) {
-        PION_LOG_DEBUG(m_logger, "Elementos variables de la medida " << tokens_io[j]);
+        IOTA_LOG_DEBUG(m_logger, "Elementos variables de la medida " << tokens_io[j]);
 
         // Parametros de la medida
         // Puede que no existan parametros
 
         if (! tokens_io[j].empty()) {
           //parametro = recurso->getParameterById(tokens_io[j]);
-          PION_LOG_DEBUG(m_logger, "recurso->getParameterById " << tokens_io[j]);
+          IOTA_LOG_DEBUG(m_logger, "recurso->getParameterById " << tokens_io[j]);
         }
         else {
           j++;
@@ -329,10 +329,10 @@ void iota::ULInsertObservation::translate(std::string str_io,
         std::string valueSTR = tokens_io[j+1];
         std::string attr_name = tokens_io[j];
 
-        PION_LOG_DEBUG(m_logger,
+        IOTA_LOG_DEBUG(m_logger,
                        "Creacion de la medida " << attr_name << ":" << valueSTR);
         if (valueSTR.empty()) {
-          PION_LOG_ERROR(m_logger, "Empty values is not allowed");
+          IOTA_LOG_ERROR(m_logger, "Empty values is not allowed");
           std::ostringstream what;
           what << "Protocol error, Empty values is not allowed ";
           throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER, what.str(),
@@ -341,7 +341,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
 
         iota::Attribute att(attr_name, "", valueSTR);
         j +=2;
-        PION_LOG_DEBUG(m_logger,"TimeInstant:" << date_to_cb);
+        IOTA_LOG_DEBUG(m_logger,"TimeInstant:" << date_to_cb);
         iota::Attribute metadata_ts("TimeInstant", "ISO8601", date_to_cb);
         att.add_metadata(metadata_ts);
         //iota::Attribute metadata_uom("uom", "string", uom);
@@ -360,7 +360,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
       }
     }
     catch (std::runtime_error& e) {
-      PION_LOG_ERROR(m_logger, "Error de formato2 " << e.what());
+      IOTA_LOG_ERROR(m_logger, "Error de formato2 " << e.what());
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER, e.what(),
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
@@ -377,17 +377,17 @@ void iota::ULInsertObservation::translate(std::string str_io,
   }
 
 
-  PION_LOG_DEBUG(m_logger, "Salida del constructor ULInsertObservation");
+  IOTA_LOG_DEBUG(m_logger, "Salida del constructor ULInsertObservation");
 };
 
 iota::ULInsertObservation::~ULInsertObservation(void) {
-  PION_LOG_DEBUG(m_logger, "iota::ULInsertObservation::~ULInsertObservation");
+  IOTA_LOG_DEBUG(m_logger, "iota::ULInsertObservation::~ULInsertObservation");
 };
 
 std::string iota::ULInsertObservation::contentForSBCProtocol(std::string io,
     const std::string& a_sampling_time, const std::string& a_res_query) {
 
-  PION_LOG_DEBUG(m_logger, "CONTENT SBC " << io);
+  IOTA_LOG_DEBUG(m_logger, "CONTENT SBC " << io);
   std::string sampling_time_measure;
   /*
      std::size_t found = io.find_last_not_of("\r\n");

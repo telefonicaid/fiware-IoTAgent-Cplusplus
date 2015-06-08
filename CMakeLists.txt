@@ -1,12 +1,9 @@
 cmake_minimum_required(VERSION 2.8.12)
 project (iot-agent)
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/version.h.in
-               ${CMAKE_CURRENT_BINARY_DIR}/include/version.h)
-
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/version.h)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 
-set (CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
+set (CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}) 
 set (CMAKE_SHARED_MODULE_PREFIX "")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_SPIRIT_THREADSAFE -fPIC")
 set (CMAKE_CXX_FLAGS_DEBUGCOVERAGE "-g -O0 --coverage")
@@ -53,6 +50,13 @@ list(GET _LOG4CPLUS_I_ 0 _LOG4CPLUS_I_)
 get_filename_component(_LOG4CPLUS_IOT ${_LOG4CPLUS_I_} PATH)
 set(_LOG4CPLUS_IOT ${_LOG4CPLUS_IOT}/..)
 endif(_LOG4CPLUS_I_)
+
+file(GLOB_RECURSE _LOG4CPP_I_  ${IOT_ROOT}/liblog4cpp.so)
+if(_LOG4CPP_I_)
+list(GET _LOG4CPP_I_ 0 _LOG4CPP_I_)
+get_filename_component(_LOG4CPP_IOT ${_LOG4CPP_I_} PATH)
+set(_LOG4CPP_IOT ${_LOG4CPP_IOT}/..)
+endif(_LOG4CPP_I_)
 
 file(GLOB_RECURSE _MONGOCLIENT_I_  ${IOT_ROOT}/libmongoclient.so)
 if(_MONGOCLIENT_I_)
@@ -131,7 +135,7 @@ endif()
 
 # Boost 1.55.0
 set(Boost_USE_STATIC_LIBS OFF)
-find_package(Boost 1.55.0 COMPONENTS thread filesystem system regex date_time)
+find_package(Boost 1.54.0 COMPONENTS thread filesystem system regex date_time)
 if (Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
   message(STATUS "Boost include dirs ${Boost_INCLUDE_DIRS} ${Boost_LIBRARIES}")
@@ -143,7 +147,6 @@ if (Boost_FOUND)
 else()
   message(FATAL_ERROR "Boost library (1.55.0) not found. Define BOOST_ROOT environment variable to set where boost 1.55.0 is installed")
 endif()
-
 
 # Log4cplus
 # It use logger library recommended in Pion Library.
@@ -158,9 +161,25 @@ if (LOG4CPLUS_FOUND)
   endif()
   set(IOTAGENT_LIBS ${IOTAGENT_LIBS} ${LOG4CPLUS_LIBRARIES})
 else()
-  message(FATAL_ERROR "log4cplus library not found.")
+
+# Log4cpp
+# It use logger library recommended in Pion Library.
+set(Log4Cpp_USE_STATIC_LIBS OFF)
+find_package(Log4cpp)
+if (LOG4CPP_FOUND)
+  include_directories(${LOG4CPP_INCLUDE_DIR})
+  if (NOT Log4Cpp_USE_STATIC_LIBS)
+   link_directories(${LOG4CPP_LIBS_DIR})
+   message(STATUS "link:" ${LOG4CPP_LIBS_DIR})
+   set(INSTALL_LOG4CPP ${LOG4CPP_LIBS_DIR}/lib${LOG4CPP_LIBRARIES}-${LOG4CPP_VER_MAJOR}.${LOG4CPP_VER_MINOR}.so)
+  endif()
+  set(IOTAGENT_LIBS ${IOTAGENT_LIBS} ${LOG4CPP_LIBRARIES})
+  add_definitions (-DIOTA_USE_LOG4CPP)
+else()
+  message(FATAL_ERROR "log4cpp library not found.")
 endif()
 
+endif()
 
 
 # Mongo
@@ -180,6 +199,8 @@ endif()
 find_package(RapidJSON)
 if(RAPIDJSON_FOUND)
  include_directories(${RapidJSON_INCLUDE_DIRS})
+else()
+ include_directories(third_party/rapidjson/include)
 endif()
 
 # Mosquitto
@@ -191,6 +212,22 @@ if (MOSQUITTO_FOUND)
 	message(STATUS "Mosquitto library directory ${MOSQUITTO_LIBS_DIR}")
 else()
     message(STATUS "Mosquitto not found")
+    include(ExternalProject)
+    if (WITH_CARES) 
+      ExternalProject_Add(libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0 CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0/configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares BUILD_COMMAND ${MAKE})
+    include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+      ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 CMAKE_ARGS -DC-ARES-ROOT=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt)
+    else()
+      set(WITH_SRV OFF)
+      ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 CMAKE_ARGS -DWITH_SRV=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt)
+    endif()
+      include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5/lib/cpp)
+      
+    set(MOSQUITTO_FOUND TRUE)
+    set(IOTAGENT_LIBS ${IOTAGENT_LIBS})
+    set(MOSQUITTO_LIBS_DIR ${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt)
+    link_directories(${MOSQUITTO_LIBS_DIR}/lib)
+    include_directories(${MOSQUITTO_LIBS_DIR}/include)
 endif()
 
 # Cppunit
@@ -211,6 +248,15 @@ if(GMOCK_FOUND)
  include_directories(${GMOCK_INCLUDE_DIR})
  link_directories(${GMOCK_LIBS_DIR})
  set(TEST_LIBS ${TEST_LIBS} gmock)
+else()
+ set(GMOCK_FOUND TRUE)
+ message(STATUS "Using third_party directory")
+ add_subdirectory(third_party/gmock-1.7.0)
+ set(GMOCK_INCLUDE_DIR third_party/gmock-1.7.0/include third_party/gmock-1.7.0/gtest/include)
+ set(GMOCK_LIBS_DIR third_party/gmock-1.7.0)
+ include_directories(${GMOCK_INCLUDE_DIR})
+ link_directories(${GMOCK_LIBS_DIR})
+ set(TEST_LIBS ${TEST_LIBS} gmock)
 endif()
 
 #libVariant
@@ -220,6 +266,19 @@ if(LIBVARIANT_FOUND)
  link_directories(${LIBVARIANT_LIBS_DIR})
  add_definitions( -DLIBVARIANT=1 )
  message(STATUS "LibVariant include dirs ${LIBVARIANT_INCLUDE_DIR}")
+else()
+ message(STATUS "Using third_party directory")
+ set(LIBVARIANT_ENABLE_XML OFF CACHE BOOL "Disabling XML Variant")
+ set(LIBVARIANT_ENABLE_YAML OFF CACHE BOOL "Disabling YAML Variant")
+ set(LIBVARIANT_ENABLE_CURL OFF CACHE BOOL "Disabling CURL Variant")
+ set(LIBVARIANT_ENABLE_MSGPACK OFF CACHE BOOL "Disabling MSGPACK Variant")
+ add_subdirectory(third_party/variant)
+ include_directories(${PROJECT_SOURCE_DIR}/third_party/variant/include)
+ include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/variant/include)
+ link_directories(${CMAKE_CURRENT_BINARY_DIR}third_party/variant)
+ add_definitions( -DLIBVARIANT=1 )
+ message(STATUS "LibVariant include dirs ${LIBVARIANT_INCLUDE_DIR}")
+else()
 endif()
 
 # add a target to generate API documentation with Doxygen
@@ -243,7 +302,7 @@ include_directories(src/ ${CMAKE_CURRENT_BINARY_DIR}/include)
 
 add_subdirectory(src)
 
-
+if (CPPUNIT_FOUND AND GMOCK_FOUND)
 enable_testing()
 add_subdirectory(tests)
 add_test(NAME RestTest COMMAND rest_tests)
@@ -265,6 +324,7 @@ add_test(NAME SimplePlugingTest COMMAND sp_tests)
 add_test(NAME MongoTest COMMAND mongo_tests)
 add_test(NAME SamplTest COMMAND sample_tests)
 add_test(NAME TcpTest COMMAND tcp_tests)
+endif()
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/specs/iot-agent-base.spec.in" "${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-base.spec" @ONLY IMMEDIATE)
 set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/iot-agent-base.spec")

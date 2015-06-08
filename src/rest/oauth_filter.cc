@@ -78,7 +78,7 @@ bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
   }
   else {
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "OAuthFilter handle_request " << http_request_ptr->get_header(
                      iota::types::HEADER_TRACE_MESSAGES));
 
@@ -92,7 +92,7 @@ bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
     }
     std::string x_auth_token = http_request_ptr->get_header(HTTP_HEADER_AUTH);
     int status = pion::http::types::RESPONSE_CODE_UNAUTHORIZED;
-    PION_LOG_DEBUG(m_logger, " Fiware-Service=" + fiware_service +
+    IOTA_LOG_DEBUG(m_logger, " Fiware-Service=" + fiware_service +
                    " Fiware-ServicePath=" + fiware_servicepath +
                    " X-Auth-Token=" + x_auth_token +
                    " endpoint-validate=" + _auth_endpoint_validate +
@@ -169,7 +169,7 @@ void iota::OAuthFilter::authorize(pion::http::request_ptr& http_request_ptr,
   }
   catch (std::exception& e) {
 
-    PION_LOG_ERROR(m_logger, "authorize=" << e.what() <<
+    IOTA_LOG_ERROR(m_logger, "authorize=" << e.what() <<
                    " roles=" << user_subservice_roles.size() <<
                    " resource" << resource_id <<
                    " action=" << action);
@@ -214,7 +214,7 @@ void iota::OAuthFilter::access_control(pion::http::request_ptr&
                                        pion::tcp::connection_ptr& tcp_conn,
                                        boost::shared_ptr<iota::AccessControl> ac,
                                        bool authorized) {
-  PION_LOG_DEBUG(m_logger, "access_control_result " << authorized);
+  IOTA_LOG_DEBUG(m_logger, "access_control_result " << authorized);
   //remove_connection_ac(ac->get_identifier());
   int status = pion::http::types::RESPONSE_CODE_FORBIDDEN;
   if (authorized == true) {

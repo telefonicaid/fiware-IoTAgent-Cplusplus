@@ -1,0 +1,28 @@
+-   name: minimum success
+    data: 5
+    schema: { minimum: 2.5 }
+-   name: minimum failure
+    data: 5
+    schema: { minimum: 7 }
+    fail: true
+-   name: minimum equality success
+    data: 5
+    schema: { minimum: 5 }
+-   name: minimum equality failure
+    data: 5
+    schema: { minimum: 5, exclusiveMinimum: true }
+    fail: true
+-   name: maximum success
+    data: 5
+    schema: { maximum: 7 }
+-   name: maximum failure
+    data: -5
+    schema: { maximum: -7 }
+    fail: true
+-   name: exclusive maximum success
+    data: 5
+    schema: { maximum: 5 }
+-   name: exclusive maximum failure
+    data: 5
+    schema: { maximum: 5, exclusiveMaximum: true }
+    fail: true

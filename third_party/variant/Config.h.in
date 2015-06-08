@@ -1,0 +1,13 @@
+/** \file
+ * \author John Bridgman
+ * \brief 
+ */
+#ifndef VARIANT_CONFIG_H
+#define VARIANT_CONFIG_H
+#pragma once
+
+#cmakedefine HAVE_CXX11_SHAREDPTR 1
+#cmakedefine HAVE_TR1_SHAREDPTR 1
+#cmakedefine USE_BOOST_SHAREDPTR 1
+
+#endif

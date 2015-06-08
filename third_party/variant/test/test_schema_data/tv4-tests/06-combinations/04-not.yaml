@@ -1,0 +1,11 @@
+-   name: not success
+    data: 5
+    schema:
+        not:
+         type: string
+-   name: not failure
+    data: test
+    schema:
+        not:
+         type: string
+    fail: true

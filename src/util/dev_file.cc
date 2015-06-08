@@ -117,7 +117,7 @@ void  iota::DevicesFile::init() {
     init_error = e.what();
   }
   if (!init_error.empty()) {
-    PION_LOG_ERROR(m_log, init_error);
+    IOTA_LOG_ERROR(m_log, init_error);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER + " [" + _filename + "]",
                               init_error,
                               iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
@@ -129,10 +129,10 @@ void iota::DevicesFile::parse_to_cache(Cache* pcache) {
 
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
 
-  PION_LOG_DEBUG(m_log, "Parsing file to cache");
+  IOTA_LOG_DEBUG(m_log, "Parsing file to cache");
 
   if (pcache == NULL) {
-    PION_LOG_ERROR(m_log, "Empty cache");
+    IOTA_LOG_ERROR(m_log, "Empty cache");
     return;
   }
 
@@ -281,9 +281,9 @@ void iota::DevicesFile::parse_to_cache(Cache* pcache) {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log, e.what());
+    IOTA_LOG_ERROR(m_log, e.what());
   }
-  PION_LOG_DEBUG(m_log, "END Parsing file to cache");
+  IOTA_LOG_DEBUG(m_log, "END Parsing file to cache");
 }
 
 
@@ -297,6 +297,6 @@ const iota::JsonValue& iota::DevicesFile::getDevicesObject() {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log, e.what());
+    IOTA_LOG_ERROR(m_log, e.what());
   }
 }

@@ -1,0 +1,168 @@
+[
+	{
+		"name": "Invalid anyOf",
+		"schema": {
+			"anyOf": { "type": "integer" }
+		},
+		"data": 1234,
+		"fail": true
+	},
+	{
+		"name": "Invalid allOf",
+		"schema": {
+			"allOf": { "type": "integer" }
+		},
+		"data": 1234,
+		"fail": true
+	},
+	{
+		"name": "Invalid oneOf",
+		"schema": {
+			"oneOf": { "type": "integer" }
+		},
+		"data": 1234,
+		"fail": true
+	},
+	{
+		"name": "Invalid dependencies 1",
+		"schema": {
+			"dependencies": 123
+		},
+		"data": { "a": 1, "b": 2 },
+		"fail": true
+	},
+	{
+		"name": "Invalid dependencies 1",
+		"schema": {
+			"dependencies": { "a": 123 }
+		},
+		"data": { "a": 1, "b": 2 },
+		"fail": true
+	},
+	{
+		"name": "Invalid pattern property regex",
+		"schema": {
+			"patternProperties": {
+				"[": {}
+			}
+		},
+		"data": {
+			"abc": 123
+		},
+		"fail": true
+	},
+	{
+		"name": "Invalid pattern property not an object",
+		"schema": {
+			"patternProperties": 123
+		},
+		"data": {
+			"abc": 123
+		},
+		"fail": true
+	},
+	{
+		"name": "Inavlid properties, not an object",
+		"schema": {
+			"properties": 123
+		},
+		"data": { "abc": 123 },
+		"fail": true
+	},
+	{
+		"name": "uniqueItems not a bool",
+		"schema": {
+			"uniqueItems": 123
+		},
+		"data": [ 1,2,3 ],
+		"fail": true
+	},
+	{
+		"name": "minItems not a number",
+		"schema": {
+			"minItems": "abc"
+		},
+		"data": [ 1,2,3 ],
+		"fail": true
+	},
+	{
+		"name": "maxItems not a number",
+		"schema": {
+			"maxItems": "abc"
+		},
+		"data": [ 1,2,3 ],
+		"fail": true
+	},
+	{
+		"name": "string pattern not a string",
+		"schema": {
+			"pattern": 123
+		},
+		"data": "abc",
+		"fail": true
+	},
+	{
+		"name": "string pattern invalid regex",
+		"schema": {
+			"pattern": "["
+		},
+		"data": "abc",
+		"fail": true
+	},
+	{
+		"name": "required keys not a list",
+		"schema": {
+			"required": "abc"
+		},
+		"data": { "a": 1, "b": 2 },
+		"fail": true
+	},
+	{
+		"name": "minProperties not a number",
+		"schema": {
+			"minProperties": "abc"
+		},
+		"data": { "a": 1, "b": 2 },
+		"fail": true
+	},
+	{
+		"name": "maxProperties not a number",
+		"schema": {
+			"maxProperties": "abc"
+		},
+		"data": { "a": 1, "b": 2 },
+		"fail": true
+	},
+	{
+		"name": "minLength not a number",
+		"schema": {
+			"minLength": "abc"
+		},
+		"data": "abc",
+		"fail": true
+	},
+	{
+		"name": "maxLength not a number",
+		"schema": {
+			"maxLength": "abc"
+		},
+		"data": "abc",
+		"fail": true
+	},
+	{
+		"name": "minimum not a number",
+		"schema": {
+			"minimum": "abc"
+		},
+		"data": 123,
+		"fail": true
+	},
+	{
+		"name": "maximum not a number",
+		"schema": {
+			"maximum": "abc"
+		},
+		"data": 123,
+		"fail": true
+	}
+]

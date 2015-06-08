@@ -1,0 +1,19 @@
+[
+	{
+		"name": "Negative unique items",
+		"schema": {
+			"type": "array",
+			"uniqueItems": false
+		},
+		"data": [ "a", "b", "a", "c" ]
+	},
+	{
+		"name": "Negative unique items",
+		"schema": {
+			"type": "array",
+			"uniqueItems": true
+		},
+		"data": [ "a", "b", "a", "c" ],
+		"fail": true
+	}
+]

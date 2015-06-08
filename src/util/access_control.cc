@@ -20,6 +20,7 @@
 * please contact with iot_support at tid dot es
 */
 #include "access_control.h"
+#include "util/iota_logger.h"
 #include "util/iot_url.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -62,7 +63,7 @@ bool iota::AccessControl::authorize(std::vector<std::string> roles,
                                      boost::property_tree::ptree additional_info,
                                      app_callback_t callback) {
   // Addictional info contains headers
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "access_control_authorize roles=" << roles.size() << " resource_id=" <<
                  resource_id << " action=" << action);
 
@@ -97,12 +98,12 @@ void iota::AccessControl::receive_event(
   boost::shared_ptr<iota::HttpClient> connection,
   pion::http::response_ptr response,
   const boost::system::error_code& error) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "receive_event=access_control conn_error=" << connection->get_error());
   bool authorized = false;
   std::string str_response;
   if (response.get() != NULL) {
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "receive_event=access_control content=" << response->get_content() <<
                    " http-status=" << response->get_status_code());
     if (response->get_status_code() == pion::http::types::RESPONSE_CODE_OK) {
@@ -128,7 +129,7 @@ pion::http::request_ptr iota::AccessControl::create_request(std::string server,
   request->add_header(pion::http::types::HEADER_CONTENT_TYPE,
                       pion::http::types::CONTENT_TYPE_XML);
 
-  PION_LOG_DEBUG(m_logger, content);
+  IOTA_LOG_DEBUG(m_logger, content);
   if (query.empty() == false) {
     request->set_query_string(query);
   }

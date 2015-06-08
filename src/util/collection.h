@@ -27,11 +27,11 @@
 #include <mongo/client/dbclient.h>
 #include <mongo/client/dbclientcursor.h>
 
-#include <pion/logger.hpp>
 
 #include <climits>
 #include <cfloat>
 #include "mongo_connection.h"
+#include "util/iota_logger.h"
 
 #define ERROR_NO_DATA   -1;
 

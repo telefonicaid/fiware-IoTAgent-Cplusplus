@@ -1,0 +1,7 @@
+-   name: multipleOf
+    data: 5
+    schema: { multipleOf: 2.5 }
+-   name: multipleOf failure
+    data: 5
+    schema: { multipleOf: 0.75 }
+    fail: true

@@ -22,6 +22,7 @@
 #ifndef SRC_UTIL_OAUTH_COMM_H_
 #define SRC_UTIL_OAUTH_COMM_H_
 
+#include "util/iota_logger.h"
 #include "http_client.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/property_tree/ptree.hpp>

@@ -124,7 +124,7 @@ void iota::Configurator::reload() {
     read_file(ss);
   }
   else {
-    PION_LOG_ERROR(m_log, "does not exists " << _filename);
+    IOTA_LOG_ERROR(m_log, "does not exists " << _filename);
   }
   f.close();
 }
@@ -145,7 +145,7 @@ std::string iota::Configurator::update_conf(std::stringstream& is) {
 
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_log, e.what());
+    IOTA_LOG_ERROR(m_log, e.what());
     std::ifstream f;;
     f.open(_filename.c_str(), std::ios::binary);
     if (f.good()) {
@@ -175,7 +175,7 @@ iota::Configurator* iota::Configurator::initialize(const std::string&
 
   // Check if configuration file exists.
   if (!boost::filesystem::exists(filename)) {
-    //PION_LOG_ERROR(m_log, "Configuration file " +  filename + "does not exist");
+    //IOTA_LOG_ERROR(m_log, "Configuration file " +  filename + "does not exist");
     return NULL;
   }
   iota::Configurator* my_instance = instance();
@@ -188,7 +188,7 @@ void iota::Configurator::init() {
   std::ifstream f;
   f.open(_filename.c_str(), std::ios::binary);
   if (f.good()) {
-    PION_LOG_DEBUG(m_log, "Configurator::init:" << _filename);
+    IOTA_LOG_DEBUG(m_log, "Configurator::init:" << _filename);
     f.rdbuf();
     std::stringstream ss;
     ss << f.rdbuf();
@@ -197,7 +197,7 @@ void iota::Configurator::init() {
   else {
     _error = "File does not exists: ";
     _error.append(_filename.c_str());
-    PION_LOG_ERROR(m_log, _error);
+    IOTA_LOG_ERROR(m_log, _error);
   }
   f.close();
 }

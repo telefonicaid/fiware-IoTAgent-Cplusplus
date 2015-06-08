@@ -1,0 +1,34 @@
+[
+	{
+		"name": "Invalid ref paths - malformed",
+		"schema": {
+			"definitions": {
+				"foo": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"properties": {
+				"foo": { "$ref": "#definitions/foo" }
+			}
+		},
+		"data": { "foo": "abc" },
+		"exception": true
+	},
+	{
+		"name": "Invalid ref paths - path does not match",
+		"schema": {
+			"definitions": {
+				"foo": {
+					"type": "string"
+				}
+			},
+			"type": "object",
+			"properties": {
+				"foo": { "$ref": "#/definitions/bar/mar" }
+			}
+		},
+		"data": { "foo": 123 },
+		"exception": true
+	}
+]

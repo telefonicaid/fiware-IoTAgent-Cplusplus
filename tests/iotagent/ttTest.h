@@ -32,10 +32,7 @@
 #include "../mocks/http_mock.h"
 
 #include <boost/property_tree/ptree.hpp>
-#include <pion/logger.hpp>
-
-#include <pion/logger.hpp>
-
+#include "util/iota_logger.h"
 #include "MockIotaMqttService.h"
 #include "TDA.h"
 #include "thinkingthings/SearchResponse.h"

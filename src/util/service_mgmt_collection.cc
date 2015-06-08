@@ -397,7 +397,7 @@ void iota::ServiceMgmtCollection::getElementsFromBSON(mongo::BSONObj &obj,
             it=protocols.find(protocol_id);
             if (it == protocols.end()){
                 std::string errorSTR = "No exists protocol " + protocol_id;
-                PION_LOG_ERROR(m_logger, errorSTR);
+                IOTA_LOG_ERROR(m_logger, errorSTR);
                 throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
                            errorSTR, iota::types::RESPONSE_CODE_BAD_REQUEST);
             }else{
@@ -428,7 +428,7 @@ void iota::ServiceMgmtCollection::fillServices(const std::string &iotagent,
       std::string key(elto.getStringField(iota::store::types::SERVICE));
       key.append("|");
       key.append(elto.getStringField(iota::store::types::SERVICE_PATH));
-      PION_LOG_DEBUG(m_logger, "fillServices: " + key);
+      IOTA_LOG_DEBUG(m_logger, "fillServices: " + key);
       result.insert( std::pair<std::string,mongo::BSONObj>(key,elto) );
     }
 }

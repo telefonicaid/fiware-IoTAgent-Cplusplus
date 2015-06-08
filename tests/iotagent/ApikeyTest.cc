@@ -32,7 +32,7 @@
 #include <boost/property_tree/json_parser.hpp>
 
 #define PATH_CONFIG "../../tests/iotagent/config.json"
-#define ALT_PATH_CONFIG "../../config.json"
+#define ALT_PATH_CONFIG "../../tests/iotagent/config_auth.json"
 #define  PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ApiKeyTest);

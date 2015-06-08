@@ -1,0 +1,25 @@
+
+# - Config file for the Variant package
+# It defines the following variables
+#  LIBVARIANT_INCLUDE_DIRS	- include directories for Variant
+#  LIBVARIANT_LIBRARIES		- libraries to link against
+#  LIBVARIANT_FOUND			- library has been found
+
+# Compute paths
+get_filename_component(LIBVARIANT_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+if(EXISTS "${LIBVARIANT_CMAKE_DIR}/CMakeCache.txt")
+	# In build tree
+	include("${LIBVARIANT_CMAKE_DIR}/LibVariantBuildTreeSettings.cmake")
+else()
+	set(LIBVARIANT_INCLUDE_DIRS "${LIBVARIANT_CMAKE_DIR}/@CONF_REL_INCLUDE_DIR@")
+endif()
+
+# Our library dependencies (contains defninitinos for IMPORTED targets)
+include("${LIBVARIANT_CMAKE_DIR}/LibVariantLibraryDepends.cmake")
+
+# These are IMPORTANT targets created by VariantLibraryDepends.cmake
+set(LIBVARIANT_LIBRARIES Variant)
+
+include(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibVariant DEFAULT_MSG
+	LIBVARIANT_LIBRARIES LIBVARIANT_INCLUDE_DIRS)

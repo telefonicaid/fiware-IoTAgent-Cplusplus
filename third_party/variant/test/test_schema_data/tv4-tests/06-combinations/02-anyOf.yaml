@@ -1,0 +1,14 @@
+-   name: anyOf success
+    data: hello
+    schema:
+        anyOf:
+            - type: integer
+            - type: string
+            - minlength: 1
+-   name: anyOf failure
+    data: true
+    schema:
+        anyOf:
+            - type: integer
+            - type: string
+    fail: true

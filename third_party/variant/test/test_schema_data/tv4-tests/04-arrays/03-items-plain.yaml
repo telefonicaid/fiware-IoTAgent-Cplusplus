@@ -1,0 +1,7 @@
+-   name: plain item success
+    data: [1,2,3,4]
+    schema: { items: { type: integer } }
+-   name: plain item failure
+    data: [1,2,true,4]
+    schema: { items: { type: integer } }
+    fail: true

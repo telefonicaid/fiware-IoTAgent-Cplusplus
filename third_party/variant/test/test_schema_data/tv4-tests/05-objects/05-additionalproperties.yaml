@@ -1,0 +1,34 @@
+-   name: additionalProperties schema success
+    data: { intKey: 1, intKey2: 5, stringKey: string }
+    schema:
+        properties:
+            intKey: { type: integer }
+        patternProperties:
+            "^int": { minimum: 0 }
+        additionalProperties: { type: string }
+-   name: additionalProperties schema failure
+    data: { intKey: 10, intKey2: 5, stringKey: null }
+    schema:
+        properties:
+            intKey: { minimum: 5 }
+        patternProperties:
+            "^int": { type: integer }
+        additionalProperties: { type: string }
+    fail: true
+-   name: additionalProperties boolean success
+    data: { intKey: 10, intKey2: 5, stringKey: null }
+    schema:
+        properties:
+            intKey: { minimum: 5 }
+        patternProperties:
+            "^int": { type: integer }
+        additionalProperties: true
+-   name: additionalProperties boolean failure
+    data: { intKey: 10, intKey2: 5, stringKey: null }
+    schema:
+        properties:
+            intKey: { minimum: 5 }
+        patternProperties:
+            "^int": { type: integer }
+        additionalProperties: false
+    fail: true

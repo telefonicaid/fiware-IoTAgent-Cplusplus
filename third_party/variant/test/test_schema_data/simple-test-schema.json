@@ -1,0 +1,20 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"type":"object",
+	"additionalProperties":false,
+	"properties":{
+		"fw": {
+			"type":"number"
+		},
+		"sw": {
+			"type":"number"
+		},
+		"repos": {
+			"type":"object",
+			"additionalProperties": {
+				"type":"string"
+			}
+		}
+	},
+	"required": ["fw", "sw"]
+}

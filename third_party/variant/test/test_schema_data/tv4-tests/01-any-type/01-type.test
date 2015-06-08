@@ -1,0 +1,46 @@
+[
+	{
+		"name": "no type specified",
+		"data": {},
+		"schema": {}
+	},
+	{
+		"name": "must be object, is object",
+		"data": {},
+		"schema": { "type": "object" }
+	},
+	{
+		"name": "must be object or string, is object",
+		"data": {},
+		"schema": { "type": ["object", "string"] }
+	},
+	{
+		"name": "must be object or string, is array",
+		"data": [],
+		"schema": { "type": ["object", "string"] },
+		"fail": true
+	},
+	{
+		"name": "must be array, is object",
+		"data": {},
+		"schema": { "type": ["array"] },
+		"fail": true
+	},
+	{
+		"name": "must be string, is integer",
+		"data": 5,
+		"schema": {"type": ["string"] },
+		"fail": true
+	},
+	{
+		"name": "must be object, is null",
+		"data": null,
+		"schema": { "type": ["object"] },
+		"fail": true
+	},
+	{
+		"name": "must be null, is null",
+		"data": null,
+		"schema": { "type": "null" }
+	}
+]

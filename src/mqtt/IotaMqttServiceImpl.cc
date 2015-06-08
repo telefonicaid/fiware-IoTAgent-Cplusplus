@@ -73,7 +73,7 @@ void iota::esp::ngsi::IotaMqttServiceImpl::doRequestCommands(std::string& apikey
     "IotaMqttServiceImpl badly initialized",500);
   }
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                    "doRequestCommands: apikey [ " << apikey << "] device:[" << device << "]");
   //we've got apikey and device id, so with these two pieces of information, we should be able
   //to obtain all commands for that particular device, but not without some previous calls
@@ -87,7 +87,7 @@ void iota::esp::ngsi::IotaMqttServiceImpl::doRequestCommands(std::string& apikey
                                   serviceMQTT);
 
   iota::CommandVect all_commands =  mqtt_command_ptr_->get_all_command(dev,pt_cb);
- PION_LOG_DEBUG(m_logger,
+ IOTA_LOG_DEBUG(m_logger,
                    "doRequestCommands: Commands retrieved: "<< all_commands.size());
 
   std::map<std::string, std::string> parameters;
@@ -132,15 +132,15 @@ void iota::esp::ngsi::IotaMqttServiceImpl::extract_command_id(std::string payloa
     separator=1;
   }
 
-  PION_LOG_DEBUG (m_logger,"extract_command_id: command id found: "<<out_id);
+  IOTA_LOG_DEBUG (m_logger,"extract_command_id: command id found: "<<out_id);
 
   //now let's remove the command id from the payload.
 
   out_payload.assign(payload.erase(cmd_id_pos,6+out_id.length()+separator));
 
-  //PION_LOG_DEBUG (m_logger,"extract_command_id: start "<< (cmd_id_pos) << " end " << (6+cmd_id.length()));
+  //IOTA_LOG_DEBUG (m_logger,"extract_command_id: start "<< (cmd_id_pos) << " end " << (6+cmd_id.length()));
 
-  PION_LOG_DEBUG (m_logger,"extract_command_id: payload trimmed: "<<out_payload);
+  IOTA_LOG_DEBUG (m_logger,"extract_command_id: payload trimmed: "<<out_payload);
 
 
 }
@@ -153,12 +153,12 @@ void iota::esp::ngsi::IotaMqttServiceImpl::processCommandResponse(std::string& a
 
   try{
     extract_command_id(raw_payload,payload,cmd_id);
-    PION_LOG_DEBUG (m_logger,"IotaMqttServiceImpl: processCommandResponse, cmd id "<< cmd_id<< " apikey: "<< apikey);
+    IOTA_LOG_DEBUG (m_logger,"IotaMqttServiceImpl: processCommandResponse, cmd id "<< cmd_id<< " apikey: "<< apikey);
 
     mqtt_command_ptr_->respond_mqtt_command(apikey,idDevice,payload,cmd_id);
 
   }catch(iota::IotaException ex){
-    PION_LOG_ERROR(m_logger,"Error while processing response to command:"<< ex.what()<< " payload: "
+    IOTA_LOG_ERROR(m_logger,"Error while processing response to command:"<< ex.what()<< " payload: "
           <<raw_payload << " apikey "<<apikey << " device "<<idDevice);
   }catch(...){
 
@@ -180,7 +180,7 @@ void iota::esp::ngsi::IotaMqttServiceImpl::add_info(
     std::string service_path = pt.get<std::string>("service_path", "");
     std::string token = pt.get<std::string>("token", "");
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "Config retrieved: token: " << token << " service_path: " << service_path);
 
     pt.put("timeout", timeout);
@@ -190,7 +190,7 @@ void iota::esp::ngsi::IotaMqttServiceImpl::add_info(
 
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger,
+    IOTA_LOG_ERROR(m_logger,
                    "Configuration error for service: " << iotService << " [" << e.what() << "] ");
     throw e;
   }
@@ -216,7 +216,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(std::string& apike
 
   std::string cb_response;
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "IotaMqttServiceImpl, doPublishCB... json:" << json << " apikey: " << apikey <<
                  " device: " << idDevice);
 
@@ -238,7 +238,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(std::string& apike
 
     ngsi_context_element.set_env_info(pt_cb, dev);
 
-    PION_LOG_DEBUG(m_logger,
+    IOTA_LOG_DEBUG(m_logger,
                    "MQTTService: Creating entity : [" << ngsi_context_element.get_string() <<
                    "]"); //call to populate internal fields from cache, or by default, etc... not interesated in result
 
@@ -258,12 +258,12 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(std::string& apike
 
 
 
-    PION_LOG_DEBUG(m_logger, "ContextBroker RESPONSE: " << cb_response);
+    IOTA_LOG_DEBUG(m_logger, "ContextBroker RESPONSE: " << cb_response);
 
 
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error : " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error : " << e.what());
     std::ostringstream what;
     what << "Can't publish on ContextBroker:";
     what << e.what();

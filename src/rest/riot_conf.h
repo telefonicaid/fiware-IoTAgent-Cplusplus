@@ -26,7 +26,7 @@
 #include <string>
 #include <map>
 #include <rapidjson/document.h>
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 
@@ -123,7 +123,7 @@ class Configurator {
     std::string _filename;
     std::string _error;
     int listen_port;
-    std::string listen_ip; 
+    std::string listen_ip;
 
     static Configurator* pinstance;
 

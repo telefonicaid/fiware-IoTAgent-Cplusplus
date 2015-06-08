@@ -1,0 +1,23 @@
+
+convert.cc:
+
+This example is for a program to convert between different serialization
+formats. It can load JSON, YAML or plist and then save it as any of those
+formats.
+
+example1.cc:
+
+A quick example of how to load YAML and JSON with the convenience interface.
+
+example2.cc:
+
+Shows some basic ways of querying for information from a Variant.
+
+map_example.cc:
+
+Shows some basic operations that you can perform on the map types.
+
+pretty_print.cc:
+
+Shows some basic examples of how to pretty print a Variant into JSON and YAML
+in several different formats.

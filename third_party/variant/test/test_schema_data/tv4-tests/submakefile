@@ -1,0 +1,9 @@
+
+TARGETS := $(patsubst %.yaml,%.test,$(wildcard *.yaml))
+
+tests: $(TARGETS)
+
+
+%.test: %.yaml
+	python -c "import json; import yaml; import sys; json.dump(yaml.load(sys.stdin), sys.stdout);" < $< > $@
+

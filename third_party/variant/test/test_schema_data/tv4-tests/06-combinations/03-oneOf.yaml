@@ -1,0 +1,23 @@
+-   name: oneOf success
+    data: 5
+    schema:
+        oneOf:
+            - type: integer
+            - type: string
+            - { type: string, minLength: 1 }
+-   name: oneOf failure (too many)
+    data: string
+    schema:
+        oneOf:
+            - type: integer
+            - type: string
+            - { type: string, minLength: 1 }
+    fail: true
+-   name: oneOf failure (no matches)
+    data: false
+    schema:
+        oneOf:
+            - type: integer
+            - type: string
+            - { type: string, minLength: 1 }
+    fail: true

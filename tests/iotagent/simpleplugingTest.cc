@@ -32,7 +32,7 @@
 #include "services/ngsi_service.h"
 
 #include <boost/property_tree/ptree.hpp>
-#include <pion/logger.hpp>
+#include "util/iota_logger.h"
 #include <pion/process.hpp>
 #include <boost/filesystem/operations.hpp>
 #include "ultra_light/ul20_service.h"
@@ -172,6 +172,7 @@ void SimplePluginTest::testRegisterIoTA() {
   ASYNC_TIME_WAIT
   std::string r_1 = cb_mock->get_last();
   CPPUNIT_ASSERT_MESSAGE("POST manager ", r_1.find("HOLA") != std::string::npos);
+  cb_mock->stop();
 }
 void SimplePluginTest::testFilter() {
   std::cout << "START testFilter" << std::endl;

@@ -1,0 +1,1 @@
+[{"data": [[], [[]]], "name": "internal $ref 1", "schema": {"items": {"$ref": "#"}, "type": "array"}}, {"fail": true, "data": [1, 2, 3, 4], "name": "internal $ref 2", "schema": {"items": {"$ref": "#"}, "type": "array"}}, {"fail": true, "data": [[false], [[]]], "name": "internal $ref 2", "schema": {"items": {"$ref": "#"}, "type": "array"}}]

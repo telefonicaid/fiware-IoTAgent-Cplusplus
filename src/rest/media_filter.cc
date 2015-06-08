@@ -51,7 +51,7 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
 
   bool allowed = true;
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "MediaFilter handle_request " << http_request_ptr->get_header(
                    iota::types::HEADER_TRACE_MESSAGES) << http_request_ptr->get_resource());
 
@@ -79,11 +79,11 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
       std::string rec_accept = http_request_ptr->get_header(
                                  iota::types::IOT_HTTP_HEADER_ACCEPT);
 
-      PION_LOG_DEBUG(m_logger, "Accept: " << rec_accept);
+      IOTA_LOG_DEBUG(m_logger, "Accept: " << rec_accept);
       if (rec_accept.find(iota::types::IOT_CONTENT_SUBTYPE_JSON) == std::string::npos
           &&
           rec_accept.find("/*") == std::string::npos) {
-        PION_LOG_ERROR(m_logger, "Accept different from application/json, text/json");
+        IOTA_LOG_ERROR(m_logger, "Accept different from application/json, text/json");
         resu = iota::types::RESPONSE_CODE_NOT_ACCEPTABLE;
       }
     }
@@ -97,10 +97,10 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
                                        pion::http::types::HEADER_CONTENT_TYPE);
 
 
-      PION_LOG_DEBUG(m_logger, "Content-Type: " << rec_content_type);
+      IOTA_LOG_DEBUG(m_logger, "Content-Type: " << rec_content_type);
       if (rec_content_type.find(iota::types::IOT_CONTENT_SUBTYPE_JSON) ==
           std::string::npos) {
-        PION_LOG_ERROR(m_logger,
+        IOTA_LOG_ERROR(m_logger,
                        "Content-Type different of application/json or text/json");
         resu = iota::types::RESPONSE_CODE_UNSUPPORTED_MEDIA_TYPE;
       }

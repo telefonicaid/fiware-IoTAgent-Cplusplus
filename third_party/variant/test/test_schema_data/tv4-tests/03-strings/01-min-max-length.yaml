@@ -1,0 +1,17 @@
+-   name: no length constraints
+    data: test
+    schema: {}
+-   name: minimum length success
+    data: test
+    schema: { minLength: 3 }
+-   name: min length failure
+    data: test
+    schema: { minLength: 5 }
+    fail: true
+-   name: maximum length success
+    data: test1234
+    schema: { maxLength: 10 }
+-   name: maximum length failure
+    data: test1234
+    schema: { maxLength: 5 }
+    fail: true

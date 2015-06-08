@@ -1,0 +1,1 @@
+[{"data": {"stringKey": "one", "intKey": 1}, "name": "properties success", "schema": {"properties": {"stringKey": {"type": "string"}, "intKey": {"type": "integer"}}}}, {"fail": true, "data": {"stringKey": false, "intKey": 1}, "name": "properties failure", "schema": {"properties": {"stringKey": {"type": "string"}, "intKey": {"type": "integer"}}}}]

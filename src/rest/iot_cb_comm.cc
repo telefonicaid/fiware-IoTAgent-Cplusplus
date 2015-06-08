@@ -64,7 +64,7 @@ void iota::ContextBrokerCommunicator::receive_event(
   boost::shared_ptr<iota::HttpClient> connection,
   pion::http::response_ptr response_ptr,
   const boost::system::error_code& error) {
-  PION_LOG_DEBUG(m_logger, "url=" << url << " error=" << error);
+  IOTA_LOG_DEBUG(m_logger, "url=" << url << " error=" << error);
   pion::http::response_ptr response    = connection->get_response();
   if ((!error) && (response.get() != NULL)) {
     std::string cb_response = response->get_content();
@@ -90,7 +90,7 @@ void iota::ContextBrokerCommunicator::receive_event(
     ss << connection->getRemoteEndpoint();
     ss << ": ";
     ss << error.message();
-    PION_LOG_ERROR(m_logger, ss.str());
+    IOTA_LOG_ERROR(m_logger, ss.str());
     if (_callback) {
       _callback("", (-1)*error.value());
     }
@@ -133,7 +133,7 @@ bool iota::ContextBrokerCommunicator::async_send(std::string url,
         iotagent_pass = to_map["on_behalf_password"];
       }
       catch (std::runtime_error& e) {
-        PION_LOG_DEBUG(m_logger, "oauth not found :" << e.what());
+        IOTA_LOG_DEBUG(m_logger, "oauth not found :" << e.what());
       }
     }
 
@@ -198,7 +198,7 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
       iotagent_pass = to_map["on_behalf_password"];
     }
     catch (std::runtime_error& e) {
-      PION_LOG_DEBUG(m_logger, "oauth not found :" << e.what());
+      IOTA_LOG_DEBUG(m_logger, "oauth not found :" << e.what());
     }
   }
 
@@ -210,7 +210,7 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
     std::string compound_server(server);
     compound_server.append(":");
     compound_server.append(boost::lexical_cast<std::string>(dest.getPort()));
-    PION_LOG_DEBUG(m_logger, "Server " << server);
+    IOTA_LOG_DEBUG(m_logger, "Server " << server);
 
 
     if (!token.empty() && !oauth.empty()) {
@@ -241,7 +241,7 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
                                    http_client->get_error());
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, e.what());
+    IOTA_LOG_ERROR(m_logger, e.what());
     iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url,
                        iota::types::ERROR, e.what());
   }
@@ -278,13 +278,13 @@ int iota::ContextBrokerCommunicator::send(
   iota::UpdateContext op(updateAction);
   op.add_context_element(ngsi_context_element);
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "-----sendtoCB:" <<  ngsi_context_element.get_string());
-  PION_LOG_DEBUG(m_logger, "send to CB:" << cb_url << ":op:" << op.get_string());
+  IOTA_LOG_DEBUG(m_logger, "send to CB:" << cb_url << ":op:" << op.get_string());
   iota::ContextBrokerCommunicator cb_communicator;
   cb_response.append(send(cb_url, op.get_string(), service));
 
-  PION_LOG_DEBUG(m_logger, "CB  response " << cb_response);
+  IOTA_LOG_DEBUG(m_logger, "CB  response " << cb_response);
   return pion::http::types::RESPONSE_CODE_OK;
 }
 
@@ -302,7 +302,7 @@ std::string iota::ContextBrokerCommunicator::get_ngsi_operation(
     op.assign(op_url);
   }
   catch (std::exception& e) {
-    PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
   return op;
 }
@@ -316,7 +316,7 @@ int iota::ContextBrokerCommunicator::send_updateContext(
   const boost::shared_ptr<iota::Device>& item_dev,
   const boost::property_tree::ptree& service,
   const std::string& opSTR) {
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "send_updateContext "<< command_name << " " << command_att <<
                  " " << value << " " <<  item_dev->get_real_name() << " " <<
                  item_dev->_entity_type);
@@ -336,7 +336,7 @@ int iota::ContextBrokerCommunicator::send_updateContext(
   // attribute with time
   iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
   ngsi_context_element.add_attribute(timeAT);
-  PION_LOG_DEBUG(m_logger,"<<<" << ngsi_context_element.get_string());
+  IOTA_LOG_DEBUG(m_logger,"<<<" << ngsi_context_element.get_string());
   int code_resp = send(ngsi_context_element, opSTR, service, cb_response);
 
   return code_resp;
@@ -400,7 +400,7 @@ pion::http::request_ptr iota::ContextBrokerCommunicator::create_request(
   request->add_header(iota::types::FIWARE_SERVICE, service);
   request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
   std::string token = additional_info.get<std::string>("token", "");
-  PION_LOG_DEBUG(m_logger, "IotAgent token " << token);
+  IOTA_LOG_DEBUG(m_logger, "IotAgent token " << token);
   if (token.empty() == false) {
     request->add_header(iota::types::IOT_HTTP_HEADER_AUTH, token);
   }

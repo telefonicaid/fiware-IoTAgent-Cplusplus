@@ -34,7 +34,6 @@ class cbCommTest: public CppUnit::TestFixture  {
     CPPUNIT_TEST(testAsyncSend);
     CPPUNIT_TEST(testSynchSendTimeout);
     CPPUNIT_TEST(testAlarm);
-
     CPPUNIT_TEST(testAsynchSendTimeout);
 
     CPPUNIT_TEST_SUITE_END();

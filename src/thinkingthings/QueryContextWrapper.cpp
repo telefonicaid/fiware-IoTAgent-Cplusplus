@@ -56,7 +56,7 @@ iota::esp::tt::QueryContextWrapper::QueryContextWrapper(
 
 
   }
-  PION_LOG_DEBUG(m_logger,"QueryContextWrapper: CB URL formed: ["<< cb_url<<"]");
+  IOTA_LOG_DEBUG(m_logger,"QueryContextWrapper: CB URL formed: ["<< cb_url<<"]");
 
 }
 
@@ -74,17 +74,17 @@ iota::esp::tt::QueryContextWrapper::~QueryContextWrapper() {
   ::iota::QueryContext& qc) {
 
 
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,
                  "doQueryContext: SENDING to Context Broker... ["<<qc.get_string()<<"]");
   cb_response.assign(cb_communicator.send(cb_url, qc.get_string(), *pt_cb));
 
   std::istringstream iss(cb_response);
 
-  PION_LOG_DEBUG(m_logger,"doQueryContext: SENDING to Context Broker...  DONE");
-  PION_LOG_DEBUG(m_logger,
+  IOTA_LOG_DEBUG(m_logger,"doQueryContext: SENDING to Context Broker...  DONE");
+  IOTA_LOG_DEBUG(m_logger,
                  "doQueryContext: Formatting response: [ "<<cb_response<<" ]");
 
   ::iota::ContextResponses responses(iss);
-  PION_LOG_DEBUG(m_logger,"doQueryContext: Formatting response: ...  DONE");
+  IOTA_LOG_DEBUG(m_logger,"doQueryContext: Formatting response: ...  DONE");
   return responses;
 }
