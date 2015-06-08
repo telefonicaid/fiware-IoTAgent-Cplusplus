@@ -268,17 +268,25 @@ if(LIBVARIANT_FOUND)
  message(STATUS "LibVariant include dirs ${LIBVARIANT_INCLUDE_DIR}")
 else()
  message(STATUS "Using third_party directory")
- set(LIBVARIANT_ENABLE_XML OFF CACHE BOOL "Disabling XML Variant")
- set(LIBVARIANT_ENABLE_YAML OFF CACHE BOOL "Disabling YAML Variant")
- set(LIBVARIANT_ENABLE_CURL OFF CACHE BOOL "Disabling CURL Variant")
- set(LIBVARIANT_ENABLE_MSGPACK OFF CACHE BOOL "Disabling MSGPACK Variant")
- add_subdirectory(third_party/variant)
- include_directories(${PROJECT_SOURCE_DIR}/third_party/variant/include)
- include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/variant/include)
- link_directories(${CMAKE_CURRENT_BINARY_DIR}third_party/variant)
+ include(ExternalProject)
+ ExternalProject_Add(schema-validator PREFIX
+	 ${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator SOURCE_DIR
+	 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/variant CMAKE_ARGS
+	 -DLIBVARIANT_ENABLE_XML=OFF -DLIBVARIANT_ENABLE_YAML=OFF
+	 -DLIBVARIANT_ENABLE_CURL=OFF -DLIBVARIANT_ENABLE_MSGPACK=OFF
+	 -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator)
+ #add_subdirectory(third_party/variant)
+ #include_directories(${PROJECT_SOURCE_DIR}/third_party/variant/include)
+ #include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/variant/include)
+ #link_directories(${CMAKE_CURRENT_BINARY_DIR}third_party/variant)
  add_definitions( -DLIBVARIANT=1 )
+ set(LIBVARIANT_INCLUDE_DIR
+	 ${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator/include)
+ set(LIBVARIANT_LIBS_DIR
+	 ${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator/lib)
+ include_directories(${LIBVARIANT_INCLUDE_DIR})
+ link_directories(${LIBVARIANT_LIBS_DIR})
  message(STATUS "LibVariant include dirs ${LIBVARIANT_INCLUDE_DIR}")
-else()
 endif()
 
 # add a target to generate API documentation with Doxygen
