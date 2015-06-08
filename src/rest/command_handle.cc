@@ -608,7 +608,10 @@ void iota::CommandHandle::send_register_device(Device& device) {
     iota::Collection srv_table(iota::store::types::SERVICE_TABLE);
 
     PION_LOG_DEBUG(m_logger, "Resource: " <<  get_resource());
-    mongo::BSONObj srv_find = BSON("resource" << get_resource());
+    mongo::BSONObj srv_find = BSON(
+        iota::store::types::SERVICE << device._service <<
+        iota::store::types::SERVICE_PATH << device._service_path <<
+        iota::store::types::RESOURCE << get_resource());
     int code_res = srv_table.find(srv_find);
 
     while (srv_table.more()) {
@@ -616,8 +619,6 @@ void iota::CommandHandle::send_register_device(Device& device) {
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
       service_path = srv_resu.getStringField(iota::store::types::SERVICE_PATH);
 
-      if (srv.compare(device._service) == 0 &&
-          service_path.compare(device._service_path)) {
         PION_LOG_DEBUG(m_logger, " service=" <<  srv << " service_path=" << service_path);
         dev_table.findd(device);
 
@@ -704,7 +705,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
           }
         }
       }
-    }
+
   }
   catch (...) {
     PION_LOG_ERROR(m_logger, "Error sending registrations");
