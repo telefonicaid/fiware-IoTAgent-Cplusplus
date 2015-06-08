@@ -150,8 +150,8 @@ endif()
 
 # Log4cplus
 # It use logger library recommended in Pion Library.
-#set(Log4Cplus_USE_STATIC_LIBS OFF)
-#find_package(Log4cplus)
+set(Log4Cplus_USE_STATIC_LIBS OFF)
+find_package(Log4cplus)
 if (LOG4CPLUS_FOUND)
   include_directories(${LOG4CPLUS_INCLUDE_DIR})
   if (NOT Log4Cplus_USE_STATIC_LIBS)
