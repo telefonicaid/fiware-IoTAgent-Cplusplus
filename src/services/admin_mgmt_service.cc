@@ -1400,8 +1400,8 @@ int iota::AdminManagerService::put_service_json(
       if (response_from_iotagent_nok.size() > 0) {
         response = response_from_iotagent_nok.begin()->second;
         if (code_from_iota != pion::http::types::RESPONSE_CODE_NO_CONTENT) {
-           IOTA_LOG_DEBUG(m_log, "Setting status received from agent");
-           code = code_from_iota;
+          IOTA_LOG_DEBUG(m_log, "Setting status received from agent");
+          code = code_from_iota;
         }
       }
       else {
