@@ -1443,14 +1443,14 @@ int iota::CommandHandle::send_updateContext(
       type,
       value, item_dev,
       service, ngsi_context_element);
-
-    iota::RiotISO8601 mi_hora;
-    std::string date_to_cb = mi_hora.toUTC().toString();
-    iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
-    ngsi_context_element.add_attribute(timeAT);
   }else{
     ngsi_context_element.set_is_pattern("false");
   }
+
+  iota::RiotISO8601 mi_hora;
+  std::string date_to_cb = mi_hora.toUTC().toString();
+  iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
+  ngsi_context_element.add_attribute(timeAT);
 
   if (item_dev.get()!= NULL ){
     ngsi_context_element.set_env_info(service, item_dev);
