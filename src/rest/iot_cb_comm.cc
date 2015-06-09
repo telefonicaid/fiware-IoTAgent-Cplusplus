@@ -210,7 +210,8 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
     std::string compound_server(server);
     compound_server.append(":");
     compound_server.append(boost::lexical_cast<std::string>(dest.getPort()));
-    IOTA_LOG_DEBUG(m_logger, "Server " << server);
+    IOTA_LOG_DEBUG(m_logger, "send Server:" << server <<
+             "service:" << service << " service_path:" << service_path);
 
 
     if (!token.empty() && !oauth.empty()) {
