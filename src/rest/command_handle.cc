@@ -626,6 +626,13 @@ void iota::CommandHandle::send_register_device(Device& device) {
           register_device = dev_table.nextd();
           PION_LOG_DEBUG(m_logger, "Found device: " <<  register_device._name);
 
+          boost::property_tree::ptree service_ptree;
+          get_service_by_name(service_ptree, srv, service_path);
+          boost::shared_ptr<Device> item_dev(new Device(register_device));
+
+          PION_LOG_DEBUG(m_logger, "updatContext Device::" << item_dev->_name);
+          send_updateContext ( "", "", "", "",
+                 item_dev, service_ptree, iota::types::STATUS_OP);
           // If no commands and no internal attributes, register is not needed.
           PION_LOG_DEBUG(m_logger, p_request <<
                          " commands=" << boost::lexical_cast<std::string>
@@ -641,10 +648,6 @@ void iota::CommandHandle::send_register_device(Device& device) {
             std::string cb_response;
             std::string reg_id;
             std::string reg_time;
-
-            boost::property_tree::ptree service_ptree;
-            get_service_by_name(service_ptree, srv, service_path);
-            boost::shared_ptr<Device> item_dev(new Device(register_device));
 
             PION_LOG_DEBUG(m_logger, "setting env info");
             cr.set_env_info(service_ptree, item_dev);
@@ -1381,9 +1384,6 @@ int iota::CommandHandle::send_register(
     pt_cb.put<std::string>(iota::types::IOT_HTTP_HEADER_ACCEPT,
                            iota::types::IOT_CONTENT_TYPE_JSON);
 
-    PION_LOG_DEBUG(m_logger, "updatContext Device::" << device->_name);
-    send_updateContext ( "", "", "", "",
-        device, pt_cb, iota::types::STATUS_OP);
   }
   catch (std::exception& e) {
     PION_LOG_ERROR(m_logger, "Configuration error " << e.what());
@@ -1441,14 +1441,14 @@ int iota::CommandHandle::send_updateContext(
       type,
       value, item_dev,
       service, ngsi_context_element);
-
-    iota::RiotISO8601 mi_hora;
-    std::string date_to_cb = mi_hora.toUTC().toString();
-    iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
-    ngsi_context_element.add_attribute(timeAT);
   }else{
     ngsi_context_element.set_is_pattern("false");
   }
+
+  iota::RiotISO8601 mi_hora;
+  std::string date_to_cb = mi_hora.toUTC().toString();
+  iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
+  ngsi_context_element.add_attribute(timeAT);
 
   if (item_dev.get()!= NULL ){
     ngsi_context_element.set_env_info(service, item_dev);
