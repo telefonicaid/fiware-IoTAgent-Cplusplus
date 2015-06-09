@@ -89,7 +89,7 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
                                        iota::store::types::STORAGE);
     if (storage.HasMember(iota::store::types::TYPE.c_str())) {
       _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
-      PION_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
+      IOTA_LOG_INFO(m_logger, "type_store:" <<  _storage_type);
       if (_storage_type.compare(iota::store::types::MONGODB)==0) {
         unsigned short tm = iota::Configurator::instance()->get("timeout").GetInt64();
         registeredDevices.set_time_to_life(tm);
@@ -105,12 +105,12 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
           iota::DevicesFile::instance()->initialize(devices_store);
         }
         else {
-          PION_LOG_INFO(m_logger, "in config devices store: no file defined");
+          IOTA_LOG_INFO(m_logger, "in config devices store: no file defined");
         }
 
 
-        PION_LOG_INFO(m_logger, "devices store: " << devices_store);
-        PION_LOG_INFO(m_logger, "Parsing cache from devices file");
+        IOTA_LOG_INFO(m_logger, "devices store: " << devices_store);
+        IOTA_LOG_INFO(m_logger, "Parsing cache from devices file");
         iota::DevicesFile::instance()->parse_to_cache(&registeredDevices);
       }
     }
@@ -185,7 +185,7 @@ void iota::RestHandle::register_plugin() {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_INFO(m_logger, "No internal stats information in configuration file "
+    IOTA_LOG_INFO(m_logger, "No internal stats information in configuration file "
                   << get_resource());
   }
 
@@ -198,7 +198,7 @@ void iota::RestHandle::register_plugin() {
     register_iota_manager();
   }
   catch (std::exception& e) {
-    PION_LOG_INFO(m_logger, "No IoTA-Manager configured in "
+    IOTA_LOG_INFO(m_logger, "No IoTA-Manager configured in "
                   << get_resource());
   }
 }
@@ -212,7 +212,7 @@ std::string iota::RestHandle::get_public_ip() {
     public_ip = conf_public_ip.GetString();
   }
   catch (std::exception& e) {
-    PION_LOG_INFO(m_logger, "No public ip");
+    IOTA_LOG_INFO(m_logger, "No public ip");
   }
   if (public_ip.empty()) {
     // Own endpoint to register
@@ -305,7 +305,7 @@ void iota::RestHandle::register_iota_manager() {
         http_client->async_send(request, get_default_timeout(), "",
                                 boost::bind(&iota::RestHandle::receive_event_from_manager,
                                             this, _1, _2, _3));
-        PION_LOG_INFO(m_logger, json_post);
+        IOTA_LOG_INFO(m_logger, json_post);
 
       }
     }
@@ -749,7 +749,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device_by_entity(
     size_t pos_i = name.find_first_of(":");
     if (pos_i != std::string::npos) {
       std::string name_device = name.substr(pos_i + 1);
-      PION_LOG_INFO(m_logger,
+      IOTA_LOG_INFO(m_logger,
                     "doubleSearch, device registered with no entity, name device: "
                     << name_device << " " << service);
       boost::shared_ptr<iota::Device> itemQD(new iota::Device(name_device, service));
@@ -762,7 +762,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device_by_entity(
       result = registeredDevices.get(itemQD);
     }
     else {
-      PION_LOG_INFO(m_logger,
+      IOTA_LOG_INFO(m_logger,
                     "doubleSearch, with no entity_type "
                     << name << " " << service);
       itemQ->_entity_type = "";

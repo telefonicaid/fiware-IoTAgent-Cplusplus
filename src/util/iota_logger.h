@@ -30,6 +30,6 @@
 #define IOTA_LOG_INFO(LOG, MSG) PION_LOG_INFO(LOG, "| op=" << __FUNCTION__ << " | file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
 #define IOTA_LOG_WARN(LOG, MSG) PION_LOG_WARN(LOG, "| op=" << __FUNCTION__ << " | file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
 #define IOTA_LOG_ERROR(LOG, MSG) PION_LOG_ERROR(LOG, "| op=" << __FUNCTION__ << " | file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
-#define IOTA_LOG_FATAL(LOG, MSG) PION_LOG_DEBUG(LOG, "| op=" << __FUNCTION__ << " | file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
+#define IOTA_LOG_FATAL(LOG, MSG) PION_LOG_FATAL(LOG, "| op=" << __FUNCTION__ << " | file=[" << pthread_self() << ":" << __FILENAME__ << ":" << __LINE__ << "] | msg=" << MSG)
 
 #endif

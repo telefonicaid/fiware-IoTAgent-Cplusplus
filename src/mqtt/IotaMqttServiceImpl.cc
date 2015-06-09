@@ -247,7 +247,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(std::string& apike
 
     iota::RiotISO8601 timeInstant;
 
-    PION_LOG_INFO(m_logger, "Adding attribute to ContextElement: " << json);
+    IOTA_LOG_INFO(m_logger, "Adding attribute to ContextElement: " << json);
 
     std::vector<std::string> vJsonTT;
 

@@ -177,7 +177,7 @@ void iota::OAuthFilter::authorize(pion::http::request_ptr& http_request_ptr,
   //http_request_ptr->set_user(user);
   int status = pion::http::types::RESPONSE_CODE_UNAUTHORIZED;
 
-  PION_LOG_INFO(m_logger,
+  IOTA_LOG_INFO(m_logger,
                 "authorize user_id=" << user_id << " domain=" << domain <<
                 " project=" << project << " service_id=" << service_id << " subservice_id=" <<
                 subservice_id << " roles=" <<

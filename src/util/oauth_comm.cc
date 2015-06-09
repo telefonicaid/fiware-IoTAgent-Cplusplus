@@ -217,7 +217,7 @@ std::string iota::OAuth::receive_event_get_user(
   std::string str_response;
   if (response.get() != NULL) {
     str_response = response->get_content();
-    PION_LOG_INFO(m_logger, "receive_event_get_user conn_error=" <<
+    IOTA_LOG_INFO(m_logger, "receive_event_get_user conn_error=" <<
                   connection->get_error() <<
                   " http_resp=" << str_response <<
                   "[" << response->get_status_code() << "]");
@@ -330,7 +330,7 @@ std::string iota::OAuth::receive_event_get_subservice(
   if (response.get() != NULL) {
     str_response = response->get_content();
     status_code = response->get_status_code();
-    PION_LOG_INFO(m_logger, "receive_event_get_subservice conn_error=" <<
+    IOTA_LOG_INFO(m_logger, "receive_event_get_subservice conn_error=" <<
                   connection->get_error() <<
                   " http_resp=" << str_response <<
                   "[" << status_code << "]");
@@ -402,7 +402,7 @@ std::string iota::OAuth::receive_event_get_user_roles(
   std::string str_response;
   if (response.get() != NULL) {
     str_response = response->get_content();
-    PION_LOG_INFO(m_logger, "receive_event_get_user_roles conn_error=" <<
+    IOTA_LOG_INFO(m_logger, "receive_event_get_user_roles conn_error=" <<
                   connection->get_error() <<
                   " http_resp=" << str_response <<
                   "[" << response->get_status_code() << "]");

@@ -740,7 +740,7 @@ int iota::Collection::find(int queryOptions,
       stream << "error: NO DATA  " << bbdd << ": " << query;
       std::string obj = stream.str();
 
-      PION_LOG_INFO(m_logger,obj);
+      IOTA_LOG_INFO(m_logger,obj);
       result = ERROR_NO_DATA;
     }
 

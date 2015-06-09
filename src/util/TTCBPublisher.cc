@@ -56,7 +56,7 @@ std::string iota::tt::TTCBPublisher::doPublishContextBroker(
   ::iota::Attribute attributeTS("TimeInstant","ISO8601",strTimestamp);
 
 
-  PION_LOG_INFO(m_logger,
+  IOTA_LOG_INFO(m_logger,
                 "doPublishContext Broker: Adding attributes to ContextElement: ");
   int i;
   for (i=0; i<vJsons.size(); i++) {
@@ -66,12 +66,12 @@ std::string iota::tt::TTCBPublisher::doPublishContextBroker(
     cElement.add_attribute(jsonAttribute);
 
   }
-  PION_LOG_INFO(m_logger,
+  IOTA_LOG_INFO(m_logger,
                 "doPublishContext Broker: Adding attributes to ContextElement: ["<<i<<"] added");
 
   if (!checkTimeInstantPresent(vJsons)) {
     cElement.add_attribute(attributeTS); //Adding Timestamp as attribute
-    PION_LOG_INFO(m_logger,
+    IOTA_LOG_INFO(m_logger,
                   "doPublishContext Broker: TimeInstant added to ContextElement.");
 
   }
