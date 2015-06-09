@@ -52,3 +52,5 @@ rm -rf %{buildroot}
 %defattr(755,%{_owner},%{_owner},755)
 /usr/local/iot/lib/*
 
+%changelog
+@ULCHANGELOG@

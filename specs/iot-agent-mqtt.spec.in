@@ -67,3 +67,7 @@ rm -rf %{buildroot}
 /etc/iot/MqttService.xml
 /usr/local/iot/scripts
 #%attr(4755, root, root) /usr/local/iot/scripts/init_mosquitto.sh
+
+%changelog
+@MQTTCHANGELOG@
+

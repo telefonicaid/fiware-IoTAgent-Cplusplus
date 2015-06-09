@@ -60,3 +60,5 @@ rm -rf %{buildroot}
 /etc/iot/sensortt-open.xml
 /etc/iot/TTService.xml
 
+%changelog
+@TTCHANGELOG@
