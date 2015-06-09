@@ -110,7 +110,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
 
   std::string trace_message = http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_logger, "iota::UL20Service::service method:" +method +
+  IOTA_LOG_INFO(m_logger, "iota::UL20Service::service method:" +method +
           " trace_message:" + trace_message);
 
   //HTTPResponse http_response(*http_request_ptr);
@@ -355,7 +355,7 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
     response.append(commandsSTR);
   }
 
-  PION_LOG_INFO(m_logger, "iota::UL20Service::service method:" +method +
+  IOTA_LOG_INFO(m_logger, "iota::UL20Service::service method:" +method +
           " trace_message:" + trace_message+
           " code: " + boost::lexical_cast<std::string>(code_resp)+
           " response:" + response+ " ");

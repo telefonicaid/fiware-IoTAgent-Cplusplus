@@ -99,7 +99,7 @@ void iota::AdminService::checkIndexes() {
                                        iota::store::types::STORAGE);
     if (storage.HasMember(iota::store::types::TYPE.c_str())) {
       _storage_type.assign(storage[iota::store::types::TYPE.c_str()].GetString());
-      PION_LOG_INFO(m_log, "type_store:" <<  _storage_type);
+      IOTA_LOG_INFO(m_log, "type_store:" <<  _storage_type);
       if (_storage_type.compare(iota::store::types::MONGODB)==0) {
         IOTA_LOG_DEBUG(m_log, "Check tables in mongo");
         iota::DeviceCollection devcol;
@@ -284,7 +284,7 @@ void iota::AdminService::agents(pion::http::request_ptr& http_request_ptr,
                                 pion::http::response& http_response,
                                 std::string& response) {
 
-  PION_LOG_INFO(m_log, get_class_name()+"::agents");
+  IOTA_LOG_INFO(m_log, get_class_name()+"::agents");
   std::string method = http_request_ptr->get_method();
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   if (method.compare(pion::http::types::REQUEST_METHOD_POST) == 0) {
@@ -298,7 +298,7 @@ void iota::AdminService::agents(pion::http::request_ptr& http_request_ptr,
                      pion::http::types::RESPONSE_CODE_BAD_REQUEST);
 
       /*
-      PION_LOG_INFO(m_log, "No Global Configuration");
+      IOTA_LOG_INFO(m_log, "No Global Configuration");
       // Se evalua la incorporacion dinamica de un nuevo recurso
 
       JsonDocument document;
@@ -409,7 +409,7 @@ void iota::AdminService::agent(pion::http::request_ptr& http_request_ptr,
 
   std::string res_conf;
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, method << " " << url_args["agent"]);
+  IOTA_LOG_INFO(m_log, method << " " << url_args["agent"]);
 
   // Esto esta implementado suponiendo un despliegue a partir de una url-base
   std::string my_resource(iota::URL_BASE);
@@ -534,7 +534,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
                         iota::types::IOT_HTTP_HEADER_AUTH);
 
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
+  IOTA_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
                 " trace_message:" + trace_message);
 
   std::string protocol_filter;
@@ -560,7 +560,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
-      PION_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
+      IOTA_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
                     "  trace_message:" + trace_message+
                     " code: " + boost::lexical_cast<std::string>
                     (pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
@@ -661,7 +661,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
 
-  PION_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
+  IOTA_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
                 " trace_message:" + trace_message+
                 " code: " + boost::lexical_cast<std::string>(code)+
                 " response:" + response);
@@ -682,7 +682,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
 
 
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, get_class_name()+"::device method:" +method +
+  IOTA_LOG_INFO(m_log, get_class_name()+"::device method:" +method +
                 " trace_message:" + trace_message);
   std::string reason;
   std::string error_details;
@@ -713,7 +713,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
-      PION_LOG_INFO(m_log, get_class_name()+"::device method:" +method +
+      IOTA_LOG_INFO(m_log, get_class_name()+"::device method:" +method +
                     " trace_message:" + trace_message+
                     " code: " + boost::lexical_cast<std::string>
                     (pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
@@ -765,7 +765,7 @@ void iota::AdminService::device(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
 
-  PION_LOG_INFO(m_log, get_class_name()+"::device method:" +method +
+  IOTA_LOG_INFO(m_log, get_class_name()+"::device method:" +method +
                 " trace_message:" + trace_message+
                 " code: " + boost::lexical_cast<std::string>(code)+
                 " response:" + response);
@@ -810,7 +810,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
                         iota::types::IOT_HTTP_HEADER_AUTH);
 
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, get_class_name()+"::services method:" << method <<
+  IOTA_LOG_INFO(m_log, get_class_name()+"::services method:" << method <<
                 " trace_message:" << trace_message << "" << get_role());
 
   std::string reason;
@@ -838,7 +838,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
-      PION_LOG_INFO(m_log, get_class_name()+"::services method:" +method +
+      IOTA_LOG_INFO(m_log, get_class_name()+"::services method:" +method +
                     " trace_message:" + trace_message+
                     " code: " + boost::lexical_cast<std::string>
                     (pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
@@ -962,7 +962,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         reason.assign(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
         error_details.assign("device parameter is invalid [true/false]");
         create_response(code, reason, error_details, http_response, response);
-        PION_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
+        IOTA_LOG_INFO(m_log, get_class_name()+"::devices method:" +method +
                       " trace_message:" + trace_message+
                       " code: " + boost::lexical_cast<std::string>
                       (pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
@@ -1015,7 +1015,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
 
-  PION_LOG_INFO(m_log, get_class_name()+"::services method:" +method +
+  IOTA_LOG_INFO(m_log, get_class_name()+"::services method:" +method +
                 " trace_message:" + trace_message+
                 " code: " + boost::lexical_cast<std::string>(code)+
                 " response:" + response);
@@ -1033,7 +1033,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
                         iota::types::IOT_HTTP_HEADER_AUTH);
 
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, get_class_name()+"::service method:" +method +
+  IOTA_LOG_INFO(m_log, get_class_name()+"::service method:" +method +
                 " trace_message:" + trace_message);
   std::string reason;
   std::string error_details;
@@ -1069,7 +1069,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
-      PION_LOG_INFO(m_log, get_class_name()+"::service method:" +method +
+      IOTA_LOG_INFO(m_log, get_class_name()+"::service method:" +method +
                     " trace_message:" + trace_message+
                     " code: " + boost::lexical_cast<std::string>
                     (pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
@@ -1087,7 +1087,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
       create_response(pion::http::types::RESPONSE_CODE_BAD_REQUEST,
                       reason, error_details,
                       http_response, response);
-      PION_LOG_INFO(m_log, get_class_name()+"::service method:" +method +
+      IOTA_LOG_INFO(m_log, get_class_name()+"::service method:" +method +
                     " trace_message:" + trace_message+
                     " code: " + boost::lexical_cast<std::string>
                     (pion::http::types::RESPONSE_CODE_BAD_REQUEST)+
@@ -1156,7 +1156,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
         reason.assign(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER);
         error_details.assign("device parameter is invalid [true/false]");
         create_response(code, reason, error_details, http_response, response);
-        PION_LOG_INFO(m_log, "iota::AdminService::service method:" +method +
+        IOTA_LOG_INFO(m_log, "iota::AdminService::service method:" +method +
                       " trace_message:" + trace_message+
                       " code: " + boost::lexical_cast<std::string>(code)+
                       " response:" + response);
@@ -1199,7 +1199,7 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
 
-  PION_LOG_INFO(m_log, "iota::AdminService::service method:" +method +
+  IOTA_LOG_INFO(m_log, "iota::AdminService::service method:" +method +
                 " trace_message:" + trace_message+
                 " code: " + boost::lexical_cast<std::string>(code)+
                 " response:" + response);
@@ -1622,7 +1622,7 @@ int iota::AdminService::put_device_json(
       //put_builder.append(iota::store::types::REGISTRATION_ID, "");
       int count = devTable->update(query, put_builder.obj(), false);
       if (count == 0) {
-        PION_LOG_INFO(m_log, "put_device_json no device " <<
+        IOTA_LOG_INFO(m_log, "put_device_json no device " <<
                       " service=" << service << " service_path=" <<
                       service_path << " device=" << device_id << " content=" << body);
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_DEVICE,
@@ -1919,7 +1919,7 @@ int iota::AdminService::put_service_json(
 
       int count = table->update(query, setbo, false);
       if (count == 0) {
-        PION_LOG_INFO(m_log, "put_service_json no device " <<
+        IOTA_LOG_INFO(m_log, "put_service_json no device " <<
                       " service=" << service << " service_path=" << service_path <<
                       " content=" << body);
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
@@ -2213,7 +2213,7 @@ void iota::AdminService::check_logs() {
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   get_agents.Accept(writer);
   response.assign(buffer.GetString());
-  PION_LOG_INFO(m_log, "Agent Activity " << response);
+  IOTA_LOG_INFO(m_log, "Agent Activity " << response);
   bool error_log = false;
   FILE* pFile;
   pFile = fopen(_log_file.c_str(),"a");

@@ -63,7 +63,7 @@ void iota::NgsiService::start() {
     }
   }
   catch (std::exception& e) {
-    PION_LOG_INFO(m_log, "OAuth for northbound is not configured");
+    IOTA_LOG_INFO(m_log, "OAuth for northbound is not configured");
   }
 
   boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter());
@@ -77,7 +77,7 @@ void iota::NgsiService::ngsi_operation(pion::http::request_ptr&
                                        pion::http::response& http_response,
                                        std::string& response) {
 
-  PION_LOG_INFO(m_log, "iota::NgsiService::ngsi_operation " <<
+  IOTA_LOG_INFO(m_log, "iota::NgsiService::ngsi_operation " <<
                 url_args["operation"]);
   http_response.set_status_code(pion::http::types::RESPONSE_CODE_NOT_FOUND);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(

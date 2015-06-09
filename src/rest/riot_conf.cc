@@ -131,7 +131,7 @@ void iota::Configurator::reload() {
 
 std::string iota::Configurator::update_conf(std::stringstream& is) {
 
-  PION_LOG_INFO(m_log, "Updating configuration " << _filename << " " << is.str());
+  IOTA_LOG_INFO(m_log, "Updating configuration " << _filename << " " << is.str());
   boost::mutex::scoped_lock lock(m_mutex);
   std::string resp_read_file;
   try {
@@ -156,7 +156,7 @@ std::string iota::Configurator::update_conf(std::stringstream& is) {
     }
     else {
 
-      PION_LOG_INFO(m_log, "File error " << _filename);
+      IOTA_LOG_INFO(m_log, "File error " << _filename);
     }
     f.close();
   }

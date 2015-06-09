@@ -49,7 +49,7 @@ iota::DevicesFile::DevicesFile():
 
 std::string iota::DevicesFile::read_file(std::stringstream& _is) {
 
-  PION_LOG_INFO(m_log, "Reading file  " << _filename);
+  IOTA_LOG_INFO(m_log, "Reading file  " << _filename);
 
   if (_document.Parse<0>(_is.str().c_str()).HasParseError()) {
     std::ostringstream what;

@@ -336,7 +336,7 @@ int iota::AdminManagerService::get_all_devices_json(
         IOTA_LOG_ERROR(m_log, log_message);
       }
 
-      PION_LOG_INFO(m_log, log_message);
+      IOTA_LOG_INFO(m_log, log_message);
     }
     catch (std::exception& e) {
       IOTA_LOG_ERROR(m_log, "Processing endpoint " << all_dest.at(i));
@@ -459,7 +459,7 @@ int iota::AdminManagerService::get_a_device_json(
         IOTA_LOG_ERROR(m_log, log_message);
       }
 
-      PION_LOG_INFO(m_log, log_message);
+      IOTA_LOG_INFO(m_log, log_message);
     }
     catch (std::exception& e) {
       IOTA_LOG_ERROR(m_log, "Processing endpoint " << all_dest.at(i));
@@ -523,7 +523,7 @@ void iota::AdminManagerService::receive_get_devices(
     code = response_ptr->get_status_code();
   }
   log_message.append(" status-code=" + boost::lexical_cast<std::string>(code));
-  PION_LOG_INFO(m_log, log_message);
+  IOTA_LOG_INFO(m_log, log_message);
   // If no successful response, nothing
   if (code != pion::http::types::RESPONSE_CODE_OK) {
     return;
@@ -870,7 +870,7 @@ void iota::AdminManagerService::protocols(pion::http::request_ptr&
   std::string trace_message = http_request_ptr->get_header(
                                 iota::types::HEADER_TRACE_MESSAGES);
   std::string method = http_request_ptr->get_method();
-  PION_LOG_INFO(m_log, " protocols method:" + method +
+  IOTA_LOG_INFO(m_log, " protocols method:" + method +
                 " trace_message:" + trace_message);
 
   std::string reason;
@@ -972,7 +972,7 @@ void iota::AdminManagerService::protocols(pion::http::request_ptr&
     create_response(code, reason, error_details, http_response, response);
   }
 
-  PION_LOG_INFO(m_log, " method:" + method +
+  IOTA_LOG_INFO(m_log, " method:" + method +
                 " trace_message:" + trace_message +
                 " code: " + boost::lexical_cast<std::string>(code) +
                 " response:" + response);
@@ -1228,7 +1228,7 @@ int iota::AdminManagerService::post_service_json(
                                                  i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
             IOTA_LOG_ERROR(m_log, param_request + " content=" + resp_http->get_content());
           }
-          PION_LOG_INFO(m_log, param_request);
+          IOTA_LOG_INFO(m_log, param_request);
         }
         catch (std::exception& e) {
           iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,
@@ -1384,7 +1384,7 @@ int iota::AdminManagerService::put_service_json(
                                                  i).endpoint + all_dest.at(i).resource, resp_http->get_content()));
             code_from_iota =  resp_http->get_status_code();
           }
-          PION_LOG_INFO(m_log, param_request);
+          IOTA_LOG_INFO(m_log, param_request);
         }
         catch (std::exception& e) {
           iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA, all_dest.at(i).endpoint,

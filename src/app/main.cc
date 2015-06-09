@@ -398,7 +398,7 @@ int main(int argc, char* argv[]) {
 #ifdef PION_HAVE_SSL
       // configure server for SSL
       web_server->set_ssl_key_file(ssl_pem_file);
-      PION_LOG_INFO(pion_log, "SSL support enabled using key file: " << ssl_pem_file);
+      IOTA_LOG_INFO(pion_log, "SSL support enabled using key file: " << ssl_pem_file);
 #else
       IOTA_LOG_ERROR(main_log, "SSL support is not enabled");
 #endif

@@ -46,8 +46,8 @@ class HTTPFilter: public boost::enable_shared_from_this<HTTPFilter> {
       _io_service.reset();
     };
 
-    boost::shared_ptr<boost::asio::io_service> get_io_service() { 
-       return _io_service;      
+    boost::shared_ptr<boost::asio::io_service> get_io_service() {
+       return _io_service;
     }
 
     virtual bool handle_request(pion::http::request_ptr& http_request_ptr,
@@ -55,7 +55,7 @@ class HTTPFilter: public boost::enable_shared_from_this<HTTPFilter> {
     virtual void handle_no_allowed(pion::http::request_ptr& http_request_ptr,
                                    pion::tcp::connection_ptr& tcp_conn,
                                    int status = pion::http::types::RESPONSE_CODE_UNAUTHORIZED) {
-      PION_LOG_INFO(m_logger, "|request=" << http_request_ptr->get_header(
+      IOTA_LOG_INFO(m_logger, "|request=" << http_request_ptr->get_header(
                       iota::types::HEADER_TRACE_MESSAGES) <<
                     "|status=" << status);
 
