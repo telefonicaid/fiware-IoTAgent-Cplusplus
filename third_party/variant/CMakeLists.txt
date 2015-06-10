@@ -227,9 +227,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in
 
 FILE(GLOB install_headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 	include/Variant/*.h)
-install(FILES ${install_headers} DESTINATION ${INSTALL_INCLUDE_DIR}/Variant/)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/Variant/Config.h DESTINATION
-   	${INSTALL_INCLUDE_DIR}/Variant/)
+#install(FILES ${install_headers} DESTINATION ${INSTALL_INCLUDE_DIR}/Variant/)
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/Variant/Config.h DESTINATION
+#${INSTALL_INCLUDE_DIR}/Variant/)
 
 # Am I the root CMakeLists.txt?
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
