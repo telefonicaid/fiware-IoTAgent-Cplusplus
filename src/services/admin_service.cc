@@ -2144,7 +2144,8 @@ void iota::AdminService::deploy_device(Device& device) {
     try {
       iota::CommandHandle* cmd_handle = dynamic_cast<iota::CommandHandle*>
                                         (it->second);
-      if (cmd_handle != NULL) {
+      if (cmd_handle != NULL &&
+          (device._protocol.compare(cmd_handle->get_protocol_data().protocol) == 0 )) {
         cmd_handle->send_register_device(device);
       }
     }
