@@ -6,6 +6,7 @@ add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 set (CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}) 
 set (CMAKE_SHARED_MODULE_PREFIX "")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_SPIRIT_THREADSAFE -fPIC")
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DBOOST_SPIRIT_THREADSAFE -fPIC")
 set (CMAKE_CXX_FLAGS_DEBUGCOVERAGE "-g -O0 --coverage")
 if (CMAKE_BUILD_TYPE STREQUAL "DebugCoverage")
  set (TEST_LIBS cppunit gcov)
@@ -65,7 +66,7 @@ if (Boost_FOUND)
     set(INSTALL_BOOST "cp ${boost_lib} %{buildroot}/usr/local/iot/lib/${Boost_Lib}.so.${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION}\n${INSTALL_BOOST}")
 	endforeach(boost_lib)
 else()
-  message(FATAL_ERROR "Boost library (1.55.0) not found. Define BOOST_ROOT environment variable to set where boost 1.55.0 is installed")
+  message(FATAL_ERROR "Boost library not found. Define BOOST_ROOT environment variable to set where boost 1.55.0 is installed")
 endif()
 
 # Log4cplus
@@ -179,35 +180,16 @@ else()
  set(TEST_LIBS ${TEST_LIBS} gmock)
 endif()
 
-#libVariant
-find_package(LIBVARIANT)
-if(LIBVARIANT_FOUND)
- include_directories(${LIBVARIANT_INCLUDE_DIR})
- link_directories(${LIBVARIANT_LIBS_DIR})
- add_definitions( -DLIBVARIANT=1 )
- message(STATUS "LibVariant include dirs ${LIBVARIANT_INCLUDE_DIR}")
-else()
- message(STATUS "Using third_party directory")
- include(ExternalProject)
- ExternalProject_Add(schema-validator PREFIX
-	 ${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator SOURCE_DIR
-	 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/variant CMAKE_ARGS
-	 -DLIBVARIANT_ENABLE_XML=OFF -DLIBVARIANT_ENABLE_YAML=OFF
-	 -DLIBVARIANT_ENABLE_CURL=OFF -DLIBVARIANT_ENABLE_MSGPACK=OFF
-	 -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator)
- #add_subdirectory(third_party/variant)
- #include_directories(${PROJECT_SOURCE_DIR}/third_party/variant/include)
- #include_directories(${CMAKE_CURRENT_BINARY_DIR}/third_party/variant/include)
- #link_directories(${CMAKE_CURRENT_BINARY_DIR}third_party/variant)
+ set(LIBVARIANT_ENABLE_XML OFF CACHE BOOL "")
+ set(LIBVARIANT_ENABLE_YAML OFF CACHE BOOL "")
+ set(LIBVARIANT_ENABLE_CURL OFF CACHE BOOL "")
+ set(LIBVARIANT_ENABLE_MSGPACK OFF CACHE BOOL "")
+ add_subdirectory(third_party/variant)
  add_definitions( -DLIBVARIANT=1 )
  set(LIBVARIANT_INCLUDE_DIR
-	 ${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator/include)
- set(LIBVARIANT_LIBS_DIR
-	 ${CMAKE_CURRENT_BINARY_DIR}/third_party/schema-validator/lib)
+	 ${CMAKE_CURRENT_BINARY_DIR}/third_party/variant/include
+	 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/variant/include)
  include_directories(${LIBVARIANT_INCLUDE_DIR})
- link_directories(${LIBVARIANT_LIBS_DIR})
- message(STATUS "LibVariant include dirs ${LIBVARIANT_INCLUDE_DIR}")
-endif()
 
 # add a target to generate API documentation with Doxygen
 find_package(Doxygen)
