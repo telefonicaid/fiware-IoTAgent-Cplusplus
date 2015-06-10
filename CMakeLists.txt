@@ -134,6 +134,7 @@ if (MOSQUITTO_FOUND)
 else()
     message(STATUS "Mosquitto not found")
     include(ExternalProject)
+		set(WITH_CARES ON)
     if (WITH_CARES) 
       ExternalProject_Add(libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0 CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0/configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares BUILD_COMMAND ${MAKE})
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
@@ -253,6 +254,7 @@ configure_file("${CMAKE_CURRENT_SOURCE_DIR}/specs/iot-agent-tt.spec.in" "${CMAKE
 set(CPACK_RPM_USER_BINARY_SPECFILE "${CMAKE_CURRENT_BINARY_DIR}/iot-agent-tt.spec")
 
 add_custom_target(package
+	    COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/pack/Linux/RPM/BUILD
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-base.spec
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-ul.spec
       COMMAND rpmbuild -bb  ${CMAKE_CURRENT_BINARY_DIR}/specs/iot-agent-mqtt.spec
