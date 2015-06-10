@@ -6,16 +6,24 @@ These IoT Agents are successfully built in CentOS 6.5 distribution.
 
 ### Support to build dependencies
 
+Some dependencies are included in _third_party_ directory in order to make easy this building process.
+
 Pion Network Library recommends as log library *log4cplus*.
 Common dependencies when you build these IoT Agents:
-- boost: 1.55.0 (http://www.boost.org/)
+
+- boost: 1.55.0 (recommended) (http://www.boost.org/)
 - Pion Network Library: 5.0.6 (http://pion.sourceforge.net/) (depends on boost and log4cplus).
 - MongoDB driver: legacy-1.0.0 (http://docs.mongodb.org/ecosystem/drivers/cpp/)
-- rapidjson: 0.11 (https://code.google.com/p/rapidjson/downloads/list)
 - log4cplus: 1.1.3-rc4 (http://sourceforge.net/p/log4cplus/wiki/Home/)
-- cppunit: 1.12.1 (for unit test) (http://sourceforge.net/projects/cppunit/)
-- gmock: 1.7.0 (for unit test) (https://code.google.com/p/googlemock/)
-- libvariant: 1.0.1 (for json schema validation) (https://bitbucket.org/gallen/libvariant/)
+- cppunit 1.12.1 (http://sourceforge.net/projects/cppunit) only for unit test.
+
+#####IMPORTANT
+We have also build these IoT Agents in Ubuntu 14 installing all dependencies from _Software Centre_ (apt-get command). Main differences are:
+
+- boost is 1.54.0.
+- pion is 5.0.4 (dev version) and needs _log4cpp_ (this library is installed as dependency and IoT Agents support this log library).
+
+If you want to use installed packages in order to avoid a hard building process, you must know that this procedure is in progress.
 
 Other dependencies only applied to specific IoT Agent.
 
@@ -28,46 +36,10 @@ It provides a script `bootstrap.sh` to build them. We recommend you supply the p
 
 Depending on your system, you may need to download python-dev package in order to compile Boost.
 You need to run `./b2` for building boost and `sudo ./bjam install` to install Boost libraries in the path you specify with `--prefix` option.
-
-Following elements will assume the root path for all dependencies is `/home/develop/iot/`. 
+ 
 
 #### log4cplus
-The log format used in IoTAgent writes function name. This functionality is provided by log4cplus when it finds a macro: \_\_FUNCTION\_\_ and \_\_PRETTY\_FUNCTION\_\_. You need disable \_\_PRETTY\_FUNCTION\_\_ macro modifying _configure_ script, **removing** these lines:
-
-```
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for __PRETTY_FUNCTION__ macro" >&5
-$as_echo_n "checking for __PRETTY_FUNCTION__ macro... " >&6; }
-if ${ac_cv_have___pretty_function___macro+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-        char const * func = __PRETTY_FUNCTION__;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  ac_cv_have___pretty_function___macro=yes
-else
-  ac_cv_have___pretty_function___macro=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have___pretty_function___macro" >&5
-$as_echo "$ac_cv_have___pretty_function___macro" >&6; }
-
-if test "x$ac_cv_have___pretty_function___macro" = "xyes"; then :
-  $as_echo "#define LOG4CPLUS_HAVE_PRETTY_FUNCTION_MACRO 1" >>confdefs.h
-
-fi
-```
-After that, you need execute something like that from directory where source is(in this example, we install log4cplus in directory /home/develop/iot/log4cplus):
+You need execute something like that from directory where source is(in this example, we install log4cplus in directory /home/develop/iot/log4cplus):
 ```
 ./configure --enable-release-version=yes --enable-so-version=no --prefix=/home/develop/iot/log4cplus113
 ```
@@ -122,33 +94,7 @@ make install
 
 And the result is the static and dynamic library (libmongoclient.so)
 
-#### LibVariant
-
-Instuctions for download and compile https://bitbucket.org/gallen/libvariant/
-
-```
-wget https://bitbucket.org/gallen/libvariant/get/055488b93468.zip
-unzip 055488b93468.zip
-cd gallen-libvariant-055488b9346
-cmake .
-make
-```
-
-As a result we obtain  ./src/libVariant.a
-
-*Note*: You can disable XML with -DLIBVARIANT_ENABLE_XML=OFF executing cmake.
-
-#### GMock and GTest
-We use the static library .a containing both gmock and gtest. To do so you need to build this project using:
-```
-make
-```
-And then join gmock and gtest by running:
- ```
- ar -rv libgmock.a gtest/src/gtest-all.o src/gmock-all.o
- ```
- 
-Once it's done, copy the file `libgmock.a` into the directory _lib_ within gmock base folder. You can find more information about how to build and use gmock in the README file.
+IoT Agents need MongoDB as persistent storage. Be sure that MongoDB is started in your host in order to execute unit tests.
 
 
 ### Get the source 
@@ -162,15 +108,13 @@ git clone https://github.com/telefonicaid/fiware-IoTAgent-Cplusplus.git
 
 ### Configure build environment
 To build IoT Agents you need cmake 2.8.12 (minimum version). In order to find dependencies following environment variables can be used:
-- IOT_ROOT: If dependencies are under a directory, use this variable.
+
 - BOOST_ROOT: path where *boost* are installed.
 - PION_ROOT: path where *Pion Network Library* is installed.
 - LOG4CPLUS_ROOT: where *log4cplus* is installed.
+- LOG4CPP_ROOT: where *log4cpp* is installed.
 - MONGODB_ROOT: where *mongodb cplusplus driver* is installed.
 - CPPUNIT_ROOT: where *cppunit* is installed.
-- GMOCK_ROOT: where *gmock/gtest* are installed.
-- LIBVARIANT_ROOT: where *libVariant* is installed.
-- MOSQUITTO_ROOT: where *mosquitto* is installed.
 
 
 If you need modify the behavior of build environment, you can do it modifying CMakeLists.txt file.
@@ -178,6 +122,7 @@ If you need modify the behavior of build environment, you can do it modifying CM
 ### Build
 We use out-of-source building, so you must build out of source directory.
 The directory where source is downloaded will be called _SourcePath_. From this directory let'us make a directory build/*build_type* (*build_type* must be Debug, Release or DebugCoverage) and execute (in this example we use Debug as *build_type* and you must replace <path-to-boost> with path to your boost installation):
+(target install only copy built libraries in a directory to concentrate them).
 
 ```
 $ pwd
@@ -223,6 +168,8 @@ If you need _rpms_ execute `make package` in order to build:
 - iot-agent-ul-[version]-[release].x86_64.rpm: IoT Agent Ultra-Light module.
 - iot-agent-mqtt-[version]-[release].x86_64.rpm: IoT Agent MQTT module.
 - iot-agent-tt-[version]-[release].x86_64.rpm: IoT Agent Thinking Things module.
+
+Som dependencies are include in rpm (boost, pion, log library).
 
 ### Documentation
 
