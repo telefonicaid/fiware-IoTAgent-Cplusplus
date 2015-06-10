@@ -84,7 +84,7 @@ Group of  requisites, conventions for this http protocol for Telefonica Iot Plat
 A device can send to Iot Platform, an observation ( one or several sensor measurements), or a command response.
 These operations must be implemented in the device,
 
-### Send an observation to Iot Platform [GET]
+### Send an observation to Iot Platform [POST]
 
 + Parameters
 
@@ -108,7 +108,11 @@ These operations must be implemented in the device,
 
 + Response 400
 
-### Send an observation to Iot Platform [POST]
+## GET commands [/{iot}/{plugin_uri}{?i,d,k}]
+A device can ask for pending commands.
+These operations must be implemented in the device,
+
+### Send an observation to Iot Platform [GET]
 
 + Parameters
 
@@ -120,16 +124,18 @@ These operations must be implemented in the device,
 
     + k (required, string, `apikey`) ... apikey of the service, reference to the service to which the device belongs .
 
-    + t (required, string, `2014-02-18T16:41:20Z`)   ISO Time for the observation
 
-    + getCmd (optional, string, `1`) ... if getCmd=1, in the response add all commands for this device
 
 + Request (application/json)
 
++ Response 200
+
+    returns all pending commands separated by #
+    no json, only the command text
+    <device_name>@<command_name>|parameters
+
     + Body
 
-            2014-02-18T16:41:20Z|t|10#m|15#gps|12.1/14.2
-
-+ Response 200
+            devicef22@ping2#devicef22
 
 + Response 400
