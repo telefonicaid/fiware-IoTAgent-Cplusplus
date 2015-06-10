@@ -23,7 +23,7 @@ We have also build these IoT Agents in Ubuntu 14 installing all dependencies fro
 - boost is 1.54.0.
 - pion is 5.0.4 (dev version) and needs _log4cpp_ (this library is installed as dependency and IoT Agents support this log library).
 
-If you want to use installed packages in order to avoid a hard building process, you must know that this procedure is in progress.
+If you want to use installed packages in order to avoid a hard building process, you must know that this procedure is in progress and using _log4cpp_ is not debugged.
 
 Other dependencies only applied to specific IoT Agent.
 
@@ -169,7 +169,10 @@ If you need _rpms_ execute `make package` in order to build:
 - iot-agent-mqtt-[version]-[release].x86_64.rpm: IoT Agent MQTT module.
 - iot-agent-tt-[version]-[release].x86_64.rpm: IoT Agent Thinking Things module.
 
-Som dependencies are include in rpm (boost, pion, log library).
+Some dependencies are include in rpm (boost, pion, log library).
+
+An unit test called _testPUSHCommandProxyAndOutgoingRoute_ needs tinyproxy in port 8888 (this test checks sending command through http proxy).
+ 
 
 ### Documentation
 
