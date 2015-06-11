@@ -213,7 +213,7 @@ You remove a subservice into a service. If Fiware-ServicePath is '/*' or '/#' re
 A device is a resource that publish information to IoT Platform and it uses the IoT Agent.
 ### Device Model
 - `device_id`. Unique identifier into a service.
-- `protocol`. Protocol assigned to device. This field is easily provided by IoTA Manager if it is used. Every module implmenting a protocol has an identifier.
+- `protocol`. Protocol assigned to device. This field is easily provided by IoTA Manager if it is used. Every module implementing a protocol has an identifier.
 - `entity_name`. Entity name used for entity publication (overload default)
 - `entity_type`. Entity type used for entity publication (overload entity_type defined in service).
 - `timezone`. Not used in this version.
