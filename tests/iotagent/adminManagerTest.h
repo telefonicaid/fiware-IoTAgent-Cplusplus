@@ -42,11 +42,12 @@
 
 class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminManagerTest);
-    CPPUNIT_TEST(testDeviceToBeAdded);
+
+  /*  CPPUNIT_TEST(testDeviceToBeAdded);
     CPPUNIT_TEST(testGetEndpointsFromDevices);
-    CPPUNIT_TEST(testAddDevicesToEndpoints);
+    CPPUNIT_TEST(testAddDevicesToEndpoints);*/
     CPPUNIT_TEST(testGetDevices);
-    CPPUNIT_TEST(testMultiplePostsWithResponse);
+    /*CPPUNIT_TEST(testMultiplePostsWithResponse);
     CPPUNIT_TEST(testProtocol_ServiceManagement);
     CPPUNIT_TEST(testBADServiceManagement);
 
@@ -59,7 +60,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
 
     CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
-
+*/
 
     CPPUNIT_TEST_SUITE_END();
 
