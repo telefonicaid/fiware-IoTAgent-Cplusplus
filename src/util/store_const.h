@@ -117,6 +117,7 @@ struct types {
   static const std::string OFF;
 
   // Types for query uri
+  static const std::string COUNT;
   static const std::string LIMIT;
   static const std::string OFFSET;
   static const std::string DETAILED;

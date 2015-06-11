@@ -1547,6 +1547,7 @@ int iota::AdminService::post_device_json(
       // If commands or internal attributes, register
       Device dev(device_to_post, service);
       dev._service_path = service_path;
+      dev._protocol = protocol_name;
       deploy_device(dev);
     }
     if (be.size() == 1) {
@@ -1635,15 +1636,26 @@ int iota::AdminService::put_device_json(
         if (!new_device_json.empty()) {
           new_device.assign(new_device_json);
         }
-        Device device(new_device, service);
-        device._service_path = service_path;
-        deploy_device(device);
 
-        boost::shared_ptr<Device> item_dev(new Device(device));
-        registeredDevices.get(item_dev);
+        mongo::BSONObjBuilder returnFields;
+        returnFields.append(iota::store::types::PROTOCOL, 1);
+        devTable->find(query, returnFields);
+        std::string protocol_name;
+        Device dev(device_id, service);
+        dev._service_path = service_path;
+        if (devTable->more()) {
+          mongo::BSONObj objDev = devTable->next();
+          protocol_name = objDev.getStringField(iota::store::types::PROTOCOL);
+          dev._protocol = protocol_name;
+          deploy_device(dev);
+        }else{
+          PION_LOG_ERROR(m_log, "no device  in put " <<
+                    "service=" << service << " service_path=" <<
+                    service_path << " device=" << device_id );
+        }
 
         //remove device from cache, to force reload new data
-        remove_from_cache(device);
+        remove_from_cache(dev);
       }
     }
   }
@@ -2134,22 +2146,28 @@ int iota::AdminService::delete_service_json(
                          response);
 }
 
-
 void iota::AdminService::deploy_device(Device& device) {
 
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  IOTA_LOG_DEBUG(m_log, "deploy_device " << device._protocol);
+  std::string protocol_name = device._protocol;
+
   std::map<std::string, iota::RestHandle*>::const_iterator it =
     _service_manager.begin();
   while (it != _service_manager.end()) {
     try {
+
       iota::CommandHandle* cmd_handle = dynamic_cast<iota::CommandHandle*>
                                         (it->second);
-      if (cmd_handle != NULL) {
-        cmd_handle->send_register_device(device);
+      if (cmd_handle != NULL){
+          iota::ProtocolData pro = cmd_handle->get_protocol_data();
+          if (protocol_name.compare(pro.protocol) ==0) {
+            cmd_handle->send_register_device(device);
+          }
       }
     }
     catch (std::exception& e) {
-      IOTA_LOG_DEBUG(m_log, e.what());
+      IOTA_LOG_DEBUG(m_log, "deploy_device error: " <<  e.what());
     }
     ++it;
   }
@@ -2267,7 +2285,7 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
     IOTA_LOG_DEBUG(m_log, "Checking resource " << resource);
     if (plugin != NULL) {
       iota::ProtocolData pro = plugin->get_protocol_data();
-      IOTA_LOG_DEBUG(m_log, "Protocol in resource " << pro.protocol);
+      IOTA_LOG_DEBUG(m_log, "pro.protocol plugin " << pro.protocol);
       if (protocol_name.compare(pro.protocol) ==0) {
         IOTA_LOG_DEBUG(m_log, "exists plugin:" << protocol_name);
         return true;
@@ -2278,6 +2296,7 @@ bool iota::AdminService::check_device_protocol(const std::string& protocol_name,
     }
   }
 
+  IOTA_LOG_DEBUG(m_log, "no exists plugin:" << protocol_name);
   return false;
 }
 
