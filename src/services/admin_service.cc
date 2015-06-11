@@ -1727,14 +1727,18 @@ int iota::AdminService::get_all_devices_json(
                            "parameter detailed must be on or off",
                            http_response, response);
   }
-  devTable.find(INT_MIN, obj_query, limit, offset,
-                bson_sort.obj(), bson_fields);
-  while (devTable.more()) {
-    elto = devTable.next();
-    res << elto.jsonString();
-    if (devTable.more()) {
-      res << ",";
+  if (limit >= 0){
+    devTable.find(INT_MIN, obj_query, limit, offset,
+                  bson_sort.obj(), bson_fields);
+    while (devTable.more()) {
+      elto = devTable.next();
+      res << elto.jsonString();
+      if (devTable.more()) {
+        res << ",";
+      }
     }
+  }else{
+    IOTA_LOG_DEBUG(m_log, "no find, limit :" << limit);
   }
   res << "]}";
 
@@ -2005,16 +2009,19 @@ int iota::AdminService::get_all_services_json(
                            response);
   }
 
-  table->find(INT_MIN, p, limit, offset,
-              bson_sort.obj(), bson_fields);
-  while (table->more()) {
-    elto = table->next();
-    res << elto.jsonString();
-    if (table->more()) {
-      res << ",";
+  if (limit >= 0){
+    table->find(INT_MIN, p, limit, offset,
+                bson_sort.obj(), bson_fields);
+    while (table->more()) {
+      elto = table->next();
+      res << elto.jsonString();
+      if (table->more()) {
+        res << ",";
+      }
     }
+  }else{
+    IOTA_LOG_DEBUG(m_log, "no find limit  : " << limit);
   }
-
   res << "]}";
   return create_response(code, res.str(), "", http_response, response);
 

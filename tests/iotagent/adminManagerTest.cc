@@ -515,7 +515,7 @@ void AdminManagerTest::testGetDevices() {
 
   std::cout << "@UT@get_all_devices" <<  response << std::endl;
   CPPUNIT_ASSERT_MESSAGE("Expected  count ",
-                         response.find("\"count\" : 8") != std::string::npos);
+                         response.find("\"count\" : 12") != std::string::npos);
   mongo::BSONObj resObj =  mongo::fromjson(response);
   std::vector< mongo::BSONElement > devicesBSON = (resObj.getField("devices")).Array ();
   CPPUNIT_ASSERT_MESSAGE("Expected  count ",
