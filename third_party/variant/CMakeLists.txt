@@ -184,8 +184,8 @@ endif()
 # Add targets to the build-tree export set
 set(LIBVARIANT_EXPORTED_LIBS Variant)
 
-export(TARGETS ${LIBVARIANT_EXPORTED_LIBS}
-	FILE "${PROJECT_BINARY_DIR}/LibVariantLibraryDepends.cmake")
+#export(TARGETS ${LIBVARIANT_EXPORTED_LIBS}
+#	FILE "${PROJECT_BINARY_DIR}/LibVariantLibraryDepends.cmake")
 
 # Export the package for use from the build-tree
 # (this registers the build-tree with a global CMake-registry)
@@ -210,9 +210,9 @@ install(FILES
 	DESTINATION "${INSTALL_CMAKE_DIR}")
 
 # Install the export set for use with the install-tree
-install(EXPORT LibVariantLibraryDepends
-   	DESTINATION "${INSTALL_CMAKE_DIR}"
-	COMPONENT dev)
+#install(EXPORT LibVariantLibraryDepends
+#DESTINATION "${INSTALL_CMAKE_DIR}"
+#COMPONENT dev)
 
 # Create the package config file
 configure_file(libvariant.pc.in
@@ -227,9 +227,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.h.in
 
 FILE(GLOB install_headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 	include/Variant/*.h)
-install(FILES ${install_headers} DESTINATION ${INSTALL_INCLUDE_DIR}/Variant/)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/Variant/Config.h DESTINATION
-   	${INSTALL_INCLUDE_DIR}/Variant/)
+#install(FILES ${install_headers} DESTINATION ${INSTALL_INCLUDE_DIR}/Variant/)
+#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/include/Variant/Config.h DESTINATION
+#${INSTALL_INCLUDE_DIR}/Variant/)
 
 # Am I the root CMakeLists.txt?
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})

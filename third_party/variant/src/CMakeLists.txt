@@ -44,17 +44,17 @@ endif()
 
 include_directories("../lib/json/")
 
-add_library(Variant ${sources})
+add_library(Variant OBJECT ${sources})
 set_target_properties(Variant PROPERTIES VERSION ${LIBVARIANT_VERSION})
-target_link_libraries(Variant ${EXTRA_LIBS})
+#target_link_libraries(Variant ${EXTRA_LIBS})
 
-add_executable(varsh varsh.cc)
-target_link_libraries(varsh Variant)
+#add_executable(varsh varsh.cc)
+#target_link_libraries(varsh Variant)
 
-install(TARGETS Variant varsh
-	EXPORT LibVariantLibraryDepends
-	RUNTIME DESTINATION ${INSTALL_BIN_DIR}
-   	LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-   	ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
+#install(TARGETS Variant varsh
+#	EXPORT LibVariantLibraryDepends
+#	RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+#   	LIBRARY DESTINATION ${INSTALL_LIB_DIR}
+#   	ARCHIVE DESTINATION ${INSTALL_LIB_DIR})
 
 

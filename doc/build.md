@@ -6,149 +6,21 @@ These IoT Agents are successfully built in CentOS 6.5 distribution.
 
 ### Support to build dependencies
 
-Pion Network Library recommends as log library *log4cplus*.
-Common dependencies when you build these IoT Agents:
-- boost: 1.55.0 (http://www.boost.org/)
+Some dependencies are included in _third_party_ directory in order to make easy this building process.
+CMakeLists.txt add external projects in order to download and build following dependencies:
+
+- boost: 1.55.0 (recommended) (http://www.boost.org/)
 - Pion Network Library: 5.0.6 (http://pion.sourceforge.net/) (depends on boost and log4cplus).
-- MongoDB driver: legacy-1.0.0 (http://docs.mongodb.org/ecosystem/drivers/cpp/)
-- rapidjson: 0.11 (https://code.google.com/p/rapidjson/downloads/list)
+- MongoDB driver: legacy-1.0.1 (http://docs.mongodb.org/ecosystem/drivers/cpp/)
 - log4cplus: 1.1.3-rc4 (http://sourceforge.net/p/log4cplus/wiki/Home/)
-- cppunit: 1.12.1 (for unit test) (http://sourceforge.net/projects/cppunit/)
-- gmock: 1.7.0 (for unit test) (https://code.google.com/p/googlemock/)
-- libvariant: 1.0.1 (for json schema validation) (https://bitbucket.org/gallen/libvariant/)
+- cppunit 1.12.1 (http://sourceforge.net/projects/cppunit) only for unit test.
 
-Other dependencies only applied to specific IoT Agent.
-
-We are built most dependencies from source. You might need to visit dependency web site in order to build such dependenies.
+#####IMPORTANT
+If you want to  modify the URL from dependencies are downloaded, you must modify CMakeLists.txt
 
 *Note*: our CMakeLists.txt requires `cmake 2.8.12` or higher to build the project. 
 
-#### Boost
-It provides a script `bootstrap.sh` to build them. We recommend you supply the path where you want to install them with the option `--prefix`. This path will be used later on when building the project. 
-
-Depending on your system, you may need to download python-dev package in order to compile Boost.
-You need to run `./b2` for building boost and `sudo ./bjam install` to install Boost libraries in the path you specify with `--prefix` option.
-
-Following elements will assume the root path for all dependencies is `/home/develop/iot/`. 
-
-#### log4cplus
-The log format used in IoTAgent writes function name. This functionality is provided by log4cplus when it finds a macro: \_\_FUNCTION\_\_ and \_\_PRETTY\_FUNCTION\_\_. You need disable \_\_PRETTY\_FUNCTION\_\_ macro modifying _configure_ script, **removing** these lines:
-
-```
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for __PRETTY_FUNCTION__ macro" >&5
-$as_echo_n "checking for __PRETTY_FUNCTION__ macro... " >&6; }
-if ${ac_cv_have___pretty_function___macro+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-
-  cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-int
-main ()
-{
-        char const * func = __PRETTY_FUNCTION__;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_compile "$LINENO"; then :
-  ac_cv_have___pretty_function___macro=yes
-else
-  ac_cv_have___pretty_function___macro=no
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_have___pretty_function___macro" >&5
-$as_echo "$ac_cv_have___pretty_function___macro" >&6; }
-
-if test "x$ac_cv_have___pretty_function___macro" = "xyes"; then :
-  $as_echo "#define LOG4CPLUS_HAVE_PRETTY_FUNCTION_MACRO 1" >>confdefs.h
-
-fi
-```
-After that, you need execute something like that from directory where source is(in this example, we install log4cplus in directory /home/develop/iot/log4cplus):
-```
-./configure --enable-release-version=yes --enable-so-version=no --prefix=/home/develop/iot/log4cplus113
-```
-Then build the element using:
-```
-make
-make install
-``` 
-
-
-With this command, you get a shared library named _liblog4cplus-1.1.so_.
-
-#### Pion
-From directory where Pion source is located, you need execute something like that (if you execute _configure --help_, you get all options to build Pion):
-```
-./configure --with-boost=/home/develop/iot/boost_1_55_0 --with-log4cplus=/home/develop/iot/log4cplus113 --without-bzlib --prefix=/home/develop/iot/pion506
-```
-
-Depending on your system, you may need to install other packages like `libssl-dev`. The environment variable `BOOST_ROOT` can also be used to indicate where boost was installed. 
-
-To build Pion just run usual commands:
-
-```
-make
-make install
-```
-
-Pion will be installed (in this example) in /home/develop/iot/pion506.
-
-#### MongoDB
-
-Instuctions for download and compile  the C++ driver for mongodb (http://docs.mongodb.org/ecosystem/drivers/cpp/).
-
-repository  https://github.com/mongodb/mongo-cxx-driver
-
-To get a repository that you can build, you can clone the sources.
-```
-git clone https://github.com/mongodb/mongo-cxx-driver.git
-```
-On 28 Jan legacy-1.0.0 was the offical branch.
-
-The driver is compiled with these options (note boost path):
-
-```
-scons --prefix="/home/develop/iot/mongo-cxx-driver" --extrapath=/home/develop/iot/boost_1_55_0/ --sharedclient  install
-```
-Then:
-```
-make
-make install
-```
-
-And the result is the static and dynamic library (libmongoclient.so)
-
-#### LibVariant
-
-Instuctions for download and compile https://bitbucket.org/gallen/libvariant/
-
-```
-wget https://bitbucket.org/gallen/libvariant/get/055488b93468.zip
-unzip 055488b93468.zip
-cd gallen-libvariant-055488b9346
-cmake .
-make
-```
-
-As a result we obtain  ./src/libVariant.a
-
-*Note*: You can disable XML with -DLIBVARIANT_ENABLE_XML=OFF executing cmake.
-
-#### GMock and GTest
-We use the static library .a containing both gmock and gtest. To do so you need to build this project using:
-```
-make
-```
-And then join gmock and gtest by running:
- ```
- ar -rv libgmock.a gtest/src/gtest-all.o src/gmock-all.o
- ```
- 
-Once it's done, copy the file `libgmock.a` into the directory _lib_ within gmock base folder. You can find more information about how to build and use gmock in the README file.
+IoT Agents need MongoDB as persistent storage. Be sure that MongoDB is started in your host in order to execute unit tests.
 
 
 ### Get the source 
@@ -161,30 +33,20 @@ git clone https://github.com/telefonicaid/fiware-IoTAgent-Cplusplus.git
 
 
 ### Configure build environment
-To build IoT Agents you need cmake 2.8.12 (minimum version). In order to find dependencies following environment variables can be used:
-- IOT_ROOT: If dependencies are under a directory, use this variable.
-- BOOST_ROOT: path where *boost* are installed.
-- PION_ROOT: path where *Pion Network Library* is installed.
-- LOG4CPLUS_ROOT: where *log4cplus* is installed.
-- MONGODB_ROOT: where *mongodb cplusplus driver* is installed.
-- CPPUNIT_ROOT: where *cppunit* is installed.
-- GMOCK_ROOT: where *gmock/gtest* are installed.
-- LIBVARIANT_ROOT: where *libVariant* is installed.
-- MOSQUITTO_ROOT: where *mosquitto* is installed.
+To build IoT Agents you need cmake 2.8.12 (minimum version). If you want to build our MQTT module you must add -DMQTT=ON to command line.
 
-
-If you need modify the behavior of build environment, you can do it modifying CMakeLists.txt file.
 
 ### Build
 We use out-of-source building, so you must build out of source directory.
 The directory where source is downloaded will be called _SourcePath_. From this directory let'us make a directory build/*build_type* (*build_type* must be Debug, Release or DebugCoverage) and execute (in this example we use Debug as *build_type* and you must replace <path-to-boost> with path to your boost installation):
+(target install only copy built libraries in a directory to concentrate them).
 
 ```
 $ pwd
 $ /home/develop/dca-core
 $ mkdir -p build/Debug
 $ cd build/Debug
-$ cmake -DGIT_VERSION=<version> -DGIT_COMMIT=<release> -DBOOST_ROOT=<path-to-boost> -DCMAKE_BUILD_TYPE=Debug ../../
+$ cmake -DGIT_VERSION=<version> -DGIT_COMMIT=<release> -DMQTT=ON -DCMAKE_BUILD_TYPE=Debug ../../
 $ make check install
 ```
 If you want use environment variables add -D option:
@@ -218,14 +80,18 @@ The target _check_ execute unit tests and target _install_ copies libraries in _
 
 You must know that shared objects without prefix _lib_ are modules. These modules are loaded by IoT Agent based on PION as _plugins_ implementing protocols.
 If you need _rpms_ execute `make package` in order to build:
-- iot-agent-puppet-[version]-[release].x86_64.rpm (view [Deploy](deploy.md) section in order to know how build you own puppet recipes).
 - iot-agent-base-[version]-[release].x86_64.rpm: IoT Agent core.
 - iot-agent-ul-[version]-[release].x86_64.rpm: IoT Agent Ultra-Light module.
 - iot-agent-mqtt-[version]-[release].x86_64.rpm: IoT Agent MQTT module.
 - iot-agent-tt-[version]-[release].x86_64.rpm: IoT Agent Thinking Things module.
 
-### Documentation
+Some dependencies are include in rpm (boost, pion, log library).
 
+An unit test called _testPUSHCommandProxyAndOutgoingRoute_ needs tinyproxy in port 8888 (this test checks sending command through http proxy).
+ 
+
+### Documentation
+TBC.
 If you have doxygen installed, you can generate html documentation of the libvariant public interface from the source code with:
 
 ```

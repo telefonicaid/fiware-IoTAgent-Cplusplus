@@ -49,9 +49,9 @@ cp @CMAKE_CURRENT_SOURCE_DIR@/bin/@CMAKE_BUILD_TYPE@/iotagent  %{buildroot}/usr/
 
 mkdir -p %{buildroot}/usr/local/iot/lib
 cp @CMAKE_CURRENT_SOURCE_DIR@/lib/@CMAKE_BUILD_TYPE@/libiota.so %{buildroot}/usr/local/iot/lib
-cp @INSTALL_PION@ %{buildroot}/usr/local/iot/lib
-cp @INSTALL_LOG4CPLUS@ %{buildroot}/usr/local/iot/lib
-cp @INSTALL_MONGOCLIENT@ %{buildroot}/usr/local/iot/lib
+cp -P @INSTALL_PION@ %{buildroot}/usr/local/iot/lib
+cp -P @INSTALL_LOG4CPLUS@ %{buildroot}/usr/local/iot/lib
+cp -P @INSTALL_MONGOCLIENT@ %{buildroot}/usr/local/iot/lib
 @INSTALL_BOOST@
 
 mkdir -p %{buildroot}/etc/iot
@@ -125,3 +125,6 @@ rm -rf %{buildroot}
 /usr/local/iot/
 %attr(600, root, root) /etc/cron.d/cron-logrotate-iotagent-size
 %attr(644, root, root) /etc/logrotate.d/logrotate-iotagent-daily
+
+%changelog
+@BASECHANGELOG@

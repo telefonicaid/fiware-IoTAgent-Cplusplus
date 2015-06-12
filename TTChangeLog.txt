@@ -1,5 +1,3 @@
-* Fri Mar 6 2015 Agustin Gonzalez <lucas@tid.es> 1.0.0
-
 * Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
 - FEATURE IDAS-20008: IoTA for Thinking Things protocol.
 - FEATURE IDAS-20204: P1 and B will always produce default response to TT device
