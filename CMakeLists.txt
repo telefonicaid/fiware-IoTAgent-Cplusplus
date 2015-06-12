@@ -176,20 +176,19 @@ set(LIBVARIANT_INCLUDE_DIR
 	 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/variant/include)
 include_directories(${LIBVARIANT_INCLUDE_DIR})
 
-# add a target to generate API documentation with Doxygen
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-message(STATUS "Doxygen found.")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/doxyfile.in
-               ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-add_custom_target(doc
-${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-COMMENT "Generating API documentation with Doxygen" VERBATIM
-)
-else()
-  message(STATUS "Doxygen not found.")
-endif()
+#find_package(Doxygen)
+#if(DOXYGEN_FOUND)
+#message(STATUS "Doxygen found.")
+#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/doxyfile.in
+#               ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+#add_custom_target(doc
+#${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+#WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+#COMMENT "Generating API documentation with Doxygen" VERBATIM
+#)
+#else()
+#  message(STATUS "Doxygen not found.")
+#endif()
 
 set(IOTAGENT_LIBS ${IOTAGENT_LIBS} pthread rt ssl crypto dl)
 
