@@ -112,6 +112,7 @@ const std::string types::ON("on");
 const std::string types::OFF("off");
 
 // Types for query uri
+const std::string types::COUNT("count");
 const std::string types::LIMIT("limit");
 const std::string types::OFFSET("offset");
 const std::string types::DETAILED("detailed");

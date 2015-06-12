@@ -256,6 +256,10 @@ std::string
 s5_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
         "\"entity_type\":\"thing\",\"resource\":\"/iot/fake\",\"iotagent\":\"http://127.0.0.1:7070/iot1\","
         "\"protocol\":\"UL20\",\"service\": \"s4_agus\",\"service_path\":\"/ss3\"}");
+std::string
+s6_agus("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
+        "\"entity_type\":\"thing\",\"resource\":\"/iot/fake\",\"iotagent\":\"http://127.0.0.1:7070/iot2\","
+        "\"protocol\":\"UL20\",\"service\": \"s4_agus\",\"service_path\":\"/ss3\"}");
 
 std::string
 devices("{\"devices\":[{\"protocol\":\"PDI-IoTA-UltraLight\",\"device_id\": \"device_id_post\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
@@ -429,6 +433,7 @@ void AdminManagerTest::testGetDevices() {
   table1.remove(BSON("service" << "s4_agus"));
   table1.insert(mongo::fromjson(s4_agus));
   table1.insert(mongo::fromjson(s5_agus));
+  table1.insert(mongo::fromjson(s6_agus));
 
   boost::shared_ptr<HttpMock> http_mock;
   http_mock.reset(new HttpMock(7070, "/", false));
@@ -449,6 +454,18 @@ void AdminManagerTest::testGetDevices() {
                            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                            "}");
+  std::string mock_response_iot1("{\"count\": 4,\"devices\": "
+                            "[{\"protocol\":\"UL20\",\"device_id\": \"device_id\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                            "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                            "},{\"protocol\":\"UL20\",\"device_id\": \"device_id_2\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                            "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                            "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                            "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                            "}]}");
+  std::string mock_response_iot2("{\"count\": 4,\"devices\": []}");
+
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
   http_mock->set_response(200, mock_response, h);
@@ -485,6 +502,25 @@ void AdminManagerTest::testGetDevices() {
                          response.find("\"device_id\" : \"device_id\"") != std::string::npos);
   CPPUNIT_ASSERT_MESSAGE("Expected  count ",
                          response.find("\"count\" : 1") != std::string::npos);
+  std::cout << "@UT@get_all_devices  offset 2  limit 4" << std::endl;
+
+  http_mock->set_response(200, mock_response_iot1, h);
+  http_mock->set_response(200, mock_response_iot1, h);
+  http_mock->set_response(200, mock_response_iot2, h);
+
+  manager_service.get_all_devices_json("s4_agus", "/ss3", 4, 2, "on", "",
+                                       http_response, response, "12345", "token", "UL20");
+  CPPUNIT_ASSERT_MESSAGE("Expected device_id ",
+                         response.find("\"device_id\" : \"device_id\"") != std::string::npos);
+
+  std::cout << "@UT@get_all_devices" <<  response << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("Expected  count ",
+                         response.find("\"count\" : 12") != std::string::npos);
+  mongo::BSONObj resObj =  mongo::fromjson(response);
+  std::vector< mongo::BSONElement > devicesBSON = (resObj.getField("devices")).Array ();
+  CPPUNIT_ASSERT_MESSAGE("Expected  count ",
+                         4 == devicesBSON.size());
+
   std::cout << "STOP testGetDevices" << std::endl;
   sleep(2);
   http_mock->stop();

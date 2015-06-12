@@ -253,6 +253,11 @@ int iota::AdminManagerService::get_all_devices_json(
   std::string protocol_filter) {
 
   iota::ServiceMgmtCollection manager_service_collection;
+  int limitI = limit;
+  int offsetI = offset;
+  int total_count=0;
+  mongo::BSONArrayBuilder builder_array;
+  mongo::BSONObjBuilder builder_json;
 
   IOTA_LOG_DEBUG(m_log, "AdminManagerService: get_all_devices_json, starting...");
 
@@ -279,7 +284,7 @@ int iota::AdminManagerService::get_all_devices_json(
   catch (iota::IotaException& e) {
     IOTA_LOG_ERROR(m_log, log_message << e.what());
   }
-  std::map<std::string, std::string> response_from_iotagent;
+
   std::map<std::string, std::string> response_from_iotagent_nok;
   for (int i = 0; i < all_dest.size(); i++) {
     try {
@@ -327,8 +332,38 @@ int iota::AdminManagerService::get_all_devices_json(
       log_message.append(" status-code=" + boost::lexical_cast<std::string>(code_i));
 
       if (code_i == pion::http::types::RESPONSE_CODE_OK) {
-        response_from_iotagent.insert(std::pair<std::string, std::string>(all_dest.at(
-                                        i), resp_http->get_content()));
+        std::string response =  resp_http->get_content();
+        mongo::BSONObj obj_mongo = mongo::fromjson(response);
+        int countI  = obj_mongo.getIntField (iota::store::types::COUNT);
+        total_count += countI;
+        PION_LOG_DEBUG(m_log, "get device count = " << countI );
+        std::vector<mongo::BSONElement> devices = obj_mongo.getField(
+            iota::store::types::DEVICES).Array();
+        for (int j = 0; j < devices.size(); j++) {
+          builder_array.append(devices.at(j));
+        }
+        if (offsetI > 0){
+          if (offsetI > countI){
+            // hay más offset que elementos
+            offsetI = offsetI - countI;
+          }else {
+            //en countI dejamos los elemtos que se han devuelto en device
+            countI = countI - offsetI;
+            //se ha consumido todo el offset
+            offsetI = 0;
+          }
+        }
+
+        if (limitI > 0){
+            // restamos los elementos devueltos al limit
+            if (limitI > countI){
+              limitI = limitI - countI;
+            }else{
+              limitI = -1;
+            }
+        }
+        IOTA_LOG_DEBUG(m_log, "get device new limitI " << limitI  << " new offset " << offsetI);
+
       }
       else if (code_i != -1) {
         response_from_iotagent_nok.insert(std::pair<std::string, std::string>
@@ -343,37 +378,6 @@ int iota::AdminManagerService::get_all_devices_json(
     }
   }
 
-
-  int total_count = 0;
-  mongo::BSONObjBuilder builder_json;
-  mongo::BSONArrayBuilder builder_array;
-  std::map<std::string, std::string>::iterator it_resp =
-    response_from_iotagent.begin();
-  while (it_resp != response_from_iotagent.end()) {
-    try {
-
-      mongo::BSONObj obj_mongo = mongo::fromjson(it_resp->second);
-      int tmp_count = obj_mongo.getIntField("count");
-      total_count += tmp_count;
-      std::vector<mongo::BSONElement> devices = obj_mongo.getField(
-            iota::store::types::DEVICES).Array();
-      for (int j = 0; j < devices.size(); j++) {
-        builder_array.append(devices.at(j));
-      }
-
-    }
-    catch (mongo::MsgAssertionException& e) {
-      log_message.append(" endpoint=" + it_resp->first + " error-json=" + std::string(
-                           e.what()));
-      IOTA_LOG_ERROR(m_log, log_message);
-    }
-    catch (std::exception& e) {
-      log_message.append(" endpoint=" + it_resp->first + " error=" + std::string(
-                           e.what()));
-      IOTA_LOG_ERROR(m_log, log_message);
-    }
-    ++it_resp;
-  }
   builder_json.append("count", total_count);
   builder_json.appendArray(iota::store::types::DEVICES, builder_array.obj());
   mongo::BSONObj result = builder_json.obj();
