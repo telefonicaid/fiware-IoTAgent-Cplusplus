@@ -58,7 +58,7 @@ ExternalProject_Add(logger-log4cplus PREFIX
 		${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus 
 	URL http://sourceforge.net/projects/log4cplus/files/log4cplus-stable/1.1.3/log4cplus-1.1.3-rc4.tar.bz2/download 
 	CONFIGURE_COMMAND
-	${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus/src/log4cplus/configure
+	${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus/src/logger-log4cplus/configure
 	--enable-release-version=yes --enable-so-version=no
 	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus
 	INSTALL_COMMAND make install
@@ -77,7 +77,7 @@ set(PION_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion)
 ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion 
 	URL http://downloads.sourceforge.net/project/pion/5.0.6/pion-5.0.6.tar.bz2 
 	CONFIGURE_COMMAND
-	${CMAKE_CURRENT_BINARY_DIR}/third_party/pion/src/pion/configure
+	${CMAKE_CURRENT_BINARY_DIR}/third_party/pion/src/pion-library/configure
 	--with-boost=${BOOST_DIRECTORY} --without-bzlib
 	--with-log4cplus=${LOG4CPLUS_DIRECTORY}
 	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/pion
