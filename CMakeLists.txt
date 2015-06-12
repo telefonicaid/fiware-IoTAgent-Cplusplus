@@ -77,7 +77,7 @@ set(PION_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion)
 ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion 
 	URL http://downloads.sourceforge.net/project/pion/5.0.6/pion-5.0.6.tar.bz2 
 	CONFIGURE_COMMAND
-	${CMAKE_CURRENT_BINARY_DIR}/third_party/pion/src/pion/configure
+	${CMAKE_CURRENT_BINARY_DIR}/third_party/pion/src/pion-library/configure
 	--with-boost=${BOOST_DIRECTORY} --without-bzlib
 	--with-log4cplus=${LOG4CPLUS_DIRECTORY}
 	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/pion
