@@ -1,14 +1,16 @@
 #!/bin/bash
 #
-# Creation and modification of devices with same service and subservice, but different protocol
+# Check limit and offset with 2 iotagents in GET device of iot manager
 
-echo "Creation and modification of devices with same service and subservice, but different protocol"
+echo "Check limit and offset with 2 iotagents in GET device of iot manager"
 
 # define varibles values for test
-export HOST_IOT=127.0.0.1:8080
-echo "HOST_IOT $HOST_IOT  ip and port for iotagent"
-export HOST_CB=127.0.0.1:1026
-echo "HOST_CB $HOST_CB ip and port for CB (Context Broker)"
+export HOST_IOT1=127.0.0.1:8080
+echo "HOST_IOT $HOST_IOT1  ip and port for iotagent 1"
+export HOST_IOT2=127.0.0.1:80
+eecho "HOST_IOT $HOST_IOT2  ip and port for iotagent 2"
+export HOST_MAN=127.0.0.1:8081
+eecho "HOST_IOT $HOST_MAN  ip and port for iot manager"
 export SERVICE=serv22
 echo "SERVICE  $SERVICE to create device"
 export SRVPATH=/srf
@@ -48,7 +50,7 @@ fi
 
 # TEST
 echo "10- create $SERVICE  $SRVPATH  for mqtt"
-res=$( curl -X POST http://$HOST_IOT/iot/services \
+res=$( curl -X POST http://$HOST_IOT1/iot/services \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -58,7 +60,7 @@ echo $res
 assert_code 201 "service already exists"
 
 echo "20-create $SERVICE  $SRVPATH  for ul20"
-res=$( curl -X POST http://$HOST_IOT/iot/services \
+res=$( curl -X POST http://$HOST_IOT2/iot/services \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -68,7 +70,7 @@ echo $res
 assert_code 201 "service already exists"
 
 echo "30- create device for mqtt"
-res=$( curl -X POST http://$HOST_IOT/iot/devices \
+res=$( curl -X POST http://$HOST_IOT1/iot/devices \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -77,8 +79,18 @@ res=$( curl -X POST http://$HOST_IOT/iot/devices \
 echo $res
 assert_code 201 "device already exists"
 
+res=$( curl -X POST http://$HOST_IOT1/iot/devices \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{"devices":[{"device_id":"sensor_mqtt2","protocol":"PDI-IoTA-MQTT-UltraLight"}]}' )
+echo $res
+assert_code 201 "device already exists"
+
+
 echo "40- create device for ul20"
-res=$( curl -X POST http://$HOST_IOT/iot/devices \
+res=$( curl -X POST http://$HOST_IOT2/iot/devices \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -87,8 +99,17 @@ res=$( curl -X POST http://$HOST_IOT/iot/devices \
 echo $res
 assert_code 201 "device already exists"
 
+res=$( curl -X POST http://$HOST_IOT2/iot/devices \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{"devices":[{"device_id":"sensor_ul202","protocol":"PDI-IoTA-UltraLight"}]}' )
+echo $res
+assert_code 201 "device already exists"
+
 echo "50- check type thingmqtt to iotagent"
-res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_mqtt \
+res=$( curl -X GET http://$HOST_IOT1/iot/devices/sensor_mqtt \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -96,21 +117,8 @@ res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_mqtt \
 echo $res
 assert_code 200 "device already exists"
 
-echo "60- check type thingmqtt to CB"
-
-res=$( curl -X POST http://$HOST_CB/v1/queryContext \
--i -s -w "#code:%{http_code}#" \
--H "Content-Type: application/json" \
--H "Accept: application/json" \
--H "Fiware-Service: $SERVICE" \
--H "Fiware-ServicePath: $SRVPATH" \
--d '{"entities": [{ "id": "thingmqtt:sensor_mqtt", "type": "thingmqtt", "isPattern": "false" }]}' )
-echo $res
-assert_code 200 "device already exists"
-assert_contains '{ "contextResponses" : [ { "contextElement" : { "type" : "thingmqtt", "isPattern" : "false", "id" : "thingmqtt:sensor_mqtt"' "no device in CB"
-
-echo "70- check type thingul20"
-res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_ul20 \
+echo "60- check type thingul20"
+res=$( curl -X GET http://$HOST_IOT2/iot/devices/sensor_ul20 \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -118,60 +126,80 @@ res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_ul20 \
 echo $res
 assert_code 200 "device already exists"
 
-echo "80- check type thingul20 to CB"
+echo "70- GET all iot manager"
 
-res=$( curl -X POST http://$HOST_CB/v1/queryContext \
+res=$( curl -X GET http://$HOST_MAN/iot/services \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
--H "Accept: application/json" \
 -H "Fiware-Service: $SERVICE" \
--H "Fiware-ServicePath: $SRVPATH" \
--d '{"entities": [{ "id": "thingul20:sensor_ul20", "type": "thingul20", "isPattern": "false" }]}' )
+-H "Fiware-ServicePath: $SRVPATH"  )
 echo $res
 assert_code 200 "device already exists"
-assert_contains '{ "contextResponses" : [ { "contextElement" : { "type" : "thingul20", "isPattern" : "false", "id" : "thingul20:sensor_ul20"' "no device in CB"
+assert_contains '{ "count": 2'  "no 2 services"
 
-echo "90- PUT sensor_mqtt"
+echo "80- GET all iot manager"
 
-res=$( curl -X PUT http://$HOST_IOT/iot/devices/sensor_mqtt \
+res=$( curl -X GET "http://$HOST_MAN/iot/devices?limit=-1" \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
--H "Fiware-ServicePath: $SRVPATH" \
--d '{"endpoint" : "http://10.95.213.81:1026"}' )
-echo $res
-assert_code 204 "device already exists"
-
-echo "100- PUT sensor_ul20"
-res=$( curl -X PUT http://$HOST_IOT/iot/devices/sensor_ul20 \
--i -s -w "#code:%{http_code}#" \
--H "Content-Type: application/json" \
--H "Fiware-Service: $SERVICE" \
--H "Fiware-ServicePath: $SRVPATH" \
--d '{"endpoint" : "http://10.95.213.81:1026"}' )
-echo $res
-assert_code 204 "device already exists"
-
-echo "110- check modification in  sensor_mqtt"
-res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_mqtt \
--i -s -w "#code:%{http_code}#" \
--H "Content-Type: application/json" \
--H "Fiware-Service: $SERVICE" \
--H "Fiware-ServicePath: $SRVPATH" )
+-H "Fiware-ServicePath: $SRVPATH"  )
 echo $res
 assert_code 200 "device already exists"
+assert_contains '{ "count" : 4'  "no 4 devices"
 
-echo "130- check modification in  sensor_ul20"
-res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_ul20 \
+echo "90- GET all iot manager offset 2 limit 1"
+
+res=$( curl -X GET "http://$HOST_MAN/iot/devices?offset=2&limit=1" \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
--H "Fiware-ServicePath: $SRVPATH" )
+-H "Fiware-ServicePath: $SRVPATH"  )
 echo $res
 assert_code 200 "device already exists"
+assert_contains '{ "count" : 4'  "no 4 devices"
+assert_contains '{ "device_id" : "sensor_ul20" }'  "no 4 devices"
+
+echo "100- GET all iot manager offset 1 limit 2"
+
+res=$( curl -X GET "http://$HOST_MAN/iot/devices?offset=1&limit=2" \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 200 "device already exists"
+assert_contains '{ "count" : 4'  "no 4 devices"
+assert_contains '{ "device_id" : "sensor_mqtt2" }'  "no 4 devices"
+assert_contains '{ "device_id" : "sensor_ul20" }'  "no 4 devices"
+
+echo "110- GET all iot manager offset 3 limit 22"
+
+res=$( curl -X GET "http://$HOST_MAN/iot/devices?offset=3&limit=22" \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 200 "device already exists"
+assert_contains '{ "count" : 4'  "no 4 devices"
+assert_contains '{ "device_id" : "sensor_ul202" }'  "no 4 devices"
+
+echo "120- GET all iot manager offset 0 limit 1"
+
+res=$( curl -X GET "http://$HOST_MAN/iot/devices?offset=0&limit=1" \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 200 "device already exists"
+assert_contains '{ "count" : 4'  "no 4 devices"
+assert_contains '{ "device_id" : "sensor_mqtt" }'  "no 4 devices"
+
 
 echo "150- delete service mqtt"
-res=$( curl -X DELETE "http://$HOST_IOT/iot/services?resource=/iot/mqtt&device=true" \
+res=$( curl -X DELETE "http://$HOST_IOT1/iot/services?resource=/iot/mqtt&device=true" \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -180,7 +208,7 @@ assert_code 204 "device already exists"
 
 
 echo "160- delete service ul20"
-res=$( curl -X DELETE "http://$HOST_IOT/iot/services?resource=/iot/d&device=true" \
+res=$( curl -X DELETE "http://$HOST_IOT2/iot/services?resource=/iot/d&device=true" \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \

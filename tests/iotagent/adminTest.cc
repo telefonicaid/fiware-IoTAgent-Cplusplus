@@ -723,6 +723,13 @@ void  AdminTest::testPostDevice() {
   IOTASSERT_MESSAGE("Search by entity name ", code_res = 200);
   IOTASSERT(response.find("device_id") != std::string::npos);
 
+  std::cout << "@UT@GET limit = -1" << std::endl;
+  code_res = http_test("/iot/devices", "GET", service, "", "application/json", "",
+                       headers, "limit=-1", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE("Search by entity name ", code_res = 200);
+  IOTASSERT(response.find("device_id") == std::string::npos);
+
   std::cout << "@UT@POST_BAD" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
                        POST_DEVICE_NO_DEVICE_ID, headers, "", response);
