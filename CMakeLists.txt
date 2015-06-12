@@ -81,6 +81,7 @@ ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_C
 	--with-boost=${BOOST_DIRECTORY} --without-bzlib
 	--with-log4cplus=${LOG4CPLUS_DIRECTORY}
 	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/pion
+	BUILD_IN_SOURCE 1
 	INSTALL_COMMAND make install
 	)
 set(Pion_LIBS_DIR ${PION_DIRECTORY}/lib)
