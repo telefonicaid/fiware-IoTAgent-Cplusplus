@@ -273,22 +273,27 @@ void JsonTest::testContext() {
   std::map<std::string, std::string> static_a;
   iota::Attribute st_att("stname", "sttype", "stvalue");
   static_a["stname"] = st_att.get_string();
+
+  // With metadatas
   device->_attributes["OldName"] =
-    "{\"object_id\":\"OldName\", \"name\": \"NewName\", \"type\": \"string\"}";
+    "{\"object_id\":\"OldName\", \"name\": \"NewName\", \"type\": \"string\", \"metadatas\": [{\"name\": \"unit\", \"type\": \"string\", \"value\": \"celsius\"}]}";
+  device->_attributes["MapWithMeta"] =
+    "{\"object_id\":\"MapWithMeta\", \"name\": \"NewNameMeta\", \"type\": \"string\", \"metadatas\": [{\"name\": \"unit\", \"type\": \"string\", \"value\": \"celsius\"}]}";
   device->_static_attributes = static_a;
   boost::property_tree::ptree p_env;
   p_env.put("entity_type", "EntityType");
 
   // Add mapping for attribute
   iota::Attribute map_att("OldName", "Mtype", "value_att");
+  iota::Attribute map_attr_1("MapWithMeta", "Mtype", "value_att");
   iota::ContextElement ce_with_static_att("idst", "", "false");
   ce_with_static_att.set_env_info(p_env, device);
   // and attribute for mapping
   ce_with_static_att.add_attribute(map_att);
-
+  ce_with_static_att.add_attribute(map_attr_1);
 
   CPPUNIT_ASSERT_MESSAGE("Context element with static attributes",
-                         ce_with_static_att.get_attributes().size() == 2);
+                         ce_with_static_att.get_attributes().size() == 3);
 
   // Serialize and check final values
   std::string str_ce = ce_with_static_att.get_string();
@@ -297,11 +302,21 @@ void JsonTest::testContext() {
   std::istringstream is_ce_a(str_ce);
   iota::ContextElement ce_total(is_ce_a);
   CPPUNIT_ASSERT_MESSAGE("Context element total",
-                         ce_total.get_attributes().size() == 2);
+                         ce_total.get_attributes().size() == 3);
   CPPUNIT_ASSERT_MESSAGE("Static attribute ",
                          ce_total.get_attributes()[0].get_name().compare("stname") == 0);
   CPPUNIT_ASSERT_MESSAGE("Mapped attribute ",
                          ce_total.get_attributes()[1].get_name().compare("NewName") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Mapped attribute ",
+                         ce_total.get_attributes()[2].get_name().compare("NewNameMeta") == 0);
+  // Metadata is included
+  iota::Attribute mapped_attribute = ce_total.get_attributes()[2];
+
+  std::cout << ce_total.get_attributes()[1].get_metadatas().size() << " **** " << mapped_attribute.get_string() << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("Number of metadatas in mapped attribute ", ce_total.get_attributes()[2].get_metadatas().size() == 1);
+  iota::Attribute meta_mapped_attribute = ce_total.get_attributes()[2].get_metadatas()[0];
+  CPPUNIT_ASSERT_MESSAGE("Checking metadata in mapped attribute ", meta_mapped_attribute.get_name().compare("unit") == 0);
+
   CPPUNIT_ASSERT_MESSAGE("Mapped attribute ",
                          ce_total.get_attributes()[1].get_type().compare("string") == 0);
   CPPUNIT_ASSERT_MESSAGE("Context element default entity type",

@@ -95,15 +95,19 @@ set(INSTALL_PION ${Pion_LIBS_DIR}/lib${Pion_LIBRARIES}*.so)
 
 # MongoDB driver
 set(MONGODB_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver)
+set(BUILD_COMMAND_MONGO_DRIVER scons
+	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
+	--libpath=${BOOST_DIRECTORY}
+	--extrapath=${BOOST_DIRECTORY}
+	--cpppath=${BOOST_DIRECTORY}/include
+	--sharedclient install)
 ExternalProject_Add(mongo-driver PREFIX
 		${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver 
 		GIT_REPOSITORY git@github.com:mongodb/mongo-cxx-driver.git
 		GIT_TAG legacy-1.0.1
 	CONFIGURE_COMMAND ""
 	BUILD_IN_SOURCE 1
-	BUILD_COMMAND scons
-	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
-	--extrapath=${BOOST_DIRECTORY} --sharedclient install
+	BUILD_COMMAND ${BUILD_COMMAND_MONGO_DRIVER}
 	INSTALL_COMMAND "" 
 	)
 set(MongoDB_INCLUDE_DIR ${MONGODB_DIRECTORY}/include)
