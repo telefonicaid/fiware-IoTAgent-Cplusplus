@@ -1,9 +1,6 @@
 FORMAT: 1A
 
-# Resource IotAgent API REST UL20
-Explain the Ultra llight protocol.
-
-NOTE: This document is a **work in progress**.
+# UL2 IotAgent API
 
 
 #### Index
@@ -19,7 +16,7 @@ NOTE: This document is a **work in progress**.
 This documents is the specification of the Ultra light Protocol for Iot Platform.
 Ultra-Light protocol (UL20) is a lightweight HTTP protocol designed to be open, simple, lightweight and easy to implement, send short data in a short way.
 
-There are two types of message: measurements of sensors and commands (actions that can make a device).
+There are two types of message: measurements of sensors and commands (actions that can make a device, [More information about comands](https://github.com/telefonicaid/fiware-IoTAgent-Cplusplus/blob/develop/doc/commands.md) )
 
 A device can receive commands (from an Iot Agent), and produces measurements and response commands.
 
@@ -80,11 +77,11 @@ Commands in ultra light must have a specific format.
 # Group UL20 protocol for IotAgent Platform
 Group of  requisites, conventions for this http protocol for Telefonica Iot Platform.
 
-## From Device [/{iot}/{plugin_uri}{?i,d,k,t,getCmd,ip}]
+## POST [/{iot}/{plugin_uri}{?i,d,k,t,getCmd,ip}]
 A device can send to Iot Platform, an observation ( one or several sensor measurements), or a command response.
 These operations must be implemented in the device,
 
-### Send an observation to Iot Platform [POST]
+### POST an observation to Iot Platform [POST]
 
 + Parameters
 
@@ -108,11 +105,11 @@ These operations must be implemented in the device,
 
 + Response 400
 
-## GET commands [/{iot}/{plugin_uri}{?i,d,k}]
+## GET  [/{iot}/{plugin_uri}{?i,d,k}]
 A device can ask for pending commands.
 These operations must be implemented in the device,
 
-### Send an observation to Iot Platform [GET]
+### GET pending commands from Iot Platform [GET]
 
 + Parameters
 
