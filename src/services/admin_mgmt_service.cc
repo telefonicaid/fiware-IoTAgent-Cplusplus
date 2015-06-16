@@ -296,10 +296,10 @@ int iota::AdminManagerService::get_all_devices_json(
                               (iota::store::types::PROTOCOL, protocol_filter));
       query_parameters.insert(std::pair<std::string, std::string>
                               (iota::store::types::LIMIT,
-                               boost::lexical_cast<std::string>(limit)));
+                               boost::lexical_cast<std::string>(limitI)));
       query_parameters.insert(std::pair<std::string, std::string>
                               (iota::store::types::OFFSET,
-                               boost::lexical_cast<std::string>(offset)));
+                               boost::lexical_cast<std::string>(offsetI)));
       query_parameters.insert(std::pair<std::string, std::string>
                               (iota::store::types::ENTITY, entity));
       query_parameters.insert(std::pair<std::string, std::string>

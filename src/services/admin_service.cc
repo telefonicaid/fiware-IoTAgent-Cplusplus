@@ -591,7 +591,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
         else {
           limit = types::LIMIT_DEFAULT;
         }
-        if (limit < 0) {
+        if (limit < -1) {
           IOTA_LOG_ERROR(m_log, " bad limit using default");
           limit = types::LIMIT_DEFAULT;
         }
@@ -873,7 +873,7 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         else {
           limit = types::LIMIT_DEFAULT;
         }
-        if (limit < 0) {
+        if (limit < -1) {
           IOTA_LOG_ERROR(m_log, " bad limit using default");
           limit = types::LIMIT_DEFAULT;
         }

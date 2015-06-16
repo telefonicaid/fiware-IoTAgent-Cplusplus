@@ -3,7 +3,7 @@ project (iot-agent)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/version.h.in ${CMAKE_CURRENT_BINARY_DIR}/include/version.h)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 
-set (CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}) 
+set (CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
 set (CMAKE_SHARED_MODULE_PREFIX "")
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_SPIRIT_THREADSAFE -fPIC")
 set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DBOOST_SPIRIT_THREADSAFE -fPIC")
@@ -30,11 +30,11 @@ set(IOTAGENT_LIBS "")
 
 include(ExternalProject)
 
-ExternalProject_Add(boost PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/boost 
-	URL http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download 
+ExternalProject_Add(boost PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/boost
+	URL http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download
 	BUILD_IN_SOURCE 1
 	CONFIGURE_COMMAND ./bootstrap.sh
-	--with-libraries=thread,filesystem,system,regex,date_time
+	--with-libraries=thread,filesystem,system,regex,date_time,test
 	BUILD_COMMAND ./b2 install --prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/boost
 	INSTALL_COMMAND ""
 	)
@@ -55,8 +55,8 @@ set(INSTALL_BOOST "cp -P ${Boost_LIBRARY_DIRS}/libboost_date_time.so* %{buildroo
 # It use logger library recommended in Pion Library.
 set(LOG4CPLUS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus)
 ExternalProject_Add(logger-log4cplus PREFIX
-		${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus 
-	URL http://sourceforge.net/projects/log4cplus/files/log4cplus-stable/1.1.3/log4cplus-1.1.3-rc4.tar.bz2/download 
+		${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus
+	URL http://sourceforge.net/projects/log4cplus/files/log4cplus-stable/1.1.3/log4cplus-1.1.3-rc4.tar.bz2/download
 	CONFIGURE_COMMAND
 	${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus/src/logger-log4cplus/configure
 	--enable-release-version=yes --enable-so-version=no
@@ -74,8 +74,8 @@ link_directories(${LOG4CPLUS_LIBS_DIR})
 
 # Pion
 set(PION_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion)
-ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion 
-	URL http://downloads.sourceforge.net/project/pion/5.0.6/pion-5.0.6.tar.bz2 
+ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion
+	URL http://downloads.sourceforge.net/project/pion/5.0.6/pion-5.0.6.tar.bz2
 	CONFIGURE_COMMAND
 	${CMAKE_CURRENT_BINARY_DIR}/third_party/pion/src/pion-library/configure
 	--with-boost=${BOOST_DIRECTORY} --without-bzlib
@@ -95,20 +95,21 @@ set(INSTALL_PION ${Pion_LIBS_DIR}/lib${Pion_LIBRARIES}*.so)
 
 # MongoDB driver
 set(MONGODB_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver)
-set(BUILD_COMMAND_MONGO_DRIVER scons
-	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
-	--libpath=${BOOST_DIRECTORY}
-	--extrapath=${BOOST_DIRECTORY}
-	--cpppath=${BOOST_DIRECTORY}/include
-	--sharedclient install)
 ExternalProject_Add(mongo-driver PREFIX
-		${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver 
+		${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
 		GIT_REPOSITORY git@github.com:mongodb/mongo-cxx-driver.git
 		GIT_TAG legacy-1.0.1
 	CONFIGURE_COMMAND ""
 	BUILD_IN_SOURCE 1
-	BUILD_COMMAND ${BUILD_COMMAND_MONGO_DRIVER}
-	INSTALL_COMMAND "" 
+	BUILD_COMMAND scons
+	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
+	--extrapath=${BOOST_DIRECTORY}
+  --libpath=${BOOST_DIRECTORY}/lib
+  --cpppath=${BOOST_DIRECTORY}/include
+  --boost-lib-search-suffixes=
+  --extralib=boost_system,boost_regex,boost_thread
+  --sharedclient install
+	INSTALL_COMMAND ""
 	)
 set(MongoDB_INCLUDE_DIR ${MONGODB_DIRECTORY}/include)
 set(MongoDB_LIBS_DIR ${MONGODB_DIRECTORY}/lib)
@@ -125,7 +126,7 @@ include_directories(third_party/rapidjson/include)
 # Mosquitto
 if (MQTT)
 set(WITH_CARES ON)
-if (WITH_CARES) 
+if (WITH_CARES)
       ExternalProject_Add(libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0 CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0/configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares BUILD_COMMAND ${MAKE})
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
       ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 CMAKE_ARGS -DC-ARES-ROOT=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt)
@@ -134,7 +135,7 @@ else()
       ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 CMAKE_ARGS -DWITH_SRV=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt)
 endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5/lib/cpp)
-     
+
 set(MOSQUITTO_FOUND TRUE)
 set(IOTAGENT_LIBS ${IOTAGENT_LIBS})
 set(MOSQUITTO_LIBS_DIR ${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt)
@@ -145,7 +146,7 @@ endif()
 # Cppunit
 set(CPPUNIT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit)
 ExternalProject_Add(test-cppunit PREFIX
-	${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit 
+	${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit
 	URL http://sourceforge.net/projects/cppunit/files/cppunit/1.12.1/cppunit-1.12.1.tar.gz/download
 	CONFIGURE_COMMAND
 	${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit/src/test-cppunit/configure
