@@ -1,4 +1,5 @@
 from lettuce import step, world
+from common.steps import service_created_precond,check_measure_cbroker,check_measures_cbroker,check_NOT_measure_cbroker
 from iotqautils.gtwMeasures import Gw_Measures_Utils
 from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,IOT_SERVER_ROOT,UL20_APIKEY,DEF_ENTITY_TYPE,DEF_TYPE
 from common.user_steps import UserSteps
@@ -7,12 +8,6 @@ import time,datetime
 
 gw = Gw_Measures_Utils(server_root=IOT_SERVER_ROOT)
 user_steps = UserSteps()
-
-@step('a service with name "([^"]*)" and protocol "([^"]*)" created')
-def service_created_precond(step, service_name, protocol):
-    if protocol:
-        world.service_name = service_name
-        user_steps.service_precond(service_name, protocol)
 
 @step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def service_with_attritubes_created_precond(step, service_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
@@ -116,6 +111,7 @@ def send_measure(step, device_id, protocol, alias, timestamp, value):
     measure['alias'] = alias
     measure['value'] = value
     world.timestamp=False
+    world.def_entity=True
     if timestamp:
         measure['timestamp'] = timestamp
         world.st=timestamp
@@ -140,6 +136,7 @@ def send_measure(step, device_id, protocol, alias, timestamp, value):
 def send_measures(step, device_id, protocol):
     measures = []
     world.measures_count=0
+    world.def_entity=True
     for measures_dict in step.hashes:
         measure = {}
         measure['alias'] = measures_dict['alias']
@@ -178,6 +175,7 @@ def send_wrong_measure(step, device_id, protocol, alias, value, timestamp, field
     #print 'protocol: ' + protocol
     #apikey=api.get_apikey(world.service_name)
     world.field=field
+    world.def_entity=True    
     if world.service_name:
         apikey = 'apikey_'+world.service_name
     else:
@@ -198,75 +196,6 @@ def send_wrong_measure(step, device_id, protocol, alias, value, timestamp, field
             assert not req.ok, 'ERROR: ' + str(req)
     else:
         assert req.ok, 'ERROR: ' + str(req)
-
-@step('the measure of asset "([^"]*)" with phenom "([^"]*)" and value "([^"]*)" is received by context broker')
-def check_measure_cbroker(step, asset, phenom_name, value):
-    time.sleep(1)
-    req =  requests.get(CBROKER_URL+"/last")
-    response = req.json()
-    assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
-    print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
-    #print 'Ultima medida recibida {}'.format(response)
-    contextElement = response['contextElements'][0]
-    assetElement = contextElement['id']
-    #print 'Dispositivo {}'.format(assetElement)
-    valueElement = contextElement['attributes'][0]['value']
-    #print '{}.{}'.format(model_name,asset_name)
-    nameElement = contextElement['attributes'][0]['name']
-    nameTime = contextElement['attributes'][1]['name']
-    #print 'Metadatas {}'.format(metasElement)
-    asset_name = DEF_ENTITY_TYPE + ':' + asset
-    assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
-    typeElement = contextElement['type']
-    assert typeElement == DEF_ENTITY_TYPE, 'ERROR: ' + DEF_ENTITY_TYPE + ' type expected, ' + typeElement + ' received'
-    assert valueElement == value, 'ERROR: ' + value + ' value expected, ' + valueElement + ' received'
-    assert nameElement == phenom_name, 'ERROR: ' + phenom_name + ' name expected, ' + nameElement + ' received'
-    assert contextElement['attributes'][0]['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(contextElement['attributes'][0]['metadatas'][0])
-    assert nameTime == "TimeInstant", 'ERROR: ' + "TimeInstant" + ' name expected, ' + nameTime + ' received'
-    if world.timestamp:
-        assert str(world.st) == contextElement['attributes'][0]['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][0]['metadatas'][0])
-        assert str(world.st) == contextElement['attributes'][1]['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][1])
-    else:
-        assert check_timestamp(contextElement['attributes'][0]['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][0]['metadatas'][0])
-        assert check_timestamp(contextElement['attributes'][1]['value']), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][1])
-
-
-@step('"([^"]*)" measures of asset "([^"]*)" are received by context broker')
-def check_measures_cbroker(step, num_measures, asset):
-    time.sleep(1)
-    measures_count =  requests.get(CBROKER_URL+"/countMeasure")
-    assert measures_count.text == str(num_measures), 'ERROR: ' + str(num_measures) + ' measures expected, ' + measures_count.text + ' received'
-    req =  requests.get(CBROKER_URL+"/last")
-    response = req.json()
-    assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
-    print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
-    #print 'Ultima medida recibida {}'.format(response)
-    contextElement = response['contextElements'][0]
-    assetElement = contextElement['id']
-    valueElement = contextElement['attributes'][0]['value']
-    #print '{}.{}'.format(model_name,asset_name)
-    nameElement = contextElement['attributes'][0]['name']
-    nameTime = contextElement['attributes'][1]['name']
-    #attrsElement = contextElement['attributes']
-    asset_name = DEF_ENTITY_TYPE + ':' + asset
-    assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
-    typeElement = contextElement['type']
-    assert typeElement == DEF_ENTITY_TYPE, 'ERROR: ' + DEF_ENTITY_TYPE + ' type expected, ' + typeElement + ' received'
-    #num_attrs=0
-    #while num_attrs<world.measures_count:
-    isValue = False
-    for measures_dict in step.hashes:
-        valueDict = measures_dict['value']
-        if (valueDict == valueElement) & (measures_dict['alias']==nameElement):
-            print 'Encontrado valor {}'.format(valueDict)
-            isValue = True
-            break
-    assert isValue, 'ERROR: ' + valueDict + ' value expected, ' + valueElement + ' received'
-    #    num_attrs=num_attrs+1   
-    assert contextElement['attributes'][0]['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(contextElement['attributes'][0]['metadatas'][0])
-    assert nameTime == "TimeInstant", 'ERROR: ' + "TimeInstant" + ' name expected, ' + nameTime + ' received'
-    assert check_timestamp(contextElement['attributes'][0]['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][0]['metadatas'][0])
-    assert check_timestamp(contextElement['attributes'][1]['value']), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][1])
 
 @step('the measure of asset "([^"]*)" with phenom "([^"]*)" and value "([^"]*)" is received or NOT by context broker')
 def check_NOT_measure_cbroker(step, asset, phenom_name, value):

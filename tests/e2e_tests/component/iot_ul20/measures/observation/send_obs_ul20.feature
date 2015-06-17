@@ -8,15 +8,15 @@ Feature: UL20 Observation Send
     	Scenario Outline: Send a single observation
 		Given a service with name "<service>" and protocol "<protocol>" created
 		When I send a measure to the GW with apikey, id "<device_name>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
-		Then the measure of asset "<device_name>" with phenom "<alias>" and value "<value>" is received by context broker
+		Then the measure of asset "<device_name>" with measures "<generated_measures>" and timestamp "<timestamp>" is received by context broker
 		
 		Examples:
-            |device_name |service		|protocol	|alias	|value		|timestamp				|
-            |device_ul1	 |serviceul20	|IoTUL2		|t		|23			|						|
-            |device_ul2	 |serviceul20	|IoTUL2		|a		|stop		|						|
-            |device_ul3  |serviceul20	|IoTUL2		|p		|false		|						|
-            |device_ul4	 |serviceul20	|IoTUL2		|l		|23.1/2.3	|						|
-            |device_ul5  |serviceul20	|IoTUL2		|t		|35			|2014-11-07T10:22:03Z	|
+            |device_name |service		|protocol	|alias	|value		|timestamp				|generated_measures	|
+            |device_ul1	 |serviceul20	|IoTUL2		|t		|23			|						|<alias>:<value>	|
+            |device_ul2	 |serviceul20	|IoTUL2		|a		|stop		|						|<alias>:<value>	|
+            |device_ul3  |serviceul20	|IoTUL2		|p		|false		|						|<alias>:<value>	|
+            |device_ul4	 |serviceul20	|IoTUL2		|l		|23.1/2.3	|						|<alias>:<value>	|
+            |device_ul5  |serviceul20	|IoTUL2		|t		|35			|2014-11-07T10:22:03Z	|<alias>:<value>	|
             
 
         @iot_ul20 @IDAS-18480
@@ -29,11 +29,11 @@ Feature: UL20 Observation Send
 			|<valuep>	|<aliasp>	|
 			|<valuel>	|<aliasl>	|
 		Then "<num_measures>" measures of asset "<device_name>" are received by context broker
-			|value 		|alias		|
-			|<valuea>	|<aliasa>	|
-			|<valuet>	|<aliast>	|
-			|<valuep>	|<aliasp>	|
-			|<valuel>	|<aliasl>	|
+			|generated_measures |
+			|<aliasa>:<valuea>|
+			|<aliast>:<valuet>|
+			|<aliasp>:<valuep>|
+			|<aliasl>:<valuel>|
 		
 		Examples:
 			|device_name	|service		|protocol	|aliast	|valuet	|aliasa	|valuea	|aliasp	|valuep	|aliasl	|valuel		|num_measures |
@@ -44,17 +44,18 @@ Feature: UL20 Observation Send
     	@iot_ul20 @IDAS-20047
     	Scenario Outline: Send a wrong observation
 		Given a service with name "<service>" and protocol "<protocol>" created
-		When I send a wrong measure to the GW with apikey, id "<device_name>", protocol "<protocol>", alias "<alias>", value "<value>", timestamp "<timestamp>" and wrong field "<field>" 
-		Then the measure of asset "<device_name>" with phenom "<alias>" and value "<value>" is received or NOT by context broker
+		When I send a wrong measure to the GW with apikey, id "<device_name>", protocol "<protocol>", alias "<alias2>", value "<value>", timestamp "<timestamp>" and wrong field "<field>" 
+		Then the measure of asset "<device_name>" with measures "<generated_measures>" is received or NOT by context broker
+#		And the measure of asset "<device_name>" with phenom "<alias2>" and value "<value>" is received or NOT by context broker
 		
 		Examples:
-            |device_name |service		|protocol	|alias	|value		|field			|timestamp				|
-            |device_ul8	 |serviceul20	|IoTUL2		|t		|23			|not_apikey		|						|
-            |device_ul9	 |serviceul20	|IoTUL2		|a		|stop		|not_device		|						|
-            |device_ul10 |serviceul20	|IoTUL2		|p		|false		|wrong_apikey	|						|
-            |device_ul11 |serviceul20	|IoTUL2		|l		|			|not_value		|						|
-            |device_ul12 |serviceul20	|IoTUL2		|		|23			|not_alias		|						|
-            |device_ul13 |serviceul20	|IoTUL2		|t		|55			|timestamp		|2014-11-31T10:22:03Z	|
+            |device_name |service		|protocol	|alias2	|value		|field			|timestamp				|generated_measures	|
+            |device_ul8	 |serviceul20	|IoTUL2		|t		|23			|not_apikey		|						|<alias2>:<value>	|
+            |device_ul9	 |serviceul20	|IoTUL2		|a		|stop		|not_device		|						|<alias2>:<value>	|
+            |device_ul10 |serviceul20	|IoTUL2		|p		|false		|wrong_apikey	|						|<alias2>:<value>	|
+            |device_ul11 |serviceul20	|IoTUL2		|l		|			|not_value		|						|<alias2>:<value>	|
+            |device_ul12 |serviceul20	|IoTUL2		|		|23			|not_alias		|						|<alias2>:<value>	|
+            |device_ul13 |serviceul20	|IoTUL2		|t		|55			|timestamp		|2014-11-31T10:22:03Z	|<alias2>:<value>	|
 
 
     	@iot_ul20 @IDAS-20172
