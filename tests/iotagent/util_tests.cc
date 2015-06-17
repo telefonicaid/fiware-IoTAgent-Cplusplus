@@ -25,14 +25,9 @@
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TextTestProgressListener.h>
-#include "RestFunctionTest.h"
-#include "services/admin_service.h"
+#include "UtilFunctionTest.h"
 
-namespace iota {
-std::string URL_BASE = "/iot";
-std::string logger("main");
-}
-iota::AdminService* AdminService_ptr;
+
 int main(int argc, char* argv[]) {
   //CppUnit::TestResult controller;
   //CppUnit::TestResultCollector result;
@@ -40,7 +35,7 @@ int main(int argc, char* argv[]) {
   //CppUnit::TextTestProgressListener progress;
   //controller.addListener( &progress );
   CppUnit::TextUi::TestRunner runner;
-  runner.addTest(RestFunctionTest::suite());
+  runner.addTest(UtilFunctionTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cout));
   bool s = runner.run();
