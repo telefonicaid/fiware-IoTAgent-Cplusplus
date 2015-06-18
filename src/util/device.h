@@ -26,6 +26,7 @@
 #include "store_const.h"
 #include "rest/riot_conf.h"
 #include <boost/functional/hash.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace iota {
