@@ -34,9 +34,9 @@ struct Device : public virtual Timer {
 
   explicit Device(std::string name, std::string service): Timer(),
     _name(name), _service(service) {
-      _active = INT_MIN;
-      _duration_cb = LONG_MIN;
-      _protocol="";
+    _active = INT_MIN;
+    _duration_cb = LONG_MIN;
+    _protocol="";
   };
 
   explicit Device(std::string entity_name, std::string entity_type,
@@ -84,7 +84,8 @@ struct Device : public virtual Timer {
 
     if (dev._duration_cb != LONG_MIN) {
       _duration_cb = dev._duration_cb;
-    }else{
+    }
+    else {
       _duration_cb = LONG_MIN;
     }
 
@@ -105,8 +106,9 @@ struct Device : public virtual Timer {
 
     if (dev._active != INT_MIN) {
       _active = dev._active;
-    }else{
-       _active = INT_MIN;
+    }
+    else {
+      _active = INT_MIN;
     }
   };
 
@@ -174,11 +176,13 @@ struct Device : public virtual Timer {
     return _name;
   }
 
-  std::string get_real_name(const boost::property_tree::ptree& service_ptree) const {
-  {
+  std::string get_real_name(const boost::property_tree::ptree service_info& service_ptree)
+  const {
 
-  std::string entity_type("thing");
-  std::string entity_id(_name);
+    std::string entity_type("thing");
+    std::string entity_id(_name);
+    std::string service_entity_type = service_ptree.get<std::string>
+                        (iota::store::types::ENTITY_TYPE, "");
 
     if (!_entity_type.empty() &&
         _entity_type.compare(iota::store::types::DEFAULT) != 0) {
@@ -186,7 +190,7 @@ struct Device : public virtual Timer {
       entity_type.assign(_entity_type);
     }
     else if (!service_entity_type.empty()) {
-        entity_type = service_entity_type;
+      entity_type = service_entity_type;
     }
     // Entity name (default is entity_type:device_id)
     if (!_entity_name.empty() &&
