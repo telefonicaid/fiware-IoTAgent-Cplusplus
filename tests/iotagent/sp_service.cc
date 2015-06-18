@@ -141,7 +141,7 @@ void iota::SPService::service(pion::http::request_ptr& http_request_ptr,
     entity_type = service_ptree.get<std::string>("entity_type", "");
   }
   else {
-    device = dev->get_real_name();
+    device = dev->get_real_name(service_ptree);
     entity_type = dev->_entity_type;
     if (entity_type.empty()) {
       entity_type = service_ptree.get<std::string>("entity_type", "");
