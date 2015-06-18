@@ -1,7 +1,7 @@
 from lettuce import step, world
 from iotqautils.iota_utils import Rest_Utils_IoTA
 from common.functions import Functions
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
+from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM,DEF_TYPE
 from lettuce import world
 import time, datetime, requests
 
@@ -17,6 +17,101 @@ def service_created_precond(step, service_name, protocol):
         world.service_name = service_name
         functions.service_precond(service_name, protocol)
 
+@step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
+def service_with_attritubes_created_precond(step, service_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    world.service_name = service_name
+    attributes=[]
+    st_attributes=[]
+    world.typ1 = typ1
+    world.typ2 = typ2
+    world.name1 = name1
+    world.name2 = name2
+    world.type1 = type1
+    world.type2 = type2
+    world.value1 = value1
+    world.value2 = value2
+    if typ1=='srv_attr':
+        attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "object_id": value1
+              }
+             ]
+    if typ2=='srv_attr':
+        attribute={
+              "name": name2,
+              "type": type2,
+              "object_id": value2
+              }
+        attributes.append(attribute)
+    if typ1=='srv_st_att':
+        st_attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "value": value1
+              }
+             ]
+    if typ2=='srv_st_att':
+        st_attribute={
+              "name": name2,
+              "type": type2,
+              "value": value2
+              }
+        st_attributes.append(st_attribute)
+    functions.service_precond(service_name, protocol, attributes, st_attributes)
+
+@step('a device with device id "([^"]*)", protocol "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
+def device_with_entity_values_created_precond(step, device_id, protocol, ent_type, ent_name):
+    functions.device_precond(device_id, {}, protocol, {}, ent_name, ent_type)
+    world.device_id=device_id
+
+@step('a device with device id "([^"]*)", protocol "([^"]*)", atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
+def device_with_attributes_created_precond(step, device_id, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    attributes=[]
+    st_attributes=[]
+    world.typ1 = typ1
+    world.typ2 = typ2
+    world.name1 = name1
+    world.name2 = name2
+    world.type1 = type1
+    world.type2 = type2
+    world.value1 = value1
+    world.value2 = value2
+    if typ1=='dev_attr':
+        attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "object_id": value1
+              }
+             ]
+    if typ2=='dev_attr':
+        attribute={
+              "name": name2,
+              "type": type2,
+              "object_id": value2
+              }
+        attributes.append(attribute)
+    if typ1=='dev_st_att':
+        st_attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "value": value1
+              }
+             ]
+    if typ2=='dev_st_att':
+        st_attribute={
+              "name": name2,
+              "type": type2,
+              "value": value2
+              }
+        st_attributes.append(st_attribute)
+    functions.device_precond(device_id, {}, protocol, {}, {}, {}, attributes, st_attributes)
+    world.device_id=device_id
+
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received by context broker')
 def check_measure_cbroker(step, asset_name, measures):
     check_measure(asset_name, measures)
@@ -25,7 +120,15 @@ def check_measure_cbroker(step, asset_name, measures):
 def check_measure_cbroker_timestamp(step, asset_name, measures, timestamp):
     check_measure(asset_name, measures, timestamp)
 
-def check_measure(asset_name, measures, timestamp={}):
+@step('the measure of asset "([^"]*)" with entity_type "([^"]*)", entity_name "([^"]*)" and measures "([^"]*)" is received by context broker')
+def check_measure_cbroker_entity(step, asset_name, entity_type, entity_name, measures):
+    check_measure(asset_name, measures, {}, entity_type, entity_name)
+
+@step('the measure of asset "([^"]*)" with measures "([^"]*)" and attributes are received by context broker')
+def check_measure_cbroker_with_attributes(step, asset_name, measures):
+    check_measure(asset_name, measures, {}, {}, {}, True)
+
+def check_measure(device, measures, timestamp={}, entity_type={}, entity_name={}, are_attrs=False):
     time.sleep(1)
     print measures
     req =  requests.get(CBROKER_URL+"/last")
@@ -48,22 +151,37 @@ def check_measure(asset_name, measures, timestamp={}):
                     d2 = dict([measure_value.split('/')])
                     measure_value=str(d2.items()[0][0])
                     metadata_value=str(d2.items()[0][1])
-            attr_matches=False
-            for attr in contextElement['attributes']:
-                if str(measure_name) == attr['name']:
-                    print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
-                    assert attr['value'] == str(measure_value), 'ERROR: value: ' + str(measure_value) + " not found in: " + str(attr)
-                    attr_matches=True
-                    if metadata_value:
-                        assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
-                        assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
-                    assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
-                    if timestamp:
-                        assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
-                    else:
-                        assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
-                    break
-            assert attr_matches, 'ERROR: attribute: ' + str(measure_name) + " not found in: " + str(contextElement['attributes'])
+            if are_attrs:
+                attrs=0
+                if ('attr' in world.typ1) & (measure_name==world.value1):
+                    check_attribute(contextElement, world.name1, world.type1, measure_value)
+                elif ('attr' in world.typ2) & (measure_name==world.value2):
+                    check_attribute(contextElement, world.name2, world.type2, measure_value)
+                else:
+                    check_attribute(contextElement, measure_name, DEF_TYPE, measure_value)
+                attrs+=1
+                if 'st_att' in world.typ1:
+                    check_attribute(contextElement, world.name1, world.type1, world.value1)
+                    attrs+=1
+                if 'st_att' in world.typ2:
+                    check_attribute(contextElement, world.name2, world.type2, world.value2)
+            else:
+                attr_matches=False
+                for attr in contextElement['attributes']:
+                    if str(measure_name) == attr['name']:
+                        print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
+                        assert attr['value'] == str(measure_value), 'ERROR: value: ' + str(measure_value) + " not found in: " + str(attr)
+                        attr_matches=True
+                        if metadata_value:
+                            assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
+                            assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
+                        assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
+                        if timestamp:
+                            assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
+                        else:
+                            assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+                        break
+                assert attr_matches, 'ERROR: attribute: ' + str(measure_name) + " not found in: " + str(contextElement['attributes'])
     is_timestamp=False
     for attr in contextElement['attributes']:
         if attr ['name'] == "TimeInstant":
@@ -76,10 +194,22 @@ def check_measure(asset_name, measures, timestamp={}):
             break
     assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
     if world.def_entity:
-            asset_name = DEF_ENTITY_TYPE + ':' + asset_name
-            world.thing = DEF_ENTITY_TYPE
-    assert assetElement == "{}".format(asset_name), 'ERROR: ' + str(contextElement)
-    assert typeElement == world.thing, 'ERROR: ' + str(contextElement)
+            device_name = DEF_ENTITY_TYPE + ':' + device
+            ent_type = DEF_ENTITY_TYPE
+    else:
+        device_name=device
+        ent_type=world.thing
+    if entity_name:
+        device_name = entity_name
+    else:
+        if entity_type:
+            device_name = entity_type + ":" + device
+    if entity_type:
+        ent_type = entity_type
+    assert assetElement == "{}".format(device_name), 'ERROR: id: ' + str(device_name) + " not found in: " + str(contextElement)
+    print 'ID: ' + str(assetElement)
+    assert typeElement == ent_type, 'ERROR: ' + ent_type + ' type expected, ' + typeElement + ' received'
+    print 'TYPE: ' + str(typeElement)
 
 @step('"([^"]*)" measures of asset "([^"]*)" are received by context broker')
 def check_measures_cbroker(step, num_measures, asset_name):
@@ -190,7 +320,7 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
                         assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
                     assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
                     if (world.field == "timestamp"):
-                        assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st2) + " not found in: " + str(attr['metadatas'][0])   
+                        assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
                     else:
                         assert str(world.st) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
                     break
@@ -333,6 +463,19 @@ def check_timestamp (timestamp):
                 return True
             else:
                 return False        
+
+def check_attribute (contextElement, name, typ, value):
+    attr_matches=False
+    for attr in contextElement['attributes']:
+        if str(name) == attr['name']:
+            print 'Compruebo atributo {} y {} en {}'.format(name,value,attr)
+            assert attr['type'] == str(typ), 'ERROR: type: ' + str(typ) + " not found in: " + str(attr)
+            assert attr['value'] == str(value), 'ERROR: value: ' + str(value) + " not found in: " + str(attr)
+            assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: TimeInstant metadata not found in: ' + str(attr)
+            assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+            attr_matches=True
+            break
+    assert attr_matches, 'ERROR: attribute: ' + str(name) + " not found in: " + str(contextElement['attributes'])
 
     def service_created(self, service_name, service_path={}, resource={}):
         headers = {}

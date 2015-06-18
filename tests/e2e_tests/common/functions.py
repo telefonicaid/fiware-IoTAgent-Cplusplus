@@ -14,6 +14,12 @@ URLTypes = {
     "IoTMqtt": "/iot/mqtt"
 }
 
+ProtocolTypes = {
+    "IoTUL2": "PDI-IoTA-UltraLight",
+    "IoTTT": "PDI-IoTA-ThinkingThings",
+    "IoTMqtt": "PDI-IoTA-MQTT-UltraLight"
+}
+
 class Functions(object):
     world.service_exists = False
     world.service_path_exists = False
@@ -277,9 +283,9 @@ class Functions(object):
 
     def device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
-        if not self.device_created(world.service_name, device_id):
+        if not iotagent.device_created(world.service_name, device_id):
             prot = ProtocolTypes.get(protocol)
-            device = self.create_device(world.service_name, device_id, {}, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
+            device = iotagent.create_device(world.service_name, device_id, {}, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
             assert device.status_code == 201, 'Error al crear el device {} '.format(device_id)
             print 'Device {} creado '.format(device_id)
         else:
@@ -313,7 +319,7 @@ class Functions(object):
                         for path in dirty[srv]:
                             if dirty[srv][path].__contains__('device'):
                                 for device in dirty[srv][path]['device']:
-                                    req_device = iotagent.delete_device(device,srv,path)
+                                    req_device = iotagent.delete_device_with_params(device,srv,path)
                                     if req_device.status_code == 204:
                                         print 'Se ha borrado el device:{} del servicio:{} y path:{}'.format(device,srv,path) 
                                     else:
@@ -321,7 +327,7 @@ class Functions(object):
                     else:
                         if dirty[srv].__contains__('device'):
                             for device in dirty[srv]['device']:
-                                req_device = iotagent.delete_device(device,srv)
+                                req_device = iotagent.delete_device_with_params(device,srv)
                                 if req_device.status_code == 204:
                                     print 'Se ha borrado el device ' + str(device) + ' del servicio ' + str(srv)
                                 else:

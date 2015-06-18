@@ -7,16 +7,16 @@ Feature: UL20 Observation Send
     	@iot_ul20 @IDAS-18478
     	Scenario Outline: Send a single observation
 		Given a service with name "<service>" and protocol "<protocol>" created
-		When I send a measure to the GW with apikey, id "<device_name>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
-		Then the measure of asset "<device_name>" with measures "<generated_measures>" and timestamp "<timestamp>" is received by context broker
+		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
+		Then the measure of asset "<device_id>" with measures "<generated_measures>" and timestamp "<timestamp>" is received by context broker
 		
 		Examples:
-            |device_name |service		|protocol	|alias	|value		|timestamp				|generated_measures	|
-            |device_ul1	 |serviceul20	|IoTUL2		|t		|23			|						|<alias>:<value>	|
-            |device_ul2	 |serviceul20	|IoTUL2		|a		|stop		|						|<alias>:<value>	|
-            |device_ul3  |serviceul20	|IoTUL2		|p		|false		|						|<alias>:<value>	|
-            |device_ul4	 |serviceul20	|IoTUL2		|l		|23.1/2.3	|						|<alias>:<value>	|
-            |device_ul5  |serviceul20	|IoTUL2		|t		|35			|2014-11-07T10:22:03Z	|<alias>:<value>	|
+            |device_id	|service		|protocol	|alias	|value		|timestamp				|generated_measures	|
+            |device_ul1	|serviceul20	|IoTUL2		|t		|23			|						|<alias>:<value>	|
+            |device_ul2	|serviceul20	|IoTUL2		|a		|stop		|						|<alias>:<value>	|
+            |device_ul3 |serviceul20	|IoTUL2		|p		|false		|						|<alias>:<value>	|
+            |device_ul4	|serviceul20	|IoTUL2		|l		|23.1/2.3	|						|<alias>:<value>	|
+            |device_ul5 |serviceul20	|IoTUL2		|t		|35			|2014-11-07T10:22:03Z	|<alias>:<value>	|
             
 
         @iot_ul20 @IDAS-18480
@@ -46,7 +46,6 @@ Feature: UL20 Observation Send
 		Given a service with name "<service>" and protocol "<protocol>" created
 		When I send a wrong measure to the GW with apikey, id "<device_name>", protocol "<protocol>", alias "<alias2>", value "<value>", timestamp "<timestamp>" and wrong field "<field>" 
 		Then the measure of asset "<device_name>" with measures "<generated_measures>" is received or NOT by context broker
-#		And the measure of asset "<device_name>" with phenom "<alias2>" and value "<value>" is received or NOT by context broker
 		
 		Examples:
             |device_name |service		|protocol	|alias2	|value		|field			|timestamp				|generated_measures	|
@@ -63,14 +62,14 @@ Feature: UL20 Observation Send
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", protocol "<protocol>", entity type "<ent_type>" and entity name "<ent_name>" created
 		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
-		Then the measure of asset "<device_id>" with phenom "<alias>", entity_type "<ent_type>", entity_name "<ent_name>" and value "<value>" is received by context broker
+		Then the measure of asset "<device_id>" with entity_type "<ent_type>", entity_name "<ent_name>" and measures "<generated_measures>" is received by context broker
 		
 		Examples:
-            |device_id 		|service		|protocol	|alias	|value		|ent_type	|ent_name	|timestamp	|
-            |device_ul14	|serviceul20	|IoTUL2		|t		|70			|thing14	|room14		|			|
-            |device_ul15	|serviceul20	|IoTUL2		|t		|80			|			|room15		|			|
-            |device_ul16	|serviceul20	|IoTUL2		|t		|90			|thing16	|			|			|
-            |device_ul17	|serviceul20	|IoTUL2		|t		|100		|			|			|			|
+            |device_id 		|service		|protocol	|alias	|value		|ent_type	|ent_name	|timestamp	|generated_measures	|
+            |device_ul14	|serviceul20	|IoTUL2		|t		|70			|thing14	|room14		|			|<alias>:<value>	|
+            |device_ul15	|serviceul20	|IoTUL2		|t		|80			|			|room15		|			|<alias>:<value>	|
+            |device_ul16	|serviceul20	|IoTUL2		|t		|90			|thing16	|			|			|<alias>:<value>	|
+            |device_ul17	|serviceul20	|IoTUL2		|t		|100		|			|			|			|<alias>:<value>	|
 
 
     	@iot_ul20 @IDAS-20358
@@ -78,16 +77,16 @@ Feature: UL20 Observation Send
 		Given a service with name "<service>" and protocol "<protocol>" created
 		And a device with device id "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
 		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
-		Then the measure of asset "<device_id>" with phenom "<alias>" and value "<value>" and attributes are received by context broker
+		Then the measure of asset "<device_id>" with measures "<generated_measures>" and attributes are received by context broker
 		
 		Examples:
-            |device_id 		|service		|protocol	|alias	|value	|typ		|name	|type	|value1	|typ2		|name2		|type2	|value2		|timestamp	|
-            |device_ul18	|serviceul20	|IoTUL2		|t		|10		|dev_attr	|temp1	|int	|t1		|dev_attr	|hum		|int2	|h			|			|
-            |device_ul18	|serviceul20	|IoTUL2		|t1		|20		|dev_attr	|temp1	|int	|t1		|dev_attr	|hum		|int2	|h			|			|
-            |device_ul18	|serviceul20	|IoTUL2		|h		|90		|dev_attr	|temp1	|int	|t1		|dev_attr	|hum		|int2	|h			|			|
-            |device_ul19	|serviceul20	|IoTUL2		|t		|11		|dev_attr	|temp1	|int	|t1		|dev_st_att	|h			|int2	|100		|			|
-            |device_ul19	|serviceul20	|IoTUL2		|t1		|21		|dev_attr	|temp1	|int	|t1		|dev_st_att	|h			|int2	|100		|			|
-            |device_ul20	|serviceul20	|IoTUL2		|t		|12		|dev_st_att	|t1		|int	|30		|dev_st_att	|h			|int2	|100		|			|
+            |device_id 		|service		|protocol	|alias	|value	|typ		|name	|type	|value1	|typ2		|name2		|type2	|value2		|timestamp	|generated_measures	|
+            |device_ul18	|serviceul20	|IoTUL2		|t		|10		|dev_attr	|temp1	|int	|t1		|dev_attr	|hum		|int2	|h			|			|<alias>:<value>	|
+            |device_ul18	|serviceul20	|IoTUL2		|t1		|20		|dev_attr	|temp1	|int	|t1		|dev_attr	|hum		|int2	|h			|			|<alias>:<value>	|
+            |device_ul18	|serviceul20	|IoTUL2		|h		|90		|dev_attr	|temp1	|int	|t1		|dev_attr	|hum		|int2	|h			|			|<alias>:<value>	|
+            |device_ul19	|serviceul20	|IoTUL2		|t		|11		|dev_attr	|temp1	|int	|t1		|dev_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul19	|serviceul20	|IoTUL2		|t1		|21		|dev_attr	|temp1	|int	|t1		|dev_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul20	|serviceul20	|IoTUL2		|t		|12		|dev_st_att	|t1		|int	|30		|dev_st_att	|h			|int2	|100		|			|<alias>:<value>	|
 
 
     	@iot_ul20 @IDAS-20399
@@ -95,26 +94,26 @@ Feature: UL20 Observation Send
 		Given a service with name "<service>", protocol "<protocol>" and atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
 		And a device with device id "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
 		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
-		Then the measure of asset "<device_id>" with phenom "<alias>" and value "<value>" and attributes are received by context broker
+		Then the measure of asset "<device_id>" with measures "<generated_measures>" and attributes are received by context broker
 		
 		Examples:
-            |device_id 		|service		|protocol	|alias	|value	|typ		|name	|type	|value1	|typ2		|name2		|type2	|value2		|timestamp	|
-            |device_ul21	|serviceul20_0	|IoTUL2		|t		|10		|srv_attr	|temp1	|int	|t1		|srv_attr	|hum		|int2	|h			|			|
-            |device_ul21	|serviceul20_0	|IoTUL2		|t1		|20		|srv_attr	|temp1	|int	|t1		|srv_attr	|hum		|int2	|h			|			|
-            |device_ul21	|serviceul20_0	|IoTUL2		|h		|90		|srv_attr	|temp1	|int	|t1		|srv_attr	|hum		|int2	|h			|			|
-            |device_ul22	|serviceul20_1	|IoTUL2		|t		|11		|srv_attr	|temp1	|int	|t1		|srv_st_att	|h			|int2	|100		|			|
-            |device_ul22	|serviceul20_1	|IoTUL2		|t1		|21		|srv_attr	|temp1	|int	|t1		|srv_st_att	|h			|int2	|100		|			|
-            |device_ul23	|serviceul20_2	|IoTUL2		|t		|12		|srv_st_att	|t1		|int	|30		|srv_st_att	|h			|int2	|200		|			|
-            |device_ul24	|serviceul20_0	|IoTUL2		|t		|31		|dev_attr	|temp2	|int	|t2		|dev_attr	|hum2		|int2	|h			|			|
-            |device_ul24	|serviceul20_0	|IoTUL2		|t1		|32		|srv_attr	|temp1	|int	|t1		|dev_attr	|hum2		|int2	|h			|			|
-            |device_ul24	|serviceul20_0	|IoTUL2		|t2		|33		|dev_attr	|temp2	|int	|t2		|dev_attr	|hum2		|int2	|h			|			|
-            |device_ul24	|serviceul20_0	|IoTUL2		|h		|91		|dev_attr	|temp2	|int	|t2		|dev_attr	|hum2		|int2	|h			|			|
-            |device_ul25	|serviceul20_1	|IoTUL2		|t		|41		|dev_attr	|temp2	|int	|t2		|srv_st_att	|h			|int2	|100		|			|
-            |device_ul25	|serviceul20_1	|IoTUL2		|t1		|42		|srv_attr	|temp1	|int	|t1		|srv_st_att	|h			|int2	|100		|			|
-            |device_ul25	|serviceul20_1	|IoTUL2		|t2		|43		|dev_attr	|temp2	|int	|t2		|srv_st_att	|h			|int2	|100		|			|
-            |device_ul26	|serviceul20_1	|IoTUL2		|t		|51		|dev_st_att	|t2		|int	|50		|srv_st_att	|h			|int2	|100		|			|
-            |device_ul27	|serviceul20_1	|IoTUL2		|t		|61		|dev_attr	|temp2	|int	|t1		|dev_st_att	|h			|int2	|300		|			|
-            |device_ul27	|serviceul20_1	|IoTUL2		|t1		|62		|dev_attr	|temp2	|int	|t1		|dev_st_att	|h			|int2	|300		|			|
-            |device_ul28	|serviceul20_2	|IoTUL2		|t		|72		|dev_st_att	|t1		|int	|70		|srv_st_att	|h			|int2	|200		|			|
-            |device_ul29	|serviceul20_2	|IoTUL2		|t		|82		|dev_st_att	|t1		|int	|80		|dev_st_att	|h			|int2	|800		|			|
+            |device_id 		|service		|protocol	|alias	|value	|typ		|name	|type	|value1	|typ2		|name2		|type2	|value2		|timestamp	|generated_measures	|
+            |device_ul21	|serviceul20_0	|IoTUL2		|t		|10		|srv_attr	|temp1	|int	|t1		|srv_attr	|hum		|int2	|h			|			|<alias>:<value>	|
+            |device_ul21	|serviceul20_0	|IoTUL2		|t1		|20		|srv_attr	|temp1	|int	|t1		|srv_attr	|hum		|int2	|h			|			|<alias>:<value>	|
+            |device_ul21	|serviceul20_0	|IoTUL2		|h		|90		|srv_attr	|temp1	|int	|t1		|srv_attr	|hum		|int2	|h			|			|<alias>:<value>	|
+            |device_ul22	|serviceul20_1	|IoTUL2		|t		|11		|srv_attr	|temp1	|int	|t1		|srv_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul22	|serviceul20_1	|IoTUL2		|t1		|21		|srv_attr	|temp1	|int	|t1		|srv_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul23	|serviceul20_2	|IoTUL2		|t		|12		|srv_st_att	|t1		|int	|30		|srv_st_att	|h			|int2	|200		|			|<alias>:<value>	|
+            |device_ul24	|serviceul20_0	|IoTUL2		|t		|31		|dev_attr	|temp2	|int	|t2		|dev_attr	|hum2		|int2	|h			|			|<alias>:<value>	|
+            |device_ul24	|serviceul20_0	|IoTUL2		|t1		|32		|srv_attr	|temp1	|int	|t1		|dev_attr	|hum2		|int2	|h			|			|<alias>:<value>	|
+            |device_ul24	|serviceul20_0	|IoTUL2		|t2		|33		|dev_attr	|temp2	|int	|t2		|dev_attr	|hum2		|int2	|h			|			|<alias>:<value>	|
+            |device_ul24	|serviceul20_0	|IoTUL2		|h		|91		|dev_attr	|temp2	|int	|t2		|dev_attr	|hum2		|int2	|h			|			|<alias>:<value>	|
+            |device_ul25	|serviceul20_1	|IoTUL2		|t		|41		|dev_attr	|temp2	|int	|t2		|srv_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul25	|serviceul20_1	|IoTUL2		|t1		|42		|srv_attr	|temp1	|int	|t1		|srv_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul25	|serviceul20_1	|IoTUL2		|t2		|43		|dev_attr	|temp2	|int	|t2		|srv_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul26	|serviceul20_1	|IoTUL2		|t		|51		|dev_st_att	|t2		|int	|50		|srv_st_att	|h			|int2	|100		|			|<alias>:<value>	|
+            |device_ul27	|serviceul20_1	|IoTUL2		|t		|61		|dev_attr	|temp2	|int	|t1		|dev_st_att	|h			|int2	|300		|			|<alias>:<value>	|
+            |device_ul27	|serviceul20_1	|IoTUL2		|t1		|62		|dev_attr	|temp2	|int	|t1		|dev_st_att	|h			|int2	|300		|			|<alias>:<value>	|
+            |device_ul28	|serviceul20_2	|IoTUL2		|t		|72		|dev_st_att	|t1		|int	|70		|srv_st_att	|h			|int2	|200		|			|<alias>:<value>	|
+            |device_ul29	|serviceul20_2	|IoTUL2		|t		|82		|dev_st_att	|t1		|int	|80		|dev_st_att	|h			|int2	|800		|			|<alias>:<value>	|
                                     
