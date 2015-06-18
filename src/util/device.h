@@ -177,7 +177,7 @@ struct Device : public virtual Timer {
     return _name;
   }
 
-  std::string get_real_name(const boost::property_tree::ptree service_info& service_ptree)
+  std::string get_real_name(const boost::property_tree::ptree& service_ptree)
   const {
 
     std::string entity_type("thing");
