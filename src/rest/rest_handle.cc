@@ -226,7 +226,8 @@ std::string iota::RestHandle::get_public_ip() {
     public_ip.append(":");
     public_ip.append(boost::lexical_cast<std::string>(my_port));
   }
-  if (!public_ip.empty() && public_ip.find("http://", 0, 7) == std::string::npos) {
+  if (!public_ip.empty()
+      && public_ip.find("http://", 0, 7) == std::string::npos) {
     public_ip.insert(0, "http://");
   }
   return public_ip;
@@ -369,8 +370,15 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
   double tr_in = get_payload_length(http_request_ptr);
   tr_in += get_query_length(http_request_ptr);
   IoTValue v((*stat)[iota::types::STAT_TRAFFIC_IN], tr_in);
-
-
+  /* Uncomment for SSL
+  IOTA_LOG_DEBUG(m_logger, SSL_get_verify_result(tcp_conn->get_ssl_socket().native_handle()));
+  X509* client_certificate = SSL_get_peer_certificate(tcp_conn->get_ssl_socket().native_handle());
+  if (client_certificate != NULL) {
+    char subject_name[256];
+    X509_NAME_oneline(X509_get_subject_name(client_certificate), reinterpret_cast<char*>(subject_name), 256);
+    IOTA_LOG_DEBUG(m_logger, subject_name);
+  }
+  */
   // Add header to trace
   http_request_ptr->add_header(iota::types::HEADER_TRACE_MESSAGES,
                                riot_uuid(get_resource()));
@@ -1167,8 +1175,9 @@ void iota::RestHandle::send_http_response(pion::http::response_writer_ptr&
   double tr_out = get_payload_length(writer->get_response());
   IoTValue v_out((*stat)[iota::types::STAT_TRAFFIC_OUT], tr_out);
   int status_code = writer->get_response().get_status_code();
-  writer->get_response().set_status_message(iota::Configurator::instance()->getHttpMessage(
-                                       status_code));
+  writer->get_response().set_status_message(
+    iota::Configurator::instance()->getHttpMessage(
+      status_code));
   writer->write_no_copy(response_buffer);
   //writer->write_no_copy(pion::http::types::STRING_CRLF);
   //writer->write_no_copy(pion::http::types::STRING_CRLF);
