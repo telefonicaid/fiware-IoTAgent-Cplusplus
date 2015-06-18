@@ -319,7 +319,7 @@ int iota::ContextBrokerCommunicator::send_updateContext(
   const std::string& opSTR) {
   IOTA_LOG_DEBUG(m_logger,
                  "send_updateContext "<< command_name << " " << command_att <<
-                 " " << value << " " <<  item_dev->get_real_name() << " " <<
+                 " " << value << " " <<  item_dev->get_real_name(service) << " " <<
                  item_dev->_entity_type);
   std::string cb_response;
   iota::RiotISO8601 mi_hora;

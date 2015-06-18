@@ -174,18 +174,33 @@ struct Device : public virtual Timer {
     return _name;
   }
 
-  std::string get_real_name() const {
-    if (_entity_name.empty()) {
-      if (_entity_type.empty()){
-        return "thing:"+_name;
-      }else{
-        return _entity_type+":"+_name;
-      }
+  std::string get_real_name(const boost::property_tree::ptree& service_ptree) const {
+  {
+
+  std::string entity_type("thing");
+  std::string entity_id(_name);
+
+    if (!_entity_type.empty() &&
+        _entity_type.compare(iota::store::types::DEFAULT) != 0) {
+      //  used entity_type defined in device
+      entity_type.assign(_entity_type);
+    }
+    else if (!service_entity_type.empty()) {
+        entity_type = service_entity_type;
+    }
+    // Entity name (default is entity_type:device_id)
+    if (!_entity_name.empty() &&
+        _entity_name.compare(iota::store::types::DEFAULT) != 0) {
+      //  used entity_type defined in device
+      entity_id.assign(_entity_name);
     }
     else {
-      return _entity_name;
+      entity_id.assign(entity_type + ":" + _name);
     }
+
+    return entity_id;
   }
+
 
   std::string get_attribute(std::string object_id) {
     return _attributes[object_id];
