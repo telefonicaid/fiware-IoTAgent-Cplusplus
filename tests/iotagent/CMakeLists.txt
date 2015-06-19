@@ -18,6 +18,9 @@ target_link_libraries(mongo_tests iotmock iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
 # OAuth: general functions to check oauth privileges
 add_executable(oauth_tests oauthTest.cc oauth_test.cc)
 target_link_libraries(oauth_tests iotmock iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
+# TCP: test a simple plugin by tcp
+add_executable(tcp_tests tcpTest.cc tcp_test.cc)
+target_link_libraries(tcp_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
 
 ### Administration APIs
 # API reference for IotAgent adminitration

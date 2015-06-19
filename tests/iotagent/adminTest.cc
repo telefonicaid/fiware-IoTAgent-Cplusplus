@@ -42,6 +42,7 @@
 #include "services/admin_service.h"
 
 #define PATH_CONFIG "../../tests/iotagent/config_mongo.json"
+#define PATH_CONFIG_WITH_AUTH "../../tests/iotagent/config_auth.json"
 
 #define  IOTASSERT_MESSAGE(x,y) \
          std::cout << "@" << __LINE__ << "@" << x << std::endl; \
@@ -1813,7 +1814,7 @@ void AdminTest::testConversionMap() {
 
 void AdminTest::testAuthInfo() {
   std::cout << "Start testAuthInfo" << std::endl;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_WITH_AUTH);
   std::map<std::string, std::string> to_map;
   conf->get("oauth", to_map);
 

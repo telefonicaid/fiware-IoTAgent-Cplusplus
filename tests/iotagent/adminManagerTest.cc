@@ -278,6 +278,7 @@ AdminManagerTest::AdminManagerTest() {
   pion::process::initialize();
 
   admMgm = new iota::AdminManagerService();
+  admMgm->set_timeout(5);
 
   AdminService_ptr = admMgm;
   AdminService_ptr->add_service("/iot/res", AdminService_ptr);
@@ -386,6 +387,12 @@ void AdminManagerTest::testGetEndpointsFromDevices() {
               std::endl;
   }
 
+  // Test bad json
+  std::string bad_devices("{\"devices\": [");
+  CPPUNIT_ASSERT_THROW_MESSAGE("Resolve endpoints with bad json ",
+                               manager_service.resolve_endpoints(v_endpoints_devices, bad_devices, "s1", "/ss1"),
+                               iota::IotaException);
+
   std::cout << "Test: END" << std::endl;
 
 }
@@ -399,6 +406,7 @@ void AdminManagerTest::testAddDevicesToEndpoints() {
 
 
   iota::AdminManagerService manager_service;
+  manager_service.set_timeout(5);
   std::cout << "testAddDevicesToEndpoints: STARTING... " << std::endl;
   std::map<std::string, std::string> h;
   http_mock->set_response(200, "{}", h);
