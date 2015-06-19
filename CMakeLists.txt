@@ -248,6 +248,8 @@ add_test(NAME CBCommTest COMMAND cb_comm_tests)
 add_test(NAME MongoTest COMMAND mongo_tests)
 # OAuth: general functions to check oauth privileges
 add_test(NAME OAuthTest COMMAND oauth_tests)
+# TCP: simple test to check tcp plugin
+add_test(NAME TcpTest COMMAND tcp_tests)
 
 ### Administration APIs
 # API reference for IotAgent adminitration
