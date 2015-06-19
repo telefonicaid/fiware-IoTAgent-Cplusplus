@@ -1,7 +1,7 @@
-from iotqautils.gtwRest import Rest_Utils_SBC
 from iotqautils.iota_utils import Rest_Utils_IoTA
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT
+from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,PATH_UL20_SIMULATOR,DEF_TYPE
 from lettuce import world
+import time, datetime, requests
 
 iotagent = Rest_Utils_IoTA(server_root=IOT_SERVER_ROOT+'/iot', cbroker=CBROKER_URL)
 iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot', cbroker=CBROKER_URL)
@@ -293,6 +293,32 @@ class Functions(object):
         world.remember[world.service_name].setdefault('device', set())
         world.remember[world.service_name]['device'].add(device_id)
         world.device_exists = True
+
+    def device_with_commands_precond(self, device_id, device_name, protocol, cmd_name, cmd_value, endpoint={}, ent_type={}):
+        if endpoint:
+            if endpoint=='void':
+                endpoint={}
+            else:
+                if not "http://" in endpoint:
+                    endpoint = CBROKER_URL + endpoint
+        else:
+            endpoint =  CBROKER_URL+PATH_UL20_SIMULATOR      
+        if cmd_value:
+            replaces = {
+                "#": "|"
+            }
+            for kreplace in replaces:
+                cmd_value = cmd_value.replace(kreplace,replaces[kreplace])
+            command=[
+                     {
+                      "name": cmd_name,
+                      "type": 'command',
+                      "value": cmd_value
+                      }
+                     ]
+            self.device_precond(device_id, endpoint, protocol, command, device_name, ent_type)
+            world.device_name=device_name
+        world.device_id=device_id
        
     def device_of_service_precond(self, service_name, service_path, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}, protocol={}, manager={}):
         world.device_id = device_id
@@ -310,6 +336,188 @@ class Functions(object):
         world.remember[service_name][service_path2].setdefault('device', set())
         world.remember[service_name][service_path2]['device'].add(device_id)
         world.device_exists = True
+
+    def check_measure(self, device, measures, timestamp={}, entity_type={}, entity_name={}, are_attrs=False):
+        time.sleep(1)
+        print measures
+        req =  requests.get(CBROKER_URL+"/last")
+        response = req.json()
+        assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
+        print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
+        #print 'Ultima medida recibida {}'.format(response)
+        contextElement = response['contextElements'][0]
+        assetElement = contextElement['id']
+        #print 'Dispositivo {}'.format(assetElement)
+        typeElement = contextElement['type']
+        #print 'Dispositivo {}'.format(typeElement)
+        for i in measures.split('#'):
+                d = dict([i.split(':')]) 
+                measure_name=str(d.items()[0][0])
+                measure_value=str(d.items()[0][1])
+                metadata_value=""
+                if  "/" in measure_value:
+                    if not measure_name=='l':
+                        d2 = dict([measure_value.split('/')])
+                        measure_value=str(d2.items()[0][0])
+                        metadata_value=str(d2.items()[0][1])
+                if are_attrs:
+                    attrs=0
+                    if ('attr' in world.typ1) & (measure_name==world.value1):
+                        self.check_attribute(contextElement, world.name1, world.type1, measure_value)
+                    elif ('attr' in world.typ2) & (measure_name==world.value2):
+                        self.check_attribute(contextElement, world.name2, world.type2, measure_value)
+                    else:
+                        self.check_attribute(contextElement, measure_name, DEF_TYPE, measure_value)
+                    attrs+=1
+                    if 'st_att' in world.typ1:
+                        self.check_attribute(contextElement, world.name1, world.type1, world.value1)
+                        attrs+=1
+                    if 'st_att' in world.typ2:
+                        self.check_attribute(contextElement, world.name2, world.type2, world.value2)
+                else:
+                    attr_matches=False
+                    for attr in contextElement['attributes']:
+                        if str(measure_name) == attr['name']:
+                            print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
+                            assert attr['value'] == str(measure_value), 'ERROR: value: ' + str(measure_value) + " not found in: " + str(attr)
+                            attr_matches=True
+                            if metadata_value:
+                                assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
+                                assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
+                            assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
+                            if timestamp:
+                                assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
+                            else:
+                                assert self.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+                            break
+                    assert attr_matches, 'ERROR: attribute: ' + str(measure_name) + " not found in: " + str(contextElement['attributes'])
+        is_timestamp=False
+        for attr in contextElement['attributes']:
+            if attr ['name'] == "TimeInstant":
+                print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
+                if timestamp:
+                    assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
+                else:
+                    assert self.check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
+                is_timestamp=True
+                break
+        assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
+        if world.def_entity:
+                device_name = DEF_ENTITY_TYPE + ':' + device
+                ent_type = DEF_ENTITY_TYPE
+        else:
+            device_name=device
+            ent_type=world.thing
+        if entity_name:
+            device_name = entity_name
+        else:
+            if entity_type:
+                device_name = entity_type + ":" + device
+        if entity_type:
+            ent_type = entity_type
+        assert assetElement == "{}".format(device_name), 'ERROR: id: ' + str(device_name) + " not found in: " + str(contextElement)
+        print 'ID: ' + str(assetElement)
+        assert typeElement == ent_type, 'ERROR: ' + ent_type + ' type expected, ' + typeElement + ' received'
+        print 'TYPE: ' + str(typeElement)
+
+    
+    def check_command_cbroker(self, asset_name, status, response={}, entity_type={}):
+        time.sleep(1)
+        timeinstant=1
+        if response:
+            replaces = {
+                    "#": "|"
+            }
+            for kreplace in replaces:
+                response = response.replace(kreplace,replaces[kreplace])
+        req =  requests.get(CBROKER_URL+"/last")
+        cmd_name=str(world.cmd_name)+"_status"
+        print "Voy a comprobar el STATUS del Comando: " + str(cmd_name)
+        resp = req.json()
+        assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
+        print 'Compruebo la cabecera {} con valor {} en last'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
+        contextElement = resp['contextElements'][0]
+        assetElement = contextElement['id']
+        valueElement = contextElement['attributes'][0]['value']
+        nameElement = contextElement['attributes'][0]['name']
+        assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
+        typeElement = contextElement['type']
+        if entity_type:
+            ent_type = entity_type
+        else:
+            ent_type = DEF_ENTITY_TYPE
+        assert typeElement == ent_type, 'ERROR: ' + ent_type + ' type expected, ' + typeElement + ' received'
+        print 'TYPE: ' + str(typeElement)
+        assert nameElement == cmd_name, 'ERROR: ' + cmd_name + ' name expected, ' + nameElement + ' received'
+        assert status in valueElement, 'ERROR: ' + status + ' value expected, ' + valueElement + ' received'
+        assert contextElement['attributes'][0]['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(contextElement['attributes'][0]['metadatas'][0])
+        assert self.check_timestamp(contextElement['attributes'][0]['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][0]['metadatas'][0])
+        if response:
+            cmd_name=str(world.cmd_name)+"_info"
+            print "Voy a comprobar el INFO del Comando: " + str(cmd_name)
+            valueElement = contextElement['attributes'][1]['value']
+            nameElement = contextElement['attributes'][1]['name']
+            assert nameElement == cmd_name, 'ERROR: ' + cmd_name + ' name expected, ' + nameElement + ' received'
+            assert response in valueElement, 'ERROR: ' + response + ' value expected, ' + valueElement + ' received'
+            assert contextElement['attributes'][1]['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(contextElement['attributes'][1]['metadatas'][0])
+            assert self.check_timestamp(contextElement['attributes'][1]['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][1]['metadatas'][0])
+            timeinstant+=1
+        nameTime = contextElement['attributes'][timeinstant]['name']
+        assert nameTime == "TimeInstant", 'ERROR: ' + "TimeInstant" + ' name expected, ' + nameTime + ' received'
+        assert self.check_timestamp(contextElement['attributes'][timeinstant]['value']), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][timeinstant])
+    
+    def check_NOT_command_cbroker(self, asset_name, response, cmd_type):
+        time.sleep(1)
+        if cmd_type == "Status":
+            req =  requests.get(CBROKER_URL+"/lastStatus")
+        else:
+            req =  requests.get(CBROKER_URL+"/lastInfo")
+        resp = req.json()
+        assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
+        print 'Compruebo la cabecera {} con valor {} en last{}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER],cmd_type)
+        contextElement = resp['contextElements'][0]
+        assetElement = contextElement['id']
+        assert assetElement != "{}".format(asset_name), 'ERROR: device: ' + str(asset_name) + " found in: " + str(contextElement)
+        print "Command is NOT received"
+        if world.code==4000:
+            resp = world.req_text
+            assert response in resp
+            return
+        if world.code:
+            resp = world.req_text['contextResponses'][0]
+            assert resp['statusCode']['code'] == str(world.code), 'ERROR: code error expected ' + str(world.code) + " received " + str(resp['statusCode']['code'])
+            if world.response:
+                assert resp['statusCode']['reasonPhrase'] == str(world.response), 'ERROR: text error expected ' + str(world.response) + " received " + resp['statusCode']['reasonPhrase']
+            else:
+                assert resp['statusCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['statusCode']['reasonPhrase']
+    
+    def check_timestamp (self, timestamp):
+        st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
+        if st in timestamp:
+            return True
+        else:
+            st = datetime.datetime.utcfromtimestamp(world.ts+1).strftime('%Y-%m-%dT%H:%M:%S')
+            if st in timestamp:
+                return True
+            else:
+                st = datetime.datetime.utcfromtimestamp(world.ts-1).strftime('%Y-%m-%dT%H:%M:%S')
+                if st in timestamp:
+                    return True
+                else:
+                    return False        
+    
+    def check_attribute (self, contextElement, name, typ, value):
+        attr_matches=False
+        for attr in contextElement['attributes']:
+            if str(name) == attr['name']:
+                print 'Compruebo atributo {} y {} en {}'.format(name,value,attr)
+                assert attr['type'] == str(typ), 'ERROR: type: ' + str(typ) + " not found in: " + str(attr)
+                assert attr['value'] == str(value), 'ERROR: value: ' + str(value) + " not found in: " + str(attr)
+                assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: TimeInstant metadata not found in: ' + str(attr)
+                assert self.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+                attr_matches=True
+                break
+        assert attr_matches, 'ERROR: attribute: ' + str(name) + " not found in: " + str(contextElement['attributes'])
 
     def clean(self,dirty):
         if world.service_exists:

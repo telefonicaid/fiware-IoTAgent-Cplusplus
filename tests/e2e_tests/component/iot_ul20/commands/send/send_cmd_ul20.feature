@@ -28,12 +28,12 @@ Feature: UL20 Command Send
 		
 		Examples:
             |device_id	|device_name |service		|protocol	|command		|value			|cmd_value		|endpoint	|response			|status						|ent_type	|
-            |dev6		|room6		 |serviceul20	|IoTUL2		|attr_1_dev_6	|ping6			|dev6@%s		|			|ping6_OK			|OK							|			|
-            |dev6_0		|room6_0	 |serviceul20	|IoTUL2		|attr_1_dev_6_0	|ping6_0		|dev6_0@%s		|			|ping6_0_measure	|OK							|			|
-            |dev6_1		|room6_1	 |serviceul20	|IoTUL2		|attr_1_dev_6_1	|ping6_1#p1=v1	|dev6_1@%s#%s	|			|ping6_1_OK			|OK							|			|
-            |dev6_2		|room6_2	 |serviceul20	|IoTUL2		|attr_1_dev_6_2	|ping6_2		|dev6_2@%s		|			|					|delivered but no respond	|			|
-            |dev6_3		|room6_3	 |serviceul20	|IoTUL2		|attr_1_dev_6_3	|ping6_3		|dev6_3@%s		|			|ping6_3_expired	|delivered but no respond	|			|
-            |dev6_4		|room6_4	 |serviceul20	|IoTUL2		|attr_1_dev_6_4	|ping6_4		|dev6_4@%s		|			|not_read			|expired read				|			|
+            |dev6		|room6		 |serviceul20	|IoTUL2		|attr_1_dev_6	|ping6			|dev6@%s		|void		|ping6_OK			|OK							|			|
+            |dev6_0		|room6_0	 |serviceul20	|IoTUL2		|attr_1_dev_6_0	|ping6_0		|dev6_0@%s		|void		|ping6_0_measure	|OK							|			|
+            |dev6_1		|room6_1	 |serviceul20	|IoTUL2		|attr_1_dev_6_1	|ping6_1#p1=v1	|dev6_1@%s#%s	|void		|ping6_1_OK			|OK							|			|
+            |dev6_2		|room6_2	 |serviceul20	|IoTUL2		|attr_1_dev_6_2	|ping6_2		|dev6_2@%s		|void		|					|delivered but no respond	|			|
+            |dev6_3		|room6_3	 |serviceul20	|IoTUL2		|attr_1_dev_6_3	|ping6_3		|dev6_3@%s		|void		|ping6_3_expired	|delivered but no respond	|			|
+            |dev6_4		|room6_4	 |serviceul20	|IoTUL2		|attr_1_dev_6_4	|ping6_4		|dev6_4@%s		|void		|not_read			|expired read				|			|
 
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20169
     	Scenario Outline: Send a wrong command

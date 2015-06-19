@@ -1,9 +1,8 @@
 from lettuce import step, world
 from iotqautils.iota_utils import Rest_Utils_IoTA
 from common.functions import Functions
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM,DEF_TYPE
-from lettuce import world
-import time, datetime, requests
+from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
+import time, requests
 
 iotagent = Rest_Utils_IoTA(server_root=IOT_SERVER_ROOT+'/iot')
 functions = Functions()
@@ -15,6 +14,7 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot')
 def service_created_precond(step, service_name, protocol):
     if protocol:
         world.service_name = service_name
+        world.protocol = protocol
         functions.service_precond(service_name, protocol)
 
 @step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
@@ -112,104 +112,33 @@ def device_with_attributes_created_precond(step, device_id, protocol, typ1, typ2
     functions.device_precond(device_id, {}, protocol, {}, {}, {}, attributes, st_attributes)
     world.device_id=device_id
 
+@step('a device with device id "([^"]*)", device name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+def device_with_commands_created_precond(step, device_id, device_name, protocol, cmd_name, cmd_value):
+    functions.device_with_commands_precond(device_id, device_name, protocol, cmd_name, cmd_value, {}, {})
+
+@step('a device with device id "([^"]*)", device name "([^"]*)", endpoint "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+def device_with_endpoint_created_precond(step, device_id, device_name, endpoint, protocol, cmd_name, cmd_value):
+    functions.device_with_commands_precond(device_id, device_name, protocol, cmd_name, cmd_value, endpoint, {})
+
+@step('a device with device id "([^"]*)", entity type "([^"]*)", entity name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+def device_with_cmds_entity_values_created_precond(step, device_id, ent_type, ent_name, protocol, cmd_name, cmd_value):
+    functions.device_with_commands_precond(device_id, ent_name, protocol, cmd_name, cmd_value, {}, ent_type)
+
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received by context broker')
 def check_measure_cbroker(step, asset_name, measures):
-    check_measure(asset_name, measures)
+    functions.check_measure(asset_name, measures)
 
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" and timestamp "([^"]*)" is received by context broker')
 def check_measure_cbroker_timestamp(step, asset_name, measures, timestamp):
-    check_measure(asset_name, measures, timestamp)
+    functions.check_measure(asset_name, measures, timestamp)
 
 @step('the measure of asset "([^"]*)" with entity_type "([^"]*)", entity_name "([^"]*)" and measures "([^"]*)" is received by context broker')
 def check_measure_cbroker_entity(step, asset_name, entity_type, entity_name, measures):
-    check_measure(asset_name, measures, {}, entity_type, entity_name)
+    functions.check_measure(asset_name, measures, {}, entity_type, entity_name)
 
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" and attributes are received by context broker')
 def check_measure_cbroker_with_attributes(step, asset_name, measures):
-    check_measure(asset_name, measures, {}, {}, {}, True)
-
-def check_measure(device, measures, timestamp={}, entity_type={}, entity_name={}, are_attrs=False):
-    time.sleep(1)
-    print measures
-    req =  requests.get(CBROKER_URL+"/last")
-    response = req.json()
-    assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
-    print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
-    #print 'Ultima medida recibida {}'.format(response)
-    contextElement = response['contextElements'][0]
-    assetElement = contextElement['id']
-    #print 'Dispositivo {}'.format(assetElement)
-    typeElement = contextElement['type']
-    #print 'Dispositivo {}'.format(typeElement)
-    for i in measures.split('#'):
-            d = dict([i.split(':')]) 
-            measure_name=str(d.items()[0][0])
-            measure_value=str(d.items()[0][1])
-            metadata_value=""
-            if  "/" in measure_value:
-                if not measure_name=='l':
-                    d2 = dict([measure_value.split('/')])
-                    measure_value=str(d2.items()[0][0])
-                    metadata_value=str(d2.items()[0][1])
-            if are_attrs:
-                attrs=0
-                if ('attr' in world.typ1) & (measure_name==world.value1):
-                    check_attribute(contextElement, world.name1, world.type1, measure_value)
-                elif ('attr' in world.typ2) & (measure_name==world.value2):
-                    check_attribute(contextElement, world.name2, world.type2, measure_value)
-                else:
-                    check_attribute(contextElement, measure_name, DEF_TYPE, measure_value)
-                attrs+=1
-                if 'st_att' in world.typ1:
-                    check_attribute(contextElement, world.name1, world.type1, world.value1)
-                    attrs+=1
-                if 'st_att' in world.typ2:
-                    check_attribute(contextElement, world.name2, world.type2, world.value2)
-            else:
-                attr_matches=False
-                for attr in contextElement['attributes']:
-                    if str(measure_name) == attr['name']:
-                        print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
-                        assert attr['value'] == str(measure_value), 'ERROR: value: ' + str(measure_value) + " not found in: " + str(attr)
-                        attr_matches=True
-                        if metadata_value:
-                            assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
-                            assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
-                        assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
-                        if timestamp:
-                            assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
-                        else:
-                            assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
-                        break
-                assert attr_matches, 'ERROR: attribute: ' + str(measure_name) + " not found in: " + str(contextElement['attributes'])
-    is_timestamp=False
-    for attr in contextElement['attributes']:
-        if attr ['name'] == "TimeInstant":
-            print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
-            if timestamp:
-                assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
-            else:
-                assert check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
-            is_timestamp=True
-            break
-    assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
-    if world.def_entity:
-            device_name = DEF_ENTITY_TYPE + ':' + device
-            ent_type = DEF_ENTITY_TYPE
-    else:
-        device_name=device
-        ent_type=world.thing
-    if entity_name:
-        device_name = entity_name
-    else:
-        if entity_type:
-            device_name = entity_type + ":" + device
-    if entity_type:
-        ent_type = entity_type
-    assert assetElement == "{}".format(device_name), 'ERROR: id: ' + str(device_name) + " not found in: " + str(contextElement)
-    print 'ID: ' + str(assetElement)
-    assert typeElement == ent_type, 'ERROR: ' + ent_type + ' type expected, ' + typeElement + ' received'
-    print 'TYPE: ' + str(typeElement)
+    functions.check_measure(asset_name, measures, {}, {}, {}, True)
 
 @step('"([^"]*)" measures of asset "([^"]*)" are received by context broker')
 def check_measures_cbroker(step, num_measures, asset_name):
@@ -227,12 +156,9 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
     response = req.json()
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
-    #print 'Ultima medida recibida {}'.format(response)
     contextElement = response['contextElements'][0]
     assetElement = contextElement['id']
-    #print 'Dispositivo {}'.format(assetElement)
     typeElement = contextElement['type']
-    #print 'Dispositivo {}'.format(typeElement)
     for measures_dict in step.hashes:
         measures = measures_dict['generated_measures']
         print measures
@@ -262,7 +188,7 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
                         if timestamp:
                             assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
                         else:
-                            assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+                            assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
                         break
     assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
     is_timestamp=False
@@ -272,13 +198,13 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
             if timestamp:
                 assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
             else:
-                assert check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
+                assert functions.check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
             is_timestamp=True
             break
     assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
     if world.def_entity:
-            asset_name = DEF_ENTITY_TYPE + ':' + asset_name
-            world.thing = DEF_ENTITY_TYPE
+        asset_name = DEF_ENTITY_TYPE + ':' + asset_name
+        world.thing = DEF_ENTITY_TYPE
     assert assetElement == "{}".format(asset_name), 'ERROR: ' + str(contextElement)
     assert typeElement == world.thing, 'ERROR: ' + str(contextElement)
 
@@ -320,7 +246,7 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
                         assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
                     assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
                     if (world.field == "timestamp"):
-                        assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
+                        assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
                     else:
                         assert str(world.st) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
                     break
@@ -330,7 +256,7 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
             if attr ['name'] == "TimeInstant":
                 print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
                 if world.field == "timestamp":
-                    assert check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
+                    assert functions.check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
                 else:
                     assert str(world.st) == attr['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
                 is_timestamp=True
@@ -361,7 +287,6 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
     assetElement = contextElement['id']
     typeElement = contextElement['type']
     assert typeElement == world.thing, 'ERROR: ' + str(contextElement)
-#    if world.are_measures:
     if int(num_measures)>0:
         measures_dict=step.hashes[0]
         measures = measures_dict['generated_measures']
@@ -426,6 +351,40 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
         assert assetElement != "{}".format(asset_name), 'ERROR: device: ' + str(asset_name) + " found in: " + str(contextElement)
         print "Measures are NOT received"
                 
+@step('the command of device "([^"]*)" with response "([^"]*)" and status "([^"]*)" is received by context broker')
+def check_status_info(step, asset_name, response, status):
+    world.response={}
+    if status=='OK':
+        functions.check_command_cbroker(asset_name, status, response)
+    else:
+        if response:
+            world.response=status
+            functions.check_command_cbroker(asset_name, status)
+            functions.check_NOT_command_cbroker(asset_name, response, "Info")
+
+@step('the command of device "([^"]*)" with response "([^"]*)" and status "([^"]*)" is received or NOT by context broker')
+def check_wrong_status_info(step, asset_name, response, status):
+    world.response={}
+    if status != "fail":
+        functions.check_command_cbroker(asset_name, status, response)
+    else:
+        functions.check_NOT_command_cbroker(asset_name, response, "Status")
+        functions.check_NOT_command_cbroker(asset_name, response, "Info")
+    
+@step('the command of device "([^"]*)" with response "([^"]*)", entity_type "([^"]*)" and status "([^"]*)" is received by context broker')
+def check_status_entity_info(step, asset, response, entity_type, status):
+    if asset:
+        asset_name = asset
+    else:
+        if entity_type:
+            asset_name = entity_type + ":" + world.device_id
+        else:
+            asset_name = DEF_ENTITY_TYPE + ":" + world.device_id
+    if entity_type:
+        functions.check_command_cbroker(asset_name, status, response, entity_type)
+    else:
+        functions.check_command_cbroker(asset_name, status, response)
+    
 @step('a SMS to telephone "([^"]*)" is received by SMPP Host')
 def check_sms(step, tel_number):
     time.sleep(1)
@@ -448,34 +407,6 @@ def check_NOT_sms(step, tel_number):
     else:
         assert response['to'] != "tel:"+tel_number, 'ERROR: telephone number: ' + tel_number + " found in: " + str(response['to'])
         print "SMS is NOT received"
-
-def check_timestamp (timestamp):
-    st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
-    if st in timestamp:
-        return True
-    else:
-        st = datetime.datetime.utcfromtimestamp(world.ts+1).strftime('%Y-%m-%dT%H:%M:%S')
-        if st in timestamp:
-            return True
-        else:
-            st = datetime.datetime.utcfromtimestamp(world.ts-1).strftime('%Y-%m-%dT%H:%M:%S')
-            if st in timestamp:
-                return True
-            else:
-                return False        
-
-def check_attribute (contextElement, name, typ, value):
-    attr_matches=False
-    for attr in contextElement['attributes']:
-        if str(name) == attr['name']:
-            print 'Compruebo atributo {} y {} en {}'.format(name,value,attr)
-            assert attr['type'] == str(typ), 'ERROR: type: ' + str(typ) + " not found in: " + str(attr)
-            assert attr['value'] == str(value), 'ERROR: value: ' + str(value) + " not found in: " + str(attr)
-            assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: TimeInstant metadata not found in: ' + str(attr)
-            assert check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
-            attr_matches=True
-            break
-    assert attr_matches, 'ERROR: attribute: ' + str(name) + " not found in: " + str(contextElement['attributes'])
 
     def service_created(self, service_name, service_path={}, resource={}):
         headers = {}
