@@ -101,7 +101,6 @@ AdminManagerTest::POST_PROTOCOLS3("{\"iotagent\": \"host2\","
                                   "\"service\": \"service2\","
                                   "\"service_path\": \"/ssrv2\","
                                   "\"token\": \"token2\","
-                                  "\"cbroker\": \"http://127.0.0.1:1026\","
                                   "\"resource\": \"/iot/d\","
                                   "\"entity_type\": \"thing\""
                                   "}]}");
