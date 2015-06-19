@@ -30,6 +30,7 @@ set(IOTAGENT_LIBS "")
 
 include(ExternalProject)
 
+if(IOT_ROOT)
 ExternalProject_Add(boost PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/boost
 	URL http://sourceforge.net/projects/boost/files/boost/1.55.0/boost_1_55_0.tar.bz2/download
 	BUILD_IN_SOURCE 1
@@ -39,6 +40,9 @@ ExternalProject_Add(boost PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/boost
 	INSTALL_COMMAND ""
 	)
 set(BOOST_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/boost)
+else()
+set(BOOST_DIRECTORY ${IOT_ROOT}/boost)
+endif(IOT_ROOT)
 set(Boost_INCLUDE_DIRS ${BOOST_DIRECTORY}/include)
 set(Boost_LIBRARY_DIRS ${BOOST_DIRECTORY}/lib)
 include_directories(${Boost_INCLUDE_DIRS})
@@ -53,6 +57,7 @@ set(INSTALL_BOOST "cp -P ${Boost_LIBRARY_DIRS}/libboost_date_time.so* %{buildroo
 
 # Log4cplus
 # It use logger library recommended in Pion Library.
+if(IOT_ROOT)
 set(LOG4CPLUS_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus)
 ExternalProject_Add(logger-log4cplus PREFIX
 		${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus
@@ -63,6 +68,9 @@ ExternalProject_Add(logger-log4cplus PREFIX
 	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/log4cplus
 	INSTALL_COMMAND make install
 	)
+else()
+set(LOG4CPLUS_DIRECTORY ${IOT_ROOT}/log4cplus)
+endif(IOT_ROOT)
 
 set(LOG4CPLUS_INCLUDE_DIR ${LOG4CPLUS_DIRECTORY}/include)
 set(LOG4CPLUS_LIBS_DIR ${LOG4CPLUS_DIRECTORY}/lib)
@@ -73,6 +81,7 @@ include_directories(${LOG4CPLUS_INCLUDE_DIR})
 link_directories(${LOG4CPLUS_LIBS_DIR})
 
 # Pion
+if(IOT_ROOT)
 set(PION_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion)
 ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/pion
 	URL http://downloads.sourceforge.net/project/pion/5.0.6/pion-5.0.6.tar.bz2
@@ -84,6 +93,10 @@ ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_C
 	BUILD_IN_SOURCE 1
 	INSTALL_COMMAND make install
 	)
+else()
+set(PION_DIRECTORY ${IOT_ROOT}/pion)
+endif(IOT_ROOT)
+
 set(Pion_LIBS_DIR ${PION_DIRECTORY}/lib)
 set(Pion_INCLUDE_DIR ${PION_DIRECTORY}/include)
 set(Pion_LIBRARIES pion)
@@ -94,6 +107,7 @@ set(INSTALL_PION ${Pion_LIBS_DIR}/lib${Pion_LIBRARIES}*.so)
 
 
 # MongoDB driver
+if(IOT_ROOT)
 set(MONGODB_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver)
 ExternalProject_Add(mongo-driver PREFIX
 		${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
@@ -111,6 +125,10 @@ ExternalProject_Add(mongo-driver PREFIX
   --sharedclient install
 	INSTALL_COMMAND ""
 	)
+else()
+set(MONGODB_DIRECTORY ${IOT_ROOT}/mongo-driver)
+endif(IOT_ROOT)
+
 set(MongoDB_INCLUDE_DIR ${MONGODB_DIRECTORY}/include)
 set(MongoDB_LIBS_DIR ${MONGODB_DIRECTORY}/lib)
 set(MongoDB_LIBRARIES mongoclient)
@@ -121,10 +139,15 @@ set(INSTALL_MONGOCLIENT ${MongoDB_LIBS_DIR}/lib${MongoDB_LIBRARIES}.so)
 
 
 # rapidjson
+if(IOT_ROOT)
 include_directories(third_party/rapidjson/include)
+else()
+include_directories(${IOT_ROOT}//rapidjson/include)
+endif(IOT_ROOT)
 
 # Mosquitto
 if (MQTT)
+if(IOT_ROOT)
 set(WITH_CARES ON)
 if (WITH_CARES)
       ExternalProject_Add(libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0 CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0/configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares BUILD_COMMAND ${MAKE})
@@ -135,6 +158,10 @@ else()
       ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 CMAKE_ARGS -DWITH_SRV=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt)
 endif()
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5/lib/cpp)
+else()
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5/lib/cpp)
+endif(IOT_ROOT)
 
 set(MOSQUITTO_FOUND TRUE)
 set(IOTAGENT_LIBS ${IOTAGENT_LIBS})
@@ -144,6 +171,7 @@ include_directories(${MOSQUITTO_LIBS_DIR}/include)
 endif()
 
 # Cppunit
+if(IOT_ROOT)
 set(CPPUNIT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit)
 ExternalProject_Add(test-cppunit PREFIX
 	${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit
@@ -155,6 +183,10 @@ ExternalProject_Add(test-cppunit PREFIX
 	BUILD_COMMAND make
 	INSTALL_COMMAND make install
 	)
+else()
+set(CPPUNIT_DIRECTORY ${IOT_ROOT}/cppunit)
+endif(IOT_ROOT)
+
 set(CPPUNIT_LIBS_DIR ${CPPUNIT_DIRECTORY}/lib)
 set(CPPUNIT_INCLUDE_DIR ${CPPUNIT_DIRECTORY}/include)
 set(CPPUNIT_LIBRARIES cppunit)
