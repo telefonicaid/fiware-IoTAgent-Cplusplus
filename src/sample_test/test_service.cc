@@ -45,6 +45,13 @@ iota::TestService::~TestService() {
   IOTA_LOG_DEBUG(m_logger, "Destructor iota::TestService::TestService");
 }
 
+iota::ProtocolData iota::TestService::get_protocol_data() {
+  iota::ProtocolData protocol_data;
+  protocol_data.description = "test Protocol";
+  protocol_data.protocol = "PDI-IoTA-test";
+  return protocol_data;
+}
+
 void iota::TestService::start() {
   IOTA_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
 
