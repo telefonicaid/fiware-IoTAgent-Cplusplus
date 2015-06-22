@@ -72,9 +72,12 @@ int main(int argc, char* argv[]) {
   typedef std::vector<std::pair<std::string, std::string> >   ServiceOptionsType;
   ServiceOptionsType service_options;
   iota::Configurator* conf_iotagent = NULL;
-  // parse command line: determine port number, RESOURCE and WEBSERVICE
-  boost::asio::ip::tcp::endpoint cfg_endpoint(boost::asio::ip::tcp::v4(),
-      DEFAULT_PORT);
+
+  boost::asio::ip::tcp::endpoint cfg_endpoint;
+  // Default
+  cfg_endpoint.port(DEFAULT_PORT);
+  cfg_endpoint.address(boost::asio::ip::address::from_string(ZERO_IP));
+
   std::string service_config_file;
   std::string resource_name;
   std::string service_name;

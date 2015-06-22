@@ -216,12 +216,14 @@ std::string iota::RestHandle::get_public_ip() {
   }
   if (public_ip.empty()) {
     // Own endpoint to register
+		/*
     boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
       AdminService_ptr->get_web_server()->get_endpoint();
-
+    */
     std::string my_ip = iota::Configurator::instance()->get_listen_ip();
+    unsigned short my_port =  iota::Configurator::instance()->get_listen_port();
 
-    unsigned short my_port =  my_endpoint.port();
+    //unsigned short my_port =  my_endpoint.port();
     public_ip.append(my_ip);
     public_ip.append(":");
     public_ip.append(boost::lexical_cast<std::string>(my_port));
