@@ -31,16 +31,24 @@
 class SampleTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(SampleTest);
 
-    /*CPPUNIT_TEST(testNormalPOST);
+    CPPUNIT_TEST(testNormalPOST);
     CPPUNIT_TEST(testCommandNormalPOST);
-    CPPUNIT_TEST(testPUSHCommand);*/
+    CPPUNIT_TEST(testPUSHCommand);
     CPPUNIT_TEST(testPollingCommand);
+
+    //SimplePlugingTest
+    CPPUNIT_TEST(testFilter);
+    CPPUNIT_TEST(testGetDevice);
+
+    CPPUNIT_TEST(testRegisterIoTA);
 
     CPPUNIT_TEST_SUITE_END();
 
   public:
     void setUp();
     void tearDown();
+    SampleTest();
+    ~SampleTest();
 
   private:
 
@@ -53,6 +61,14 @@ class SampleTest : public CPPUNIT_NS::TestFixture {
     void testCommandNormalPOST();
     void testPUSHCommand();
     void testPollingCommand();
+
+    void testFilter();
+    void testGetDevice();
+    void testRegisterIoTA();
+
+    pion::http::plugin_server_ptr wserver;
+    pion::one_to_one_scheduler scheduler;
+    iota::TestService* spserv_auth;
 
 };
 
