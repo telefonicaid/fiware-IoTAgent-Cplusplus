@@ -84,6 +84,7 @@ ExternalProject_Add(pion-library DEPENDS boost logger-log4cplus PREFIX ${CMAKE_C
 	BUILD_IN_SOURCE 1
 	INSTALL_COMMAND make install
 	)
+
 set(Pion_LIBS_DIR ${PION_DIRECTORY}/lib)
 set(Pion_INCLUDE_DIR ${PION_DIRECTORY}/include)
 set(Pion_LIBRARIES pion)
@@ -111,6 +112,7 @@ ExternalProject_Add(mongo-driver PREFIX
   --sharedclient install
 	INSTALL_COMMAND ""
 	)
+
 set(MongoDB_INCLUDE_DIR ${MONGODB_DIRECTORY}/include)
 set(MongoDB_LIBS_DIR ${MONGODB_DIRECTORY}/lib)
 set(MongoDB_LIBRARIES mongoclient)
@@ -155,6 +157,7 @@ ExternalProject_Add(test-cppunit PREFIX
 	BUILD_COMMAND make
 	INSTALL_COMMAND make install
 	)
+
 set(CPPUNIT_LIBS_DIR ${CPPUNIT_DIRECTORY}/lib)
 set(CPPUNIT_INCLUDE_DIR ${CPPUNIT_DIRECTORY}/include)
 set(CPPUNIT_LIBRARIES cppunit)
@@ -204,25 +207,38 @@ add_subdirectory(src)
 
 enable_testing()
 add_subdirectory(tests)
-add_test(NAME RestTest COMMAND rest_tests)
+
+###  GENERAL PURPOSE
+# util Test:  general test about  cache, csv, url
+add_test(NAME UtilTest COMMAND util_tests)
+# ngsi Test: tests about ngsi operation
 add_test(NAME NgsiTest COMMAND ngsi_tests)
-add_test(NAME ApiKeyTest COMMAND apikey_tests)
+# CB Communicator: general functions to communicate with Context Broker
 add_test(NAME CBCommTest COMMAND cb_comm_tests)
+# Mongo: general functions to use mongo collections
+add_test(NAME MongoTest COMMAND mongo_tests)
+# OAuth: general functions to check oauth privileges
+add_test(NAME OAuthTest COMMAND oauth_tests)
+# TCP: simple test to check tcp plugin
+add_test(NAME TcpTest COMMAND tcp_tests)
+
+### Administration APIs
+# API reference for IotAgent adminitration
 add_test(NAME AdminTest COMMAND admin_tests)
+# API reference for Iot Manager adminitration
 add_test(NAME AdminManagerTest COMMAND admin_manager_tests)
+
+###  PROTOCOLS
+# Tutorial basic sample protocol
+add_test(NAME SampleTest COMMAND sample_tests)
+# UltraLight protocol
 add_test(NAME Ul20Test COMMAND ul20_tests)
 if(MOSQUITTO_FOUND)
+# MQTT UltraLight protocol
 add_test(NAME MqttTest COMMAND mqtt_tests)
+# Thinking things protocol
 add_test(NAME ttTest COMMAND tt_tests)
 endif()
-add_test(NAME UrlTest COMMAND url_tests)
-add_test(NAME CacheTest COMMAND cache_tests)
-add_test(NAME CsvReaderTest COMMAND csv_tests)
-add_test(NAME OAuthTest COMMAND oauth_tests)
-add_test(NAME SimplePlugingTest COMMAND sp_tests)
-add_test(NAME MongoTest COMMAND mongo_tests)
-add_test(NAME SamplTest COMMAND sample_tests)
-add_test(NAME TcpTest COMMAND tcp_tests)
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/BaseChangeLog.txt BASECHANGELOG)
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/MqttChangeLog.txt MQTTCHANGELOG)
