@@ -30,10 +30,10 @@ Feature: UL20 Observation Send
 			|<valuel>	|<aliasl>	|
 		Then "<num_measures>" measures of asset "<device_name>" are received by context broker
 			|generated_measures |
-			|<aliasa>:<valuea>|
-			|<aliast>:<valuet>|
-			|<aliasp>:<valuep>|
-			|<aliasl>:<valuel>|
+			|<aliasa>:<valuea>	|
+			|<aliast>:<valuet>	|
+			|<aliasp>:<valuep>	|
+			|<aliasl>:<valuel>	|
 		
 		Examples:
 			|device_name	|service		|protocol	|aliast	|valuet	|aliasa	|valuea	|aliasp	|valuep	|aliasl	|valuel		|num_measures |
@@ -49,11 +49,11 @@ Feature: UL20 Observation Send
 		
 		Examples:
             |device_name |service		|protocol	|alias2	|value		|field			|timestamp				|generated_measures	|
-            |device_ul8	 |serviceul20	|IoTUL2		|t		|23			|not_apikey		|						|<alias2>:<value>	|
-            |device_ul9	 |serviceul20	|IoTUL2		|a		|stop		|not_device		|						|<alias2>:<value>	|
-            |device_ul10 |serviceul20	|IoTUL2		|p		|false		|wrong_apikey	|						|<alias2>:<value>	|
-            |device_ul11 |serviceul20	|IoTUL2		|l		|			|not_value		|						|<alias2>:<value>	|
-            |device_ul12 |serviceul20	|IoTUL2		|		|23			|not_alias		|						|<alias2>:<value>	|
+            |device_ul8	 |serviceul20	|IoTUL2		|t		|23			|not_apikey		|						|					|
+            |device_ul9	 |serviceul20	|IoTUL2		|a		|stop		|not_device		|						|					|
+            |device_ul10 |serviceul20	|IoTUL2		|p		|false		|wrong_apikey	|						|					|
+            |device_ul11 |serviceul20	|IoTUL2		|l		|			|not_value		|						|					|
+            |device_ul12 |serviceul20	|IoTUL2		|		|23			|not_alias		|						|					|
             |device_ul13 |serviceul20	|IoTUL2		|t		|55			|timestamp		|2014-11-31T10:22:03Z	|<alias2>:<value>	|
 
 

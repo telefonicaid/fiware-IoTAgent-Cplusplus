@@ -89,47 +89,4 @@ def wait_timeout_period(step, timeout, cmd_type):
     st = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
     print st
     world.st=st
-    world.ts=ts
-    
-@step('And I request the command status')
-def requests_command_status(step):
-    commands = api.get_listCommands(world.service_name, world.asset_name)
-    world.command_id = commands.json()['data'][len(commands.json()['data'])-1]['command_id']
-    world.command = api.get_command(world.service_name, world.asset_name,world.command_id)
- 
-
-@step('Then I receive "([^"]*)" and the parameters "([^"]*)"')
-def check_command_result_with_parameters(step, status, params):
-    params_replaced = params.replace(':','|')
-    assert world.command.json()['data']['status'] == status, 'El comando no se ha enviado correctamente'
-    assert params_replaced in world.command.json()['data']['response'], 'No se han recuperado los parametros correctamente'
-
-
-@step('I request the list of commands detailed')
-def request_list_of_comands(step):
-    params = {"detailed": 1}
-    commands = api.get_listCommands(world.service_name, world.asset_name, {}, params)
-    world.command_list = []
-#As many as command have been specified will be included in the command list
-    for i in range(world.num_commands):
-        world.command_list.append(commands.json()['data'][len(commands.json()['data'])-(int(i)+1)])
- 
- 
-@step('Then I receive "([^"]*)"')
-def check_command_result(step, status):
-    assert world.command.json()['data']['status'] == status, 'El comando no se ha enviado correctamente'
-
-@step('Then I validate "([^"]*)"')
-def check_command_status(step, status):
-    assert world.command.json()['data']['status'] == status, 'El estado del comando no es correcto: ' + str(world.command.json()['data']['status'])
-    
-@step('I receive the list of "([^"]*)" with "([^"]*)"')
-def check_command_list_results(step, command_list, status):
-    for cmd in command_list.split(','):
-        command_exists=False
-        for i in world.command_list:
-            if cmd in i['cmd']:
-                command_exists=True
-                assert i['status'] == status, 'ERROR: El comando {} no tiene el estado {}'.format(cmd,status)
-                break
-        assert command_exists, 'ERROR: El comando {} no se encuentra en la lista de comandos'.format(cmd)    
+    world.ts=ts    

@@ -1,8 +1,8 @@
 from lettuce import before, after, world
-from common.user_steps import UserSteps
+from common.functions import Functions
 
 
-user_steps = UserSteps()
+functions = Functions()
 
 
 @before.all
@@ -12,4 +12,4 @@ def setup():
 
 @after.all
 def clean(total):
-    user_steps.clean(world.remember)
+    functions.clean(world.remember)
