@@ -1355,8 +1355,9 @@ void iota::AdminService::get_info_agent(iota::RestHandle* agent,
 
 
   // Admin no
+	//
   if (agent->get_resource().compare(get_resource()) == 0) {
-    return;
+		IOTA_LOG_DEBUG(m_log, "Stats " << get_resource());
   }
   JsonValue obj_resource;
   obj_resource.SetObject();
@@ -2225,6 +2226,7 @@ void iota::AdminService::check_logs() {
   std::multimap<std::string, std::string> q_p;
   JsonDocument get_agents;
   get_agents.SetObject();
+
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   std::map<std::string, iota::RestHandle*>::const_iterator it =
     _service_manager.begin();
@@ -2239,7 +2241,7 @@ void iota::AdminService::check_logs() {
         get_agents.AddMember("statistics", statistics, get_agents.GetAllocator());
       }
       get_info_agent(agent, q_p, get_agents);
-      agent->reset_counters();
+      //agent->reset_counters();
     }
     ++it;
   }

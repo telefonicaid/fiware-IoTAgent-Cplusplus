@@ -364,6 +364,7 @@ std::string iota::RestHandle::add_url(std::string url,
 
 void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
                                   pion::tcp::connection_ptr& tcp_conn) {
+	IOTA_LOG_DEBUG(m_logger, iota::http2string(*http_request_ptr));
   tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
@@ -1174,8 +1175,8 @@ void iota::RestHandle::send_http_response(pion::http::response_writer_ptr&
   // Response statistic
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
-  double tr_out = get_payload_length(writer->get_response());
-  IoTValue v_out((*stat)[iota::types::STAT_TRAFFIC_OUT], tr_out);
+  //double tr_out = get_payload_length(writer->get_response());
+  IoTValue v_out((*stat)[iota::types::STAT_TRAFFIC_OUT], response_buffer.size());
   int status_code = writer->get_response().get_status_code();
   writer->get_response().set_status_message(
     iota::Configurator::instance()->getHttpMessage(

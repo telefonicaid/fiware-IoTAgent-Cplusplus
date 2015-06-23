@@ -37,7 +37,9 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+#include <boost/bind.hpp>
 #include <sstream>
+#include <algorithm>
 #include <pion/algorithm.hpp>
 namespace iota {
 boost::uuids::random_generator RandomGenerator;
@@ -334,3 +336,34 @@ void iota::check_fiware_service_path_name(std::string&
 };
 void iota::check_name(std::string& name) {
 };
+
+void iota::writeDictionaryTerm(std::ostringstream& os, const pion::ihash_multimap::value_type& val) {
+	os << val.first << ": " << val.second
+		 << pion::http::types::STRING_CRLF;
+}
+
+std::string iota::http2string(pion::http::request& req) {
+	std::ostringstream os;
+	os << "Method: " << req.get_method()
+		 << pion::http::types::STRING_CRLF
+	   << "HTTP Version:  " << req.get_version_major() << "." << req.get_version_minor() 
+		 << pion::http::types::STRING_CRLF
+		 << "Resource requested: "
+	   << req.get_original_resource()
+		 << pion::http::types::STRING_CRLF
+		 << "Resource delivered: " 
+		 << req.get_resource() 
+		 << pion::http::types::STRING_CRLF
+		 << "Query string "
+		 << req.get_query_string()
+		 << pion::http::types::STRING_CRLF
+	   << "Content length: "
+		 << (unsigned long)req.get_content_length()
+		 << pion::http::types::STRING_CRLF
+		 << "Headers: ";
+	std::for_each(req.get_headers().begin(), req.get_headers().end(), boost::bind(&iota::writeDictionaryTerm, boost::ref(os), _1));
+	if (req.get_content_length() != 0) {
+		os << req.get_content();
+	}
+  return os.str();
+}
