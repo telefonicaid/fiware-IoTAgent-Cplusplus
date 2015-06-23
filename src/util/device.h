@@ -26,6 +26,7 @@
 #include "store_const.h"
 #include "rest/riot_conf.h"
 #include <boost/functional/hash.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace iota {
@@ -34,9 +35,9 @@ struct Device : public virtual Timer {
 
   explicit Device(std::string name, std::string service): Timer(),
     _name(name), _service(service) {
-      _active = INT_MIN;
-      _duration_cb = LONG_MIN;
-      _protocol="";
+    _active = INT_MIN;
+    _duration_cb = LONG_MIN;
+    _protocol="";
   };
 
   explicit Device(std::string entity_name, std::string entity_type,
@@ -84,7 +85,8 @@ struct Device : public virtual Timer {
 
     if (dev._duration_cb != LONG_MIN) {
       _duration_cb = dev._duration_cb;
-    }else{
+    }
+    else {
       _duration_cb = LONG_MIN;
     }
 
@@ -105,8 +107,9 @@ struct Device : public virtual Timer {
 
     if (dev._active != INT_MIN) {
       _active = dev._active;
-    }else{
-       _active = INT_MIN;
+    }
+    else {
+      _active = INT_MIN;
     }
   };
 
@@ -174,18 +177,35 @@ struct Device : public virtual Timer {
     return _name;
   }
 
-  std::string get_real_name() const {
-    if (_entity_name.empty()) {
-      if (_entity_type.empty()){
-        return "thing:"+_name;
-      }else{
-        return _entity_type+":"+_name;
-      }
+  std::string get_real_name(const boost::property_tree::ptree& service_ptree)
+  const {
+
+    std::string entity_type("thing");
+    std::string entity_id(_name);
+    std::string service_entity_type = service_ptree.get<std::string>
+                        (iota::store::types::ENTITY_TYPE, "");
+
+    if (!_entity_type.empty() &&
+        _entity_type.compare(iota::store::types::DEFAULT) != 0) {
+      //  used entity_type defined in device
+      entity_type.assign(_entity_type);
+    }
+    else if (!service_entity_type.empty()) {
+      entity_type = service_entity_type;
+    }
+    // Entity name (default is entity_type:device_id)
+    if (!_entity_name.empty() &&
+        _entity_name.compare(iota::store::types::DEFAULT) != 0) {
+      //  used entity_type defined in device
+      entity_id.assign(_entity_name);
     }
     else {
-      return _entity_name;
+      entity_id.assign(entity_type + ":" + _name);
     }
+
+    return entity_id;
   }
+
 
   std::string get_attribute(std::string object_id) {
     return _attributes[object_id];

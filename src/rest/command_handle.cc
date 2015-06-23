@@ -1529,13 +1529,13 @@ void iota::CommandHandle::save_command(const std::string& command_name,
                  " id:" <<  command_id << " service:" << service <<
                  " service_path:" << service_path <<
                  " name:" << command_name <<
-                 " sequence:" << sequence << "device:" << item_dev->get_real_name() <<
+                 " sequence:" << sequence << "device:" << item_dev->get_real_name(service_ptree) <<
                  " endpoint:" << endpoint << "timeout:" << timeout);
 
   boost::shared_ptr<Command> item(new Command(command_id, command_name,
                                   service, service_path,
                                   sequence,
-                                  item_dev->get_real_name() , entity_type, endpoint,
+                                  item_dev->get_real_name(service_ptree) , entity_type, endpoint,
                                   timeout,
                                   "", command_to_send));
   item->set_status(status);
@@ -1580,10 +1580,11 @@ iota::CommandVect iota::CommandHandle::get_all_command(const
     return res;
   }
 
-  IOTA_LOG_DEBUG(m_logger, "get_all_command: " << dev->get_real_name() <<
+  std::string entity_name=dev->get_real_name(service_ptree);
+  IOTA_LOG_DEBUG(m_logger, "get_all_command: " << entity_name <<
                  " service:" <<  service << "  " << service_path);
 
-  boost::shared_ptr<Command> item(new Command(dev->get_real_name(), service,
+  boost::shared_ptr<Command> item(new Command(entity_name, service,
                                   service_path));
   item->set_status(iota::types::READY_FOR_READ);
   //change command status to DELIVERED

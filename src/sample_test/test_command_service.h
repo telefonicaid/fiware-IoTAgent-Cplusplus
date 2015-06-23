@@ -144,6 +144,7 @@ class TestCommandService :
                  pion::http::response& http_response,
                  std::string&response);
 
+    virtual iota::ProtocolData get_protocol_data();
 
   private:
 

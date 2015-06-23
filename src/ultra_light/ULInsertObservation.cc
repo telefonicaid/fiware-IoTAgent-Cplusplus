@@ -82,7 +82,7 @@ void iota::ULInsertObservation::translate(std::string str_io,
   }
 
   if (dev.get() != NULL) {
-    device_name = dev->get_real_name();
+    device_name = dev->get_real_name(service_ptree);
     device_type = dev->_entity_type;
   }
 

@@ -20,7 +20,7 @@
 * please contact with iot_support at tid dot es
 */
 #ifndef SRC_TESTS_ADMIN_MANAGERTEST_H_
-#define	SRC_TESTS_ADMIN_MANAGERTEST_H_
+#define SRC_TESTS_ADMIN_MANAGERTEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -43,11 +43,11 @@
 class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminManagerTest);
 
-  /*  CPPUNIT_TEST(testDeviceToBeAdded);
+    CPPUNIT_TEST(testDeviceToBeAdded);
     CPPUNIT_TEST(testGetEndpointsFromDevices);
-    CPPUNIT_TEST(testAddDevicesToEndpoints);*/
+    CPPUNIT_TEST(testAddDevicesToEndpoints);
     CPPUNIT_TEST(testGetDevices);
-    /*CPPUNIT_TEST(testMultiplePostsWithResponse);
+    CPPUNIT_TEST(testMultiplePostsWithResponse);
     CPPUNIT_TEST(testProtocol_ServiceManagement);
     CPPUNIT_TEST(testBADServiceManagement);
 
@@ -60,17 +60,16 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
 
     CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
-*/
 
     CPPUNIT_TEST_SUITE_END();
 
-public:
+  public:
     AdminManagerTest();
     virtual ~AdminManagerTest();
     void setUp();
     void tearDown();
 
-        static const std::string HOST;
+    static const std::string HOST;
     static const std::string CONTENT_JSON;
 
     static const int POST_RESPONSE_CODE;
@@ -122,25 +121,25 @@ public:
                   std::string& response);
 
 
-protected:
+  protected:
 
-  void testDeviceToBeAdded();
-  void testGetEndpointsFromDevices();
-  void testAddDevicesToEndpoints();
-  void testGetDevices();
-  void testMultiplePostsWithResponse();
-  void testPostJSONDevices();
+    void testDeviceToBeAdded();
+    void testGetEndpointsFromDevices();
+    void testAddDevicesToEndpoints();
+    void testGetDevices();
+    void testMultiplePostsWithResponse();
+    void testPostJSONDevices();
 
-  void testPutJSONDevice_Wrong();
-  void testPutJSONDevice();
+    void testPutJSONDevice_Wrong();
+    void testPutJSONDevice();
 
-  void testPutProtocolDevice();
+    void testPutProtocolDevice();
 
-  void testPostJSONDeviceErrorHandling();
-  void testNoEndpoints_Bug_IDAS20444();
-  void testNoDeviceError_Bug_IDAS20463();
+    void testPostJSONDeviceErrorHandling();
+    void testNoEndpoints_Bug_IDAS20444();
+    void testNoDeviceError_Bug_IDAS20463();
 
-private:
+  private:
     void cleanDB();
 
     void testProtocol_ServiceManagement();
@@ -155,5 +154,5 @@ private:
 
 };
 
-#endif	/* _H */
+#endif  /* _H */
 

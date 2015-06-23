@@ -314,7 +314,7 @@ const std::string iota::ProtocolCollection::_POST_SCHEMA(
   "}"
   "}"
   "}"
-  ",\"required\": [\"service\", \"service_path\", \"apikey\", \"resource\", \"cbroker\"]"
+  ",\"required\": [\"service\", \"service_path\", \"apikey\", \"resource\"]"
   "}"
   "}"
   "}"

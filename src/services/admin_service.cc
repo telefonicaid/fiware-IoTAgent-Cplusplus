@@ -1862,7 +1862,13 @@ int iota::AdminService::post_service_json(
       bo.append(iota::store::types::SERVICE_ID, service);
       bo.append(iota::store::types::SERVICE_PATH, service_path);
       insObj = bo.obj();
-      check_uri(insObj.getStringField(iota::store::types::CBROKER));
+
+      // if cbroker is empty is ok
+      std::string cbroker = insObj.getStringField(iota::store::types::CBROKER);
+      if (!cbroker.empty()) {
+        check_uri(cbroker);
+      }
+
       table->insert(insObj);
     }
     code = pion::http::types::RESPONSE_CODE_CREATED;

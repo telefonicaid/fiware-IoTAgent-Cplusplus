@@ -46,6 +46,13 @@ iota::TestCommandService::~TestCommandService() {
                  "Destructor iota::TestCommandService::TestCommandService");
 }
 
+iota::ProtocolData iota::TestCommandService::get_protocol_data() {
+  iota::ProtocolData protocol_data;
+  protocol_data.description = "test command Protocol";
+  protocol_data.protocol = "PDI-IoTA-test-command";
+  return protocol_data;
+}
+
 void iota::TestCommandService::start() {
   IOTA_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
 
