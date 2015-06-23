@@ -1,7 +1,7 @@
 from lettuce import step, world
-from common.steps import service_created_precond,service_with_attritubes_created_precond,device_with_entity_values_created_precond,device_with_attributes_created_precond,check_measure_cbroker,check_measures_cbroker,check_NOT_measure_cbroker,check_measure_cbroker_entity,check_measure_cbroker_with_attributes
+from common.steps import service_created_precond,service_with_attributes_created_precond,device_with_entity_values_created_precond,device_with_attributes_created_precond,check_measure_cbroker,check_measures_cbroker,check_NOT_measure_cbroker,check_measure_cbroker_entity,check_measure_cbroker_with_attributes
 from iotqautils.gtwMeasures import Gw_Measures_Utils
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,IOT_SERVER_ROOT,UL20_APIKEY,DEF_ENTITY_TYPE,DEF_TYPE
+from common.gw_configuration import CBROKER_URL,IOT_SERVER_ROOT,UL20_APIKEY
 import requests
 import time,datetime
 
@@ -25,13 +25,11 @@ def send_measure(step, device_id, protocol, alias, timestamp, value):
         world.st=st
         world.ts=ts
     measures.append(measure)
-    #print 'protocol: ' + protocol
     if world.service_name:
         apikey = 'apikey_'+world.service_name
     else:
         apikey = UL20_APIKEY
     req = gw.sendMeasure(protocol,apikey,device_id,measures)
-    #print req.status_code + req.ok
     assert req.ok, 'ERROR: ' + req.text
 
 
@@ -52,13 +50,11 @@ def send_measures(step, device_id, protocol):
     world.st=st
     world.ts=ts
     requests.post(CBROKER_URL+"/reset")
-    #apikey=api.get_apikey(world.service_name)
     if world.service_name:
         apikey = 'apikey_'+world.service_name
     else:
         apikey = UL20_APIKEY
     req = gw.sendMeasure(protocol,apikey,device_id,measures)
-    #print req.status_code + req.ok
     assert req.ok, 'ERROR: ' + req.text
         
 
@@ -75,8 +71,6 @@ def send_wrong_measure(step, device_id, protocol, alias, value, timestamp, field
         world.st=st
         world.ts=ts
     measures.append(measure)
-    #print 'protocol: ' + protocol
-    #apikey=api.get_apikey(world.service_name)
     world.field=field
     world.def_entity=True    
     if world.service_name:
@@ -91,7 +85,6 @@ def send_wrong_measure(step, device_id, protocol, alias, value, timestamp, field
         req = gw.sendMeasure(protocol,field,device_id,measures)
     else:
         req = gw.sendMeasure(protocol,apikey,device_id,measures)
-    #print req.status_code + req.ok
     if field:
         if field=="timestamp":
             assert req.ok, 'ERROR: ' + str(req)

@@ -1,4 +1,5 @@
 from lettuce import step, world
+from common.steps import service_not_created_precond,create_service
 from iotqautils.gtwRest import Rest_Utils_SBC
 from common.user_steps import UserSteps
 from common.gw_configuration import IOT_SERVER_ROOT,CBROKER_HEADER,CBROKER_PATH_HEADER
@@ -8,8 +9,8 @@ api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
 user_steps = UserSteps()
 
 
-@step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)" and apikey "([^"]*)" not created')
-def service_not_created(step, service_name, service_path, resource, apikey):
+@step('a Service2 with name "([^"]*)", path "([^"]*)", resource "([^"]*)" and apikey "([^"]*)" not created')
+def service_not_created2(step, service_name, service_path, resource, apikey):
     if user_steps.service_created(service_name, service_path, resource):
         print 'ERROR: El servicio {} ya existe'.format(service_name)
         world.remember.setdefault(service_name, {})
@@ -22,8 +23,8 @@ def service_not_created(step, service_name, service_path, resource, apikey):
             apikey = ""
         world.remember[service_name][service_path]['resource'][resource].setdefault(apikey)
 
-@step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)"')
-def create_service(step,srv_name,srv_path,resource,apikey,cbroker,entity_type,token):
+@step('I create2 a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)"')
+def create_service2(step,srv_name,srv_path,resource,apikey,cbroker,entity_type,token):
     world.typ1 = {}
     world.typ2 = {}
     world.srv_path = srv_path

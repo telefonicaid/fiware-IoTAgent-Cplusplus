@@ -1,18 +1,12 @@
-import time, re, datetime, requests
+import time, re, datetime
 from common.steps import service_created_precond,device_with_commands_created_precond,check_status_info
 from lettuce import step, world
 from iotqautils.cbUtils import CBUtils
-from iotqautils.gtwRest import Rest_Utils_SBC
-from common.user_steps import UserSteps
 from common.gw_mqtt_commands import mqtt_command
 from threading import Thread
-from iotqautils.gtwMeasures import Gw_Measures_Utils
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,GW_HOSTNAME,IOT_PORT,PATH_MQTT_COMMAND,IOT_SERVER_ROOT,DEF_ENTITY_TYPE
+from common.gw_configuration import GW_HOSTNAME,IOT_PORT,PATH_MQTT_COMMAND,DEF_ENTITY_TYPE
 
 cb = CBUtils(instance=GW_HOSTNAME,port=IOT_PORT,path_update=PATH_MQTT_COMMAND)
-api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
-gw = Gw_Measures_Utils(server_root=IOT_SERVER_ROOT)
-user_steps = UserSteps()
 
 def envia_comando(service, entityData):
     time.sleep(3)
@@ -65,7 +59,6 @@ def send_command(step, service, device_id, cmd_name, cmd_type, value):
 def wait_pooling_period(step):
     time.sleep(1)
     apikey='apikey_' + str(world.service_name)
-    #get_message_topic = apikey + '/' + world.device_id + '/cmdget' 
     mqtt_command(apikey, world.device_id, world.cmd_type, world.num_commands)
     ts = time.time()
     st = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')

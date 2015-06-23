@@ -2,11 +2,9 @@ from iotqautils.gtwMqtt import Gw_MQTT_Utils
 from common.steps import service_created_precond,device_with_entity_values_created_precond,device_with_attributes_created_precond,check_measure_cbroker,check_measures_cbroker,check_NOT_measure_cbroker,check_measure_cbroker_entity,check_measure_cbroker_with_attributes
 from lettuce import step, world
 import time, requests, datetime
-from common.gw_configuration import MQTT_BROKER_HOSTNAME,MQTT_BROKER_PORT,CBROKER_URL,CBROKER_HEADER,MQTT_APIKEY,DEF_ENTITY_TYPE,DEF_TYPE
-from common.user_steps import UserSteps
+from common.gw_configuration import MQTT_BROKER_HOSTNAME,MQTT_BROKER_PORT,CBROKER_URL,MQTT_APIKEY
 
 mqtt = Gw_MQTT_Utils(mqtt_host=MQTT_BROKER_HOSTNAME,mqtt_port=MQTT_BROKER_PORT)
-user_steps = UserSteps()
 world.def_entity=True
 
 # Steps
