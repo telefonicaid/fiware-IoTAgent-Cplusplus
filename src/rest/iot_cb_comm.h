@@ -121,6 +121,8 @@ class ContextBrokerCommunicator: public
                                   pion::http::response_ptr resp,
                                   const boost::system::error_code& error);
     app_callback_t _callback;
+
+    static const std::string NUMBER_OF_TRIES;
 };
 };
 #endif
