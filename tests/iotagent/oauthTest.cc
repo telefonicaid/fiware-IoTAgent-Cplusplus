@@ -187,6 +187,38 @@ void OAuthTest::testGetTokenTrust() {
   http_mock->stop();
   std::cout << "END testGetTokenTrust" << std::endl;
 }
+void OAuthTest::testGetTokenTrustNoToken() {
+  std::cout << "START testGetTokenTrustNoToken" << std::endl;
+  boost::shared_ptr<HttpMock> http_mock;
+  http_mock.reset(new HttpMock("/oauth"));
+  http_mock->init();
+  std::string mock_port = boost::lexical_cast<std::string>(http_mock->get_port());
+
+  boost::shared_ptr<boost::asio::io_service> io_service(new
+      boost::asio::io_service());
+
+  std::string endpoint("http://0.0.0.0:"+ mock_port + "/oauth/v3/auth/tokens");
+  std::string trust_token("trust-token");
+  std::string username("iotagent");
+  std::string password("iotagent");
+
+
+  iota::OAuth oauth;
+  oauth.set_timeout(10);
+  oauth.set_oauth_trust(endpoint);
+  oauth.set_trust_token(trust_token);
+  oauth.set_identity(OAUTH_ON_BEHALF_TRUST, username, password);
+  //oauth.set_async_service(io_service);
+
+  std::map<std::string, std::string> h;
+  http_mock->set_response(200, "", h);
+  http_mock->set_response(200, "", h);
+  CPPUNIT_ASSERT(oauth.get_token().compare("x-subject-token") != 0);
+  CPPUNIT_ASSERT(oauth.get_token(401).compare("x-subject-token") != 0);
+  //io_service->run();
+  http_mock->stop();
+  std::cout << "END testGetTokenTrustNoToken" << std::endl;
+}
 
 void OAuthTest::testValidateToken() {
   std::cout << "START testValidateToken" << std::endl;

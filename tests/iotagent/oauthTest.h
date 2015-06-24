@@ -30,12 +30,12 @@ class OAuthTest: public CppUnit::TestFixture  {
 
     CPPUNIT_TEST(testIdentity);
     CPPUNIT_TEST(testGetTokenTrust);
+    CPPUNIT_TEST(testGetTokenTrustNoToken);
     CPPUNIT_TEST(testValidateToken);
     CPPUNIT_TEST(testGetSubservice);
     CPPUNIT_TEST(testGetUserRoles);
     CPPUNIT_TEST(testAccessControl);
     CPPUNIT_TEST(testValidateAsync);
-
     CPPUNIT_TEST_SUITE_END();
   public:
     OAuthTest();
@@ -44,6 +44,7 @@ class OAuthTest: public CppUnit::TestFixture  {
   protected:
     void testIdentity();
     void testGetTokenTrust();
+    void testGetTokenTrustNoToken();
     void testValidateToken();
     void testGetSubservice();
     void testGetUserRoles();
