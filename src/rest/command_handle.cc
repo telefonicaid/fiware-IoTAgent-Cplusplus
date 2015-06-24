@@ -501,6 +501,9 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
 
     while (srv_table.more()) {
       mongo::BSONObj srv_resu =srv_table.next();
+      boost::property_tree::ptree service_ptree;
+      fill_service_with_bson(srv_resu, service_ptree);
+
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
       service_path = srv_resu.getStringField(iota::store::types::SERVICE_PATH);
       iota::ProtocolData protocol_data = get_protocol_data();
@@ -532,8 +535,6 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
           std::string reg_id;
           std::string reg_time;
 
-          boost::property_tree::ptree service_ptree;
-          get_service_by_name(service_ptree, srv);
           boost::shared_ptr<Device> item_dev(new Device(dev_resu));
 
           IOTA_LOG_DEBUG(m_logger, "setting env info");
@@ -600,6 +601,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
   catch (...) {
     IOTA_LOG_ERROR(m_logger, "Error sending registrations");
   }
+  IOTA_LOG_DEBUG(m_logger, "END Registrations ");
 }
 
 void iota::CommandHandle::send_register_device(Device& device) {
