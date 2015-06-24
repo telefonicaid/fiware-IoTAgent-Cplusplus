@@ -491,7 +491,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
 
   try {
     iota::DeviceCollection dev_table;
-    std::string srv, service_path;
+    std::string srv, service_path, protocol;
 
     iota::ServiceCollection srv_table;
 
@@ -502,9 +502,16 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
     while (srv_table.more()) {
       mongo::BSONObj srv_resu =srv_table.next();
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
-      IOTA_LOG_DEBUG(m_logger, "Service: " <<  srv);
+      service_path = srv_resu.getStringField(iota::store::types::SERVICE_PATH);
+      iota::ProtocolData protocol_data = get_protocol_data();
+      protocol = protocol_data.protocol;
+      IOTA_LOG_DEBUG(m_logger, "service:" <<  srv <<
+            " service_path:" << service_path <<
+            " protocol:" << protocol);
 
       Device dev_find("", srv);
+      dev_find._protocol=protocol;
+      dev_find._service_path = service_path;
       dev_table.findd(dev_find);
 
       while (dev_table.more()) {
