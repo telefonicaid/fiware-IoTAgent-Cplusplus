@@ -145,8 +145,6 @@ bool iota::ContextBrokerCommunicator::async_send(std::string url,
       }
     }
 
-    pion::http::request_ptr request = create_request(compound_server, resource,
-                                      content, query, additional_info);
     if (!token.empty() && !oauth.empty()) {
       iota::OAuth oauth_comm;
       oauth_comm.set_oauth_trust(oauth);
@@ -154,8 +152,11 @@ bool iota::ContextBrokerCommunicator::async_send(std::string url,
       oauth_comm.set_trust_token(token);
       oauth_comm.set_identity(OAUTH_ON_BEHALF_TRUST, iotagent_user, iotagent_pass);
       std::string auth_token = oauth_comm.get_token(status_code);
-      request->add_header(iota::types::IOT_HTTP_HEADER_AUTH, auth_token);
+      additional_info.put<std::string>("token", auth_token);
     }
+
+    pion::http::request_ptr request = create_request(compound_server, resource,
+                                      content, query, additional_info);
 
     boost::shared_ptr<iota::HttpClient> http_client(
       new iota::HttpClient(_io_service, server,
@@ -166,7 +167,6 @@ bool iota::ContextBrokerCommunicator::async_send(std::string url,
     int timeout = boost::lexical_cast<int>
                   (additional_info.get<std::string>("timeout", "5"));
     std::string proxy = additional_info.get<std::string>("proxy", "");
-
     http_client->async_send(request, timeout, proxy,
                             boost::bind(&iota::ContextBrokerCommunicator::receive_event,
                                         shared_from_this(), url, content, additional_info, _1, _2, _3));
@@ -232,7 +232,6 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
       oauth_comm.set_trust_token(token);
       oauth_comm.set_identity(OAUTH_ON_BEHALF_TRUST, iotagent_user, iotagent_pass);
       std::string auth_token = oauth_comm.get_token(status_code);
-      //request->add_header(IOT_HTTP_HEADER_AUTH, auth_token);
       additional_info.put<std::string>("token", auth_token);
     }
     pion::http::request_ptr request =
@@ -416,7 +415,7 @@ pion::http::request_ptr iota::ContextBrokerCommunicator::create_request(
   std::string token = additional_info.get<std::string>("token", "");
   IOTA_LOG_DEBUG(m_logger, "IotAgent token " << token);
   if (token.empty() == false) {
-    request->add_header(iota::types::IOT_HTTP_HEADER_AUTH, token);
+    request->change_header(iota::types::IOT_HTTP_HEADER_AUTH, token);
   }
   std::string trace_header = additional_info.get<std::string>
                              (iota::types::HEADER_TRACE_MESSAGES, "");

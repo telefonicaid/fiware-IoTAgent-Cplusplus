@@ -6,6 +6,7 @@
 - FIX IDAS-20529: New service needs context boker information.
 - FIX IDAS-20532: IoTA Manager register needs context broker information.
 - FIX IDAS-20523: Entity creation by new device uses a wrong entity type.
+- FIX IDAS-20537: UL20 agent repeats X-Auth-Token header when it send to CB with authorization.
 - FIX IDAS-20525: Context Broker Communicator tries one more time if unauthorized.
 
 * Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
