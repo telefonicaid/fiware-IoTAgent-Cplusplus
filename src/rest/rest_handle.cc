@@ -851,15 +851,31 @@ bool iota::RestHandle::get_service_by_apiKey(
   return true;
 }
 
+
+void iota::RestHandle::fill_service_with_bson(const mongo::BSONObj& bson,
+      boost::property_tree::ptree& pt){
+
+  int default_timeout = get_default_timeout();
+  std::string default_context_broker = get_default_context_broker();
+  std::string http_proxy = get_http_proxy();
+
+  bson_to_ptree(bson, pt);
+  if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
+    pt.put(iota::store::types::CBROKER, default_context_broker);
+  }
+  if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
+    pt.put(iota::store::types::TIMEOUT, default_timeout);
+  }
+  pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+
+}
+
 int iota::RestHandle::get_service_by_name_bbdd(
   boost::property_tree::ptree& pt,
   const std::string& name,
   const std::string& service_path) {
 
   std::string resource = get_resource();
-  std::string default_context_broker = get_default_context_broker();
-  int default_timeout = get_default_timeout();
-  std::string http_proxy = get_http_proxy();
 
   iota::Collection q1(iota::store::types::SERVICE_TABLE);
   mongo::BSONObjBuilder p2;
@@ -875,14 +891,7 @@ int iota::RestHandle::get_service_by_name_bbdd(
   int code_res = q1.find(p2.obj());
   if (q1.more()) {
     mongo::BSONObj r1 =  q1.next();
-    bson_to_ptree(r1, pt);
-    if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
-      pt.put(iota::store::types::CBROKER, default_context_broker);
-    }
-    if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
-      pt.put(iota::store::types::TIMEOUT, default_timeout);
-    }
-    pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+    fill_service_with_bson(r1, pt);
   }
   else {
     IOTA_LOG_ERROR(m_logger, "get_service_by_name_bbdd no service for "
@@ -920,14 +929,7 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
   int code_res = q1.find(p2.obj());
   if (q1.more()) {
     mongo::BSONObj r1 =  q1.next();
-    bson_to_ptree(r1, pt);
-    if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
-      pt.put(iota::store::types::CBROKER, default_context_broker);
-    }
-    if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
-      pt.put(iota::store::types::TIMEOUT, default_timeout);
-    }
-    pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+    fill_service_with_bson(r1, pt);
   }
   else {
     IOTA_LOG_ERROR(m_logger,
