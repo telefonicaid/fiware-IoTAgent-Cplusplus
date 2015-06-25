@@ -420,7 +420,7 @@ pion::http::request_ptr iota::ContextBrokerCommunicator::create_request(
   std::string trace_header = additional_info.get<std::string>
                              (iota::types::HEADER_TRACE_MESSAGES, "");
   if (!trace_header.empty()) {
-    request->add_header(iota::types::HEADER_TRACE_MESSAGES, trace_header);
+    request->change_header(iota::types::HEADER_TRACE_MESSAGES, trace_header);
   }
   return request;
 }
