@@ -197,6 +197,10 @@ void cbCommTest::testAsyncSend() {
   pt1.put("service", "service");
   boost::property_tree::ptree c1;
   c1.put("timeout", 10);
+  c1.put("token", "MyToken");
+  c1.put("oauth.on_behalf_trust_url", "http://127.0.0.1/auth");
+  c1.put("oauth.on_behalf_user", "iotagent");
+  c1.put("oauth.on_behalf_password", "iotagent");
   pt1.add_child("config.cbroker", c1);
   std::cout << "Async send" << std::endl;
   cb->async_send(url, operation.get_string(), pt1, boost::bind(handler_function,
