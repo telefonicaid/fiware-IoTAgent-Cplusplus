@@ -240,7 +240,6 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
         // Nothing
       }
     }
-
     if (!attr_mapping.empty()) {
       rapidjson::Document d;
 
@@ -275,8 +274,12 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
           mapped_attr.set_value(attribute.get_value());
         }
         std::vector<iota::Attribute> metadata = attribute.get_metadatas();
-        for (int i = 0; i < metadata.size(); i++) {
+        int i = 0;
+        for (i = 0; i < metadata.size(); i++) {
           mapped_attr.add_metadata(metadata[i]);
+        }
+        for (i = 0; i < att.get_metadatas().size(); i++) {
+          mapped_attr.add_metadata(att.get_metadatas()[i]);
         }
         add_attribute(mapped_attr);
       }

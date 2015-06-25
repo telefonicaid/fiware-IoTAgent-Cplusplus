@@ -66,7 +66,7 @@ const unsigned short iota::AdminService::TIME_TO_LOG = 60;
 
 iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
   iota::RestHandle(),
-  _web_server(web_server),
+  //_web_server(web_server),
   _class_name("iota::AdminService"),
   m_log(PION_GET_LOGGER(iota::logger)) {
   IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
@@ -121,10 +121,12 @@ void iota::AdminService::checkIndexes() {
   }
 }
 
+/*
 pion::http::plugin_server_ptr iota::AdminService::get_web_server() {
   boost::shared_ptr<pion::http::plugin_server> w_s = _web_server.lock();
   return w_s;
 }
+*/
 
 void iota::AdminService::set_timezone_database(std::string timezones_file) {
 
@@ -1208,8 +1210,10 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
 
 void iota::AdminService::start_plugin(std::string& resource,
                                       std::string& plugin_name) {
+	/*
   boost::shared_ptr<pion::http::plugin_server> w_s = _web_server.lock();
   w_s->load_service(resource, plugin_name);
+	*/
 }
 
 int iota::AdminService::create_response(
@@ -1351,8 +1355,9 @@ void iota::AdminService::get_info_agent(iota::RestHandle* agent,
 
 
   // Admin no
+	//
   if (agent->get_resource().compare(get_resource()) == 0) {
-    return;
+		IOTA_LOG_DEBUG(m_log, "Stats " << get_resource());
   }
   JsonValue obj_resource;
   obj_resource.SetObject();
@@ -2221,6 +2226,7 @@ void iota::AdminService::check_logs() {
   std::multimap<std::string, std::string> q_p;
   JsonDocument get_agents;
   get_agents.SetObject();
+
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   std::map<std::string, iota::RestHandle*>::const_iterator it =
     _service_manager.begin();
@@ -2235,7 +2241,7 @@ void iota::AdminService::check_logs() {
         get_agents.AddMember("statistics", statistics, get_agents.GetAllocator());
       }
       get_info_agent(agent, q_p, get_agents);
-      agent->reset_counters();
+      //agent->reset_counters();
     }
     ++it;
   }

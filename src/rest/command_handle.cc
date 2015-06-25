@@ -1710,7 +1710,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
 
     init_services_by_resource();
     // Obtaining ip and port from pion
-
+/*
     boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
       AdminService_ptr->get_web_server()->get_endpoint();
     boost::asio::ip::address pru_addr = my_endpoint.address();
@@ -1718,6 +1718,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
     IOTA_LOG_DEBUG(m_logger, "admin service ip: " << my_ip);
     unsigned short my_port =  my_endpoint.port();
     IOTA_LOG_DEBUG(m_logger, "admin service  port: " << my_port);
+		*/
 
     std::string my_resource = url_ngsi_update;
     size_t pos = url_ngsi_update.find("/updateContext");
