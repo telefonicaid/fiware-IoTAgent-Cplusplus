@@ -31,6 +31,9 @@
 namespace iota {
 extern std::string logger;
 }
+
+const std::string iota::ContextBrokerCommunicator::NUMBER_OF_TRIES =
+  "number_of_tries";
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator():
   _connectionManager(new iota::CommonAsyncManager(1)),
   _io_service(*(_connectionManager->get_io_service())),
@@ -64,13 +67,18 @@ void iota::ContextBrokerCommunicator::receive_event(
   boost::shared_ptr<iota::HttpClient> connection,
   pion::http::response_ptr response_ptr,
   const boost::system::error_code& error) {
-  IOTA_LOG_DEBUG(m_logger, "url=" << url << " error=" << error);
+  int number_of_tries = additional_info.get<int>
+                        (iota::ContextBrokerCommunicator::NUMBER_OF_TRIES, 0);
+  IOTA_LOG_DEBUG(m_logger,
+                 "url=" << url << " error=" << error << " tries=" << number_of_tries);
   pion::http::response_ptr response    = connection->get_response();
   if ((!error) && (response.get() != NULL)) {
     std::string cb_response = response->get_content();
     if (response->get_status_code() ==
-        pion::http::types::RESPONSE_CODE_UNAUTHORIZED) {
-
+        pion::http::types::RESPONSE_CODE_UNAUTHORIZED &&
+        number_of_tries < 1) {
+      additional_info.put(iota::ContextBrokerCommunicator::NUMBER_OF_TRIES,
+                          ++number_of_tries);
       bool sending = async_send(url, content, additional_info, _callback,
                                 pion::http::types::RESPONSE_CODE_UNAUTHORIZED);
 
@@ -201,7 +209,8 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
       IOTA_LOG_DEBUG(m_logger, "oauth not found :" << e.what());
     }
   }
-
+  int number_of_tries = additional_info.get<int>
+                        (iota::ContextBrokerCommunicator::NUMBER_OF_TRIES, 0);
   try {
     iota::IoTUrl                 dest(url);
     std::string resource = dest.getPath();
@@ -211,7 +220,8 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
     compound_server.append(":");
     compound_server.append(boost::lexical_cast<std::string>(dest.getPort()));
     IOTA_LOG_DEBUG(m_logger, "send Server:" << server <<
-             "service:" << service << " service_path:" << service_path);
+                   "service:" << service << " service_path:" << service_path << " tries=" <<
+                   number_of_tries);
 
 
     if (!token.empty() && !oauth.empty()) {
@@ -250,7 +260,10 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
   if (response.get() != NULL &&
       !token.empty() &&
       !oauth.empty() &&
-      response->get_status_code() == pion::http::types::RESPONSE_CODE_UNAUTHORIZED) {
+      response->get_status_code() == pion::http::types::RESPONSE_CODE_UNAUTHORIZED &&
+      number_of_tries < 1) {
+    additional_info.put(iota::ContextBrokerCommunicator::NUMBER_OF_TRIES,
+                        ++number_of_tries);
     cb_response = send(url, content, additional_info,
                        pion::http::types::RESPONSE_CODE_UNAUTHORIZED);
   }
@@ -404,7 +417,11 @@ pion::http::request_ptr iota::ContextBrokerCommunicator::create_request(
   if (token.empty() == false) {
     request->change_header(iota::types::IOT_HTTP_HEADER_AUTH, token);
   }
-
+  std::string trace_header = additional_info.get<std::string>
+                             (iota::types::HEADER_TRACE_MESSAGES, "");
+  if (!trace_header.empty()) {
+    request->add_header(iota::types::HEADER_TRACE_MESSAGES, trace_header);
+  }
   return request;
 }
 
