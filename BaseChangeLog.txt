@@ -3,6 +3,7 @@
 - FEATURE IDAS-20507: Add mongo connection pool.
 - FEATURE IDAS-20515: Create entity after provisioning or modifying a device.
 - FEATURE IDAS-20517: IoTA Manager device pagination.
+- FEATURE IDAS-20524: Add metadatas to attributes in device provision.
 - FIX IDAS-20529: New service needs context boker information.
 - FIX IDAS-20532: IoTA Manager register needs context broker information.
 - FIX IDAS-20523: Entity creation by new device uses a wrong entity type.
