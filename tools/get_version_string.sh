@@ -91,8 +91,15 @@ get_rpm_version_string() {
     local version_string ver rel
     version_string=$(git describe --tags --long)
     ver=$(echo $version_string | cut -f1 -d-)
-    rel=$(echo $version_string | cut -f2 -d-)
-    comm=$(echo $version_string | cut -f3 -d-)
+		ko=$(echo $version_string | cut -f2 -d-)
+		if [ "$ko" == "KO" ]; then
+		  rel=$(echo $version_string | cut -f3 -d-)
+		  comm=$(echo $version_string | cut -f4 -d-)
+		else
+		  rel=$(echo $version_string | cut -f2 -d-)
+		  comm=$(echo $version_string | cut -f3 -d-)
+		fi
+
     rel=${rel}-${comm}
     echo "${ver//[[:space:]-\/#]}" "${rel//[-]/.}"
 }
