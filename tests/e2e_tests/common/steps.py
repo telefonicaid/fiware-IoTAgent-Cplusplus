@@ -1,6 +1,6 @@
 from lettuce import step, world
 from iotqautils.iota_utils import Rest_Utils_IoTA
-from common.functions import Functions
+from common.functions import Functions, URLTypes
 from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
 import time, requests
 
@@ -20,51 +20,35 @@ def service_created_precond(step, service_name, protocol):
 @step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def service_with_attributes_created_precond(step, service_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
     world.service_name = service_name
-    attributes=[]
-    st_attributes=[]
-    world.typ1 = typ1
-    world.typ2 = typ2
-    world.name1 = name1
-    world.name2 = name2
-    world.type1 = type1
-    world.type2 = type2
-    world.value1 = value1
-    world.value2 = value2
-    if typ1=='srv_attr':
-        attributes=[
-             {
-              "name": name1,
-              "type": type1,
-              "object_id": value1
-              }
-             ]
-    if typ2=='srv_attr':
-        attribute={
-              "name": name2,
-              "type": type2,
-              "object_id": value2
-              }
-        attributes.append(attribute)
-    if typ1=='srv_st_att':
-        st_attributes=[
-             {
-              "name": name1,
-              "type": type1,
-              "value": value1
-              }
-             ]
-    if typ2=='srv_st_att':
-        st_attribute={
-              "name": name2,
-              "type": type2,
-              "value": value2
-              }
-        st_attributes.append(st_attribute)
-    functions.service_precond(service_name, protocol, attributes, st_attributes)
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ1, typ2, name1, name2, type1, type2, value1, value2)
+    functions.service_precond(service_name, protocol, world.attributes, world.st_attributes)
 
 @step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)" and apikey "([^"]*)" not created')
 def service_not_created_precond(step, service_name, service_path, resource, apikey):
     functions.not_service_precond(service_name, service_path, resource, apikey)
+
+@step('a Service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)" and apikey "([^"]*)" not created')
+def service_not_created_manager_precond(step, service_name, service_path, protocol, apikey):
+    resource = URLTypes.get(protocol)
+    if not resource:
+        print "No hay que buscar servicio"
+        return
+    functions.not_service_precond(service_name, service_path, resource, apikey)
+
+@step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)" and apikey "([^"]*)" created')
+def service_with_params_precond(step, service_name, service_path, resource, apikey):
+    world.service_name = service_name
+    world.srv_path = service_path
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker= 'http://myurl:80'
+    world.entity_type = {}
+    world.token = {}
+    world.typ1 = {}
+    world.typ2 = {}
+    functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
 
 @step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)"')
 def create_service(step,srv_name,srv_path,resource,apikey,cbroker,entity_type,token):
@@ -76,7 +60,69 @@ def create_service(step,srv_name,srv_path,resource,apikey,cbroker,entity_type,to
     world.cbroker = cbroker
     world.entity_type = entity_type
     world.token = token
-    functions.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,entity_type,token)
+    service=functions.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,entity_type,token)
+    assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
+    print 'Se ha creado el servicio {}'.format(srv_name)
+
+@step('I create a service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)"')
+def create_service_manager(step,srv_name,srv_path,protocol,apikey,cbroker,entity_type,token):
+    world.typ1 = {}
+    world.typ2 = {}
+    world.srv_path = srv_path
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = entity_type
+    world.token = token
+    service=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,entity_type,token,{},{},protocol)
+    assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
+    print 'Se ha creado el servicio {}'.format(srv_name)
+
+@step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
+def create_service_with_attrs(step,srv_name,srv_path,resource,apikey,cbroker,typ1, typ2, name1, name2, type1, type2, value1, value2):
+    world.srv_path = srv_path
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = {}
+    world.token = {}
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ1, typ2, name1, name2, type1, type2, value1, value2)
+    service=functions.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,{},{},world.attributes,world.st_attributes)
+    assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
+    print 'Se ha creado el servicio {}'.format(srv_name)
+
+@step('I create a service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
+def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey, cbroker, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    world.srv_path = srv_path
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = {}
+    world.token = {}
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ1, typ2, name1, name2, type1, type2, value1, value2)
+    service=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,{},{},world.attributes,world.st_attributes,protocol)
+    assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
+    print 'Se ha creado el servicio {}'.format(srv_name)
+
+@step('the Service with name "([^"]*)" and path "([^"]*)" is created')
+def service_created(step, service_name, service_path):
+    functions.get_service_created(service_name, service_path, world.resource)
+    functions.check_service_created(1)
+
+@step('I retrieve the service data of "([^"]*)", path "([^"]*)", resource "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
+def get_service_data(step,service_name, service_path, resource, limit, offset):
+    world.req = functions.get_service_created(service_name, service_path, resource, limit, offset)
+    assert world.req.ok, 'ERROR: ' + world.req.text
+
+@step('I receive the service data of "([^"]*)" services')
+def check_service_data(step, num_services):
+    functions.check_service_created(num_services)
 
 @step('a device with device name "([^"]*)" and protocol "([^"]*)" created')    
 def device_created_precond(step, device_name, protocol):
@@ -429,4 +475,4 @@ def check_NOT_sms(step, tel_number):
         print "SMS is received"
     else:
         assert response['to'] != "tel:"+tel_number, 'ERROR: telephone number: ' + tel_number + " found in: " + str(response['to'])
-        print "SMS is NOT received"
+        print "SMS is NOT received"    

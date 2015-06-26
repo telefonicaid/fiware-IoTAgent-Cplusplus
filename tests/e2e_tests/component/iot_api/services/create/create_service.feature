@@ -27,7 +27,7 @@ Feature: API Service Create
 		
 		@iot_api @IDAS-20316 
     	Scenario Outline: Create a service with invalid fields
-		Given a Service with name "<srv_name>", path "<srv_path>", resource "<resource>" and apikey "<apikey>" not created
+#		Given a Service with name "<srv_name>", path "<srv_path>", resource "<resource>" and apikey "<apikey>" not created
 		When I try to create a Service with name "<srv_name>", path "<srv_path>", resource "<resource>", apikey "<apikey>" and cbroker "<cbroker>"
         Then user receives the "<HTTP_code>" and the "<exceptionText>"
 		
@@ -55,10 +55,10 @@ Feature: API Service Create
         Then the Service with name "<srv_name>" and path "<srv_path>" is created
 		
 		Examples:
-			|srv_name	|srv_path			|resource	|apikey			|cbroker			|typ	|name		|type	|value	|typ2	|name2		|type2	|value2		|
-			|srv_post8	|/path_srv_post8	|/iot/d		|srv_postkey8	|http://myurl:80	|attr	|t			|int	|temp	|		|			|		|			|
-			|srv_post8	|/path_srv_post8_0	|/iot/d		|srv_postkey8	|http://myurl:80	|attr	|t1			|int	|temp1	|attr	|h			|int	|hum		|
-			|srv_post8	|/path_srv_post8_1	|/iot/d		|srv_postkey8	|http://myurl:80	|st_att	|t2			|int	|22		|		|			|		|			|
-			|srv_post8	|/path_srv_post8_2	|/iot/d		|srv_postkey8	|http://myurl:80	|st_att	|t3			|int	|33		|st_att	|h3			|int	|333		|
-			|srv_post8	|/path_srv_post8_3	|/iot/d		|srv_postkey8	|http://myurl:80	|attr	|t6			|int	|temp6	|st_att	|h6			|int	|666		|
+			|srv_name	|srv_path			|resource	|apikey			|cbroker			|typ		|name		|type	|value	|typ2		|name2		|type2	|value2		|
+			|srv_post8	|/path_srv_post8	|/iot/d		|srv_postkey8	|http://myurl:80	|srv_attr	|t			|int	|temp	|			|			|		|			|
+			|srv_post8	|/path_srv_post8_0	|/iot/d		|srv_postkey8	|http://myurl:80	|srv_attr	|t1			|int	|temp1	|srv_attr	|h			|int	|hum		|
+			|srv_post8	|/path_srv_post8_1	|/iot/d		|srv_postkey8	|http://myurl:80	|srv_st_att	|t2			|int	|22		|			|			|		|			|
+			|srv_post8	|/path_srv_post8_2	|/iot/d		|srv_postkey8	|http://myurl:80	|srv_st_att	|t3			|int	|33		|srv_st_att	|h3			|int	|333		|
+			|srv_post8	|/path_srv_post8_3	|/iot/d		|srv_postkey8	|http://myurl:80	|srv_attr	|t6			|int	|temp6	|srv_st_att	|h6			|int	|666		|
 			

@@ -29,7 +29,7 @@ class Functions(object):
         world.service_name = service_name
         if not iotagent.service_created(service_name):
             service = iotagent.create_service(service_name, protocol, attributes, static_attributes)
-            assert service.status_code == 201, 'Error al crear el servcio {} '.format(service_name)
+            assert service.status_code == 201, 'Error al crear el servicio {} '.format(service_name)
             print 'Servicio {} creado '.format(service_name)
         else:
             print 'El servicio {} existe '.format(service_name)
@@ -72,25 +72,31 @@ class Functions(object):
 
     def not_service_precond(self, service_name, service_path, resource, apikey):
         if iotagent.service_created(service_name, service_path, resource):
-            print 'ERROR: El servicio {} ya existe'.format(service_name)
-            world.remember.setdefault(service_name, {})
-            if service_path == 'void':
-                service_path='/'
-            world.remember[service_name].setdefault(service_path, {})
-            world.remember[service_name][service_path].setdefault('resource', {})
-            world.remember[service_name][service_path]['resource'].setdefault(resource, {})
-            if not apikey:
-                apikey = ""
-            world.remember[service_name][service_path]['resource'][resource].setdefault(apikey)
-            world.service_exists = True
-            world.service_path_exists = True
+            service=iotagent.delete_service_with_params(service_name, service_path, resource, apikey)
+            assert service.status_code == 204, 'ERROR: ' + service.text + "El servicio {} no se ha borrado correctamente".format(service_name)
+            print 'El servicio {} se ha tenido que borrar'.format(service_name)
+            if iotagent.service_created(service_name, service_path, resource):
+                print 'ERROR: El servicio {} sigue existiendo'.format(service_name)
+                world.remember.setdefault(service_name, {})
+                if service_path == 'void':
+                    service_path='/'
+                world.remember[service_name].setdefault(service_path, {})
+                world.remember[service_name][service_path].setdefault('resource', {})
+                world.remember[service_name][service_path]['resource'].setdefault(resource, {})
+                if not apikey:
+                    apikey = ""
+                world.remember[service_name][service_path]['resource'][resource].setdefault(apikey)
+                world.service_exists = True
+                world.service_path_exists = True
 
-    def create_service_with_params(self, service_name, service_path, resource, apikey, cbroker={}, entity_type={}, token={}, attributes={}, static_attributes={}):
+    def create_service_with_params(self, service_name, service_path, resource={}, apikey={}, cbroker={}, entity_type={}, token={}, attributes={}, static_attributes={}, protocol={}):
         world.protocol={}
         world.service_name = service_name
-        service = iotagent.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token, attributes, static_attributes)
-        assert service.status_code == 201, 'Error al crear el servicio {} '.format(service_name)
-        print 'Servicio {} creado '.format(service_name)
+        if protocol:
+            service = iota_manager.create_service_with_params(service_name, service_path, {}, apikey, cbroker, entity_type, token, attributes, static_attributes, protocol)
+            resource=world.resource
+        else:
+            service = iotagent.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token, attributes, static_attributes)
         if service.status_code == 201 or service.status_code == 409:
             world.remember.setdefault(service_name, {})
             if service_path == 'void':
@@ -103,6 +109,59 @@ class Functions(object):
             world.remember[service_name][service_path]['resource'][resource].setdefault(apikey)
             world.service_exists = True
             world.service_path_exists = True
+        return service
+
+    def get_service_created(self, service_name, service_path, resource, limit={}, offset={}):
+        req =  iotagent.get_service_with_params(service_name, service_path, resource, limit, offset)
+        world.req = req
+        return req
+
+    def check_service_created(self, num_services):
+        attributes=0
+        st_attributes=0
+        res = world.req.json()
+        assert len(res['services']) == int(num_services), 'Error: ' + str(num_services) + ' services expected, ' + str(len(res['services'])) + ' received'
+        if len(res['services'])==1:
+            response = res['services'][0]
+            assert response['service'] == world.service_name, 'Expected Result: ' + world.service_name + '\nObtained Result: ' + response['service']
+            assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
+            if world.srv_path:
+                if world.srv_path == 'void':
+                    assert response['service_path'] == '/', 'Expected Result: ' + '/' + '\nObtained Result: ' + response['service_path']
+                else:
+                    assert response['service_path'] == world.srv_path, 'Expected Result: ' + world.srv_path + '\nObtained Result: ' + response['service_path']
+            if world.apikey:
+                assert response['apikey'] == world.apikey, 'Expected Result: ' + world.apikey + '\nObtained Result: ' + response['apikey']
+            else:
+                assert response['apikey'] == "", 'Expected Result: NULL \nObtained Result: ' + response['apikey']
+            if world.cbroker:
+                assert response['cbroker'] == world.cbroker, 'Expected Result: ' + world.cbroker + '\nObtained Result: ' + response['cbroker']
+            else:
+                assert response['cbroker'] == "", 'Expected Result: NULL \nObtained Result: ' + response['cbroker']
+            if world.entity_type:
+                assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
+            if world.token:
+                assert response['token'] == world.token, 'Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
+            if world.typ1:
+                if world.typ1 == 'srv_attr':
+                    assert response['attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
+                    assert response['attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
+                    assert response['attributes'][0]['object_id'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['attributes'][0]['object_id']
+                    attributes+=1
+                if world.typ1 == 'srv_st_att':
+                    assert response['static_attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['static_attributes'][0]['name']
+                    assert response['static_attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
+                    assert response['static_attributes'][0]['value'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['static_attributes'][0]['value']
+                    st_attributes+=1
+            if world.typ2:
+                if world.typ2 == 'srv_attr':
+                    assert response['attributes'][attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['attributes'][attributes]['name']
+                    assert response['attributes'][attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['attributes'][attributes]['type']
+                    assert response['attributes'][attributes]['object_id'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['attributes'][attributes]['object_id']
+                if world.typ2 == 'srv_st_att':
+                    assert response['static_attributes'][st_attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['name']
+                    assert response['static_attributes'][st_attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['type']
+                    assert response['static_attributes'][st_attributes]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['value']
 
     def device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
@@ -341,6 +400,46 @@ class Functions(object):
                 attr_matches=True
                 break
         assert attr_matches, 'ERROR: attribute: ' + str(name) + " not found in: " + str(contextElement['attributes'])
+
+    def fill_attributes(self, typ1, typ2, name1, name2, type1, type2, value1, value2):
+        world.typ1 = typ1
+        world.typ2 = typ2
+        world.name1 = name1
+        world.name2 = name2
+        world.type1 = type1
+        world.type2 = type2
+        world.value1 = value1
+        world.value2 = value2
+        if (typ1=='srv_attr') | (typ1=='dev_attr'):
+            world.attributes=[
+                 {
+                  "name": name1,
+                  "type": type1,
+                  "object_id": value1
+                  }
+                 ]
+        if (typ2=='srv_attr') | (typ2=='dev_attr'):
+            attribute={
+                  "name": name2,
+                  "type": type2,
+                  "object_id": value2
+                  }
+            world.attributes.append(attribute)
+        if (typ1=='srv_st_att') | (typ1=='dev_st_att'):
+            world.st_attributes=[
+                 {
+                  "name": name1,
+                  "type": type1,
+                  "value": value1
+                  }
+                 ]
+        if (typ2=='srv_st_att') | (typ2=='dev_st_att'):
+            st_attribute={
+                  "name": name2,
+                  "type": type2,
+                  "value": value2
+                  }
+            world.st_attributes.append(st_attribute)
 
     def clean(self,dirty):
         if world.service_exists:
