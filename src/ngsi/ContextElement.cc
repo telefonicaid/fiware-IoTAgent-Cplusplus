@@ -327,13 +327,19 @@ void iota::ContextElement::set_env_info(boost::property_tree::ptree
       std::string a_name = v.second.get<std::string>(iota::ngsi::NGSI_NAME, "");
       if (!a_name.empty() && !exists(a_name)) {
         // Add attribute.
+
         std::string a_type = v.second.get<std::string>(iota::ngsi::NGSI_TYPE, "string");
         std::string a_value = v.second.get<std::string>(iota::ngsi::NGSI_VALUE, "");
         if (!a_value.empty()) {
-          iota::Attribute att(a_name, a_type, a_value);
-          iota::Attribute metadata("TimeInstant", "ISO8601", timestamp);
-          att.add_metadata(metadata);
-          add_attribute(att);
+          std::stringstream os_json;
+          iota::property_tree::json_parser::write_json(os_json, v.second);
+          rapidjson::Document d;
+          if (!d.Parse<0>(os_json.str().c_str()).HasParseError()) {
+            iota::Attribute att(d);
+            iota::Attribute metadata("TimeInstant", "ISO8601", timestamp);
+            att.add_metadata(metadata);
+            add_attribute(att);
+          }
         }
       }
     }

@@ -139,6 +139,14 @@ void JsonTest::testContext() {
   satt.put("name", "snatt");
   satt.put("type", "");
   satt.put("value", "svatt");
+
+  boost::property_tree::ptree meta_static;
+  boost::property_tree::ptree ptree_meta;
+  meta_static.put("name", "metaname");
+  meta_static.put("type", "metatype");
+  meta_static.put("value", "http://localhost:89/hello");
+  ptree_meta.push_back(std::make_pair("", meta_static));
+  satt.add_child("metadatas", ptree_meta);
   ptree_satt.push_back(std::make_pair("", satt));
   pt.add_child("static_attributes", ptree_satt);
 
@@ -196,20 +204,26 @@ void JsonTest::testContext() {
                          attributes[2].get_name().compare("mappedatt") == 0);
 
 
-  // Check if static attributes has TimeInstant
+  // Check if static attributes has TimeInstant and metadatas from service
   bool timeinstant_exists = false;
+  bool metadata_static_service = false;
   for (int i = 0; i < attributes.size(); i++) {
     if (attributes[i].get_name().compare("snatt") == 0) {
       std::vector<iota::Attribute> metadatas = attributes[i].get_metadatas();
+      CPPUNIT_ASSERT_MESSAGE("Checking static metadatas ", metadatas.size() == 2);
       for (int j=0; j < metadatas.size(); j++) {
         iota::Attribute metadata = metadatas[j];
         if (metadata.get_name().compare("TimeInstant") == 0) {
           timeinstant_exists = true;
         }
+        if (metadata.get_name().compare("metaname") == 0) {
+          metadata_static_service = true;
+        }
       }
     }
   }
   CPPUNIT_ASSERT_MESSAGE("Checking TimeInstant ", timeinstant_exists);
+  CPPUNIT_ASSERT_MESSAGE("Checking metadata static from service ", metadata_static_service);
   std::istringstream is_op(operation.get_string());
   iota::UpdateContext obj_operation(is_op);
   CPPUNIT_ASSERT(obj_operation.get_action().compare("UPDATE") == 0);
