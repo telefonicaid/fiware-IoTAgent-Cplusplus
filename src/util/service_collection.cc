@@ -69,37 +69,37 @@ void iota::ServiceCollection::addServicePath(const std::string& data,
 
 }*/
 
-const std::string & iota::ServiceCollection::get_resource_name(){
+const std::string& iota::ServiceCollection::get_resource_name() {
   return iota::store::types::RESOURCE;
 }
 
 int iota::ServiceCollection::fill_all_resources(const std::string& service,
-                                                 const std::string& service_path,
-                                                 std::vector<std::string>& resources) {
+    const std::string& service_path,
+    std::vector<std::string>& resources) {
 
   int result =0;
-  mongo::BSONObj query = BSON ( iota::store::types::SERVICE << service <<
-                                iota::store::types::SERVICE_PATH << service_path);
+  mongo::BSONObj query = BSON(iota::store::types::SERVICE << service <<
+                              iota::store::types::SERVICE_PATH << service_path);
   mongo::BSONObjBuilder field_return;
   field_return.append(iota::store::types::RESOURCE, 1);
 
   find(query, field_return);
   mongo::BSONObj obj;
   std::string resource;
-  while(more()) {
+  while (more()) {
     obj =  next();
     std::cout << obj << std::endl;
     resource = obj.getStringField(iota::store::types::RESOURCE);
-    if (!resource.empty()){
-        resources.push_back(resource);
-        result++;
-      }
+    if (!resource.empty()) {
+      resources.push_back(resource);
+      result++;
+    }
   }
 
   return result;
 }
 
-const std::string & iota::ServiceCollection::getPostSchema() const{
+const std::string& iota::ServiceCollection::getPostSchema() const {
   return _POST_SCHEMA;
 }
 
@@ -165,6 +165,33 @@ const std::string iota::ServiceCollection::_POST_SCHEMA(
   "\"type\": {"
   "\"description\": \"type of the entity\","
   "\"type\": \"string\""
+  "},"
+  "\"metadatas\": {"
+  "\"type\":\"array\","
+  "\"id\": \"metadatas\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"value\": {"
+  "\"description\": \"Value assigned to metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "}"
+  "}"
+  ",\"required\": [\"name\",\"type\",\"value\"]"
+  "}"
   "}"
   "}"
   "}"
@@ -188,6 +215,33 @@ const std::string iota::ServiceCollection::_POST_SCHEMA(
   "\"type\": {"
   "\"description\": \"type of the entity\","
   "\"type\": \"string\""
+  "},"
+  "\"metadatas\": {"
+  "\"type\":\"array\","
+  "\"id\": \"metadatas\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"value\": {"
+  "\"description\": \"Value assigned to metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "}"
+  "}"
+  ",\"required\": [\"name\",\"type\",\"value\"]"
+  "}"
   "}"
   "}"
   "}"
@@ -200,7 +254,7 @@ const std::string iota::ServiceCollection::_POST_SCHEMA(
   ",\"required\": [\"services\"]"
   "}");
 
-const std::string & iota::ServiceCollection::getPutSchema() const{
+const std::string& iota::ServiceCollection::getPutSchema() const {
   return _PUT_SCHEMA;
 }
 
@@ -258,6 +312,33 @@ const std::string iota::ServiceCollection::_PUT_SCHEMA(
   "\"type\": {"
   "\"description\": \"type of the entity\","
   "\"type\": \"string\""
+  "},"
+    "\"metadatas\": {"
+  "\"type\":\"array\","
+  "\"id\": \"metadatas\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"value\": {"
+  "\"description\": \"Value assigned to metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "}"
+  "}"
+  ",\"required\": [\"name\",\"type\",\"value\"]"
+  "}"
   "}"
   "}"
   "}"
@@ -281,6 +362,33 @@ const std::string iota::ServiceCollection::_PUT_SCHEMA(
   "\"type\": {"
   "\"description\": \"type of the entity\","
   "\"type\": \"string\""
+  "},"
+    "\"metadatas\": {"
+  "\"type\":\"array\","
+  "\"id\": \"metadatas\","
+  "\"items\":{"
+  "\"type\":\"object\","
+  "\"additionalProperties\":false,"
+  "\"id\": \"0\","
+  "\"properties\":{"
+  "\"value\": {"
+  "\"description\": \"Value assigned to metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"name\": {"
+  "\"description\": \"Name of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "},"
+  "\"type\": {"
+  "\"description\": \"type of metadata\","
+  "\"type\": \"string\","
+  "\"minLength\":1"
+  "}"
+  "}"
+  ",\"required\": [\"name\",\"type\",\"value\"]"
+  "}"
   "}"
   "}"
   "}"
@@ -292,17 +400,18 @@ int iota::ServiceCollection::createTableAndIndex() {
 
   int res = 200;
   // db.SERVICE.ensureIndex({"service":1, service_path:1, resource:1},{"unique":1})
-  mongo::BSONObj indexUni = BSON("service" << 1 << "service_path" << 1 << "resource" <<1);
+  mongo::BSONObj indexUni = BSON("service" << 1 << "service_path" << 1 <<
+                                 "resource" <<1);
 
   return createIndex(indexUni, true);
 }
 
 
-void iota::ServiceCollection::getElementsFromBSON(mongo::BSONObj &obj,
-                                std::vector<mongo::BSONObj> &result){
+void iota::ServiceCollection::getElementsFromBSON(mongo::BSONObj& obj,
+    std::vector<mongo::BSONObj>& result) {
   std::vector<mongo::BSONElement> be = obj.getField(
-                                           iota::store::types::SERVICES).Array();
+                                         iota::store::types::SERVICES).Array();
   for (unsigned int i = 0; i<be.size(); i++) {
-      result.push_back(be[i].embeddedObject());
+    result.push_back(be[i].embeddedObject());
   }
 }

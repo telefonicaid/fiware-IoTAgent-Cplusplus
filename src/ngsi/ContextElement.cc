@@ -240,7 +240,6 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
         // Nothing
       }
     }
-
     if (!attr_mapping.empty()) {
       rapidjson::Document d;
 
@@ -275,8 +274,12 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
           mapped_attr.set_value(attribute.get_value());
         }
         std::vector<iota::Attribute> metadata = attribute.get_metadatas();
-        for (int i = 0; i < metadata.size(); i++) {
+        int i = 0;
+        for (i = 0; i < metadata.size(); i++) {
           mapped_attr.add_metadata(metadata[i]);
+        }
+        for (i = 0; i < att.get_metadatas().size(); i++) {
+          mapped_attr.add_metadata(att.get_metadatas()[i]);
         }
         add_attribute(mapped_attr);
       }
@@ -324,13 +327,19 @@ void iota::ContextElement::set_env_info(boost::property_tree::ptree
       std::string a_name = v.second.get<std::string>(iota::ngsi::NGSI_NAME, "");
       if (!a_name.empty() && !exists(a_name)) {
         // Add attribute.
+
         std::string a_type = v.second.get<std::string>(iota::ngsi::NGSI_TYPE, "string");
         std::string a_value = v.second.get<std::string>(iota::ngsi::NGSI_VALUE, "");
         if (!a_value.empty()) {
-          iota::Attribute att(a_name, a_type, a_value);
-          iota::Attribute metadata("TimeInstant", "ISO8601", timestamp);
-          att.add_metadata(metadata);
-          add_attribute(att);
+          std::stringstream os_json;
+          iota::property_tree::json_parser::write_json(os_json, v.second);
+          rapidjson::Document d;
+          if (!d.Parse<0>(os_json.str().c_str()).HasParseError()) {
+            iota::Attribute att(d);
+            iota::Attribute metadata("TimeInstant", "ISO8601", timestamp);
+            att.add_metadata(metadata);
+            add_attribute(att);
+          }
         }
       }
     }

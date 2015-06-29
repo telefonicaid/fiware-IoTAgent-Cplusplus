@@ -151,7 +151,7 @@ ExternalProject_Add(test-cppunit PREFIX
 	${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit
 	URL http://sourceforge.net/projects/cppunit/files/cppunit/1.12.1/cppunit-1.12.1.tar.gz/download
 	CONFIGURE_COMMAND
-	${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit/src/test-cppunit/configure
+	${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit/src/test-cppunit/configure LDFLAGS=-ldl
 	--prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/cppunit
 	BUILD_IN_SOURCE 1
 	BUILD_COMMAND make

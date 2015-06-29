@@ -122,7 +122,7 @@ class AdminService :
       pion::http::response& http_response,
       std::string& response);
 
-    pion::http::plugin_server_ptr get_web_server();
+    //pion::http::plugin_server_ptr get_web_server();
 
 
     /**
@@ -467,7 +467,7 @@ class AdminService :
 
     // Store we server in weak pointer
     //pion::http::plugin_server_ptr _web_server;
-    boost::weak_ptr<pion::http::plugin_server> _web_server;
+    //boost::weak_ptr<pion::http::plugin_server> _web_server;
 
     std::map<std::string, iota::RestHandle*> _service_manager;
     // Timezones

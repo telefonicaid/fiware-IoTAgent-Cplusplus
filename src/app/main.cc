@@ -58,6 +58,7 @@ void config_error(const std::string& err) {
   std::cerr << "ERROR" <<  err << std::endl;
 }
 
+
 int main(int argc, char* argv[]) {
 
   static const unsigned int DEFAULT_PORT = 8080;
@@ -71,9 +72,12 @@ int main(int argc, char* argv[]) {
   typedef std::vector<std::pair<std::string, std::string> >   ServiceOptionsType;
   ServiceOptionsType service_options;
   iota::Configurator* conf_iotagent = NULL;
-  // parse command line: determine port number, RESOURCE and WEBSERVICE
-  boost::asio::ip::tcp::endpoint cfg_endpoint(boost::asio::ip::tcp::v4(),
-      DEFAULT_PORT);
+
+  boost::asio::ip::tcp::endpoint cfg_endpoint;
+  // Default
+  cfg_endpoint.port(DEFAULT_PORT);
+  cfg_endpoint.address(boost::asio::ip::address::from_string(ZERO_IP));
+
   std::string service_config_file;
   std::string resource_name;
   std::string service_name;
@@ -397,8 +401,19 @@ int main(int argc, char* argv[]) {
     if (ssl_flag) {
 #ifdef PION_HAVE_SSL
       // configure server for SSL
-      web_server->set_ssl_key_file(ssl_pem_file);
       IOTA_LOG_INFO(pion_log, "SSL support enabled using key file: " << ssl_pem_file);
+      web_server->set_ssl_key_file(ssl_pem_file);
+      /*
+			web_server->get_ssl_context_type().set_options(boost::asio::ssl::context::default_workarounds |
+			                                               boost::asio::ssl::context::no_sslv2 |
+			                                               boost::asio::ssl::context::single_dh_use);
+			web_server->get_ssl_context_type().set_verify_mode(boost::asio::ssl::verify_peer |
+			                                               boost::asio::ssl::verify_fail_if_no_peer_cert);
+      web_server->get_ssl_context_type().use_certificate_file(ssl_pem_file, boost::asio::ssl::context::pem);
+      web_server->get_ssl_context_type().use_private_key_file(ssl_pem_file, boost::asio::ssl::context::pem);
+      web_server->get_ssl_context_type().load_verify_file("/home/develop/Projects/fiware-IoTAgent-Cplusplus/build/Debug/server.crt");
+      */
+
 #else
       IOTA_LOG_ERROR(main_log, "SSL support is not enabled");
 #endif
