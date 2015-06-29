@@ -24,6 +24,7 @@ class Functions(object):
     world.service_exists = False
     world.service_path_exists = False
     world.device_exists = False
+    world.check_manager = False
 
     def service_precond(self, service_name, protocol, attributes={}, static_attributes={}):
         world.service_name = service_name
@@ -111,8 +112,13 @@ class Functions(object):
             world.service_path_exists = True
         return service
 
-    def get_service_created(self, service_name, service_path, resource, limit={}, offset={}):
-        req =  iotagent.get_service_with_params(service_name, service_path, resource, limit, offset)
+    def get_service_created(self, service_name, service_path, resource={}, limit={}, offset={}, protocol={}, manager=False):
+        if manager:
+            req =  iota_manager.get_service_with_params(service_name, service_path, {}, limit, offset, protocol)
+            world.check_manager=True            
+        else:
+            req =  iotagent.get_service_with_params(service_name, service_path, resource, limit, offset)
+            world.check_manager=False
         world.req = req
         return req
 
@@ -124,7 +130,10 @@ class Functions(object):
         if len(res['services'])==1:
             response = res['services'][0]
             assert response['service'] == world.service_name, 'Expected Result: ' + world.service_name + '\nObtained Result: ' + response['service']
-            assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
+            if world.check_manager:
+                assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
+            else:
+                assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']                
             if world.srv_path:
                 if world.srv_path == 'void':
                     assert response['service_path'] == '/', 'Expected Result: ' + '/' + '\nObtained Result: ' + response['service_path']

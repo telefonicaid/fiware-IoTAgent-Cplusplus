@@ -1,6 +1,6 @@
 from lettuce import step, world
 from iotqautils.iota_utils import Rest_Utils_IoTA
-from common.functions import Functions, URLTypes
+from common.functions import Functions, URLTypes, ProtocolTypes
 from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
 import time, requests
 
@@ -43,6 +43,22 @@ def service_with_params_precond(step, service_name, service_path, resource, apik
     world.srv_path = service_path
     world.resource = resource
     world.apikey = apikey
+    world.cbroker= 'http://myurl:80'
+    world.entity_type = {}
+    world.token = {}
+    world.typ1 = {}
+    world.typ2 = {}
+    functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
+
+@step('a Service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)" and apikey "([^"]*)" created')
+def service_with_params_manager_precond(step, service_name, service_path, protocol, apikey):
+    world.service_name = service_name
+    world.srv_path = service_path
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    world.apikey = apikey
+    prot = ProtocolTypes.get(protocol)
+    world.prot = prot
     world.cbroker= 'http://myurl:80'
     world.entity_type = {}
     world.token = {}
@@ -117,8 +133,13 @@ def service_created(step, service_name, service_path):
 
 @step('I retrieve the service data of "([^"]*)", path "([^"]*)", resource "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
 def get_service_data(step,service_name, service_path, resource, limit, offset):
-    world.req = functions.get_service_created(service_name, service_path, resource, limit, offset)
-    assert world.req.ok, 'ERROR: ' + world.req.text
+    req = functions.get_service_created(service_name, service_path, resource, limit, offset)
+    assert req.ok, 'ERROR: ' + req.text
+
+@step('I retrieve the service data of "([^"]*)", path "([^"]*)", protocol "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
+def get_service_data_manager(step,service_name, service_path, protocol, limit, offset):
+    req = functions.get_service_created(service_name, service_path, {}, limit, offset, protocol, True)
+    assert req.ok, 'ERROR: ' + req.text
 
 @step('I receive the service data of "([^"]*)" services')
 def check_service_data(step, num_services):

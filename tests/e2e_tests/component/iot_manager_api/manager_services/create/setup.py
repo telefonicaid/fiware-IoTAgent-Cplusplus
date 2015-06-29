@@ -1,13 +1,8 @@
 from lettuce import step, world
-from iotqautils.gtwRest import Rest_Utils_SBC
 from common.steps import service_not_created_precond,create_service_manager,create_service_with_attrs_manager,service_created
-from common.user_steps import UserSteps, URLTypes
-from common.gw_configuration import IOT_SERVER_ROOT,CBROKER_HEADER,CBROKER_PATH_HEADER
+from common.functions import Functions, URLTypes
 
-
-api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
-user_steps = UserSteps()
-
+functions = Functions()
     
 @step('I try to create a service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)" and cbroker "([^"]*)"')
 def create_service_failed(step,srv_name,srv_path,protocol,apikey,cbroker):
@@ -17,16 +12,14 @@ def create_service_failed(step,srv_name,srv_path,protocol,apikey,cbroker):
     world.resource = resource
     world.apikey = apikey
     world.cbroker = cbroker
-    world.req=user_steps.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,{},{},{},{},protocol)
-#    world.req=user_steps.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,'','')
+    world.req=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,{},{},{},{},protocol)
     assert world.req.status_code != 201, 'ERROR: ' + world.req.text + "El servicio {} se ha podido crear".format(srv_name)
     print 'No se ha creado el servicio {}'.format(srv_name)
 
 @step('user receives the "([^"]*)" and the "([^"]*)"')
 def assert_service_created_failed(step, http_status, error_text):
     assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
-#    assert world.req.json()['details'] == str(error_text.format("{ \"id\" ","\""+world.cbroker_id+"\"}")), 'ERROR: ' + world.req.text
-    if http_status=="409":
+    if "duplicate key" in world.req.text:
         assert world.apikey in world.req.text, 'ERROR: ' + world.req.text        
         assert world.resource in world.req.text, 'ERROR: ' + world.req.text        
         assert world.cbroker in world.req.text, 'ERROR: ' + world.req.text        
