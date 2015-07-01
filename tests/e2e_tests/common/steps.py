@@ -22,7 +22,7 @@ def service_with_attributes_created_precond(step, service_name, protocol, typ1, 
     world.service_name = service_name
     world.attributes=[]
     world.st_attributes=[]
-    functions.fill_attributes(typ1, typ2, name1, name2, type1, type2, value1, value2)
+    functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     functions.service_precond(service_name, protocol, world.attributes, world.st_attributes)
 
 @step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)" and apikey "([^"]*)" not created')
@@ -49,6 +49,33 @@ def service_with_params_precond(step, service_name, service_path, resource, apik
     world.typ1 = {}
     world.typ2 = {}
     functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
+
+@step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)" created')
+def service_with_all_params_precond(step, service_name, service_path, resource, apikey, cbroker, entity_type, token):
+    world.service_name = service_name
+    world.srv_path = service_path
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = entity_type
+    world.token = token
+    world.typ1 = {}
+    world.typ2 = {}
+    functions.service_with_params_precond(service_name, service_path, resource, apikey, cbroker, entity_type, token)
+
+@step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atribute "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
+def service_with_attribute_created_precond(step, service_name, service_path, resource, apikey, cbroker, typ, name, type1, value):
+    world.service_name = service_name
+    world.srv_path = service_path
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = {}
+    world.token = {}
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ, name, type1, value)
+    functions.service_with_params_precond(service_name,service_path,resource,apikey,cbroker,{},{},world.attributes,world.st_attributes)
 
 @step('a Service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)" and apikey "([^"]*)" created')
 def service_with_params_manager_precond(step, service_name, service_path, protocol, apikey):
@@ -103,9 +130,11 @@ def create_service_with_attrs(step,srv_name,srv_path,resource,apikey,cbroker,typ
     world.cbroker = cbroker
     world.entity_type = {}
     world.token = {}
+    world.typ1 = {}
+    world.typ2 = {}
     world.attributes=[]
     world.st_attributes=[]
-    functions.fill_attributes(typ1, typ2, name1, name2, type1, type2, value1, value2)
+    functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     service=functions.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,{},{},world.attributes,world.st_attributes)
     assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
     print 'Se ha creado el servicio {}'.format(srv_name)
@@ -121,7 +150,7 @@ def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey
     world.token = {}
     world.attributes=[]
     world.st_attributes=[]
-    functions.fill_attributes(typ1, typ2, name1, name2, type1, type2, value1, value2)
+    functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     service=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,{},{},world.attributes,world.st_attributes,protocol)
     assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
     print 'Se ha creado el servicio {}'.format(srv_name)
@@ -129,7 +158,13 @@ def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey
 @step('the Service with name "([^"]*)" and path "([^"]*)" is created')
 def service_created(step, service_name, service_path):
     functions.get_service_created(service_name, service_path, world.resource)
-    functions.check_service_created(1)
+    functions.check_service_data(1)
+
+@step('I update the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
+def update_service_data(step, attribute, service_name, value):
+    service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, world.resource, world.apikey)
+    assert service.status_code == 204, 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
+    print 'Se ha actualizado el servicio {}'.format(service_name)
 
 @step('I retrieve the service data of "([^"]*)", path "([^"]*)", resource "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
 def get_service_data(step,service_name, service_path, resource, limit, offset):
@@ -143,7 +178,24 @@ def get_service_data_manager(step,service_name, service_path, protocol, limit, o
 
 @step('I receive the service data of "([^"]*)" services')
 def check_service_data(step, num_services):
-    functions.check_service_created(num_services)
+    functions.check_service_data(num_services)
+
+@step('the service data contains attribute "([^"]*)" with value "([^"]*)"')
+def check_service_data_updated(step, attribute, value):
+    if attribute == 'resource':
+        resource = value
+    else:
+        resource= world.resource    
+    functions.get_service_created(world.service_name, world.srv_path, resource)
+    functions.check_service_data(1, attribute, value)
+
+@step('the service data NOT contains attribute "([^"]*)" with value "([^"]*)"')
+def check_NOT_service_data(step, attribute, value):
+    if (world.req.status_code == 400) | (world.req.status_code == 404):
+        print 'No se comprueba el servicio'
+        return
+    functions.get_service_created(world.service_name, world.srv_path, world.resource)
+    functions.check_NOT_service_data(attribute, value)
 
 @step('a device with device name "([^"]*)" and protocol "([^"]*)" created')    
 def device_created_precond(step, device_name, protocol):

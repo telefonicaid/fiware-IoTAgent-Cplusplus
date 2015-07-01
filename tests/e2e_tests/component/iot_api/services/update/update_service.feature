@@ -49,13 +49,13 @@ Feature: API Service Update
         Then the service data contains attribute "<attribute>" with value "<attr_value>"
 		
 		Examples:
-			|srv_name	|srv_path			|resource	|apikey			|cbroker			|typ	|name		|type	|value	|attribute		|attr_value			|
-			|srv_put1	|/path_srv_put		|/iot/d		|srv_putkey6	|http://myurl:80	|attr	|t			|int	|temp	|attr			|h#str:hum			|
-			|srv_put1	|/path_srv_put		|/iot/d		|srv_putkey6	|http://myurl:80	|attr	|h			|str	|hum	|st_att			|t1#int:20			|
-			|srv_put1	|/path_srv_put		|/iot/d		|srv_putkey6	|http://myurl:80	|attr	|h			|str	|hum	|st_att			|t2#int:200			|
-			|srv_put1	|/path_srv_put		|/iot/d		|srv_putkey6	|http://myurl:80	|st_att	|t2			|int	|200	|st_att			|t3#int:300			|
-			|srv_put1	|void		 		|/iot/d		|srv_putkey6	|http://myurl:80	|attr	|t4			|int	|temp	|st_att			|t1#int:30			|
-			|srv_put1	|void		 		|/iot/tt	|				|http://myurl:80	|attr	|t5			|int	|temp	|st_att			|t1#int:40			|
+			|srv_name	|srv_path		|resource	|apikey			|cbroker			|typ		|name	|type	|value	|attribute		|attr_value		|
+			|srv_put1	|/path_srv_put	|/iot/d		|srv_putkey6	|http://myurl:80	|srv_attr	|t		|int	|temp	|srv_attr		|h#str:hum		|
+			|srv_put1	|/path_srv_put	|/iot/d		|srv_putkey6	|http://myurl:80	|srv_attr	|h		|str	|hum	|srv_st_att		|t1#int:20		|
+			|srv_put1	|/path_srv_put	|/iot/d		|srv_putkey6	|http://myurl:80	|srv_attr	|h		|str	|hum	|srv_st_att		|t2#int:200		|
+			|srv_put1	|/path_srv_put	|/iot/d		|srv_putkey6	|http://myurl:80	|srv_st_att	|t2		|int	|200	|srv_st_att		|t3#int2:300	|
+			|srv_put1	|void		 	|/iot/d		|srv_putkey6	|http://myurl:80	|srv_attr	|t4		|int	|temp	|srv_st_att		|t1#int:30		|
+			|srv_put1	|void		 	|/iot/tt	|				|http://myurl:80	|srv_attr	|t5		|int	|temp	|srv_st_att		|t1#int:40		|
 			
 			
 			

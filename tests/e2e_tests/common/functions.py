@@ -112,6 +112,61 @@ class Functions(object):
             world.service_path_exists = True
         return service
 
+    def update_service_with_params(self, attribute, service_name, value, service_path={}, resource={}, apikey={}, fail=False):
+        if not 'att' in attribute:
+            if attribute=='empty_json':
+                json = {}            
+            else:
+                json={
+                    attribute: value
+                    }
+        else:
+            d = dict([value.split('#')]) 
+            name=str(d.items()[0][0])
+            attrs=str(d.items()[0][1])
+            if ':' in attrs:
+                d2 = dict([attrs.split(':')])
+                type1=str(d2.items()[0][0])
+                value=str(d2.items()[0][1])       
+            if attribute=='srv_attr':
+                attributes=[
+                    {
+                     "name": name,
+                     "type": type1,
+                     "object_id": value
+                     }
+                    ]
+                attrs_type="attributes"
+            if attribute=='srv_st_att':
+                attributes=[
+                    {
+                     "name": name,
+                     "type": type1,
+                     "value": value
+                     }
+                    ]
+                attrs_type="static_attributes"
+            json={
+                  attrs_type: attributes
+                  }        
+        req =  iotagent.update_service_with_params(json, service_name, service_path, resource, apikey)
+        if service_path == 'void':
+            service_path='/'
+        if attribute == 'apikey':
+            print world.remember[service_name][service_path]['resource']
+            del world.remember[service_name][service_path]['resource'][world.resource][world.apikey]
+            if not value:
+                value = ""
+            world.remember[service_name][service_path]['resource'][world.resource].setdefault(value)
+            print world.remember[service_name][service_path]['resource']
+        if (attribute == 'resource') and (not fail):
+            print world.remember[service_name][service_path]['resource']
+            del world.remember[service_name][service_path]['resource'][world.resource]
+            world.remember[service_name][service_path]['resource'].setdefault(value, {})
+            world.remember[service_name][service_path]['resource'][value].setdefault(world.apikey)
+            print world.remember[service_name][service_path]['resource']
+        return req           
+
     def get_service_created(self, service_name, service_path, resource={}, limit={}, offset={}, protocol={}, manager=False):
         if manager:
             req =  iota_manager.get_service_with_params(service_name, service_path, {}, limit, offset, protocol)
@@ -122,7 +177,7 @@ class Functions(object):
         world.req = req
         return req
 
-    def check_service_created(self, num_services):
+    def check_service_data(self, num_services, attribute={}, value={}):
         attributes=0
         st_attributes=0
         res = world.req.json()
@@ -133,25 +188,83 @@ class Functions(object):
             if world.check_manager:
                 assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
             else:
-                assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']                
+                if attribute == 'resource':
+                    assert response['resource'] != world.resource, 'NOT Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
+                    assert response['resource'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['resource']
+                else:
+                    assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
             if world.srv_path:
                 if world.srv_path == 'void':
                     assert response['service_path'] == '/', 'Expected Result: ' + '/' + '\nObtained Result: ' + response['service_path']
                 else:
                     assert response['service_path'] == world.srv_path, 'Expected Result: ' + world.srv_path + '\nObtained Result: ' + response['service_path']
-            if world.apikey:
-                assert response['apikey'] == world.apikey, 'Expected Result: ' + world.apikey + '\nObtained Result: ' + response['apikey']
+            if attribute == 'apikey':
+                if value:
+                    assert response['apikey'] != world.apikey, 'NOT Expected Result: ' + world.apikey + '\nObtained Result: ' + response['apikey']
+                    assert response['apikey'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['apikey']
+                else:
+                    assert response['apikey'] != world.apikey, 'NOT Expected Result: ' + world.apikey + '\nObtained Result: ' + response['apikey']
+                    assert response['apikey'] == "", 'Expected Result: NULL \nObtained Result: ' + response['apikey']
             else:
-                assert response['apikey'] == "", 'Expected Result: NULL \nObtained Result: ' + response['apikey']
-            if world.cbroker:
-                assert response['cbroker'] == world.cbroker, 'Expected Result: ' + world.cbroker + '\nObtained Result: ' + response['cbroker']
+                if world.apikey:
+                    assert response['apikey'] == world.apikey, 'Expected Result: ' + world.apikey + '\nObtained Result: ' + response['apikey']
+                else:
+                    assert response['apikey'] == "", 'Expected Result: NULL \nObtained Result: ' + response['apikey']
+            if attribute == 'cbroker':
+                assert response['cbroker'] != world.cbroker, 'NOT Expected Result: ' + world.cbroker + '\nObtained Result: ' + response['cbroker']
+                assert response['cbroker'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['cbroker']
             else:
-                assert response['cbroker'] == "", 'Expected Result: NULL \nObtained Result: ' + response['cbroker']
-            if world.entity_type:
-                assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
-            if world.token:
-                assert response['token'] == world.token, 'Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
-            if world.typ1:
+                if world.cbroker:
+                    assert response['cbroker'] == world.cbroker, 'Expected Result: ' + world.cbroker + '\nObtained Result: ' + response['cbroker']
+                else:
+                    assert response['cbroker'] == "", 'Expected Result: NULL \nObtained Result: ' + response['cbroker']
+            if attribute == 'entity_type':
+                assert response['entity_type'] != world.entity_type, 'NOT Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
+                assert response['entity_type'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['entity_type']
+            else:
+                if world.entity_type:
+                    assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
+            if attribute == 'token':
+                assert response['token'] != world.token, 'NOT Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
+                assert response['token'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['token']
+            else:
+                if world.token:
+                    assert response['token'] == world.token, 'Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
+            if 'att' in attribute:
+                d = dict([value.split('#')]) 
+                name1=str(d.items()[0][0])
+                attrs=str(d.items()[0][1])
+                if ':' in attrs:
+                    d2 = dict([attrs.split(':')])
+                    type1=str(d2.items()[0][0])
+                    value1=str(d2.items()[0][1])       
+            if attribute == 'srv_attr':
+                if attribute == world.typ1:
+                    assert response['attributes'][0]['name'] != world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
+                    assert response['attributes'][0]['type'] != world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
+                    assert response['attributes'][0]['object_id'] != world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['attributes'][0]['object_id']
+                if world.typ1 == 'srv_st_att':
+                    assert response['static_attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['static_attributes'][0]['name']
+                    assert response['static_attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
+                    assert response['static_attributes'][0]['value'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['static_attributes'][0]['value']
+                    st_attributes+=1
+                assert response['attributes'][0]['name'] == name1, 'Expected Result: ' + name1 + '\nObtained Result: ' + response['attributes'][0]['name']
+                assert response['attributes'][0]['type'] == type1, 'Expected Result: ' + type1 + '\nObtained Result: ' + response['attributes'][0]['type']
+                assert response['attributes'][0]['object_id'] == value1, 'Expected Result: ' + value1 + '\nObtained Result: ' + response['attributes'][0]['object_id']
+            if attribute == 'srv_st_att':
+                if attribute == world.typ1:
+                    assert response['static_attributes'][0]['name'] != world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['static_attributes'][0]['name']
+                    assert response['static_attributes'][0]['type'] != world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
+                    assert response['static_attributes'][0]['value'] != world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['static_attributes'][0]['value']
+                if world.typ1 == 'srv_attr':
+                    assert response['attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
+                    assert response['attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
+                    assert response['attributes'][0]['object_id'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['attributes'][0]['object_id']
+                    attributes+=1
+                assert response['static_attributes'][0]['name'] == name1, 'Expected Result: ' + name1 + '\nObtained Result: ' + response['static_attributes'][0]['name']
+                assert response['static_attributes'][0]['type'] == type1, 'Expected Result: ' + type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
+                assert response['static_attributes'][0]['value'] == value1, 'Expected Result: ' + value1 + '\nObtained Result: ' + response['static_attributes'][0]['value']
+            if (not attribute) and (world.typ1):
                 if world.typ1 == 'srv_attr':
                     assert response['attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
                     assert response['attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
@@ -171,6 +284,31 @@ class Functions(object):
                     assert response['static_attributes'][st_attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['name']
                     assert response['static_attributes'][st_attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['type']
                     assert response['static_attributes'][st_attributes]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['value']
+
+    def check_NOT_service_data(self, attribute, value):
+        res = world.req.json()
+        response = res['services'][0]
+        assert response['service'] == world.service_name, 'Expected Result: ' + world.service_name + '\nObtained Result: ' + response['service']
+        if world.srv_path == 'void':
+            world.srv_path = '/'
+        assert response['service_path'] == world.srv_path, 'Expected Result: ' + world.srv_path + '\nObtained Result: ' + response['service_path']
+        if attribute == 'resource':
+            assert response['resource'] != value, 'NOT Expected Result: ' + value + '\nObtained Result: ' + response['resource']
+        assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
+        if attribute == 'apikey':
+            if value:
+                assert response['apikey'] != value, 'NOT Expected Result: ' + value + '\nObtained Result: ' + response['apikey']
+            else:
+                assert response['apikey'] != "", 'Expected Result: NULL \nObtained Result: ' + response['apikey']
+            assert response['apikey'] == world.apikey, 'Expected Result: ' + world.apikey + '\nObtained Result: ' + response['apikey']
+        else:
+            if world.apikey:
+                assert response['apikey'] == world.apikey, 'Expected Result: ' + world.apikey + '\nObtained Result: ' + response['apikey']
+            else:
+                assert response['apikey'] == "", 'Expected Result: NULL \nObtained Result: ' + response['apikey']
+        if attribute == 'cbroker':
+            assert response['cbroker'] != value, 'NOT Expected Result: ' + value + '\nObtained Result: ' + response['cbroker']
+        assert response['cbroker'] == world.cbroker, 'Expected Result: ' + world.cbroker + '\nObtained Result: ' + response['cbroker']
 
     def device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
@@ -410,7 +548,7 @@ class Functions(object):
                 break
         assert attr_matches, 'ERROR: attribute: ' + str(name) + " not found in: " + str(contextElement['attributes'])
 
-    def fill_attributes(self, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    def fill_attributes(self, typ1, name1, type1, value1, typ2={}, name2={}, type2={}, value2={}):
         world.typ1 = typ1
         world.typ2 = typ2
         world.name1 = name1
