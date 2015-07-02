@@ -989,7 +989,7 @@ const std::string & iota::Collection::getPutSchema() const {
 }
 
 std::string iota::Collection::get_endpoint(){
-     return MongoConnection::instance->get_endpoint();
+     return MongoConnection::instance()->get_endpoint();
 }
 
 const std::string& iota::Collection::getSchema(const std::string& method) const {
@@ -1006,5 +1006,5 @@ const std::string& iota::Collection::getSchema(const std::string& method) const 
 }
 
 void iota::Collection::reconnect(){
-  MongoConnection::instance->reconnect();
+  MongoConnection::instance()->reconnect();
 }
