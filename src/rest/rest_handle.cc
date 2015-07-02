@@ -487,7 +487,6 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
 
   // Response to request
   std::string& response_buffer = create_buffer(tcp_conn);
-
   pion::http::response_writer_ptr writer(
     pion::http::response_writer::create(tcp_conn, *http_request_ptr,
                                         boost::bind(&iota::RestHandle::finish, this, tcp_conn)));

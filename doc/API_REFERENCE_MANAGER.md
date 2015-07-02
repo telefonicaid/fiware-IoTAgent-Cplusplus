@@ -24,9 +24,10 @@ NOTE: This document is a **work in progress**.
 - 409 Conflict: A resource cannot be created because it already exists.
 - 500 Internal Server Error: Generic error when server has a malfunction. This error will be removed.
 
-Responses related with authentication and authorization depends on this feature is configured and a Keystone OpenStack sytem is present.
+Responses related with authentication and authorization depends on this feature is configured and a Keystone OpenStack system is present.
 
-When an error is returned, a representation is returned as:
+Manager could manage more than one agent and errors depends on when this error is detected.
+When an error is detected before manager communicates with agent a representation is returned as:
 
 ```
 {
@@ -35,6 +36,13 @@ When an error is returned, a representation is returned as:
 }
 ```
 
+When manager requests every agent for information, errors are a field in response. GET operation (for devices) returns 200 OK.
+When manager receives from agent a successfully response, global response has a succesfully status code. If DELETE/PUT operations (for devices) this response would be 204 (if no errors) or 200 (if errors). POST operation returns 500 when all agents are failed. An example:
+```
+{ "count" : 1, "devices" : [{ "protocol" : "UL20", "device_id" : "device_id", "entity_name" : "entity_name", "entity_type" : "entity_type", "endpoint" : "ht     p://device_endpoint", "timezone" : "America/Santiago", "commands" : [ { "name" : "ping", "type" : "command", "value" : "device_i     d@ping|%s" } ], "attributes" : [ { "object_id" : "temp", "name" : "temperature", "type" : "int" } ], "static_attributes" : [ { "     name" : "humidity", "type" : "int", "value" : "50" } ] }] ,"errors": [{"endpoint": "http://127.0.0.1:1000/iot","code": "-1","details": "Connection refused"}]}
+```
+Important: In service API, manager only requests agent for information when operation is POST.
+ 
 ## Authentication and Authorization
 If IoT Agent is in authenticated environment, this API requires a token, which you obtain from authentication system. This system and its API is out of scope of present documentation. In this environment, a mandatory header is needed: `X-Auth-Token`.
 
