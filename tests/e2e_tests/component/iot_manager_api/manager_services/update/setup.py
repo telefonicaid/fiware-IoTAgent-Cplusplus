@@ -1,16 +1,19 @@
 from lettuce import step, world
+from common.steps import service_with_all_params_manager_precond,service_with_attribute_created_manager_precond,update_service_data_manager,check_service_data_updated_manager
 from iotqautils.gtwRest import Rest_Utils_SBC
 from common.user_steps import UserSteps, URLTypes, ProtocolTypes
 from common.gw_configuration import IOT_SERVER_ROOT,CBROKER_HEADER,CBROKER_PATH_HEADER,MANAGER_SERVER_ROOT
+from common.functions import Functions
 
 
 api = Rest_Utils_SBC(server_root=IOT_SERVER_ROOT+'/iot')
 api2 = Rest_Utils_SBC(server_root=MANAGER_SERVER_ROOT+'/iot')
 user_steps = UserSteps()
+functions = Functions()
 
 
-@step('a Service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)" created')
-def service_precond(step, service_name, service_path, protocol, apikey, cbroker, entity_type, token):
+@step('a Service2 with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)" created')
+def service_precond2(step, service_name, service_path, protocol, apikey, cbroker, entity_type, token):
     world.service_name = service_name
     world.service_path = service_path
     resource = URLTypes.get(protocol)
@@ -22,8 +25,8 @@ def service_precond(step, service_name, service_path, protocol, apikey, cbroker,
     world.token = token
     user_steps.service_with_params_precond(service_name, service_path, resource, apikey, cbroker, entity_type, token)
    
-@step('a Service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atribute "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
-def service_with_attrs_precond(step, service_name, service_path, protocol, apikey, cbroker, typ, name, type1, value):
+@step('a Service2 with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atribute "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
+def service_with_attrs_precond2(step, service_name, service_path, protocol, apikey, cbroker, typ, name, type1, value):
     world.service_name = service_name
     world.service_path = service_path
     resource = URLTypes.get(protocol)
@@ -57,8 +60,8 @@ def service_with_attrs_precond(step, service_name, service_path, protocol, apike
              ]
     user_steps.service_with_params_precond(service_name, service_path, resource, apikey, cbroker, {}, {}, attributes, st_attributes)
    
-@step('I update the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
-def update_service_data(step, attribute, service_name, value):
+@step('I update2 in manager the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
+def update_service_data2(step, attribute, service_name, value):
     headers = {}
     params = {}
     headers[CBROKER_HEADER] = str(service_name)
@@ -147,8 +150,8 @@ def update_service_data(step, attribute, service_name, value):
         world.remember[service_name][service_path]['resource'][value].setdefault(world.apikey)
         print world.remember[service_name][service_path]['resource']            
 
-@step('the service data contains attribute "([^"]*)" with value "([^"]*)"')
-def check_service_data(step, attribute, value):
+@step('the service2 data of manager contains attribute "([^"]*)" with value "([^"]*)"')
+def check_service_data2(step, attribute, value):
     headers = {}
     params = {}
     headers[CBROKER_HEADER] = str(world.service_name)
@@ -238,62 +241,32 @@ def check_service_data(step, attribute, value):
         
 @step('I try to update the attribute "([^"]*)" with value "([^"]*)" of service "([^"]*)" with path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)" and cbroker "([^"]*)"')
 def update_service_data_failed(step, attribute, value, service_name, service_path, protocol, apikey, cbroker):
+    if not service_name == 'void':
+        world.service_name = service_name
+    if not service_path == 'void':
+        world.srv_path = service_path
+    else:
+        world.srv_path = "/"
     resource = URLTypes.get(protocol)
     world.resource = resource
     world.apikey = apikey
     world.cbroker = cbroker
-    headers = {}
-    params = {}
-    if not service_name == 'void':
-        headers[CBROKER_HEADER] = service_name
-        world.service_name = service_name
-    if not service_path == 'void':
-        headers[CBROKER_PATH_HEADER] = str(service_path)
-        world.service_path = service_path
-    else:
-        world.service_path = "/"
-    if apikey:
-        params['apikey']= apikey
-    service={
-            "services":[
-                {
-                }
-                ]
-                }
-    if protocol:
-        prot = ProtocolTypes.get(protocol)
-        if not prot:
-            prot=protocol
-        if prot == 'void':
-            service['services'][0]['protocol']= []
-        else:
-            service['services'][0]['protocol']= [prot]
-#    if apikey:
-#        service['services'][0]['apikey']= apikey
-#    json={
-#        attribute: value
-#        }
-#    if attribute=='empty_json':
-#        json = {}
-    if not attribute=='empty_json':
-        service['services'][0][attribute]=value
-    world.req =  api2.put_service('', service, headers, params)
-    assert world.req.status_code != 201, 'ERROR: ' + world.req.text + "El servicio {} se ha podido actualizar".format(service_name)
+    world.req=functions.update_service_with_params(attribute, service_name, value, service_path, {}, apikey, True, True, protocol)
+    assert world.req.status_code != 204, 'ERROR: ' + world.req.text + "El servicio {} se ha podido actualizar".format(service_name)
     print 'No se ha actualizado el servicio {}'.format(service_name)
 
 @step('user receives the "([^"]*)" and the "([^"]*)"')
 def assert_service_created_failed(step, http_status, error_text):
     assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
-#    assert world.req.json()['details'] == str(error_text.format("{ \"id\" ","\""+world.cbroker_id+"\"}")), 'ERROR: ' + world.req.text
     assert str(error_text) in world.req.text, 'ERROR: ' + world.req.text
     if http_status=="409":
         assert world.apikey in world.req.text, 'ERROR: ' + world.req.text        
         assert world.resource in world.req.text, 'ERROR: ' + world.req.text        
         assert world.service_name in world.req.text, 'ERROR: ' + world.req.text        
-        assert world.service_path in world.req.text, 'ERROR: ' + world.req.text        
+        assert world.srv_path in world.req.text, 'ERROR: ' + world.req.text        
 
-@step('the service data NOT contains attribute "([^"]*)" with value "([^"]*)"')
-def check_NOT_service_data(step, attribute, value):
+@step('the service2 data NOT contains attribute "([^"]*)" with value "([^"]*)"')
+def check_NOT_service_data2(step, attribute, value):
     if (world.req.status_code == 400) | (world.req.status_code == 404):
         print 'No se comprueba el servicio'
         return

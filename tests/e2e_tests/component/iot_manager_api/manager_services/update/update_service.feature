@@ -6,8 +6,8 @@ Feature: Manager API Service Update
     	@iot_manager_api @IDAS-20494 
     	Scenario Outline: Update data into service
     	Given a Service with name "<srv_name>", path "<srv_path>", protocol "<protocol>", apikey "<apikey>", cbroker "<cbroker>", entity_type "<entity_type>" and token "<token>" created
-		When I update the attribute "<attribute>" of service "<srv_name>" with value "<value>"
-        Then the service data contains attribute "<attribute>" with value "<value>"
+		When I update in manager the attribute "<attribute>" of service "<srv_name>" with value "<value>"
+        Then the service data of manager contains attribute "<attribute>" with value "<value>"
 		
 		Examples:
 			|srv_name	|srv_path			|protocol	|apikey			|cbroker			|entity_type	|token		|attribute		|value				|
@@ -47,17 +47,17 @@ Feature: Manager API Service Update
     	@iot_manager_api @IDAS-20496 
     	Scenario Outline: Update data into service with attributes
     	Given a Service with name "<srv_name>", path "<srv_path>", protocol "<protocol>", apikey "<apikey>", cbroker "<cbroker>" and atribute "<typ>", with name "<name>", type "<type>" and value "<value>" created
-		When I update the attribute "<attribute>" of service "<srv_name>" with value "<attr_value>"
-        Then the service data contains attribute "<attribute>" with value "<attr_value>"
+		When I update in manager the attribute "<attribute>" of service "<srv_name>" with value "<attr_value>"
+        Then the service data of manager contains attribute "<attribute>" with value "<attr_value>"
 		
 		Examples:
-			|srv_name	|srv_path		|protocol	|apikey			|cbroker			|typ	|name		|type	|value	|attribute		|attr_value			|
-			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|attr	|t			|int	|temp	|attr			|h#str:hum			|
-			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|attr	|h			|str	|hum	|st_att			|t1#int:20			|
-			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|attr	|h			|str	|hum	|st_att			|t2#int:200			|
-			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|st_att	|t2			|int	|200	|st_att			|t3#int:300			|
-			|srvm_put1	|void		 	|IoTUL2		|srvm_putkey6	|http://myurl:80	|attr	|t4			|int	|temp	|st_att			|t1#int:30			|
-			|srvm_put1	|void		 	|IoTTT		|				|http://myurl:80	|attr	|t5			|int	|temp	|st_att			|t1#int:40			|
+			|srv_name	|srv_path		|protocol	|apikey			|cbroker			|typ		|name	|type	|value	|attribute		|attr_value		|
+			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|srv_attr	|t		|int	|temp	|srv_attr		|h#str:hum		|
+			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|srv_attr	|h		|str	|hum	|srv_st_att		|t1#int:20		|
+			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|srv_attr	|h		|str	|hum	|srv_st_att		|t2#int:200		|
+			|srvm_put1	|/path_srvm_put	|IoTUL2		|srvm_putkey6	|http://myurl:80	|srv_st_att	|t2		|int	|200	|srv_st_att		|t3#int2:300	|
+			|srvm_put1	|void		 	|IoTUL2		|srvm_putkey6	|http://myurl:80	|srv_attr	|t4		|int	|temp	|srv_st_att		|t1#int:30		|
+			|srvm_put1	|void		 	|IoTTT		|				|http://myurl:80	|srv_attr	|t5		|int	|temp	|srv_st_att		|t1#int:40		|
 			
 			
 			

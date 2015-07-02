@@ -39,7 +39,7 @@ class Functions(object):
         world.service_exists = True
 
     def service_with_params_precond(self, service_name, service_path, resource, apikey, cbroker={}, entity_type={}, token={}, attributes={}, static_attributes={}):
-        world.protocol={}
+#        world.protocol={}
         world.service_name = service_name
         if not iotagent.service_created(service_name, service_path, resource):
             service = iotagent.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token, attributes, static_attributes)
@@ -91,7 +91,7 @@ class Functions(object):
                 world.service_path_exists = True
 
     def create_service_with_params(self, service_name, service_path, resource={}, apikey={}, cbroker={}, entity_type={}, token={}, attributes={}, static_attributes={}, protocol={}):
-        world.protocol={}
+#        world.protocol={}
         world.service_name = service_name
         if protocol:
             service = iota_manager.create_service_with_params(service_name, service_path, {}, apikey, cbroker, entity_type, token, attributes, static_attributes, protocol)
@@ -112,14 +112,32 @@ class Functions(object):
             world.service_path_exists = True
         return service
 
-    def update_service_with_params(self, attribute, service_name, value, service_path={}, resource={}, apikey={}, fail=False):
+    def update_service_with_params(self, attribute, service_name, value, service_path={}, resource={}, apikey={}, fail=False, manager=False, protocol={}):
+        time.sleep(1)
         if not 'att' in attribute:
             if attribute=='empty_json':
-                json = {}            
+                if manager:
+                    json={
+                            "services":[
+                                {
+                                }
+                                ]
+                                }                                
+                else:
+                    json = {}
             else:
-                json={
-                    attribute: value
-                    }
+                if manager:
+                    json={
+                        "services":[
+                            {
+                             attribute: value
+                            }
+                            ]
+                            }
+                else:
+                    json={
+                        attribute: value
+                        }
         else:
             d = dict([value.split('#')]) 
             name=str(d.items()[0][0])
@@ -146,10 +164,31 @@ class Functions(object):
                      }
                     ]
                 attrs_type="static_attributes"
-            json={
-                  attrs_type: attributes
-                  }        
-        req =  iotagent.update_service_with_params(json, service_name, service_path, resource, apikey)
+            if manager:
+                json={
+                    "services":[
+                        {
+                         attrs_type: attributes
+                        }
+                        ]
+                        }
+            else:
+                json={
+                      attrs_type: attributes
+                  }
+                
+        if manager:
+            if protocol:
+                prot = ProtocolTypes.get(protocol)
+                if not prot:
+                    prot=protocol
+                if prot == 'void':
+                    json['services'][0]['protocol']= []
+                else:
+                    json['services'][0]['protocol']= [prot]
+            req =  iota_manager.update_service_with_params(json, service_name, service_path, {}, apikey)
+        else:
+            req =  iotagent.update_service_with_params(json, service_name, service_path, resource, apikey)            
         if service_path == 'void':
             service_path='/'
         if attribute == 'apikey':
@@ -159,7 +198,7 @@ class Functions(object):
                 value = ""
             world.remember[service_name][service_path]['resource'][world.resource].setdefault(value)
             print world.remember[service_name][service_path]['resource']
-        if (attribute == 'resource') and (not fail):
+        if ((attribute == 'resource') or (attribute == 'protocol')) and (not fail):
             print world.remember[service_name][service_path]['resource']
             del world.remember[service_name][service_path]['resource'][world.resource]
             world.remember[service_name][service_path]['resource'].setdefault(value, {})
@@ -188,9 +227,13 @@ class Functions(object):
             if world.check_manager:
                 assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
             else:
-                if attribute == 'resource':
+                if (attribute == 'resource') or (attribute == 'protocol'):
+                    if attribute == 'protocol':
+                        resource = URLTypes.get(value)
+                    else:
+                        resource = value                    
                     assert response['resource'] != world.resource, 'NOT Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
-                    assert response['resource'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['resource']
+                    assert response['resource'] == resource, 'Expected Result: ' + resource + '\nObtained Result: ' + response['resource']
                 else:
                     assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
             if world.srv_path:
@@ -292,8 +335,12 @@ class Functions(object):
         if world.srv_path == 'void':
             world.srv_path = '/'
         assert response['service_path'] == world.srv_path, 'Expected Result: ' + world.srv_path + '\nObtained Result: ' + response['service_path']
-        if attribute == 'resource':
-            assert response['resource'] != value, 'NOT Expected Result: ' + value + '\nObtained Result: ' + response['resource']
+        if (attribute == 'resource') or (attribute == 'protocol'):
+            if attribute == 'protocol':
+                resource = URLTypes.get(value)
+            else:
+                resource = value                    
+            assert response['resource'] != resource, 'NOT Expected Result: ' + resource + '\nObtained Result: ' + response['resource']
         assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
         if attribute == 'apikey':
             if value:

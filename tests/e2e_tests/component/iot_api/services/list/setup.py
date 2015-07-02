@@ -1,5 +1,5 @@
 from lettuce import step, world
-from common.steps import service_with_params_precond,get_service_data, check_service_data
+from common.steps import service_with_params_precond, get_service_data, check_service_data
 from common.functions import Functions
 
 functions = Functions()

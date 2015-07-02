@@ -93,6 +93,37 @@ def service_with_params_manager_precond(step, service_name, service_path, protoc
     world.typ2 = {}
     functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
 
+@step('a Service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)" created')
+def service_with_all_params_manager_precond(step, service_name, service_path, protocol, apikey, cbroker, entity_type, token):
+    world.service_name = service_name
+    world.srv_path = service_path
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    world.protocol = protocol
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = entity_type
+    world.token = token
+    world.typ1 = {}
+    world.typ2 = {}
+    functions.service_with_params_precond(service_name, service_path, resource, apikey, cbroker, entity_type, token)
+
+@step('a Service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atribute "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
+def service_with_attribute_created_manager_precond(step, service_name, service_path, protocol, apikey, cbroker, typ, name, type1, value):
+    world.service_name = service_name
+    world.srv_path = service_path
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    world.protocol = protocol
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = {}
+    world.token = {}
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ, name, type1, value)
+    functions.service_with_params_precond(service_name,service_path,resource,apikey,cbroker,{},{},world.attributes,world.st_attributes)
+
 @step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)"')
 def create_service(step,srv_name,srv_path,resource,apikey,cbroker,entity_type,token):
     world.typ1 = {}
@@ -148,6 +179,8 @@ def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey
     world.cbroker = cbroker
     world.entity_type = {}
     world.token = {}
+    world.typ1 = {}
+    world.typ2 = {}
     world.attributes=[]
     world.st_attributes=[]
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
@@ -164,6 +197,12 @@ def service_created(step, service_name, service_path):
 def update_service_data(step, attribute, service_name, value):
     service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, world.resource, world.apikey)
     assert service.status_code == 204, 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
+    print 'Se ha actualizado el servicio {}'.format(service_name)
+
+@step('I update in manager the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
+def update_service_data_manager(step, attribute, service_name, value):
+    service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, {}, world.apikey, {}, True, world.protocol)
+    assert service.status_code == 200, 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
     print 'Se ha actualizado el servicio {}'.format(service_name)
 
 @step('I retrieve the service data of "([^"]*)", path "([^"]*)", resource "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
@@ -186,6 +225,15 @@ def check_service_data_updated(step, attribute, value):
         resource = value
     else:
         resource= world.resource    
+    functions.get_service_created(world.service_name, world.srv_path, resource)
+    functions.check_service_data(1, attribute, value)
+
+@step('the service data of manager contains attribute "([^"]*)" with value "([^"]*)"')
+def check_service_data_updated_manager(step, attribute, value):
+    if attribute == 'protocol':
+        resource = URLTypes.get(value)
+    else:
+        resource = URLTypes.get(world.protocol)
     functions.get_service_created(world.service_name, world.srv_path, resource)
     functions.check_service_data(1, attribute, value)
 
