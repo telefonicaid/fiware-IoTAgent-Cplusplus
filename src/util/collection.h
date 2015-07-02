@@ -140,7 +140,6 @@ class Collection {
                      const mongo::BSONObj& index,
                       bool is_unique );
 
-    mongo::DBClientBase* getConnection();
 
   protected:
 
@@ -158,7 +157,7 @@ class Collection {
 
   private:
 
-    MongoConnection m_conn;
+    mongo::DBClientBase* _m_conn;
 
     static const std::string _EMPTY;
 

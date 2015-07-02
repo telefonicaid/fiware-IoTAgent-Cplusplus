@@ -28,13 +28,14 @@
 #include <boost/lexical_cast.hpp>
 
 #include "common.h"
-#include "iota_exception.h"
 #include "rest/riot_conf.h"
 #include "store_const.h"
 #include "alarm.h"
+#include "iota_exception.h"
 
 #define SIZE_POOL 10
 #define MAX_SIZE_POOL 1000
+#define POOL_SIZE_STR "pool_size"
 
 namespace iota {
 extern std::string logger;
@@ -51,7 +52,7 @@ iota::MongoConnection::MongoConnection():
   try{
     reconnect();
   }catch(std::exception exc){
-    IOTA_LOG_ERROR(m_logger, "error in MongoConnection " << exc.what() );
+    PION_LOG_ERROR(m_logger, "error in MongoConnection " << exc.what() );
   }
 }
 
@@ -68,7 +69,7 @@ void iota::MongoConnection::reconnect(){
     if (storage.HasMember(iota::store::types::TYPE.c_str())) {
       std::string type = storage[iota::store::types::TYPE.c_str()].GetString();
       if (type.compare(iota::types::CONF_FILE_MONGO) != 0) {
-        IOTA_LOG_DEBUG(m_logger,
+        PION_LOG_DEBUG(m_logger,
                        "no config for mongodb");
         return;
       }
@@ -80,31 +81,31 @@ void iota::MongoConnection::reconnect(){
 
     if (storage.HasMember(iota::store::types::HOST.c_str())) {
       _host.assign(storage[iota::store::types::HOST.c_str()].GetString());
-      IOTA_LOG_DEBUG(m_logger, "in storage host " << _host);
+      PION_LOG_DEBUG(m_logger, "in storage host " << _host);
     }
     else {
-      IOTA_LOG_DEBUG(m_logger,
+      PION_LOG_DEBUG(m_logger,
                      "in storage no host defined, using localhost by default");
       _host.assign("127.0.0.1");
     }
 
     int pool_size = SIZE_POOL;
-    if (storage.HasMember(iota::store::types::POOL_SIZE.c_str())) {
-      std::string pool_sizeSTR = storage[iota::store::types::POOL_SIZE.c_str()].GetString();
+    if (storage.HasMember(POOL_SIZE_STR)) {
+      std::string pool_sizeSTR = storage[POOL_SIZE_STR].GetString();
       try {
         pool_size = boost::lexical_cast<int>(pool_sizeSTR);
         _conex_pool.reserve(pool_size);
-        IOTA_LOG_DEBUG(m_logger, "pool size " << pool_size);
+        PION_LOG_DEBUG(m_logger, "pool size " << pool_size);
       }
       catch (std::exception& e) {
-        IOTA_LOG_ERROR(m_logger, "Error in config, bad pool size, use default");
+        PION_LOG_ERROR(m_logger, "Error in config, bad pool size, use default");
         pool_size = SIZE_POOL;
       }
     }
 
     if (storage.HasMember(iota::store::types::REPLICA_SET.c_str())) {
       _replica = storage[iota::store::types::REPLICA_SET.c_str()].GetString();
-      IOTA_LOG_DEBUG(m_logger, "in storage replica " << _replica);
+      PION_LOG_DEBUG(m_logger, "in storage replica " << _replica);
     }else{
       //PORT is only used for non replica
       if (storage.HasMember(iota::store::types::PORT.c_str())) {
@@ -112,7 +113,7 @@ void iota::MongoConnection::reconnect(){
         _host.append(storage[iota::store::types::PORT.c_str()].GetString());
       }
       else {
-        IOTA_LOG_DEBUG(m_logger, "in storage no port defined, using 27017 by default");
+        PION_LOG_DEBUG(m_logger, "in storage no port defined, using 27017 by default");
         _host.append(":");
         _host.append("27017");
       }
@@ -125,12 +126,12 @@ void iota::MongoConnection::reconnect(){
         _timeout = boost::lexical_cast<double>(timeoutSTR);
       }
       catch (std::exception& e) {
-        IOTA_LOG_ERROR(m_logger, "Error in config, bad timeuot defined, use default");
+        PION_LOG_ERROR(m_logger, "Error in config, bad timeuot defined, use default");
         _timeout = MONGO_TIMEOUT;
       }
     }
     else {
-      IOTA_LOG_DEBUG(m_logger,
+      PION_LOG_DEBUG(m_logger,
                      "in storage no timeout defined, using 0 by default");
       _timeout = MONGO_TIMEOUT;
     }
@@ -139,7 +140,7 @@ void iota::MongoConnection::reconnect(){
       _database = storage[iota::store::types::DBNAME.c_str()].GetString();
     }
     else {
-      IOTA_LOG_DEBUG(m_logger, "in storage no dbname defined, using iot by default");
+      PION_LOG_DEBUG(m_logger, "in storage no dbname defined, using iot by default");
       _database = "iot";
     }
 
@@ -147,7 +148,7 @@ void iota::MongoConnection::reconnect(){
       _usuario = storage[iota::store::types::USER.c_str()].GetString();
     }
     else {
-      IOTA_LOG_DEBUG(m_logger, "in storage no user defined, mongo without auth");
+      PION_LOG_DEBUG(m_logger, "in storage no user defined, mongo without auth");
       _usuario = "";
     }
 
@@ -155,7 +156,7 @@ void iota::MongoConnection::reconnect(){
       _password = storage[iota::store::types::PWD.c_str()].GetString();
     }
     else {
-      IOTA_LOG_DEBUG(m_logger, "in storage no pwd defined, mongo without auth");
+      PION_LOG_DEBUG(m_logger, "in storage no pwd defined, mongo without auth");
       _password = "";
     }
     db_info.assign(" mongodb=" + _host + "/" + _database);
@@ -188,17 +189,17 @@ mongo::DBClientBase * iota::MongoConnection::createConnection()
       mongo::DBClientBase *res = NULL;
 
       if (!_replica.empty()) {
-      IOTA_LOG_DEBUG(m_logger, "Replica is defined " <<  _replica);
+      PION_LOG_DEBUG(m_logger, "Replica is defined " <<  _replica);
       std::vector<mongo::HostAndPort> hosts;
 
       boost::char_separator<char> sep(",");
       boost::tokenizer< boost::char_separator<char> > tokens(_host, sep);
       BOOST_FOREACH(const std::string& t, tokens) {
-        IOTA_LOG_DEBUG(m_logger,t);
+        PION_LOG_DEBUG(m_logger,t);
         hosts.push_back(mongo::HostAndPort(t));
       }
 
-      IOTA_LOG_DEBUG(m_logger,
+      PION_LOG_DEBUG(m_logger,
                      "Conex Mongo Replica set " <<
                      _host << ":" <<
                      "/" << _database << " " <<  _usuario <<
@@ -208,7 +209,7 @@ mongo::DBClientBase * iota::MongoConnection::createConnection()
       res = rpSet;
     }
     else {
-      IOTA_LOG_DEBUG(m_logger,
+      PION_LOG_DEBUG(m_logger,
                      "Conex Mongo DBClientConnection " <<
                      _host <<
                      "/" << _database << " " <<  _usuario <<
@@ -222,10 +223,10 @@ mongo::DBClientBase * iota::MongoConnection::createConnection()
     if (!_usuario.empty()){
         std::string errmsg;
         if (res->auth(_database, _usuario, _password,errmsg)){
-            IOTA_LOG_ERROR(m_logger,
+            PION_LOG_ERROR(m_logger,
                 " Mongodb auth ok user: " << _usuario);
         }else{
-           IOTA_LOG_ERROR(m_logger,
+           PION_LOG_ERROR(m_logger,
              "Error in authenticate Conexion MongoDB " << errmsg);
         }
 
@@ -249,22 +250,22 @@ mongo::DBClientBase* iota::MongoConnection::conn() {
   mongo::DBClientBase* conexion = 0;
 
   if (!_conex_pool.pop(conexion)){
-    IOTA_LOG_ERROR(m_logger,
+    PION_LOG_ERROR(m_logger,
              "It has reached the maximum mongo pool");
   }
 
   if (conexion == 0) {
-    IOTA_LOG_ERROR(m_logger,  "create a new con");
+    PION_LOG_ERROR(m_logger,  "create a new con");
      conexion = createConnection();
   }
-  IOTA_LOG_DEBUG(m_logger, "MongoConnection::conn returns " << conexion);
+  PION_LOG_DEBUG(m_logger, "MongoConnection::conn returns " << conexion);
   return conexion;
 }
 
  void iota::MongoConnection::done(mongo::DBClientBase* conexion) {
   boost::mutex::scoped_lock lock(_m);
   if (!_conex_pool.push(conexion)){
-    IOTA_LOG_ERROR(m_logger,
+    PION_LOG_ERROR(m_logger,
              "It has reached the maximum mongo pool, delete con");
   }
 

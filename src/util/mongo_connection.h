@@ -25,7 +25,7 @@
 
 #include <iostream>
 
-#include "util/iota_logger.h"
+#include <pion/logger.hpp>
 #include "mongo/client/dbclient.h"
 #include <boost/lockfree/queue.hpp>
 
