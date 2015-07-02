@@ -1223,6 +1223,9 @@ int iota::AdminService::create_response(
   pion::http::response& http_response,
   std::string& response) {
   std::ostringstream stream;
+
+  // If status code is error, response is built with content and error_details.
+  // If no error, first content if response is empty.
   if (status_code >= 299) {
     if (!content.empty() && !error_details.empty()) {
       std::string o_content(content);
@@ -1234,11 +1237,15 @@ int iota::AdminService::create_response(
              <<   "\"details\":\"" << o_details << "\"}";
       response.assign(stream.str());
     }
+    else if (!content.empty() && error_details.empty()) {
+      response.assign(content);
+    }
   }
-  else {
+  else if (response.empty() && !content.empty()){
     response.assign(content);
   }
-  if (!content.empty()) {
+
+  if (!response.empty()) {
     http_response.add_header(pion::http::types::HEADER_CONTENT_TYPE,
                              iota::types::IOT_CONTENT_TYPE_JSON);
   }

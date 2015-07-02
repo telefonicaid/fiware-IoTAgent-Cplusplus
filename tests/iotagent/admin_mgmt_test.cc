@@ -49,19 +49,4 @@ int main(int argc, char* argv[]) {
                       std::cerr));
   bool s = runner.run();
   return s ? 0 : 1;
-/*
-  CppUnit::TestResult    controller;
-  CppUnit::TestResultCollector result;
-  controller.addListener(&result);
-
-  CppUnit::TextUi::TestRunner runner;
-  runner.addTest(AdminManagerTest::suite());
-  runner.run(controller);
-
-  // important stuff happens next
-  std::ofstream xmlFileOut("adminmanagercpptestresults.xml");
-  CppUnit::XmlOutputter xmlOut(&result, xmlFileOut);
-  xmlOut.write();
-
-  return result.wasSuccessful() ? 0 : 1;*/
 }

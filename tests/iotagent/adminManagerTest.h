@@ -42,16 +42,18 @@
 
 class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminManagerTest);
-
+    /*
     CPPUNIT_TEST(testDeviceToBeAdded);
     CPPUNIT_TEST(testGetEndpointsFromDevices);
     CPPUNIT_TEST(testAddDevicesToEndpoints);
+    */
     CPPUNIT_TEST(testGetDevices);
+    /*
     CPPUNIT_TEST(testMultiplePostsWithResponse);
     CPPUNIT_TEST(testProtocol_ServiceManagement);
     CPPUNIT_TEST(testBADServiceManagement);
-
     CPPUNIT_TEST(testPostJSONDevices);
+
     CPPUNIT_TEST(testPutJSONDevice);
     CPPUNIT_TEST(testPutJSONDevice_Wrong);
     CPPUNIT_TEST(testPutProtocolDevice);
@@ -60,7 +62,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
 
     CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
-
+    */
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -89,6 +91,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     static const std::string POST_PROTOCOLS2_RERERE;
     static const std::string POST_PROTOCOLS2_RERERE_EMPTY;
     static const std::string GET_PROTOCOLS_RESPONSE;
+    static const std::string POST_PROTOCOLS_NO_AGENT;
 
     // SERVICE_MANAGEMENT
     static const std::string URI_SERVICES_MANAGEMET;
