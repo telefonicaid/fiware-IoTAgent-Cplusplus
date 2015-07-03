@@ -203,7 +203,7 @@ const std::string iota::ServiceMgmtCollection::_PUT_SCHEMA(
   "\"description\": \"uri for the context broker\","
   "\"type\": \"string\","
   "\"format\": \"uri\","
-  "\"minLength\":1"
+  "\"minLength\":0"
   "},"
   "\"outgoing_route\": {"
   "\"description\": \"VPN/GRE tunnel identifier\","

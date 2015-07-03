@@ -1,5 +1,6 @@
 * Fri Jul 31 2015 Agustin Gonzalez <lucas@tid.es> 1.2.0 
 - FEATURE IDAS-20524: Add metadatas to attributes in device provision.
+- FIX IDAS-20544: Cannot remove cbroker url with PUT service.
 
 * Wed Jun 30 2015 Agustin Gonzalez <lucas@tid.es> 1.1.0 
 - FEATURE IDAS-20504: Improve building process with third party sofware. 
