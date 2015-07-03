@@ -13,13 +13,11 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot')
 @step('a service with name "([^"]*)" and protocol "([^"]*)" created')
 def service_created_precond(step, service_name, protocol):
     if protocol:
-#        world.service_name = service_name
         world.protocol = protocol
         functions.service_precond(service_name, protocol)
 
 @step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def service_with_attributes_created_precond(step, service_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
-    world.service_name = service_name
     world.attributes=[]
     world.st_attributes=[]
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
@@ -39,7 +37,6 @@ def service_not_created_manager_precond(step, service_name, service_path, protoc
 
 @step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)" and apikey "([^"]*)" created')
 def service_with_params_precond(step, service_name, service_path, resource, apikey):
-    world.service_name = service_name
     world.srv_path = service_path
     world.resource = resource
     world.apikey = apikey
@@ -49,6 +46,21 @@ def service_with_params_precond(step, service_name, service_path, resource, apik
     world.typ1 = {}
     world.typ2 = {}
     functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
+
+@step('two Services with name "([^"]*)", paths "([^"]*)" and "([^"]*)", protocols "([^"]*)" and "([^"]*)" and apikey "([^"]*)" created')
+def services_with_params_precond(step, service_name, service_path, service_path2, protocol, protocol2, apikey):
+    world.apikey = apikey
+    world.cbroker= 'http://myurl:80'
+    if service_path2:
+        world.srv_path2 = service_path2
+        resource2 = URLTypes.get(protocol2)
+        world.resource2 = resource2
+        functions.service_with_params_precond(service_name, service_path2, resource2, apikey, world.cbroker)
+    if service_path:
+        world.srv_path = service_path
+        resource = URLTypes.get(protocol)
+        world.resource = resource
+        functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
 
 @step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)" created')
 def service_with_all_params_precond(step, service_name, service_path, resource, apikey, cbroker, entity_type, token):
@@ -151,7 +163,7 @@ def create_service_manager(step,srv_name,srv_path,protocol,apikey,cbroker,entity
     world.token = token
     service=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,entity_type,token,{},{},protocol)
     assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
-    print 'Se ha creado el servicio {}'.format(srv_name)
+    print 'Se ha creado el servicio:{} path:{} protocol:{} y apikey:{}'.format(srv_name,srv_path,protocol,apikey)
 
 @step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
 def create_service_with_attrs(step,srv_name,srv_path,resource,apikey,cbroker,typ1, typ2, name1, name2, type1, type2, value1, value2):
@@ -168,7 +180,7 @@ def create_service_with_attrs(step,srv_name,srv_path,resource,apikey,cbroker,typ
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     service=functions.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,{},{},world.attributes,world.st_attributes)
     assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
-    print 'Se ha creado el servicio {}'.format(srv_name)
+    print 'Se ha creado el servicio:{} path:{} resource:{} y apikey:{}'.format(srv_name,srv_path,resource,apikey)
 
 @step('I create a service with name "([^"]*)", path "([^"]*)", protocol "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
 def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey, cbroker, typ1, typ2, name1, name2, type1, type2, value1, value2):
@@ -186,7 +198,7 @@ def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     service=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,{},{},world.attributes,world.st_attributes,protocol)
     assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
-    print 'Se ha creado el servicio {}'.format(srv_name)
+    print 'Se ha creado el servicio:{} path:{} protocol:{} y apikey:{}'.format(srv_name,srv_path,protocol,apikey)
 
 @step('the Service with name "([^"]*)" and path "([^"]*)" is created')
 def service_created(step, service_name, service_path):
@@ -197,13 +209,13 @@ def service_created(step, service_name, service_path):
 def update_service_data(step, attribute, service_name, value):
     service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, world.resource, world.apikey)
     assert service.status_code == 204, 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
-    print 'Se ha actualizado el servicio {}'.format(service_name)
+    print 'Se ha actualizado el servicio:{} path:{} resource:{} y apikey:{}'.format(service_name,world.srv_path,world.resource,world.apikey)
 
 @step('I update in manager the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
 def update_service_data_manager(step, attribute, service_name, value):
     service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, {}, world.apikey, {}, True, world.protocol)
     assert service.status_code == 200, 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
-    print 'Se ha actualizado el servicio {}'.format(service_name)
+    print 'Se ha actualizado el servicio:{} path:{} protocol:{} y apikey:{}'.format(service_name,world.srv_path,world.protocol,world.apikey)
 
 @step('I retrieve the service data of "([^"]*)", path "([^"]*)", resource "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
 def get_service_data(step,service_name, service_path, resource, limit, offset):
@@ -215,9 +227,31 @@ def get_service_data_manager(step,service_name, service_path, protocol, limit, o
     req = functions.get_service_created(service_name, service_path, {}, limit, offset, protocol, True)
     assert req.ok, 'ERROR: ' + req.text
 
+@step('I delete the service "([^"]*)" with path "([^"]*)"')
+def delete_service_data(step, service_name, service_path):
+    world.service_path_del = service_path
+    req = functions.delete_service_data(service_name, service_path, world.resource, world.apikey)
+    assert req.status_code == 204, 'ERROR: ' + req.text + "El servicio {} no se ha borrado correctamente".format(service_name)
+    print 'Se ha borrado el servicio:{} path:{} resource:{} y apikey:{}'.format(service_name,service_path,world.resource,world.apikey)
+
+@step('I delete the service "([^"]*)" with param "([^"]*)" and path "([^"]*)"')
+def delete_service_with_device(step, service_name, device, service_path):
+    world.service_path_del = service_path
+    req = functions.delete_service_data(service_name, service_path, world.resource, world.apikey, device)
+    assert req.status_code == 204, 'ERROR: ' + req.text + "El servicio {} no se ha borrado correctamente".format(service_name)
+    print 'Se ha borrado el servicio:{} path:{} resource:{} y apikey:{}'.format(service_name,service_path,world.resource,world.apikey)
+    
 @step('I receive the service data of "([^"]*)" services')
 def check_service_data(step, num_services):
     functions.check_service_data(num_services)
+
+@step('the service data NOT contains attribute "([^"]*)" with value "([^"]*)"')
+def check_NOT_service_data(step, attribute, value):
+    if (world.req.status_code == 400) | (world.req.status_code == 404):
+        print 'No se comprueba el servicio'
+        return
+    functions.get_service_created(world.service_name, world.srv_path, world.resource)
+    functions.check_NOT_service_data(attribute, value)
 
 @step('the service data contains attribute "([^"]*)" with value "([^"]*)"')
 def check_service_data_updated(step, attribute, value):
@@ -237,17 +271,43 @@ def check_service_data_updated_manager(step, attribute, value):
     functions.get_service_created(world.service_name, world.srv_path, resource)
     functions.check_service_data(1, attribute, value)
 
-@step('the service data NOT contains attribute "([^"]*)" with value "([^"]*)"')
-def check_NOT_service_data(step, attribute, value):
-    if (world.req.status_code == 400) | (world.req.status_code == 404):
-        print 'No se comprueba el servicio'
-        return
-    functions.get_service_created(world.service_name, world.srv_path, world.resource)
-    functions.check_NOT_service_data(attribute, value)
+@step('the Services with name "([^"]*)" and paths "([^"]*)" and "([^"]*)" are deleted or not')
+def check_services_data_deleted(step, service_name, service_path, service_path2):
+    if service_path == 'true':
+        assert not functions.check_service_created(service_name, world.srv_path, world.resource, True)
+    else:
+        assert functions.check_service_created(service_name, world.srv_path, world.resource)       
+    if service_path2:
+        if service_path2 == 'true':
+            assert not functions.check_service_created(service_name, world.srv_path2, world.resource2, True)
+        else:
+            assert functions.check_service_created(service_name, world.srv_path2, world.resource2)       
 
+@step('the Service with name "([^"]*)" and path "([^"]*)" is not deleted')
+def check_service_data_deleted(step, service_name, service_path):
+    if service_name != 'void':
+        if '/' in service_path:
+            if world.resource:
+                assert functions.check_service_created(service_name, service_path, world.resource)
+            else:
+                assert functions.check_service_created(service_name, service_path)
+                
 @step('a device with device name "([^"]*)" and protocol "([^"]*)" created')    
 def device_created_precond(step, device_name, protocol):
     functions.device_precond(device_name, {}, protocol)
+
+@step('devices for services with name "([^"]*)", paths "([^"]*)" and "([^"]*)" and protocols "([^"]*)" and "([^"]*)" created')
+def devices_created_precond(step, service_name, service_path, service_path2, protocol, protocol2):
+    world.device_name={}
+    world.device_name2={}
+    if service_path:
+        device_name='device1'
+        functions.device_of_service_precond(service_name, service_path, device_name, {}, {}, {}, {}, {}, {}, protocol)
+        world.device_name=device_name
+    if service_path2:
+        device_name2='device2'
+        functions.device_of_service_precond(service_name, service_path2, device_name2, {}, {}, {}, {}, {}, {}, protocol2)
+        world.device_name2=device_name2
 
 @step('a device with device id "([^"]*)", protocol "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
 def device_with_entity_values_created_precond(step, device_id, protocol, ent_type, ent_name):
@@ -310,6 +370,18 @@ def device_with_endpoint_created_precond(step, device_id, device_name, endpoint,
 @step('a device with device id "([^"]*)", entity type "([^"]*)", entity name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
 def device_with_cmds_entity_values_created_precond(step, device_id, ent_type, ent_name, protocol, cmd_name, cmd_value):
     functions.device_with_commands_precond(device_id, ent_name, protocol, cmd_name, cmd_value, {}, ent_type)
+
+@step('devices "([^"]*)" of services with name "([^"]*)" and paths "([^"]*)" and "([^"]*)" are deleted or not')
+def check_devices_data_deleted(step, devices, service_name, service_path, service_path2):
+    if (service_path == 'true') & (devices=='true'):
+        assert not functions.check_device_created(service_name, world.device_name, world.srv_path, True)
+    else:
+        assert functions.check_device_created(service_name, world.device_name, world.srv_path)       
+    if service_path2:
+        if (service_path2 == 'true') & (devices=='true'):
+            assert not functions.check_device_created(service_name, world.device_name2, world.srv_path2, True)
+        else:
+            assert functions.check_device_created(service_name, world.device_name2, world.srv_path2)
 
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received by context broker')
 def check_measure_cbroker(step, asset_name, measures):

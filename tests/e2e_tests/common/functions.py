@@ -113,7 +113,6 @@ class Functions(object):
         return service
 
     def update_service_with_params(self, attribute, service_name, value, service_path={}, resource={}, apikey={}, fail=False, manager=False, protocol={}):
-        time.sleep(1)
         if not 'att' in attribute:
             if attribute=='empty_json':
                 if manager:
@@ -357,6 +356,19 @@ class Functions(object):
             assert response['cbroker'] != value, 'NOT Expected Result: ' + value + '\nObtained Result: ' + response['cbroker']
         assert response['cbroker'] == world.cbroker, 'Expected Result: ' + world.cbroker + '\nObtained Result: ' + response['cbroker']
 
+    def delete_service_data(self, service_name, service_path, resource={}, apikey={}, device={}):
+        req =  iotagent.delete_service_with_params(service_name, service_path, resource, apikey, device)
+        return req
+
+    def check_service_created(self, service_name, service_path, resource={}, delete=False):
+        req = iotagent.service_created(service_name, service_path, resource)
+        if  (delete) and not req:
+            if service_path == 'void':
+                del world.remember[service_name]['/']['resource'][resource]
+            else:
+                del world.remember[service_name][service_path]['resource'][resource]
+        return req
+
     def device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
         if not iotagent.device_created(world.service_name, device_id):
@@ -398,9 +410,9 @@ class Functions(object):
        
     def device_of_service_precond(self, service_name, service_path, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}, protocol={}, manager={}):
         world.device_id = device_id
-        if not self.device_created(service_name, device_id, service_path):
+        if not iotagent.device_created(service_name, device_id, service_path):
             prot = ProtocolTypes.get(protocol)
-            device = self.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot, manager)
+            device = iotagent.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
             assert device.status_code == 201, 'Error al crear el device {} '.format(device_id)
             print 'Device {} con path {} creado '.format(device_id, service_path)
         else:
@@ -412,6 +424,15 @@ class Functions(object):
         world.remember[service_name][service_path2].setdefault('device', set())
         world.remember[service_name][service_path2]['device'].add(device_id)
         world.device_exists = True
+
+    def check_device_created(self, service_name, device_name, service_path, delete=False):
+        req = iotagent.device_created(service_name, device_name, service_path)
+        if  (delete) and not req:
+            if service_path == 'void':
+                world.remember[service_name]['/']['device'].remove(device_name)
+            else:
+                world.remember[service_name][service_path]['device'].remove(device_name)
+        return req
 
     def check_measure(self, device, measures, timestamp={}, entity_type={}, entity_name={}, are_attrs=False):
         time.sleep(1)
