@@ -16,6 +16,21 @@ def service_created_precond(step, service_name, protocol):
         world.protocol = protocol
         functions.service_precond(service_name, protocol)
 
+@step('a Service with name "([^"]*)", path "([^"]*)" and protocol "([^"]*)" created')
+def service_with_path_created_precond(step, service_name, service_path, protocol):
+    world.service_name = service_name
+    world.srv_path = service_path
+    if (service_name == 'void'):
+        return
+    resource = URLTypes.get(protocol)
+    world.resource = resource
+    prot = ProtocolTypes.get(protocol)
+    world.prot = prot
+    apikey='apikey_' + str(service_name)    
+    world.apikey = apikey
+    world.cbroker= 'http://myurl:80'    
+    functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
+
 @step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def service_with_attributes_created_precond(step, service_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
     world.attributes=[]
@@ -309,6 +324,13 @@ def devices_created_precond(step, service_name, service_path, service_path2, pro
         functions.device_of_service_precond(service_name, service_path2, device_name2, {}, {}, {}, {}, {}, {}, protocol2)
         world.device_name2=device_name2
 
+@step('a Device with name "([^"]*)" and path "([^"]*)" not created')
+def device_not_created_precond(step, device_name, service_path):
+    world.srv_path=service_path
+    if (world.service_name == 'void'):
+        if  (not '/' in service_path) and (not service_path=='void'):
+            return
+    functions.not_device_precond(device_name)
 @step('a device with device id "([^"]*)", protocol "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
 def device_with_entity_values_created_precond(step, device_id, protocol, ent_type, ent_name):
     functions.device_precond(device_id, {}, protocol, {}, ent_name, ent_type)
@@ -316,47 +338,10 @@ def device_with_entity_values_created_precond(step, device_id, protocol, ent_typ
 
 @step('a device with device id "([^"]*)", protocol "([^"]*)", atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def device_with_attributes_created_precond(step, device_id, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
-    attributes=[]
-    st_attributes=[]
-    world.typ1 = typ1
-    world.typ2 = typ2
-    world.name1 = name1
-    world.name2 = name2
-    world.type1 = type1
-    world.type2 = type2
-    world.value1 = value1
-    world.value2 = value2
-    if typ1=='dev_attr':
-        attributes=[
-             {
-              "name": name1,
-              "type": type1,
-              "object_id": value1
-              }
-             ]
-    if typ2=='dev_attr':
-        attribute={
-              "name": name2,
-              "type": type2,
-              "object_id": value2
-              }
-        attributes.append(attribute)
-    if typ1=='dev_st_att':
-        st_attributes=[
-             {
-              "name": name1,
-              "type": type1,
-              "value": value1
-              }
-             ]
-    if typ2=='dev_st_att':
-        st_attribute={
-              "name": name2,
-              "type": type2,
-              "value": value2
-              }
-        st_attributes.append(st_attribute)
-    functions.device_precond(device_id, {}, protocol, {}, {}, {}, attributes, st_attributes)
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2, False)
+    functions.device_precond(device_id, {}, protocol, {}, {}, {}, world.attributes, world.st_attributes)
     world.device_id=device_id
 
 @step('a device with device id "([^"]*)", device name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
@@ -370,6 +355,37 @@ def device_with_endpoint_created_precond(step, device_id, device_name, endpoint,
 @step('a device with device id "([^"]*)", entity type "([^"]*)", entity name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
 def device_with_cmds_entity_values_created_precond(step, device_id, ent_type, ent_name, protocol, cmd_name, cmd_value):
     functions.device_with_commands_precond(device_id, ent_name, protocol, cmd_name, cmd_value, {}, ent_type)
+
+@step('I create a Device with name "([^"]*)", entity_name "([^"]*)", entity_type "([^"]*)", endpoint "([^"]*)" and protocol "([^"]*)"')
+def create_device(step, dev_name, entity_name, entity_type, endpoint, protocol):
+    world.typ1 = {}
+    world.typ2 = {}
+    world.entity_name = entity_name
+    world.entity_type = entity_type
+    world.endpoint = endpoint
+    req=functions.create_device(world.service_name, world.srv_path, dev_name, endpoint, {}, entity_name, entity_type, {}, {}, protocol)
+    assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
+    assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
+    print 'Se ha creado el device {}'.format(dev_name)
+
+@step('I create a Device with name "([^"]*)", protocol "([^"]*)", atributes and/or commands "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
+def create_device_with_attrs_cmds(step, dev_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    world.entity_name = {}
+    world.entity_type = {}
+    world.endpoint = {}
+    world.commands=[]
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2, False)
+    req=functions.create_device(world.service_name, world.srv_path, dev_name, {}, world.commands, {}, {}, world.attributes, world.st_attributes, protocol)
+    assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
+    assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
+    print 'Se ha creado el device {}'.format(dev_name)
+
+@step('the Device with name "([^"]*)" is created')
+def device_created(step, dev_name):
+    functions.get_device_created(world.service_name, world.srv_path, dev_name)
+    functions.check_device_data(dev_name)
 
 @step('devices "([^"]*)" of services with name "([^"]*)" and paths "([^"]*)" and "([^"]*)" are deleted or not')
 def check_devices_data_deleted(step, devices, service_name, service_path, service_path2):

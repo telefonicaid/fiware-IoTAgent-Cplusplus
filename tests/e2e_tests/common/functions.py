@@ -408,7 +408,23 @@ class Functions(object):
             world.device_name=device_name
         world.device_id=device_id
        
-    def device_of_service_precond(self, service_name, service_path, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}, protocol={}, manager={}):
+    def not_device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
+        world.device_id = device_id
+        if iotagent.device_created(world.service_name, device_id, world.srv_path):
+            device=iotagent.delete_device_with_params(device_id, world.service_name, world.srv_path)
+            assert device.status_code == 204, 'ERROR: ' + device.text + "El device {} no se ha borrado correctamente".format(device_id)
+            print 'El device {} se ha tenido que borrar'.format(device_id)
+            if iotagent.device_created(world.service_name, device_id, world.srv_path):
+                print 'ERROR: El device {} sigue existiendo'.format(device_id)
+                if world.srv_path=='void':
+                    service_path='/'
+                else:
+                    service_path=world.srv_path
+                world.remember[world.service_name][service_path].setdefault('device', set())
+                world.remember[world.service_name][service_path]['device'].add(device_id)
+                world.device_exists = True
+
+    def device_of_service_precond(self, service_name, service_path, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}, protocol={}):
         world.device_id = device_id
         if not iotagent.device_created(service_name, device_id, service_path):
             prot = ProtocolTypes.get(protocol)
@@ -425,6 +441,36 @@ class Functions(object):
         world.remember[service_name][service_path2]['device'].add(device_id)
         world.device_exists = True
 
+    def create_device(self, service_name, service_path, device_id, endpoint={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}, protocol={}, manager=False):
+        world.device_id = device_id
+        if protocol:
+            prot = ProtocolTypes.get(protocol)
+            if not prot:
+                prot = protocol
+        else:
+            prot = {}    
+        world.prot=prot
+        device = iotagent.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
+        if device.status_code == 201 or device.status_code == 409:
+            if service_path=='void':
+                service_path2='/'
+            else:
+                service_path2=service_path
+            world.remember[service_name][service_path2].setdefault('device', set())
+            world.remember[service_name][service_path2]['device'].add(device_id)
+            world.device_exists = True
+        return device
+
+    def get_device_created(self, service_name, service_path, device_name, manager=False):
+        if manager:
+            req =  iota_manager.get_device_with_params(service_name, device_name, service_path)
+            world.check_manager=True            
+        else:
+            req =  iotagent.get_device_with_params(service_name, device_name, service_path)
+            world.check_manager=False
+        world.req = req
+        return req
+    
     def check_device_created(self, service_name, device_name, service_path, delete=False):
         req = iotagent.device_created(service_name, device_name, service_path)
         if  (delete) and not req:
@@ -433,6 +479,58 @@ class Functions(object):
             else:
                 world.remember[service_name][service_path]['device'].remove(device_name)
         return req
+
+    def check_device_data(self, dev_name):
+        attributes=0
+        st_attributes=0
+        commands=0
+        response = world.req.json()
+        assert response['device_id'] == dev_name, 'Expected Result: ' + dev_name + '\nObtained Result: ' + response['device_id']
+        assert response['service'] == world.service_name, 'Expected Result: ' + world.service_name + '\nObtained Result: ' + response['service']
+        if world.srv_path:
+            if world.srv_path == 'void':
+                assert response['service_path'] == '/', 'Expected Result: ' + '/' + '\nObtained Result: ' + response['service_path']
+            else:
+                assert response['service_path'] == world.srv_path, 'Expected Result: ' + world.srv_path + '\nObtained Result: ' + response['service_path']
+        if world.entity_name:
+            assert response['entity_name'] == world.entity_name, 'Expected Result: ' + world.entity_name + '\nObtained Result: ' + response['entity_name']
+        if world.entity_type:
+            assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
+        if world.endpoint:
+            assert response['endpoint'] == world.endpoint, 'Expected Result: ' + world.endpoint + '\nObtained Result: ' + response['endpoint']
+        if world.typ1:
+            print 'Compruebo campo {} con valor {} y tipo {}'.format(world.name1,world.value1,world.type1)           
+            if world.typ1 == 'dev_attr':
+                assert response['attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
+                assert response['attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
+                assert response['attributes'][0]['object_id'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['attributes'][0]['object_id']
+                attributes+=1
+            if world.typ1 == 'dev_st_att':
+                assert response['static_attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['static_attributes'][0]['name']
+                assert response['static_attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
+                assert response['static_attributes'][0]['value'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['static_attributes'][0]['value']
+                st_attributes+=1
+            if world.typ1 == 'cmd':
+                assert response['commands'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['commands'][0]['name']
+                assert response['commands'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['commands'][0]['type']
+                assert response['commands'][0]['value'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['commands'][0]['value']
+                commands+=1
+        if world.typ2:
+            print 'Compruebo campo {} con valor {} y tipo {}'.format(world.name2,world.value2,world.type2)           
+            if world.typ2 == 'dev_attr':
+                assert response['attributes'][attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['attributes'][attributes]['name']
+                assert response['attributes'][attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['attributes'][attributes]['type']
+                assert response['attributes'][attributes]['object_id'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['attributes'][attributes]['object_id']
+            if world.typ2 == 'dev_st_att':
+                assert response['static_attributes'][st_attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['name']
+                assert response['static_attributes'][st_attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['type']
+                assert response['static_attributes'][st_attributes]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['value']
+            if world.typ2 == 'cmd':
+                assert response['commands'][commands]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['commands'][commands]['name']
+                assert response['commands'][commands]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['commands'][commands]['type']
+                assert response['commands'][commands]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['commands'][commands]['value']
+        if world.prot:
+            assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
 
     def check_measure(self, device, measures, timestamp={}, entity_type={}, entity_name={}, are_attrs=False):
         time.sleep(1)
@@ -616,7 +714,10 @@ class Functions(object):
                 break
         assert attr_matches, 'ERROR: attribute: ' + str(name) + " not found in: " + str(contextElement['attributes'])
 
-    def fill_attributes(self, typ1, name1, type1, value1, typ2={}, name2={}, type2={}, value2={}):
+    def fill_attributes(self, typ1, name1, type1, value1, typ2={}, name2={}, type2={}, value2={}, service=True):
+        world.attributes=[]
+        world.st_attributes=[]
+        world.commands=[]
         world.typ1 = typ1
         world.typ2 = typ2
         world.name1 = name1
@@ -625,36 +726,79 @@ class Functions(object):
         world.type2 = type2
         world.value1 = value1
         world.value2 = value2
-        if (typ1=='srv_attr') | (typ1=='dev_attr'):
-            world.attributes=[
-                 {
-                  "name": name1,
-                  "type": type1,
-                  "object_id": value1
-                  }
-                 ]
-        if (typ2=='srv_attr') | (typ2=='dev_attr'):
+        if (service and (typ1=='srv_attr')) | (not service and (typ1=='dev_attr')):
+            attribute={}
+            if name1:
+                if name1=='void':
+                    name1=""
+                attribute['name']=name1
+            if type1:
+                if type1=='void':
+                    type1=""
+                attribute['type']=type1
+            if value1:
+                if value1=='void':
+                    value1=""
+                attribute['object_id']=value1
+            world.attributes.append(attribute)
+        if (service and (typ2=='srv_attr')) | (not service and (typ2=='dev_attr')):
             attribute={
                   "name": name2,
                   "type": type2,
                   "object_id": value2
                   }
             world.attributes.append(attribute)
-        if (typ1=='srv_st_att') | (typ1=='dev_st_att'):
-            world.st_attributes=[
-                 {
-                  "name": name1,
-                  "type": type1,
-                  "value": value1
-                  }
-                 ]
-        if (typ2=='srv_st_att') | (typ2=='dev_st_att'):
+        if (service and (typ1=='srv_st_att')) | (not service and (typ1=='dev_st_att')):
+            st_attribute={}
+            if name1:
+                if name1=='void':
+                    name1=""
+                st_attribute['name']=name1
+            if type1:
+                if type1=='void':
+                    type1=""
+                st_attribute['type']=type1
+            if value1:
+                if value1=='void':
+                    value1=""
+                st_attribute['value']=value1       
+            world.st_attributes.append(st_attribute)
+        if (service and (typ2=='srv_st_att')) | (not service and (typ2=='dev_st_att')):
             st_attribute={
                   "name": name2,
                   "type": type2,
                   "value": value2
                   }
             world.st_attributes.append(st_attribute)
+        if (not service and (typ1=='cmd')):
+            command={}
+            if name1:
+                if name1=='void':
+                    name1=""
+                command['name']=name1
+            if type1:
+                if not type1=='null':
+                    if type1=='void':
+                        type1=""
+                    command['type']=type1
+            else:
+                type1='command'
+                command['type']=type1
+                world.type1 = type1
+            if value1:
+                if value1=='void':
+                    value1=""
+                command['value']=value1
+            print command
+            world.commands.append(command)
+        if (not service and (typ2=='cmd')):
+            command={
+                  "name": name2,
+                  "type": 'command',
+                  "value": value2
+                  }
+            world.type2 = 'command'
+            world.commands.append(command)
 
     def clean(self,dirty):
         if world.service_exists:
@@ -693,7 +837,7 @@ class Functions(object):
                         if (world.protocol == 'IotTT') | (world.protocol == 'IoTRepsol'):
                             apikey=''
                         else:
-                            apikey='apikey_' + str(world.service_name)
+                            apikey='apikey_' + str(srv)
                     req_service = iotagent.delete_service_with_params(srv, {}, resource2, apikey)
                     if req_service.status_code == 204:
                         print 'Se ha borrado el servicio ' + srv
