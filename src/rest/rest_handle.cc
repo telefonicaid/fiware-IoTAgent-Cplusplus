@@ -629,6 +629,10 @@ std::string iota::RestHandle::get_statistics() {
       rapidjson::Value counter;
       counter.SetObject();
 
+      if (it_stats->second.get()) == NULL){
+        PION_LOG_INFO(m_logger,
+                 "t_stats->second is NULL " );
+      }
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >
       accs =
         it_stats->second->get_counters();
@@ -647,6 +651,11 @@ std::string iota::RestHandle::get_statistics() {
           std::string acc_name(it->first);
           rapidjson::Value acc_o;
           acc_o.SetObject();
+
+          if (it->second.get()) == NULL){
+            PION_LOG_INFO(m_logger,
+                 "it->second is NULL " );
+          }
 
           acc_o.AddMember("count",
                           rapidjson::Value().SetDouble(boost::accumulators::count(*(it->second))),
@@ -1239,6 +1248,6 @@ int iota::RestHandle::get_default_timeout() {
 }
 
 void iota::RestHandle::reset_counters() {
-  _statistics.erase(iota::types::STAT_TRAFFIC);
+  //TODO _statistics.erase(iota::types::STAT_TRAFFIC);
 }
 
