@@ -632,6 +632,7 @@ std::string iota::RestHandle::get_statistics() {
       if (it_stats->second.get() == NULL){
         PION_LOG_INFO(m_logger,
                  "t_stats->second is NULL " );
+        continue;
       }
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >
       accs =
@@ -655,6 +656,7 @@ std::string iota::RestHandle::get_statistics() {
           if (it->second.get() == NULL){
             PION_LOG_INFO(m_logger,
                  "it->second is NULL " );
+            continue;
           }
 
           acc_o.AddMember("count",
@@ -1248,6 +1250,6 @@ int iota::RestHandle::get_default_timeout() {
 }
 
 void iota::RestHandle::reset_counters() {
-  //TODO _statistics.erase(iota::types::STAT_TRAFFIC);
+  _statistics.erase(iota::types::STAT_TRAFFIC);
 }
 

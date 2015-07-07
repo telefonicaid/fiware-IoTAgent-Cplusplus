@@ -2204,7 +2204,7 @@ void iota::AdminService::check_logs() {
         get_agents.AddMember("statistics", statistics, get_agents.GetAllocator());
       }
       get_info_agent(agent, q_p, get_agents);
-      agent->reset_counters();
+      //agent->reset_counters();
     }
     ++it;
   }

@@ -64,7 +64,7 @@ iota::IoTStatistic::iot_accumulator_ptr iota::IoTStatistic::operator[](
     return iota::IoTStatistic::iot_accumulator_ptr();
   }
   time_t to = time(0);
-  long acc_time = (to/86400)*86400*1000;
+  long acc_time = (to/3600)*3600;
   std::map<long,  std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >::iterator
   it =
     _accumulators_.begin();
@@ -85,6 +85,7 @@ iota::IoTStatistic::iot_accumulator_ptr iota::IoTStatistic::operator[](
     }
   }
   else {
+    reset(acc_time);
     iota::IoTStatistic::iot_accumulator_ptr acc(new iota::IoTStatistic::iot_accumulator);
     std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> accs;
 
@@ -104,7 +105,7 @@ void iota::IoTStatistic::add(const std::string& acc_name, double value) {
     return;
   }
   time_t to = time(0);
-  long acc_time = (to/86400)*86400*1000;
+  long acc_time = (to/3600)*3600;
   std::map<long,  std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >::iterator
   it =
     _accumulators_.begin();
@@ -124,6 +125,7 @@ void iota::IoTStatistic::add(const std::string& acc_name, double value) {
     }
   }
   else {
+    reset(acc_time);
     iota::IoTStatistic::iot_accumulator_ptr acc(new iota::IoTStatistic::iot_accumulator);
     (*acc)(value);
     std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> accs;
@@ -141,6 +143,13 @@ iota::IoTStatistic::get_counters() const {
   return _accumulators_;
 }
 
-void iota::IoTStatistic::reset() {
-  _accumulators_.clear();
+/**
+ * remove last 24 hours accumulate data
+ **/
+void iota::IoTStatistic::reset(long timestamp) {
+  if (_accumulators_.size() >= 24) {
+    _accumulators_.erase( _accumulators_.begin());
+  }
+
+  //_accumulators_.clear();
 }

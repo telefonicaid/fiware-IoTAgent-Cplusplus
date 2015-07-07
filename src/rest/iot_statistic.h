@@ -61,7 +61,7 @@ class IoTStatistic {
     /**
      * Reset all accumulators to initial state
      */
-    void reset();
+    void reset(long time_stamp);
 
   protected:
   private:
