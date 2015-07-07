@@ -609,9 +609,9 @@ std::string iota::RestHandle::remove_url_base(std::string url) {
 }
 
 std::string iota::RestHandle::get_statistics() {
+  boost::mutex::scoped_lock lock(m_mutex_stat);
   PION_LOG_DEBUG(m_logger,
                  "Get statistics " << get_resource() << " Counters " << _statistics.size());
-  boost::mutex::scoped_lock lock(m_mutex_stat);
   int i = 0;
   rapidjson::Document stats;
   stats.SetArray();
@@ -681,6 +681,7 @@ std::string iota::RestHandle::get_statistics() {
                             rapidjson::Value().SetDouble(boost::accumulators::mean(*(it->second))),
                             stats.GetAllocator());
           }
+          PION_LOG_DEBUG(m_logger, acc_name.c_str() );
           counter.AddMember(acc_name.c_str(), acc_o, stats.GetAllocator());
           ++it;
         }
