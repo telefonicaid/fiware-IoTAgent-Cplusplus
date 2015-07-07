@@ -629,7 +629,7 @@ std::string iota::RestHandle::get_statistics() {
       rapidjson::Value counter;
       counter.SetObject();
 
-      if (it_stats->second.get()) == NULL){
+      if (it_stats->second.get() == NULL){
         PION_LOG_INFO(m_logger,
                  "t_stats->second is NULL " );
       }
@@ -652,7 +652,7 @@ std::string iota::RestHandle::get_statistics() {
           rapidjson::Value acc_o;
           acc_o.SetObject();
 
-          if (it->second.get()) == NULL){
+          if (it->second.get() == NULL){
             PION_LOG_INFO(m_logger,
                  "it->second is NULL " );
           }
