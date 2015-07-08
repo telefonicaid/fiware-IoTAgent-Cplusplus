@@ -28,7 +28,21 @@
                     "entity_type": "thing"
                 }
             ]
-        },{
+        },
+        {
+            "resource": "/iot/evadts",
+            "services": [
+                {
+                    "apikey": "apikey3",
+                    "cbroker": "http:://0.0.0.0:1026",
+                    "service": "6664",
+                    "entity_type": "thing",
+                    "service_path": "servicepath3",
+                    "token": "token3"
+                }
+            ]
+        },
+        {
             "resource": "/iot/mqtt",
             "options": {
                 "ConfigFile": "MqttService.xml",
@@ -42,19 +56,6 @@
                     "token": "token6",
                     "entity_type": "thing",
                     "cbroker": "http://127.0.0.1:1026"
-                }
-            ]
-        },
-        {
-            "resource": "/iot/evadts",
-            "services": [
-                {
-                    "apikey": "apikey3",
-                    "cbroker": "http:://0.0.0.0:1026",
-                    "service": "6664",
-                    "entity_type": "thing",
-                    "service_path": "servicepath3",
-                    "token": "token3"
                 }
             ]
         }
