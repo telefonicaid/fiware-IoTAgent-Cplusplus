@@ -33,6 +33,7 @@
 
 #include "mqtt/MqttService.h"
 #include "util/iota_exception.h"
+#include "util/device_collection.h"
 
 
 using ::testing::Return;
@@ -659,7 +660,7 @@ void MqttTest::testPollingOneMqttCommand() {
   std::cout << "TEST: testPollingOneMqttCommand Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -763,7 +764,7 @@ void MqttTest::testPollingCommandExecution() {
   std::cout << "TEST: testPollingCommandExecution Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -925,7 +926,7 @@ void MqttTest::testPushCommandExecution() {
   std::cout << "TEST: testPushCommandExecution Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -951,6 +952,31 @@ void MqttTest::testPushCommandExecution() {
 
   std::string sensorfile("../../tests/iotagent/sensormqtt-mqttwriter.xml");
   std::string logPath("./");
+
+
+  iota::Device p("dev_mqtt_push", "service2");
+  p._service_path = "/ssrv2";
+  p._entity_type = "type2";
+  p._entity_name = "dev_mqtt_push";
+  p._endpoint = "some_endpoint";
+  p._commands.insert(std::pair<std::string, std::string>("PING","command"));
+  std::string location_body = "{\"name\":\"position\",\"type\":\"coords\"}";
+  p._attributes.insert(std::pair<std::string, std::string>("l",location_body));
+
+
+  iota::DeviceCollection table1;
+    table1.createTableAndIndex();
+
+
+
+  try {
+    iota::Device all("","");
+
+    table1.removed(all);
+    table1.insertd(p);
+  }
+  catch (std::exception& e) {
+  }
 
 
   std::cout << "TEST: testPushCommandExecution loading ESP...  " << std::endl;
@@ -1039,7 +1065,7 @@ void MqttTest::testPushCommandResponse() {
   std::cout << "TEST: testPushCommandResponse Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
 
   //Let's create and store a command like CommandHandle would do it
@@ -1205,8 +1231,8 @@ void MqttTest::testLocationContextBroker(){
 
 
   expected.append("{\"updateAction\":\"APPEND\",\"contextElements\":");
-  expected.append("[{\"id\":\"room_uttest\",\"type\":\"");
-  expected.append("thing");
+  expected.append("[{\"id\":\"dev_mqtt_push\",\"type\":\"");
+  expected.append("type2");
   expected.append("\",\"isPattern\":\"false\",\"attributes\"");
   expected.append(":[{\"name\":\"position\",\"type\":\"coords\",\"value\":\"23.2234,33.23424243\",\"metadatas\"");
   expected.append(":[{\"name\":\"location\",\"type\":\"string\",\"value\":\"WGS84\"}");
@@ -1216,7 +1242,7 @@ void MqttTest::testLocationContextBroker(){
 
   std::string actual = "";
   std::string apikey = "1234";
-  std::string device = "unitTest_mqtt_location";
+  std::string device = "dev_mqtt_push";
 
   std::string jsonMqtt = "";
   jsonMqtt.append(std::string("{\"name\" : \""));
