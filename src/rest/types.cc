@@ -234,6 +234,12 @@ const std::string types::IOT_CONTENT_TYPE_JSON("application/json");
 const std::string types::IOT_CONTENT_SUBTYPE_JSON("/json");
 const std::string types::IOT_HTTP_HEADER_AUTH("X-Auth-Token");
 
+// Manager errors array
+const std::string types::IOT_MANAGER_ERRORS("errors");
+const std::string types::IOT_MANAGER_ERRORS_CODE("code");
+const std::string types::IOT_MANAGER_ERRORS_DETAILS("details");
+const std::string types::IOT_MANAGER_ERRORS_ENDPOINT("endpoint");
+
 const int types::LIMIT_DEFAULT = 20;
 const int types::LIMIT_MAX = 1000;
 

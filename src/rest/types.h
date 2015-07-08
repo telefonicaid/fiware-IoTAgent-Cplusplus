@@ -192,6 +192,13 @@ struct types {
   static const std::string IOT_CONTENT_TYPE_JSON;
   static const std::string IOT_CONTENT_SUBTYPE_JSON;
   static const std::string IOT_HTTP_HEADER_AUTH;
+
+  // Manager errors array
+  static const std::string IOT_MANAGER_ERRORS;
+  static const std::string IOT_MANAGER_ERRORS_CODE;
+  static const std::string IOT_MANAGER_ERRORS_DETAILS;
+  static const std::string IOT_MANAGER_ERRORS_ENDPOINT;
+
   static const int LIMIT_DEFAULT;
   static const int LIMIT_MAX;
 

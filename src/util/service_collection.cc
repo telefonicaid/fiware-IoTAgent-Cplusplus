@@ -104,7 +104,7 @@ const std::string& iota::ServiceCollection::getPostSchema() const {
 }
 
 const std::string iota::ServiceCollection::_POST_SCHEMA(
-  "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
+ "{\"$schema\": \"http://json-schema.org/draft-04/schema#\","
   "\"title\": \"Service\","
   "\"description\": \"A service\","
   "\"additionalProperties\":false,"
@@ -194,6 +194,7 @@ const std::string iota::ServiceCollection::_POST_SCHEMA(
   "}"
   "}"
   "}"
+  ",\"required\": [\"object_id\",\"type\",\"name\"]"
   "}"
   "},"
   "\"static_attributes\": {"
@@ -244,6 +245,7 @@ const std::string iota::ServiceCollection::_POST_SCHEMA(
   "}"
   "}"
   "}"
+  ",\"required\": [\"value\",\"type\",\"name\"]"
   "}"
   "}"
   "}"
@@ -341,6 +343,7 @@ const std::string iota::ServiceCollection::_PUT_SCHEMA(
   "}"
   "}"
   "}"
+  ",\"required\": [\"object_id\",\"type\",\"name\"]"
   "}"
   "},"
   "\"static_attributes\": {"
@@ -391,6 +394,7 @@ const std::string iota::ServiceCollection::_PUT_SCHEMA(
   "}"
   "}"
   "}"
+  ",\"required\": [\"name\",\"type\",\"value\"]"
   "}"
   "}"
   "}"
