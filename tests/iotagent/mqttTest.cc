@@ -51,9 +51,53 @@ using ::testing::Invoke;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MqttTest);
 
+void insertDeviceMqtt(std::string name,std::string endpoint){
+  iota::Device p(name, "service2");
+  p._service_path = "/ssrv2";
+  p._entity_type = "type2";
+  p._entity_name = name;
+  p._endpoint = endpoint;
+  p._commands.insert(std::pair<std::string, std::string>("PING","command"));
+  std::string location_body = "{\"name\":\"position\",\"type\":\"coords\"}";
+  p._attributes.insert(std::pair<std::string, std::string>("l",location_body));
+
+
+  iota::DeviceCollection table1;
+    table1.createTableAndIndex();
+
+
+
+  try {
+    iota::Device all("","");
+
+    table1.removed(all);
+    table1.insertd(p);
+  }
+  catch (std::exception& e) {
+  }
+}
+
+void cleanDevices(){
+
+  iota::DeviceCollection table1;
+    table1.createTableAndIndex();
+
+
+
+  try {
+    iota::Device all("","");
+
+    table1.removed(all);
+
+  }
+  catch (std::exception& e) {
+  }
+
+}
+
 MqttTest::MqttTest() {
   mqttMsg.topic = NULL;
-  iota::Configurator::initialize("../../tests/iotagent/config.json");
+  iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
 }
 
 MqttTest::~MqttTest() {
@@ -72,11 +116,12 @@ void MqttTest::setUp() {
   cbPublish->set_resthandle(mqttService);
   cbPublish->set_command_service(mqttService);
 
+  insertDeviceMqtt("dev_mqtt_push","some_end_point");
 }
 
 void MqttTest::tearDown() {
   // delete cbPublish; //Already deleted inside MqttService.
-
+  cleanDevices();
   if (mqttMsg.topic != NULL) {
     free(mqttMsg.topic);
   }
@@ -683,6 +728,8 @@ void MqttTest::testPollingOneMqttCommand() {
   pion::http::response http_response;
   std::string response;
 
+  insertDeviceMqtt("dev_mqtt","");
+
   std::cout <<
             "TEST: testPollingOneMqttCommand Inserting command into Iotagent MqttService...  "
             << std::endl;
@@ -786,6 +833,8 @@ void MqttTest::testPollingCommandExecution() {
   std::multimap<std::string, std::string> query_parameters;
   pion::http::response http_response;
   std::string response;
+
+  insertDeviceMqtt("dev_mqtt","");
 
   std::cout <<
             "TEST: testPollingCommandExecution Inserting command into Iotagent MqttService...  "
@@ -954,29 +1003,6 @@ void MqttTest::testPushCommandExecution() {
   std::string logPath("./");
 
 
-  iota::Device p("dev_mqtt_push", "service2");
-  p._service_path = "/ssrv2";
-  p._entity_type = "type2";
-  p._entity_name = "dev_mqtt_push";
-  p._endpoint = "some_endpoint";
-  p._commands.insert(std::pair<std::string, std::string>("PING","command"));
-  std::string location_body = "{\"name\":\"position\",\"type\":\"coords\"}";
-  p._attributes.insert(std::pair<std::string, std::string>("l",location_body));
-
-
-  iota::DeviceCollection table1;
-    table1.createTableAndIndex();
-
-
-
-  try {
-    iota::Device all("","");
-
-    table1.removed(all);
-    table1.insertd(p);
-  }
-  catch (std::exception& e) {
-  }
 
 
   std::cout << "TEST: testPushCommandExecution loading ESP...  " << std::endl;

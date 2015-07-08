@@ -63,6 +63,7 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST (testPollingOneMqttCommand);
     CPPUNIT_TEST (testPollingCommandExecution);
     CPPUNIT_TEST (testExtractingCmdId);
+
     CPPUNIT_TEST (testPushCommandExecution);
     CPPUNIT_TEST (testPushCommandResponse);
     CPPUNIT_TEST (testPostprocessorJSON_IoTOutput_cmd);
