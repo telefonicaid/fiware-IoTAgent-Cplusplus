@@ -459,14 +459,15 @@ const std::string iota::DeviceCollection::_POST_SCHEMA(
                                "}"
                             "}"
                           "}"
+                           ",\"required\": [\"name\",\"type\",\"value\"]"
                           "}"
-                            ",\"required\": [\"name\",\"type\",\"value\"]"
+
                          "}"
                    "}"
+                    ",\"required\": [\"device_id\", \"protocol\"]"
                "}"
-                 ",\"required\": [\"device_id\", \"protocol\"]"
+
              "}"
-       "}"
    "}"
      ",\"required\": [\"devices\"]"
 "}");
@@ -645,8 +646,9 @@ const std::string iota::DeviceCollection::_PUT_SCHEMA(
                                "}"
                             "}"
                           "}"
+                          ",\"required\": [\"name\",\"type\",\"value\"]"
                          "}"
-                         ",\"required\": [\"name\",\"type\",\"value\"]"
+
                    "}"
    "}"
 "}");
