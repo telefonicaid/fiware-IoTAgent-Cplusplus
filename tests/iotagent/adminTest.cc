@@ -165,7 +165,18 @@ AdminTest::POST_SERVICE_WITH_ATTRIBUTES("{\"services\": [{"
                                         "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
                                         "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }],"
                                         "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
-
+const std::string
+AdminTest::POST_SERVICE_TO_DELETE_FIELDS("{\"services\": [{"
+                                        "\"apikey\": \"apikey\",\"token\": \"token\","
+                                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }],"
+                                        "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
+const std::string
+AdminTest::PUT_SERVICE_TO_DELETE_FIELDS("{"
+                                        "\"apikey\": \"apikey\",\"token\": \"\","
+                                        "\"attributes\": [],"
+                                        "\"static_attributes\": [],"
+                                        "\"cbroker\": \"\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}");
 //GET ALL empty
 const std::string
 AdminTest::GET_EMPTY_RESPONSE_SERVICES("{ \"count\": 0,\"services\": []}");
@@ -1081,6 +1092,40 @@ void  AdminTest::testPostService() {
                        "application/json", "",
                        headers, query_string, response);
   IOTASSERT_MESSAGE(srv_att + "|" + boost::lexical_cast<std::string>
+                    (code_res), code_res == 204);
+
+  std::cout << "@UT@POST TO DELETE FIELDS" << std::endl;
+
+  std::string srv_fields(service);
+  srv_fields.append("_fields");
+  code_res = http_test("/iot/services", "POST", srv_fields, "", "application/json",
+                       POST_SERVICE_TO_DELETE_FIELDS, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE(srv_fields + "|" + boost::lexical_cast<std::string>
+                    (code_res), code_res == POST_RESPONSE_CODE);
+
+  std::cout << "@UT@PUT" << std::endl;
+  code_res = http_test("/iot/services", "PUT", srv_fields, "",
+                       "application/json",
+                       PUT_SERVICE_TO_DELETE_FIELDS, headers,  query_string, response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE(srv_fields + "|" + boost::lexical_cast<std::string>
+                    (code_res), code_res == PUT_RESPONSE_CODE);
+
+  std::cout << "@UT@GET" << std::endl;
+  code_res = http_test("/iot/services", "GET", srv_fields, "", "application/json",
+                       "",
+                       headers, query_string, response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("No context broker ", response.find("\"cbroker\" : \"\"") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE("No attributes ", response.find("\"attributes\" : []") != std::string::npos);
+
+  // Final delete
+  std::cout << "@UT@DELETE " << srv_fields << std::endl;
+  code_res = http_test("/iot/services", "DELETE", srv_fields, "/*",
+                       "application/json", "",
+                       headers, query_string, response);
+  IOTASSERT_MESSAGE(srv_fields + "|" + boost::lexical_cast<std::string>
                     (code_res), code_res == 204);
 
   std::cout << "END@UT@ testPostService" << std::endl;
