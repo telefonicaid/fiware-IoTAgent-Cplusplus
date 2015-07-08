@@ -26,7 +26,7 @@
 #include <rest/rest_handle.h>
 #include <boost/property_tree/ptree.hpp>
 
-namespace iota {       
+namespace iota {
 
 class TestService :
   public iota::RestHandle {
@@ -55,6 +55,8 @@ class TestService :
                             const std::string& apikey,
                             const std::string& content,
                             std::string& cb_response);
+
+    virtual iota::ProtocolData get_protocol_data();
 
   private:
 

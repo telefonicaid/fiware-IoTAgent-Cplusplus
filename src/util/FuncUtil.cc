@@ -37,7 +37,9 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
+#include <boost/bind.hpp>
 #include <sstream>
+#include <algorithm>
 #include <pion/algorithm.hpp>
 namespace iota {
 boost::uuids::random_generator RandomGenerator;
@@ -335,60 +337,33 @@ void iota::check_fiware_service_path_name(std::string&
 void iota::check_name(std::string& name) {
 };
 
-//FF
-/*
-std::auto_ptr< xsd::cxx::tree::date_time<char,
-               xsd::cxx::tree::simple_type<
-               xsd::cxx::tree::type> > > string2date_time(std::string str)
-{
-   std::auto_ptr< xsd::cxx::tree::date_time<char,
-                  xsd::cxx::tree::simple_type<
-                  xsd::cxx::tree::type> > > ptr_datetime(0);
-
-   iota::RiotISO8601 iso_time(str);
-
-   if ( (iso_time.getDiffUTC().hours() != 0) ||
-        (iso_time.getDiffUTC().minutes() != 0) )
-   {
-      ptr_datetime.reset(new xsd::cxx::tree::date_time<char,
-               xsd::cxx::tree::simple_type<
-               xsd::cxx::tree::type> > (
-                    iso_time.get_year(),
-                    iso_time.get_month(),
-                    iso_time.get_day(),
-                    iso_time.get_hours(),
-                    iso_time.get_minutes(),
-                    iso_time.get_seconds(),
-                    iso_time.getDiffUTC().hours(),
-                    iso_time.getDiffUTC().minutes()));
-   }
-   else if ( iso_time.isLocal() == true )
-   {
-      ptr_datetime.reset(new xsd::cxx::tree::date_time<char,
-               xsd::cxx::tree::simple_type<
-               xsd::cxx::tree::type> > (
-                    iso_time.get_year(),
-                    iso_time.get_month(),
-                    iso_time.get_day(),
-                    iso_time.get_hours(),
-                    iso_time.get_minutes(),
-                    iso_time.get_seconds()));
-   }
-   else
-   {
-       ptr_datetime.reset(new xsd::cxx::tree::date_time<char,
-               xsd::cxx::tree::simple_type<
-               xsd::cxx::tree::type> > (
-                    iso_time.get_year(),
-                    iso_time.get_month(),
-                    iso_time.get_day(),
-                    iso_time.get_hours(),
-                    iso_time.get_minutes(),
-                    iso_time.get_seconds(),
-                    0,
-                    0));
-   }
-
-   return (ptr_datetime);
+void iota::writeDictionaryTerm(std::ostringstream& os, const pion::ihash_multimap::value_type& val) {
+	os << val.first << ": " << val.second
+		 << pion::http::types::STRING_CRLF;
 }
-*/
+
+std::string iota::http2string(pion::http::request& req) {
+	std::ostringstream os;
+	os << "Method: " << req.get_method()
+		 << pion::http::types::STRING_CRLF
+	   << "HTTP Version:  " << req.get_version_major() << "." << req.get_version_minor() 
+		 << pion::http::types::STRING_CRLF
+		 << "Resource requested: "
+	   << req.get_original_resource()
+		 << pion::http::types::STRING_CRLF
+		 << "Resource delivered: " 
+		 << req.get_resource() 
+		 << pion::http::types::STRING_CRLF
+		 << "Query string "
+		 << req.get_query_string()
+		 << pion::http::types::STRING_CRLF
+	   << "Content length: "
+		 << (unsigned long)req.get_content_length()
+		 << pion::http::types::STRING_CRLF
+		 << "Headers: ";
+	std::for_each(req.get_headers().begin(), req.get_headers().end(), boost::bind(&iota::writeDictionaryTerm, boost::ref(os), _1));
+	if (req.get_content_length() != 0) {
+		os << req.get_content();
+	}
+  return os.str();
+}

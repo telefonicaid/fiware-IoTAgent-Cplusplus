@@ -63,6 +63,14 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testAbout);
     CPPUNIT_TEST(testcheck_device_protocol);
 
+    CPPUNIT_TEST(testBADConfigurator);
+    CPPUNIT_TEST(testConfigurator);
+    CPPUNIT_TEST(testNgsiOperation);
+    CPPUNIT_TEST(testHttpMessages);
+    CPPUNIT_TEST(testConversionMap);
+    CPPUNIT_TEST(testAuthInfo);
+    CPPUNIT_TEST(testConfiguratorMongo);
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -182,6 +190,14 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
 
     void testAbout();
     void testcheck_device_protocol();
+
+    void testBADConfigurator();
+    void testConfigurator();
+    void testNgsiOperation();
+    void testHttpMessages();
+    void testConversionMap();
+    void testAuthInfo();
+    void testConfiguratorMongo();
 
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;

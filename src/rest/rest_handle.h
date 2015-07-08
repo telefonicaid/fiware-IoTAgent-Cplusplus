@@ -40,6 +40,7 @@
 #include <ngsi/Attribute.h>
 
 #include <util/async_comm.h>
+#include <mongo/client/dbclient.h>
 
 #include <util/common.h>
 
@@ -198,8 +199,13 @@ class RestHandle: public pion::http::plugin_service,
     */
     std::string get_public_ip();
 
+
     void update_endpoint_device(const boost::shared_ptr<Device>& dev,
                                 const std::string& new_endpoint);
+
+    void fill_service_with_bson(const mongo::BSONObj& bson,
+      boost::property_tree::ptree& pt);
+
 
   protected:
     std::string remove_url_base(std::string url);

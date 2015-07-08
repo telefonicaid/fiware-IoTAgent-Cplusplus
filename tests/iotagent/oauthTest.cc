@@ -35,6 +35,7 @@ std::string URL_BASE("/iot");
 iota::AdminService* AdminService_ptr;
 
 bool handler_invoked = false;
+bool access_control_handler = false;
 
 void handler_function(pion::http::request_ptr& request,
                       pion::tcp::connection_ptr& connection,
@@ -43,6 +44,13 @@ void handler_function(pion::http::request_ptr& request,
   handler_invoked = true;
   CPPUNIT_ASSERT_MESSAGE("Check async oauth user",
                          oauth_comm->get_user_id().compare("5e817c5e0d624ee68dfb7a72d0d31ce4") == 0);
+};
+
+void ac_handler_function(
+                      boost::shared_ptr<iota::AccessControl> ac_ptr, bool authorized) {
+  access_control_handler = true;
+  CPPUNIT_ASSERT_MESSAGE("Check ac", authorized);
+
 };
 OAuthTest::OAuthTest() {
 
@@ -322,9 +330,15 @@ void OAuthTest::testAccessControl() {
   boost::shared_ptr<HttpMock> http_mock;
   http_mock.reset(new HttpMock("/oauth"));
   http_mock->init();
+  http_mock->set_response(200, "Permit");
   std::string mock_port = boost::lexical_cast<std::string>(http_mock->get_port());
-  boost::shared_ptr<iota::AccessControl> ac(new iota::AccessControl());
-  std::string endpoint("http://0.0.0.0:" + mock_port);
+  std::string endpoint("http://0.0.0.0:" + mock_port+"/oauth");
+  boost::shared_ptr<boost::asio::io_service> io_service(new
+      boost::asio::io_service());
+  boost::shared_ptr<iota::AccessControl> ac(new iota::AccessControl(endpoint,
+                                    5,
+                                    io_service));
+
   std::vector<std::string> role;
   role.push_back("admin");
   std::string resource_id("frn:iotagent:43");
@@ -337,8 +351,11 @@ void OAuthTest::testAccessControl() {
 
   http_mock->set_response(200, "");
   boost::property_tree::ptree headers;
-  bool authorization = ac->authorize(role, resource_id, action, headers);
-  CPPUNIT_ASSERT_MESSAGE("Checking fake operation ", authorization);
+  bool authorization = ac->authorize(role, resource_id, action, headers, boost::bind(&ac_handler_function, _1, _2));
+  while (!access_control_handler) {
+    io_service->run();
+  }
+
   http_mock->stop();
   std::cout << "End testAccessControl" << std::endl;
 }

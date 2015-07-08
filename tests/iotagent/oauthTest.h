@@ -33,7 +33,7 @@ class OAuthTest: public CppUnit::TestFixture  {
     CPPUNIT_TEST(testValidateToken);
     CPPUNIT_TEST(testGetSubservice);
     CPPUNIT_TEST(testGetUserRoles);
-    //CPPUNIT_TEST(testAccessControl);
+    CPPUNIT_TEST(testAccessControl);
     CPPUNIT_TEST(testValidateAsync);
 
     CPPUNIT_TEST_SUITE_END();

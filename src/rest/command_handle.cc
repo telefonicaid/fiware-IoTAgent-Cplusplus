@@ -491,7 +491,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
 
   try {
     iota::DeviceCollection dev_table;
-    std::string srv, service_path;
+    std::string srv, service_path, protocol;
 
     iota::ServiceCollection srv_table;
 
@@ -501,10 +501,20 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
 
     while (srv_table.more()) {
       mongo::BSONObj srv_resu =srv_table.next();
+      boost::property_tree::ptree service_ptree;
+      fill_service_with_bson(srv_resu, service_ptree);
+
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
-      IOTA_LOG_DEBUG(m_logger, "Service: " <<  srv);
+      service_path = srv_resu.getStringField(iota::store::types::SERVICE_PATH);
+      iota::ProtocolData protocol_data = get_protocol_data();
+      protocol = protocol_data.protocol;
+      IOTA_LOG_DEBUG(m_logger, "service:" <<  srv <<
+            " service_path:" << service_path <<
+            " protocol:" << protocol);
 
       Device dev_find("", srv);
+      dev_find._protocol=protocol;
+      dev_find._service_path = service_path;
       dev_table.findd(dev_find);
 
       while (dev_table.more()) {
@@ -525,8 +535,6 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
           std::string reg_id;
           std::string reg_time;
 
-          boost::property_tree::ptree service_ptree;
-          get_service_by_name(service_ptree, srv);
           boost::shared_ptr<Device> item_dev(new Device(dev_resu));
 
           IOTA_LOG_DEBUG(m_logger, "setting env info");
@@ -593,6 +601,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
   catch (...) {
     IOTA_LOG_ERROR(m_logger, "Error sending registrations");
   }
+  IOTA_LOG_DEBUG(m_logger, "END Registrations ");
 }
 
 void iota::CommandHandle::send_register_device(Device& device) {
@@ -1707,7 +1716,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
 
     init_services_by_resource();
     // Obtaining ip and port from pion
-
+/*
     boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
       AdminService_ptr->get_web_server()->get_endpoint();
     boost::asio::ip::address pru_addr = my_endpoint.address();
@@ -1715,6 +1724,7 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
     IOTA_LOG_DEBUG(m_logger, "admin service ip: " << my_ip);
     unsigned short my_port =  my_endpoint.port();
     IOTA_LOG_DEBUG(m_logger, "admin service  port: " << my_port);
+		*/
 
     std::string my_resource = url_ngsi_update;
     size_t pos = url_ngsi_update.find("/updateContext");

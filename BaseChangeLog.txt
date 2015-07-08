@@ -1,5 +1,17 @@
+* Fri Jul 31 2015 Agustin Gonzalez <lucas@tid.es> 1.2.0 
+- FEATURE IDAS-20524: Add metadatas to attributes in device provision.
+- FEATURE IDAS-20527: Manager add error field ("errors") when agent fails.
+
 * Wed Jun 30 2015 Agustin Gonzalez <lucas@tid.es> 1.1.0 
 - FEATURE IDAS-20504: Improve building process with third party sofware. 
+- FEATURE IDAS-20507: Add mongo connection pool.
+- FEATURE IDAS-20515: Create entity after provisioning or modifying a device.
+- FEATURE IDAS-20517: IoTA Manager device pagination.
+- FIX IDAS-20529: New service needs context boker information.
+- FIX IDAS-20532: IoTA Manager register needs context broker information.
+- FIX IDAS-20523: Entity creation by new device uses a wrong entity type.
+- FIX IDAS-20537: UL20 agent repeats X-Auth-Token header when it send to CB with authorization.
+- FIX IDAS-20525: Context Broker Communicator tries one more time if unauthorized.
 
 * Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
 - FEATURE IDAS-20246: Add parameters (resource, apikey, device, entity) to operations over services and devices

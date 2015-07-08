@@ -31,7 +31,9 @@
 class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(Ul20Test);
 
+
    //TODO CPPUNIT_TEST(testTransformCommand);
+
     CPPUNIT_TEST(testNormalPOST);
     CPPUNIT_TEST(testFileGET);
     CPPUNIT_TEST(testMongoGET);
@@ -80,6 +82,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testQueryContext);
     CPPUNIT_TEST(testQueryContextAPI);
 */
+
     CPPUNIT_TEST_SUITE_END();
 
   public:

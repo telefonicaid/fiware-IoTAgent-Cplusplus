@@ -19,21 +19,25 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_TESTS_IOTAGENT_CSVTEST_H_
-#define SRC_TESTS_IOTAGENT_CSVTEST_H_
+#include <iostream>
+#include <cppunit/TestResult.h>
+#include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/CompilerOutputter.h>
+#include <cppunit/TextTestProgressListener.h>
+#include "UtilFunctionTest.h"
 
-#include <cppunit/extensions/HelperMacros.h>
 
-class CsvTest: public CppUnit::TestFixture  {
-
-    CPPUNIT_TEST_SUITE(CsvTest);
-    CPPUNIT_TEST(testCsv);
-    CPPUNIT_TEST_SUITE_END();
-  public:
-    void setUp() {};
-    void tearDown() {};
-  protected:
-    void testCsv();
-
-};
-#endif
+int main(int argc, char* argv[]) {
+  //CppUnit::TestResult controller;
+  //CppUnit::TestResultCollector result;
+  //controller.addListener( &result );
+  //CppUnit::TextTestProgressListener progress;
+  //controller.addListener( &progress );
+  CppUnit::TextUi::TestRunner runner;
+  runner.addTest(UtilFunctionTest::suite());
+  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
+                      std::cout));
+  bool s = runner.run();
+  return s ? 0 : 1;
+}

@@ -216,17 +216,20 @@ std::string iota::RestHandle::get_public_ip() {
   }
   if (public_ip.empty()) {
     // Own endpoint to register
+		/*
     boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
       AdminService_ptr->get_web_server()->get_endpoint();
-
+    */
     std::string my_ip = iota::Configurator::instance()->get_listen_ip();
+    unsigned short my_port =  iota::Configurator::instance()->get_listen_port();
 
-    unsigned short my_port =  my_endpoint.port();
+    //unsigned short my_port =  my_endpoint.port();
     public_ip.append(my_ip);
     public_ip.append(":");
     public_ip.append(boost::lexical_cast<std::string>(my_port));
   }
-  if (!public_ip.empty() && public_ip.find("http://", 0, 7) == std::string::npos) {
+  if (!public_ip.empty()
+      && public_ip.find("http://", 0, 7) == std::string::npos) {
     public_ip.insert(0, "http://");
   }
   return public_ip;
@@ -361,6 +364,7 @@ std::string iota::RestHandle::add_url(std::string url,
 
 void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
                                   pion::tcp::connection_ptr& tcp_conn) {
+	IOTA_LOG_DEBUG(m_logger, iota::http2string(*http_request_ptr));
   tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
@@ -369,8 +373,15 @@ void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
   double tr_in = get_payload_length(http_request_ptr);
   tr_in += get_query_length(http_request_ptr);
   IoTValue v((*stat)[iota::types::STAT_TRAFFIC_IN], tr_in);
-
-
+  /* Uncomment for SSL
+  IOTA_LOG_DEBUG(m_logger, SSL_get_verify_result(tcp_conn->get_ssl_socket().native_handle()));
+  X509* client_certificate = SSL_get_peer_certificate(tcp_conn->get_ssl_socket().native_handle());
+  if (client_certificate != NULL) {
+    char subject_name[256];
+    X509_NAME_oneline(X509_get_subject_name(client_certificate), reinterpret_cast<char*>(subject_name), 256);
+    IOTA_LOG_DEBUG(m_logger, subject_name);
+  }
+  */
   // Add header to trace
   http_request_ptr->add_header(iota::types::HEADER_TRACE_MESSAGES,
                                riot_uuid(get_resource()));
@@ -476,7 +487,6 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
 
   // Response to request
   std::string& response_buffer = create_buffer(tcp_conn);
-
   pion::http::response_writer_ptr writer(
     pion::http::response_writer::create(tcp_conn, *http_request_ptr,
                                         boost::bind(&iota::RestHandle::finish, this, tcp_conn)));
@@ -843,15 +853,31 @@ bool iota::RestHandle::get_service_by_apiKey(
   return true;
 }
 
+
+void iota::RestHandle::fill_service_with_bson(const mongo::BSONObj& bson,
+      boost::property_tree::ptree& pt){
+
+  int default_timeout = get_default_timeout();
+  std::string default_context_broker = get_default_context_broker();
+  std::string http_proxy = get_http_proxy();
+
+  bson_to_ptree(bson, pt);
+  if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
+    pt.put(iota::store::types::CBROKER, default_context_broker);
+  }
+  if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
+    pt.put(iota::store::types::TIMEOUT, default_timeout);
+  }
+  pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+
+}
+
 int iota::RestHandle::get_service_by_name_bbdd(
   boost::property_tree::ptree& pt,
   const std::string& name,
   const std::string& service_path) {
 
   std::string resource = get_resource();
-  std::string default_context_broker = get_default_context_broker();
-  int default_timeout = get_default_timeout();
-  std::string http_proxy = get_http_proxy();
 
   iota::Collection q1(iota::store::types::SERVICE_TABLE);
   mongo::BSONObjBuilder p2;
@@ -867,14 +893,7 @@ int iota::RestHandle::get_service_by_name_bbdd(
   int code_res = q1.find(p2.obj());
   if (q1.more()) {
     mongo::BSONObj r1 =  q1.next();
-    bson_to_ptree(r1, pt);
-    if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
-      pt.put(iota::store::types::CBROKER, default_context_broker);
-    }
-    if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
-      pt.put(iota::store::types::TIMEOUT, default_timeout);
-    }
-    pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+    fill_service_with_bson(r1, pt);
   }
   else {
     IOTA_LOG_ERROR(m_logger, "get_service_by_name_bbdd no service for "
@@ -912,14 +931,7 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
   int code_res = q1.find(p2.obj());
   if (q1.more()) {
     mongo::BSONObj r1 =  q1.next();
-    bson_to_ptree(r1, pt);
-    if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
-      pt.put(iota::store::types::CBROKER, default_context_broker);
-    }
-    if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
-      pt.put(iota::store::types::TIMEOUT, default_timeout);
-    }
-    pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+    fill_service_with_bson(r1, pt);
   }
   else {
     IOTA_LOG_ERROR(m_logger,
@@ -1167,11 +1179,12 @@ void iota::RestHandle::send_http_response(pion::http::response_writer_ptr&
   // Response statistic
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
-  double tr_out = get_payload_length(writer->get_response());
-  IoTValue v_out((*stat)[iota::types::STAT_TRAFFIC_OUT], tr_out);
+  //double tr_out = get_payload_length(writer->get_response());
+  IoTValue v_out((*stat)[iota::types::STAT_TRAFFIC_OUT], response_buffer.size());
   int status_code = writer->get_response().get_status_code();
-  writer->get_response().set_status_message(iota::Configurator::instance()->getHttpMessage(
-                                       status_code));
+  writer->get_response().set_status_message(
+    iota::Configurator::instance()->getHttpMessage(
+      status_code));
   writer->write_no_copy(response_buffer);
   //writer->write_no_copy(pion::http::types::STRING_CRLF);
   //writer->write_no_copy(pion::http::types::STRING_CRLF);

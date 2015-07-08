@@ -199,7 +199,7 @@ class AdminManagerService : public iota::AdminService {
 
     int delete_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
                         const std::string& device_id, std::string service,
-                        std::string sub_service, std::string x_auth_token);
+                        std::string sub_service, std::string x_auth_token, std::string& response);
 
 
     virtual int put_device_json(
@@ -314,12 +314,9 @@ class AdminManagerService : public iota::AdminService {
 
     int check_alarm(pion::http::response_ptr& http_resp,
                      boost::shared_ptr<iota::HttpClient>& http_client);
-    void build_errors(std::map<std::string, std::string>& resp_nok, mongo::BSONObjBuilder& builder);
 
-
-
-
-
+    void add_errors_to_response(std::string& response, std::map<std::string, std::string>& nok);
+    std::string error_manager(int code, std::string& message);
     std::string _class_name;
 
 };
