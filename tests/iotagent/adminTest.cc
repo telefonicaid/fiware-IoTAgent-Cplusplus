@@ -111,6 +111,13 @@ AdminTest::BAD_POST_DEVICE3("{\"devices\": "
                             "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                             "}]}");
 
+const std::string
+AdminTest::BAD_POST_DEVICE_NO_DEVICE_ID("{\"devices\": "
+                       "[{\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
+                       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": \"device_id@ping|%s\" }],"
+                       "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
+                       "}]}");
 
 const int AdminTest::POST_RESPONSE_CODE = 201;
 const std::string AdminTest::POST_RESPONSE("");
@@ -1291,6 +1298,21 @@ void AdminTest::testBADPostDevice() {
   std::cout << "@UT@4POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
                        BAD_POST_DEVICE3, headers, "", response);
+  std::cout << "@UT@4RESPONSEPOST: " <<  code_res << " " << response <<
+            std::endl;
+  IOTASSERT(code_res == 400);
+  IOTASSERT(response.find(
+              "{\"reason\":\"The request is not well formed\",\"details\":\"Additional properties not allowed")
+            !=
+            std::string::npos);
+  IOTASSERT_MESSAGE(response, response.find(
+                      "[/devices[0]/commands[0]/bomba]") !=
+                    std::string::npos);
+
+  // POST de device cuando no hay device_id
+  std::cout << "@UT@45POST" << std::endl;
+  code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+                       BAD_POST_DEVICE_NO_DEVICE_ID, headers, "", response);
   std::cout << "@UT@4RESPONSEPOST: " <<  code_res << " " << response <<
             std::endl;
   IOTASSERT(code_res == 400);

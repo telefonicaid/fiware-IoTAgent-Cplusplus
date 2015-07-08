@@ -323,8 +323,21 @@ void iota::esp::MqttService::transform_command(const std::string& command_name,
 
   command_line.put(iota::store::types::NAME, command_name);
 
-  iota::CommandHandle::transform_command(command_name, command_value,
-                                         updateCommand_value, sequence_id, item_dev, service, command_id, command_line);
+  if (command_value.compare(iota::types::RAW) == 0) {
+    result = updateCommand_value;
+  }else{
+    result.append(item_dev._name);
+    result.append("@");
+    result.append(command_name);
+    if (boost::starts_with(key, updateCommand_value)) {
+      result.append(key);
+    }
+    if (!updateCommand_value.empty()){
+      result.append(updateCommand_value);
+    }
+  }
+
+  command_line.put(iota::store::types::BODY, result);
 
 }
 

@@ -81,6 +81,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     static const std::string BAD_POST_DEVICE;
     static const std::string BAD_POST_DEVICE2;
     static const std::string BAD_POST_DEVICE3;
+    static const std::string BAD_POST_DEVICE_NO_DEVICE_ID;
     static const int POST_RESPONSE_CODE;
     static const std::string POST_RESPONSE;
     static const std::string POST_DEVICE_NO_DEVICE_ID;

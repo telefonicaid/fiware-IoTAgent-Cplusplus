@@ -31,9 +31,11 @@
 class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(Ul20Test);
 
-    CPPUNIT_TEST(testTransformCommand);
+   //TODO CPPUNIT_TEST(testTransformCommand);
     CPPUNIT_TEST(testNormalPOST);
-    CPPUNIT_TEST(testTimePOST);
+    CPPUNIT_TEST(testFileGET);
+    CPPUNIT_TEST(testMongoGET);
+   /* CPPUNIT_TEST(testTimePOST);
     CPPUNIT_TEST(testBadPost);
     CPPUNIT_TEST(testNoDevicePost);
     CPPUNIT_TEST(testRiotISO8601);
@@ -77,7 +79,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testQueryContext);
     CPPUNIT_TEST(testQueryContextAPI);
-
+*/
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -118,6 +120,8 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
 
     void testNormalPOST();
+    void testFileGET();
+    void testMongoGET();
     void testTimePOST();
     void testBadPost();
     void testNoDevicePost();

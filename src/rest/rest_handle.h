@@ -198,6 +198,9 @@ class RestHandle: public pion::http::plugin_service,
     */
     std::string get_public_ip();
 
+    void update_endpoint_device(const boost::shared_ptr<Device>& dev,
+                                const std::string& new_endpoint);
+
   protected:
     std::string remove_url_base(std::string url);
     void register_plugin();

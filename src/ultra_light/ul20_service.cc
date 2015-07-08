@@ -153,22 +153,25 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
   bool get_cmd = false;
   bool command_resp = false;
   boost::property_tree::ptree service_ptree;
-  std::string entity_type;
+  std::string entity_type, new_endpoint;
   boost::shared_ptr<Device> dev;
 
   try {
     int i = 0;
     for (i = 0; i < query.size(); i++) {
-      IOTA_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey());
+      IOTA_LOG_DEBUG(m_logger, "QUERY " << query[i].getKey() << query[i].getValue());
       if (query[i].getKey().compare("i") == 0) {
         KVP id("ID", query[i].getValue());
         querySBC.push_back(id);
         device = query[i].getValue();
       }
       else if (query[i].getKey().compare("ip") == 0) {
-        KVP ip("URL", query[i].getValue());
-        querySBC.push_back(ip);
-        url_update = true;
+        new_endpoint = query[i].getValue();
+        if (!new_endpoint.empty()){
+          KVP ip("URL", new_endpoint);
+          querySBC.push_back(ip);
+          url_update = true;
+        }
       }
       else if (query[i].getKey().compare("k") == 0) {
         KVP k("apikey", query[i].getValue());
@@ -206,7 +209,8 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
     //check if device exists
     dev = get_device(device,
                      service_ptree.get<std::string>(iota::store::types::SERVICE, ""),
-                     service_ptree.get<std::string>(iota::store::types::SERVICE_PATH, ""));
+                     service_ptree.get<std::string>(iota::store::types::SERVICE_PATH,
+                     iota::types::FIWARE_SERVICEPATH_DEFAULT));
     if (dev.get() == NULL) {
       IOTA_LOG_DEBUG(m_logger, "Device "  << device << " is not registered;"
                      " apikey: " << apikey <<
@@ -214,6 +218,16 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
                      " service_path: " << service_ptree.get<std::string>("service_path", ""));
       dev.reset(new Device(device, service_ptree.get<std::string>("service", "")));
       dev->_service_path = service_ptree.get<std::string>("service_path", "");
+    }else if (url_update){
+      std::string old_endpoint = dev->_endpoint;
+      if (!old_endpoint.empty() && old_endpoint.compare(new_endpoint) != 0){
+         IOTA_LOG_DEBUG(m_logger, " Device " <<  device
+               << " has a new endpoint "<<new_endpoint);
+         dev->_endpoint = new_endpoint;
+         if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+            update_endpoint_device(dev, new_endpoint);
+         }
+      }
     }
 
 
@@ -650,10 +664,25 @@ void iota::UL20Service::transform_command(const std::string& command_name,
     std::string& command_id,
     boost::property_tree::ptree& command_line) {
 
-  std::string command_http_response_translate;
-  CommandHandle::transform_command(command_name, command_value,
-                                   updateCommand_value,
-                                   sequence_id, item_dev, service, command_id, command_line);
+  std::string command_http_response_translate, result;
+  std::string key = "|";
+  IOTA_LOG_DEBUG(m_logger,
+                 "transform_command:: " << command_value << " updateCommand_value:" <<
+                 updateCommand_value);
+  if (command_value.compare(iota::types::RAW) == 0) {
+    result = updateCommand_value;
+  }else{
+    result.append(item_dev->_name);
+    result.append("@");
+    result.append(command_name);
+    if (boost::starts_with(key, updateCommand_value)) {
+      result.append(key);
+    }
+    if (!updateCommand_value.empty()){
+      result.append(updateCommand_value);
+    }
+  }
+  command_line.put(iota::store::types::BODY, result);
   // check if it is an ul20 command well formed
   std::string body = command_line.get(iota::store::types::BODY, "");
   if (isCommandResp(body, 2000, command_http_response_translate,
