@@ -27,7 +27,6 @@ Feature: Manager API Service Create
 		
 		@iot_manager_api @IDAS-20486 
     	Scenario Outline: Create a service with invalid fields
-#		Given a Service with name "<srv_name>", path "<srv_path>", protocol "<protocol>" and apikey "<apikey>" not created
 		When I try to create a Service with name "<srv_name>", path "<srv_path>", protocol "<protocol>", apikey "<apikey>" and cbroker "<cbroker>"
         Then user receives the "<HTTP_code>" and the "<exceptionText>"
 		
@@ -35,17 +34,15 @@ Feature: Manager API Service Create
 			|srv_name	|srv_path			|protocol	|apikey			 |cbroker			| HTTP_code	|exceptionText 												|
 			|srvm_post6	|void				|IoTUL2		|null			 |http://myurl:80	| 400		|Missing required property: apikey							|
 			|srvm_post6	|void				|null		|srvm_postkey6	 |http://myurl:80	| 400		|Missing required property: protocol						|
-#			|srvm_post6	|void				|IoTUL2		|srvm_postkey6	 |null				| 400		|Missing required property: cbroker							|
 			|srvm_post6	|void				|void		|srvm_postkey6	 |http://myurl:80	| 400		|Array is to short (0), minimum 1 [/services[0]/protocol]	|
 			|srvm_post6	|void				|IoTUL2		|srvm_postkey6	 |					| 400		|String is too short (0 chars), minimum 1					|
 			|srvm_post6	|void				|IoTUnknown	|srvm_postkey6	 |http://myurl:80	| 400		|No exists protocol IoTUnknown			 					|
-			|srvm_post6	|void				|IoTUL2		|srvm_postkey6	 |http:/wrongurl:80	| 400		|A parameter of the request is invalid/not allowed[{}]		|
+			|srvm_post6	|void				|IoTUL2		|srvm_postkey6	 |http:/wrongurl:80	| 500		|A parameter of the request is invalid/not allowed[{}]		|
 			|void		|void				|IoTUL2		|srvm_postkey6	 |http://myurl:80	| 400		|Fiware-Service not accepted								|
 			|srvm_post6	|path_srvm_post6	|IoTUL2		|srvm_postkey6	 |http://myurl:80	| 400		|Fiware-ServicePath not accepted							|
-#			|srvm_post7	|/path_srvm_post7	|IoTUL2		|srvm_postkey1	 |http://myurl:80	| 409		|Invalid parameter value: config.cbroker					|
-			|srvm_post5	|/path_srvm_post5	|IoTUL2		|				 |http://myurl:80	| 400		|duplicate key: iot.SERVICE 								|
-			|srvm_post1	|/path_srvm_post1	|IoTUL2		|srvm_postkey1	 |http://myurl:80	| 400		|duplicate key: iot.SERVICE 								|
-			|srvm_post2	|/path_srvm_post2	|IoTUL2		|srvm_postkey2_3 |http://myurl:80	| 400		|duplicate key: iot.SERVICE 								|
+			|srvm_post5	|/path_srvm_post5	|IoTUL2		|				 |http://myurl:80	| 500		|duplicate key: iot.SERVICE 								|
+			|srvm_post1	|/path_srvm_post1	|IoTUL2		|srvm_postkey1	 |http://myurl:80	| 500		|duplicate key: iot.SERVICE 								|
+			|srvm_post2	|/path_srvm_post2	|IoTUL2		|srvm_postkey2_3 |http://myurl:80	| 500		|duplicate key: iot.SERVICE 								|
 
 
     	@iot_manager_api @IDAS-20487 

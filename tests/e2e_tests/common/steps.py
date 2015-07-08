@@ -368,6 +368,17 @@ def create_device(step, dev_name, entity_name, entity_type, endpoint, protocol):
     assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
     print 'Se ha creado el device {}'.format(dev_name)
 
+@step('I create in manager a Device with name "([^"]*)", entity_name "([^"]*)", entity_type "([^"]*)", endpoint "([^"]*)" and protocol "([^"]*)"')
+def create_device_manager(step, dev_name, entity_name, entity_type, endpoint, protocol):
+    world.typ1 = {}
+    world.typ2 = {}
+    world.entity_name = entity_name
+    world.entity_type = entity_type
+    world.endpoint = endpoint
+    req=functions.create_device(world.service_name, world.srv_path, dev_name, endpoint, {}, entity_name, entity_type, {}, {}, protocol, True)
+    assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
+    print 'Se ha creado el device {}'.format(dev_name)
+
 @step('I create a Device with name "([^"]*)", protocol "([^"]*)", atributes and/or commands "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
 def create_device_with_attrs_cmds(step, dev_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
     world.entity_name = {}
@@ -380,6 +391,19 @@ def create_device_with_attrs_cmds(step, dev_name, protocol, typ1, typ2, name1, n
     req=functions.create_device(world.service_name, world.srv_path, dev_name, {}, world.commands, {}, {}, world.attributes, world.st_attributes, protocol)
     assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
     assert req.headers['Location'] == "/iot/devices/"+str(dev_name), 'ERROR de Cabecera: /iot/devices/' + str(dev_name) + ' esperada ' + str(req.headers['Location']) + ' recibida'
+    print 'Se ha creado el device {}'.format(dev_name)
+
+@step('I create in manager a Device with name "([^"]*)", protocol "([^"]*)", atributes and/or commands "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
+def create_device_with_attrs_cmds_manager(step, dev_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
+    world.entity_name = {}
+    world.entity_type = {}
+    world.endpoint = {}
+    world.commands=[]
+    world.attributes=[]
+    world.st_attributes=[]
+    functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2, False)
+    req=functions.create_device(world.service_name, world.srv_path, dev_name, {}, world.commands, {}, {}, world.attributes, world.st_attributes, protocol, True)
+    assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
     print 'Se ha creado el device {}'.format(dev_name)
 
 @step('the Device with name "([^"]*)" is created')

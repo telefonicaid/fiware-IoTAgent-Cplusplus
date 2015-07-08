@@ -1,6 +1,6 @@
 from lettuce import step, world
 from common.functions import Functions
-from common.steps import service_with_path_created_precond, device_not_created_precond, create_device, device_created
+from common.steps import service_with_path_created_precond, device_not_created_precond, create_device, create_device_with_attrs_cmds, device_created
 
 
 functions = Functions()

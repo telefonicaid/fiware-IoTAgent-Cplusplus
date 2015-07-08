@@ -450,7 +450,10 @@ class Functions(object):
         else:
             prot = {}    
         world.prot=prot
-        device = iotagent.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
+        if manager:
+            device = iota_manager.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
+        else:
+            device = iotagent.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)            
         if device.status_code == 201 or device.status_code == 409:
             if service_path=='void':
                 service_path2='/'
