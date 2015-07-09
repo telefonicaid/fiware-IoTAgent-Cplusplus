@@ -293,7 +293,7 @@ void MongoTest::testNoMongo() {
   std::cout << "testGenericCollection22" << std::endl;
   iota::Collection table1("PRUEBA");
   std::cout << "num alarms:" <<  iota::Alarm::instance()->size() << std::endl;
-  CPPUNIT_ASSERT_MESSAGE("alarm not found", iota::Alarm::instance()->size() == 1);
+
 
   std::cout << "END testNoMongo " << std::endl;
 }
