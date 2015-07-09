@@ -621,13 +621,10 @@ std::string iota::RestHandle::get_statistics() {
       _statistics.begin();
 
   while (it_stats != _statistics.end()) {
-    rapidjson::Value stat_element;
-    stat_element.SetObject();
+
     std::string stat_name(it_stats->first);
 
     try {
-      rapidjson::Value counter;
-      counter.SetObject();
 
       if (it_stats->second.get() == NULL){
         PION_LOG_INFO(m_logger,
@@ -640,6 +637,11 @@ std::string iota::RestHandle::get_statistics() {
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >::iterator
       it_tm = accs.begin();
       while (it_tm != accs.end()) {
+        
+				rapidjson::Value stat_element;
+				stat_element.SetObject();
+				rapidjson::Value counter;
+				counter.SetObject();
 
         // Timestamp
         stat_element.AddMember("timestamp", rapidjson::Value().SetInt64(it_tm->first),
@@ -686,6 +688,10 @@ std::string iota::RestHandle::get_statistics() {
           ++it;
         }
         stat_element.AddMember(stat_name.c_str(), counter, stats.GetAllocator());
+				// This if could be removed
+        if (stat_element.HasMember(stat_name.c_str())) {
+          stats.PushBack(stat_element, stats.GetAllocator());
+        }
         ++it_tm;
       }
     }
@@ -693,9 +699,6 @@ std::string iota::RestHandle::get_statistics() {
       PION_LOG_ERROR(m_logger, "Stats " << e.what());
     }
     ++it_stats;
-    if (stat_element.HasMember(stat_name.c_str())) {
-      stats.PushBack(stat_element, stats.GetAllocator());
-    }
   }
   //stats.AddMember("statistics", resource, stats.GetAllocator());
   rapidjson::StringBuffer buffer;

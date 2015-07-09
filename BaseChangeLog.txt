@@ -1,4 +1,5 @@
-* Fri Mar 6 2015 Agustin Gonzalez <lucas@tid.es> 1.0.0
+* Thu Jul 10 2015 Agustin Gonzalez <lucas@tid.es> 1.0.2
+- FIX IDAS-20548: IoTA crash in statistics. 
 
 * Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
 - FEATURE IDAS-20246: Add parameters (resource, apikey, device, entity) to operations over services and devices
