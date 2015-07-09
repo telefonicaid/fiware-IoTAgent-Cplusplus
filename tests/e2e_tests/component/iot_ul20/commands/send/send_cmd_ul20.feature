@@ -6,8 +6,8 @@ Feature: UL20 Command Send
     	
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20170
     	Scenario Outline: Send a single command
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", device name "<device_name>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with id "<device_id>", name "<device_name>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", entity_type "<ent_type>" and value "<value>" 
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker
 		
@@ -20,8 +20,8 @@ Feature: UL20 Command Send
 
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20236
     	Scenario Outline: Send a pooling command
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", device name "<device_name>", endpoint "<endpoint>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with id "<device_id>", name "<device_name>", endpoint "<endpoint>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", entity_type "<ent_type>" and value "<value>"
 		And I get the command and send the response "<response>" for device "<device_id>"
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker
@@ -37,8 +37,8 @@ Feature: UL20 Command Send
 
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20169
     	Scenario Outline: Send a wrong command
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", device name "<device_name>", endpoint "<endpoint>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with id "<device_id>", name "<device_name>", endpoint "<endpoint>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a wrong command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", value "<value>" and wrong "<wrong_field>" 
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received or NOT by context broker
 		
@@ -46,7 +46,6 @@ Feature: UL20 Command Send
             |device_id	|device_name |service		|protocol	|command		|value		|cmd_value	|endpoint														|status		|wrong_field			|response																			|
             |dev2		|room2		 |serviceul20	|IoTUL2		|attr_1_dev_2	|ping2		|dev2@%s	|http://10.95.213.159:5371/simulaClient/lightCommand			|OK			|simulator_type			|no ul20 response command:															|
             |dev3		|room3		 |serviceul20	|IoTUL2		|attr_1_dev_3	|ping3		|dev3@%s	|http://192.168.1.1:9001										|error		|nonexist_destination	|http://192.168.1.1:9001/  [No route to host]										|
-#            |dev4		|room4		 |serviceul20	|IoTUL2		|attr_1_dev_4	|ping4		|dev4@%s	|http://192.0.0.1:9001											|error		|unreachable_dest		|http://192.0.0.1:9001/  [Connection timed out]										|         
             |dev4		|room4		 |serviceul20	|IoTUL2		|attr_1_dev_4	|ping4		|dev4@%s	|http://10.95.213.159:5371/simulaClient/lightCommand?delay=10	|error		|unreachable_dest		|http://10.95.213.159:5371/simulaClient/lightCommand delay=10 [Connection timed out]|         
             |dev2_1		|room2_1	 |serviceul20	|IoTUL2		|attr_2_dev_2_1	|ping2_1	|%s			|																|fail		|wrong_command_format	|this is not a valid command														|
             |dev2		|room2	 	 |serviceul20	|IoTUL2		|attr_2_dev_2	|ping2_1	|			|																|fail		|nonexistent_command	|the device does not have implemented this command									|         
@@ -56,8 +55,8 @@ Feature: UL20 Command Send
 
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20171
     	Scenario Outline: Send a command for a device with entity name 
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", entity type "<ent_type>", entity name "<ent_name>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with id "<device_id>", entity type "<ent_type>", entity name "<ent_name>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", entity_type "<ent_type>" and value "<value>" 
 		Then the command of device "<device_name>" with response "<response>", entity_type "<ent_type>" and status "<status>" is received by context broker
 		

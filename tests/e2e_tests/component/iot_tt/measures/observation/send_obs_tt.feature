@@ -5,8 +5,8 @@ Feature: TT Observation	Send
     	
     	@iot_tt @IDAS-20233
     	Scenario Outline: Send a single observation
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device name "<device_name>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_name>" and protocol "<protocol>" created
 		When I send a measure to the GW with name "<device_name>", protocol "<protocol>", type "<obs_type>" and value "<obs_value>" 
 		Then "<num_measures>" measures of asset "<device_name>" with measures "<generated_measures>" are received by context broker
 		
@@ -36,8 +36,8 @@ Feature: TT Observation	Send
          
     	@iot_tt @IDAS-20234
     	Scenario Outline: Send a multiple observation
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device name "<device_name>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_name>" and protocol "<protocol>" created
 		When I send several measures to the GW with name "<device_name>", protocol "<protocol>" 
 			|obs_type		|obs_value		|
 			|<obs_type1>	|<obs_value1>	|
@@ -56,8 +56,8 @@ Feature: TT Observation	Send
 
     	@iot_tt @IDAS-20235
     	Scenario Outline: Send a wrong observation
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device name "<device_name>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_name>" and protocol "<protocol>" created
 		When I send a measure to the GW with name "<device_name>", protocol "<protocol>", type "<obs_type>", value "<obs_value>" and with wrong field "<field>"
 		Then "<num_meas>" measures of asset "<device_name>" with measures "<gen_meas>" and error "<error_text>" are received or NOT by context broker
 		
@@ -82,8 +82,8 @@ Feature: TT Observation	Send
 
     	@iot_tt @IDAS-20320
     	Scenario Outline: Send a wrong multiple observation
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device name "<device_name>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_name>" and protocol "<protocol>" created
 		When I send several measures to the GW with name "<device_name>", protocol "<protocol>" 
 			|obs_type		|obs_value		|
 			|<obs_type1>	|<obs_value1>	|

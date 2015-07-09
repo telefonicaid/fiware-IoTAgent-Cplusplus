@@ -464,9 +464,9 @@ class Functions(object):
             world.device_exists = True
         return device
 
-    def get_device_created(self, service_name, service_path, device_name, manager=False):
+    def get_device_created(self, service_name, service_path, device_name, protocol={}, manager=False):
         if manager:
-            req =  iota_manager.get_device_with_params(service_name, device_name, service_path)
+            req =  iota_manager.get_device_with_params(service_name, device_name, service_path, protocol)
             world.check_manager=True            
         else:
             req =  iotagent.get_device_with_params(service_name, device_name, service_path)
@@ -474,6 +474,16 @@ class Functions(object):
         world.req = req
         return req
     
+    def get_devices_created(self, service_name, service_path, entity={}, limit={}, offset={}, detailed={}, protocol={}, manager=False):
+        if manager:
+            req =  iota_manager.get_devices_with_params(service_name, service_path, protocol, entity, detailed, limit, offset)
+            world.check_manager=True            
+        else:
+            req =  iotagent.get_devices_with_params(service_name, service_path, protocol, entity, detailed, limit, offset)
+            world.check_manager=False
+        world.req = req
+        return req
+
     def check_device_created(self, service_name, device_name, service_path, delete=False):
         req = iotagent.device_created(service_name, device_name, service_path)
         if  (delete) and not req:
@@ -483,12 +493,19 @@ class Functions(object):
                 world.remember[service_name][service_path]['device'].remove(device_name)
         return req
 
-    def check_device_data(self, dev_name):
+    def check_device_data(self, dev_name, manager=False, detailed='on'):
         attributes=0
         st_attributes=0
         commands=0
-        response = world.req.json()
+        res = world.req.json()
+        if manager:
+            assert len(res['devices']) == 1, 'Error: 1 devices expected, ' + str(len(res['devices'])) + ' received'
+            response = res['devices'][0]
+        else:
+            response = res
         assert response['device_id'] == dev_name, 'Expected Result: ' + dev_name + '\nObtained Result: ' + response['device_id']
+        if not detailed=='on':
+            return
         assert response['service'] == world.service_name, 'Expected Result: ' + world.service_name + '\nObtained Result: ' + response['service']
         if world.srv_path:
             if world.srv_path == 'void':
@@ -534,6 +551,38 @@ class Functions(object):
                 assert response['commands'][commands]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['commands'][commands]['value']
         if world.prot:
             assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
+    
+    def check_devices_data(self, num_devices, data):
+        entity_name={}
+        entity_type={}
+        res = world.req.json()
+        assert len(res['devices']) == int(num_devices), 'Error: ' + str(num_devices) + ' devices expected, ' + str(len(res['devices'])) + ' received'
+        if len(res['devices']) == 1:
+            self.check_device_data(world.device_id, True, world.detailed)
+        if len(res['devices']) > 1:
+            for i in data.split('/'):
+                if '#' in i:
+                    d = dict([i.split('#')]) 
+                    device_name=str(d.items()[0][0])
+                    attrs=str(d.items()[0][1])
+                    if ':' in attrs:
+                        d2 = dict([attrs.split(':')])
+                        entity_name=str(d2.items()[0][0])
+                        entity_type=str(d2.items()[0][1])
+                else:
+                    device_name=i
+                dev_matches=False
+                for dev in res['devices']:
+                    if str(device_name) == dev['device_id']:
+                        print 'Compruebo device {} en {}'.format(device_name,dev)
+                        assert dev['device_id'] == str(device_name), 'ERROR: device_name: ' + str(device_name) + " not found in: " + str(dev)
+                        if entity_name:
+                            assert dev['entity_name'] == str(entity_name), 'ERROR: entity_name: ' + str(entity_name) + " not found in: " + str(dev)
+                        if entity_type:
+                            assert dev['entity_type'] == str(entity_type), 'ERROR: entity_type: ' + str(entity_type) + " not found in: " + str(dev)
+                        dev_matches=True
+                        break
+                assert dev_matches, 'ERROR: device: ' + str(device_name) + " not found in: " + str(res['devices'])
 
     def check_measure(self, device, measures, timestamp={}, entity_type={}, entity_name={}, are_attrs=False):
         time.sleep(1)

@@ -6,7 +6,7 @@ Feature: UL20 Observation Send
 
     	@iot_ul20 @IDAS-18478
     	Scenario Outline: Send a single observation
-		Given a service with name "<service>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
 		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
 		Then the measure of asset "<device_id>" with measures "<generated_measures>" and timestamp "<timestamp>" is received by context broker
 		
@@ -21,7 +21,7 @@ Feature: UL20 Observation Send
 
         @iot_ul20 @IDAS-18480
     	Scenario Outline: Send a multiple observation
-		Given a service with name "<service>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
 		When I send several measures to the GW with apikey, id "<device_name>", protocol "<protocol>" 
 			|value 		|alias		|
 			|<valuea>	|<aliasa>	|
@@ -43,7 +43,7 @@ Feature: UL20 Observation Send
 
     	@iot_ul20 @IDAS-20047
     	Scenario Outline: Send a wrong observation
-		Given a service with name "<service>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
 		When I send a wrong measure to the GW with apikey, id "<device_name>", protocol "<protocol>", alias "<alias2>", value "<value>", timestamp "<timestamp>" and wrong field "<field>" 
 		Then the measure of asset "<device_name>" with measures "<generated_measures>" is received or NOT by context broker
 		
@@ -59,8 +59,8 @@ Feature: UL20 Observation Send
 
     	@iot_ul20 @IDAS-20172
     	Scenario Outline: Send a single observation for provisioned device
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", protocol "<protocol>", entity type "<ent_type>" and entity name "<ent_name>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_id>", protocol "<protocol>", entity type "<ent_type>" and entity name "<ent_name>" created
 		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
 		Then the measure of asset "<device_id>" with entity_type "<ent_type>", entity_name "<ent_name>" and measures "<generated_measures>" is received by context broker
 		
@@ -74,8 +74,8 @@ Feature: UL20 Observation Send
 
     	@iot_ul20 @IDAS-20358
     	Scenario Outline: Send a single observation for provisioned device with attributes
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
 		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
 		Then the measure of asset "<device_id>" with measures "<generated_measures>" and attributes are received by context broker
 		
@@ -92,7 +92,7 @@ Feature: UL20 Observation Send
     	@iot_ul20 @IDAS-20399
     	Scenario Outline: Send a single observation for provisioned service and device with attributes
 		Given a service with name "<service>", protocol "<protocol>" and atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
-		And a device with device id "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
+		And a device with name "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
 		When I send a measure to the GW with apikey, id "<device_id>", protocol "<protocol>", alias "<alias>", timestamp "<timestamp>" and value "<value>" 
 		Then the measure of asset "<device_id>" with measures "<generated_measures>" and attributes are received by context broker
 		

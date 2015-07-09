@@ -5,8 +5,8 @@ Feature: MQTT Command Send
 	
 	@iot_mqtt @iot_cmd_mqtt @IDAS-18382
 	Scenario: send a command with parameters
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", device name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with id "<device_id>", name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", cmd_type "<cmd_type>" and value "<cmd_name>" 
 		And I wait the pooling period
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker
@@ -20,8 +20,8 @@ Feature: MQTT Command Send
 		
 	@iot_mqtt @iot_cmd_mqtt @IDAS-18381
 	Scenario: send a command without parameters
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", device name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with id "<device_id>", name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", cmd_type "<cmd_type>" and value "<cmd_name>" 
 		And I wait the pooling period
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker
@@ -34,8 +34,8 @@ Feature: MQTT Command Send
 		
 	@iot_mqtt @iot_cmd_mqtt @IDAS-18380
 	Scenario: send a command without response
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", device name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with id "<device_id>", name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", cmd_type "<cmd_type>" and value "<cmd_name>" 
 		And I wait the command timeout "<timeout>" for "<cmd_type>"
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker

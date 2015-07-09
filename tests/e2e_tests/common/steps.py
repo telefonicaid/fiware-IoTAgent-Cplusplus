@@ -10,7 +10,7 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot')
 
 # IoTA STEPS
 
-@step('a service with name "([^"]*)" and protocol "([^"]*)" created')
+@step('a Service with name "([^"]*)" and protocol "([^"]*)" created')
 def service_created_precond(step, service_name, protocol):
     if protocol:
         world.protocol = protocol
@@ -31,10 +31,8 @@ def service_with_path_created_precond(step, service_name, service_path, protocol
     world.cbroker= 'http://myurl:80'    
     functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
 
-@step('a service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
+@step('a Service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def service_with_attributes_created_precond(step, service_name, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
-    world.attributes=[]
-    world.st_attributes=[]
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     functions.service_precond(service_name, protocol, world.attributes, world.st_attributes)
 
@@ -307,7 +305,7 @@ def check_service_data_deleted(step, service_name, service_path):
             else:
                 assert functions.check_service_created(service_name, service_path)
                 
-@step('a device with device name "([^"]*)" and protocol "([^"]*)" created')    
+@step('a Device with name "([^"]*)" and protocol "([^"]*)" created')    
 def device_created_precond(step, device_name, protocol):
     functions.device_precond(device_name, {}, protocol)
 
@@ -331,28 +329,42 @@ def device_not_created_precond(step, device_name, service_path):
         if  (not '/' in service_path) and (not service_path=='void'):
             return
     functions.not_device_precond(device_name)
-@step('a device with device id "([^"]*)", protocol "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
+
+@step('a Device with name "([^"]*)", protocol "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
 def device_with_entity_values_created_precond(step, device_id, protocol, ent_type, ent_name):
     functions.device_precond(device_id, {}, protocol, {}, ent_name, ent_type)
-#   world.device_id=device_id
 
-@step('a device with device id "([^"]*)", protocol "([^"]*)", atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
+@step('a Device with name "([^"]*)", protocol "([^"]*)", atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def device_with_attributes_created_precond(step, device_id, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
-    world.attributes=[]
-    world.st_attributes=[]
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2, False)
     functions.device_precond(device_id, {}, protocol, {}, {}, {}, world.attributes, world.st_attributes)
-    world.device_id=device_id
 
-@step('a device with device id "([^"]*)", device name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+@step('a Device with name "([^"]*)", protocol "([^"]*)", entity_name "([^"]*)" and entity_type "([^"]*)" created')
+def device_with_entity_values_of_service_precond(step, device_id, protocol, entity_name, entity_type):
+    world.typ1 = {}
+    world.typ2 = {}
+    world.endpoint = {}
+    world.entity_name = entity_name
+    world.entity_type = entity_type
+    functions.device_of_service_precond(world.service_name, world.srv_path, device_id, {}, {}, entity_name, entity_type, {}, {}, protocol)
+
+@step('a Device with name "([^"]*)", entity_name "([^"]*)", entity_type "([^"]*)", endpoint "([^"]*)", protocol "([^"]*)" and atribute or command "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
+def device_with_attr_or_cmd_created_precond(step, device_id, entity_name, entity_type, endpoint, protocol, typ, name, type1, value):
+    world.entity_name = entity_name
+    world.entity_type = entity_type
+    world.endpoint = endpoint
+    functions.fill_attributes(typ, name, type1, value, {}, {}, {}, {}, False)
+    functions.device_of_service_precond(world.service_name, world.srv_path, device_id, endpoint, world.commands, entity_name, entity_type, world.attributes, world.st_attributes, protocol)
+
+@step('a Device with id "([^"]*)", name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
 def device_with_commands_created_precond(step, device_id, device_name, protocol, cmd_name, cmd_value):
     functions.device_with_commands_precond(device_id, device_name, protocol, cmd_name, cmd_value, {}, {})
 
-@step('a device with device id "([^"]*)", device name "([^"]*)", endpoint "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+@step('a Device with id "([^"]*)", name "([^"]*)", endpoint "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
 def device_with_endpoint_created_precond(step, device_id, device_name, endpoint, protocol, cmd_name, cmd_value):
     functions.device_with_commands_precond(device_id, device_name, protocol, cmd_name, cmd_value, endpoint, {})
 
-@step('a device with device id "([^"]*)", entity type "([^"]*)", entity name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+@step('a Device with id "([^"]*)", entity type "([^"]*)", entity name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
 def device_with_cmds_entity_values_created_precond(step, device_id, ent_type, ent_name, protocol, cmd_name, cmd_value):
     functions.device_with_commands_precond(device_id, ent_name, protocol, cmd_name, cmd_value, {}, ent_type)
 
@@ -405,6 +417,33 @@ def create_device_with_attrs_cmds_manager(step, dev_name, protocol, typ1, typ2, 
     req=functions.create_device(world.service_name, world.srv_path, dev_name, {}, world.commands, {}, {}, world.attributes, world.st_attributes, protocol, True)
     assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
     print 'Se ha creado el device {}'.format(dev_name)
+
+@step('I retrieve the device data of "([^"]*)"')
+def get_device_data(step, dev_name):
+    world.manager=False
+    req=functions.get_device_created(world.service_name, world.srv_path, dev_name)
+    assert req.ok, 'ERROR: ' + req.text
+
+@step('I retrieve the device data of "([^"]*)" with protocol "([^"]*)"')
+def get_device_data_manager(step, dev_name, protocol):
+    world.manager=True
+    req=functions.get_device_created(world.service_name, world.srv_path, dev_name, protocol, True)
+    assert req.ok, 'ERROR: ' + req.text
+
+@step('I list the devices of "([^"]*)", path "([^"]*)", entity "([^"]*)", protocol "([^"]*)", detailed "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
+def get_devices_list(step, service_name, service_path, entity, protocol, detailed, limit, offset):
+    world.manager=False
+    world.detailed = detailed
+    req=functions.get_devices_created(service_name, service_path, entity, limit, offset, detailed, protocol)
+    assert req.ok, 'ERROR: ' + req.text
+
+@step('I receive the device data of "([^"]*)"')
+def check_device_data(step, dev_name):
+    functions.check_device_data(dev_name, world.manager)
+
+@step('I receive the device data of "([^"]*)" devices with data "([^"]*)"')
+def check_devices_data(step, num_devices, data):
+    functions.check_devices_data(num_devices, data)
 
 @step('the Device with name "([^"]*)" is created')
 def device_created(step, dev_name):

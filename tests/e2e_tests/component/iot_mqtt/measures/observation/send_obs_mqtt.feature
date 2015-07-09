@@ -5,7 +5,7 @@ Feature: MQTT Measure Deliver
 	
 	@iot_mqtt @IDAS-18304
 	Scenario Outline: Send one measure
-		Given a service with name "<service>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
 		When I publish a MQTT message with device_id "<device_id>", alias "<alias>" and payload "<value>"
 		And I Wait some time
 		Then the measure of asset "<device_id>" with measures "<generated_measures>" is received by context broker
@@ -21,7 +21,7 @@ Feature: MQTT Measure Deliver
 
 	@iot_mqtt @IDAS-19969
 	Scenario Outline: Send one wrong measure
-		Given a service with name "<service>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
 		When I publish a MQTT message with device_id "<device_id>", alias "<alias>", payload "<value>" and wrong field "<field>" 
 		And I Wait some time
 		Then the measure of asset "<device_id>" with measures "<generated_measures>" is received or NOT by context broker
@@ -37,7 +37,7 @@ Feature: MQTT Measure Deliver
 	
 	@iot_mqtt @IDAS-18329	
 	Scenario Outline: Send several measures
-		Given a service with name "<service>" and protocol "<protocol>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
 		When I publish a MQTT message with device_id "<device_id>", tag "<tag>" and payload "<alias1>|<value1>#<alias2>|<value2>#<alias3>|<value3>#<alias4>|<value4>"
 		And I Wait some time
 		Then "<num_measures>" measures of asset "<device_id>" are received by context broker
@@ -56,8 +56,8 @@ Feature: MQTT Measure Deliver
 
     @iot_mqtt @IDAS-20395
     Scenario Outline: Send a single observation for provisioned device
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", protocol "<protocol>", entity type "<ent_type>" and entity name "<ent_name>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_id>", protocol "<protocol>", entity type "<ent_type>" and entity name "<ent_name>" created
 		When I publish a MQTT message with device_id "<device_id>", alias "<alias>" and payload "<value>"
 		And I Wait some time
 		Then the measure of asset "<device_id>" with entity_type "<ent_type>", entity_name "<ent_name>" and measures "<generated_measures>" is received by context broker
@@ -72,8 +72,8 @@ Feature: MQTT Measure Deliver
 
     @iot_mqtt @IDAS-20396
     Scenario Outline: Send a single observation for provisioned device with attributes
-		Given a service with name "<service>" and protocol "<protocol>" created
-		And a device with device id "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
+		Given a Service with name "<service>" and protocol "<protocol>" created
+		And a Device with name "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
 		When I publish a MQTT message with device_id "<device_id>", alias "<alias>" and payload "<value>"
 		And I Wait some time
 		Then the measure of asset "<device_id>" with measures "<generated_measures>" and attributes are received by context broker
