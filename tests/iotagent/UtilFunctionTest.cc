@@ -203,9 +203,6 @@ void UtilFunctionTest::testStatistic() {
   CPPUNIT_ASSERT(boost::accumulators::mean(*stat_1["stat1"]) == 6);
   stat_1.add("stat2", 5);
   CPPUNIT_ASSERT(boost::accumulators::count(*stat_1["stat2"]) == 1);
-  stat_1.reset();
-  a = stat_1.get_counters();
-  CPPUNIT_ASSERT_MESSAGE("Reset stat 0 counters", a.size() == 0);
 }
 
 void UtilFunctionTest::testFilter() {
