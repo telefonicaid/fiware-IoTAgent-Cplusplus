@@ -20,9 +20,9 @@ def service_created_precond(step, service_name, protocol):
     world.service_name = service_name
     user_steps.service_precond(service_name, protocol)
 
-@step('a device with device name "([^"]*)" created')    
-def device_created_precond(step, device_name):
-    user_steps.device_precond(device_name)
+@step('a device with device name "([^"]*)" and protocol "([^"]*)" created')    
+def device_created_precond(step, device_name, protocol):
+    user_steps.device_precond(device_name, {}, protocol)
 
 @step('I send a measure to the GW with name "([^"]*)", protocol "([^"]*)", type "([^"]*)" and value "([^"]*)"')
 def send_measure(step, device_id, protocol, obs_type, value):
@@ -158,8 +158,8 @@ def send_measures(step, device_id, protocol):
                 measure2 += "GM,"+obs1.split('#')[0]+","
                 measure2 += world.measure2       
                 world.are_measures=True
-            else:
-                world.are_measures=False                      
+#            else:
+#                world.are_measures=False                      
         elif obs_type == "GC":
             world.types.append('')
             if "/" in obs_value:
@@ -531,7 +531,7 @@ def check_NOT_measures_cbroker(step, num_measures, asset_name, measures, error):
     assetElement = contextElement['id']
     typeElement = contextElement['type']
     assert typeElement == "thing", 'ERROR: ' + str(contextElement)
-    if world.are_measures:
+    if world.are_measures & (num_measures!='0'):
         check_measures_cbroker(step, num_measures, asset_name, measures)
     else:
         if not world.field=="device":
