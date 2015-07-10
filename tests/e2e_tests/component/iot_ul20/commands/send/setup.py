@@ -1,12 +1,12 @@
 from lettuce import step, world
 from iotqautils.cbUtils import CBUtils
 from iotqautils.gtwMeasures import Gw_Measures_Utils
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,GW_HOSTNAME,IOT_PORT,PATH_IOT_COMMAND,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,PATH_UL20_COMMAND,TIMEOUT_COMMAND
+from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,GW_HOSTNAME,IOT_PORT,PATH_UL20_COMMAND,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,PATH_UL20_SIMULATOR,TIMEOUT_COMMAND
 from common.user_steps import UserSteps
 import requests
 import time,datetime
 
-cb = CBUtils(instance=GW_HOSTNAME,port=IOT_PORT,path_update=PATH_IOT_COMMAND)
+cb = CBUtils(instance=GW_HOSTNAME,port=IOT_PORT,path_update=PATH_UL20_COMMAND)
 gw = Gw_Measures_Utils(server_root=IOT_SERVER_ROOT)
 user_steps = UserSteps()
 
@@ -17,8 +17,8 @@ def service_created_precond(step, service_name, protocol):
         world.protocol = protocol
         user_steps.service_precond(service_name, protocol)
 
-@step('a device with device id "([^"]*)", device name "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
-def device_created_precond(step, device_id, device_name, cmd_name, cmd_value):
+@step('a device with device id "([^"]*)", device name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+def device_created_precond(step, device_id, device_name, protocol, cmd_name, cmd_value):
     replaces = {
         "#": "|"
     }
@@ -31,11 +31,11 @@ def device_created_precond(step, device_id, device_name, cmd_name, cmd_value):
               "value": cmd_value
               }
              ]
-    user_steps.device_precond(device_id, CBROKER_URL+PATH_UL20_COMMAND, command, device_name)
+    user_steps.device_precond(device_id, CBROKER_URL+PATH_UL20_SIMULATOR, protocol, command, device_name)
     world.device_name=device_name
 
-@step('a device with device id "([^"]*)", device name "([^"]*)", endpoint "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
-def device_with_endpoint_created_precond(step, device_id, device_name, endpoint, cmd_name, cmd_value):
+@step('a device with device id "([^"]*)", device name "([^"]*)", endpoint "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+def device_with_endpoint_created_precond(step, device_id, device_name, endpoint, protocol, cmd_name, cmd_value):
     replaces = {
         "#": "|"
     }
@@ -52,11 +52,11 @@ def device_with_endpoint_created_precond(step, device_id, device_name, endpoint,
         if not "http://" in endpoint:
             endpoint = CBROKER_URL + endpoint       
     if cmd_value:
-        user_steps.device_precond(device_id, endpoint, command, device_name)
+        user_steps.device_precond(device_id, endpoint, protocol, command, device_name)
         world.device_name=device_name
 
-@step('a device with device id "([^"]*)", entity type "([^"]*)", entity name "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
-def device_with_entity_values_created_precond(step, device_id, ent_type, ent_name, cmd_name, cmd_value):
+@step('a device with device id "([^"]*)", entity type "([^"]*)", entity name "([^"]*)", protocol "([^"]*)", command name "([^"]*)" and command value "([^"]*)" created')
+def device_with_entity_values_created_precond(step, device_id, ent_type, ent_name, protocol, cmd_name, cmd_value):
     replaces = {
         "#": "|"
     }
@@ -69,7 +69,7 @@ def device_with_entity_values_created_precond(step, device_id, ent_type, ent_nam
               "value": cmd_value
               }
              ]
-    user_steps.device_precond(device_id, CBROKER_URL+PATH_UL20_COMMAND, command, ent_name, ent_type)
+    user_steps.device_precond(device_id, CBROKER_URL+PATH_UL20_SIMULATOR, protocol, command, ent_name, ent_type)
     world.device_id=device_id
 
 @step('I send a command to the IoTAgent with service "([^"]*)", device "([^"]*)", command "([^"]*)", entity_type "([^"]*)" and value "([^"]*)"')
@@ -151,8 +151,13 @@ def send_wrong_command(step, service, device_id, cmd_name, value, field):
 #        world.req_text=req.text
     else:
         world.code = 200
-    assert req.ok, 'ERROR: ' + str(req)
-    world.req_text=req.json()
+    if field=="nonexistent_service":
+        assert not req.ok, 'ERROR: ' + str(req)
+        world.req_text=req.text
+        world.code = 4000
+    else:    
+        assert req.ok, 'ERROR: ' + str(req)
+        world.req_text=req.json()
 
 @step('I get the command and send the response "([^"]*)" for device "([^"]*)"')
 def send_response(step, response, device_id):
@@ -321,13 +326,17 @@ def check_NOT_command_cbroker(asset_name, response, cmd_type):
     #print 'Metadatas {}'.format(metasElement)
     assert assetElement != "{}".format(asset_name), 'ERROR: device: ' + str(asset_name) + " found in: " + str(contextElement)
     print "Command is NOT received"
-    resp = world.req_text
+    if world.code==4000:
+        resp = world.req_text
+        assert response in resp
+        return
     if world.code:
-        assert resp['errorCode']['code'] == world.code, 'ERROR: code error expected ' + str(world.code) + " received " + str(resp['errorCode']['code'])
+        resp = world.req_text['contextResponses'][0]
+        assert resp['statusCode']['code'] == str(world.code), 'ERROR: code error expected ' + str(world.code) + " received " + str(resp['statusCode']['code'])
         if world.response:
-            assert resp['errorCode']['reasonPhrase'] == str(world.response), 'ERROR: text error expected ' + str(world.response) + " received " + resp['errorCode']['reasonPhrase']
+            assert resp['statusCode']['reasonPhrase'] == str(world.response), 'ERROR: text error expected ' + str(world.response) + " received " + resp['statusCode']['reasonPhrase']
         else:
-            assert resp['errorCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['errorCode']['reasonPhrase']
+            assert resp['statusCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['statusCode']['reasonPhrase']
     
 def check_timestamp (timestamp):
     st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
