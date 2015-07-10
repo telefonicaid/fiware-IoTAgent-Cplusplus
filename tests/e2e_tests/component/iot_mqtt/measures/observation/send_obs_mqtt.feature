@@ -1,9 +1,9 @@
-Feature: Deliver measures through MQTT
+Feature: MQTT Measure Deliver  
 	In order to include MQTT protocol like an IoTAgent
 	As a MQTT publisher
 	I want to deliver measures to MQTT IoTAgent
 	
-	@mqtt @IDAS-18304
+	@iot_mqtt @IDAS-18304
 	Scenario Outline: Send one measure
 		Given a service with name "<service>" and protocol "<protocol>" created
 		When I publish a MQTT message with device_id "<device_id>", alias "<alias>" and payload "<value>"
@@ -28,7 +28,7 @@ Feature: Deliver measures through MQTT
 #			| alarm					| Text		| mqtt9		| alarm					| Alarma		|
 	
 
-	@mqtt @IDAS-19969
+	@iot_mqtt @IDAS-19969
 	Scenario Outline: Send one wrong measure
 		Given a service with name "<service>" and protocol "<protocol>" created
 		When I publish a MQTT message with device_id "<device_id>", alias "<alias>", payload "<value>" and wrong field "<field>" 
@@ -44,7 +44,7 @@ Feature: Deliver measures through MQTT
 			| temperature	|servicemqtt	|IoTMqtt	| Quantity	| mqtt19	| t		| 90	| topic		|
 
 	
-	@mqtt @IDAS-18329	
+	@iot_mqtt @IDAS-18329	
 	Scenario Outline: Send several measures
 		Given a service with name "<service>" and protocol "<protocol>" created
 		When I publish a MQTT message with device_id "<device_id>", tag "<tag>" and payload "<alias1>|<value1>#<alias2>|<value2>#<alias3>|<value3>#<alias4>|<value4>"
@@ -61,4 +61,38 @@ Feature: Deliver measures through MQTT
 			|mqtt20			|servicemqtt	|IoTMqtt	| mul20	| bye		| a			| 53.2		| t				| false		| p			| 5.4,-4.1	| l			| 4				|
 			|mqtt21			|servicemqtt	|IoTMqtt	| mul20	| 7.8		| t			| 3.2		| t				| hello		| alarm		| bye		| alarm		| 4				|
 #			|AssetCompleto	| multi	| hello		| alarm		| 27.9		| temperature	| true		| presence	| -1.3,2.4	| location	| 4				|
+
+
+    @iot_mqtt @IDAS-20395
+    Scenario Outline: Send a single observation for provisioned device
+		Given a service with name "<service>" and protocol "<protocol>" created
+		And a device with device id "<device_id>", protocol "<protocol>", entity type "<ent_type>" and entity name "<ent_name>" created
+		When I publish a MQTT message with device_id "<device_id>", alias "<alias>" and payload "<value>"
+		And I Wait some time
+		Then the measure of asset "<device_id>" with phenom "<alias>", entity_type "<ent_type>", entity_name "<ent_name>" and value "<value>" is received by context broker
+		
+		Examples:
+            |device_id 		|service		|protocol	|alias	|value		|ent_type	|ent_name	|
+            |device_mqtt23	|servicemqtt	|IoTMqtt	|t		|70			|thing13	|room13		|
+            |device_mqtt24	|servicemqtt	|IoTMqtt	|t		|80			|			|room14		|
+            |device_mqtt25	|servicemqtt	|IoTMqtt	|t		|90			|thing9		|			|
+            |device_mqtt26	|servicemqtt	|IoTMqtt	|t		|100		|			|			|
+
+
+    @iot_mqtt @IDAS-20396
+    Scenario Outline: Send a single observation for provisioned device with attributes
+		Given a service with name "<service>" and protocol "<protocol>" created
+		And a device with device id "<device_id>", protocol "<protocol>", atributes "<typ>" and "<typ2>", with names "<name>" and "<name2>", types "<type>" and "<type2>" and values "<value1>" and "<value2>" created
+		When I publish a MQTT message with device_id "<device_id>", alias "<alias>" and payload "<value>"
+		And I Wait some time
+		Then the measure of asset "<device_id>" with phenom "<alias>" and value "<value>" and attributes are received by context broker
+		
+		Examples:
+            |device_id 		|service		|protocol	|alias	|value	|typ	|name	|type	|value1	|typ2	|name2		|type2	|value2		|
+            |device_mqtt27	|servicemqtt	|IoTMqtt	|t		|10		|attr	|temp1	|int	|t1		|attr	|hum		|int2	|h			|
+            |device_mqtt27	|servicemqtt	|IoTMqtt	|t1		|20		|attr	|temp1	|int	|t1		|attr	|hum		|int2	|h			|
+            |device_mqtt27	|servicemqtt	|IoTMqtt	|h		|90		|attr	|temp1	|int	|t1		|attr	|hum		|int2	|h			|
+            |device_mqtt28	|servicemqtt	|IoTMqtt	|t		|11		|attr	|temp1	|int	|t1		|st_att	|h			|int2	|100		|
+            |device_mqtt28	|servicemqtt	|IoTMqtt	|t1		|21		|attr	|temp1	|int	|t1		|st_att	|h			|int2	|100		|
+            |device_mqtt29	|servicemqtt	|IoTMqtt	|t		|12		|st_att	|t1		|int	|30		|st_att	|h			|int2	|100		|
 			
