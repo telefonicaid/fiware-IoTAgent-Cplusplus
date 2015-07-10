@@ -19,6 +19,39 @@ def service_precond(step, service_name, service_path, resource, apikey, cbroker,
     world.token = token
     user_steps.service_with_params_precond(service_name, service_path, resource, apikey, cbroker, entity_type, token)
    
+@step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atribute "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
+def service_with_attrs_precond(step, service_name, service_path, resource, apikey, cbroker, typ, name, type1, value):
+    world.service_name = service_name
+    world.service_path = service_path
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = {}
+    world.token = {}
+    attributes=[]
+    st_attributes=[]
+    world.typ = typ
+    world.name = name
+    world.type = type1
+    world.value = value
+    if typ=='attr':
+        attributes=[
+             {
+              "name": name,
+              "type": type1,
+              "object_id": value
+              }
+             ]
+    if typ=='st_att':
+        st_attributes=[
+             {
+              "name": name,
+              "type": type1,
+              "value": value
+              }
+             ]
+    user_steps.service_with_params_precond(service_name, service_path, resource, apikey, cbroker, {}, {}, attributes, st_attributes)
+   
 @step('I update the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
 def update_service_data(step, attribute, service_name, value):
     headers = {}
@@ -35,9 +68,39 @@ def update_service_data(step, attribute, service_name, value):
         params['resource']= world.resource
     if world.apikey:
         params['apikey']= world.apikey
-    json={
-        attribute: value
+    if not 'att' in attribute:
+        json={
+              attribute: value
         }
+    else:
+        d = dict([value.split('#')]) 
+        name=str(d.items()[0][0])
+        attrs=str(d.items()[0][1])
+        if ':' in attrs:
+            d2 = dict([attrs.split(':')])
+            type1=str(d2.items()[0][0])
+            value=str(d2.items()[0][1])       
+        if attribute=='attr':
+            attributes=[
+                {
+                 "name": name,
+                 "type": type1,
+                 "object_id": value
+                 }
+                ]
+            attrs_type="attributes"
+        if attribute=='st_att':
+            attributes=[
+                {
+                 "name": name,
+                 "type": type1,
+                 "value": value
+                 }
+                ]
+            attrs_type="static_attributes"
+        json={
+              attrs_type: attributes
+              }        
     world.req =  api.put_service('', json, headers, params)
     assert world.req.ok, 'ERROR: ' + world.req.text
     if attribute == 'apikey':
@@ -101,12 +164,46 @@ def check_service_data(step, attribute, value):
         assert response['entity_type'] != world.entity_type, 'NOT Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
         assert response['entity_type'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['entity_type']
     else:
-        assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
+        if world.entity_type:
+            assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
     if attribute == 'token':
         assert response['token'] != world.token, 'NOT Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
         assert response['token'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['token']
     else:
-        assert response['token'] == world.token, 'Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
+        if world.token:
+            assert response['token'] == world.token, 'Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
+    if 'att' in attribute:
+        d = dict([value.split('#')]) 
+        name=str(d.items()[0][0])
+        attrs=str(d.items()[0][1])
+        if ':' in attrs:
+            d2 = dict([attrs.split(':')])
+            type1=str(d2.items()[0][0])
+            value=str(d2.items()[0][1])       
+    if attribute == 'attr':
+        if attribute == world.typ:
+            assert response['attributes'][0]['name'] != world.name, 'Expected Result: ' + world.name + '\nObtained Result: ' + response['attributes'][0]['name']
+            assert response['attributes'][0]['type'] != world.type, 'Expected Result: ' + world.type + '\nObtained Result: ' + response['attributes'][0]['type']
+            assert response['attributes'][0]['object_id'] != world.value, 'Expected Result: ' + world.value + '\nObtained Result: ' + response['attributes'][0]['object_id']
+        if world.typ == 'st_attr':
+            assert response['static_attributes'][0]['name'] == world.name, 'Expected Result: ' + world.name + '\nObtained Result: ' + response['static_attributes'][0]['name']
+            assert response['static_attributes'][0]['type'] == world.type, 'Expected Result: ' + world.type + '\nObtained Result: ' + response['static_attributes'][0]['type']
+            assert response['static_attributes'][0]['value'] == world.value, 'Expected Result: ' + world.value + '\nObtained Result: ' + response['static_attributes'][0]['value']
+        assert response['attributes'][0]['name'] == name, 'Expected Result: ' + name + '\nObtained Result: ' + response['attributes'][0]['name']
+        assert response['attributes'][0]['type'] == type1, 'Expected Result: ' + type1 + '\nObtained Result: ' + response['attributes'][0]['type']
+        assert response['attributes'][0]['object_id'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['attributes'][0]['object_id']
+    if attribute == 'st_attr':
+        if attribute == world.typ:
+            assert response['static_attributes'][0]['name'] != world.name, 'Expected Result: ' + world.name + '\nObtained Result: ' + response['static_attributes'][0]['name']
+            assert response['static_attributes'][0]['type'] != world.type, 'Expected Result: ' + world.type + '\nObtained Result: ' + response['static_attributes'][0]['type']
+            assert response['static_attributes'][0]['value'] != world.value, 'Expected Result: ' + world.value + '\nObtained Result: ' + response['static_attributes'][0]['value']
+        if world.typ == 'attr':
+            assert response['attributes'][0]['name'] == world.name, 'Expected Result: ' + world.name + '\nObtained Result: ' + response['attributes'][0]['name']
+            assert response['attributes'][0]['type'] == world.type, 'Expected Result: ' + world.type + '\nObtained Result: ' + response['attributes'][0]['type']
+            assert response['attributes'][0]['object_id'] == world.value, 'Expected Result: ' + world.value + '\nObtained Result: ' + response['attributes'][0]['object_id']
+        assert response['static_attributes'][0]['name'] == name, 'Expected Result: ' + name + '\nObtained Result: ' + response['static_attributes'][0]['name']
+        assert response['static_attributes'][0]['type'] == type1, 'Expected Result: ' + type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
+        assert response['static_attributes'][0]['value'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['static_attributes'][0]['value']
         
 @step('I try to update the attribute "([^"]*)" with value "([^"]*)" of service "([^"]*)" with path "([^"]*)", resource "([^"]*)", apikey "([^"]*)" and cbroker "([^"]*)"')
 def update_service_data_failed(step, attribute, value, service_name, service_path, resource, apikey, cbroker):

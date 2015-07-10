@@ -24,6 +24,8 @@ def service_not_created(step, service_name, service_path, resource, apikey):
 
 @step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)", entity_type "([^"]*)" and token "([^"]*)"')
 def create_service(step,srv_name,srv_path,resource,apikey,cbroker,entity_type,token):
+    world.typ1 = {}
+    world.typ2 = {}
     world.srv_path = srv_path
     world.resource = resource
     world.apikey = apikey
@@ -34,8 +36,62 @@ def create_service(step,srv_name,srv_path,resource,apikey,cbroker,entity_type,to
     assert req.status_code == 201, 'ERROR: ' + req.text + "El servicio {} no se ha creado correctamente".format(srv_name)
     print 'Se ha creado el servicio {}'.format(srv_name)
 
+@step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
+def create_service_with_attrs(step,srv_name,srv_path,resource,apikey,cbroker,typ1, typ2, name1, name2, type1, type2, value1, value2):
+    world.srv_path = srv_path
+    world.resource = resource
+    world.apikey = apikey
+    world.cbroker = cbroker
+    world.entity_type = {}
+    world.token = {}
+    attributes=[]
+    st_attributes=[]
+    world.typ1 = typ1
+    world.typ2 = typ2
+    world.name1 = name1
+    world.name2 = name2
+    world.type1 = type1
+    world.type2 = type2
+    world.value1 = value1
+    world.value2 = value2
+    if typ1=='attr':
+        attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "object_id": value1
+              }
+             ]
+    if typ2=='attr':
+        attribute={
+              "name": name2,
+              "type": type2,
+              "object_id": value2
+              }
+        attributes.append(attribute)
+    if typ1=='st_att':
+        st_attributes=[
+             {
+              "name": name1,
+              "type": type1,
+              "value": value1
+              }
+             ]
+    if typ2=='st_att':
+        st_attribute={
+              "name": name2,
+              "type": type2,
+              "value": value2
+              }
+        st_attributes.append(st_attribute)
+    req=user_steps.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,{},{},attributes,st_attributes)
+    assert req.status_code == 201, 'ERROR: ' + req.text + "El servicio {} no se ha creado correctamente".format(srv_name)
+    print 'Se ha creado el servicio {}'.format(srv_name)
+
 @step('the Service with name "([^"]*)" and path "([^"]*)" is created')
 def service_created(step, service_name, service_path):
+    attributes=0
+    st_attributes=0
     headers = {}
     params = {}
     headers[CBROKER_HEADER] = str(service_name)
@@ -69,6 +125,26 @@ def service_created(step, service_name, service_path):
         assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
     if world.token:
         assert response['token'] == world.token, 'Expected Result: ' + world.token + '\nObtained Result: ' + response['token']
+    if world.typ1:
+        if world.typ1 == 'attr':
+            assert response['attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
+            assert response['attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
+            assert response['attributes'][0]['object_id'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['attributes'][0]['object_id']
+            attributes+=1
+        if world.typ1 == 'st_att':
+            assert response['static_attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['static_attributes'][0]['name']
+            assert response['static_attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['static_attributes'][0]['type']
+            assert response['static_attributes'][0]['value'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['static_attributes'][0]['value']
+            st_attributes+=1
+    if world.typ2:
+        if world.typ2 == 'attr':
+            assert response['attributes'][attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['attributes'][attributes]['name']
+            assert response['attributes'][attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['attributes'][attributes]['type']
+            assert response['attributes'][attributes]['object_id'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['attributes'][attributes]['object_id']
+        if world.typ2 == 'st_att':
+            assert response['static_attributes'][st_attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['name']
+            assert response['static_attributes'][st_attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['type']
+            assert response['static_attributes'][st_attributes]['value'] == world.value2, 'Expected Result: ' + world.value2 + '\nObtained Result: ' + response['static_attributes'][st_attributes]['value']
     
 @step('I try to create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)" and cbroker "([^"]*)"')
 def create_service_failed(step,srv_name,srv_path,resource,apikey,cbroker):
