@@ -82,6 +82,11 @@ Ul20Test::POST_SERVICE("{\"services\": [{"
                         "\"cbroker\": \"http://127.0.0.1:%s/mock\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
 
 const std::string
+Ul20Test::POST_SERVICE_ENDPOINT("{\"services\": [{"
+                        "\"apikey\": \"apikey3\",\"token\": \"token\","
+                        "\"cbroker\": \"http://127.0.0.1:1026/mock\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
+
+const std::string
 Ul20Test::POST_DEVICE_SIN("{\"devices\": "
                        "[{\"device_id\": \"dev_SIN\", \"protocol\": \"PDI-IoTA-UltraLight\", \"timezone\": \"America/Santiago\","
                        "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"dev_SIN@command|%s\" }],"
@@ -112,6 +117,11 @@ Ul20Test::POST_DEVICE("{\"devices\": "
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
+
+const std::string
+Ul20Test::POST_DEVICE_ENDPOINT("{\"devices\": "
+                       "[{\"device_id\": \"%s\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"%s\",\"entity_type\": \"type2\",\"endpoint\": \"http://127.0.0.1:9999/device\",\"timezone\": \"America/Santiago\""
+                        "}]}");
 
 const std::string
 Ul20Test::POST_DEVICE2("{\"devices\": "
@@ -3450,4 +3460,118 @@ void Ul20Test::testQueryContextAPI() {
   std::cout << "END testQueryContextAPI " << std::endl;
 }
 
+void Ul20Test::testChangeIPDevice(){
 
+  /*
+  This test will prove that a device with existing endpoint can change that attribute by means
+  of a http request to the service (coming from the own device).
+
+
+  USING  mongodb.
+
+            "device_id": "unitTest_dev1_endpoint",
+            "endpoint": "http://127.0.0.1:9999/device",
+  */
+  std::cout << "START testChangeIPDevice" << std::endl;
+
+  iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+  std::string dev_name = "unitTest_dev1_change_endpoint";
+  std::string service = "service2";
+  std::string subservice = "/ssrv2";
+  std::string apikey = "apikey3";
+  std::string new_endpoint = "http://127.0.0.1:5555/new";
+
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
+  iota::DeviceCollection table_device;
+
+//REMOVING previous data from mongo
+  try{
+  iota::Device borrar("", "");
+
+  table_device.removed(borrar);
+
+  mongo::BSONObj all;
+
+  col->remove(all);
+
+  }catch(std::exception exc){
+
+  }
+
+
+  pion::http::response http_response;
+  iota::AdminService adminService;
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+  adminService.add_service("/iot/d",&ul20serv);
+
+
+
+  std::string response;
+  int code_res;
+
+  std::cout << "@UT@POST Service" << std::endl;
+
+
+  code_res = adminService.post_service_json( col, service, subservice, POST_SERVICE_ENDPOINT,
+                     http_response, response, apikey, "5678");
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+
+  std::cout << "@UT@POST Device" << std::endl;
+   std::string post_device = boost::str(boost::format(POST_DEVICE_ENDPOINT) % dev_name % dev_name);
+  code_res = adminService.post_device_json(service, subservice, post_device,
+                     http_response, response);
+
+
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+
+  std::string encoded_endpoint = pion::algorithm::url_encode(new_endpoint);
+  std::string querySTR = "i="+dev_name+"&k=apikey3&ip="+encoded_endpoint;
+  pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content("");
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(std::pair<std::string,std::string>("i",dev_name));
+    query_parameters.insert(std::pair<std::string,std::string>("k",apikey));
+    //include the IP parameter to change it
+    query_parameters.insert(std::pair<std::string,std::string>("ip",new_endpoint));
+
+
+
+    ul20serv.service(http_request, url_args, query_parameters,
+                     http_response, response);
+
+    std::cout << "RESPONSE: " << response << std::endl;
+
+    boost::shared_ptr<iota::Device> dev;
+
+    ASYNC_TIME_WAIT
+
+    //change of endpoint parameter should have happend, let's check it.
+
+
+    dev = ul20serv.get_device(dev_name,service,subservice);
+
+    code_res = adminService.delete_service_json(col, service, "/", service, apikey, "/iot/d", true,
+                     http_response, response, "1234", "4444");
+
+    std::string protocol = "";
+    code_res = adminService.delete_device_json(service,subservice,dev_name,http_response,response,"12334",protocol);
+
+    if (dev.get() != NULL){
+
+      IOTASSERT_MESSAGE("endpoint hasn't changed for device: " + dev->_endpoint ,dev->_endpoint.compare(new_endpoint)== 0);
+
+    }else{
+      IOTASSERT_MESSAGE("Device doesn't exist: ERROR",false);
+    }
+
+  std::cout << "END testChangeIPDevice " << std::endl;
+}
