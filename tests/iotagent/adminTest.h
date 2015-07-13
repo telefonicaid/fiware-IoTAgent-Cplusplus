@@ -120,6 +120,9 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     static const std::string POST_SERVICE2;
     static const std::string PUT_SERVICE_WITH_ATTRIBUTES;
     static const std::string POST_SERVICE_WITH_ATTRIBUTES;
+    static const std::string POST_SERVICE_TO_DELETE_FIELDS;
+    static const std::string PUT_SERVICE_TO_DELETE_FIELDS;
+
     static const std::string BAD_POST_SERVICE1;
     static const std::string BAD_POST_SERVICE2;
 
