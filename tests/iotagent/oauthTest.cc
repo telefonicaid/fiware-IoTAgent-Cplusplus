@@ -22,6 +22,7 @@
 #include "oauthTest.h"
 #include "util/oauth_comm.h"
 #include "util/access_control.h"
+#include "rest/oauth_filter.h"
 #include "services/admin_service.h"
 #include "../mocks/http_mock.h"
 #include <boost/property_tree/json_parser.hpp>
@@ -418,4 +419,25 @@ void OAuthTest::testValidateAsync() {
   http_mock->stop();
   std::cout << "ENF testValidateAsync" << std::endl;
 
+}
+
+void OAuthTest::testActions() {
+  iota::OAuthFilter oauth_filter;
+  std::string verb("POST");
+  std::multimap<std::string, iota::PepRule> rules;
+  iota::PepRule rule1;
+  rule1.verb = "POST";
+  rule1.uri ="/iot/ngsi/<protocol>/updateContext";
+  iota::PepRule rule2;
+  rule2.verb = "POST";
+  rule2.uri = "/iot/ngsi/<protocol>/queryContext";
+  rules.insert(std::pair<std::string, iota::PepRule>("create", rule1));
+  rules.insert(std::pair<std::string, iota::PepRule>("read", rule2));
+
+  // NO rules, only verb
+  CPPUNIT_ASSERT_MESSAGE("Action only by verb ", oauth_filter.get_action("DELETE", "/iot/device").compare("delete") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Action only by verb ", oauth_filter.get_action("POST", "/iot/devices/<device_id>").compare("create") == 0);
+
+  // Uri actions rules
+  CPPUNIT_ASSERT_MESSAGE("Action for updateContext ", oauth_filter.get_action("PUT", "/iot/ngsi/d/updateContext").compare("create") == 0);
 }

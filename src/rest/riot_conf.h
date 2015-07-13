@@ -62,6 +62,8 @@ class Configurator {
     // Get string with resource object
     std::string getResource(const std::string& resource);
 
+    std::multimap<std::string, iota::PepRule>& get_pep_rules();
+
     // Gen resource object by its name
     const JsonValue& getResourceObject(const std::string& resource);
 
@@ -133,6 +135,9 @@ class Configurator {
     boost::shared_ptr<JsonDocument> _root_fields;
     //Resources
     std::map<std::string, boost::shared_ptr<Resource> > _resources;
+
+    // Pep Rules
+    std::multimap<std::string, iota::PepRule> _pep_rules;
 
     std::map<unsigned int, std::string> http_message;
 

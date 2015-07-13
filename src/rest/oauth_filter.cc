@@ -22,6 +22,7 @@
 #include "oauth_filter.h"
 #include "rest/types.h"
 #include "rest/rest_handle.h"
+#include "rest/rest_functions.h"
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/assign/list_of.hpp>
@@ -33,7 +34,12 @@ extern std::string URL_BASE;
 std::map<std::string, std::string> actions =
   boost::assign::map_list_of("GET","read")("POST","create")("PUT","update")
   ("DELETE","delete");
+std::multimap<std::string, std::string> uri_actions =
+  boost::assign::map_list_of
+  ("create", "POST[[:space:]]+/iot/ngsi/([^/]+)/updateContext")
+  ("read", "POST[[:space:]]+/iot/ngsi/([^/]+)/queryContext");
 };
+
 
 iota::OAuthFilter::OAuthFilter(): _timeout(3),
   HTTPFilter(PION_GET_LOGGER(iota::logger)) {
@@ -55,6 +61,22 @@ void iota::OAuthFilter::set_configuration(std::map<std::string, std::string>&
   _timeout = boost::lexical_cast<int>
              (oauth_conf[iota::types::CONF_FILE_OAUTH_TIMEOUT]);
 
+}
+
+void iota::OAuthFilter::set_pep_rules(std::multimap<std::string, iota::PepRule>&
+                                      pep_rules) {
+
+  std::multimap<std::string, iota::PepRule>::iterator i_pep_rules =
+    pep_rules.begin();
+  while (i_pep_rules != pep_rules.end()) {
+    std::string expr_regex;
+    std::map<std::string, std::string> verb;
+    std::vector<std::string> url_args;
+    verb["method"] = i_pep_rules->second.verb;
+    iota::format_pattern(i_pep_rules->second.uri, verb, expr_regex, url_args);
+    _pep_rules.insert(std::pair<std::string, std::string>(i_pep_rules->first, expr_regex));
+    i_pep_rules++;
+  }
 }
 
 bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
@@ -301,6 +323,49 @@ std::string iota::OAuthFilter::get_relative_resource(std::string resource) {
 
 void iota::OAuthFilter::set_filter_url_base(std::string filter_url_base) {
   _filter_url = filter_url_base;
+}
+
+std::string iota::OAuthFilter::get_action(std::string verb, std::string uri) {
+  // First, rules by configuration
+  // Second, uri_actions
+  // Third, only verbs
+
+  // Uri to regex
+
+  std::string uri_regex(verb);
+  uri_regex += " ";
+  uri_regex += uri;
+  std::vector<std::string> url_args;
+  std::map<std::string, std::string> url_placeholders;
+
+  std::string action;
+
+  std::multimap<std::string, std::string>::iterator i_pep_rules =
+    _pep_rules.begin();
+  while (i_pep_rules != _pep_rules.end() && action.empty()) {
+    bool res = iota::restResourceParse(i_pep_rules->second, url_args, uri_regex,
+                                       url_placeholders);
+    if (res) {
+      action.assign(i_pep_rules->first);
+    }
+    i_pep_rules++;
+  }
+
+  if (action.empty()) {
+    i_pep_rules = uri_actions.begin();
+    while (i_pep_rules != uri_actions.end() && action.empty()) {
+      bool res = iota::restResourceParse(i_pep_rules->second, url_args, uri_regex,
+                                         url_placeholders);
+      if (res) {
+        action.assign(i_pep_rules->first);
+      }
+      ++i_pep_rules;
+    }
+  }
+  if (action.empty()) {
+    action.assign(iota::actions[verb]);
+  }
+  return action;
 }
 
 
