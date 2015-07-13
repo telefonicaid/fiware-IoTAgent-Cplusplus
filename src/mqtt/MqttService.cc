@@ -31,6 +31,11 @@
 #include <boost/tokenizer.hpp>
 #include "IotaMqttServiceImpl.h"
 
+#include <boost/uuid/uuid.hpp>            // uuid class
+#include <boost/uuid/uuid_generators.hpp> // generators
+#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
+
+
 namespace iota {
 extern std::string logger;
 extern std::string URL_BASE;
@@ -339,6 +344,13 @@ void iota::esp::MqttService::transform_command(const std::string& command_name,
     }
   }
 
+  if (sequence_id.empty()) {
+    boost::uuids::uuid uuid = boost::uuids::random_generator()();
+    command_id.assign(boost::lexical_cast<std::string>(uuid));
+  }
+  else {
+    command_id.assign(sequence_id);
+  }
   command_line.put(iota::store::types::BODY, result);
 
 }
