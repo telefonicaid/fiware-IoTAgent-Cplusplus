@@ -322,11 +322,13 @@ void iota::esp::MqttService::transform_command(const std::string& command_name,
     boost::property_tree::ptree& command_line) {
 
   command_line.put(iota::store::types::NAME, command_name);
+  std::string result;
+  std::string key = "|";
 
   if (command_value.compare(iota::types::RAW) == 0) {
     result = updateCommand_value;
   }else{
-    result.append(item_dev._name);
+    result.append(item_dev->_name);
     result.append("@");
     result.append(command_name);
     if (boost::starts_with(key, updateCommand_value)) {

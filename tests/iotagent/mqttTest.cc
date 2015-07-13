@@ -721,7 +721,7 @@ void MqttTest::testPollingOneMqttCommand() {
   std::cout << "TEST: testPollingOneMqttCommand Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -825,7 +825,7 @@ void MqttTest::testPollingCommandExecution() {
   std::cout << "TEST: testPollingCommandExecution Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -987,7 +987,7 @@ void MqttTest::testPushCommandExecution() {
   std::cout << "TEST: testPushCommandExecution Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -1101,7 +1101,7 @@ void MqttTest::testPushCommandResponse() {
   std::cout << "TEST: testPushCommandResponse Starting...  " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock,"mongodb");
 
 
   //Let's create and store a command like CommandHandle would do it
