@@ -131,6 +131,12 @@ iota::RestHandle::~RestHandle() {
 
 }
 
+void iota::RestHandle::set_option(const std::string& name, const std::string& value) {
+ if (name.compare("ProtocolDescription") == 0) {
+   _protocol_data.description = value;
+ }
+}
+
 std::string iota::RestHandle::get_my_url_base() {
   return _my_url_base;
 }
@@ -1237,9 +1243,15 @@ void iota::RestHandle::set_iota_manager_endpoint(std::string manager_endpoint) {
 }
 
 iota::ProtocolData iota::RestHandle::get_protocol_data() {
-  iota::ProtocolData protocol_data;
-  return protocol_data;
+  return _protocol_data;
 }
+
+void iota::RestHandle::set_protocol_data(iota::ProtocolData p_data) {
+  if (!p_data.description.empty()) {
+    _protocol_data.description = p_data.description;
+  }
+}
+
 std::string iota::RestHandle::get_http_proxy() {
   std::string http_proxy;
   try {

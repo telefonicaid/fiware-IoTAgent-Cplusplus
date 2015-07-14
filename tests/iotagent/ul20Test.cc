@@ -2297,7 +2297,9 @@ void Ul20Test::testPUSHCommand_MONGO() {
   iota::AdminService adminserv;
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
+  ul20serv.start();
   adminserv.add_service("/iot/d", &ul20serv);
+
 
   boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
 
@@ -2420,6 +2422,7 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
   iota::AdminService adminserv;
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
+  ul20serv.start();
   // asociamos
   adminserv.add_service("/iot/d", &ul20serv);
 
@@ -2590,6 +2593,7 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
   iota::AdminService adminserv;
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
+  ul20serv.start();
   // asociamos
   adminserv.add_service("/iot/d", &ul20serv);
   boost::shared_ptr<HttpMock> cb_mock;
@@ -2683,6 +2687,7 @@ void Ul20Test::testPollingCommand_MONGO(
   iota::AdminService adminserv;
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
+  ul20serv.start();
   // asociamos
   adminserv.add_service("/iot/d", &ul20serv);
   std::string response;
@@ -2966,6 +2971,13 @@ void Ul20Test::testQueryContextAPI() {
   }
 
   std::cout << "END testQueryContextAPI " << std::endl;
+}
+
+void Ul20Test::testProtocolData() {
+  iota::UL20Service ul20serv;
+  CPPUNIT_ASSERT_MESSAGE("description is UL2", ul20serv.get_protocol_data().description.compare("UL2") == 0);
+  ul20serv.set_option("ProtocolDescription", "NewDescription");
+  CPPUNIT_ASSERT_MESSAGE("description is NewDescription", ul20serv.get_protocol_data().description.compare("NewDescription") == 0);
 }
 
 

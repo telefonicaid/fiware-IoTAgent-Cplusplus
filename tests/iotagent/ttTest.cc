@@ -1332,6 +1332,9 @@ CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS
   ttService = new iota::esp::TTService();
   ttService->set_resource("/iot/tt");
   ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
+  CPPUNIT_ASSERT_MESSAGE("Checking default protocol description ", ttService.get_protocol_data().compare("Thinking Things Protocol") != 0);
+  ttService->set_option("ProtocolDescription", "TT");
+  CPPUNIT_ASSERT_MESSAGE("Checking new protocol description ", ttService.get_protocol_data().compare("TT") != 0);
 
 
   std::string query =

@@ -53,6 +53,8 @@ iota::esp::MqttService::MqttService() : m_logger(PION_GET_LOGGER(iota::logger)) 
   IOTA_LOG_DEBUG(m_logger, "iota::esp::MqttService Running...  ");
   iota_mqtt_service_ptr_ = NULL;
   idsensor = -1;
+  _protocol_data.description = "MQTT";
+  _protocol_data.protocol = "PDI-IoTA-MQTT-UltraLight";
 }
 
 
@@ -152,6 +154,7 @@ void iota::esp::MqttService::set_option(const std::string& name,
   else {
 
     IOTA_LOG_DEBUG(m_logger, "OPTION:  " << name << " IS UNKNOWN");
+    iota::RestHandle::set_option(name, value);
   }
 }
 
@@ -344,14 +347,6 @@ std::string iota::esp::MqttService::serializeMqttCommand(std::string apikey,
 
   return result;
 }
-
-iota::ProtocolData iota::esp::MqttService::get_protocol_data() {
-  iota::ProtocolData protocol_data;
-  protocol_data.description = "MQTT with Propietary Protocol in topics and payload (UL-based)";
-  protocol_data.protocol = "PDI-IoTA-MQTT-UltraLight";
-  return protocol_data;
-}
-
 
 // creates new miplugin objects
 //
