@@ -227,7 +227,10 @@ void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
      <<   "\"service_path\": \"/ssrv2\","
      <<   "\"token\": \"token2\","
      <<   "\"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
-     <<   "\"entity_type\": \"thing\""
+     <<   "\"entity_type\": \"thing_apikey3\","
+     <<   "\"attributes\": ["
+     <<     "{\"object_id\":\"t\",\"type\": \"string\",\"name\":\"temperature\"}"
+     <<   "]"
      << "} ] } ] }";
      }
      else {
@@ -728,14 +731,10 @@ void Ul20Test::testFileGET() {
     cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
-                           cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                           cb_last.find("\"id\":\"thing_apikey3:no_device\",\"type\":\"thing_apikey3\"") !=
                            std::string::npos);
     IOTASSERT_MESSAGE("translate alias of observation",
-                           cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
-                           !=
-                           std::string::npos);
-    IOTASSERT_MESSAGE("add statis attributes",
-                           cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
+                           cb_last.find("\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
                            !=
                            std::string::npos);
 
@@ -761,7 +760,7 @@ void Ul20Test::testFileGET() {
     ul20serv.service(http_request, url_args, query_parameters,
                      http_response, response);
 
-    std::cout << "POST dos medida " << http_response.get_status_code() << std::endl;
+    std::cout << "@UT@POST dos medida " << http_response.get_status_code() << std::endl;
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
@@ -781,6 +780,7 @@ void Ul20Test::testFileGET() {
       cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
       !=
       std::string::npos);
+
 
   }
 
@@ -836,7 +836,7 @@ void Ul20Test::testFileGET() {
 }
 
 void Ul20Test::testMongoGET() {
-  std::cout << "START testMongoPOST" << std::endl;
+  std::cout << "START testMongoGET" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
   start_cbmock(cb_mock, "mongodb");
@@ -846,7 +846,7 @@ void Ul20Test::testMongoGET() {
   ul20serv.set_resource("/iot/d");
   boost::property_tree::ptree srv_ptree;
   std::cout << "get_service_by_apiKey" << std::endl;
-  ul20serv.get_service_by_apiKey(srv_ptree, "ddd");
+  //TODO ul20serv.get_service_by_apiKey(srv_ptree, "ddd");
 
   // fecha  + temperatura
   std::string querySTR = "i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23";
@@ -879,14 +879,10 @@ void Ul20Test::testMongoGET() {
     cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
-                           cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                           cb_last.find("\"id\":\"thing_apikey3:unitTest_dev1_endpoint\",\"type\":\"thing_apikey3\"") !=
                            std::string::npos);
     IOTASSERT_MESSAGE("translate alias of observation",
                            cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
-                           !=
-                           std::string::npos);
-    IOTASSERT_MESSAGE("add statis attributes",
-                           cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
                            !=
                            std::string::npos);
 
@@ -922,14 +918,10 @@ void Ul20Test::testMongoGET() {
     cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
-                           cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                           cb_last.find("\"id\":\"thing_apikey3:unitTest_dev1_endpoint\",\"type\":\"thing_apikey3\"") !=
                            std::string::npos);
     IOTASSERT_MESSAGE(" observation",
                            cb_last.find("{\"name\":\"nomap\",\"type\":\"string\",\"value\":\"23\"")
-                           !=
-                           std::string::npos);
-    IOTASSERT_MESSAGE("add statis attributes",
-                           cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
                            !=
                            std::string::npos);
 
@@ -964,14 +956,10 @@ void Ul20Test::testMongoGET() {
     cb_last = cb_mock->get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
-                           cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                           cb_last.find("\"id\":\"thing_apikey3:no_device\",\"type\":\"thing_apikey3\"") !=
                            std::string::npos);
     IOTASSERT_MESSAGE("translate alias of observation",
                            cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
-                           !=
-                           std::string::npos);
-    IOTASSERT_MESSAGE("add statis attributes",
-                           cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
                            !=
                            std::string::npos);
 
@@ -1003,14 +991,14 @@ void Ul20Test::testMongoGET() {
     cb_last = cb_mock->get_last();
     cb_last.append(cb_mock->get_last());
     std::cout << "@UT@CB"<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+    IOTASSERT(cb_last.find("\"id\":\"thing_apikey3:unitTest_dev1_endpoint\",\"type\":\"thing_apikey3\"") !=
                    std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"24\"")
       !=
       std::string::npos);
     std::cout << "@UT@CB"<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+    IOTASSERT(cb_last.find("\"id\":\"thing_apikey3:unitTest_dev1_endpoint\",\"type\":\"thing_apikey3\"") !=
                    std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
@@ -1049,15 +1037,9 @@ void Ul20Test::testMongoGET() {
     cb_last.append(cb_mock->get_last());
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+    IOTASSERT(cb_last.find("\"id\":\"thing_apikey3:unitTest_dev1_endpoint\",\"type\":\"thing_apikey3\"") !=
                    std::string::npos);
-    IOTASSERT(cb_last.find("\"name\":\"position\",\"type\":\"coords\""
-                                ",\"value\":\"-3.3423,2.345\",\"metadatas\":[{\"name\":\"location\""
-                                ",\"type\":\"string\",\"value\":\"WGS84\"") !=
-                   std::string::npos);
-
-    std::cout << "@UT@CB"<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+    IOTASSERT(cb_last.find("\"name\":\"l\",\"type\":\"string\",\"value\":\"-3.3423/2.345\"") !=
                    std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"")
@@ -1308,18 +1290,18 @@ void Ul20Test::testNoDevicePost() {
     // updateContext to CB
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(
-      cb_last.find("\"id\":\"thing:unitTest_device_tegistered\",\"type\":\"thing\"")
+      cb_last.find("\"id\":\"thing_apikey3:unitTest_device_tegistered\",\"type\":\"thing_apikey3\"")
       !=
       std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"l\",\"type\":\"string\",\"value\":\"-3.3423/2.345\"") !=
       std::string::npos);
     IOTASSERT(
-      cb_last.find("\"id\":\"thing:unitTest_device_tegistered\",\"type\":\"thing\"")
+      cb_last.find("\"id\":\"thing_apikey3:unitTest_device_tegistered\",\"type\":\"thing_apikey3\"")
       !=
       std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"t\",\"type\":\"string\",\"value\":\"22\"") !=
+      cb_last.find("{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"22\"") !=
       std::string::npos);
 
   }
@@ -2359,163 +2341,6 @@ void Ul20Test::testBADPUSHCommand() {
   std::cout << "@UT@END testBADPUSHCommand " << std::endl;
 }
 
-/***  devices.json
-  *  {
-            "id": "unitTest_dev3_polling",
-            "type": "type2",
-            "endpoint": "",
-            "entity": "room_ut3",
-            "service": "service2",
-            "commands": [
-                {
-                    "name": "PING",
-                    "type": "command",
-                    "command": "dest@ping6|%s"
-                }
-            ]
-        }
-
-  **/
-
-
-void Ul20Test::testPollingCommand() {
-  std::cout << __LINE__ << "@UT@START testPollingCommand" << std::endl;
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
-
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-
-  iota::UL20Service ul20serv;
-  ul20serv.set_resource("/iot/d");
-
-  // updateContext
-  std::string querySTR = "";
-  std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
-  bodySTR.append("\"contextElements\":[{\"id\":\"room_ut3\",\"type\":\"type2\",\"isPattern\":\"false\",");
-  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"unitTest_dev3_polling@ping6|22\",");
-  bodySTR.append("\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}");
-  bodySTR.append("]} ]}");
-  {
-    pion::http::request_ptr http_request(new
-                                         pion::http::request("/iot/ngsi/d/updateContext"));
-    http_request->set_method("POST");
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
-    http_request->set_query_string(querySTR);
-    http_request->set_content(bodySTR);
-
-    std::map<std::string, std::string> url_args;
-    std::multimap<std::string, std::string> query_parameters;
-    pion::http::response http_response;
-    std::string response;
-    ul20serv.op_ngsi(http_request, url_args, query_parameters,
-                     http_response, response);
-    ASYNC_TIME_WAIT
-    std::cout << "@UT@POST updateContext " << http_response.get_status_code() <<
-              std::endl;
-    IOTASSERT_MESSAGE("@UT@POST, response code no 200" ,
-                           http_response.get_status_code() == 200);
-
-    std::string cb_last = cb_mock->get_last();
-    std::cout << "@UT@READY_FOR_READ" <<cb_last << std::endl;
-    // ready_for_read
-    IOTASSERT_MESSAGE("@UT@READY_FOR_READ, entity or entity_type in not correct"
-                           ,
-                           cb_last.find("\"id\":\"room_ut3\",\"type\":\"type2\"") !=std::string::npos);
-    IOTASSERT_MESSAGE("@UT@READY_FOR_READ, name of command or value is not correct",
-                           cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"pending\"")
-                           !=
-                           std::string::npos);
-
-  }
-
-  // GET desde el device
-  querySTR = "i=unitTest_dev3_polling&k=apikey3";
-  bodySTR = "";
-  {
-    pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
-    http_request->set_method("GET");
-    http_request->set_query_string(querySTR);
-    http_request->set_content(bodySTR);
-
-    std::map<std::string, std::string> url_args;
-    std::multimap<std::string, std::string> query_parameters;
-    query_parameters.insert(std::pair<std::string,std::string>("i",
-                            "unitTest_dev3_polling"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey3"));
-    pion::http::response http_response;
-    std::string response;
-    ul20serv.service(http_request, url_args, query_parameters,
-                     http_response, response);
-
-    ASYNC_TIME_WAIT
-    std::cout << "@UT@GET command " << http_response.get_status_code() <<
-              ":" << http_response.get_content() << std::endl;
-    IOTASSERT_MESSAGE("@UT@GET response code no 200" ,
-                           http_response.get_status_code() == 200);
-
-    std::string cb_last = cb_mock->get_last();
-    std::cout << "@UT@DELIVERED" << cb_last << std::endl;
-    // delivered
-    IOTASSERT_MESSAGE("@UT@DELIVERED, entity or entity_type in not correct" ,
-                           cb_last.find("\"id\":\"room_ut3\",\"type\":\"type2\"") !=std::string::npos);
-    IOTASSERT_MESSAGE("@UT@DELIVERED, name of command or value is not correct"
-                           ,
-                           cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"delivered\"")
-                           !=std::string::npos);
-
-  }
-
-  // POST resultado del comando
-  querySTR = "i=unitTest_dev3_polling&k=apikey3";
-  bodySTR = "unitTest_dev3_polling@ping6|Ping ok";
-  {
-    pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
-    http_request->set_method("POST");
-    http_request->set_query_string(querySTR);
-    http_request->set_content(bodySTR);
-
-    std::map<std::string, std::string> url_args;
-    std::multimap<std::string, std::string> query_parameters;
-    query_parameters.insert(std::pair<std::string,std::string>("i",
-                            "unitTest_dev3_polling"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey3"));
-    pion::http::response http_response;
-    std::string response;
-    ul20serv.service(http_request, url_args, query_parameters,
-                     http_response, response);
-
-    ASYNC_TIME_WAIT
-    std::cout << "@UT@POST command result " << http_response.get_status_code() <<
-              std::endl;
-    IOTASSERT_MESSAGE("@UT@GET response code no 200" ,
-                           http_response.get_status_code() == 200);
-
-    std::string cb_last = cb_mock->get_last();
-    std::cout << "@UT@INFO" << cb_last << std::endl;
-    // info
-    IOTASSERT_MESSAGE("@UT@INFO, entity or entity_type in not correct" ,
-                           cb_last.find("\"id\":\"room_ut3\",\"type\":\"type2\"") !=std::string::npos);
-    IOTASSERT_MESSAGE("@UT@INFO, name of command or value is not correct" ,
-                           cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"unitTest_dev3_polling@ping6|Ping ok\"")
-                           !=
-                           std::string::npos);
-
-    std::cout << "@UT@OK" << cb_last << std::endl;
-    // OK
-    IOTASSERT_MESSAGE("@UT@OK, entity or entity_type in not correct" ,
-                           cb_last.find("\"id\":\"room_ut3\",\"type\":\"type2\"") !=std::string::npos);
-    IOTASSERT_MESSAGE("@UT@OK, name of command or value is not correct" ,
-                           cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"OK\"")
-                           !=
-                           std::string::npos);
-
-  }
-
-  cb_mock->stop();
-  std::cout << "@UT@END testPollingCommand " << std::endl;
-}
 
 /**
   *  IDAS-20145  en los timeout vencidos de pull no se separa dev@comando para obtener el nombre del comando
@@ -3381,8 +3206,11 @@ void Ul20Test::testPollingCommand_MONGO(
 void Ul20Test::testQueryContext() {
   std::cout << "START testQueryContext" << std::endl;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-
-  std::string responseOK( "{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":\"room_ut111\",\"type\":\"type2\",\"isPattern\":\"false\",\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"%s\"},{\"name\":\"RAW\",\"type\":\"command\",\"value\":\"%s\"}]}}]}");
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock("/mock"));
+  start_cbmock(cb_mock);
+  std::string cb_last;
+  std::string responseOK( "{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\",\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"@@RAW@@\"},{\"name\":\"RAW\",\"type\":\"command\",\"value\":\"@@RAW@@\"}]}}]}");
 
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
@@ -3393,7 +3221,7 @@ void Ul20Test::testQueryContext() {
 
   // queryContext  recibido del CB
   iota::QueryContext op;
-  iota::Entity entity("room_ut111", "type2", "false");
+  iota::Entity entity("room_ut1", "type2", "false");
   op.add_entity(entity);
   //q.add_attribute("ping");
 
@@ -3559,7 +3387,7 @@ void Ul20Test::testChangeIPDevice(){
 
     dev = ul20serv.get_device(dev_name,service,subservice);
 
-    code_res = adminService.delete_service_json(col, service, "/", service, apikey, "/iot/d", true,
+    code_res = adminService.delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
                      http_response, response, "1234", "4444");
 
     std::string protocol = "";

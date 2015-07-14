@@ -39,7 +39,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testNormalPOST);
 
-   CPPUNIT_TEST(testTimePOST);
+    CPPUNIT_TEST(testTimePOST);
     CPPUNIT_TEST(testBadPost);
     CPPUNIT_TEST(testNoDevicePost);
     CPPUNIT_TEST(testRiotISO8601);
@@ -65,7 +65,6 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
     CPPUNIT_TEST(testPUSHCommandAsync);
     CPPUNIT_TEST(testBADPUSHCommand);
-    CPPUNIT_TEST(testPollingCommand);
 
     CPPUNIT_TEST(testPollingCommandTimeout);
     CPPUNIT_TEST(testCommandNOUL);
@@ -156,7 +155,6 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void testPUSHCommandProxyAndOutgoingRoute();
     void testPUSHCommandAsync();
     void testBADPUSHCommand();
-    void testPollingCommand();
     void testPollingCommandTimeout();
     void testCommandNOUL();
     void testPUSHCommandParam();

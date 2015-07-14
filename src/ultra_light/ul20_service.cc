@@ -181,7 +181,10 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
       }
       else if ((query[i].getKey().compare("d") == 0) &&
                (method.compare("GET") == 0)) {
-        content = query[i].getValue();
+        if (!content.empty()) {
+          content.append("#");
+        }
+        content.append(query[i].getValue());
       }
       else if (query[i].getKey().compare("getCmd") == 0) {
         get_cmd = true;
@@ -212,12 +215,15 @@ void iota::UL20Service::service(pion::http::request_ptr& http_request_ptr,
                      service_ptree.get<std::string>(iota::store::types::SERVICE_PATH,
                      iota::types::FIWARE_SERVICEPATH_DEFAULT));
     if (dev.get() == NULL) {
+      dev.reset(new Device(device, service_ptree.get<std::string>(
+        iota::store::types::SERVICE, "")));
+      dev->_service_path = service_ptree.get<std::string>(
+        iota::store::types::SERVICE_PATH, "");
+
       IOTA_LOG_DEBUG(m_logger, "Device "  << device << " is not registered;"
                      " apikey: " << apikey <<
-                     " service: " << service_ptree.get<std::string>("service", "")<<
-                     " service_path: " << service_ptree.get<std::string>("service_path", ""));
-      dev.reset(new Device(device, service_ptree.get<std::string>("service", "")));
-      dev->_service_path = service_ptree.get<std::string>("service_path", "");
+                     " service: " << dev->_service<<
+                     " service_path: " << dev->_service_path);
     }else if (url_update){
       std::string old_endpoint = dev->_endpoint;
       if (!old_endpoint.empty() && old_endpoint.compare(new_endpoint) != 0){
@@ -671,18 +677,25 @@ void iota::UL20Service::transform_command(const std::string& command_name,
                  updateCommand_value);
   if (command_value.compare(iota::types::RAW) == 0) {
     result = updateCommand_value;
+    command_line.put(iota::store::types::BODY, result);
+  }else if (!command_value.empty()){
+    CommandHandle::transform_command(command_name, command_value,
+                                   updateCommand_value,
+                                   sequence_id, item_dev, service,
+                                   command_id, command_line);
   }else{
     result.append(item_dev->_name);
     result.append("@");
     result.append(command_name);
-    if (boost::starts_with(key, updateCommand_value)) {
+    if (!boost::starts_with(key, updateCommand_value)) {
       result.append(key);
     }
     if (!updateCommand_value.empty()){
       result.append(updateCommand_value);
     }
+    command_line.put(iota::store::types::BODY, result);
   }
-  command_line.put(iota::store::types::BODY, result);
+
   // check if it is an ul20 command well formed
   std::string body = command_line.get(iota::store::types::BODY, "");
   if (isCommandResp(body, 2000, command_http_response_translate,
