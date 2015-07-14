@@ -216,7 +216,7 @@ std::string iota::RestHandle::get_public_ip() {
   }
   if (public_ip.empty()) {
     // Own endpoint to register
-		/*
+    /*
     boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
       AdminService_ptr->get_web_server()->get_endpoint();
     */
@@ -364,7 +364,7 @@ std::string iota::RestHandle::add_url(std::string url,
 
 void iota::RestHandle::operator()(pion::http::request_ptr& http_request_ptr,
                                   pion::tcp::connection_ptr& tcp_conn) {
-	IOTA_LOG_DEBUG(m_logger, iota::http2string(*http_request_ptr));
+  IOTA_LOG_DEBUG(m_logger, iota::http2string(*http_request_ptr));
   tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   boost::shared_ptr<iota::IoTStatistic> stat = get_statistic_counter(
         iota::types::STAT_TRAFFIC);
@@ -631,20 +631,27 @@ std::string iota::RestHandle::get_statistics() {
       _statistics.begin();
 
   while (it_stats != _statistics.end()) {
-    rapidjson::Value stat_element;
-    stat_element.SetObject();
+
     std::string stat_name(it_stats->first);
 
     try {
-      rapidjson::Value counter;
-      counter.SetObject();
 
+      if (it_stats->second.get() == NULL) {
+        PION_LOG_INFO(m_logger,
+                      "t_stats->second is NULL ");
+        continue;
+      }
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >
       accs =
         it_stats->second->get_counters();
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >::iterator
       it_tm = accs.begin();
       while (it_tm != accs.end()) {
+
+        rapidjson::Value stat_element;
+        stat_element.SetObject();
+        rapidjson::Value counter;
+        counter.SetObject();
 
         // Timestamp
         stat_element.AddMember("timestamp", rapidjson::Value().SetInt64(it_tm->first),
@@ -657,6 +664,13 @@ std::string iota::RestHandle::get_statistics() {
           std::string acc_name(it->first);
           rapidjson::Value acc_o;
           acc_o.SetObject();
+
+          if (it->second.get() == NULL) {
+            PION_LOG_INFO(m_logger,
+                          "it->second is NULL ");
+            continue;
+          }
+
 
           acc_o.AddMember("count",
                           rapidjson::Value().SetDouble(boost::accumulators::count(*(it->second))),
@@ -684,6 +698,10 @@ std::string iota::RestHandle::get_statistics() {
           ++it;
         }
         stat_element.AddMember(stat_name.c_str(), counter, stats.GetAllocator());
+        // this if could be removed
+        if (stat_element.HasMember(stat_name.c_str())) {
+          stats.PushBack(stat_element, stats.GetAllocator());
+        }
         ++it_tm;
       }
     }
@@ -691,9 +709,6 @@ std::string iota::RestHandle::get_statistics() {
       IOTA_LOG_ERROR(m_logger, "Stats " << e.what());
     }
     ++it_stats;
-    if (stat_element.HasMember(stat_name.c_str())) {
-      stats.PushBack(stat_element, stats.GetAllocator());
-    }
   }
   //stats.AddMember("statistics", resource, stats.GetAllocator());
   rapidjson::StringBuffer buffer;
@@ -852,7 +867,7 @@ bool iota::RestHandle::get_service_by_apiKey(
 
 
 void iota::RestHandle::fill_service_with_bson(const mongo::BSONObj& bson,
-      boost::property_tree::ptree& pt){
+    boost::property_tree::ptree& pt) {
 
   int default_timeout = get_default_timeout();
   std::string default_context_broker = get_default_context_broker();
