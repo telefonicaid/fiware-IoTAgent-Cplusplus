@@ -79,6 +79,7 @@ class RestHandle: public pion::http::plugin_service,
 
     RestHandle();
     virtual ~RestHandle();
+    virtual void set_option(const std::string& name, const std::string& value);
     virtual void operator()(pion::http::request_ptr& http_request_ptr,
                             pion::tcp::connection_ptr& tcp_conn);
     void handle_request(pion::http::request_ptr& http_request_ptr,
@@ -208,6 +209,7 @@ class RestHandle: public pion::http::plugin_service,
     double get_payload_length(pion::http::request_ptr& http_request_ptr);
     double get_query_length(pion::http::request_ptr& http_request_ptr);
     double get_payload_length(pion::http::response& http_response);
+    void set_protocol_data(iota::ProtocolData p_data);
     std::map<std::string, std::string> get_multipart_content(
       pion::http::request_ptr& request_ptr);
 
@@ -316,6 +318,9 @@ class RestHandle: public pion::http::plugin_service,
 
     // For async communications. It provides a parallel event loop.
     boost::shared_ptr<CommonAsyncManager> _connectionManager;
+
+    // Protocol data
+    iota::ProtocolData _protocol_data;
 
 
 

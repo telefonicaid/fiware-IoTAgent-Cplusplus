@@ -1876,7 +1876,7 @@ void AdminTest::testAuthInfo() {
   i_r = rules.find("create");
   CPPUNIT_ASSERT(i_r != rules.end());
   CPPUNIT_ASSERT(i_r->second.verb.compare("POST") == 0);
-  CPPUNIT_ASSERT(i_r->second.uri.compare("/iot/ngsi/<protocol>/updateContext") == 0);
+  CPPUNIT_ASSERT(i_r->second.uri.compare("/ngsi/<protocol>/updateContext") == 0);
   std::cout << "End testAuthInfo" << std::endl;
 }
 

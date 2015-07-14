@@ -61,7 +61,6 @@ class TTService : public iota::RestHandle {
                   const std::string& iotService,
                   const std::string& apiKey);//Can be taken to another class
 
-    virtual iota::ProtocolData get_protocol_data();
 
   protected:
     pion::logger m_logger;

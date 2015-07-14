@@ -1,10 +1,22 @@
 # Southbound API
+Every module has an identifier and description in order to be identified in applications. Identifier is hard-coded and this information nust not be changed. But `description` field
+might change if you provide `ProtocolDescription` field as an option in module configuration. For example:
+```
+     {
+      "resource": "/iot/mqtt",
+      "options": {
+         "ConfigFile": "/etc/iot/MqttService.xml",
+         "FileName": "MqttService",
+         "ProtocolDescription": "MQTT for testing purpose"
+        }
+      }
+```
 ## Ultra Light Agent ###
 Ultra-Light (UL20) is a HTTP protocol to send short data.
 
 ```
 Identifier: PDI-IoTA-UltraLight
-Description: Ultra Light Propietary Protocol
+Description: UL2
 ```
 
 Previously, this module is configured in _/iot/d_ URI and the service provisioned has _apikey_ ('abc' in curl example). Parameters are:
@@ -44,7 +56,7 @@ and
 When a device is provisioned, some basic conversions can be set using the device's "attributes". Those can be configured using the devices provisioning API. ContextBroker supports a native attribute format for location measures. Thus it makes sense to offer this type of conversion as built-in. Both UltraLight and MQTT plugins can benefit from this by just having their devices provisioned with an specific attribute as detailed below:
 
 
-```	
+```
 	{
            "object_id":"l",
            "type": "coords",
@@ -52,9 +64,9 @@ When a device is provisioned, some basic conversions can be set using the device
    	}
 ```
 
-That is part of the device's attributes. If this is not added to the JSON when creating a device, the conversion will not happen. The  __"object_id"__ is the name of the original attribute coming in the message. UL will typically use one letter, but MQTT can have a longer name. This is whatever identifies the actual location information sent by the device. The __"type"__ field has to be "coords" as the conversion is built-in. Lastly, __"name"__ is the name of the attribute sent to the ContextBroker. 
+That is part of the device's attributes. If this is not added to the JSON when creating a device, the conversion will not happen. The  __"object_id"__ is the name of the original attribute coming in the message. UL will typically use one letter, but MQTT can have a longer name. This is whatever identifies the actual location information sent by the device. The __"type"__ field has to be "coords" as the conversion is built-in. Lastly, __"name"__ is the name of the attribute sent to the ContextBroker.
 
-For a message coming from a device like this: 
+For a message coming from a device like this:
 
 UltraLight:
 ```
@@ -84,10 +96,10 @@ You can review protocol reference in [Ultra-Light](UL20_protocol.md).
 
 ```
 Identifier: PDI-IoTA-MQTT-UltraLight
-Description: MQTT with Propietary Protocol in topics and payload (UL-based)
+Description: MQTT
 ```
 
-MQTT is a M2M oriented protocol based on TCP that requires a broker for publishing and subscribing to messages based on topics hiearchy. In order to be able to publish and receive on IoTAgent-MQTT, services must be provisioned providing an api-key that will be used in the topics sent by devices belonging to that service as explained here [MQTT](MQTT_protocol.md). The typical port used is 1883 (no SSL).  
+MQTT is a M2M oriented protocol based on TCP that requires a broker for publishing and subscribing to messages based on topics hiearchy. In order to be able to publish and receive on IoTAgent-MQTT, services must be provisioned providing an api-key that will be used in the topics sent by devices belonging to that service as explained here [MQTT](MQTT_protocol.md). The typical port used is 1883 (no SSL).
 
 As a reminder, the __config.json__ file has to contain at least one "resource" for MQTT like this:
 
@@ -97,7 +109,7 @@ As a reminder, the __config.json__ file has to contain at least one "resource" f
          "ConfigFile": "/etc/iot/MqttService.xml",
          "FileName": "MqttService"
         }
-      } 
+      }
 
 Besides, the IoTAgent has to be told where to find the MqttService.so file. This is done by using the option "-d" when starting it:
 
@@ -118,9 +130,9 @@ Then you can publish a test (on a separate shell):
 ```
      mosquitto_pub -h server.name -t /api-key/device-id/test -m 44
 ```
-You can check that the message has come to the subscriber and also to the ContextBroker, as IoTAgent will be listening to all publications. 
+You can check that the message has come to the subscriber and also to the ContextBroker, as IoTAgent will be listening to all publications.
 
-__Note__: if ACS is used, mqtt clients have to use user-id that must be the same as the Api-key. In this example, by providing "-u <api-key>" on both commands you can do so. 
+__Note__: if ACS is used, mqtt clients have to use user-id that must be the same as the Api-key. In this example, by providing "-u <api-key>" on both commands you can do so.
 
 ```
 {"id":"my_device","type":"thing","isPattern":"false","attributes":[{"name":"test","type":"string","value":"44","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]},{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]}
@@ -130,7 +142,7 @@ __Note__: if ACS is used, mqtt clients have to use user-id that must be the same
 As it has been explained [here](#location) a device can be provisioned with the built-in location conversion for ContextBroker. In this case the name "object_id" will be the topic that represents the measure. Following a similar example to the UltraLight scenario, for a device provisioned with:
 
 
-```	
+```
 	{
            "object_id":"location",
            "type": "coords",
@@ -140,7 +152,7 @@ As it has been explained [here](#location) a device can be provisioned with the 
 
 And a MQTT message of this kind:
 
-Topic: 
+Topic:
 ```
  /<api-key>/<device-id>/location
 ```
@@ -187,7 +199,7 @@ Fiware-ServicePath:
 
 Once the sub-service is successfully created, devices can be added to that service. The name of the device can be personalized by providing an "entity_name" header, same for "entity_type". These two fields will appear on the entity published on ContextBroker (see example below).
 
-All devices will target the same URL and the stack-id that is included in the request is used internally to obtain the service and sub-service where that particular device belongs. The following example shows an example of the request sent by a device (note that part of the body is URL encoded) and how the entity published on ContextBroker looks like.  
+All devices will target the same URL and the stack-id that is included in the request is used internally to obtain the service and sub-service where that particular device belongs. The following example shows an example of the request sent by a device (note that part of the body is URL encoded) and how the entity published on ContextBroker looks like.
 
 ```
 curl -v http://10.0.2.15:8080/iot/tt -d cadena=%238934075379000039321%2C%230%2CGM%2Ctemp%2C25%2C20%24wakeUP
