@@ -201,6 +201,17 @@ Any number of policies can be included in the Access Control for each pair (tena
 
 ## PEP Rules and Access Control resources
 
+### IoT Agent resources
+
+Resources applying PEP rules:
+`
+fiware:iotagent:{Fiware-Service}:{Fiware-ServicePath}:{uri-no-base}
+`
+For example, a pair Fiware-Service - Fiware-ServicePath `SmartCity - /Foo` getting all devices creates a resource like that:
+`fiware:iotagent:SmartCity:/Foo:/devices`
+Following this format, Access Control could defines permissions for every resource.
+
+IoT Agent creates actions for every resource.
 The following tables show the rules for detemining the action based on method and path of the request.
 
 | Method | Path                               | Action |
@@ -215,5 +226,24 @@ The following tables show the rules for detemining the action based on method an
 |  PUT  |   /services              | update |
 |  DELETE | /services             | delete |
 |  POST | /ngsi/{uri-protocol}/updateContext | create |
+|  POST | /ngsi/{uri-protocol}/queryContext | read |
 
 _uri_protocol_ is the path following url base for IoT Agent in resource (view [IoT Agent Configuration](deploy.md)).
+
+You can define actions in IoT Agent Configuration file following this format:
+`
+ "pep_rules": [
+      {
+          "verb": "POST",
+          "action": "read",
+          "uri": "/ngsi/<protocol>/queryContext"
+       },
+        {
+          "verb": "POST",
+          "action": "create",
+          "uri": "/ngsi/<protocol>/updateContext"
+        }
+     ]
+`
+`verb` is HTTP method, `uri` is URI in HTTP request (you can see, url-basename is ommited). `<` and `>` are used to defien a variable element in uri.
+

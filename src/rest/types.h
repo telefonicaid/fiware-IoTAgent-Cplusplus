@@ -76,6 +76,10 @@ struct types {
   static const std::string CONF_FILE_ON_BEHALF_USER;
   static const std::string CONF_FILE_ON_BEHALF_PASSWORD;
   static const std::string CONF_FILE_OAUTH_TIMEOUT;
+  static const std::string CONF_FILE_PEP_RULES;
+  static const std::string CONF_FILE_PEP_RULES_URI;
+  static const std::string CONF_FILE_PEP_RULES_ACTION;
+  static const std::string CONF_FILE_PEP_RULES_VERB;
   // Error response
   static const std::string MULTIPART_ERROR;
 
@@ -258,5 +262,10 @@ typedef struct ProtocolData {
   std::string protocol;
   std::string description;
 } ProtocolData;
+
+typedef struct PepRule {
+  std::string verb;
+  std::string uri;
+} PepRule;
 }
 #endif

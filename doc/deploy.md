@@ -309,6 +309,22 @@ When IoT Agent is integrated in OAuth environment based on Keyston Openstack, th
   }
 ```
 Fields with _on_behalf_ prefix are related to publish. Other fields configure PEP funcionality.
+There is a field to configure actions as PEP function, but default configuration (view [IoT PEP](pep.md)) applies in most cases:
+```
+ "pep_rules": [
+      {
+          "verb": "POST",
+          "action": "read",
+          "uri": "/ngsi/<protocol>/queryContext"
+       },
+        {
+          "verb": "POST",
+          "action": "create",
+          "uri": "/ngsi/<protocol>/updateContext"
+        }
+     ]
+```
+`verb` is HTTP method, `uri` is URI in HTTP request (you can see, url-base is ommited). `<` and `>` are used to defien a variable element in uri.
 
 <a name="def-ngsi"></a>
 ### 4. Ngsi configuration (context broker configuration)
