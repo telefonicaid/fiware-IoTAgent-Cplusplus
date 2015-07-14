@@ -34,15 +34,21 @@ extern std::string URL_BASE;
 std::map<std::string, std::string> actions =
   boost::assign::map_list_of("GET","read")("POST","create")("PUT","update")
   ("DELETE","delete");
-std::multimap<std::string, std::string> uri_actions =
-  boost::assign::map_list_of
-  ("create", "POST[[:space:]]+/iot/ngsi/([^/]+)/updateContext")
-  ("read", "POST[[:space:]]+/iot/ngsi/([^/]+)/queryContext");
 };
 
 
 iota::OAuthFilter::OAuthFilter(): _timeout(3),
   HTTPFilter(PION_GET_LOGGER(iota::logger)) {
+  std::string context("POST[[:space:]]+");
+  context += "/";
+  context += iota::NGSI_SERVICE;
+  context += "/([^/]+)/";
+  std::string u_context(context);
+  std::string q_context(context);
+  u_context += "updateContext";
+  q_context += "queryContext";
+  _uri_actions.insert(std::pair<std::string, std::string>("create", u_context));
+  _uri_actions.insert(std::pair<std::string, std::string>("read", q_context));
 };
 
 iota::OAuthFilter::~OAuthFilter() {
@@ -170,7 +176,7 @@ void iota::OAuthFilter::authorize(pion::http::request_ptr& http_request_ptr,
   std::vector<std::string> user_subservice_roles;
   std::string resource_id(get_resource(domain, project,
                                        get_relative_resource(http_request_ptr->get_resource())));
-  std::string action(iota::actions[http_request_ptr->get_method()]);
+  std::string action(get_action(http_request_ptr->get_method(), get_relative_resource(http_request_ptr->get_resource())));
   try {
     BOOST_FOREACH(boost::property_tree::ptree::value_type& v,
                   roles.get_child("role_assignments")) {
@@ -352,8 +358,8 @@ std::string iota::OAuthFilter::get_action(std::string verb, std::string uri) {
   }
 
   if (action.empty()) {
-    i_pep_rules = uri_actions.begin();
-    while (i_pep_rules != uri_actions.end() && action.empty()) {
+    i_pep_rules = _uri_actions.begin();
+    while (i_pep_rules != _uri_actions.end() && action.empty()) {
       bool res = iota::restResourceParse(i_pep_rules->second, url_args, uri_regex,
                                          url_placeholders);
       if (res) {

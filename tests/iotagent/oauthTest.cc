@@ -427,17 +427,23 @@ void OAuthTest::testActions() {
   std::multimap<std::string, iota::PepRule> rules;
   iota::PepRule rule1;
   rule1.verb = "POST";
-  rule1.uri ="/iot/ngsi/<protocol>/updateContext";
+  rule1.uri ="/ngsi/<protocol>/updateContext";
   iota::PepRule rule2;
   rule2.verb = "POST";
-  rule2.uri = "/iot/ngsi/<protocol>/queryContext";
-  rules.insert(std::pair<std::string, iota::PepRule>("create", rule1));
-  rules.insert(std::pair<std::string, iota::PepRule>("read", rule2));
+  rule2.uri = "/ngsi/<protocol>/queryContext";
+  rules.insert(std::pair<std::string, iota::PepRule>("foo", rule1));
+  rules.insert(std::pair<std::string, iota::PepRule>("smile", rule2));
 
   // NO rules, only verb
-  CPPUNIT_ASSERT_MESSAGE("Action only by verb ", oauth_filter.get_action("DELETE", "/iot/device").compare("delete") == 0);
-  CPPUNIT_ASSERT_MESSAGE("Action only by verb ", oauth_filter.get_action("POST", "/iot/devices/<device_id>").compare("create") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Action only by verb ", oauth_filter.get_action("DELETE", "/device").compare("delete") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Action only by verb ", oauth_filter.get_action("POST", "/devices/<device_id>").compare("create") == 0);
 
   // Uri actions rules
-  CPPUNIT_ASSERT_MESSAGE("Action for updateContext ", oauth_filter.get_action("PUT", "/iot/ngsi/d/updateContext").compare("create") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Action for updateContext ", oauth_filter.get_action("POST", "/ngsi/d/updateContext").compare("create") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Action for queryContext ", oauth_filter.get_action("POST", "/ngsi/d/queryContext").compare("read") == 0);
+
+  // Action
+  oauth_filter.set_pep_rules(rules);
+  CPPUNIT_ASSERT_MESSAGE("Action for updateContext ", oauth_filter.get_action("POST", "/ngsi/d/updateContext").compare("foo") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Action for queryContext ", oauth_filter.get_action("POST", "/ngsi/d/queryContext").compare("smile") == 0);
 }

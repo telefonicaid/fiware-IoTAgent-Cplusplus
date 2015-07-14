@@ -31,12 +31,12 @@
        {
          "verb": "POST",
          "action": "read",
-         "uri": "/iot/ngsi/<protocol>/queryContext"
+         "uri": "/ngsi/<protocol>/queryContext"
        },
        {
          "verb": "POST",
          "action": "create",
-         "uri": "/iot/ngsi/<protocol>/updateContext"
+         "uri": "/ngsi/<protocol>/updateContext"
        }
     ],
     "resources": [

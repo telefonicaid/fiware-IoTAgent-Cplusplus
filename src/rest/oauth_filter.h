@@ -66,6 +66,7 @@ class OAuthFilter: public virtual iota::HTTPFilter {
     std::string _domain;
     int _timeout;
     std::multimap<std::string, std::string> _pep_rules;
+    std::multimap<std::string, std::string> _uri_actions;
     std::string _filter_url;
     std::map<std::string, boost::shared_ptr<iota::OAuth> > _connections;
     std::map<std::string, boost::shared_ptr<iota::AccessControl> > _connections_ac;
