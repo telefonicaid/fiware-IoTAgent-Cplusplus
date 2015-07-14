@@ -1363,12 +1363,9 @@ void AdminTest::testBADPostDevice() {
             std::endl;
   IOTASSERT(code_res == 400);
   IOTASSERT(response.find(
-              "{\"reason\":\"The request is not well formed\",\"details\":\"Additional properties not allowed")
+              "{\"reason\":\"The request is not well formed\",\"details\":\"Missing required property: device_id [/devices[0]]\"}")
             !=
             std::string::npos);
-  IOTASSERT_MESSAGE(response, response.find(
-                      "[/devices[0]/commands[0]/bomba]") !=
-                    std::string::npos);
 
   // POST device
   std::cout << "@UT@5POST" << std::endl;
