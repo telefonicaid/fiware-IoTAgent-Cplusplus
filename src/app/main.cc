@@ -464,7 +464,12 @@ int main(int argc, char* argv[]) {
                     std::string name(it_r->name.GetString());
                     std::string value(it_r->value.GetString());
                     IOTA_LOG_DEBUG(main_log, "set_service_option: " << name << " " << value);
+										try {
                     web_server->set_service_option(res, name, value);
+										}
+										catch(boost::exception& e) {
+                      IOTA_LOG_INFO(main_log, "Setting option " << boost::diagnostic_information(e));
+										}
 
                   }
 
