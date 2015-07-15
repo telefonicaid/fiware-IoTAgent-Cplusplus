@@ -41,6 +41,11 @@ target_link_libraries(sample_tests stestsrv iotmock iota_a ${IOTAGENT_LIBS}
 add_executable(ul20_tests ul20Test.cc ul20_test.cc)
 target_link_libraries(ul20_tests sul20 iotmock iota_a ${IOTAGENT_LIBS}
 	${TEST_LIBS})
+
+# Thinking things protocol
+add_executable(tt_tests ttTest.cc tt_test.cc TTBufferTests.cc)
+target_link_libraries(tt_tests esp sttservice iotmock iota_a
+	${IOTAGENT_LIBS} ${TEST_LIBS})
 if(MOSQUITTO_FOUND)
 # MQTT UltraLight protocol
 include_directories(${MOSQUITTO_INCLUDE_DIR})
@@ -49,11 +54,6 @@ link_directories(${MOSQUITTO_LIBS_DIR})
 add_executable(mqtt_tests mqttTest.cc mqtt_test.cc)
 target_link_libraries(mqtt_tests esp_mqtt mosquittopp mosquitto smqttservice iotmock iota_a
 	${IOTAGENT_LIBS} ${MOSQUITTO_LIBRARIES} ${TEST_LIBS})
-
-# Thinking things protocol
-add_executable(tt_tests ttTest.cc tt_test.cc TTBufferTests.cc)
-target_link_libraries(tt_tests esp sttservice iotmock iota_a
-	${IOTAGENT_LIBS} ${TEST_LIBS})
 
 endif()
 

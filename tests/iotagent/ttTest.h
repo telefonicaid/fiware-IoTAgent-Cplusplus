@@ -43,6 +43,7 @@
 class TTTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(TTTest);
     CPPUNIT_TEST(testTTResponses);
+    /*
     CPPUNIT_TEST(testSearchResponses);
     CPPUNIT_TEST(testTTCBPublisher);
     CPPUNIT_TEST(testTTResponsesP1);
@@ -64,6 +65,7 @@ class TTTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testErrorCodesOnBug_IDAS20308);
     CPPUNIT_TEST(testNoEmpty_And_ValidResponse_OnBug_IDAS20308);
     CPPUNIT_TEST(testError_when_empty_response_from_CB);
+    */
     CPPUNIT_TEST_SUITE_END();
 
   public:
