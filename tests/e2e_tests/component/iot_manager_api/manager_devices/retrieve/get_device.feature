@@ -7,7 +7,7 @@ Feature: Manager API Device Get Data
     	Scenario Outline: Retrieve device data
     	Given a Service with name "<srv_name>", path "<srv_path>" and protocol "<protocol>" created
 		And a Device with name "<dev_id>", entity_name "<ent_name>", entity_type "<ent_type>", endpoint "<endpoint>", protocol "<protocol>" and atribute or command "<typ>", with name "<name>", type "<type>" and value "<value>" created
-		When I retrieve the device data of "<dev_id>" with protocol "<find_prot>"
+		When I retrieve in manager the device data of "<dev_id>" with protocol "<find_prot>"
         Then I receive the device data of "<dev_id>"
 		
 		Examples:

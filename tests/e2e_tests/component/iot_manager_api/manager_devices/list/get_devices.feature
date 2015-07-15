@@ -7,7 +7,7 @@ Feature: Manager API Device Get List
     	Scenario Outline: List Devices data
 		Given a Service with name "<srv_name>", path "<srv_path>" and protocol "<protocol>" created
 		And a Device with name "<dev_id>", protocol "<protocol>", entity_name "<ent_name>" and entity_type "<ent_type>" created
-		When I list the devices of "<find_srv>", path "<find_path>", entity "<find_ent>", protocol "<find_prot>", detailed "<detail>", limit "<limit>" and offset "<offset>"
+		When I list in manager the devices of "<find_srv>", path "<find_path>", entity "<find_ent>", protocol "<find_prot>", detailed "<detail>", limit "<limit>" and offset "<offset>"
         Then I receive the device data of "<n_devs>" devices with data "<devices>"
 		
 		Examples:
@@ -20,6 +20,7 @@ Feature: Manager API Device Get List
 			|srv_devm_list	|/path_srv_devm_list  |IoTUL2	|devm_list	|room_list	|thing_list		|srv_devm_list	|/path_srv_devm_list  |			  |IoTUL2	 |2		 |		|		|on		|devm_list#room_list:thing_list/devm_list1#room_list1:thing_list1	|
 			|srv_devm_list	|/path_srv_devm_list1 |IoTTT	|devm_list1	|room_list1	|thing_list1	|srv_devm_list	|/path_srv_devm_list1 |room_list1 |			 |1		 |		|		|on		|																	|
 			|srv_devm_list	|/path_srv_devm_list  |IoTUL2	|devm_list1	|room_list1	|thing_list1	|srv_devm_list	|/path_srv_devm_list  |			  |IoTTT	 |0		 |		|		|		|																	|
+			|srv_devm_list	|/path_srv_devm_list  |IoTUL2	|devm_list1	|room_list1	|thing_list1	|srv_devm_list	|/path_srv_devm_list  |			  |IoTUnknown|0		 |		|		|		|																	|
 			|srv_devm_list	|/path_srv_devm_list  |IoTUL2	|devm_list1	|room_list1	|thing_list1	|srv_devm_list	|/path_srv_devm_list  |room_list1 |IoTUL2	 |1		 |		|		|on		|																	|
 			|srv_devm_list	|/path_srv_devm_list  |IoTUL2	|devm_list1	|room_list1	|thing_list1	|srv_devm_list	|/path_srv_devm_list  |room_list1 |IoTTT	 |0		 |		|		|		|																	|
 			|srv_devm_list	|/path_srv_devm_list  |IoTUL2	|devm_list1	|room_list1	|thing_list1	|srv_devm_list	|/path_srv_devm_list  |room_list2 |IoTUL2	 |0		 |		|		|		|																	|

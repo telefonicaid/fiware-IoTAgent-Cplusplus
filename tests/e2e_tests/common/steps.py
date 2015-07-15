@@ -226,7 +226,7 @@ def update_service_data(step, attribute, service_name, value):
 
 @step('I update in manager the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
 def update_service_data_manager(step, attribute, service_name, value):
-    service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, {}, world.apikey, {}, True, world.protocol)
+    service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, {}, world.apikey, False, True, world.protocol)
     assert service.status_code == 200, 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
     print 'Se ha actualizado el servicio:{} path:{} protocol:{} y apikey:{}'.format(service_name,world.srv_path,world.protocol,world.apikey)
 
@@ -418,13 +418,19 @@ def create_device_with_attrs_cmds_manager(step, dev_name, protocol, typ1, typ2, 
     assert req.status_code == 201, 'ERROR: ' + req.text + "El device {} no se ha creado correctamente".format(dev_name)
     print 'Se ha creado el device {}'.format(dev_name)
 
+@step('I update the attribute "([^"]*)" of device "([^"]*)" with value "([^"]*)"')
+def update_device_data(step, attribute, device_name, value):
+    device=functions.update_device_with_params(attribute, device_name, value, world.service_name, world.srv_path)
+    assert device.status_code == 204, 'ERROR: ' + device.text + "El device {} no se ha actualizado correctamente".format(device_name)
+    print 'Se ha actualizado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
+
 @step('I retrieve the device data of "([^"]*)"')
 def get_device_data(step, dev_name):
     world.manager=False
     req=functions.get_device_created(world.service_name, world.srv_path, dev_name)
     assert req.ok, 'ERROR: ' + req.text
 
-@step('I retrieve the device data of "([^"]*)" with protocol "([^"]*)"')
+@step('I retrieve in manager the device data of "([^"]*)" with protocol "([^"]*)"')
 def get_device_data_manager(step, dev_name, protocol):
     world.manager=True
     req=functions.get_device_created(world.service_name, world.srv_path, dev_name, protocol, True)
@@ -437,6 +443,13 @@ def get_devices_list(step, service_name, service_path, entity, protocol, detaile
     req=functions.get_devices_created(service_name, service_path, entity, limit, offset, detailed, protocol)
     assert req.ok, 'ERROR: ' + req.text
 
+@step('I list in manager the devices of "([^"]*)", path "([^"]*)", entity "([^"]*)", protocol "([^"]*)", detailed "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
+def get_devices_list_manager(step, service_name, service_path, entity, protocol, detailed, limit, offset):
+    world.manager=True
+    world.detailed = detailed
+    req=functions.get_devices_created(service_name, service_path, entity, limit, offset, detailed, protocol, True)
+    assert req.ok, 'ERROR: ' + req.text
+
 @step('I receive the device data of "([^"]*)"')
 def check_device_data(step, dev_name):
     functions.check_device_data(dev_name, world.manager)
@@ -444,6 +457,11 @@ def check_device_data(step, dev_name):
 @step('I receive the device data of "([^"]*)" devices with data "([^"]*)"')
 def check_devices_data(step, num_devices, data):
     functions.check_devices_data(num_devices, data)
+
+@step('the device data contains attribute "([^"]*)" with value "([^"]*)"')
+def check_device_data_updated(step, attribute, value):
+    functions.get_device_created(world.service_name, world.srv_path, world.device_id)
+    functions.check_device_data(world.device_id, False, 'on', attribute, value)
 
 @step('the Device with name "([^"]*)" is created')
 def device_created(step, dev_name):

@@ -1,9 +1,7 @@
 from lettuce import before, after, world
 from common.functions import Functions
 
-
 functions = Functions()
-
 
 @before.all
 def setup():
