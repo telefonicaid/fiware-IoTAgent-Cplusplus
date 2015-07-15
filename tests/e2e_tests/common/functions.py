@@ -872,7 +872,7 @@ class Functions(object):
             assert response['commands'][0]['name'] == name, 'Expected Result: ' + name + '\nObtained Result: ' + response['commands'][0]['name']
             assert response['commands'][0]['type'] == "command", 'Expected Result: command \nObtained Result: ' + response['commands'][0]['type']
             assert response['commands'][0]['value'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['commands'][0]['value']
-        if ((not attribute) or ((not 'att' in attribute) and (not attribute=='cmd')) and (world.typ1)):
+        if ((not attribute) or ((not 'att' in attribute) and (not attribute=='cmd'))) and (world.typ1):
             print 'Compruebo campo {} con valor {} y tipo {}'.format(world.name1,world.value1,world.type1)           
             if 'attr' in world.typ1:
                 assert response['attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
