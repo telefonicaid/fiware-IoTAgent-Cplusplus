@@ -233,11 +233,11 @@ add_test(NAME AdminManagerTest COMMAND admin_manager_tests)
 add_test(NAME SampleTest COMMAND sample_tests)
 # UltraLight protocol
 add_test(NAME Ul20Test COMMAND ul20_tests)
+# Thinking things protocol
+add_test(NAME ttTest COMMAND tt_tests)
 if(MOSQUITTO_FOUND)
 # MQTT UltraLight protocol
 add_test(NAME MqttTest COMMAND mqtt_tests)
-# Thinking things protocol
-add_test(NAME ttTest COMMAND tt_tests)
 endif()
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/BaseChangeLog.txt BASECHANGELOG)
