@@ -5,6 +5,7 @@
 - FIX IDAS-20544: Cannot remove cbroker url with PUT service.
 - FIX IDAS-20548: IoTA crash in statistics.
 - FIX IDAS-20542: IoTA PEP dont check uri to define a resource.
+- FIX IDAS-20551: IoTA log FATAL when set_option is not implemented by module.
 
 * Wed Jun 30 2015 Agustin Gonzalez <lucas@tid.es> 1.1.0 
 - FEATURE IDAS-20504: Improve building process with third party sofware. 
