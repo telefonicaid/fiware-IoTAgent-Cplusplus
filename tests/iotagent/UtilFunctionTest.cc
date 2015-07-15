@@ -131,17 +131,20 @@ void UtilFunctionTest::testRegexPattern() {
   CPPUNIT_ASSERT(url_placeholders.size() == 0);
   CPPUNIT_ASSERT(res);
 
-  url.assign("/adm/services/TestService/assets/TestAsset");
-  url_pattern.assign("/adm/services/TestService/assets/TestAsset");
-  regex.assign(".+[[:space:]]+/adm/services/TestService/assets/TestAsset");
+  url.assign("/adm/services/TestService/p1");
+  url_pattern.assign("/adm/services/<protocol>/p1");
+  //regex.assign(".+[[:space:]]+/adm/services/TestService/assets/TestAsset");
+  regex.assign("POST[[:space:]]+/adm/services/([^/]+)/assets/TestAsset");
   url_args.clear();
   url_placeholders.clear();
   url_regex.clear();
-  filters["method"] = "POST|GET";
+  filters["method"] = "POST";
+  //(POST|GET[[:space:]]+.+/)<([a-zA-Z0-9_-]+)>
   iota::format_pattern(url_pattern, filters, url_regex, url_args);
   url.insert(0, "POST ");
-  res = iota::restResourceParse(regex, url_args, url, url_placeholders);
-  CPPUNIT_ASSERT(url_placeholders.size() == 0);
+
+  res = iota::restResourceParse(url_regex, url_args, url, url_placeholders);
+  CPPUNIT_ASSERT(url_placeholders.size() == 1);
   CPPUNIT_ASSERT(res);
 
   url.assign("/adm/services/TestService/assets/TestAsset");
@@ -155,6 +158,13 @@ void UtilFunctionTest::testRegexPattern() {
   res = iota::restResourceParse(regex, url_args, url, url_placeholders);
   CPPUNIT_ASSERT(url_placeholders.size() == 0);
   CPPUNIT_ASSERT(!res);
+
+  // Create regex for pep
+  url_regex.clear();
+  url.assign("/iot/ngsi/<protocol>/updateContext");
+  filters["method"] = "POST";
+  iota::format_pattern(url, filters, url_regex, url_args);
+  std::cout << "REGEX PEP " << url_regex << std::cout;
 }
 
 void UtilFunctionTest::testStatistic() {
@@ -203,9 +213,6 @@ void UtilFunctionTest::testStatistic() {
   CPPUNIT_ASSERT(boost::accumulators::mean(*stat_1["stat1"]) == 6);
   stat_1.add("stat2", 5);
   CPPUNIT_ASSERT(boost::accumulators::count(*stat_1["stat2"]) == 1);
-  stat_1.reset();
-  a = stat_1.get_counters();
-  CPPUNIT_ASSERT_MESSAGE("Reset stat 0 counters", a.size() == 0);
 }
 
 void UtilFunctionTest::testFilter() {

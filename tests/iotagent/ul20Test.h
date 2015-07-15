@@ -65,6 +65,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
     CPPUNIT_TEST(testPUSHCommandAsync);
     CPPUNIT_TEST(testBADPUSHCommand);
+    CPPUNIT_TEST(testPollingCommand);
 
     CPPUNIT_TEST(testPollingCommandTimeout);
     CPPUNIT_TEST(testCommandNOUL);
@@ -85,6 +86,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testChangeIPDevice);
     CPPUNIT_TEST(testChangeIPDevice_empty);
+    CPPUNIT_TEST(testProtocolData);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -128,8 +130,6 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
 
     void testNormalPOST();
-    void testFileGET();
-    void testMongoGET();
     void testTimePOST();
     void testBadPost();
     void testNoDevicePost();
@@ -157,6 +157,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void testPUSHCommandProxyAndOutgoingRoute();
     void testPUSHCommandAsync();
     void testBADPUSHCommand();
+    void testPollingCommand();
     void testPollingCommandTimeout();
     void testCommandNOUL();
     void testPUSHCommandParam();
@@ -173,7 +174,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     void testQueryContext();
     void testQueryContextAPI();
-
+	void testProtocolData();
     void testChangeIPDevice();
     void testChangeIPDevice_empty();
 

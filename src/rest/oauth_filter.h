@@ -36,6 +36,7 @@ class OAuthFilter: public virtual iota::HTTPFilter {
     OAuthFilter();
     virtual ~OAuthFilter();
     void set_configuration(std::map<std::string, std::string>& oauth_conf);
+    void set_pep_rules(std::multimap<std::string, iota::PepRule>& pep_rules);
     virtual bool handle_request(pion::http::request_ptr& http_request_ptr,
                                 pion::tcp::connection_ptr& tcp_conn);
     void set_authorization_validate(std::string validate_url);
@@ -52,6 +53,7 @@ class OAuthFilter: public virtual iota::HTTPFilter {
                         pion::tcp::connection_ptr& tcp_conn,
                         boost::shared_ptr<iota::AccessControl> ac,
                         bool authorized);
+    std::string get_action(std::string verb, std::string uri);
 
   protected:
   private:
@@ -63,6 +65,8 @@ class OAuthFilter: public virtual iota::HTTPFilter {
     std::string _password;
     std::string _domain;
     int _timeout;
+    std::multimap<std::string, std::string> _pep_rules;
+    std::multimap<std::string, std::string> _uri_actions;
     std::string _filter_url;
     std::map<std::string, boost::shared_ptr<iota::OAuth> > _connections;
     std::map<std::string, boost::shared_ptr<iota::AccessControl> > _connections_ac;

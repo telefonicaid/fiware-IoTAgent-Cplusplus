@@ -59,6 +59,7 @@ void iota::NgsiService::start() {
       boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter());
       auth_ptr->set_filter_url_base(iota::URL_BASE);
       auth_ptr->set_configuration(oauth_map);
+      auth_ptr->set_pep_rules(iota::Configurator::instance()->get_pep_rules());
       add_pre_filter(auth_ptr);
     }
   }

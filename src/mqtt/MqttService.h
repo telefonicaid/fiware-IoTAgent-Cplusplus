@@ -117,7 +117,6 @@ class MqttService : public iota::esp::ngsi::IotaMqttCommands {
                  std::multimap<std::string, std::string>& query_parameters,
                  pion::http::response& http_response, std::string& response);
 
-    virtual iota::ProtocolData get_protocol_data();
 
   protected:
     pion::logger m_logger;

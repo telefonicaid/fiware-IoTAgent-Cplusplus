@@ -25,9 +25,9 @@
 #include "rest/rest_functions.h"
 
 bool iota::restResourceParse(std::string& regex,
-                       std::vector<std::string>& url_placeholders,
-                       std::string& url_resource,
-                       std::map<std::string, std::string>& resources) {
+                             std::vector<std::string>& url_placeholders,
+                             std::string& url_resource,
+                             std::map<std::string, std::string>& resources) {
   boost::regex resource_re(regex, boost::regex::perl);
   boost::smatch m;
   bool res = false;
@@ -35,17 +35,20 @@ bool iota::restResourceParse(std::string& regex,
     res = true;
     int i = 1;
     for (i = 1; i < m.size(); i++) {
-      resources.insert(std::make_pair<std::string, std::string>(url_placeholders.at(
-                         i-1), m[i]));
+      // Only store placeholders if provided.
+      if (url_placeholders.size() > 0) {
+        resources.insert(std::make_pair<std::string, std::string>(url_placeholders.at(
+                           i-1), m[i]));
+      }
     }
   }
   return res;
 }
 
 void iota::format_pattern(std::string& url,
-                    std::map<std::string, std::string>& filters,
-                    std::string& url_regex,
-                    std::vector<std::string>& url_args) {
+                          std::map<std::string, std::string>& filters,
+                          std::string& url_regex,
+                          std::vector<std::string>& url_args) {
 
   // Regular expression to match placeholders
   //boost::regex search_re("(POST|GET[[:space:]]+.+/)<([a-zA-Z0-9_-]+)>");

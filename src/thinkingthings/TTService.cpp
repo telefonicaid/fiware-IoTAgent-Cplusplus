@@ -56,7 +56,8 @@ iota::esp::TTService::TTService() : m_logger(PION_GET_LOGGER(iota::logger)) {
   std::cout << "esp::TTService " << std::endl;
   IOTA_LOG_DEBUG(m_logger,"iota::esp::TTService Running...  ");
 
-
+  _protocol_data.description = "Thinking Things Protocol";
+  _protocol_data.protocol = "PDI-IoTA-ThinkingThings";
   //iota::tt::TTCBPublisher* cbPubImpl = new iota::tt::TTCBPublisher();
 
   contextBrokerPub.reset(new iota::tt::TTCBPublisher());
@@ -68,6 +69,8 @@ iota::esp::TTService::TTService() : m_logger(PION_GET_LOGGER(iota::logger)) {
 
 iota::esp::TTService::TTService(boost::shared_ptr<iota::tt::TTCBPublisher> cbPub) : m_logger(
     PION_GET_LOGGER(iota::logger)) {
+  _protocol_data.description = "Thinking Things Protocol";
+  _protocol_data.protocol = "PDI-IoTA-ThinkingThings";
   contextBrokerPub = cbPub;
   idSensor = -1;
   tt_post_ptr_ = new ESP_Postprocessor_TT();
@@ -141,11 +144,13 @@ void iota::esp::TTService::set_option(const std::string& name,
   else {
 
     IOTA_LOG_DEBUG(m_logger,"OPTION:  " << name << " IS UNKNOWN");
+    iota::RestHandle::set_option(name, value);
   }
 }
 
 void iota::esp::TTService::start() {
   std::cout << "START PLUGINESP" << std::endl;
+
   std::map<std::string, std::string> filters;
 
   add_url("", filters, REST_HANDLE(&iota::esp::TTService::service), this);
@@ -430,15 +435,6 @@ void iota::esp::TTService::add_info(boost::property_tree::ptree& pt,
     throw e;
   }
 }
-
-iota::ProtocolData iota::esp::TTService::get_protocol_data() {
-  iota::ProtocolData protocol_data;
-  protocol_data.description = "Thinking Things Protocol";
-  protocol_data.protocol = "PDI-IoTA-ThinkingThings";
-  return protocol_data;
-}
-
-
 
 // creates new miplugin objects
 //

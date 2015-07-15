@@ -27,6 +27,18 @@
         "on_behalf_password": "iotagent",
         "timeout": 5
     },
+    "pep_rules": [
+       {
+         "verb": "POST",
+         "action": "read",
+         "uri": "/ngsi/<protocol>/queryContext"
+       },
+       {
+         "verb": "POST",
+         "action": "create",
+         "uri": "/ngsi/<protocol>/updateContext"
+       }
+    ],
     "resources": [
         {
             "resource": "/iot/test",

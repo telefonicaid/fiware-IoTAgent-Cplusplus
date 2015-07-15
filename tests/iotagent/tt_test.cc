@@ -56,7 +56,6 @@ int main(int argc, char* argv[]) {
   std::ofstream xmlFileOut("ttcpptestresults.xml");
   CppUnit::XmlOutputter xmlOut(&result, xmlFileOut);
   xmlOut.write();
-
   return result.wasSuccessful() ? 0 : 1;
 
 

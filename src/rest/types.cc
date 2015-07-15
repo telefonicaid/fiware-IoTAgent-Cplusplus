@@ -65,7 +65,10 @@ const std::string types::CONF_FILE_PEP_DOMAIN("pep_domain");
 const std::string types::CONF_FILE_ON_BEHALF_USER("on_behalf_user");
 const std::string types::CONF_FILE_ON_BEHALF_PASSWORD("on_behalf_password");
 const std::string types::CONF_FILE_OAUTH_TIMEOUT("timeout");
-
+const std::string types::CONF_FILE_PEP_RULES("pep_rules");
+const std::string types::CONF_FILE_PEP_RULES_URI("uri");
+const std::string types::CONF_FILE_PEP_RULES_ACTION("action");
+const std::string types::CONF_FILE_PEP_RULES_VERB("verb");
 // Errors
 const std::string types::MULTIPART_ERROR("Multipart content error");
 

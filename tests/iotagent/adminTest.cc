@@ -1886,6 +1886,16 @@ void AdminTest::testAuthInfo() {
   std::cout << to_map["pep_user"] << std::endl;
   CPPUNIT_ASSERT_MESSAGE("Checking map value",
                          to_map["pep_user"].compare("pep") == 0);
+
+  // Pep rules
+  std::multimap<std::string, iota::PepRule> rules;
+  rules = conf->get_pep_rules();
+  CPPUNIT_ASSERT(rules.size() == 2);
+  std::multimap<std::string, iota::PepRule>::iterator i_r = rules.begin();
+  i_r = rules.find("create");
+  CPPUNIT_ASSERT(i_r != rules.end());
+  CPPUNIT_ASSERT(i_r->second.verb.compare("POST") == 0);
+  CPPUNIT_ASSERT(i_r->second.uri.compare("/ngsi/<protocol>/updateContext") == 0);
   std::cout << "End testAuthInfo" << std::endl;
 }
 

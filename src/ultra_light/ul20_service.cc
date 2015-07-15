@@ -66,7 +66,8 @@ extern iota::AdminService* AdminService_ptr;
 
 iota::UL20Service::UL20Service(): m_logger(PION_GET_LOGGER(iota::logger)) {
   IOTA_LOG_DEBUG(m_logger, "iota::UL20Service::UL20Service");
-
+  _protocol_data.description = "UL2";
+  _protocol_data.protocol = "PDI-IoTA-UltraLight";
   //_reg_timeout = DEFAULT_REG_TIMEOUT;
   //_myProvidingApp = UNKOWN_PROVIDING_APP;
 }
@@ -77,7 +78,6 @@ iota::UL20Service::~UL20Service() {
 
 void iota::UL20Service::start() {
   IOTA_LOG_DEBUG(m_logger, "START PLUGIN UL2.0");
-
   std::map<std::string, std::string> filters;
   add_url("", filters, REST_HANDLE(&iota::UL20Service::service), this);
 
@@ -749,14 +749,6 @@ std::string iota::UL20Service::get_ngsi_operation(const std::string&
   }
   return op;
 }
-
-iota::ProtocolData iota::UL20Service::get_protocol_data() {
-  iota::ProtocolData protocol_data;
-  protocol_data.description = "Ultra Light Propietary Protocol";
-  protocol_data.protocol = "PDI-IoTA-UltraLight";
-  return protocol_data;
-}
-
 
 // creates new UL20Service objects
 //
