@@ -84,7 +84,7 @@ curl -X POST http://$HOST:$PORT/iot/devices \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: TestService" \
 -H "Fiware-ServicePath: /TestSubservice" \
--d ' { "devices": [ { "device_id": "device_id", "entity_name": "entity_name", "entity_type": "entity_type", "timezone": "America/Santiago", "commands": [{ "name": "PING", "type": "command", "value": "device_id@ping6|%s"}]  } ] }'
+-d ' { "devices": [ { "device_id": "device_id", "entity_name": "entity_name", "entity_type": "entity_type", "timezone": "America/Santiago", "commands": [{ "name": "PING", "type": "command", "value": ""}]  } ] }'
 ```
 
 Data for the command
@@ -95,9 +95,10 @@ Data for the command
 
 "type": "command",
  
-"value": "device_id@ping6|%s"
+"value": ""
 
 }
+You can see that the information is only the command name (in the example "PING") and the type is command, value is empty, iotagent fills neccesary data. 
 
 When you provisioning a command, iotagent register this command and device in context Broker, so you can check it with the context Broker [Discover Context Availability API](https://forge.fiware.org/plugins/mediawiki/wiki/fiware/index.php/Publish/Subscribe_Broker_-_Orion_Context_Broker_-_User_and_Programmers_Guide#Convenience_Discover_Context_Availability)
 
@@ -125,6 +126,7 @@ Context Broker redirect this updateContext command to iotagent. If you have perm
 ```
 device_id@ping6|22
 ```
+This example is ul20, the iotagent fills "device_id@ping6" with the protocol information (device_name@comand_name)  and appends the parameter value fills in the updateContext command (in the example 22).
 
 This text is sent to device.
 
@@ -137,41 +139,62 @@ device_id@ping6|Ping OK
 If you remembered, the provisioned data for device was
 
 ```
-{ "name": "PING", "type": "command", "value": "device_id@ping6|%s"}
+{ "name": "PING", "type": "command", "value": ""}
 ```
-
-%s is substituted with the value of "value" attribute in updateCommand
 
 ###You  can use several parameters.
 
-provisioned data
+the provision of device is the same
+
 ```
-{"name": "PING","type": "command","value": "device_id@ping6|%s-%s-%s"}
+{"name": "SET","type": "command","value": ""}
 ```
 updateContext with value separated with |
 ```
-{"name": "PING","type": "command","value": "param1|param2|param3"}
+{"name": "SET","type": "command","value": "DATE=2015-07-15|TIME=06:48:15"}
+```
+data sent to device
+```
+device_id@SET|DATE=2015-07-15|TIME=06:48:15
+```
+
+###You  can use a raw command
+
+Only for experienced users, There is a way to define the exact text to be sent to the device, raw command.
+
+In provisioned data for the device, in the value you must put exactly @@RAW@@, this means that what is put in the UpdateCommand  value is exactly send to the device.
+```
+{"name": "NAME_COMMAND","type": "command","value": "@@RAW@@"}
+```
+updateContext with value separated with |
+```
+{"name": "NAME_COMMAND","type": "command","value": "device_id@ping6|params"}
+```
+data sent to device
+```
+device_id@ping6|params
+```
+
+###You can specify the format of the command
+
+Only for experienced users and backward compatibility, there is a way to define the format of the command.
+
+In provisioned data for the device, in the value you must put exactly
+```
+{"name": "PING","type": "command","value": "device_id@ping6|%s-%s-%s"}
+```
+Every %s is replaced with a param value in the updateCommand  value
+updateContext  separated with | the differents parameters
+
+```
+{"name": "NAME_COMMAND","type": "command","value": "param1|param2|param3"}
 ```
 data sent to device
 ```
 device_id@ping6|param1-param2-param3
 ```
 
-###You  can use a raw command
-
-provisioned data
-```
-{"name": "PING","type": "command","value": ""}
-```
-updateContext with value separated with |
-```
-{"name": "PING","type": "command","value": "param1|param2|param3"}
-```
-data sent to device
-```
-param1|param2|param3
-```
-
+###Information about status and result commands
 
 Iotagent read the response command, and save this in a specific attribute of the device.
 Every command has two special attributes
@@ -255,7 +278,7 @@ curl -X POST http://x.x.x.x:8080/iot/devices \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: TestService" \
 -H "Fiware-ServicePath: /ssrvTest" \
--d ' { "devices": [ { "device_id": "device_id_2", "entity_name": "entity_name_2", "entity_type": "entity_type", "timezone": "America/Santiago", "commands": [ { "name": "ping", "type": "command", "value": "device_id_2@ping|%s"} ], "attributes": [ { "object_id": "source_data", "name": "attr_name", "type": "int" } ], "static_attributes": [ { "name": "att_name", "type": "string", "value": "value" } ] } ] }'
+-d ' { "devices": [ { "device_id": "device_id_2", "entity_name": "entity_name_2", "entity_type": "entity_type", "timezone": "America/Santiago", "commands": [ { "name": "ping", "type": "command", "value": ""} ], "attributes": [ { "object_id": "source_data", "name": "attr_name", "type": "int" } ], "static_attributes": [ { "name": "att_name", "type": "string", "value": "value" } ] } ] }'
 ```
 
 
@@ -384,7 +407,7 @@ curl -X POST http://x.x.x.x:8080/iot/devices \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: service2" \
 -H "Fiware-ServicePath: /srvpath2" \
--d ' { "devices": [ { "device_id": "device_id", "entity_name": "entity_name", "entity_type": "entity_type", "timezone": "America/Santiago", "commands": [ { "name": "ping", "type": "command", "value": "device_id@ping|%s"} ], "attributes": [ { "object_id": "source_data", "name": "attr_name", "type": "int" } ], "static_attributes": [ { "name": "att_name", "type": "string", "value": "value" } ] } ] }'
+-d ' { "devices": [ { "device_id": "device_id", "entity_name": "entity_name", "entity_type": "entity_type", "timezone": "America/Santiago", "commands": [ { "name": "ping", "type": "command", "value": ""} ], "attributes": [ { "object_id": "source_data", "name": "attr_name", "type": "int" } ], "static_attributes": [ { "name": "att_name", "type": "string", "value": "value" } ] } ] }'
 
 ```
 

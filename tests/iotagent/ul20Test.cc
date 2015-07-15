@@ -89,7 +89,7 @@ Ul20Test::POST_SERVICE_ENDPOINT("{\"services\": [{"
 const std::string
 Ul20Test::POST_DEVICE_SIN("{\"devices\": "
                        "[{\"device_id\": \"dev_SIN\", \"protocol\": \"PDI-IoTA-UltraLight\", \"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"dev_SIN@command|%s\" }],"
+                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
@@ -97,7 +97,7 @@ Ul20Test::POST_DEVICE_SIN("{\"devices\": "
 const std::string
 Ul20Test::POST_DEVICE_SIN_ENTITY_NAME("{\"devices\": "
                        "[{\"device_id\": \"dev_SIN_ENTITY_NAME\",\"protocol\": \"PDI-IoTA-UltraLight\", \"entity_type\": \"type_SIN_ENTITY_NAME\",\"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"dev_SIN_ENTITY_NAME@command|%s\" }],"
+                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
@@ -105,7 +105,7 @@ Ul20Test::POST_DEVICE_SIN_ENTITY_NAME("{\"devices\": "
 const std::string
 Ul20Test::POST_DEVICE_SIN_ENTITY_TYPE("{\"devices\": "
                        "[{\"device_id\": \"dev_SIN_ENTITY_TYPE\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"ent_SIN_ENTITY_TYPE\",\"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"dev_SIN_ENTITY_TYPE@command|%s\" }],"
+                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
@@ -113,7 +113,7 @@ Ul20Test::POST_DEVICE_SIN_ENTITY_TYPE("{\"devices\": "
 const std::string
 Ul20Test::POST_DEVICE("{\"devices\": "
                        "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut1\",\"entity_type\": \"type2\",\"endpoint\": \"http://127.0.0.1:9999/device\",\"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"device_id@command|%s\" }],"
+                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
@@ -133,14 +133,14 @@ Ul20Test::POST_DEVICE2("{\"devices\": "
 const std::string
 Ul20Test::POST_DEVICE_CON("{\"devices\": "
                        "[{\"device_id\": \"unitTest_dev3_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut3\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"unitTest_dev3_polling@command|%s\" }],"
+                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
 const std::string
 Ul20Test::POST_DEVICE_CON2("{\"devices\": "
                        "[{\"device_id\": \"unitTest_dev32_polling\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_type\": \"type2\",\"timezone\": \"America/Santiago\","
-                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"unitTest_dev32_polling@command|%s\" }],"
+                       "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"\" }],"
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
                        ",\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
@@ -1544,30 +1544,67 @@ void Ul20Test::testTransformCommand() {
   std::string service = "service2";
   std::string id, res1;
 
-  std::string command_name;
+  std::string command_name="PING";
   std::string sequence_id;
-  boost::shared_ptr<iota::Device> item_dev;
+  boost::shared_ptr<iota::Device> item_dev(new iota::Device("dev1", "service"));
   const boost::property_tree::ptree ptreeservice;
   std::string command_id;
   std::string command_line;
 
-  {
-    std::string cmd1 = "dev1@ping";
-    std::cout << "@UT@command:" <<cmd1<< std::endl;
+ {
+    std::cout << "@UT@normal command " << std::endl;
+    std::string provisioned_data = "";
+    std::string updateContext_data = "";
     boost::property_tree::ptree pt;
-    std::string parameters1;
-    ul20serv.transform_command(command_name, cmd1, parameters1,
+    ul20serv.transform_command(command_name, provisioned_data, updateContext_data,
                         sequence_id, item_dev, ptreeservice, id, pt);
     res1 = pt.get("body", "");
     std::cout << "@UT@res:" << res1 << std::endl;
-    IOTASSERT(res1.compare(cmd1) == 0);
+    IOTASSERT(res1.compare("dev1@PING") == 0);
+  }
+
+  {
+    std::cout << "@UT@normal command with parameters " << std::endl;
+    std::string provisioned_data = "";
+    std::string updateContext_data = "param1|param2";
+    boost::property_tree::ptree pt;
+    ul20serv.transform_command(command_name, provisioned_data, updateContext_data,
+                        sequence_id, item_dev, ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@UT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare("dev1@PING|param1|param2") == 0);
+  }
+
+ {
+    std::cout << "@UT@raw command " << std::endl;
+    std::string provisioned_data = "@@RAW@@";
+    std::string updateContext_data = "updateContextValue@command";
+    boost::property_tree::ptree pt;
+    ul20serv.transform_command(command_name, provisioned_data, updateContext_data,
+                        sequence_id, item_dev, ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@UT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare(updateContext_data) == 0);
+  }
+
+  {
+    std::cout << "@UT@format command " << std::endl;
+    std::string provisioned_data = "dev1@ping";
+    std::string updateContext_data = "";
+    boost::property_tree::ptree pt;
+    std::string parameters1;
+    ul20serv.transform_command(command_name, provisioned_data, updateContext_data,
+                        sequence_id, item_dev, ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@UT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare(provisioned_data) == 0);
   }
   {
+    std::cout << "@UT@format command2 " << std::endl;
     boost::property_tree::ptree pt;
-    std::string cmd1 = "dev1@set|%sfin";
-    std::cout << "@UT@command:" <<cmd1<< std::endl;
-    std::string parameters1 = "2014-02-18T16:41:20Z";
-    ul20serv.transform_command(command_name, cmd1, parameters1,
+    std::string provisioned_data = "dev1@set|%sfin";
+    std::string updateContext_data = "2014-02-18T16:41:20Z";
+    ul20serv.transform_command(command_name, provisioned_data, updateContext_data,
                         sequence_id, item_dev, ptreeservice, id, pt);
     res1 = pt.get("body", "");
     std::cout << "@UT@res:" << res1 << std::endl;
@@ -2677,7 +2714,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"device_id@command|22\"")
+      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"device_id@PING|22\"")
       !=
       std::string::npos);
 
@@ -2692,7 +2729,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
 
     cb_last = device_mock->get_last();
     std::cout << "@UT@comando que llega al simulador "<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("device_id@command|22") !=
+    IOTASSERT(cb_last.find("device_id@PING|22") !=
                    std::string::npos);
 
     cb_last = cb_mock->get_last();
@@ -3132,7 +3169,7 @@ void Ul20Test::testPollingCommand_MONGO(
   querySTR.append("&k=");
   querySTR.append(apikey);
   bodySTR = name_device;
-  bodySTR.append("@command|Ping ok");
+  bodySTR.append("@PING|Ping ok");
   {
     pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
     http_request->set_method("POST");
