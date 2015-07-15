@@ -124,6 +124,11 @@ Ul20Test::POST_DEVICE_ENDPOINT("{\"devices\": "
                         "}]}");
 
 const std::string
+Ul20Test::POST_DEVICE_NO_ENDPOINT("{\"devices\": "
+                       "[{\"device_id\": \"%s\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"%s\",\"entity_type\": \"type2\",\"endpoint\": \"\",\"timezone\": \"America/Santiago\""
+                        "}]}");
+
+const std::string
 Ul20Test::POST_DEVICE2("{\"devices\": "
                        "[{\"device_id\": \"device_id\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"room_ut1\",\"entity_type\": \"type2\",\"endpoint\": \"http://127.0.0.1:9999/device\",\"timezone\": \"America/Santiago\","
                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }]"
@@ -3439,4 +3444,185 @@ void Ul20Test::testChangeIPDevice(){
     }
 
   std::cout << "END testChangeIPDevice " << std::endl;
+}
+
+void Ul20Test::testChangeIPDevice_empty(){
+
+  /*
+  This test covers the opposite scenario to the previous one, so in this case, device's endpoint can't be changed
+  if input value is empty (in order not to change PUSH/PULL commands behaviour).
+
+  USING  mongodb.
+
+            "device_id": "unitTest_dev1_endpoint",
+            "endpoint": "",
+  */
+  std::cout << "START testChangeIPDevice_empty" << std::endl;
+
+  iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+  std::string dev_name = "unitTest_dev1_change_endpoint";
+  std::string service = "service2";
+  std::string subservice = "/ssrv2";
+  std::string apikey = "apikey3";
+  std::string new_endpoint = "";
+
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
+  iota::DeviceCollection table_device;
+
+//REMOVING previous data from mongo
+  try{
+  iota::Device borrar("", "");
+
+  table_device.removed(borrar);
+
+  mongo::BSONObj all;
+
+  col->remove(all);
+
+  }catch(std::exception exc){
+
+  }
+
+
+  pion::http::response http_response;
+  iota::AdminService adminService;
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+  adminService.add_service("/iot/d",&ul20serv);
+
+
+
+  std::string response;
+  int code_res;
+
+  std::cout << "@UT@POST Service" << std::endl;
+
+
+  code_res = adminService.post_service_json( col, service, subservice, POST_SERVICE_ENDPOINT,
+                     http_response, response, apikey, "5678");
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+//FIRST SUB-TEST: new_endpoint is empty, but device already has one endpoint
+
+  std::cout << "@UT@POST Device" << std::endl;
+   std::string post_device = boost::str(boost::format(POST_DEVICE_ENDPOINT) % dev_name % dev_name);
+  code_res = adminService.post_device_json(service, subservice, post_device,
+                     http_response, response);
+
+
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+
+ {
+  std::string encoded_endpoint = "";
+  std::string querySTR = "i="+dev_name+"&k=" + apikey + "&ip="+encoded_endpoint;
+  pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content("");
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(std::pair<std::string,std::string>("i",dev_name));
+    query_parameters.insert(std::pair<std::string,std::string>("k",apikey));
+    //include the IP parameter to change it
+    query_parameters.insert(std::pair<std::string,std::string>("ip",new_endpoint));
+
+
+
+    ul20serv.service(http_request, url_args, query_parameters,
+                     http_response, response);
+
+  }
+
+    std::cout << "RESPONSE: " << response << std::endl;
+
+    boost::shared_ptr<iota::Device> dev;
+
+    ASYNC_TIME_WAIT
+
+    //change of endpoint parameter should NOT have happend, let's check it.
+
+
+
+    dev = ul20serv.get_device(dev_name,service,subservice);
+
+
+
+    if (dev.get() != NULL){
+
+      IOTASSERT_MESSAGE("endpoint Should not have changed for device: " + dev->_endpoint ,dev->_endpoint.compare(new_endpoint) != 0);
+
+    }else{
+      IOTASSERT_MESSAGE("Device doesn't exist: ERROR",false);
+    }
+
+
+     std::string protocol = "";
+    code_res = adminService.delete_device_json(service,subservice,dev_name,http_response,response,"12334",protocol);
+
+
+//SECOND SUB-TEST: new_endpoint is not empty
+
+    std::cout << "@UT@POST Device with no endpoint" << std::endl;
+   post_device = boost::str(boost::format(POST_DEVICE_NO_ENDPOINT) % dev_name % dev_name);
+    code_res = adminService.post_device_json(service, subservice, post_device,
+                     http_response, response);
+
+    std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+    IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+
+   {
+    std::string encoded_endpoint = "";
+    encoded_endpoint = pion::algorithm::url_encode(new_endpoint);
+    std::string querySTR = "i="+dev_name+"&k=" + apikey + "&ip="+encoded_endpoint;
+
+    pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content("");
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+
+    query_parameters.insert(std::pair<std::string,std::string>("i",dev_name));
+    query_parameters.insert(std::pair<std::string,std::string>("k",apikey));
+    //include the IP parameter to change it
+    query_parameters.insert(std::pair<std::string,std::string>("ip",new_endpoint));
+
+
+
+    ul20serv.service(http_request, url_args, query_parameters,
+                     http_response, response);
+  }
+
+    ASYNC_TIME_WAIT
+
+    dev = ul20serv.get_device(dev_name,service,subservice);
+
+
+    code_res = adminService.delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
+                     http_response, response, "1234", "4444");
+
+
+    //change of endpoint parameter should NOT have happend, let's check it.
+
+   code_res = adminService.delete_device_json(service,subservice,dev_name,http_response,response,"12334",protocol);
+
+
+
+    if (dev.get() != NULL){
+
+      IOTASSERT_MESSAGE("endpoint Should not have changed for device: " + dev->_endpoint ,dev->_endpoint.compare(new_endpoint) != 0);
+
+    }else{
+      IOTASSERT_MESSAGE("Device doesn't exist: ERROR",false);
+    }
+
+
+  std::cout << "END testChangeIPDevice_empty " << std::endl;
+
 }
