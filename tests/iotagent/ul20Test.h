@@ -30,8 +30,15 @@
 
 class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(Ul20Test);
+
+
     CPPUNIT_TEST(testTransformCommand);
+
+    CPPUNIT_TEST(testFileGET);
+    CPPUNIT_TEST(testMongoGET);
+
     CPPUNIT_TEST(testNormalPOST);
+
     CPPUNIT_TEST(testTimePOST);
     CPPUNIT_TEST(testBadPost);
     CPPUNIT_TEST(testNoDevicePost);
@@ -58,7 +65,6 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
     CPPUNIT_TEST(testPUSHCommandAsync);
     CPPUNIT_TEST(testBADPUSHCommand);
-    CPPUNIT_TEST(testPollingCommand);
 
     CPPUNIT_TEST(testPollingCommandTimeout);
     CPPUNIT_TEST(testCommandNOUL);
@@ -76,7 +82,11 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testQueryContext);
     CPPUNIT_TEST(testQueryContextAPI);
-    CPPUNIT_TEST(testProtocolData);
+
+
+    CPPUNIT_TEST(testChangeIPDevice);
+    CPPUNIT_TEST(testChangeIPDevice_empty);
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -84,7 +94,10 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void tearDown();
 
     static const std::string POST_SERVICE;
+    static const std::string POST_SERVICE_ENDPOINT;
     static const  std::string POST_DEVICE;
+    static const  std::string POST_DEVICE_ENDPOINT;
+    static const std::string POST_DEVICE_NO_ENDPOINT;
     static const  std::string POST_DEVICE2;
     static const  std::string POST_DEVICE_CON;
     static const  std::string POST_DEVICE_CON2;
@@ -117,6 +130,8 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
 
     void testNormalPOST();
+    void testFileGET();
+    void testMongoGET();
     void testTimePOST();
     void testBadPost();
     void testNoDevicePost();
@@ -144,7 +159,6 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void testPUSHCommandProxyAndOutgoingRoute();
     void testPUSHCommandAsync();
     void testBADPUSHCommand();
-    void testPollingCommand();
     void testPollingCommandTimeout();
     void testCommandNOUL();
     void testPUSHCommandParam();
@@ -161,7 +175,10 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     void testQueryContext();
     void testQueryContextAPI();
-    void testProtocolData();
+
+
+    void testChangeIPDevice();
+    void testChangeIPDevice_empty();
 
 
     void populate_command_attributes(

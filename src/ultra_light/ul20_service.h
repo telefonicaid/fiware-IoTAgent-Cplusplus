@@ -89,6 +89,35 @@ class UL20Service :
                         std::string& response,
                         iota::HttpClient::application_callback_t callback = NULL);
 
+    /**
+     * @name    transform_command
+     * @brief   specific plugin implementation to create the message to sendo to device
+     *
+     *
+     * @param [in] command_name  body http from device communication.
+     * @param [in] command_value   httpcode send by device in this communication.
+     * @param [out] updateCommand_value  the body  .
+     * @param [out] sequence_id, parameter for future sequence in CB .
+     * @param [in]  item_dev, device to send the command
+     * @param [in]  service,  complete service
+     * @param [out] command_id,   identifier command for poling command responses
+     * @param [out] command_line
+     *
+     * @return  -1,  if it is nos a command
+     *          200,  if it is a command
+     * Example Usage:
+     * @code
+     *    curl -X POST http://$HOST_CB/v1/updateContext \
+     *  -i  \
+     *  -H "Content-Type: application/json" \
+     *  -H "Accept: application/json" \
+     *  -H "Fiware-Service: $SERVICE" \
+     *  -H "Fiware-ServicePath: $SRVPATH" \
+     *  -d '{"updateAction":"UPDATE","contextElements":[{"id":"thingsrv:sensor_ul","type":"thingsrv","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2014-11-23T17:33:36.341305Z"}]}]} ]}'
+     *
+     *   command_line result is  sensor_ul@PING|22
+     * @endcode
+     */
     void transform_command(const std::string& command_name,
                                           const std::string& command_value,
                                           const std::string& updateCommand_value,

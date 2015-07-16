@@ -27,7 +27,14 @@
                     "service_path": "/ssrv2",
                     "token": "token2",
                     "cbroker": "http://127.0.0.1:1026",
-                    "entity_type": "thing"
+                    "entity_type": "thing_apikey3",
+                    "attributes": [
+                      {
+                        "object_id":"t",
+                        "type": "string",
+                        "name":"temperature"
+                      }
+                    ]
                 }
             ]
         },

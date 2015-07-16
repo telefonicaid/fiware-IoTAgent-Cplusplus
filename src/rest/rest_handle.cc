@@ -625,9 +625,9 @@ std::string iota::RestHandle::remove_url_base(std::string url) {
 }
 
 std::string iota::RestHandle::get_statistics() {
+  boost::mutex::scoped_lock lock(m_mutex_stat);
   IOTA_LOG_DEBUG(m_logger,
                  "Get statistics " << get_resource() << " Counters " << _statistics.size());
-  boost::mutex::scoped_lock lock(m_mutex_stat);
   int i = 0;
   rapidjson::Document stats;
   stats.SetArray();
@@ -650,6 +650,9 @@ std::string iota::RestHandle::get_statistics() {
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >
       accs =
         it_stats->second->get_counters();
+
+      IOTA_LOG_DEBUG(m_logger,
+                 "Get statistics accs Counters " << accs.size());
       std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >::iterator
       it_tm = accs.begin();
       while (it_tm != accs.end()) {
@@ -1280,5 +1283,21 @@ int iota::RestHandle::get_default_timeout() {
 
 void iota::RestHandle::reset_counters() {
   _statistics.erase(iota::types::STAT_TRAFFIC);
+}
+
+
+void iota::RestHandle::update_endpoint_device(
+       const boost::shared_ptr<Device>& dev,
+       const std::string& new_endpoint){
+  if (_storage_type.compare(iota::store::types::MONGODB)==0) {
+      iota::Collection table(iota::store::types::DEVICE_TABLE);
+
+      mongo::BSONObj query = BSON(iota::store::types::DEVICE_ID << dev->_name
+                               << iota::store::types::SERVICE << dev->_service
+                               << iota::store::types::SERVICE_PATH << dev->_service_path);
+      mongo::BSONObj ap = BSON(iota::store::types::ENDPOINT << new_endpoint);
+      table.update(query, ap);
+
+  }
 }
 
