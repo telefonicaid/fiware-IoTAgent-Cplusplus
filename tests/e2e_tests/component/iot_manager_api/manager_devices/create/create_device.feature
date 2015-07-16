@@ -29,16 +29,16 @@ Feature: Manager API Device Create
         Then the Device with name "<dev_id>" is created
 		
 		Examples:
-			|srv_name		|srv_path				|dev_id			|protocol	|typ	|name		|type	|value	|typ2	|name2		|type2	|value2		|
-			|srv_devm_post2	|/path_srv_devm_post2	|devm_post		|IoTUL2		|attr	|t			|int	|temp	|		|			|		|			|
-			|srv_devm_post2	|/path_srv_devm_post2_1	|devm_post1		|IoTTT		|attr	|t1			|int	|temp1	|attr	|h			|int	|hum		|
-			|srv_devm_post2	|/path_srv_devm_post2_2	|devm_post2		|IoTMqtt	|st_att	|t2			|int	|22		|		|			|		|			|
-			|srv_devm_post2	|/path_srv_devm_post2	|devm_post3		|IoTUL2		|st_att	|t3			|int	|33		|st_att	|h3			|int	|333		|
-			|srv_devm_post2	|/path_srv_devm_post2_1	|devm_post4		|IoTTT		|cmd	|cmd_dev4	|		|ping4	|		|			|		|			|
-			|srv_devm_post2	|/path_srv_devm_post2_2	|devm_post5		|IoTMqtt	|cmd	|cmd_dev5	|		|ping5	|cmd	|cmd2_dev5	|		|			|
-			|srv_devm_post2	|/path_srv_devm_post2	|devm_post6		|IoTUL2		|attr	|t6			|int	|temp6	|st_att	|h6			|int	|666		|
-			|srv_devm_post2	|/path_srv_devm_post2	|devm_post7		|IoTUL2		|attr	|t7			|int	|temp7	|cmd	|cmd_dev7	|		|ping7		|
-			|srv_devm_post2	|/path_srv_devm_post2	|devm_post8		|IoTUL2		|st_att	|t8			|int	|88		|cmd	|cmd_dev8	|		|ping8		|
+			|srv_name		|srv_path				|dev_id			|protocol	|typ		|name		|type	|value	|typ2		|name2		|type2	|value2		|
+			|srv_devm_post2	|/path_srv_devm_post2	|devm_post		|IoTUL2		|dev_attr	|t			|int	|temp	|			|			|		|			|
+			|srv_devm_post2	|/path_srv_devm_post2_1	|devm_post1		|IoTTT		|dev_attr	|t1			|int	|temp1	|dev_attr	|h			|int	|hum		|
+			|srv_devm_post2	|/path_srv_devm_post2_2	|devm_post2		|IoTMqtt	|dev_st_att	|t2			|int	|22		|			|			|		|			|
+			|srv_devm_post2	|/path_srv_devm_post2	|devm_post3		|IoTUL2		|dev_st_att	|t3			|int	|33		|dev_st_att	|h3			|int	|333		|
+			|srv_devm_post2	|/path_srv_devm_post2_1	|devm_post4		|IoTTT		|cmd		|cmd_dev4	|		|ping4	|			|			|		|			|
+			|srv_devm_post2	|/path_srv_devm_post2_2	|devm_post5		|IoTMqtt	|cmd		|cmd_dev5	|		|ping5	|cmd		|cmd2_dev5	|		|			|
+			|srv_devm_post2	|/path_srv_devm_post2	|devm_post6		|IoTUL2		|dev_attr	|t6			|int	|temp6	|dev_st_att	|h6			|int	|666		|
+			|srv_devm_post2	|/path_srv_devm_post2	|devm_post7		|IoTUL2		|dev_attr	|t7			|int	|temp7	|cmd		|cmd_dev7	|		|ping7		|
+			|srv_devm_post2	|/path_srv_devm_post2	|devm_post8		|IoTUL2		|dev_st_att	|t8			|int	|88		|cmd		|cmd_dev8	|		|ping8		|
 
 
 		@iot_manager_api @IDAS-20437 
