@@ -1092,10 +1092,14 @@ int iota::AdminManagerService::post_protocol_json(
 
     IOTA_LOG_DEBUG(m_log, "update protocol :" + protocol_name +
                    " iotagent:" + endpoint + " resource:" + resource);
+    // query only protocol name (identifier)
+    // update description because it can be different
+    // if there are several iotagents with different description
+    // with every register, the description would change
     int num_ups = protocol_table->update_r(
-                    BSON(iota::store::types::PROTOCOL_NAME << protocol_name <<
-                         iota::store::types::PROTOCOL_DESCRIPTION << description),
-                    BSON("$addToSet"  <<
+                    BSON(iota::store::types::PROTOCOL_NAME << protocol_name) ,
+                    BSON("$set" << BSON(iota::store::types::PROTOCOL_DESCRIPTION << description) <<
+                         "$addToSet"  <<
                          BSON(iota::store::types::ENDPOINTS << BSON(iota::store::types::ENDPOINT <<
                               endpoint <<
                               iota::store::types::RESOURCE << resource)
