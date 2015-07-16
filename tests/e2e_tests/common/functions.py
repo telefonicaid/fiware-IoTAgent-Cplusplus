@@ -336,7 +336,7 @@ class Functions(object):
         return device
 
     def update_device_with_params(self, attribute, device_name, value, service_name, service_path={}, fail=False, manager=False, protocol={}):
-        json = self.fill_update_json(attribute, value, manager)
+        json = self.fill_update_json(attribute, value, False)
         if manager:
             req =  iota_manager.update_device_with_params(json, device_name, service_name, service_path, protocol)
         else:
@@ -378,9 +378,6 @@ class Functions(object):
         return req
 
     def check_device_data(self, dev_name, manager=False, detailed='on', attribute={}, value={}):
-        attributes=0
-        st_attributes=0
-        commands=0
         res = world.req.json()
         if manager:
             assert len(res['devices']) == 1, 'Error: 1 devices expected, ' + str(len(res['devices'])) + ' received'
@@ -437,6 +434,13 @@ class Functions(object):
                         dev_matches=True
                         break
                 assert dev_matches, 'ERROR: device: ' + str(device_name) + " not found in: " + str(res['devices'])
+
+    def delete_device_data(self, device_name, service_name, service_path, manager=False, protocol={}):
+        if manager:
+            req =  iota_manager.delete_device_with_params(device_name, service_name, service_path, protocol)
+        else:
+            req =  iotagent.delete_device_with_params(device_name, service_name, service_path)
+        return req
 
     def check_measure(self, device, measures, timestamp={}, entity_type={}, entity_name={}, are_attrs=False):
         time.sleep(1)

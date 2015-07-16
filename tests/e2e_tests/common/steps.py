@@ -346,6 +346,7 @@ def device_with_entity_values_of_service_precond(step, device_id, protocol, enti
     world.endpoint = {}
     world.entity_name = entity_name
     world.entity_type = entity_type
+    world.protocol=protocol
     functions.device_of_service_precond(world.service_name, world.srv_path, device_id, {}, {}, entity_name, entity_type, {}, {}, protocol)
 
 @step('a Device with name "([^"]*)", entity_name "([^"]*)", entity_type "([^"]*)", endpoint "([^"]*)", protocol "([^"]*)" and atribute or command "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
@@ -353,6 +354,7 @@ def device_with_attr_or_cmd_created_precond(step, device_id, entity_name, entity
     world.entity_name = entity_name
     world.entity_type = entity_type
     world.endpoint = endpoint
+    world.protocol=protocol
     functions.fill_attributes(typ, name, type1, value, {}, {}, {}, {}, False)
     functions.device_of_service_precond(world.service_name, world.srv_path, device_id, endpoint, world.commands, entity_name, entity_type, world.attributes, world.st_attributes, protocol)
 
@@ -424,6 +426,12 @@ def update_device_data(step, attribute, device_name, value):
     assert device.status_code == 204, 'ERROR: ' + device.text + "El device {} no se ha actualizado correctamente".format(device_name)
     print 'Se ha actualizado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
 
+@step('I update in manager the attribute "([^"]*)" of device "([^"]*)" with value "([^"]*)"')
+def update_device_data_manager(step, attribute, device_name, value):
+    device=functions.update_device_with_params(attribute, device_name, value, world.service_name, world.srv_path, False, True, world.protocol)
+    assert device.status_code == 200, 'ERROR: ' + device.text + "El device {} no se ha actualizado correctamente".format(device_name)
+    print 'Se ha actualizado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
+
 @step('I retrieve the device data of "([^"]*)"')
 def get_device_data(step, dev_name):
     world.manager=False
@@ -450,6 +458,18 @@ def get_devices_list_manager(step, service_name, service_path, entity, protocol,
     req=functions.get_devices_created(service_name, service_path, entity, limit, offset, detailed, protocol, True)
     assert req.ok, 'ERROR: ' + req.text
 
+@step('I delete the device "([^"]*)"')
+def delete_device_data(step, device_name):
+    device = functions.delete_device_data(device_name, world.service_name, world.srv_path)
+    assert device.status_code == 204, 'ERROR: ' + device.text + "El device {} no se ha borrado correctamente".format(device_name)
+    print 'Se ha borrado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
+
+@step('I delete in manager the device "([^"]*)"')
+def delete_device_data_manager(step, device_name):
+    device = functions.delete_device_data(device_name, world.service_name, world.srv_path, True, world.protocol)
+    assert device.status_code == 200, 'ERROR: ' + device.text + "El device {} no se ha borrado correctamente".format(device_name)
+    print 'Se ha borrado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
+
 @step('I receive the device data of "([^"]*)"')
 def check_device_data(step, dev_name):
     functions.check_device_data(dev_name, world.manager)
@@ -468,6 +488,10 @@ def device_created(step, dev_name):
     functions.get_device_created(world.service_name, world.srv_path, dev_name)
     functions.check_device_data(dev_name)
 
+@step('the Device with name "([^"]*)" is deleted')
+def check_device_data_deleted(step, device_name):
+    assert not functions.check_device_created(world.service_name, device_name, world.srv_path, device_name==world.device_id)
+    
 @step('devices "([^"]*)" of services with name "([^"]*)" and paths "([^"]*)" and "([^"]*)" are deleted or not')
 def check_devices_data_deleted(step, devices, service_name, service_path, service_path2):
     if (service_path == 'true') & (devices=='true'):
