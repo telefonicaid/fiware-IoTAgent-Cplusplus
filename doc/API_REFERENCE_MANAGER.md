@@ -243,7 +243,7 @@ the service (in body you set the new apikey).
                ]
              }
 
-+ Response 201
++ Response 204
 
 
 ## Devices [/devices{?protocol,limit,offset,detailed}]
