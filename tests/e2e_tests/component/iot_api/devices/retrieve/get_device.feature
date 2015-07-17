@@ -11,11 +11,11 @@ Feature: API Device Get Data
         Then I receive the device data of "<dev_id>"
 		
 		Examples:
-			|srv_name		|srv_path			|dev_id		|ent_name	|ent_type	|endpoint			|protocol	|typ	|name		|type	|value	|
-			|srv_dev_get	|/path_srv_dev_get	|dev_get	|room_get	|thing_get	|http://myurl:10	|IoTUL2		|attr	|t			|int	|temp	|	
-			|srv_dev_get	|void				|dev_get	|room_get	|thing_get	|http://myurl:10	|IoTTT		|attr	|t			|int	|temp	|	
-			|srv_dev_get	|/path_srv_dev_get1	|dev_get1	|room_get1	|thing_get1	|http://myurl:11	|IoTMqtt	|st_att	|t			|int	|11		|	
-			|srv_dev_get	|/path_srv_dev_get	|dev_get2	|room_get2	|thing_get2	|http://myurl:12	|IoTUL2		|cmd	|cmd_dev	|		|ping	|	
+			|srv_name		|srv_path			|dev_id		|ent_name	|ent_type	|endpoint			|protocol	|typ		|name		|type	|value	|
+			|srv_dev_get	|/path_srv_dev_get	|dev_get	|room_get	|thing_get	|http://myurl:10	|IoTUL2		|dev_attr	|t			|int	|temp	|	
+			|srv_dev_get	|void				|dev_get	|room_get	|thing_get	|http://myurl:10	|IoTTT		|dev_attr	|t			|int	|temp	|	
+			|srv_dev_get	|/path_srv_dev_get1	|dev_get1	|room_get1	|thing_get1	|http://myurl:11	|IoTMqtt	|dev_st_att	|t			|int	|11		|	
+			|srv_dev_get	|/path_srv_dev_get	|dev_get2	|room_get2	|thing_get2	|http://myurl:12	|IoTUL2		|cmd		|cmd_dev	|		|ping	|	
 
     	@iot_api @IDAS-20330 
     	Scenario Outline: Retrieve device data with invalid fields

@@ -6,8 +6,8 @@ Feature: Manager API Device Delete
     	@iot_manager_api @IDAS-20468 
     	Scenario Outline: Delete device data
     	Given a Service with name "<srv_name>", path "<srv_path>" and protocol "<protocol>" created
-		And a Device with name "<dev_id>", entity_name "<ent_name>", entity_type "<ent_type>" and protocol "<protocol>" created
-		When I delete the device "<dev_id_del>"
+		And a Device with name "<dev_id>", protocol "<protocol>", entity_name "<ent_name>" and entity_type "<ent_type>" created
+		When I delete in manager the device "<dev_id_del>"
 		Then the Device with name "<dev_id_del>" is deleted
 		
 		Examples:

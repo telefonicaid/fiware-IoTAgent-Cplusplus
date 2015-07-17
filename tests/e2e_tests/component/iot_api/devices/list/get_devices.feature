@@ -20,6 +20,7 @@ Feature: API Device Get List
 			|srv_dev_list	|/path_srv_dev_list	 |IoTUL2	|dev_list	|room_list	|thing_list		|srv_dev_list	|/path_srv_dev_list	 |			 |IoTUL2	|2		|		|		|on		|dev_list#room_list:thing_list/dev_list1#room_list1:thing_list1		|
 			|srv_dev_list	|/path_srv_dev_list1 |IoTTT		|dev_list1	|room_list1	|thing_list1	|srv_dev_list	|/path_srv_dev_list1 |room_list1 |			|1		|		|		|on		|																	|
 			|srv_dev_list	|/path_srv_dev_list	 |IoTUL2	|dev_list1	|room_list1	|thing_list1	|srv_dev_list	|/path_srv_dev_list	 |			 |IoTTT		|0		|		|		|		|																	|
+			|srv_dev_list	|/path_srv_dev_list	 |IoTUL2	|dev_list1	|room_list1	|thing_list1	|srv_dev_list	|/path_srv_dev_list	 |			 |IoTUnknown|0		|		|		|		|																	|
 			|srv_dev_list	|/path_srv_dev_list	 |IoTUL2	|dev_list1	|room_list1	|thing_list1	|srv_dev_list	|/path_srv_dev_list	 |room_list1 |IoTUL2	|1		|		|		|on		|																	|
 			|srv_dev_list	|/path_srv_dev_list	 |IoTUL2	|dev_list1	|room_list1	|thing_list1	|srv_dev_list	|/path_srv_dev_list	 |room_list1 |IoTTT		|0		|		|		|		|																	|
 			|srv_dev_list	|/path_srv_dev_list	 |IoTUL2	|dev_list1	|room_list1	|thing_list1	|srv_dev_list	|/path_srv_dev_list	 |room_list2 |IoTUL2	|0		|		|		|		|																	|
