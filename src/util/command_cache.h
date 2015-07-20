@@ -80,6 +80,12 @@ class CommandCache {
       _async_manager->run();
     };
 
+    ~CommandCache() {
+      if (_async_manager.get() != NULL) {
+        _async_manager->stop();
+      }
+    };
+
     void set_max_num_items (std::size_t capacity){
         _max_num_items = capacity;
     }

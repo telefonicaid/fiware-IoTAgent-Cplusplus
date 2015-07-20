@@ -1580,12 +1580,18 @@ iota::CommandVect iota::CommandHandle::get_all_command(const
     & dev,
     const boost::property_tree::ptree& service_ptree) {
   iota::CommandVect res;
+
+  if (_storage_type.compare(iota::types::CONF_FILE_MONGO) != 0){
+    IOTA_LOG_INFO(m_logger, "get_all_command not work if storage_type is not mongodb ");
+    return res;
+  }
   std::string service =  service_ptree.get<std::string>
                          (iota::store::types::SERVICE,
                           "");
   std::string service_path =  service_ptree.get<std::string>
                               (iota::store::types::SERVICE_PATH, "");
   if (dev.get() == NULL) {
+    IOTA_LOG_INFO(m_logger, "get_all_command not work if storage_type is not mongodb ");
     return res;
   }
 

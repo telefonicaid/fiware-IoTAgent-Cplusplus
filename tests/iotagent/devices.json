@@ -26,7 +26,7 @@
                 {
                     "name": "attr_4_dev_1",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ]
         },
@@ -177,12 +177,12 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 },
                 {
                     "name": "RAW",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "attributes": [
@@ -236,7 +236,7 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ]
         },{
@@ -250,7 +250,7 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ]
         },{
@@ -264,7 +264,7 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "static_attributes": [
@@ -284,7 +284,7 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "static_attributes": [
@@ -304,12 +304,12 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 },
                 {
                     "name": "RAW",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "attributes": [
@@ -332,12 +332,12 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 },
                 {
                     "name": "RAW",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "attributes": [
@@ -371,7 +371,7 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "static_attributes": [
@@ -393,7 +393,7 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "static_attributes": [
@@ -413,12 +413,12 @@
                 {
                     "name": "PING",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 },
                 {
                     "name": "RAW",
                     "type": "command",
-                    "value": ""
+                    "value": "@@RAW@@"
                 }
             ],
             "attributes": [

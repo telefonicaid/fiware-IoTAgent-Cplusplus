@@ -1,8 +1,8 @@
 echo "polling command of devices with same service and subservices, different entity_type"
 
 
-export HOST_IOT=127.0.0.1:8080
-echo "HOST_IOT $HOST_IOT  ip and port for iotagent"
+export HOST_MAN=127.0.0.1:8081
+echo "HOST_IOT $HOST_MAN  ip and port for iotagent"
 export HOST_CB=127.0.0.1:1026
 echo "HOST_CB $HOST_CB ip and port for CB (Context Broker)"
 export SERVICE=serv22
@@ -43,44 +43,56 @@ fi
 }
 
 # TEST
+echo "get PROTOCOLS"
+res=$( curl -X GET http://$HOST_MAN/iot/protocols \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
 
-echo "create $SERVICE  $SRVPATH  for ul"
-res=$( curl -X POST http://$HOST_IOT/iot/services \
--i \
+echo " debe haber 8080 80 los dos iotagents en PDI-IoTA-UltraLight y PDI-IoTA-MQTT-UltraLight "
+
+echo "create $SERVICE  $SRVPATH  for ul1"
+res=$( curl -X POST http://$HOST_MAN/iot/services \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
 -H "Fiware-ServicePath: $SRVPATH" \
--d '{"services": [{ "apikey": "apikeyul", "token": "tokenul", "cbroker": "http://10.95.213.36:1026", "entity_type": "thingul", "resource": "/iot/d" }]}' )
+-d '{"services": [{ "apikey": "apikey", "token": "token", "entity_type": "thingsrv", "protocol": ["PDI-IoTA-UltraLight","PDI-IoTA-MQTT-UltraLight"] }]}' )
 
 assert( res , 200)
 
-echo "create $SERVICE  $SRVPATH  for ul20"
-res=$( curl -X POST http://$HOST_IOT/iot/services \
--i \
+echo "get $SERVICE  $SRVPATH  for ul1"
+res=$( curl -X GET http://$HOST_MAN/iot/services \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
--H "Fiware-ServicePath: $SRVPATH" \
--d '{"services": [{ "apikey": "apikeyul20", "token": "tokenul20", "cbroker": "http://10.95.213.36:1026", "entity_type": "thingmqtt", "resource": "/iot/mqtt" }]}' )
+-H "Fiware-ServicePath: $SRVPATH"  )
+
+----> ERROR me devuelve 0, cuando se han creado todos bien
+
+assert( res , 200)
+echo "deberia haber 4 servicios"
 
 echo "create device for ul"
-res=$( curl -X POST http://$HOST_IOT/iot/devices \
--i \
+res=$( curl -X POST http://$HOST_MAN/iot/devices \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
 -H "Fiware-ServicePath: $SRVPATH" \
--d '{"devices":[{"device_id":"sensor_ul","protocol":"PDI-IoTA-UltraLight", "commands": [{"name": "PING","type": "command","value": "" }]}]}' )
+-d '{"devices":[{"device_id":"sensor_ul","protocol":"PDI-IoTA-UltraLight", "commands": [{"name": "PING","type": "command","value": "sensor_ul@command|%s" }]}]}' )
 
-echo "create device for ul20"
-res=$( curl -X POST http://$HOST_IOT/iot/devices \
--i \
+echo "create device for mqtt"
+res=$( curl -X POST http://$HOST_MAN/iot/devices \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
 -H "Fiware-ServicePath: $SRVPATH" \
--d '{"devices":[{"device_id":"sensor_mqtt","protocol":"PDI-IoTA-MQTT-UltraLight", "commands": [{"name": "PING","type": "command","value": "" }]}]}' )
+-d '{"devices":[{"device_id":"sensor_mqtt","protocol":"PDI-IoTA-MQTT-UltraLight", "commands": [{"name": "PING","type": "command","value": "sensor_mqtt@command|%s" }]}]}' )
 
 echo "check type thingul to iotagent"
-res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_ul \
--i \
+res=$( curl -X GET http://$HOST_MAN/iot/devices/sensor_ul \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
 -H "Fiware-ServicePath: $SRVPATH" )
@@ -88,7 +100,7 @@ res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_ul \
 echo "check type thingmqtt to CB"
 
 res=$( curl -X POST http://$HOST_CB/v1/queryContext \
--i \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -97,8 +109,8 @@ res=$( curl -X POST http://$HOST_CB/v1/queryContext \
 echo "comprobar que viene PING"
 
 echo "check type thingul20"
-res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_mqtt \
--i \
+res=$( curl -X GET http://$HOST_MAN/iot/devices/sensor_mqtt \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
 -H "Fiware-ServicePath: $SRVPATH" )
@@ -107,7 +119,7 @@ res=$( curl -X GET http://$HOST_IOT/iot/devices/sensor_mqtt \
 echo "check type thingul20 to CB"
 
 res=$( curl -X POST http://$HOST_CB/v1/queryContext \
--i \
+-i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Accept: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -122,7 +134,7 @@ res=$( curl -X POST http://$HOST_CB/v1/updateContext \
 -H "Accept: application/json" \
 -H "Fiware-Service: $SERVICE" \
 -H "Fiware-ServicePath: $SRVPATH" \
--d '{"updateAction":"UPDATE","contextElements":[{"id":"thingul:sensor_ul","type":"thingul","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2014-11-23T17:33:36.341305Z"}]}]} ]}' )
+-d '{"updateAction":"UPDATE","contextElements":[{"id":"thingsrv:sensor_ul","type":"thingsrv","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2014-11-23T17:33:36.341305Z"}]}]} ]}' )
 echo $res
 assert_code 200 "device already exists"
 #assert_contains '{"updateAction":"UPDATE","contextElements":[{"id":"thingul:sensor_ul","type":"thingul","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2014-11-23T17:33:36.341305Z"}]}]} ]}'
@@ -136,8 +148,19 @@ echo "sleep"
 echo "queryContext para ver e  PING_status  expired_read"
 ----> ERROR se crea una entidad nueva "id" : "thing:sensor_ul",  con "PING_status" : {  "expired read"  }
 
+echo "send a command"
+res=$( curl -X POST http://$HOST_CB/v1/updateContext \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Accept: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{"updateAction":"UPDATE","contextElements":[{"id":"thingsrv:sensor_ul","type":"thingsrv","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2014-11-23T17:33:36.341305Z"}]}]} ]}' )
+echo $res
+
+
 echo "150- delete service mqtt"
-res=$( curl -X DELETE "http://$HOST_IOT/iot/services?resource=/iot/mqtt&device=true" \
+res=$( curl -X DELETE "http://$HOST_MAN/iot/services?protocol=PDI-IoTA-MQTT-UltraLight&device=true" \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
@@ -146,7 +169,7 @@ assert_code 204 "device already exists"
 
 
 echo "160- delete service ul20"
-res=$( curl -X DELETE "http://$HOST_IOT/iot/services?resource=/iot/d&device=true" \
+res=$( curl -X DELETE "http://$HOST_MAN/iot/services?protocol=PDI-IoTA-UltraLight&device=true" \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
