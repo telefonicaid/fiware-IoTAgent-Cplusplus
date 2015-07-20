@@ -7,6 +7,7 @@
     "timeout": 1,
     "dir_log": "/tmp/",
     "timezones": "/etc/iot/date_time_zonespec.csv",
+    "schema_path": /../../schema",
     "storage": {
         "replicaset":"iota",
         "host": "host1:27017,host2:27018,host3:27016",

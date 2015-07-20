@@ -56,6 +56,7 @@ cp -P @INSTALL_MONGOCLIENT@ %{buildroot}/usr/local/iot/lib
 
 mkdir -p %{buildroot}/etc/iot
 cp @CMAKE_CURRENT_SOURCE_DIR@/src/services/date_time_zonespec.csv %{buildroot}/etc/iot
+cp @CMAKE_CURRENT_SOURCE_DIR@/schema/*.schema %{buildroot}/etc/iot
 cp @CMAKE_CURRENT_SOURCE_DIR@/tests/iotagent/devices.json %{buildroot}/etc/iot
 
 mkdir -p %{buildroot}/usr/local/iot/config

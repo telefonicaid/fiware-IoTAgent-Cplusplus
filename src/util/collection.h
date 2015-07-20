@@ -129,11 +129,6 @@ class Collection {
       a_bbdd = value;
     }
 
-    const std::string& getSchema(const std::string& method) const;
-
-    virtual const std::string &getPostSchema() const;
-    virtual const std::string &getPutSchema() const;
-
     void reconnect();
 
     int ensureIndex(const std::string &name_index,

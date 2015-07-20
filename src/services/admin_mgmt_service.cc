@@ -13,18 +13,32 @@ namespace iota {
 extern std::string logger;
 }
 
+std::string iota::AdminManagerService::_POST_PROTOCOL_SCHEMA;
+std::string iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA;
+
+std::string iota::AdminManagerService::_POST_SERVICE_SCHEMA;
+std::string iota::AdminManagerService::_PUT_SERVICE_SCHEMA;
+
+
 iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr
     web_server): iota::AdminService(web_server),
   _timeout(5),
   m_log(PION_GET_LOGGER(
           iota::logger)),
   _class_name("iota::AdminManagerService") {
-
+  read_schema("post_protocol.schema", iota::AdminManagerService::_POST_PROTOCOL_SCHEMA);
+  read_schema("put_protocol.schema", iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA);
+  read_schema("post_service_manager.schema", iota::AdminManagerService::_POST_SERVICE_SCHEMA);
+  read_schema("put_service_manager.schema", iota::AdminManagerService::_PUT_SERVICE_SCHEMA);
 }
 
 iota::AdminManagerService::AdminManagerService() :
   _class_name("iota::AdminManagerService"), _timeout(5),
   m_log(PION_GET_LOGGER(iota::logger)) {
+  read_schema("post_protocol.schema", iota::AdminManagerService::_POST_PROTOCOL_SCHEMA);
+  read_schema("put_protocol.schema", iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA);
+  read_schema("post_service_manager.schema", iota::AdminManagerService::_POST_SERVICE_SCHEMA);
+  read_schema("put_service_manager.schema", iota::AdminManagerService::_PUT_SERVICE_SCHEMA);
 }
 
 iota::AdminManagerService::~AdminManagerService() {
@@ -779,19 +793,9 @@ int iota::AdminManagerService::put_device_json(
 
   std::vector<iota::DeviceToBeAdded> v_endpoints_put;
 
-
   std::vector <IotagentType> v_endpoint;
 
-
-
-  //Validation of the schema
-  boost::shared_ptr<iota::DeviceCollection> devTable(new
-      iota::DeviceCollection());
-
-
-  if (validate_json_schema(body, devTable,
-                           pion::http::types::REQUEST_METHOD_PUT, error_details)) {
-
+  if (validate_json_schema(body, iota::AdminService::_PUT_DEVICE_SCHEMA, error_details)) {
 
     IOTA_LOG_DEBUG(m_log,
                    "put_device_json: SCHEMA validated, getting endpoints for protocol [" <<
@@ -1077,8 +1081,7 @@ int iota::AdminManagerService::post_protocol_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, protocol_table,
-                                "POST", error_details)) {
+  else if (validate_json_schema(body, iota::AdminManagerService::_POST_PROTOCOL_SCHEMA, error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
 
@@ -1195,8 +1198,7 @@ int iota::AdminManagerService::post_service_json(
                               "empty body",
                               pion::http::types::RESPONSE_CODE_BAD_REQUEST);
   }
-  else if (validate_json_schema(body,  manager_service_collection,
-                                "POST", error_details)) {
+  else if (validate_json_schema(body, iota::AdminManagerService::_POST_SERVICE_SCHEMA, error_details)) {
     IOTA_LOG_DEBUG(m_log, "Search protocol of service");
     mongo::BSONObj obj =  mongo::fromjson(body);
     std::vector<mongo::BSONObj> obj_protocols;
@@ -1341,8 +1343,7 @@ int iota::AdminManagerService::put_service_json(
                               "empty body",
                               pion::http::types::RESPONSE_CODE_BAD_REQUEST);
   }
-  else if (validate_json_schema(body,  manager_service_collection,
-                                "PUT", error_details)) {
+  else if (validate_json_schema(body, iota::AdminManagerService::_PUT_SERVICE_SCHEMA, error_details)) {
 
     IOTA_LOG_DEBUG(m_log, "Search protocol of service");
     mongo::BSONObj obj =  mongo::fromjson(body);

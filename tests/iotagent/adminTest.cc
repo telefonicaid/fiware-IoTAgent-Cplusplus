@@ -74,6 +74,7 @@ AdminTest::POST_DEVICE("{\"devices\": "
                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                        "}]}");
 
+
 const std::string
 AdminTest::BAD_PROTOCOL_POST_DEVICE("{\"devices\": "
                                     "[{\"device_id\": \"device_id\",\"protocol\": \"kk\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
@@ -167,10 +168,10 @@ AdminTest::POST_SERVICE_WITH_ATTRIBUTES("{\"services\": [{"
                                         "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
 const std::string
 AdminTest::POST_SERVICE_TO_DELETE_FIELDS("{\"services\": [{"
-                                        "\"apikey\": \"apikey\",\"token\": \"token\","
-                                        "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
-                                        "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }],"
-                                        "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
+    "\"apikey\": \"apikey\",\"token\": \"token\","
+    "\"attributes\": [{\"object_id\": \"temp\",\"name\": \"temperature\",\"type\": \"int\" }],"
+    "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }],"
+    "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
 const std::string
 AdminTest::PUT_SERVICE_TO_DELETE_FIELDS("{"
                                         "\"apikey\": \"apikey\",\"token\": \"\","
@@ -292,11 +293,12 @@ AdminTest::AdminTest() {
                REST_HANDLE(&iota::AdminService::agents),
                adm);
   adm->add_url(iota::ADMIN_SERVICE_AGENTS+"/<agent>", filters,
-          REST_HANDLE(&iota::AdminService::agent), adm);
+               REST_HANDLE(&iota::AdminService::agent), adm);
   adm->add_url(iota::ADMIN_SERVICE_AGENTS+"/<agent>/services", filters,
-          REST_HANDLE(&iota::AdminService::services), adm);
-  adm->add_url(iota::ADMIN_SERVICE_AGENTS+"/<agent>/services" + "/<service>", filters,
-          REST_HANDLE(&iota::AdminService::service), adm);
+               REST_HANDLE(&iota::AdminService::services), adm);
+  adm->add_url(iota::ADMIN_SERVICE_AGENTS+"/<agent>/services" + "/<service>",
+               filters,
+               REST_HANDLE(&iota::AdminService::service), adm);
   wserver->start();
 
 }
@@ -720,7 +722,9 @@ void  AdminTest::testPostDevice() {
   boost::algorithm::trim(response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);
-  IOTASSERT(response.compare("{\"reason\":\"The device does not exist\",\"details\":\"noexists\"}") == 0);
+  IOTASSERT(
+    response.compare("{\"reason\":\"The device does not exist\",\"details\":\"noexists\"}")
+    == 0);
 
   std::cout << "@UT@POST" << std::endl;
   code_res = http_test("/iot/devices", "POST", service, "", "application/json",
@@ -1098,7 +1102,8 @@ void  AdminTest::testPostService() {
 
   std::string srv_fields(service);
   srv_fields.append("_fields");
-  code_res = http_test("/iot/services", "POST", srv_fields, "", "application/json",
+  code_res = http_test("/iot/services", "POST", srv_fields, "",
+                       "application/json",
                        POST_SERVICE_TO_DELETE_FIELDS, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE(srv_fields + "|" + boost::lexical_cast<std::string>
@@ -1117,8 +1122,10 @@ void  AdminTest::testPostService() {
                        "",
                        headers, query_string, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  CPPUNIT_ASSERT_MESSAGE("No context broker ", response.find("\"cbroker\" : \"\"") != std::string::npos);
-  CPPUNIT_ASSERT_MESSAGE("No attributes ", response.find("\"attributes\" : []") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE("No context broker ",
+                         response.find("\"cbroker\" : \"\"") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE("No attributes ",
+                         response.find("\"attributes\" : []") != std::string::npos);
 
   // Final delete
   std::cout << "@UT@DELETE " << srv_fields << std::endl;
@@ -1743,7 +1750,8 @@ void AdminTest::testConfigurator() {
 
   std::cout << " getServicebyApiKey -> /iot/res apikeyduplicada" << std::endl;
   try {
-    const iota::JsonValue& pt2 = conf->getServicebyApiKey("/iot/res", "apikeyduplicada");
+    const iota::JsonValue& pt2 = conf->getServicebyApiKey("/iot/res",
+                                 "apikeyduplicada");
     CPPUNIT_ASSERT(true);
   }
   catch (std::exception& exc) {
@@ -1754,7 +1762,7 @@ void AdminTest::testConfigurator() {
   std::cout << " getService -> /iot/res serviceduplicado" << std::endl;
   try {
     const iota::JsonValue& pt2 = conf->getService("/iot/res", "serviceduplicado",
-                                            "servicepath1");
+                                 "servicepath1");
     std::string s(pt2["token"].GetString());
     std::cout << "token " << s << std::endl;
     CPPUNIT_ASSERT(s.compare("token111") == 0);
@@ -1767,7 +1775,8 @@ void AdminTest::testConfigurator() {
 
   std::cout << " getService -> /iot/res serviceduplicado" << std::endl;
   try {
-    const iota::JsonValue& pt2 = conf->getService("/iot/res", "serviceduplicado", "");
+    const iota::JsonValue& pt2 = conf->getService("/iot/res", "serviceduplicado",
+                                 "");
     CPPUNIT_ASSERT(true);
   }
   catch (std::exception& exc) {
@@ -1859,7 +1868,8 @@ void AdminTest::testConversionMap() {
 
 void AdminTest::testAuthInfo() {
   std::cout << "Start testAuthInfo" << std::endl;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_WITH_AUTH);
+  iota::Configurator* conf = iota::Configurator::initialize(
+                               PATH_CONFIG_WITH_AUTH);
   std::map<std::string, std::string> to_map;
   conf->get("oauth", to_map);
 
@@ -1880,6 +1890,58 @@ void AdminTest::testAuthInfo() {
   std::cout << "End testAuthInfo" << std::endl;
 }
 
+void AdminTest::testForbiddenCharacters() {
+  std::cout << "Start TestForbiddenCharacters" << std::endl;
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  srand(time(NULL));
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+  std::string device_forbidden("dev_forb");
+  std::string device_with_forbidden("{\"devices\": [{\"device_id\": \"");
+  std::string cont("\",\"protocol\": \"PDI-IoTA-UltraLight\"}]}");
+  std::map<std::string, std::string> headers;
+  std::string query_string;
+  std::string response;
+  int code_res;
+  std::string service = "service" ;
+  service.append(boost::lexical_cast<std::string>(rand()));
+  std::cout << "@UT@POST Service" << std::endl;
+  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+                       POST_SERVICE, headers, "", response);
+
+  std::vector<std::string> forbidden_characters;
+  forbidden_characters.push_back("<");
+  forbidden_characters.push_back(">");
+  forbidden_characters.push_back("(");
+  forbidden_characters.push_back(")");
+  forbidden_characters.push_back(";");
+  forbidden_characters.push_back("=");
+  forbidden_characters.push_back("'");
+  forbidden_characters.push_back("\\\"");
+
+  for (int i = 0; i < forbidden_characters.size(); i++) {
+    std::string post_str(device_with_forbidden);
+    post_str.append(device_forbidden);
+    post_str.append(forbidden_characters[i]);
+    post_str.append(cont);
+    code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+                         post_str , headers, "", response);
+    std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+    IOTASSERT(code_res == 400);
+  }
+  std::string post_str(device_with_forbidden);
+  post_str.append(device_forbidden);
+  post_str.append(cont);
+  code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+                         post_str , headers, "", response);
+    std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+    IOTASSERT(code_res == 201);
+  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+                       "application/json", "",
+                       headers, "", response);
+  std::cout << "End TestForbiddenCharacters" << std::endl;
+}
 
 void AdminTest::testConfiguratorMongo() {
   std::cout << "START apiKeyTest testConfiguratorMongo" << std::endl;
@@ -1918,10 +1980,11 @@ void AdminTest::testConfiguratorMongo() {
   table1.insert(p5);
 
   mongo::BSONObj p6= BSON("apikey" << "apikey-6" << "cbroker" <<
-                           "http:://0.0.0.0:1026"
-                           << "service" << "service-6" << "entity_type" << "thing" <<
-                           "service_path" << "servicepath" << "token" << "token1");
-  mongo::BSONObj p_att = BSON("name" << "GPS" << "type" << "string" << "value" << "10");
+                          "http:://0.0.0.0:1026"
+                          << "service" << "service-6" << "entity_type" << "thing" <<
+                          "service_path" << "servicepath" << "token" << "token1");
+  mongo::BSONObj p_att = BSON("name" << "GPS" << "type" << "string" << "value" <<
+                              "10");
   mongo::BSONObjBuilder o_p6;
   o_p6.appendElements(p6);
   mongo::BSONArrayBuilder a_obj;
@@ -2012,9 +2075,12 @@ void AdminTest::testConfiguratorMongo() {
     std::string s(pt_cb.get<std::string>("service", ""));
     CPPUNIT_ASSERT(s.compare("service-6") == 0);
     boost::property_tree::ptree s_a = pt_cb.get_child("static_attributes");
-    CPPUNIT_ASSERT_MESSAGE("Checking static attribute GPS", s_a.get<std::string>("name", "").compare("GPS") == 0);
-    CPPUNIT_ASSERT_MESSAGE("Checking static attribute GPS", s_a.get<std::string>("value", "").compare("10") == 0);
-    CPPUNIT_ASSERT_MESSAGE("Checking cbroker", pt_cb.get<std::string>("cbroker", "").compare("http:://0.0.0.0:1026") == 0);
+    CPPUNIT_ASSERT_MESSAGE("Checking static attribute GPS",
+                           s_a.get<std::string>("name", "").compare("GPS") == 0);
+    CPPUNIT_ASSERT_MESSAGE("Checking static attribute GPS",
+                           s_a.get<std::string>("value", "").compare("10") == 0);
+    CPPUNIT_ASSERT_MESSAGE("Checking cbroker", pt_cb.get<std::string>("cbroker",
+                           "").compare("http:://0.0.0.0:1026") == 0);
   }
   catch (std::exception& exc) {
   }

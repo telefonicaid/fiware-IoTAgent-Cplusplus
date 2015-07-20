@@ -48,7 +48,6 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     //TODO se comenta para que no este cam,biando el ficherode conf todo el rato CPPUNIT_TEST(testReload);
 
     CPPUNIT_TEST(testPostBadContentType);
-
     CPPUNIT_TEST(testPostDevice);
     CPPUNIT_TEST(testPostService);
     CPPUNIT_TEST(testPostService2);
@@ -69,6 +68,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testConversionMap);
     CPPUNIT_TEST(testAuthInfo);
     CPPUNIT_TEST(testConfiguratorMongo);
+    CPPUNIT_TEST(testForbiddenCharacters);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -198,6 +198,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     void testConversionMap();
     void testAuthInfo();
     void testConfiguratorMongo();
+    void testForbiddenCharacters();
 
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;

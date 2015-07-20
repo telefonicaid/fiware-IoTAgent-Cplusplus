@@ -47,9 +47,6 @@ class ServiceMgmtCollection : public ServiceCollection {
 
     int createTableAndIndex();
 
-    virtual const std::string &getPostSchema() const;
-    virtual const std::string &getPutSchema() const;
-
     std::vector<ServiceType> get_services_by_protocol(
               const std::string &protocol_name,
               int limit=0, int skip=0);
@@ -80,8 +77,6 @@ class ServiceMgmtCollection : public ServiceCollection {
 
   private:
 
-    static const std::string _POST_SCHEMA;
-    static const std::string _PUT_SCHEMA;
 
 }; // end class ServiceCollection
 
