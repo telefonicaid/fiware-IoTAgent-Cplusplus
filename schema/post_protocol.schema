@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Iotagent_Registration",
+  "description": "Protocol registration from Iotafgent and registratio of all services",
+  "additionalProperties": false,
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "description": "protocol identifier",
+      "format": "uri",
+      "pattern": "^([^<>();'=\"]+)+$",
+      "type": "string"
+    },
+    "description": {
+      "description": "protocol description",
+      "pattern": "^([^<>();'=\"]+)*$",
+      "type": "string"
+    },
+    "iotagent": {
+      "description": "public ip of iotagent",
+      "pattern": "^([^<>();'=\"]+)+$",
+      "type": "string"
+    },
+    "resource": {
+      "description": "protocol resource, uri path for the iotagent",
+      "pattern": "^([^<>();'=\"]+)+$",
+      "type": "string"
+    },
+    "services": {
+      "type": "array",
+      "id": "services",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "id": "0",
+        "properties": {
+          "service": {
+            "description": "service name",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "type": "string"
+          },
+          "service_path": {
+            "description": "service path, must start with /",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "type": "string"
+          },
+          "entity_type": {
+            "description": "default entity_type, if a device has not got entity_type uses this",
+            "pattern": "^([^<>();'=\"]+)*$",
+            "type": "string"
+          },
+          "apikey": {
+            "description": "apikey",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "type": "string"
+          },
+          "token": {
+            "description": "token",
+            "pattern": "^([^<>();'=\"]+)*$",
+            "type": "string"
+          },
+          "cbroker": {
+            "description": "uri for the context broker",
+            "type": "string",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "format": "uri",
+            "minLength": 1
+          },
+          "outgoing_route": {
+            "description": "VPN/GRE tunnel identifier",
+            "pattern": "^([^<>();'=\"]+)*$",
+            "type": "string"
+          },
+          "resource": {
+            "description": "uri for the iotagent",
+            "type": "string",
+            "format": "regex",
+            "pattern": "^/([^<>();'=\"]+)+$"
+          },
+          "attributes": {
+            "type": "array",
+            "id": "attributes",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "id": "0",
+              "properties": {
+                "object_id": {
+                  "description": "The unique identifier by service for a device",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Name of the entity, if it does not exits use device_id",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "type of the entity",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "static_attributes": {
+            "type": "array",
+            "id": "static_attributes",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "id": "0",
+              "properties": {
+                "value": {
+                  "description": "The unique identifier by service for a device",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Name of the entity, if it does not exits use device_id",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "type of the entity",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "service",
+          "service_path",
+          "apikey",
+          "resource"
+        ]
+      }
+    }
+  },
+  "required": [
+    "protocol",
+    "iotagent",
+    "resource"
+  ]
+}

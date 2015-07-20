@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Protocol modification",
+  "description": "Only protocol update",
+  "additionalProperties": false,
+  "type": "object",
+  "properties": {
+    "protocol": {
+      "description": "protocol identifier",
+      "format": "uri",
+      "pattern": "^([^<>();'=\"]+)+$",
+      "type": "string"
+    },
+    "description": {
+      "description": "protocol description",
+      "pattern": "^([^<>();'=\"]+)+$",
+      "type": "string"
+    }
+  }
+}
