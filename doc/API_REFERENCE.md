@@ -163,6 +163,57 @@ With one subservice defined in Fiware-ServicePath header. From service model, ma
 
 + Response 201
 
+#### Error messages, examples:
+
++ Response 400:
+
+Missing property within  JSON:
+```
+{"reason":"The request is not well formed","details":"Missing required property: apikey [/services[0]]"}
+```
+
+Service or sub-service headers not valid (as per Context Broker constraints):
+```
+ {"reason": "Malformed header","details": "Fiware-Service not accepted - a service string must not be longer than 50 characters and may only contain underscores and alphanumeric characters and lowercase"}
+```
+```
+{"reason": "Malformed header","details": "Fiware-ServicePath not accepted - a service path string must only contain underscores and alphanumeric characters and starts with character /"}
+```
+Missing service header.
+```
+ {"reason": "Malformed header","details": "Fiware-Service not accepted - a service string must not be longer than 50 characters and may only contain underscores and alphanumeric characters and lowercase"}
+```
+
+Wrong type for any of the fields (like using integer instead of string):
+```
+{"reason":"The request is not well formed","details":"invalid data type: UnsignedType expected: string [/services[0]/token]"}
+```
+Not valid URL for ContextBroker:
+```
+{"reason":"A parameter of the request is invalid/not allowed[http10.95.213.36:1026]","details":"http10.95.213.36:1026 is not a correct uri"}
+```
+Service contains badly formed attibutes:
+```
+{"reason":"The request is not well formed","details":"Missing required property: object_id [/services[0]/attributes[0]]"}
+```
+JSON is invalid or not well formed:
+```
+ {"reason":"The request is not well formed","details":"JSONParser: An error occurred on line 1 column 18"}
+```
+JSON contains unexpected fields:
+```
+ {"reason":"The request is not well formed","details":"Additional properties not allowed. [/services[0]/extra_data]"}#code:400#
+```
+
++ Response 409
+
+Duplicated service:
+```
+ {"reason":"There are conflicts, object already exists","details":"duplicate key: iotest.SERVICE { apikey: apikeymqtt, token: tokenmqtt, cbroker: http://10.95.213.36:1026, entity_type: thingmqtt, resource: /iot/mqtt, service: serv22, service_path: /srf }"}
+```
+
+
+
 
 ### Update a service/subservice [PUT]
 If you want modify only a field, you can do it. You cannot modify an element into an array field, but whole array. ("/*" is not allowed).
@@ -339,6 +390,11 @@ From device model, mandatory fields are: device_id and protocol.
             }
 
 + Response 404
+
+When service does not exist:
+```
+{"reason":"The service does not exist","details":" service:serv22 service_path:/srf"}
+```
 
 
 ## Device [/devices/{device_id}]
