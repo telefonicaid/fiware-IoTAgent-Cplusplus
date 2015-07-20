@@ -649,7 +649,8 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (iota::IotaException& e) {
-    IOTA_LOG_ERROR(m_log,"Capturada: Exception en devices_json");
+    IOTA_LOG_ERROR(m_log,"Capturada: Exception IotaException:" << e.status()
+         << ":" << e.reason());
     IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(e.reason());
     error_details.assign(e.what());

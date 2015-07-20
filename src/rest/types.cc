@@ -69,7 +69,65 @@ const std::string types::CONF_FILE_PEP_RULES("pep_rules");
 const std::string types::CONF_FILE_PEP_RULES_URI("uri");
 const std::string types::CONF_FILE_PEP_RULES_ACTION("action");
 const std::string types::CONF_FILE_PEP_RULES_VERB("verb");
+
 // Errors
+/////////////
+
+/******
+ *  @name General Errors
+ *
+ *  @brief The following errors are general and can occur when using any component.
+ **/
+
+
+
+/******
+ *  @name Database Errors
+ *
+ *  @brief These errors are specific to the database errors (mongodb)
+ **/
+
+/**  every exception except mongodb::Exception
+ *
+ *  an example, if the database is with auth
+ *  {"reason":"Database error","details":"error: SERVICE: { service: serv22, service_path: /srf1 } what=count fails:{ ok: 0.0, errmsg: not authorized on iot to execute command { count: SERVICE, query: { service: serv22, service_path: /srf1 } }, code: 13 }"}
+ */
+const std::string types::RESPONSE_MESSAGE_DATABASE_ERROR("Database error");
+
+/**  duplicate data exception   mongodb code 11000  or 11001
+ *
+ *  an example, if the database is with auth
+ *  {"reason":"Database error","details":"error: SERVICE: { service: serv22, service_path: /srf1 } what=count fails:{ ok: 0.0, errmsg: not authorized on iot to execute command { count: SERVICE, query: { service: serv22, service_path: /srf1 } }, code: 13 }"}
+ */
+const std::string
+types::RESPONSE_MESSAGE_DUPLICATED_DATA("There are conflicts, object already exists");
+
+
+
+/******
+ *  @name Protocol Errors
+ *
+ *  @brief These errors are specific to the communication protocol used (http, MQTT, ...)
+ **/
+
+
+
+/******
+ *  @name Iotagent Errors
+ *
+ *  @brief These errors are specific to the iotagent, its configuration or operation
+ **/
+
+/******
+ *  @name Fiware Errors
+ *
+ *  @brief These errors are general to fiware applications.
+ **/
+
+
+
+
+
 const std::string types::MULTIPART_ERROR("Multipart content error");
 
 //
@@ -99,7 +157,7 @@ types::RESPONSE_MESSAGE_LENGTH_REQUIRED("Content-Length header missing");
 const std::string
 types::RESPONSE_MESSAGE_REQUEST_ENTITY_TOO_LARGE("Request Entity Too Large - over 1Mb of payload");
 const std::string
-types::RESPONSE_MESSAGE_UNSUPPORTED_MEDIA_TYPE("Unsupported Media Type (only support application/xml and application/json)");
+types::RESPONSE_MESSAGE_UNSUPPORTED_MEDIA_TYPE("Unsupported Media Type (only support application/json)");
 const std::string
 types::RESPONSE_MESSAGE_SUBSCRIPTION_ID_NOT_FOUND("The subscriptionId does not correspond to an active subscription");
 const std::string
@@ -145,8 +203,6 @@ types::RESPONSE_MESSAGE_NO_DEVICE("The device does not exist");
 const std::string
 types::RESPONSE_MESSAGE_MORE_ONE_SERVICE("There are conflicts in provisioned service");
 
-const std::string
-types::RESPONSE_MESSAGE_DUPLICATED_DATA("There are conflicts, object already exists");
 
 const std::string
 types::RESPONSE_MESSAGE_BAD_PROTOCOL("There are conflicts, protocol is not correct");
@@ -162,8 +218,7 @@ const std::string types::DETAILS_HEADER_FIWARE_SERVICE_PATH("Fiware-ServicePath 
 
 
 const std::string
-types::RESPONSE_MESSAGE_INTERNAL_ERROR("Conctact with your administrator, there was an internal error");
-const std::string types::RESPONSE_MESSAGE_DATABASE_ERROR("Database error");
+types::RESPONSE_MESSAGE_INTERNAL_ERROR("Contact with your administrator, there was an internal error");
 
 const std::string
 types::RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS("There are conflicts, entity already exists");

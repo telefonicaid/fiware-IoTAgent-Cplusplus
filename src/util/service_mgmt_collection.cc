@@ -477,6 +477,8 @@ std::vector<iota::IotagentType> iota::ServiceMgmtCollection::get_iotagents_by_se
 
   // if there is no limit and count is 0, then throw an exception for no data
   if (count_eltos == 0 && limit ==0 && skip ==0){
+    IOTA_LOG_INFO(m_logger, "no iotagents for service:" << service
+           << " service_path:" << service_path << " protocol:" << protocol_id);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MISSING_IOTAGENTS,
                               "[protocol:" + protocol_id+
                               " service: " + service +
