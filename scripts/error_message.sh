@@ -56,12 +56,17 @@ echo '{"reason":"Database error","details":"error: SERVICE: { service: serv22, s
 
 
 echo "0- delete old data"
-res=$( curl -X DELETE "http://$HOST_IOT1/iot/services?resource=/iot/mqtt&device=true" \
+res=$( curl -X DELETE "http://$HOST_MAN/iot/services?protocol=PDI-IoTA-UltraLight&device=true" \
 -i -s -w "#code:%{http_code}#" \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: $SERVICE" \
 -H "Fiware-ServicePath: $SRVPATH" )
 
+res=$( curl -X DELETE "http://$HOST_MAN/iot/services?protocol=PDI-IoTA-MQTT-UltraLight&device=true" \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" )
 
 # TEST
 
@@ -264,4 +269,125 @@ res=$( curl -X POST http://$HOST_IOT1/iot/devices \
 echo $res
 assert_code 400 "no 400"
 assert_contains '{"reason":"There are conflicts, protocol is not correct","details":" [ protocol: PDI-IoTA-UltraLightt]"}' "bad protocol"
+
+echo "32- post instead put, not allowed"
+res=$( curl -X POST http://$HOST_IOT1/iot/devices/nodevice \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{  "entity_name": "entity_name"}' )
+echo $res
+assert_code 405 "no 400"
+
+
+echo "32b- put a device  no exists"
+res=$( curl -X PUT http://$HOST_IOT1/iot/devices/nodevice \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{  "entity_name": "entity_name"}' )
+echo $res
+assert_code 404 "no 400"
+assert_contains '{"reason":"The device does not exist"' "device does not exists"
+
+
+echo "33- get with bad limit"
+res=$( curl -X GET http://$HOST_IOT1/iot/devices?limit=all \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 400 "no 400"
+assert_contains '{"reason":"A parameter of the request is invalid/not allowed","details":"limit must be a number but it is all"}' " bad limit"
+
+echo "34- bad detailed"
+res=$( curl -X GET http://$HOST_IOT1/iot/devices?detailed=all \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 400 "no 400"
+assert_contains '{"reason":"The request is not well formed","details":"parameter detailed must be on or off"}' "bad detailed"
+
+echo "35- bad offset"
+res=$( curl -X GET http://$HOST_IOT1/iot/devices?offset=22e \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 400 "no 400"
+assert_contains '{"reason":"A parameter of the request is invalid/not allowed","details":"offset must be a number' "bad offset"
+
+echo "40- Iot Manager bad body"
+res=$( curl -X POST http://$HOST_MAN/iot/services \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{"services": [{ "apikey": "apikeymqtt", "token": "tokenmqtt", "cbroker": "http://10.95.213.36:1026", "entity_type": "thingmqtt", "resource": "/iot/mqtt" }]}' )
+echo $res
+assert_code 400 "no 400"
+assert_contains '{"reason":"The request is not well formed","details":"Missing required property: protocol' "bad body"
+
+echo "41- Iot Manager no exists protocol"
+res=$( curl -X POST http://$HOST_MAN/iot/services \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{"services": [{ "apikey": "apikeymqtt", "token": "tokenmqtt", "cbroker": "http://10.95.213.36:1026", "entity_type": "thingmqtt", "protocol": [ "NOPROTOCOL"] }]}' )
+echo $res
+assert_code 400 "no 400"
+assert_contains '{"reason":"The request is not well formed","details":"No exists protocol NOPROTOCOL"}' "no exists protocol"
+
+echo "43- Iot Manager delete no device"
+res=$( curl -X DELETE http://$HOST_MAN/iot/devices/nodevice?protocol=PDI-IoTA-UltraLight \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 404 "no 201"
+assert_contains 'iotagents for this operation","details":"[protocol:PDI-IoTA-UltraLight service: serv22 service_path:/srf]"}' "no device"
+
+echo "44- Iot Manager GET device with an iotagent down"
+res=$( curl -X GET http://$HOST_MAN/iot/devices \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH"  )
+echo $res
+assert_code 200 "no 200"
+#assert_contains '{ "count" : 0, "devices" : [] ,"errors": [{"endpoint": "http://192.0.3.25:8080/iot","code": "-1","details": "Connection refused"}]}' "GET device with an iotagent down"
+
+
+echo "45- Iot Manager POST with no iotagents"
+res=$( curl -X POST http://$HOST_MAN/iot/services \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{"services": [{ "apikey": "apikeymqtt", "token": "tokenmqtt", "cbroker": "http://10.95.213.36:1026", "entity_type": "thingmqtt", "protocol": [ "NOPROTOCOL"] }]}' )
+echo $res
+assert_code 500 "no 500"
+assert_contains '{"errors": [{"endpoint": "http://192.0.3.25:80/iot","code": "-1","details": "Connection refused"}' "POST with no iotagents"
+
+echo "45- Iot Manager POST with one iotagent up and other down"
+res=$( curl -X POST http://$HOST_MAN/iot/services \
+-i -s -w "#code:%{http_code}#" \
+-H "Content-Type: application/json" \
+-H "Fiware-Service: $SERVICE" \
+-H "Fiware-ServicePath: $SRVPATH" \
+-d '{"services": [{ "apikey": "apikeymqtt", "token": "tokenmqtt", "cbroker": "http://10.95.213.36:1026", "entity_type": "thingmqtt", "protocol": [ "NOPROTOCOL"] }]}' )
+echo $res
+assert_code 201 "no 201"
+assert_contains '{"errors": [{"endpoint": "http://192.0.3.25:80/iot","code": "-1","details": "Connection refused"}' "POST with no iotagents"
+
+
+
 
