@@ -37,11 +37,10 @@ When an error is detected before manager communicates with agent a representatio
 ```
 
 When manager requests every agent for information, errors are a field in response. GET operation (for devices) returns 200 OK.
-When manager receives from agent a successfully response, global response has a succesfully status code. If DELETE/PUT operations (for devices) this response would be 204 (if no errors) or 200 (if errors). POST operation returns 500 when all agents are failed. An example:
+When manager receives from agent a successfully response, global response has a succesfully status code. If DELETE/PUT operations this response would be 204 (if no errors) or 200 (if errors). POST operation returns 500 when all agents are failed. An example:
 ```
 { "count" : 1, "devices" : [{ "protocol" : "UL20", "device_id" : "device_id", "entity_name" : "entity_name", "entity_type" : "entity_type", "endpoint" : "ht     p://device_endpoint", "timezone" : "America/Santiago", "commands" : [ { "name" : "ping", "type" : "command", "value" : "device_i     d@ping|%s" } ], "attributes" : [ { "object_id" : "temp", "name" : "temperature", "type" : "int" } ], "static_attributes" : [ { "     name" : "humidity", "type" : "int", "value" : "50" } ] }] ,"errors": [{"endpoint": "http://127.0.0.1:1000/iot","code": "-1","details": "Connection refused"}]}
 ```
-Important: In service API, manager only requests agent for information when operation is POST.
  
 ## Authentication and Authorization
 If IoT Agent is in authenticated environment, this API requires a token, which you obtain from authentication system. This system and its API is out of scope of present documentation. In this environment, a mandatory header is needed: `X-Auth-Token`.
@@ -243,7 +242,7 @@ the service (in body you set the new apikey).
                ]
              }
 
-+ Response 201
++ Response 204
 
 
 ## Devices [/devices{?protocol,limit,offset,detailed}]

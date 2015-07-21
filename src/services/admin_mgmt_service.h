@@ -280,6 +280,10 @@ class AdminManagerService : public iota::AdminService {
   protected:
     virtual std::string get_class_name();
     virtual std::string get_role();
+    static std::string _PUT_PROTOCOL_SCHEMA;
+    static std::string _POST_PROTOCOL_SCHEMA;
+    static std::string _PUT_SERVICE_SCHEMA;
+    static std::string _POST_SERVICE_SCHEMA;
 
   private:
 

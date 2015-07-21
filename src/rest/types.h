@@ -80,6 +80,8 @@ struct types {
   static const std::string CONF_FILE_PEP_RULES_URI;
   static const std::string CONF_FILE_PEP_RULES_ACTION;
   static const std::string CONF_FILE_PEP_RULES_VERB;
+
+  static const std::string CONF_FILE_SCHEMA_PATH;
   // Error response
   static const std::string MULTIPART_ERROR;
 
@@ -131,6 +133,9 @@ struct types {
 
   static const std::string DETAILS_HEADER_FIWARE_SERVICE;
   static const std::string DETAILS_HEADER_FIWARE_SERVICE_PATH;
+  static const std::string DETAILS_FORBIDDEN_CHARACTERS;
+
+  static const std::string IOTA_FORBIDDEN_CHARACTERS;
 
   static const unsigned int RESPONSE_CODE_NONE;
   static const unsigned int RESPONSE_CODE_OK;
@@ -166,6 +171,7 @@ struct types {
   // Special codes
   static const unsigned int RESPONSE_CODE_FIWARE_SERVICE_ERROR;
   static const unsigned int RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR;
+  static const unsigned int RESPONSE_CODE_FORBIDDEN_CHARACTERS;
 
   ///ALARMS
   static const unsigned int ALARM_CODE_NO_MONGO;
