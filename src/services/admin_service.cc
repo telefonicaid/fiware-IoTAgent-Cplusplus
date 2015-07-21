@@ -106,12 +106,12 @@ void iota::AdminService::read_schema(std::string file_name,
       iota::Configurator::instance()->get(iota::types::CONF_FILE_SCHEMA_PATH);
     std::string tmp_value = schema_path_value.GetString();
     schema_path = tmp_value;
-    schema_path.append("/");
-    schema_path.append(file_name);
   }
   catch (std::exception& e) {
-    throw;
+		IOTA_LOG_DEBUG(m_log, "No schema path defined, using /etc/iot");
   }
+  schema_path.append("/");
+  schema_path.append(file_name);
   // Post device
   schema_file.open(schema_path.c_str(), std::ios::in);
   if (!schema_file.is_open()) {
