@@ -14,9 +14,10 @@
     4. [Ngsi](#def-ngsi)
     5. [Logs](#def-logs)
     6. [Timezone](#def-timezone)
-    7. [HTTP Proxy](#def-proxy)
-    8. [General configuration](#def-general)
-    9. [Examples](#def-examples)
+    7. [Schema Validation](#def-schema)
+    8. [HTTP Proxy](#def-proxy)
+    9. [General configuration](#def-general)
+    10. [Examples](#def-examples)
         1. [Example mongo storage, example resource](#def-examples1)
         2. [Example file storage](#def-examples2)
 4. [Check Instalation with HTTP request with curls](#def-check)
@@ -370,17 +371,21 @@ You should review [Monitoring alarms](#def-alarms).
 ### 6. Timezone configuration
 This information is not used in this version, but it points where database (a file) for timezones is.
 
+<a name="def-schema"></a>
+### 7. Schema Validation
+In order to validate requests to northbound API, we provide Json Schema. These schema are where _schema_path_ field (by default is /etc/iot).
+
 <a name="def-proxy"></a>
-### 7. HTTP server proxy
+### 8. HTTP server proxy
 In order to send commands to devices in VPN, IoTAgent provides an infrastructure based in _squid_ as HTTP proxy and endpoint of GRE tunnels.
 
 <a name="def-general"></a>
-### 8. General configuration
+### 9. General configuration
 Field _timeout_ is a general timer for operations.
 
 
 <a name="def-examples"></a>
-### 9. Examples
+### 10. Examples
 
 Now, we put all together, and ther are two examples, one with mongodb storage and second with file storage.
 You can change for your specific values and use these files.
@@ -405,6 +410,7 @@ You can change for your specific values and use these files.
            }
         ],
         "timezones": "/etc/iot/date_time_zonespec.csv",
+        "schema_path": "/etc/iot",
         "storage": {
           "type": "mongodb",
           "dbname": "iot"
@@ -479,6 +485,7 @@ You can change for your specific values and use these files.
            }
         ],
         "timezones": "/etc/iot/date_time_zonespec.csv",
+        "schema_path": "/etc/iot",
         "storage": {
           "type": "file",
           "file": "./devices.json"
