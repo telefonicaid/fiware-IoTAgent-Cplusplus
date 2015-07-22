@@ -38,17 +38,17 @@ You can follow more detailed instructions about how to build IoTAgent on this [l
 RPMs have been tested on Centos 6.5. The RPM follows this pattern: iot-agent-mqtt-[version].[commit].x86_64.rpm. Please note that it will require other components are also installed (like the IotAgent base or libmosquitto and libmosquittopp). 
 
 #### Libmosquitto and Libmosquittopp
-These two libraries are requiered by MqttService.so. Currently we have tested version _1.2.3_. Some Linux OS have RPMs packages for this particular version. When not available, it can be built from source <a href="http://mosquitto.org/download/">here</a>. 
+These two libraries are requiered by MqttService.so. Currently we have tested version __1.2.3__. Some Linux OS have RPMs packages for this particular version. When not available, it can be built from source <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 
 
 #### Mosquitto MQTT Broker.
-When your infrastructure features a different MQTT broker, you could use that instead, (see next section). The use of Mosquitto allows us to configure a very basic but effective way of preventing devices of a particular service from publishing/subscribing to topics of other services, which can be problematic in a multi-vendor scenario. This is done by means of its ACL capabilities. If for whatever reason this convenient feature may not suit your needs, it can be turned off (any device could publish/subscribe to any topic). 
+When your infrastructure features a different MQTT broker, you could use that instead, (see next section). The use of Mosquitto allows us to configure a very basic but effective way of preventing devices of a particular service from publishing/subscribing to topics of other services, which can be problematic in a multi-vendor scenario. This is done by means of its ACL capabilities. If for whatever reason this convenient feature does not suit your needs, it can be turned off (any device could publish/subscribe to any topic). 
 
 ##### Mosquitto Broker config files:
 
 - mosquitto.conf (part of Mosquitto MQTT Broker. It can be used to fine tune Mosquitto). 
 - aclfile.mqtt (file used for the Access Control in Mosquitto)
 
-_Note:_ If MQTT plugin is installed using our RPM, these two files will be provided with default configuration for IoTAgent MQTT (this includes enabling ACL). These files are placed in /etc/iot/ directory. When Mosquitto is installed in the system, it will come along with its own config files. If you want to use ACL capabilities, we recommend you use our _mosquitto.conf_ file instead. 
+__Note:__ If MQTT plugin is installed using our RPM, these two files will be provided with default configuration for IoTAgent MQTT (this includes enabling ACL). These files are placed in /etc/iot/ directory. When Mosquitto is installed in the system, it will come along with its own config files. If you want to use ACL capabilities, we recommend you use our _mosquitto.conf_ file instead. 
 
 ##### Configuring ACL in Mosquitto.
 
@@ -56,7 +56,7 @@ The Access Control List of Mosquitto enables certain level of privacy for MQTT m
 ACL is enabled in the mosquitto.conf file by setting the "aclfile" property to the path where "aclfile.mqtt" file is located. 
 By default is __enabled__ only if you installed our MQTT plugin RPM.
 
-_Important:_ when ACL is enabled, the user id must be included in the MQTT connection. The MQTT Plugin takes the user from the _sensormqtt.xml_ file. Any device wanting to subscribe/publish to a MQTT broker with ACL enabled has to provide the apikey as user-id. How to do it may depend on the implementation, for instance, the Mosquitto clients (mosquitto_sub and mosquitto_pub) utilize the "-u" parameter. 
+__Important:__ when ACL is enabled, the user id must be included in the MQTT connection. The MQTT Plugin takes the user from the _sensormqtt.xml_ file. Any device wanting to subscribe/publish to a MQTT broker with ACL enabled has to provide the apikey as user-id. How to do it may depend on the implementation, for instance, the Mosquitto clients (mosquitto_sub and mosquitto_pub) utilize the "-u" parameter. 
 
 ##### Running Mosquitto.
 
