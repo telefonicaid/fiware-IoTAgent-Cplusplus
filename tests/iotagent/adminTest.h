@@ -46,7 +46,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     //CPPUNIT_TEST(testCsvProvision);
     CPPUNIT_TEST(testPostConf);
     //TODO se comenta para que no este cam,biando el ficherode conf todo el rato CPPUNIT_TEST(testReload);
-
+    CPPUNIT_TEST(testValidationSchema);
     CPPUNIT_TEST(testPostBadContentType);
     CPPUNIT_TEST(testPostDevice);
     CPPUNIT_TEST(testPostService);
@@ -162,6 +162,10 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
                   std::string& response);
 
   private:
+
+    void testValidationSchema();
+    std::string  validationSchema(const std::string & json_str,
+    const std::string & json_schema);
 
     void testGetConf();
     void testPostConf();
