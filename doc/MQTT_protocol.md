@@ -3,7 +3,7 @@
 
 #### Index
 1. [Introduction](#def-introduction)
-2. [Configuration](#def-configuration)
+2. [Getting started: Installation and Configuration](#def-configuration)
 3. [MQTT Conventions](#def-conventions)
 4. [IoTAgent API: provision of Services](north_api.md#def-service-api)
 5. [IoTAgent API: provision of devices](north_api.md#def-device-api)
