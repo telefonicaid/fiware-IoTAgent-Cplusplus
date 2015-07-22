@@ -44,9 +44,6 @@ class ServiceCollection : public Collection {
     static void addServicePath(const std::string & service_path,
                         mongo::BSONObjBuilder &obj );
 
-    virtual const std::string &getPostSchema() const;
-    virtual const std::string &getPutSchema() const;
-
     virtual void getElementsFromBSON(mongo::BSONObj &obj,
                            std::vector<mongo::BSONObj>& result);
 
@@ -62,9 +59,6 @@ class ServiceCollection : public Collection {
     //TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
 
   private:
-
-    static const std::string _PUT_SCHEMA;
-    static const std::string _POST_SCHEMA;
 
 }; // end class ServiceCollection
 

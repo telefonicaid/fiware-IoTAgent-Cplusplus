@@ -42,6 +42,7 @@
 #include "util/protocol_collection.h"
 #include "util/command_collection.h"
 #include "util/iot_url.h"
+#include "util/FuncUtil.h"
 
 #if defined LIBVARIANT
 
@@ -64,6 +65,14 @@ const std::string iota::AdminService::_api_device_holder = "device";
 const unsigned short iota::AdminService::TIME_FOR_LOG = 2;
 const unsigned short iota::AdminService::TIME_TO_LOG = 60;
 
+std::string iota::AdminService::_POST_DEVICE_SCHEMA;
+std::string iota::AdminService::_PUT_DEVICE_SCHEMA;
+
+std::string iota::AdminService::_POST_SERVICE_SCHEMA;
+std::string iota::AdminService::_PUT_SERVICE_SCHEMA;
+
+
+
 iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
   iota::RestHandle(),
   //_web_server(web_server),
@@ -71,7 +80,10 @@ iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
   m_log(PION_GET_LOGGER(iota::logger)) {
   IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
   checkIndexes();
-
+  read_schema("post_device.schema", iota::AdminService::_POST_DEVICE_SCHEMA);
+  read_schema("put_device.schema", iota::AdminService::_PUT_DEVICE_SCHEMA);
+  read_schema("post_service.schema", iota::AdminService::_POST_SERVICE_SCHEMA);
+  read_schema("put_service.schema", iota::AdminService::_PUT_SERVICE_SCHEMA);
 }
 
 iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
@@ -79,6 +91,39 @@ iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
   IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService2");
   // iota::AdminService::_web_server = NULL;
   checkIndexes();
+  read_schema("post_device.schema", iota::AdminService::_POST_DEVICE_SCHEMA);
+  read_schema("put_device.schema", iota::AdminService::_PUT_DEVICE_SCHEMA);
+  read_schema("post_service.schema", iota::AdminService::_POST_SERVICE_SCHEMA);
+  read_schema("put_service.schema", iota::AdminService::_PUT_SERVICE_SCHEMA);
+}
+
+void iota::AdminService::read_schema(std::string file_name,
+                                     std::string& schema) {
+  std::ifstream schema_file;
+  std::string schema_path("/etc/iot");
+  try {
+    const JsonValue& schema_path_value =
+      iota::Configurator::instance()->get(iota::types::CONF_FILE_SCHEMA_PATH);
+    std::string tmp_value = schema_path_value.GetString();
+    schema_path = tmp_value;
+  }
+  catch (std::exception& e) {
+		IOTA_LOG_DEBUG(m_log, "No schema path defined, using /etc/iot");
+  }
+  schema_path.append("/");
+  schema_path.append(file_name);
+  // Post device
+  schema_file.open(schema_path.c_str(), std::ios::in);
+  if (!schema_file.is_open()) {
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_CONFIG,
+                                "No schema to validate requests [" + schema_path + "]",
+                                iota::types::RESPONSE_CODE_BAD_CONFIG);
+  }
+  else {
+    std::string s((std::istreambuf_iterator<char>(schema_file)),
+                  std::istreambuf_iterator<char>());
+    schema.assign(s);
+  }
 }
 
 iota::AdminService::~AdminService() {
@@ -649,8 +694,6 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
 
   }
   catch (iota::IotaException& e) {
-    IOTA_LOG_ERROR(m_log,"Capturada: Exception IotaException:" << e.status()
-         << ":" << e.reason());
     IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(e.reason());
     error_details.assign(e.what());
@@ -658,7 +701,7 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
     create_response(code, reason, error_details, http_response, response);
   }
   catch (std::exception& e) {
-    IOTA_LOG_ERROR(m_log,"Excepcion en devices_json");
+    IOTA_LOG_ERROR(m_log,e.what());
     reason.assign(iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR);
     error_details.assign(e.what());
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
@@ -1212,10 +1255,10 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
 
 void iota::AdminService::start_plugin(std::string& resource,
                                       std::string& plugin_name) {
-	/*
+  /*
   boost::shared_ptr<pion::http::plugin_server> w_s = _web_server.lock();
   w_s->load_service(resource, plugin_name);
-	*/
+  */
 }
 
 int iota::AdminService::create_response(
@@ -1243,7 +1286,7 @@ int iota::AdminService::create_response(
       response.assign(content);
     }
   }
-  else if (response.empty() && !content.empty()){
+  else if (response.empty() && !content.empty()) {
     response.assign(content);
   }
 
@@ -1364,9 +1407,9 @@ void iota::AdminService::get_info_agent(iota::RestHandle* agent,
 
 
   // Admin no
-	//
+  //
   if (agent->get_resource().compare(get_resource()) == 0) {
-		IOTA_LOG_DEBUG(m_log, "Stats " << get_resource());
+    IOTA_LOG_DEBUG(m_log, "Stats " << get_resource());
   }
   JsonValue obj_resource;
   obj_resource.SetObject();
@@ -1403,33 +1446,20 @@ boost::posix_time::ptime iota::AdminService::get_local_time_from_timezone(
 
 bool iota::AdminService::validate_json_schema(
   const std::string& json_str,
-  const boost::shared_ptr<iota::Collection>& table,
-  const std::string& method,
+  std::string& schema,
   std::string& response) {
 
   std::ostringstream errorSTR;
   int count=0;
-  std::string json_schema;
   bool res = true;
 
 #if defined LIBVARIANT
 
-  json_schema = table->getSchema(method);
-  if (json_schema.empty()) {
-    std::string err = "validate_json_schema for ";
-    err.append(table->getBBDD());
-    err.append(" is not implemented");
-    IOTA_LOG_DEBUG(m_log, err);
-    response.assign(err);
-    return false;
-  }
-
   IOTA_LOG_DEBUG(m_log, "json:" << json_str);
-  IOTA_LOG_DEBUG(m_log, "jsonschema:" << table->getBBDD());
 
   try {
     libvariant::Variant data = libvariant::DeserializeGuess(json_str);
-    libvariant::Variant schema_data = libvariant::DeserializeGuess(json_schema);
+    libvariant::Variant schema_data = libvariant::DeserializeGuess(schema);
     libvariant::AdvSchemaLoader loader5;
     libvariant::SchemaResult result = libvariant::SchemaValidate(
                                         schema_data,
@@ -1464,6 +1494,7 @@ bool iota::AdminService::validate_json_schema(
 #endif // defined
   return res;
 }
+
 
 std::string iota::AdminService::check_json(const std::string& json_str,
     JsonDocument& doc) {
@@ -1518,8 +1549,8 @@ int iota::AdminService::post_device_json(
     reason.assign(types::RESPONSE_MESSAGE_NO_SERVICE);
     code = types::RESPONSE_CODE_NO_SERVICE;
   }
-  else if (validate_json_schema(body, devTable,
-                                "POST", error_details)) {
+  else if (validate_json_schema(body, iota::AdminService::_POST_DEVICE_SCHEMA,
+                                error_details)) {
 
     mongo::BSONObj obj =  mongo::fromjson(body);
     std::vector<mongo::BSONElement> be = obj.getField(
@@ -1604,8 +1635,8 @@ int iota::AdminService::put_device_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, devTable,
-                                "PUT", error_details)) {
+  else if (validate_json_schema(body, iota::AdminService::_PUT_DEVICE_SCHEMA,
+                                error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
     if (setbo.nFields() ==0) {
       error_details.assign("empty body");
@@ -1646,7 +1677,8 @@ int iota::AdminService::put_device_json(
       }
       else {
         std::string new_device(device_id);
-        std::string new_device_json = setbo.getStringField(iota::store::types::DEVICE_ID);
+        std::string new_device_json = setbo.getStringField(
+                                        iota::store::types::DEVICE_ID);
         if (!new_device_json.empty()) {
           new_device.assign(new_device_json);
         }
@@ -1662,10 +1694,11 @@ int iota::AdminService::put_device_json(
           protocol_name = objDev.getStringField(iota::store::types::PROTOCOL);
           dev._protocol = protocol_name;
           deploy_device(dev);
-        }else{
+        }
+        else {
           PION_LOG_ERROR(m_log, "no device  in put " <<
-                    "service=" << service << " service_path=" <<
-                    service_path << " device=" << device_id );
+                         "service=" << service << " service_path=" <<
+                         service_path << " device=" << device_id);
         }
 
         //remove device from cache, to force reload new data
@@ -1741,7 +1774,7 @@ int iota::AdminService::get_all_devices_json(
                            "parameter detailed must be on or off",
                            http_response, response);
   }
-  if (limit >= 0){
+  if (limit >= 0) {
     devTable.find(INT_MIN, obj_query, limit, offset,
                   bson_sort.obj(), bson_fields);
     while (devTable.more()) {
@@ -1751,7 +1784,8 @@ int iota::AdminService::get_all_devices_json(
         res << ",";
       }
     }
-  }else{
+  }
+  else {
     IOTA_LOG_DEBUG(m_log, "no find, limit :" << limit);
   }
   res << "]}";
@@ -1852,14 +1886,13 @@ int iota::AdminService::post_service_json(
   int code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   std::string reason;
   std::string error_details;
-
   if (body.empty()) {
     error_details.assign("empty body");
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body,  table,
-                                "POST", error_details)) {
+  else if (validate_json_schema(body, iota::AdminService::_POST_SERVICE_SCHEMA,
+                                error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
     std::vector<mongo::BSONObj> be;
@@ -1932,8 +1965,8 @@ int iota::AdminService::put_service_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, table,
-                                "PUT", error_details)) {
+  else if (validate_json_schema(body, iota::AdminService::_PUT_SERVICE_SCHEMA,
+                                error_details)) {
     mongo::BSONObj setbo =  mongo::fromjson(body);
     if (setbo.nFields() ==0) {
       error_details.assign("empty body");
@@ -2029,7 +2062,7 @@ int iota::AdminService::get_all_services_json(
                            response);
   }
 
-  if (limit >= 0){
+  if (limit >= 0) {
     table->find(INT_MIN, p, limit, offset,
                 bson_sort.obj(), bson_fields);
     while (table->more()) {
@@ -2039,7 +2072,8 @@ int iota::AdminService::get_all_services_json(
         res << ",";
       }
     }
-  }else{
+  }
+  else {
     IOTA_LOG_DEBUG(m_log, "no find limit  : " << limit);
   }
   res << "]}";
@@ -2186,11 +2220,11 @@ void iota::AdminService::deploy_device(Device& device) {
 
       iota::CommandHandle* cmd_handle = dynamic_cast<iota::CommandHandle*>
                                         (it->second);
-      if (cmd_handle != NULL){
-          iota::ProtocolData pro = cmd_handle->get_protocol_data();
-          if (protocol_name.compare(pro.protocol) ==0) {
-            cmd_handle->send_register_device(device);
-          }
+      if (cmd_handle != NULL) {
+        iota::ProtocolData pro = cmd_handle->get_protocol_data();
+        if (protocol_name.compare(pro.protocol) ==0) {
+          cmd_handle->send_register_device(device);
+        }
       }
     }
     catch (std::exception& e) {

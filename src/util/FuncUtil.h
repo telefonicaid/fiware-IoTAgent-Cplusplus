@@ -35,6 +35,7 @@
 #include <string>
 #include <pion/http/response.hpp>
 #include <pion/http/request.hpp>
+#include <mongo/bson/bson.h>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/asio.hpp>
@@ -62,7 +63,8 @@ std::string make_query_string(std::multimap<std::string, std::string>&
                                     query_parameters);
 void check_fiware_service_name(std::string& header_fiware_service);
 void check_fiware_service_path_name(std::string& header_fiware_service_path);
-void check_name(std::string& name);
+bool check_forbidden_characters(std::string forbidden, std::string& str);
+bool check_forbidden_characters(mongo::BSONObjBuilder& in_bson_builder);
 std::string http2string(pion::http::request& req);
 void writeDictionaryTerm(std::ostringstream& os, const pion::ihash_multimap::value_type& val);
 };

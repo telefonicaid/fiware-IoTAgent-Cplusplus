@@ -334,8 +334,43 @@ void iota::check_fiware_service_path_name(std::string&
     throw iota::IotaException(reason, details, code);
   }
 };
-void iota::check_name(std::string& name) {
+
+bool iota::check_forbidden_characters(std::string forbidden, std::string& str) {
+  bool has_forbidden = false;
+  if (str.find_first_of(forbidden) != std::string::npos) {
+    has_forbidden = true;
+  }
+  return has_forbidden;
 };
+
+bool iota::check_forbidden_characters(mongo::BSONObjBuilder& in_bson_builder) {
+ bool has_forbidden = false;
+ mongo::BSONObj in_copy_bson = in_bson_builder.asTempObj();
+ for (mongo::BSONObjIterator i_obj = in_copy_bson.begin(); i_obj.more();) {
+   mongo::BSONElement e_obj = i_obj.next();
+   std::string value_str = e_obj.valuestrsafe();
+   if (e_obj.type() != mongo::EOO && e_obj.type() != mongo::Object &&
+       e_obj.type() != mongo::Array) {
+       has_forbidden = has_forbidden || check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, value_str);
+   }
+   else if (e_obj.type() != mongo::EOO && e_obj.type() == mongo::Object) {
+     mongo::BSONObj obj_obj = e_obj.Obj();
+     mongo::BSONObjBuilder bb;
+     bb.appendElements(obj_obj);
+     has_forbidden = has_forbidden || check_forbidden_characters(bb);
+   }
+   else if (e_obj.type() != mongo::EOO && e_obj.type() == mongo::Array) {
+     std::vector<mongo::BSONElement> array_obj = e_obj.Array();
+     for (int i = 0; i< array_obj.size(); i++) {
+       mongo::BSONObj obj_obj = array_obj[i].Obj();
+       mongo::BSONObjBuilder bb;
+       bb.appendElements(obj_obj);
+       has_forbidden = has_forbidden || check_forbidden_characters(bb);
+     }
+   }
+ }
+ return has_forbidden;
+}
 
 void iota::writeDictionaryTerm(std::ostringstream& os, const pion::ihash_multimap::value_type& val) {
 	os << val.first << ": " << val.second
@@ -346,13 +381,13 @@ std::string iota::http2string(pion::http::request& req) {
 	std::ostringstream os;
 	os << "Method: " << req.get_method()
 		 << pion::http::types::STRING_CRLF
-	   << "HTTP Version:  " << req.get_version_major() << "." << req.get_version_minor() 
+	   << "HTTP Version:  " << req.get_version_major() << "." << req.get_version_minor()
 		 << pion::http::types::STRING_CRLF
 		 << "Resource requested: "
 	   << req.get_original_resource()
 		 << pion::http::types::STRING_CRLF
-		 << "Resource delivered: " 
-		 << req.get_resource() 
+		 << "Resource delivered: "
+		 << req.get_resource()
 		 << pion::http::types::STRING_CRLF
 		 << "Query string "
 		 << req.get_query_string()

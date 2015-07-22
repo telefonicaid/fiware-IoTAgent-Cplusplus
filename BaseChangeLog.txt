@@ -2,6 +2,7 @@
 - FEATURE IDAS-20524: Add metadatas to attributes in device provision.
 - FEATURE IDAS-20527: Manager add error field ("errors") when agent fails.
 - FEATURE IDAS-20539: Protocol Description change and can be modified in configuration file.
+- FEATURE IDAS-20526: Forbidden characters in API provision.
 - FIX IDAS-20544: Cannot remove cbroker url with PUT service.
 - FIX IDAS-20548: IoTA crash in statistics.
 - FIX IDAS-20542: IoTA PEP dont check uri to define a resource.

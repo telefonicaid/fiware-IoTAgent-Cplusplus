@@ -1,0 +1,189 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "Service",
+  "description": "A service",
+  "additionalProperties": false,
+  "type": "object",
+  "properties": {
+    "services": {
+      "type": "array",
+      "id": "services",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "id": "0",
+        "properties": {
+          "entity_type": {
+            "description": "default entity_type, if a device has not got entity_type uses this",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "type": "string"
+          },
+          "apikey": {
+            "description": "apikey",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "type": "string"
+          },
+          "token": {
+            "description": "token",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "type": "string"
+          },
+          "cbroker": {
+            "description": "uri for the context broker",
+            "type": "string",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "format": "uri",
+            "minLength": 1
+          },
+          "outgoing_route": {
+            "description": "VPN/GRE tunnel identifier",
+            "pattern": "^([^<>();'=\"]+)+$",
+            "type": "string"
+          },
+          "resource": {
+            "description": "uri for the iotagent",
+            "type": "string",
+            "pattern": "^(/[^<>();'=\"]+)+$"
+          },
+          "attributes": {
+            "type": "array",
+            "id": "attributes",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "id": "0",
+              "properties": {
+                "object_id": {
+                  "description": "The unique identifier by service for a device",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Name of the entity, if it does not exits use device_id",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "type of the entity",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "metadatas": {
+                  "type": "array",
+                  "id": "metadatas",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "id": "0",
+                    "properties": {
+                      "value": {
+                        "description": "Value assigned to metadata",
+                        "type": "string",
+                        "pattern": "^([^<>();'=\"]+)+$",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "description": "Name of metadata",
+                        "type": "string",
+                        "pattern": "^([^<>();'=\"]+)+$",
+                        "minLength": 1
+                      },
+                      "type": {
+                        "description": "type of metadata",
+                        "type": "string",
+                        "pattern": "^([^<>();'=\"]+)+$",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type",
+                      "value"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "object_id",
+                "type",
+                "name"
+              ]
+            }
+          },
+          "static_attributes": {
+            "type": "array",
+            "id": "static_attributes",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "id": "0",
+              "properties": {
+                "value": {
+                  "description": "The unique identifier by service for a device",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Name of the entity, if it does not exists use device_id",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "type": {
+                  "description": "type of the entity",
+                  "pattern": "^([^<>();'=\"]+)+$",
+                  "type": "string"
+                },
+                "metadatas": {
+                  "type": "array",
+                  "id": "metadatas",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "id": "0",
+                    "properties": {
+                      "value": {
+                        "description": "Value assigned to metadata",
+                        "type": "string",
+                        "pattern": "^([^<>();'=\"]+)+$",
+                        "minLength": 1
+                      },
+                      "name": {
+                        "description": "Name of metadata",
+                        "type": "string",
+                        "pattern": "^([^<>();'=\"]+)+$",
+                        "minLength": 1
+                      },
+                      "type": {
+                        "description": "type of metadata",
+                        "type": "string",
+                        "pattern": "^([^<>();'=\"]+)+$",
+                        "minLength": 1
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "type",
+                      "value"
+                    ]
+                  }
+                }
+              },
+              "required": [
+                "value",
+                "type",
+                "name"
+              ]
+            }
+          }
+        },
+        "required": [
+          "apikey",
+          "resource"
+        ]
+      }
+    }
+  },
+  "required": [
+    "services"
+  ]
+}

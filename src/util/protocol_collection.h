@@ -59,9 +59,6 @@ class ProtocolCollection : public Collection {
      **/
     void fillProtocols(std::map<std::string,std::string> &protocols);
 
-    virtual const std::string &getPostSchema() const;
-    virtual const std::string &getPutSchema() const;
-
     std::vector<iota::Protocol> get_endpoint_by_protocol(std::string protocol);
 
   protected:
@@ -71,9 +68,6 @@ class ProtocolCollection : public Collection {
     mongo::BSONObj Obj2BSON(const Protocol& protocol, bool withShardKey);
 
   private:
-
-    static const std::string _PUT_SCHEMA;
-    static const std::string _POST_SCHEMA;
 
 }; // end class ProtocolCollection
 

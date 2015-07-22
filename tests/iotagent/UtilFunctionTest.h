@@ -52,6 +52,8 @@ class UtilFunctionTest: public CppUnit::TestFixture  {
     CPPUNIT_TEST(testAlarm);
     CPPUNIT_TEST(testPtree2String);
 
+    // forbidden characters
+    CPPUNIT_TEST(testForbiddenCharacters);
     CPPUNIT_TEST_SUITE_END();
   public:
     void setUp() {};
@@ -82,5 +84,7 @@ class UtilFunctionTest: public CppUnit::TestFixture  {
     void testAlarm();
     void testPtree2String();
 
+    // Forbiden characters
+    void testForbiddenCharacters();
 };
 #endif

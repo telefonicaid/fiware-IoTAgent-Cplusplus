@@ -445,11 +445,17 @@ class AdminService :
     virtual std::string get_class_name();
     virtual std::string get_role(){ return ""; };
 
+    void read_schema(std::string file_name, std::string& schema);
+
     bool validate_json_schema(
       const std::string& json_str,
-      const boost::shared_ptr<iota::Collection>& table,
-      const std::string& method,
+      std::string& schema,
       std::string& response);
+
+    static std::string _PUT_DEVICE_SCHEMA;
+    static std::string _POST_DEVICE_SCHEMA;
+    static std::string _PUT_SERVICE_SCHEMA;
+    static std::string _POST_SERVICE_SCHEMA;
 
   private:
 

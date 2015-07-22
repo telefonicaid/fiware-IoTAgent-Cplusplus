@@ -979,29 +979,9 @@ void iota::Collection::ensureIndex(
 
 }*/
 
-const std::string & iota::Collection::getPostSchema() const {
-  return _EMPTY;
-}
-
-const std::string & iota::Collection::getPutSchema() const {
-  return _EMPTY;
-}
 
 std::string iota::Collection::get_endpoint(){
      return MongoConnection::instance()->get_endpoint();
-}
-
-const std::string& iota::Collection::getSchema(const std::string& method) const {
-  std::ostringstream schema;
-
-
-  if (method.compare("POST") == 0) {
-    return getPostSchema();
-  }
-  else {
-    return getPutSchema();
-  }
-
 }
 
 void iota::Collection::reconnect(){

@@ -40,9 +40,7 @@ class TestPlugin:
 
 class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(AdminTest);
-
-    CPPUNIT_TEST(testValidationSchema);
-    /*CPPUNIT_TEST(testGetConf);
+    CPPUNIT_TEST(testGetConf);
     CPPUNIT_TEST(testGetAgents);
     CPPUNIT_TEST(testTimezones);
     //CPPUNIT_TEST(testCsvProvision);
@@ -50,7 +48,6 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     //TODO se comenta para que no este cam,biando el ficherode conf todo el rato CPPUNIT_TEST(testReload);
 
     CPPUNIT_TEST(testPostBadContentType);
-
     CPPUNIT_TEST(testPostDevice);
     CPPUNIT_TEST(testPostService);
     CPPUNIT_TEST(testPostService2);
@@ -70,8 +67,8 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testHttpMessages);
     CPPUNIT_TEST(testConversionMap);
     CPPUNIT_TEST(testAuthInfo);
-    CPPUNIT_TEST(testConfiguratorMongo);*/
-
+    CPPUNIT_TEST(testConfiguratorMongo);
+    CPPUNIT_TEST(testForbiddenCharacters);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -166,10 +163,6 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
 
   private:
 
-    void testValidationSchema();
-    std::string  validationSchema(const std::string& json_str,
-                                  const std::string& json_schema );
-
     void testGetConf();
     void testPostConf();
     void testGetAgents();
@@ -206,6 +199,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     void testConversionMap();
     void testAuthInfo();
     void testConfiguratorMongo();
+    void testForbiddenCharacters();
 
     iota::AdminService* adm;
     pion::http::plugin_server_ptr wserver;

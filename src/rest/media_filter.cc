@@ -50,10 +50,10 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
 
 
   bool allowed = true;
-
+  std::string resource = http_request_ptr->get_resource();
   IOTA_LOG_DEBUG(m_logger,
                  "MediaFilter handle_request " << http_request_ptr->get_header(
-                   iota::types::HEADER_TRACE_MESSAGES) << http_request_ptr->get_resource());
+                   iota::types::HEADER_TRACE_MESSAGES) << resource);
 
   unsigned int resu = iota::types::RESPONSE_CODE_OK;
 
@@ -68,14 +68,27 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
     if (http_request_ptr->get_resource().compare(iota::URL_BASE +
         iota::ADMIN_SERVICE_ABOUT) != 0 &&
         http_request_ptr->get_resource().compare(iota::URL_BASE +
-          iota::ADMIN_SERVICE_PROTOCOLS) != 0
+            iota::ADMIN_SERVICE_PROTOCOLS) != 0
        ) {
       iota::check_fiware_service_name(service);
       iota::check_fiware_service_path_name(service_path);
     }
 
+    // Checking for forbidden characters
+    std::string content(http_request_ptr->get_content());
+    bool forbidden =
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       service) ||
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       service_path) ||
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       resource);
+
+    if (forbidden == true) {
+      resu = iota::types::RESPONSE_CODE_FORBIDDEN_CHARACTERS;
+    }
     // Accept header
-    if (http_request_ptr->has_header(iota::types::IOT_HTTP_HEADER_ACCEPT)) {
+    if (!forbidden && http_request_ptr->has_header(iota::types::IOT_HTTP_HEADER_ACCEPT)) {
       std::string rec_accept = http_request_ptr->get_header(
                                  iota::types::IOT_HTTP_HEADER_ACCEPT);
 
@@ -89,7 +102,7 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
     }
 
     // Content-Type
-    std::string content(http_request_ptr->get_content());
+
     if (resu == iota::types::RESPONSE_CODE_OK
         && !content.empty()
         && http_request_ptr->has_header(pion::http::types::HEADER_CONTENT_TYPE)) {

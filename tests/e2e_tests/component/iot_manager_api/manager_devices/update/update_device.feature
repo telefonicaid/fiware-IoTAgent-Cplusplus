@@ -7,24 +7,23 @@ Feature: Manager API Device Update
     	Scenario Outline: Update data into device
     	Given a Service with name "<srv_name>", path "<srv_path>" and protocol "<protocol>" created
 		And a Device with name "<dev_id>", entity_name "<ent_name>", entity_type "<ent_type>", endpoint "<endpoint>", protocol "<protocol>" and atribute or command "<typ>", with name "<name>", type "<type>" and value "<value>" created
-		When I update the attribute "<attribute>" of device "<dev_id>" with value "<attr_value>"
+		When I update in manager the attribute "<attribute>" of device "<dev_id>" with value "<attr_value>"
         Then the device data contains attribute "<attribute>" with value "<attr_value>"
 		
 		Examples:
-			|srv_name		|srv_path			|dev_id		|ent_name	|ent_type	|endpoint			|protocol	|typ	|name		|type	|value	|attribute		|attr_value			|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put	|thing_put	|http://myurl:10	|IoTUL2		|attr	|t			|int	|temp	|entity_name	|room_put1			|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put1	|thing_put	|http://myurl:10	|IoTUL2		|attr	|t			|int	|temp	|entity_type	|thing_put1			|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put1	|thing_put1	|http://myurl:10	|IoTUL2		|attr	|t			|int	|temp	|endpoint		|http://myurl:100	|
-#			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|attr	|t			|int	|temp	|protocol		|IoTTT				|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|attr	|t			|int	|temp	|device_id		|devm_put1			|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|attr	|t			|int	|temp	|attr			|h#str:hum			|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|attr	|h			|str	|hum	|st_att			|t1#int:20			|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|attr	|h			|str	|hum	|st_att			|t2#int:200			|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|st_att	|t2			|int	|200	|cmd			|cmd_dev#cmd:ping	|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put2	|room_put2	|thing_put2	|http://myurl:200	|IoTUL2		|attr	|t2			|int	|temp2	|cmd			|cmd_dev2#cmd:ping	|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put2	|room_put2	|thing_put2	|http://myurl:200	|IoTUL2		|attr	|t2			|int	|temp2	|cmd			|cmd_dev2#cmd:ping2	|
-			|srv_devm_put	|/path_srv_devm_put	|devm_put2	|room_put2	|thing_put2	|http://myurl:200	|IoTUL2		|cmd	|cmd_dev2	|cmd	|ping2	|st_att			|t3#int:300			|
-			|srv_devm_put	|void				|devm_put	|room_put	|thing_put	|http://myurl:10	|IoTUL2		|attr	|t			|int	|temp	|st_att			|t1#int:20			|
+			|srv_name		|srv_path			|dev_id		|ent_name	|ent_type	|endpoint			|protocol	|typ		|name		|type	|value	|attribute		|attr_value			|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put	|thing_put	|http://myurl:10	|IoTUL2		|dev_attr	|t			|int	|temp	|entity_name	|room_put1			|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put1	|thing_put	|http://myurl:10	|IoTUL2		|dev_attr	|t			|int	|temp	|entity_type	|thing_put1			|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put1	|thing_put1	|http://myurl:10	|IoTUL2		|dev_attr	|t			|int	|temp	|endpoint		|http://myurl:100	|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|dev_attr	|t			|int	|temp	|device_id		|devm_put1			|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|dev_attr	|t			|int	|temp	|dev_attr		|h#str:hum			|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|dev_attr	|h			|str	|hum	|dev_st_att		|t1#int:20			|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|dev_attr	|h			|str	|hum	|dev_st_att		|t2#int:200			|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put1	|room_put1	|thing_put1	|http://myurl:100	|IoTUL2		|dev_st_att	|t2			|int	|200	|cmd			|cmd_dev#cmd:ping	|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put2	|room_put2	|thing_put2	|http://myurl:200	|IoTUL2		|dev_attr	|t2			|int	|temp2	|cmd			|cmd_dev2#cmd:ping	|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put2	|room_put2	|thing_put2	|http://myurl:200	|IoTUL2		|dev_attr	|t2			|int	|temp2	|cmd			|cmd_dev2#cmd:ping2	|
+			|srv_devm_put	|/path_srv_devm_put	|devm_put2	|room_put2	|thing_put2	|http://myurl:200	|IoTUL2		|cmd		|cmd_dev2	|		|ping2	|dev_st_att		|t3#int:300			|
+			|srv_devm_put	|void				|devm_put	|room_put	|thing_put	|http://myurl:10	|IoTUL2		|dev_attr	|t			|int	|temp	|dev_st_att		|t1#int:20			|
 
     	@iot_manager_api @IDAS-20458 
     	Scenario Outline: Update device data with invalid fields
@@ -38,9 +37,6 @@ Feature: Manager API Device Update
 			|srv_devm_put	|/path_srv_devm_put1 |devm_put1	|IoTUL2		|entity_name	|room_put1	|404			|there aren't iotagents for this operation		|
 			|srv_devm_put	|/path_srv_devm_put	 |devm_put3	|IoTUL2		|entity_name	|room_put3	|404			|The device does not exist						|
 			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|entity_name	|room_put2	|409			|entity already exists							|
-#			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|protocol		|IoTMqtt	|400			|There are conflicts, protocol is not correct	|
-#			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|protocol		|IoTUnknown	|400			|There are conflicts, protocol is not correct	|
-#			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|protocol		|			|400			|There are conflicts, protocol is not correct	|
 			|srv_devm_put	|/path_srv_devm_put	 |			|IoTUL2		|entity_name	|room_put1	|404			|												|
 			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|				|			|400			|Additional properties not allowed. [/]			|
 			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|empty_json		|			|400			|empty body										|

@@ -7,6 +7,7 @@
     "timeout": 1,
     "dir_log": "/tmp/",
     "timezones": "/etc/iot/date_time_zonespec.csv",
+    "schema_path": "../../schema",
     "storage": {
         "host": "nohost",
         "type": "mongodb",

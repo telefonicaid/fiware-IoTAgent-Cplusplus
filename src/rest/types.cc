@@ -69,65 +69,8 @@ const std::string types::CONF_FILE_PEP_RULES("pep_rules");
 const std::string types::CONF_FILE_PEP_RULES_URI("uri");
 const std::string types::CONF_FILE_PEP_RULES_ACTION("action");
 const std::string types::CONF_FILE_PEP_RULES_VERB("verb");
-
+const std::string types::CONF_FILE_SCHEMA_PATH("schema_path");
 // Errors
-/////////////
-
-/******
- *  @name General Errors
- *
- *  @brief The following errors are general and can occur when using any component.
- **/
-
-
-
-/******
- *  @name Database Errors
- *
- *  @brief These errors are specific to the database errors (mongodb)
- **/
-
-/**  every exception except mongodb::Exception
- *
- *  an example, if the database is with auth
- *  {"reason":"Database error","details":"error: SERVICE: { service: serv22, service_path: /srf1 } what=count fails:{ ok: 0.0, errmsg: not authorized on iot to execute command { count: SERVICE, query: { service: serv22, service_path: /srf1 } }, code: 13 }"}
- */
-const std::string types::RESPONSE_MESSAGE_DATABASE_ERROR("Database error");
-
-/**  duplicate data exception   mongodb code 11000  or 11001
- *
- *  an example, if the database is with auth
- *  {"reason":"Database error","details":"error: SERVICE: { service: serv22, service_path: /srf1 } what=count fails:{ ok: 0.0, errmsg: not authorized on iot to execute command { count: SERVICE, query: { service: serv22, service_path: /srf1 } }, code: 13 }"}
- */
-const std::string
-types::RESPONSE_MESSAGE_DUPLICATED_DATA("There are conflicts, object already exists");
-
-
-
-/******
- *  @name Protocol Errors
- *
- *  @brief These errors are specific to the communication protocol used (http, MQTT, ...)
- **/
-
-
-
-/******
- *  @name Iotagent Errors
- *
- *  @brief These errors are specific to the iotagent, its configuration or operation
- **/
-
-/******
- *  @name Fiware Errors
- *
- *  @brief These errors are general to fiware applications.
- **/
-
-
-
-
-
 const std::string types::MULTIPART_ERROR("Multipart content error");
 
 //
@@ -203,6 +146,8 @@ types::RESPONSE_MESSAGE_NO_DEVICE("The device does not exist");
 const std::string
 types::RESPONSE_MESSAGE_MORE_ONE_SERVICE("There are conflicts in provisioned service");
 
+const std::string
+types::RESPONSE_MESSAGE_DUPLICATED_DATA("There are conflicts, object already exists");
 
 const std::string
 types::RESPONSE_MESSAGE_BAD_PROTOCOL("There are conflicts, protocol is not correct");
@@ -215,14 +160,16 @@ const std::string types::REASON_MALFORMED_DATA("Malformed data");
 
 const std::string types::DETAILS_HEADER_FIWARE_SERVICE("Fiware-Service not accepted - a service string must not be longer than 50 characters and may only contain underscores and alphanumeric characters and lowercase");
 const std::string types::DETAILS_HEADER_FIWARE_SERVICE_PATH("Fiware-ServicePath not accepted - a service path string must only contain underscores and alphanumeric characters and starts with character /");
-
+const std::string types::DETAILS_FORBIDDEN_CHARACTERS("Forbidden characters");
 
 const std::string
-types::RESPONSE_MESSAGE_INTERNAL_ERROR("Contact with your administrator, there was an internal error");
+types::RESPONSE_MESSAGE_INTERNAL_ERROR("Conctact with your administrator, there was an internal error");
+const std::string types::RESPONSE_MESSAGE_DATABASE_ERROR("Database error");
 
 const std::string
 types::RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS("There are conflicts, entity already exists");
 
+const std::string types::IOTA_FORBIDDEN_CHARACTERS("<>\"'=;()");
 
 const unsigned int types::RESPONSE_CODE_NONE = 0;
 const unsigned int types::RESPONSE_CODE_OK = 200;
@@ -258,7 +205,7 @@ const unsigned int types::RESPONSE_CODE_DATA_NOT_FOUND  =404;
 // Special codes
 const unsigned int types::RESPONSE_CODE_FIWARE_SERVICE_ERROR = 1000;
 const unsigned int types::RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR = 1001;
-
+const unsigned int types::RESPONSE_CODE_FORBIDDEN_CHARACTERS = 1002;
 
 ///ALARMS
 const unsigned int types::ALARM_CODE_NO_MONGO = 100;

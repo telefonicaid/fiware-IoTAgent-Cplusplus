@@ -164,7 +164,6 @@ void UtilFunctionTest::testRegexPattern() {
   url.assign("/iot/ngsi/<protocol>/updateContext");
   filters["method"] = "POST";
   iota::format_pattern(url, filters, url_regex, url_args);
-  std::cout << "REGEX PEP " << url_regex << std::cout;
 }
 
 void UtilFunctionTest::testStatistic() {
@@ -751,6 +750,39 @@ void UtilFunctionTest::testPtree2String() {
   CPPUNIT_ASSERT_MESSAGE("float bad ",f == comparaf);
   CPPUNIT_ASSERT_MESSAGE("float2 bad ",f2 == comparaf);
   CPPUNIT_ASSERT_MESSAGE("alarms clean ",active == false);
+
+}
+
+void UtilFunctionTest::testForbiddenCharacters() {
+  std::string no_forbidden("This string has not forbidden characters");
+  std::string with_minor("This string < use minor");
+  std::string with_major("This>use major");
+  std::string with_double_quotes("This ha\"s double quotes");
+  std::string with_single_quotes("This doesn't single quotes");
+  std::string with_equal("six=two*3");
+  std::string with_semicolon("one;two;three");
+  std::string with_left_parenthesis("This string (for example");
+  std::string with_right_parenthesis("This string for example)");
+  CPPUNIT_ASSERT_MESSAGE(no_forbidden, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden) == false);
+  CPPUNIT_ASSERT_MESSAGE(with_minor, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor) == true);
+  CPPUNIT_ASSERT_MESSAGE(with_minor, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor) == true);
+  CPPUNIT_ASSERT_MESSAGE(with_double_quotes, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_double_quotes) == true);
+  CPPUNIT_ASSERT_MESSAGE(with_single_quotes, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_single_quotes) == true);
+  CPPUNIT_ASSERT_MESSAGE(with_semicolon, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_semicolon) == true);
+  CPPUNIT_ASSERT_MESSAGE(with_left_parenthesis, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_left_parenthesis) == true);
+  CPPUNIT_ASSERT_MESSAGE(with_right_parenthesis, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_right_parenthesis) == true);
+
+  // Checking operator
+  bool forbidden = iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
+  CPPUNIT_ASSERT(forbidden == false);
+  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
+  CPPUNIT_ASSERT(forbidden == false);
+  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor);
+  CPPUNIT_ASSERT(forbidden == true);
+  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
+  CPPUNIT_ASSERT(forbidden == true);
+  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor);
+  CPPUNIT_ASSERT(forbidden == true);
 
 }
 

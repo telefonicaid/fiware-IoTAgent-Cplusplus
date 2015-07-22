@@ -52,9 +52,6 @@ class DeviceCollection : public Collection {
 
     int createTableAndIndex();
 
-    virtual const std::string &getPostSchema() const;
-    virtual const std::string &getPutSchema() const;
-
   protected:
 
     Device BSON2Obj(mongo::BSONObj& obj);
@@ -80,10 +77,6 @@ class DeviceCollection : public Collection {
 
 
   private:
-
-    static const std::string _PUT_SCHEMA;
-    static const std::string _POST_SCHEMA;
-
 }; // end class DeviceCollection
 
 }// end namespace  riot

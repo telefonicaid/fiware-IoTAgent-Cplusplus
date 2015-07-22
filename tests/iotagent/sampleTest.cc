@@ -111,6 +111,7 @@ void SampleTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
      <<   "\"timeout\": 1,"
      <<   "\"dir_log\": \"/tmp/\","
      <<   "\"timezones\": \"/etc/iot/date_time_zonespec.csv\","
+     <<   "\"schema_path\": \"../../schema\","
      <<   "\"storage\": {"
      <<   "\"host\": \"127.0.0.1\","
      <<   "\"type\": \"" <<  type << "\","
