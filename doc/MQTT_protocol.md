@@ -67,7 +67,7 @@ mosquitto -d -c <path to config file>
 - When installed from our RPM: typically, the path to config file will be _/etc/iot/mosquitto.conf_. ACL will be enabled.
 - When built from source: the path is _/etc/mosquitto.conf_ or wherever the mosquitto.conf coming with Mosquitto is placed. Alternatively, you could use this file if ACL is not required. 
 
-_Note:_ ideally, Mosquitto broker should be always running in background, so you can check with your system administrator how to do so, using an init.d service for instance. 
+__Note:__ ideally, Mosquitto broker should be always running in background, so you can check with your system administrator how to do so, using an init.d service for instance. 
 
 #### Configuration Files.
 The basic configuration file for the IoTAgent is the config.json. Here you have to explicitly state what plugins are going to be deployed. There are also other important files to configure, so let's get into each one.
