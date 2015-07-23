@@ -98,7 +98,7 @@
             "pattern": "^([^<>();'=\"]+)+$",
             "minLength": 1
           },
-          "type     ": {
+          "type": {
             "description": "type of the entity",
             "type": "string",
             "pattern": "^([^<>();'=\"]+)+$",
