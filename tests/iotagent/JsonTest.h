@@ -28,6 +28,7 @@ class JsonTest: public CppUnit::TestFixture  {
 
     CPPUNIT_TEST_SUITE(JsonTest);
 
+    CPPUNIT_TEST(testConversionUpdateContext);
     CPPUNIT_TEST(testContextElement);
     CPPUNIT_TEST(testContext);
     CPPUNIT_TEST(testResponse);
@@ -46,6 +47,7 @@ class JsonTest: public CppUnit::TestFixture  {
     void tearDown() {};
   protected:
 
+    void testConversionUpdateContext();
     void testContextElement();
     void testContext();
     void testResponse();

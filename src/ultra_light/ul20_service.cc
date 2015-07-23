@@ -662,8 +662,8 @@ void iota::UL20Service::send_optional_registration(std::string device,
 }
 
 void iota::UL20Service::transform_command(const std::string& command_name,
-    const std::string& command_value,
-    const std::string& updateCommand_value,
+    const std::string& a_command_value,
+    const std::string& a_updateCommand_value,
     const std::string& sequence_id,
     const boost::shared_ptr<Device>& item_dev,
     const boost::property_tree::ptree& service,
@@ -672,6 +672,13 @@ void iota::UL20Service::transform_command(const std::string& command_name,
 
   std::string command_http_response_translate, result;
   std::string key = "|";
+
+  // avoid " "
+  std::string command_value(a_command_value);
+  std::string updateCommand_value(a_updateCommand_value);
+  boost::trim(command_value);
+  boost::trim(updateCommand_value);
+
   IOTA_LOG_DEBUG(m_logger,
                  "transform_command:: " << command_value << " updateCommand_value:" <<
                  updateCommand_value);
@@ -687,10 +694,11 @@ void iota::UL20Service::transform_command(const std::string& command_name,
     result.append(item_dev->_name);
     result.append("@");
     result.append(command_name);
-    if (!boost::starts_with(key, updateCommand_value)) {
-      result.append(key);
-    }
     if (!updateCommand_value.empty()){
+      if (!boost::starts_with(key, updateCommand_value)) {
+        result.append(key);
+      }
+
       result.append(updateCommand_value);
     }
     command_line.put(iota::store::types::BODY, result);
