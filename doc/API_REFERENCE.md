@@ -2,6 +2,7 @@ FORMAT: 1A
 
 # IoT Agent Provision API Documentacion
 The IoT Agent Provision API is based on REST principles. This documentation covers the resources you can manipulate on IoT Agent in order to publish custom information in IoT Platform.
+For more information about what particular error messages are returned by each method, please check [this document](errors.md).
 
 **Allowed HTTPs requests:**
 
@@ -32,6 +33,9 @@ When an error is returned, a representation is returned as:
   "details": "contains specific information about the error, if possible"
 }
 ```
+
+For more detailed information about what particular error messages are returned per operation, check this [document](errors.md)
+
 
 ## Authentication and Authorization
 If IoT Agent is in authenticated environment, this API requires a token, which you obtain from authentication system. This system and its API is out of scope of present documentation. In this environment, a mandatory header is needed: `X-Auth-Token`.
@@ -162,7 +166,6 @@ With one subservice defined in Fiware-ServicePath header. From service model, ma
              }
 
 + Response 201
-
 
 ### Update a service/subservice [PUT]
 If you want modify only a field, you can do it. You cannot modify an element into an array field, but whole array. ("/*" is not allowed).
@@ -339,6 +342,11 @@ From device model, mandatory fields are: device_id and protocol.
             }
 
 + Response 404
+
+When service does not exist:
+```
+{"reason":"The service does not exist","details":" service:serv22 service_path:/srf"}
+```
 
 
 ## Device [/devices/{device_id}]

@@ -28,6 +28,13 @@
 #include <string>
 #include <sstream>
 
+#if defined LIBVARIANT
+
+#include <Variant/Schema.h>
+#include <Variant/SchemaLoader.h>
+
+#endif // defined
+
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "util/iota_exception.h"
@@ -1708,6 +1715,101 @@ void  AdminTest::testcheck_device_protocol() {
 
   std::cout << "END@UT@START testAbout" << std::endl;
 }
+
+
+void  AdminTest::testValidationSchema() {
+  std::cout << "START@UT@START testValidationSchema" << std::endl;
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  std::string errorSTR;
+  errorSTR = validationSchema("{\"miregex\":\"cat\"}", "^c.t$");
+  std::cout << "@UT1@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.compare("validation ok") == 0);
+
+  errorSTR = validationSchema("{\"miregex\":\"cat_\"}", "^c.t$");
+  std::cout << "@UT2@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.compare("String does not match pattern \"^c.t$\" [/miregex]") == 0);
+
+  errorSTR = validationSchema("{\"miregex\":\"cat\"}", "^[0-9a-zA-Z_]+$");
+  std::cout << "@UT3@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.compare("validation ok") == 0);
+
+  errorSTR = validationSchema("{\"miregex\":\"cat'\"}", "^[0-9a-zA-Z_]+$");
+  std::cout << "@UT4@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.compare("String does not match pattern \"^[0-9a-zA-Z_]+$\" [/miregex]") == 0);
+
+  std::string patter_no_comi="[^';:";
+  //patter_no_comi += "\"";
+  patter_no_comi += "]+$";
+  errorSTR = validationSchema("{\"miregex\":\"cat\"}", patter_no_comi);
+  std::cout << "@UT5@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.compare("validation ok") == 0);
+
+  std::string json = "{\"miregex\":\"cat";
+  json += "'";
+  json.append("\"}");
+  errorSTR = validationSchema(json, patter_no_comi);
+  std::cout << "@UT6@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.find("String does not match pattern") != std::string::npos);
+
+
+  errorSTR = validationSchema("{\"miregex\":\"/p\"}", "^/");
+  std::cout << "@UT7@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.compare("validation ok") == 0);
+
+  errorSTR = validationSchema("{\"miregex\":\"p\"}", "^/");
+  std::cout << "@UT8@" << errorSTR << std::endl;
+  CPPUNIT_ASSERT(errorSTR.compare("String does not match pattern \"^/\" [/miregex]") == 0);
+
+  std::cout << "END@UT@START testValidationSchema" << std::endl;
+}
+
+std::string  AdminTest::validationSchema(const std::string& json_str,
+                                  const std::string& pattern ) {
+
+  std::string errorSTR;
+
+  std::string json_schema("{\"$schema\": \"http://json-schema.org/draft-04/schema\","
+        "\"type\":\"object\","
+        "\"additionalProperties\":false,"
+        "\"properties\":{"
+                "\"miregex\":{"
+                        "\"type\":\"string\","
+                        "\"pattern\":\"");
+
+  json_schema.append(pattern);
+  json_schema.append( "\"}}}");
+
+  std::cout << "data:" << json_str << std::endl;
+  std::cout << "schema:" << json_schema << std::endl;
+
+  libvariant::Variant data = libvariant::DeserializeGuess(json_str);
+    libvariant::Variant schema_data = libvariant::DeserializeGuess(json_schema);
+    libvariant::AdvSchemaLoader loader5;
+    libvariant::SchemaResult result = libvariant::SchemaValidate(
+                                        schema_data,
+                                        data, &loader5);
+    if (result.Error()) {
+      std::string validation_error("Malformed data");
+      std::string data_path;
+      try {
+        validation_error = result.GetErrors().at(0).GetMessage();
+        data_path = result.GetErrors().at(0).GetDataPathStr();
+      }
+      catch (std::exception& e) {}
+      errorSTR.append( validation_error );
+      errorSTR.append( " [").append(data_path).append("]");
+    }
+    else {
+      errorSTR.append("validation ok");
+    }
+
+ return errorSTR;
+}
+
 
 void AdminTest::testBADConfigurator() {
   std::cout << "START apiKeyTest testBADConfigurator" << std::endl;

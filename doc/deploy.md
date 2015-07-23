@@ -405,7 +405,7 @@ You can change for your specific values and use these files.
             "resource": "/iot/mqtt",
             "options": {
                 "ConfigFile": "ESPService.xml",
-                "FileName": "IoTAgent-mqtt"
+                "FileName": "MqttService"
             }
            }
         ],
@@ -462,7 +462,7 @@ You can change for your specific values and use these files.
             "resource": "/iot/mqtt",
             "options": {
                 "ConfigFile": "ESPService.xml",
-                "FileName": "IoTAgent-mqtt"
+                "FileName": "MqttService"
             },
             "services": [
                     {
