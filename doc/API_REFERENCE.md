@@ -34,6 +34,9 @@ When an error is returned, a representation is returned as:
 }
 ```
 
+For more detailed information about what particular error messages are returned per operation, check this [document](errors.md)
+
+
 ## Authentication and Authorization
 If IoT Agent is in authenticated environment, this API requires a token, which you obtain from authentication system. This system and its API is out of scope of present documentation. In this environment, a mandatory header is needed: `X-Auth-Token`.
 

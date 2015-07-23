@@ -32,7 +32,7 @@ When an error is returned, a representation is returned as:
 }
 ```
 
-### Create a service [POST]
+### Create a service [POST] (IotAgent API)
 With one subservice defined in Fiware-ServicePath header. From service model, mandatory fields are: apikey, resource (cbroker field is temporary mandatory).
 
 + Request (application/json)
@@ -55,6 +55,7 @@ With one subservice defined in Fiware-ServicePath header. From service model, ma
                 }
                ]
              }
+
 
 + SUCCESS Response 201
 
@@ -107,8 +108,70 @@ Duplicated service:
  {"reason":"There are conflicts, object already exists","details":"duplicate key: iotest.SERVICE { apikey: apikeymqtt, token: tokenmqtt, cbroker: http://10.95.213.36:1026, entity_type: thingmqtt, resource: /iot/mqtt, service: serv22, service_path: /srf }"}
 ```
 
+### Create a service [POST] (IotAgent API) IotAgent Manager API
 
-### Update a service/subservice [PUT]
+From service model, mandatory fields are:  protocol, apikey.
+
++ Request (application/json)
+
+    + Headers
+
+            Fiware-Service: testservice
+            Fiware-ServicePath: /TestSubservice
+
+    + Body
+
+            {
+              "services": [
+                {
+                  "protocol": ["55261958d31fc2151cc44c70", "55261958d31fc2151cc44c74"],
+                  "apikey": "apikey3",
+                  "token": "token2",
+                  "cbroker": "http://127.0.0.1:1026",
+                  "entity_type": "thing"
+                }
+               ]
+             }
+
++ Response 201
+
+#### Error messages:
+
++ Response 400:
+
+Most "bad request" errors returned by IotAgent-Manager follow the same pattern as explained for IoTAgent. This messages are returned by the IoTAgent Manager and it means that no actual REST operation 
+
+- Missing mandatory property. 
+
+```
+{"reason":"The request is not well formed","details":"Missing required property: protocol [/services[0]]"}
+```
+
+- Wrong type for a field:
+
+```
+{"reason":"The request is not well formed","details":"invalid data type: StringType expected: array [/services[0]/protocol]"}
+```
+- Extra information (note that 'resource' is not required for the operation at the IoTManager)
+
+```
+{"reason":"The request is not well formed","details":"Additional properties not allowed. [/services[0]/resource]"}
+```
+
+- No existing protocol
+```
+{"reason":"The request is not well formed","details":"No exists protocol 55b0aca019bab552820d971b"}
+```
+
++ Response 500:
+
+- Whenever there are several endpoints (iotagents) where the operation will be send to, the errors  trying to add duplicate service, in this scenario, there are two endpoints (iotagents) so the error message will contain two individual responses coming from the endpoints:
+```
+{"errors": [{"endpoint": "http://0.0.0.0:8080/iot","code": "409","details": {"reason":"There are conflicts, object already exists","details":"duplicate key: iotest.SERVICE { apikey: apikeymqtt, token: tokenmqtt, cbroker: http://10.95.213.36:1026, entity_type: thingmqtt, resource: /iot/mqtt, service: service1, service_path: /sserv1 }"}},{"endpoint": "http://0.0.0.0:8082/iot","code": "409","details": {"reason":"There are conflicts, object already exists","details":"duplicate key: iotest.SERVICE { apikey: apikeymqtt, token: tokenmqtt, cbroker: http://10.95.213.36:1026, entity_type: thingmqtt, resource: /iot/mqtt, service: service1, service_path: /sserv1 }"}}]}
+```
+
+
+### Update a service/subservice [PUT] (IoTAgent API)
 If you want modify only a field, you can do it. You cannot modify an element into an array field, but whole array. ("/*" is not allowed).
 
 + Parameters [apikey, resource]
@@ -169,6 +232,48 @@ JSON contains unexpected fields:
 
 ```
 {"reason":"The service does not exist","details":"put_service_json service=ssrv  service_path=/ssr_1 (...)"}
+```
+
+### Modify a service [PUT] (IoTAgent Manager)
+With one subservice defined in Fiware-ServicePath header. In order to modify _apikey_ you can define the apikey as parameter in query to identify, if needed,
+the service (in body you set the new apikey).
+
++ Request (application/json)
+
+    + Headers
+
+            Fiware-Service: testservice
+            Fiware-ServicePath: /TestSubservice
+
+    + Body
+
+            {
+              "services": [
+                {
+                  "protocol": ["55261958d31fc2151cc44c70", "1234"],
+                  "apikey": "apikey3",
+                  "token": "token2",
+                  "cbroker": "http://127.0.0.1:1026",
+                  "entity_type": "thing"
+                }
+               ]
+             }
+
++ Response 204
+
+#### Error messages:
+
++ Response 404
+
+- When there's a problem within the JSON but it still was sent to different endpoints.
+
+```
+{"errors": [{"endpoint": "http://0.0.0.0:8080/iot","code": "400","details": {"reason":"A parameter of the request is invalid/not allowed[http//10.95.213.36:1026]","details":"http//10.95.213.36:1026 is not a correct uri"}},{"endpoint": "http://0.0.0.0:8082/iot","code": "400","details": {"reason":"A parameter of the request is invalid/not allowed[http//10.95.213.36:1026]","details":"http//10.95.213.36:1026 is not a correct uri"}}]}
+```
+
+- Not found services at the endpoints:
+```
+{"errors": [{"endpoint": "http://0.0.0.0:8080/iot","code": "404","details": {"reason":"The service does not exist","details":" [  put_service_json service=service1 service_path=/sserv1 service_id=service1 content={ apikey : apikeymqtt-1, token : tokenmqtt } resource=/iot/mqtt]"}},{"endpoint": "http://0.0.0.0:8082/iot","code": "404","details": {"reason":"The service does not exist","details":" [  put_service_json service=service1 service_path=/sserv1 service_id=service1 content={ apikey : apikeymqtt-1, token : tokenmqtt } resource=/iot/mqtt]"}}]}
 ```
 
 
@@ -289,7 +394,7 @@ Mandatory fields are identified in every operation.
               ]
             }
 
-### Create a device [POST]
+### Create a device [POST] (IoTAgent API)
 From device model, mandatory fields are: device_id and protocol.
 
 + Request (application/json)
@@ -341,7 +446,7 @@ From device model, mandatory fields are: device_id and protocol.
 
 Missing property within  JSON:
 ```
-{"reason":"The request is not well formed","details":"Missing required property: apikey [/services[0]]"}
+{"reason":"The request is not well formed","details":"Missing required property: device_id [/devices[0]]"}
 ```
 
 Service or sub-service headers not valid (as per Context Broker constraints):
@@ -399,6 +504,64 @@ Duplicated device:
 When service does not exist:
 ```
 {"reason":"The service does not exist","details":" service:serv22 service_path:/srf"}
+```
+
+### Create a device [POST]  (IoTAgent Manager)
+From device model, mandatory fields are:  device_id and protocol.
+
++ Request (application/json)
+
+    + Headers
+
+            Fiware-Service: testservice
+            Fiware-ServicePath: /TestSubservice
+
+    + Body
+
+            {
+                "devices": [
+                {
+                  "protocol": "55261958d31fc2151cc44c70",
+                  "device_id": "device_id",
+                  "entity_name": "entity_name",
+                  "entity_type": "entity_type",
+                  "timezone": "America/Santiago",
+                  "attributes": [
+                    {
+                      "object_id": "source_data",
+                      "name": "attr_name",
+                      "type": "int"
+                    }
+                  ],
+                  "static_attributes": [
+                    {
+                      "name": "att_name",
+                      "type": "string",
+                      "value": "value"
+                    }
+                  ]
+                }
+                ]
+            }
+
+
++ Response 201
+
+
++ Response 400
+
+- No protocol is available at any of the endpoints, so the request is not forwarded to any endpoint:
+```
+{"reason":"The request is not well formed","details":"[protocol:PDI-IoTA-UltraLight service: service1 service_path:/sserv1]"}
+```
+
++ Response 500
+If the request is forwarded to the endpoints but all of them fail (for whatever reason), then the response code is 500 and the body will contain the individual reasons for each error:
+
+- Existing Device. 
+```
+{"errors": [{"endpoint": "http://0.0.0.0:8080/iot/devices","code": "409","details": {"reason":"There are conflicts, entity already exists","details":" [ entity_name: entity_name]"}},
+{"endpoint": "http://0.0.0.0:8082/iot/devices","code": "409","details": {"reason":"There are conflicts, entity already exists","details":" [ entity_name: entity_name]"}}]}
 ```
 
 
