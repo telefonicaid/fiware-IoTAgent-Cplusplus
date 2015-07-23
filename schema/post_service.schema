@@ -15,17 +15,17 @@
         "properties": {
           "entity_type": {
             "description": "default entity_type, if a device has not got entity_type uses this",
-            "pattern": "^([^<>();'=\"]+)+$",
+            "pattern": "^([^<>();'=\"]+)*$",
             "type": "string"
           },
           "apikey": {
             "description": "apikey",
-            "pattern": "^([^<>();'=\"]+)+$",
+            "pattern": "^([^<>();'=\"]+)*$",
             "type": "string"
           },
           "token": {
             "description": "token",
-            "pattern": "^([^<>();'=\"]+)+$",
+            "pattern": "^([^<>();'=\"]+)*$",
             "type": "string"
           },
           "cbroker": {
@@ -37,7 +37,7 @@
           },
           "outgoing_route": {
             "description": "VPN/GRE tunnel identifier",
-            "pattern": "^([^<>();'=\"]+)+$",
+            "pattern": "^([^<>();'=\"]+)*$",
             "type": "string"
           },
           "resource": {
