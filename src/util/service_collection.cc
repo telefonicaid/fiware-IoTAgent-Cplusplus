@@ -88,7 +88,6 @@ int iota::ServiceCollection::fill_all_resources(const std::string& service,
   std::string resource;
   while (more()) {
     obj =  next();
-    std::cout << obj << std::endl;
     resource = obj.getStringField(iota::store::types::RESOURCE);
     if (!resource.empty()) {
       resources.push_back(resource);
