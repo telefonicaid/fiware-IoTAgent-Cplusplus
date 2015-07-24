@@ -32,7 +32,7 @@ When an error is returned, a representation is returned as:
 }
 ```
 
-### Create a service [POST] (IotAgent API)
+### Create a service POST (IotAgent API)
 With one subservice defined in Fiware-ServicePath header. From service model, mandatory fields are: apikey, resource (cbroker field is temporary mandatory).
 
 + Request (application/json)
@@ -108,7 +108,7 @@ Duplicated service:
  {"reason":"There are conflicts, object already exists","details":"duplicate key: iotest.SERVICE { apikey: apikeymqtt, token: tokenmqtt, cbroker: http://10.95.213.36:1026, entity_type: thingmqtt, resource: /iot/mqtt, service: serv22, service_path: /srf }"}
 ```
 
-### Create a service [POST] (IotAgent API) IotAgent Manager API
+### Create a service POST (IotManager API)
 
 From service model, mandatory fields are:  protocol, apikey.
 
@@ -171,7 +171,7 @@ Most "bad request" errors returned by IotAgent-Manager follow the same pattern a
 ```
 
 
-### Update a service/subservice [PUT] (IoTAgent API)
+### Update a service/subservice PUT (IoTAgent API)
 If you want modify only a field, you can do it. You cannot modify an element into an array field, but whole array. ("/*" is not allowed).
 
 + Parameters [apikey, resource]
@@ -234,7 +234,7 @@ JSON contains unexpected fields:
 {"reason":"The service does not exist","details":"put_service_json service=ssrv  service_path=/ssr_1 (...)"}
 ```
 
-### Modify a service [PUT] (IoTAgent Manager)
+### Modify a service (PUT) (IoTManager API)
 With one subservice defined in Fiware-ServicePath header. In order to modify _apikey_ you can define the apikey as parameter in query to identify, if needed,
 the service (in body you set the new apikey).
 
@@ -394,7 +394,7 @@ Mandatory fields are identified in every operation.
               ]
             }
 
-### Create a device [POST] (IoTAgent API)
+### Create a device  POST  (IoTAgent API)
 From device model, mandatory fields are: device_id and protocol.
 
 + Request (application/json)
@@ -506,7 +506,7 @@ When service does not exist:
 {"reason":"The service does not exist","details":" service:serv22 service_path:/srf"}
 ```
 
-### Create a device [POST]  (IoTAgent Manager)
+### Create a device  POST  (IoTManager API)
 From device model, mandatory fields are:  device_id and protocol.
 
 + Request (application/json)
