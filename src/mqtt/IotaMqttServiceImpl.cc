@@ -38,15 +38,8 @@
 
 #include "util/iota_exception.h"
 
-
-namespace iota {
-  extern std::string logger;
-}
-/**
-
-*/
 iota::esp::ngsi::IotaMqttServiceImpl::IotaMqttServiceImpl(std::string iotServiceName):
-  m_logger(PION_GET_LOGGER(iota::logger)) {
+  m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   iotService.assign(iotServiceName);
 
   publisher_ptr = new iota::tt::TTCBPublisher();

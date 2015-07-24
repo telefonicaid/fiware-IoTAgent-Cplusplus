@@ -27,6 +27,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
+#include "rest/process.h"
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/response_writer.hpp>
 #include "util/iota_logger.h"

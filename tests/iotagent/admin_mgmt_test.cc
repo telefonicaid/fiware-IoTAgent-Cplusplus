@@ -30,14 +30,24 @@
 
 #include "mongo/client/init.h"
 
-namespace iota {
-std::string URL_BASE = "/iot";
-std::string logger("main");
-}
-
 int main(int argc, char* argv[]) {
 
-  mongo::client::initialize();
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Process& process = iota::Process::initialize("",3);
+  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
+
+  iota::AdminManagerService* admMgm = new iota::AdminManagerService();
+  admMgm->set_timeout(10);
+  process.set_admin_service(admMgm);
+  admMgm->add_service("/iot/res", admMgm);
+  iota::AdminService* adm = new iota::AdminService();
+  http_server->add_service("/iotagent", adm);
+  iota::UL20Service ul20_service;
+  adm->add_service("/iot/d", &ul20_service);
+  process.start();
 
   testing::GTEST_FLAG(throw_on_failure) = true;
   testing::InitGoogleMock(&argc, argv);
@@ -48,5 +58,7 @@ int main(int argc, char* argv[]) {
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cerr));
   bool s = runner.run();
+  std::cout << "Shutdown server" << std::endl;
+  process.shutdown();
   return s ? 0 : 1;
 }

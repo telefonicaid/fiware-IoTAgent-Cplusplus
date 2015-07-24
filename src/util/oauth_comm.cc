@@ -29,16 +29,13 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-namespace iota {
-extern std::string logger;
-}
-iota::OAuth::OAuth(): _timeout(5), m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::OAuth::OAuth(): _timeout(5), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   if (_id.empty() == true) {
     _id = riot_uuid();
   }
 }
 iota::OAuth::OAuth(int timeout):
-  _timeout(timeout), m_logger(PION_GET_LOGGER(iota::logger)) {
+  _timeout(timeout), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   if (_id.empty() == true) {
     _id = riot_uuid();
   }

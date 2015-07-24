@@ -63,13 +63,6 @@
 #define  ASYNC_TIME_WAIT  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SampleTest);
-namespace iota {
-std::string logger("main");
-std::string URL_BASE("/iot");
-}
-iota::AdminService* AdminService_ptr;
-
-
 
 void SampleTest::setUp() {
   std::cout << "setUp SampleTest " << std::endl;
@@ -84,7 +77,6 @@ SampleTest::SampleTest() {
 }
 
 SampleTest::~SampleTest() {
-  wserver.reset();
 }
 
 void SampleTest::tearDown() {
@@ -155,11 +147,8 @@ void SampleTest::testNormalPOST() {
   cb_mock.reset(new HttpMock("/mock"));
   start_cbmock(cb_mock);
   std::string cb_last;
-
-
   iota::TestService sampleserv;
   sampleserv.set_resource("/iot/test");
-
   std::string querySTR = "i=dev_1&k=apikey-test";
   std::string bodySTR = "Hello World";
   {
@@ -205,11 +194,8 @@ void SampleTest::testCommandNormalPOST() {
   cb_mock.reset(new HttpMock("/mock"));
   start_cbmock(cb_mock);
   std::string cb_last;
-
-
   iota::TestCommandService sampleserv;
   sampleserv.set_resource("/iot/test");
-
   std::string querySTR = "i=dev_1&k=apikey-test";
   std::string bodySTR = "Hello World";
   {
@@ -522,24 +508,15 @@ void SampleTest::testPollingCommand() {
 ///SimplePlugin Test
 void SampleTest::testRegisterIoTA() {
   std::cout << "START testRegisterIoTA" << std::endl;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
+
+
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/iot/protocols"));
   start_cbmock(cb_mock, "mongodb");
   std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
   std::cout << "@UT@create server" << std::endl;
-  scheduler.set_num_threads(1);
-  wserver.reset(new pion::http::plugin_server(scheduler));
-  spserv_auth = new iota::TestService();
   std::cout << "@UT@create pluging" << std::endl;
 
-  iota::AdminService adminserv;
-  adminserv.add_service("/iot/test", spserv_auth);
-  boost::shared_ptr<iota::ServiceCollection> table;
-  adminserv.create_collection(table);
   std::string service ="srv1_ut";
   std::string service_path="/";
   std::string body("{\"services\": [{"
@@ -549,18 +526,21 @@ void SampleTest::testRegisterIoTA() {
   std::string response;
   std::string token, apikey;
   std::string request_identifier;
+  iota::AdminService& adminserv = *(iota::Process::get_process().get_admin_service());
+  boost::shared_ptr<iota::ServiceCollection> table;
+  adminserv.create_collection(table);
   adminserv.delete_service_json(table, service, service_path,
       service, apikey, "/iot/test", false, http_response,
       response, token, request_identifier);
+  std::string manager("http://127.0.0.1:");
+  iota::RestHandle* spserv = (iota::RestHandle*)iota::Process::get_process().get_service("/iot/test");
+  spserv->set_iota_manager_endpoint(manager + mock_port + "/iot/protocols");
   adminserv.post_service_json(table,service, service_path, body, http_response, response, token, request_identifier);
 
-  wserver->add_service("/iot/test", spserv_auth);
-  std::cout << "@UT@start server" << std::endl;
-  wserver->start();
-  std::cout << "@UT@manager_endpoint:" <<spserv_auth->get_iota_manager_endpoint() << std::endl;
+  std::cout << "@UT@manager_endpoint:" <<spserv->get_iota_manager_endpoint() << std::endl;
 
   CPPUNIT_ASSERT_MESSAGE("Manager endpoint ",
-                         spserv_auth->get_iota_manager_endpoint().find("/protocols") !=
+                         spserv->get_iota_manager_endpoint().find("/protocols") !=
                          std::string::npos);
 
   ASYNC_TIME_WAIT
@@ -574,17 +554,8 @@ void SampleTest::testRegisterIoTA() {
 }
 void SampleTest::testFilter() {
   std::cout << "START testFilter" << std::endl;
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
-
+  unsigned int port = iota::Process::get_process().get_http_port();
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-  scheduler.set_num_threads(1);
-  wserver.reset(new pion::http::plugin_server(scheduler));
-  spserv_auth = new iota::TestService();
-  wserver->add_service("/iot/sp_auth", spserv_auth);
-  wserver->start();
-  std::cout << "THREADS " << scheduler.get_num_threads() << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/"));
   cb_mock->init();
@@ -605,6 +576,7 @@ void SampleTest::testFilter() {
   map[ iota::types::CONF_FILE_PEP_DOMAIN] = "admin_domain";
   map[ iota::types::CONF_FILE_OAUTH_TIMEOUT] = "3";
   filter->set_configuration(map);
+  iota::RestHandle* spserv_auth = (iota::RestHandle*)iota::Process::get_process().get_service("/iot/sp_auth");
   spserv_auth->add_pre_filter(filter);
   spserv_auth->add_statistic_counter("traffic", true);
 
@@ -614,12 +586,12 @@ void SampleTest::testFilter() {
 
   {
     pion::tcp::connection_ptr tcp_conn_1(new pion::tcp::connection(
-                                           scheduler.get_io_service()));
+                                           iota::Process::get_process().get_io_service()));
 
-    std::cout << "No headers " << wserver->get_port() << std::endl;
+    std::cout << "No headers " << port << std::endl;
     // No headers fiware-service, fiware-servicepath....
     error_code = tcp_conn_1->connect(
-                   boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                   boost::asio::ip::address::from_string("127.0.0.1"), port);
     pion::http::request http_request1("/iot/sp_auth/devices/device_1");
     http_request1.set_method("POST");
     http_request1.set_content(bodySTR);
@@ -632,7 +604,7 @@ void SampleTest::testFilter() {
 
   {
     pion::tcp::connection_ptr tcp_conn_2(new pion::tcp::connection(
-                                           scheduler.get_io_service()));
+                                           iota::Process::get_process().get_io_service()));
     std::cout << "With headers" << std::endl;
     std::map<std::string, std::string> h;
     std::string
@@ -648,7 +620,7 @@ void SampleTest::testFilter() {
     user_roles("{\"role_assignments\": [{\"scope\": {\"project\": {\"id\": \"c6851f8ef57c4b91b567ab62ca3d0aef\"}},\"role\": {\"id\": \"a6407b6c597e4e1dad37a3420b6137dd\"},\"user\": {\"id\": \"5e817c5e0d624ee68dfb7a72d0d31ce4\"},\"links\": {\"assignment\": \"puthere\"}}],\"links\": {\"self\": \"http://${KEYSTONE_HOST}/v3/role_assignments\",\"previous\": null,\"next\": null}}");
     cb_mock->set_response(200, user_roles);
     error_code = tcp_conn_2->connect(
-                   boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                   boost::asio::ip::address::from_string("127.0.0.1"), port);
     pion::http::request http_request2("/iot/sp_auth/devices/device_1");
     http_request2.add_header("Fiware-Service", "SmartValencia");
     http_request2.add_header("Fiware-ServicePath", "Electricidad");
@@ -665,31 +637,17 @@ void SampleTest::testFilter() {
                            http_response2.get_status_code() == 403);
   }
 
-  // Statistic
-  std::cout << spserv_auth->get_statistics() << std::endl;
-
-
-  wserver->stop();
   cb_mock->stop();
   conf->release();
 
-  std::cout << "END testFilter " << wserver->get_connections() << std::endl;
+  std::cout << "END testFilter " << std::endl;
 }
 
 void SampleTest::testGetDevice() {
   std::cout << "START testGetDevice" << std::endl;
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
 
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-  scheduler.set_num_threads(1);
-  wserver.reset(new pion::http::plugin_server(scheduler));
-  spserv_auth = new iota::TestService();
-  wserver->add_service("/iot/tt", spserv_auth);
-  wserver->start();
-  std::cout << "THREADS " << scheduler.get_num_threads() << std::endl;
-
+  iota::RestHandle* spserv_auth = (iota::RestHandle*)iota::Process::get_process().get_service("/iot/test");
   std::cout << "get_device 8934075379000039321 serviceTT  /subservice " <<
             std::endl;
   boost::shared_ptr<iota::Device> dev =

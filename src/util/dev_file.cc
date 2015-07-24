@@ -25,7 +25,7 @@
 #include "json_util.h"
 #include <fstream>
 #include <iostream>
-
+#include <rest/process.h>
 #include <pion/http/types.hpp>
 #include <boost/thread/mutex.hpp>
 #include <rapidjson/document.h>
@@ -36,12 +36,9 @@
 
 iota::DevicesFile* iota::DevicesFile::pinstance = 0;// Inicializar el puntero
 
-namespace iota {
-extern std::string logger;
-}
 
 iota::DevicesFile::DevicesFile():
-  m_log(PION_GET_LOGGER(iota::logger)) {
+  m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   _error= "error, no config file was initializated";
 
 }

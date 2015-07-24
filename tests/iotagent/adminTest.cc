@@ -53,12 +53,6 @@
          CPPUNIT_ASSERT(y)
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminTest);
-iota::AdminService* AdminService_ptr;
-namespace iota {
-std::string URL_BASE = "/iot";
-std::string logger("main");
-}
-
 const std::string AdminTest::HOST("127.0.0.1");
 const std::string AdminTest::CONTENT_JSON("application/json");
 
@@ -279,40 +273,10 @@ AdminTest::GET_DEVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
 AdminTest::AdminTest() {
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
-
-  pion::process::initialize();
-
-  adm = new iota::AdminService();
-
-  plugin.set_resource("/iot/d");
-  adm->add_service("/iot/d", &plugin);
-  // This urls are only for testing
-  std::map<std::string,std::string> filters;
-
-  AdminService_ptr = adm;
-  AdminService_ptr->add_service("/iot/res", AdminService_ptr);
-  wserver.reset(new pion::http::plugin_server(scheduler));
-  wserver->add_service("/iot", adm);
-  adm->add_url(iota::ADMIN_SERVICE_AGENTS, filters,
-               REST_HANDLE(&iota::AdminService::agents),
-               adm);
-  adm->add_url(iota::ADMIN_SERVICE_AGENTS+"/<agent>", filters,
-               REST_HANDLE(&iota::AdminService::agent), adm);
-  adm->add_url(iota::ADMIN_SERVICE_AGENTS+"/<agent>/services", filters,
-               REST_HANDLE(&iota::AdminService::services), adm);
-  adm->add_url(iota::ADMIN_SERVICE_AGENTS+"/<agent>/services" + "/<service>",
-               filters,
-               REST_HANDLE(&iota::AdminService::service), adm);
-  wserver->start();
-
 }
 
 AdminTest::~AdminTest() {
-  wserver->stop();
-  scheduler.shutdown();
+
 }
 
 void AdminTest::setUp() {
@@ -331,11 +295,11 @@ void AdminTest::testGetConf() {
   PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
+  pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string(HOST), wserver->get_port());
+                 boost::asio::ip::address::from_string(HOST), iota::Process::get_process().get_http_port());
   pion::http::request http_request("/iot/agents?conf");
   http_request.set_method("GET");
   http_request.add_header("Fiware-Service", "ss");
@@ -350,7 +314,7 @@ void AdminTest::testGetConf() {
   IOTASSERT(configuration.size() > 0);
   tcp_conn.close();
   tcp_conn.connect(
-    boost::asio::ip::address::from_string(HOST), wserver->get_port());
+    boost::asio::ip::address::from_string(HOST), iota::Process::get_process().get_http_port());
   pion::http::request http_request1("/iot/agents?conf");
   http_request1.set_method("DELETE");
   http_request1.add_header("Fiware-Service", "ss");
@@ -405,11 +369,11 @@ void AdminTest::testPostConf() {
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
 
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
+  pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   pion::http::request http_request("/iot/agents");
   http_request.set_method("POST");
   http_request.set_content(conf->getAll());
@@ -427,7 +391,7 @@ void AdminTest::testPostConf() {
   // Reg fake agent
 
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   std::cout << "POST agent configuration" << std::endl;
   pion::http::request http_request_1("/iot/agents/res");
   http_request_1.set_method("POST");
@@ -447,7 +411,7 @@ void AdminTest::testPostConf() {
                     http_response_1.get_status_code() == 400);
   tcp_conn.close();
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   std::cout << "PUT agent configuration 2" << std::endl;
   pion::http::request http_request_2("/iot/agents/res");
   http_request_2.set_method("PUT");
@@ -462,7 +426,7 @@ void AdminTest::testPostConf() {
 
   //Modify
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   std::cout << "PUT agent configuration 2" << std::endl;
   pion::http::request http_request_3("/iot/agents/evadts");
   http_request_3.set_method("PUT");
@@ -497,11 +461,11 @@ void AdminTest::testGetAgents() {
   PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
+  pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   //tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_KEEPALIVE);
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   pion::http::request http_request("/iot/agents");
   http_request.set_method("GET");
   http_request.add_header("Fiware-Service", "ss");
@@ -513,7 +477,7 @@ void AdminTest::testGetAgents() {
   IOTASSERT(http_response.get_status_code() == 200);
   tcp_conn.close();
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   pion::http::request http_request_1("/iot/agents/noexist");
   http_request_1.set_method("GET");
   http_request_1.add_header("Fiware-Service", "ss");
@@ -527,7 +491,7 @@ void AdminTest::testGetAgents() {
                     http_response1.get_status_code() == 404);
   tcp_conn.close();
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   pion::http::request http_request_2("/iot/agents");
   http_request_2.set_method("DELETE");
   http_request_2.add_header("Fiware-Service", "ss");
@@ -550,10 +514,10 @@ void AdminTest::testTimezones() {
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-
-  AdminService_ptr->set_timezone_database("../../tests/iotagent/date_time_zonespec.csv");
+  iota::Process& process = iota::Process::get_process();
+  process.get_admin_service()->set_timezone_database("../../tests/iotagent/date_time_zonespec.csv");
   boost::posix_time::ptime t =
-    AdminService_ptr->get_local_time_from_timezone("Europe/Madrid");
+    process.get_admin_service()->get_local_time_from_timezone("Europe/Madrid");
 
   std::cout << "End Timezone! " << std::endl;
   conf->release();
@@ -567,10 +531,10 @@ void AdminTest::testCsvProvision() {
   PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
+  pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
 
   // Multipart no content
   pion::http::request http_request("/iot/devices");
@@ -587,7 +551,7 @@ void AdminTest::testCsvProvision() {
   IOTASSERT(http_response.get_status_code() == 400);
 
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
 
   // Multipart csv
   pion::http::request http_request_csv("/iot/devices");
@@ -621,10 +585,10 @@ int AdminTest::http_test(const std::string& uri,
                          const std::map<std::string,std::string>& headers,
                          const std::string& query_string,
                          std::string& response) {
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
+  pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string(HOST), wserver->get_port());
+                 boost::asio::ip::address::from_string(HOST), iota::Process::get_process().get_http_port());
 
   pion::http::request http_request(uri);
   http_request.set_method(method);
@@ -1671,10 +1635,10 @@ void  AdminTest::testAbout() {
   PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
+  pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string("127.0.0.1"), wserver->get_port());
+                 boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
 
 
   {

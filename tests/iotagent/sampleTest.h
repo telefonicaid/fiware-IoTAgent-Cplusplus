@@ -65,10 +65,11 @@ class SampleTest : public CPPUNIT_NS::TestFixture {
     void testFilter();
     void testGetDevice();
     void testRegisterIoTA();
-
+/*
     pion::http::plugin_server_ptr wserver;
     pion::one_to_one_scheduler scheduler;
     iota::TestService* spserv_auth;
+    */
 
 };
 

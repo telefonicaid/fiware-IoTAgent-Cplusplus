@@ -36,12 +36,6 @@
 #include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
 
 
-namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
-}
-extern iota::AdminService* AdminService_ptr;
-
 ESPLib* iota::esp::MqttService::esplib_instance = NULL;
 
 ESPLib* iota::esp::MqttService::getESPLib() {
@@ -53,7 +47,7 @@ ESPLib* iota::esp::MqttService::getESPLib() {
 
 }
 
-iota::esp::MqttService::MqttService() : m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::esp::MqttService::MqttService() : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   std::cout << "iota::esp::MqttService " << std::endl;
   IOTA_LOG_DEBUG(m_logger, "iota::esp::MqttService Running...  ");
   iota_mqtt_service_ptr_ = NULL;

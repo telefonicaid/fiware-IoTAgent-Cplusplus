@@ -29,15 +29,9 @@
 #include "ttTest.h"
 #include "TTBufferTests.h"
 
-namespace iota {
-std::string URL_BASE = "/iot";
-std::string logger("main");
-}
-iota::AdminService* AdminService_ptr;
 
 int main(int argc, char* argv[]) {
 
-  //AdminService_ptr = new iota::AdminService();
 
   testing::GTEST_FLAG(throw_on_failure) = true;
   testing::InitGoogleMock(&argc, argv);

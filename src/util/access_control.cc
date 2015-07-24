@@ -25,17 +25,15 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/foreach.hpp>
-namespace iota {
-extern std::string logger;
-}
+
 iota::AccessControl::AccessControl(): _timeout(5),
-  m_logger(PION_GET_LOGGER(iota::logger)) {
+  m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 iota::AccessControl::AccessControl(std::string endpoint_ac,
                                     int timeout,
                                     boost::shared_ptr<boost::asio::io_service> io_service): _endpoint_ac(
                                         endpoint_ac),
-  _timeout(timeout), _io_service(io_service), m_logger(PION_GET_LOGGER(iota::logger)) {
+  _timeout(timeout), _io_service(io_service), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 
 iota::AccessControl::~AccessControl() {

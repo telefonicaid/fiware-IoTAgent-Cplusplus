@@ -26,22 +26,28 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TextTestProgressListener.h>
 #include <cppunit/XmlOutputter.h>
+#include "rest/process.h"
 #include "ul20Test.h"
 #include "services/admin_service.h"
 
-
-#include "mongo/client/init.h"
-
 int main(int argc, char* argv[]) {
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Process& process = iota::Process::initialize("", 3);
+  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
 
-  mongo::client::initialize();
-
-
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
+  iota::AdminService* adm = new iota::AdminService();
+  process.set_admin_service(adm);
+  process.start();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(Ul20Test::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cerr));
   bool s = runner.run();
+  process.wait_for_shutdown();
+  std::cout << "FIN " << std::endl;
   return s ? 0 : 1;
 
 }

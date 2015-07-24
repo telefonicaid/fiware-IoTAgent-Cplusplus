@@ -176,21 +176,10 @@ const std::string Ul20Test::HOST("127.0.0.1");
 const std::string Ul20Test::CONTENT_JSON("aplication/json");
 
 CPPUNIT_TEST_SUITE_REGISTRATION(Ul20Test);
-namespace iota {
-std::string logger("main");
-std::string URL_BASE("/iot");
-}
-iota::AdminService* AdminService_ptr;
-
 
 
 void Ul20Test::setUp() {
   std::cout << "setUp Ul20Test " << std::endl;
-
-
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
 }
 
 void Ul20Test::tearDown() {
@@ -289,9 +278,14 @@ void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
   **/
 void Ul20Test::testNormalPOST() {
   std::cout << "START testNormalPOST" << std::endl;
+  iota::Process& process = iota::Process::get_process();
+  MockService cb_mock;
+  process.add_service("/mock/testNormalPOST", &cb_mock);
+  /*
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
   start_cbmock(cb_mock);
+  */
   std::string cb_last;
 
   iota::UL20Service ul20serv;
@@ -327,7 +321,7 @@ void Ul20Test::testNormalPOST() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last();
+    cb_last = cb_mock.get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -369,7 +363,7 @@ void Ul20Test::testNormalPOST() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last();
+    cb_last = cb_mock.get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -410,7 +404,7 @@ void Ul20Test::testNormalPOST() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last();
+    cb_last = cb_mock.get_last();
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -447,8 +441,8 @@ void Ul20Test::testNormalPOST() {
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last();
-    cb_last.append(cb_mock->get_last());
+    cb_last = cb_mock.get_last();
+    cb_last.append(cb_mock.get_last());
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -490,8 +484,8 @@ void Ul20Test::testNormalPOST() {
 
     ASYNC_TIME_WAIT
     // we don't know the order of meassurements to CB, so we join the two observations
-    cb_last = cb_mock->get_last();
-    cb_last.append(cb_mock->get_last());
+    cb_last = cb_mock.get_last();
+    cb_last.append(cb_mock.get_last());
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -534,8 +528,8 @@ void Ul20Test::testNormalPOST() {
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     // updateContext to CB
     // we don't know the order of meassurements to CB, so we join the two observations
-    cb_last = cb_mock->get_last();
-    cb_last.append(cb_mock->get_last());
+    cb_last = cb_mock.get_last();
+    cb_last.append(cb_mock.get_last());
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -575,8 +569,8 @@ void Ul20Test::testNormalPOST() {
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     // updateContext to CB
     // we don't know the order of meassurements to CB, so we join the two observations
-    cb_last = cb_mock->get_last();
-    cb_last.append(cb_mock->get_last());
+    cb_last = cb_mock.get_last();
+    cb_last.append(cb_mock.get_last());
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -595,7 +589,7 @@ void Ul20Test::testNormalPOST() {
       std::string::npos);
 
   }
-  cb_mock->stop();
+  //cb_mock->stop();
   std::cout << "END testNormalPOST " << std::endl;
 }
 
@@ -2948,7 +2942,9 @@ void Ul20Test::testBAD_PUSHCommand_MONGO() {
 void Ul20Test::testPollingCommand_MONGO_CON() {
   std::cout << "@UT@START testPollingCommand_MONGO_CON " << std::endl;
 
-
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock("/mock"));
+  start_cbmock(cb_mock, "mongodb");
   pion::http::response http_response;
   std::string response;
   iota::AdminService adminserv;
@@ -2957,9 +2953,6 @@ void Ul20Test::testPollingCommand_MONGO_CON() {
   ul20serv.start();
   // asociamos
   adminserv.add_service("/iot/d", &ul20serv);
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock, "mongodb");
   std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
   std::cout << "@UT@mock port " <<  mock_port << std::endl;
 

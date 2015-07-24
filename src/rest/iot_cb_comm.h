@@ -28,6 +28,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include "util/http_client.h"
 #include "util/async_comm.h"
+#include "rest/process.h"
 
 #include <ngsi/ContextElement.h>
 #include <ngsi/UpdateContext.h>

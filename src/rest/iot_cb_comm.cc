@@ -28,17 +28,13 @@
 #include "rest/riot_conf.h"
 #include "rest/types.h"
 
-namespace iota {
-extern std::string logger;
-}
-
 const std::string iota::ContextBrokerCommunicator::NUMBER_OF_TRIES =
   "number_of_tries";
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator():
   _connectionManager(new iota::CommonAsyncManager(1)),
   _io_service(*(_connectionManager->get_io_service())),
   m_logger(PION_GET_LOGGER(
-             iota::logger)) {
+             iota::Process::get_logger_name())) {
 }
 
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator(
@@ -46,7 +42,7 @@ iota::ContextBrokerCommunicator::ContextBrokerCommunicator(
   io_service):
   _io_service(io_service),
   m_logger(PION_GET_LOGGER(
-             iota::logger)) {
+             iota::Process::get_logger_name())) {
 }
 
 iota::ContextBrokerCommunicator::~ContextBrokerCommunicator() {

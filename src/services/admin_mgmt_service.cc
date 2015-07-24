@@ -9,10 +9,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include "util/device_collection.h"
 
-namespace iota {
-extern std::string logger;
-}
-
 std::string iota::AdminManagerService::_POST_PROTOCOL_SCHEMA;
 std::string iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA;
 
@@ -20,21 +16,9 @@ std::string iota::AdminManagerService::_POST_SERVICE_SCHEMA;
 std::string iota::AdminManagerService::_PUT_SERVICE_SCHEMA;
 
 
-iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr
-    web_server): iota::AdminService(web_server),
-  _timeout(5),
-  m_log(PION_GET_LOGGER(
-          iota::logger)),
-  _class_name("iota::AdminManagerService") {
-  read_schema("post_protocol.schema", iota::AdminManagerService::_POST_PROTOCOL_SCHEMA);
-  read_schema("put_protocol.schema", iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA);
-  read_schema("post_service_manager.schema", iota::AdminManagerService::_POST_SERVICE_SCHEMA);
-  read_schema("put_service_manager.schema", iota::AdminManagerService::_PUT_SERVICE_SCHEMA);
-}
-
 iota::AdminManagerService::AdminManagerService() :
   _class_name("iota::AdminManagerService"), _timeout(5),
-  m_log(PION_GET_LOGGER(iota::logger)) {
+  m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   read_schema("post_protocol.schema", iota::AdminManagerService::_POST_PROTOCOL_SCHEMA);
   read_schema("put_protocol.schema", iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA);
   read_schema("post_service_manager.schema", iota::AdminManagerService::_POST_SERVICE_SCHEMA);

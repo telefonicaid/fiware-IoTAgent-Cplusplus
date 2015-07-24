@@ -42,12 +42,6 @@ using ::testing::_;
 using ::testing::Invoke;
 
 
-//iota::AdminService* AdminService_ptr = new iota::AdminService();
-
-//HttpMock cb_mock(1026, "/NGSI10/updateContext");
-
-
-
 CPPUNIT_TEST_SUITE_REGISTRATION(MqttTest);
 
 MqttTest::MqttTest() {

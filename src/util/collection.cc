@@ -35,19 +35,15 @@
 #define SLEEP_TIME 250
 #define ERROR_MONGO 500
 
-namespace iota {
-extern std::string logger;
-}
-
 iota::Collection::Collection(const std::string& collection_name) : m_logger(
-    PION_GET_LOGGER(iota::logger)) {
+    PION_GET_LOGGER(iota::Process::get_logger_name())) {
   a_queryOptions = Options::Primary;
   setBBDD(collection_name);
   _m_conn = MongoConnection::instance()->conn();
 };
 
 iota::Collection::Collection(Collection& c) : m_logger(
-    PION_GET_LOGGER(iota::logger)) {
+    PION_GET_LOGGER(iota::Process::get_logger_name())) {
   a_bbdd = c.a_bbdd;
   _m_conn = MongoConnection::instance()->conn();
 }

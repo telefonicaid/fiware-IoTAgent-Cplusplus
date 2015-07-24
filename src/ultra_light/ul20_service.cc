@@ -57,14 +57,7 @@
 #include <pion/tcp/server.hpp>
 #include "boost/format.hpp"
 
-namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
-}
-extern iota::AdminService* AdminService_ptr;
-
-
-iota::UL20Service::UL20Service(): m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::UL20Service::UL20Service(): m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   IOTA_LOG_DEBUG(m_logger, "iota::UL20Service::UL20Service");
   _protocol_data.description = "UL2";
   _protocol_data.protocol = "PDI-IoTA-UltraLight";

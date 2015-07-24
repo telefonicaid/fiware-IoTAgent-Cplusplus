@@ -38,6 +38,7 @@ class MockService: public pion::http::plugin_service {
     std::vector<std::string> _received_content;
     std::map<std::string, std::string> _headers;
     bool _extended_echo;
+    std::string get_last();
   private:
 };
 class HttpMock {

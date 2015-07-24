@@ -19,7 +19,8 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#include "ngsi_service.h"
+
+#include "services/ngsi_service.h"
 #include "rest/oauth_filter.h"
 #include "rest/media_filter.h"
 #include <sstream>
@@ -29,12 +30,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
 
-namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
-}
 
-iota::NgsiService::NgsiService(): m_log(PION_GET_LOGGER(iota::logger)) {
+iota::NgsiService::NgsiService(): m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   IOTA_LOG_DEBUG(m_log, "iota::NgsiService::NgsiService");
 }
 
@@ -57,7 +54,7 @@ void iota::NgsiService::start() {
         !oauth_map[iota::types::CONF_FILE_OAUTH_PROJECTS_URL].empty() &&
         !oauth_map[iota::types::CONF_FILE_ACCESS_CONTROL].empty()) {
       boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter());
-      auth_ptr->set_filter_url_base(iota::URL_BASE);
+      auth_ptr->set_filter_url_base(iota::Process::get_url_base());
       auth_ptr->set_configuration(oauth_map);
       auth_ptr->set_pep_rules(iota::Configurator::instance()->get_pep_rules());
       add_pre_filter(auth_ptr);

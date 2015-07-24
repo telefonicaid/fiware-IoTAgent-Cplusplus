@@ -29,16 +29,9 @@
 #include "util/FuncUtil.h"
 #include "util/iota_exception.h"
 
-extern std::string logger;
-
-namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
-};
-
 
 iota::MediaFilter::MediaFilter():
-  HTTPFilter(PION_GET_LOGGER(iota::logger)) {
+  HTTPFilter(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 };
 
 iota::MediaFilter::~MediaFilter() {
@@ -65,9 +58,9 @@ bool iota::MediaFilter::handle_request(pion::http::request_ptr&
                                iota::types::FIWARE_SERVICEPATH));
 
     // Exception for about and protocols
-    if (http_request_ptr->get_resource().compare(iota::URL_BASE +
+    if (http_request_ptr->get_resource().compare(iota::Process::get_url_base() +
         iota::ADMIN_SERVICE_ABOUT) != 0 &&
-        http_request_ptr->get_resource().compare(iota::URL_BASE +
+        http_request_ptr->get_resource().compare(iota::Process::get_url_base() +
             iota::ADMIN_SERVICE_PROTOCOLS) != 0
        ) {
       iota::check_fiware_service_name(service);

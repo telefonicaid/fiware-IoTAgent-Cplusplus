@@ -29,8 +29,6 @@
 
 
 namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
 std::map<std::string, std::string> actions =
   boost::assign::map_list_of("GET","read")("POST","create")("PUT","update")
   ("DELETE","delete");
@@ -38,7 +36,7 @@ std::map<std::string, std::string> actions =
 
 
 iota::OAuthFilter::OAuthFilter(): _timeout(3),
-  HTTPFilter(PION_GET_LOGGER(iota::logger)) {
+  HTTPFilter(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   std::string context("POST[[:space:]]+");
   context += "/";
   context += iota::NGSI_SERVICE;
@@ -94,9 +92,9 @@ bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
 
   // URI for protocols is not authorized
   // Exception for about and protocols
-  if (http_request_ptr->get_resource().compare(iota::URL_BASE +
+  if (http_request_ptr->get_resource().compare(iota::Process::get_url_base() +
       iota::ADMIN_SERVICE_ABOUT) == 0 ||
-      http_request_ptr->get_resource().compare(iota::URL_BASE +
+      http_request_ptr->get_resource().compare(iota::Process::get_url_base() +
           iota::ADMIN_SERVICE_PROTOCOLS) == 0
      ) {
     tcp_conn->get_io_service().post(boost::bind(

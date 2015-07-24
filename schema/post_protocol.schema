@@ -51,7 +51,7 @@
           },
           "apikey": {
             "description": "apikey",
-            "pattern": "^([^<>();'=\"]+)+$",
+            "pattern": "^([^<>();'=\"]+)*$",
             "type": "string"
           },
           "token": {
@@ -75,7 +75,7 @@
             "description": "uri for the iotagent",
             "type": "string",
             "format": "regex",
-            "pattern": "^/([^<>();'=\"]+)+$"
+            "pattern": "^(/[^<>();'=\"]+)+$"
           },
           "attributes": {
             "type": "array",

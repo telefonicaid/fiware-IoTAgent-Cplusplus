@@ -31,14 +31,27 @@
 
 
 int main(int argc, char* argv[]) {
-
-  mongo::client::initialize();
-
+  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config.json");
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Process& process = iota::Process::initialize("", 3);
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
+  iota::AdminService adminserv;
+  process.set_admin_service(&adminserv);
+  iota::TestService spserv;
+  http_server->add_service("/iot/tt", &spserv);
+  iota::TestService spserv_auth;
+  http_server->add_service("/iot/sp_auth", &spserv_auth);
+  iota::TestService spserv_test;
+  http_server->add_service("/iot/test", &spserv_test);
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(SampleTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cerr));
+  process.start();
   bool s = runner.run();
+  iota::Process::wait_for_shutdown();
   return s ? 0 : 1;
 
 }

@@ -22,6 +22,7 @@
 #ifndef SRC_UTIL_ACCESS_CONTROL_H_
 #define SRC_UTIL_ACCESS_CONTROL_H_
 
+#include "rest/process.h"
 #include "http_client.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/property_tree/ptree.hpp>

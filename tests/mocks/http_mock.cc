@@ -44,12 +44,12 @@ HttpMock::HttpMock(unsigned short port, std::string url,
   std::cout << "CONTRUCTOR MOCK" << std::endl;
   _service = new MockService();
   _service->_extended_echo = extended_echo;
-  pion::process::initialize();
+
 }
 
 HttpMock::HttpMock(std::string url): _url(url), _port(0) {
   std::cout << "CONTRUCTOR MOCK" << std::endl;
-  pion::process::initialize();
+
   _service = new MockService();
   _service->_extended_echo = false;
 }
@@ -70,7 +70,6 @@ void HttpMock::stop() {
   std::cout << "STOP" << std::endl;
   if (_ws != NULL) {
     _ws->stop();
-    pion::process::shutdown();
     std::cout << "MOCK " << _ws->get_connections() << std::endl;
     _ws->clear();
   }
@@ -92,8 +91,9 @@ void HttpMock::run() {
   _ws->add_service(_url, _service);
   std::cout << "START " << std::endl;
   _ws->start();
+std::cout << "SSSS " << std::endl;
   condition.notify_one();
-  pion::process::wait_for_shutdown();
+
   std::cout << "After Stop" << std::endl;
   //condition.notify_one();
 }
@@ -227,6 +227,11 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
   writer->send();
 
 
+}
+
+std::string MockService::get_last() {
+  std::string result;
+  return result;
 }
 
 std::string HttpMock::get_last() {
