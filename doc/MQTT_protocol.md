@@ -3,7 +3,7 @@
 
 #### Index
 1. [Introduction](#def-introduction)
-2. [Configuration](#def-configuration)
+2. [Getting started: Installation and Configuration](#def-configuration)
 3. [MQTT Conventions](#def-conventions)
 4. [IoTAgent API: provision of Services](north_api.md#def-service-api)
 5. [IoTAgent API: provision of devices](north_api.md#def-device-api)
@@ -18,14 +18,63 @@ This protocol is purely oriented to machine-to-machine applications and it’s v
 
 The IoTAgent for MQTT will accept MQTT 3.1.1 compliant messages that will be translated into "entities" to get published on a Fiware's Orion Context Broker. Please also note that IotAgent-MQTT is connected to two different brokers: the Context Broker (that is part of a IoT Platform) and the MQTT broker which is a separate element. Once connected to the MQTT broker, the IoTAgent will need to subscribe to all topics on that broker in order to be able to receive all messages from any device connected to that broker. As it will be explained in the following sections, there are some conventions that must be followed in order to interact with the IoTAgent. Therefore, __devices have to publish on certain topics with a particular format__. 
 
+#### 1.1 IoTAgent MQTT
+
+With regards to the IoTAgent, the MQTT protocol is another plugin that is loaded by the IoTAgent core if all relevant components are installed and configured properly. There are, however, two kind of dependencies that must be resolved in order to have a fully working MQTT environment. The MQTT plugin (_MqttService.so_ file) also requires several libraries to run: libmosquitto and libmosquittopp (part of Mosquitto project). Those are needed at build time as well, hence their code has been included as third party elements in the code base. However, they have to be installed in the system. 
+	The other important dependency is the MQTT broker as mentioned before. The one that has been tested with IoTAgent MQTT is Mosquitto (1.2.3 version). Some Linux distributions may have it as par of their available packages to install, otherwise, it has to be built from source. The plugin is compatible with any other MQTT broker, however, all the documentation from now on is based on configuring Mosquitto broker. 
+
+
+
 <a name="def-configuration"></a>
-## 2. Configuration.
+## 2. Getting started: Installation and Configuration.
 
-When the IoTAgent is deployed and configured using puppet, there is no need for specific configuration. However, if the installation is manual (using RPMs for instance) there are some details that have to be taken into account. 
+As any other IoTAgent protocol plugin, it consists of a shared object, some configuration files and in this case some dependencies. Let's get into deeper detail:
 
-### Config.json
+#### MqttService.so
+This is the actual plugin and must be placed in the folder where other shared objects (plugins and main components) of the IotAgent are. There are basically two ways of getting the binary file:
+##### Build from source.
+You can follow more detailed instructions about how to build IoTAgent on this [link](build.md). All what you need to build it is in our repository. 
+##### Install from RPM.
+RPMs have been tested on Centos 6.5. The RPM follows this pattern: iot-agent-mqtt-[version].[commit].x86_64.rpm. Please note that it will require other components are also installed (like the IotAgent base or libmosquitto and libmosquittopp). 
 
-The "resources" section of this file contains valuable information about what plugins will be running on that instance of the IoTAgent. So if MQTT is going to be used, at least this resource must be present:
+#### Libmosquitto and Libmosquittopp
+These two libraries are requiered by MqttService.so. Currently we have tested version __1.2.3__. Some Linux OS have RPMs packages for this particular version. When not available, it can be built from source <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 
+
+#### Mosquitto MQTT Broker.
+When your infrastructure features a different MQTT broker, you could use that instead, (see next section). The use of Mosquitto allows us to configure a very basic but effective way of preventing devices of a particular service from publishing/subscribing to topics of other services, which can be problematic in a multi-vendor scenario. This is done by means of its ACL capabilities. If for whatever reason this convenient feature does not suit your needs, it can be turned off (any device could publish/subscribe to any topic). 
+
+##### Mosquitto Broker config files:
+
+- mosquitto.conf (part of Mosquitto MQTT Broker. It can be used to fine tune Mosquitto). 
+- aclfile.mqtt (file used for the Access Control in Mosquitto)
+
+__Note:__ If MQTT plugin is installed using our RPM, these two files will be provided with default configuration for IoTAgent MQTT (this includes enabling ACL). These files are placed in /etc/iot/ directory. When Mosquitto is installed in the system, it will come along with its own config files. If you want to use ACL capabilities, we recommend you use our _mosquitto.conf_ file instead. 
+
+##### Configuring ACL in Mosquitto.
+
+The Access Control List of Mosquitto enables certain level of privacy for MQTT messages. Anyone could publish on the MQTT Broker, and without ACL, anyone could publish on any topic. This might be fine for you, but if you prefer to have some control over who can publish what and where, you should use ACL. The official Mosquitto documentation explains this topic in more detail. The default pattern that we provide requires MQTT publishers to identify themselves (although password is not necessary) using an user id. This user-id has to be the "api-key" provisioned in the system (see following sections). By using the Api-key as user-id and the ACL, you can have many different organizations with different devices publishing on topics making sure they can't see each other. 
+ACL is enabled in the mosquitto.conf file by setting the "aclfile" property to the path where "aclfile.mqtt" file is located. 
+By default is __enabled__ only if you installed our MQTT plugin RPM.
+
+__Important:__ when ACL is enabled, the user id must be included in the MQTT connection. The MQTT Plugin takes the user from the _sensormqtt.xml_ file. Any device wanting to subscribe/publish to a MQTT broker with ACL enabled has to provide the apikey as user-id. How to do it may depend on the implementation, for instance, the Mosquitto clients (mosquitto_sub and mosquitto_pub) utilize the "-u" parameter. 
+
+##### Running Mosquitto.
+
+Although the MQTT Plugin features reconnection to MQTT Broker, its advisable that this is running before starting the IoTAgent at all. So the command to start Mosquitto as a daemon is:
+```
+mosquitto -d -c <path to config file>
+```
+- When installed from our RPM: typically, the path to config file will be _/etc/iot/mosquitto.conf_. ACL will be enabled.
+- When built from source: the path is _/etc/mosquitto.conf_ or wherever the mosquitto.conf coming with Mosquitto is placed. Alternatively, you could use this file if ACL is not required. 
+
+__Note:__ ideally, Mosquitto broker should be always running in background, so you can check with your system administrator how to do so, using an init.d service for instance. 
+
+#### Configuration Files.
+The basic configuration file for the IoTAgent is the config.json. Here you have to explicitly state what plugins are going to be deployed. There are also other important files to configure, so let's get into each one.
+
+##### Config.json
+
+The "resources" section of this file controls what plugins will be running on that instance of the IoTAgent. So if MQTT is going to be used, at least this resource must be present (there might be different plugins as well):
 
     {
      "resource": "/iot/mqtt",
@@ -35,33 +84,26 @@ The "resources" section of this file contains valuable information about what pl
        }
      } 
 
-Where "MqttService" is the name of the plugin, and it's equivalente to the file that will be loaded by IoTAgent: __MqttService.so__.
+Where "MqttService" is the name of the plugin, and it's equivalent to the file that will be loaded by IoTAgent, that is to say: __MqttService.so__.
 
 "ConfigFile" will be used by the MQTT plugin to locate other configurations file that are also needed. 
 
-### Files needed.
+##### Additional Configuration needed by MQTT Plugin.
 
 In this example, let's assume all files are installed in /etc/iot/ directory. So the files that must be present for a proper operation of the IoTAgent with MQTT plugin are:
 
 - MqttService.xml (it contains the path to the following file).
 - sensormqtt.xml (it contains low-level details about the MQTT plugin's behaviour. The only recommended information that can be changed by users is where MQTT broker (Mosquitto or equivalent) is listening).
-- mosquitto.conf (part of Mosquitto MQTT Broker. It can be used to fine tune Mosquitto)
-- aclfile.mqtt (file used for the Access Control in Mosquitto)
 
-### Using a different MQTT broker.
 
-If Mosquitto is not prefered, or it's going to run in a separate machine whithin your infraestructure, some changes have to be done to __sensormqtt.xml__ file. Locate the following two lines in such file:
+##### Using a different MQTT broker.
+
+If Mosquitto is not prefered, or it's going to run in a separate machine within your infrastructure, some changes have to be done to __sensormqtt.xml__ file. Locate the following two lines in such file:
          
          <input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="" host="localhost" port="1883" user="admin" password="1234" name="mqttwriter"/>				
          <input type="mqtt" mode="server" publish="apikey/sensorid/type" subscribe="#" host="localhost" port="1883" user="admin" password="1234" name="mqttrunner"/>
          
 Where "host" and "port" will be set accordingly. If a different MQTT broker is used, the files "aclfile.mqtt" and "mosquitto.conf" are no longer needed. If Mosquitto is still used, those files must be where Mosquitto is running. 
-
-### Configuring ACL in Mosquitto.
-
-The Access Control List of Mosquitto enables certain level of privacy for MQTT messages. Anyone could publish on the MQTT Broker, and without ACL, anyone could publish on any topic. This might be fine for you, but if you prefer to have some control over who can publish what and where, you should use ACL. The official Mosquitto documentation explains this topic in more detail. The default pattern that we provide requires MQTT publishers to identify themselves (although password is not necessary) using an user id. This user-id has to be the "api-key" provisioned in the system (see following sections). By using the Api-key as user-id and the ACL, you can have many different organizations with different devices publishing on topics making sure they can't see each other. 
-ACL is enabled in the mosquitto.conf file by setting the "aclfile" property to the path where "aclfile.mqtt" file is located. 
-By default is __disabled__. 
 
 
 <a name="def-conventions"></a>

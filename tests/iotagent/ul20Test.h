@@ -85,6 +85,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testChangeIPDevice);
     CPPUNIT_TEST(testChangeIPDevice_empty);
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -105,6 +106,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     static const std::string CONTENT_JSON;
     static const int POST_RESPONSE_CODE;
     static const std::string UPDATE_CONTEXT;
+    static const std::string UPDATE_CONTEXT_sin_param;
     static const std::string POST_DEVICE_SIN;
     static const std::string POST_DEVICE_SIN_ENTITY_NAME;
     static const std::string POST_DEVICE_SIN_ENTITY_TYPE;

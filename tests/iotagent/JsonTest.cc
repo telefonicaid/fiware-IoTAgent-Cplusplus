@@ -273,8 +273,9 @@ void JsonTest::testContext() {
   iota::Attribute attribute_novalue("name", "type", "");
 
   int num_attributes = context_element.get_attributes().size();
+  // now if no_value we add a space
   context_element.add_attribute(attribute_novalue);
-  CPPUNIT_ASSERT(context_element.get_attributes().size() == num_attributes);
+  CPPUNIT_ASSERT(context_element.get_attributes().size() == (num_attributes +1));
 
   // Static attributes form device
   boost::shared_ptr<iota::Device> device(new iota::Device("dev1", "serv1"));
@@ -675,6 +676,239 @@ void JsonTest::testAttrCompound() {
   CPPUNIT_ASSERT_MESSAGE("Checking for all attributes",
                          ce.get_attributes().size() == 2);
   std::cout << "END testAttrCompound" << std::cout;
+}
+
+void JsonTest::testConversionUpdateContext() {
+
+  {
+
+    std::string UPDATE_CONTEXT("{\"updateAction\":\"UPDATE\","
+                               "\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\","
+                               "\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"22\","
+                               "\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}"
+                               "]} ]}");
+
+    std::cout << "@START@ testConversionUpdateContext1" << std::endl;
+    std::istringstream ss(UPDATE_CONTEXT);
+    iota::UpdateContext op_updateContext(ss);
+
+    std::string action("UPDATE");
+    CPPUNIT_ASSERT_MESSAGE("update action",
+                           action.compare(op_updateContext.get_action()) == 0);
+
+    std::vector<iota::ContextElement>::const_iterator i;
+    std::vector<iota::ContextElement> contextElemts =
+      op_updateContext.get_context_elements();
+
+    std::string id, type, name,value;
+    for (i=contextElemts.begin(); i!=contextElemts.end(); ++i) {
+      iota::ContextElement entity = *i;
+      id = entity.get_id();
+      type = entity.get_type();
+      std::cout << "contextElemts:" << id << type << std::endl;
+      CPPUNIT_ASSERT_MESSAGE("id",
+                             id.compare("room_ut1") == 0);
+      CPPUNIT_ASSERT_MESSAGE("type",
+                             type.compare("type2") == 0);
+
+      std::vector<iota::Attribute>::const_iterator j;
+      std::vector<iota::Attribute> atts = entity.get_attributes();
+      int count_atts = atts.size();
+      std::cout << "number attscontextElemts:" << count_atts << std::endl;
+      CPPUNIT_ASSERT_MESSAGE("number atts is 1",
+                             count_atts == 1);
+      for (j=atts.begin(); j!=atts.end(); ++j) {
+        iota::Attribute att = *j;
+        name = att.get_name();
+        type = att.get_type();
+        value = att.get_value();
+        std::cout << "attribute:" << name<< " " << type << " " << value << std::endl;
+        CPPUNIT_ASSERT_MESSAGE("name",
+                               name.compare("PING") == 0);
+        CPPUNIT_ASSERT_MESSAGE("type",
+                               type.compare("command") == 0);
+        CPPUNIT_ASSERT_MESSAGE("value",
+                               value.compare("22") == 0);
+      }
+    }
+  }
+
+  {
+
+    std::string UPDATE_CONTEXT("{\"updateAction\":\"UPDATE\","
+                               "\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\","
+                               "\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"\","
+                               "\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}"
+                               "]} ]}");
+
+    std::cout << "@START@ testConversionUpdateContext2" << std::endl;
+    std::istringstream ss(UPDATE_CONTEXT);
+    iota::UpdateContext op_updateContext(ss);
+
+    std::string action("UPDATE");
+    CPPUNIT_ASSERT_MESSAGE("update action",
+                           action.compare(op_updateContext.get_action()) == 0);
+
+    std::vector<iota::ContextElement>::const_iterator i;
+    std::vector<iota::ContextElement> contextElemts =
+      op_updateContext.get_context_elements();
+
+    std::string id, type, name,value;
+    for (i=contextElemts.begin(); i!=contextElemts.end(); ++i) {
+      iota::ContextElement entity = *i;
+      id = entity.get_id();
+      type = entity.get_type();
+      std::cout << "contextElemts:" << id << type << std::endl;
+      CPPUNIT_ASSERT_MESSAGE("id",
+                             id.compare("room_ut1") == 0);
+      CPPUNIT_ASSERT_MESSAGE("type",
+                             type.compare("type2") == 0);
+
+      std::vector<iota::Attribute>::const_iterator j;
+      std::vector<iota::Attribute> atts = entity.get_attributes();
+      int count_atts = atts.size();
+      std::cout << "number attscontextElemts:" << count_atts << std::endl;
+      CPPUNIT_ASSERT_MESSAGE("number atts is 1",
+                             count_atts == 1);
+      for (j=atts.begin(); j!=atts.end(); ++j) {
+        iota::Attribute att = *j;
+        name = att.get_name();
+        type = att.get_type();
+        value = att.get_value();
+        std::cout << "attribute:" << name<< " " << type << " " << value << std::endl;
+        CPPUNIT_ASSERT_MESSAGE("name",
+                               name.compare("PING") == 0);
+        CPPUNIT_ASSERT_MESSAGE("type",
+                               type.compare("command") == 0);
+        CPPUNIT_ASSERT_MESSAGE("value",
+                               value.compare(" ") == 0);
+      }
+    }
+  }
+
+  {
+    std::string UPDATE_CONTEXT("{\"updateAction\":\"UPDATE\","
+                               "\"contextElements\":["
+                               "{"
+                               "\"id\":\"room_ut1\","
+                               "\"type\":\"type2\","
+                               "\"isPattern\":\"false\","
+                               "\"attributes\":["
+                               "{"
+                               "\"name\":\"B\","
+                               "\"type\":\"compound\","
+                               "\"value\":["
+                               "{"
+                               "\"name\":\"voltaje\","
+                               "\"type\":\"string\","
+                               "\"value\":\"\""
+                               "},"
+                               "{"
+                               "\"name\":\"estado_activacion\","
+                               "\"type\":\"string\","
+                               "\"value\":\"23\""
+                               "},"
+                               "{"
+                               "\"name\":\"hay_cargador\","
+                               "\"type\":\"string\","
+                               "\"value\":\"34\""
+                               "},"
+                               "{"
+                               "\"name\":\"estado_carga\","
+                               "\"type\":\"string\","
+                               "\"value\":\"45\""
+                               "},"
+                               "{"
+                               "\"name\":\"modo_carga\","
+                               "\"type\":\"string\","
+                               "\"value\":\"56\""
+                               "},"
+                               "{"
+                               "\"name\":\"tiempo_desco_stack\","
+                               "\"type\":\"string\","
+                               "\"value\":\"67\""
+                               "}],"
+                               "\"metadatas\":["
+                               "{"
+                               "\"name\":\"sleepcondition\","
+                               "\"type\":\"string\","
+                               "\"value\":\"wakeUP\""
+                               "},"
+                               "{"
+                               "\"name\":\"sleeptime\","
+                               "\"type\":\"string\","
+                               "\"value\":\"50\""
+                               "},"
+                               "{"
+                               "\"name\":\"TimeInstant\","
+                               "\"type\":\"ISO8601\","
+                               "\"value\":\"2015-02-13T13:16:56.130677Z\""
+                               "}]"
+                               "},"
+                               "{"
+                               "\"name\":\"TimeInstant\","
+                               "\"type\":\"ISO8601\","
+                               "\"value\":\"2015-02-13T13:16:56.130677Z\""
+                               "}"
+                               " ]"
+                               "}]"
+                               "}");
+
+    std::cout << "@START@ testConversionUpdateContext4" << std::endl;
+    std::istringstream ss(UPDATE_CONTEXT);
+    iota::UpdateContext op_updateContext(ss);
+
+    std::string action("UPDATE");
+    CPPUNIT_ASSERT_MESSAGE("update action",
+                           action.compare(op_updateContext.get_action()) == 0);
+
+    std::vector<iota::ContextElement>::const_iterator i;
+    std::vector<iota::ContextElement> contextElemts =
+      op_updateContext.get_context_elements();
+
+    std::string id, type, name,value;
+    for (i=contextElemts.begin(); i!=contextElemts.end(); ++i) {
+      iota::ContextElement entity = *i;
+      id = entity.get_id();
+      type = entity.get_type();
+      std::cout << "contextElemts:" << id << type << std::endl;
+      CPPUNIT_ASSERT_MESSAGE("id",
+                             id.compare("room_ut1") == 0);
+      CPPUNIT_ASSERT_MESSAGE("type",
+                             type.compare("type2") == 0);
+
+      std::vector<iota::Attribute>::const_iterator j;
+      std::vector<iota::Attribute>::const_iterator k;
+      std::vector<iota::Attribute> atts = entity.get_attributes();
+
+      int count_atts = atts.size();
+      std::cout << "number attscontextElemts:" << count_atts << std::endl;
+
+      for (j=atts.begin(); j!=atts.end(); ++j) {
+        iota::Attribute att = *j;
+        name = att.get_name();
+        type = att.get_type();
+        std::cout << "attribute:" << name<< " " << type << " " << value << std::endl;
+        std::vector<iota::Attribute> attsC = att.get_compound_value();
+        for (k=attsC.begin(); k!=attsC.end(); ++k) {
+          iota::Attribute att = *k;
+          name = att.get_name();
+          type = att.get_type();
+          value = att.get_value();
+          std::cout << "attribute:" << name<< " " << type << " " << value << std::endl;
+       /* CPPUNIT_ASSERT_MESSAGE("name",
+                               name.compare("PING") == 0);
+        CPPUNIT_ASSERT_MESSAGE("type",
+                               type.compare("command") == 0);
+        CPPUNIT_ASSERT_MESSAGE("value",
+                               value.compare("22") == 0);*/
+        }
+      }
+    }
+
+  }
+
+  std::cout << "@END@ testConversionUpdateContext" << std::endl;
 }
 
 void JsonTest::testConversion() {

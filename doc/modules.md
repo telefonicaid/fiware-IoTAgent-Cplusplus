@@ -130,9 +130,16 @@ Then you can publish a test (on a separate shell):
 ```
      mosquitto_pub -h server.name -t /api-key/device-id/test -m 44
 ```
-You can check that the message has come to the subscriber and also to the ContextBroker, as IoTAgent will be listening to all publications.
 
-__Note__: if ACS is used, mqtt clients have to use user-id that must be the same as the Api-key. In this example, by providing "-u <api-key>" on both commands you can do so.
+
+__Note__: when ACL is used, mqtt clients have to use user-id that must be the same as the Api-key. In this example, by providing "-u <api-key>" on both commands you can do so.
+
+```
+     mosquitto_pub -h server.name -t /api-key/device-id/test -m 44 -u api-key
+```
+ACL is enabled by default, and it's recommendable to leave it enabled (as it will make sure devices publish on their topics only). However, this could be disabled by editing "mosquitto.conf" file and commenting out the line where path to ACL file is set. 
+
+You can check that the message has come to the subscriber and also to the ContextBroker, as IoTAgent will be listening to all publications.
 
 ```
 {"id":"my_device","type":"thing","isPattern":"false","attributes":[{"name":"test","type":"string","value":"44","metadatas":[{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]},{"name":"TimeInstant","type":"ISO8601","value":"2015-03-20T08:52:22.235908Z"}]}

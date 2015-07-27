@@ -27,6 +27,43 @@
 #include <iostream>
 #include "util/json_util.h"
 
+#define EMPTY_VALUE " "
+
+iota::Attribute::Attribute(const std::string name, const std::string& type,
+              const std::string& value){
+  if (name.empty()){
+    _name = EMPTY_VALUE;
+  }else{
+    _name = name;
+  }
+
+  if (type.empty()){
+    _type = EMPTY_VALUE;
+  }else{
+    _type = type;
+  }
+
+  if (value.empty()){
+    _value = EMPTY_VALUE;
+  }else{
+    _value = value;
+  }
+}
+
+iota::Attribute::Attribute(const std::string name, const std::string& type){
+  if (name.empty()){
+    _name = EMPTY_VALUE;
+  }else{
+    _name = name;
+  }
+
+  if (type.empty()){
+    _type = EMPTY_VALUE;
+  }else{
+    _type = type;
+  }
+}
+
 iota::Attribute::Attribute(const std::istringstream& str_attribute) {
   rapidjson::Document document;
   char buffer[str_attribute.str().length()];
@@ -50,6 +87,9 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
     throw std::runtime_error(what.str());
   }
   _name.assign(document["name"].GetString());
+  if (_name.empty()){
+      _name = EMPTY_VALUE;
+  }
 
   if (document.HasMember("type")) {
     _type.assign(document["type"].GetString());
@@ -57,6 +97,10 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
   if (document.HasMember("value")) {
     if (_type != "compound") {
       _value.assign(document["value"].GetString());
+      if (_value.empty()){
+        // CB does not allow empty fields, so we add a space
+        _value = EMPTY_VALUE;
+      }
     }
     else {
       const rapidjson::Value& data = document["value"];
@@ -69,6 +113,8 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
         }
       }
     }
+  }else{
+      _value = EMPTY_VALUE;
   }
 
   // Metadatas
@@ -112,6 +158,9 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
     if (_type != "compound") {
       const rapidjson::Value& data = attribute["value"];
       _value.assign(iota::get_str_value(data));
+      if (_value.empty()){
+        _value = EMPTY_VALUE;
+      }
     }
     else {
       const rapidjson::Value& data = attribute["value"];

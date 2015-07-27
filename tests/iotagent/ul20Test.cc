@@ -165,6 +165,13 @@ Ul20Test::UPDATE_CONTEXT("{\"updateAction\":\"UPDATE\","
       "\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}"
       "]} ]}");
 
+const std::string
+Ul20Test::UPDATE_CONTEXT_sin_param("{\"updateAction\":\"UPDATE\","
+      "\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\","
+      "\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"\","
+      "\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}"
+      "]} ]}");
+
 const int
 Ul20Test::RESPONSE_CODE_NGSI = 200;
 
@@ -1998,7 +2005,7 @@ void Ul20Test::testPUSHCommand() {
   std::string querySTR = "";
   std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
   bodySTR.append("\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\",");
-  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"dev1@command|22\",");
+  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"22\",");
   bodySTR.append("\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}");
   bodySTR.append("]} ]}");
   {
@@ -2228,8 +2235,7 @@ void Ul20Test::testPUSHCommandAsync() {
     std::cout << "@UT@Pending"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
-    IOTASSERT(
-      cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"pending\"")
+    IOTASSERT(cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"pending\"")
       !=
       std::string::npos);
   }
@@ -2645,6 +2651,11 @@ void Ul20Test::testPUSHCommand_MONGO() {
   boost::shared_ptr<HttpMock> device_mock;
   device_mock.reset(new HttpMock(9999, "/device"));
   device_mock->init();
+  std::map<std::string, std::string> h;
+  std::string mock_response = "device_id@PING|Ping OK";
+  // device command response
+  device_mock->set_response(200, mock_response, h);
+  device_mock->set_response(200, mock_response, h);
   std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
 
   iota::AdminService adminserv;
@@ -2682,7 +2693,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
 
-  // updateContext
+  // updateContext con parametro
   std::string querySTR = "";
   std::string bodySTR = UPDATE_CONTEXT;
   {
@@ -2715,7 +2726,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"device_id@PING|22\"")
+      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"device_id@PING|Ping OK\"")
       !=
       std::string::npos);
 
@@ -2731,6 +2742,69 @@ void Ul20Test::testPUSHCommand_MONGO() {
     cb_last = device_mock->get_last();
     std::cout << "@UT@comando que llega al simulador "<< cb_last << std::endl;
     IOTASSERT(cb_last.find("device_id@PING|22") !=
+                   std::string::npos);
+
+    cb_last = cb_mock->get_last();
+    // pending
+    std::cout << "@UT@Pending"<< cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                   std::string::npos);
+    IOTASSERT(
+      cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"pending\"")
+      !=
+      std::string::npos);
+  }
+
+ std::cout << "@UT@upadteContext@" << UPDATE_CONTEXT_sin_param << std::endl;
+  // updateContext con parametro
+  querySTR = "";
+  bodySTR = UPDATE_CONTEXT_sin_param;
+  {
+    pion::http::request_ptr http_request(new
+                                         pion::http::request("/iot/ngsi/d/updateContext"));
+    http_request->set_method("POST");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, subservice);
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR);
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    pion::http::response http_response;
+    std::string response;
+    ul20serv.op_ngsi(http_request, url_args, query_parameters,
+                     http_response, response);
+
+    ASYNC_TIME_WAIT
+    //respuesta al update de contextBroker
+    std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " " <<
+              response << std::endl;
+    IOTASSERT(response.find(RESPONSE_MESSAGE_NGSI_OK) !=
+                   std::string::npos);
+    IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
+
+    std::string cb_last = cb_mock->get_last();
+    // info
+    std::cout << "@UT@INFO" << cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                   std::string::npos);
+    IOTASSERT(
+      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"device_id@PING|Ping OK\"")
+      !=
+      std::string::npos);
+
+    // OK
+    std::cout << "@UT@OK"<<cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+                   std::string::npos);
+    IOTASSERT(
+      cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"OK\"")
+      !=
+      std::string::npos);
+
+    cb_last = device_mock->get_last();
+    std::cout << "@UT@comando que llega al simulador "<< cb_last << std::endl;
+    IOTASSERT(cb_last.find("device_id@PING") !=
                    std::string::npos);
 
     cb_last = cb_mock->get_last();

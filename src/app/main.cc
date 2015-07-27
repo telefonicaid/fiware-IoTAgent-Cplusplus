@@ -39,7 +39,7 @@ void argument_error(void) {
   std::cerr << "usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE" <<
             std::endl
             << "         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE" << std::endl
-            << "options: [-m] [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]"
+            << "options: [-m] [–ipv4] [–ipv6] [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]"
             << std::endl;
 }
 
@@ -51,7 +51,7 @@ void config_error(const std::string& err) {
 int main(int argc, char* argv[]) {
 
   static const unsigned int DEFAULT_PORT = 8080;
-  static const std::string  ZERO_IP = "0.0.0.0";
+  std::string  ZERO_IP = "0.0.0.0";
 
   std::string prov_ip = ZERO_IP;
 
@@ -62,6 +62,13 @@ int main(int argc, char* argv[]) {
   ServiceOptionsType service_options;
   iota::Configurator* conf_iotagent = NULL;
 
+<<<<<<< HEAD
+=======
+  boost::asio::ip::tcp::endpoint cfg_endpoint;
+  // Default
+  cfg_endpoint.port(DEFAULT_PORT);
+
+>>>>>>> f0cab76bebd4b9577cbc63f99f3a92a3d81ea6a8
   std::string service_config_file;
   std::string resource_name;
   std::string service_name;
@@ -98,6 +105,19 @@ int main(int argc, char* argv[]) {
       else if (argv[argnum][1] == 'f' && argv[argnum][2] == '\0'
                && argnum+1 < argc) {
         standalone_config_file.assign(argv[++argnum]);
+      }
+      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
+            && argv[argnum][3] == 'v' && argv[argnum][4] == '4'
+            && argv[argnum][5] == '\0'
+               && argnum+1 < argc) {
+        // default ip
+        ZERO_IP = "0.0.0.0";
+      }
+      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
+            && argv[argnum][3] == 'v' && argv[argnum][4] == '6'
+            && argv[argnum][5] == '\0'
+               && argnum+1 < argc) {
+        ZERO_IP = "::";
       }
       else if (argv[argnum][1] == 'n' && argv[argnum][2] == '\0'
                && argnum+1 < argc) {
@@ -164,6 +184,8 @@ int main(int argc, char* argv[]) {
       return 1;
     }
   }
+
+  cfg_endpoint.address(boost::asio::ip::address::from_string(ZERO_IP));
 
   if (service_config_file.empty() && (resource_name.empty()
                                       || service_name.empty())) {

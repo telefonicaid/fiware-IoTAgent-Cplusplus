@@ -41,6 +41,9 @@ When manager receives from agent a successfully response, global response has a 
 ```
 { "count" : 1, "devices" : [{ "protocol" : "UL20", "device_id" : "device_id", "entity_name" : "entity_name", "entity_type" : "entity_type", "endpoint" : "ht     p://device_endpoint", "timezone" : "America/Santiago", "commands" : [ { "name" : "ping", "type" : "command", "value" : "device_i     d@ping|%s" } ], "attributes" : [ { "object_id" : "temp", "name" : "temperature", "type" : "int" } ], "static_attributes" : [ { "     name" : "humidity", "type" : "int", "value" : "50" } ] }] ,"errors": [{"endpoint": "http://127.0.0.1:1000/iot","code": "-1","details": "Connection refused"}]}
 ```
+
+For more detailed information about what particular error messages are returned per operation, check this [document](errors.md)
+
  
 ## Authentication and Authorization
 If IoT Agent is in authenticated environment, this API requires a token, which you obtain from authentication system. This system and its API is out of scope of present documentation. In this environment, a mandatory header is needed: `X-Auth-Token`.

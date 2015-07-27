@@ -315,13 +315,18 @@ int iota::esp::MqttService::execute_command(const std::string& endpoint,
 }
 
 void iota::esp::MqttService::transform_command(const std::string& command_name,
-    const std::string& command_value,
-    const std::string& updateCommand_value,
+    const std::string& a_command_value,
+    const std::string& a_updateCommand_value,
     const std::string& sequence_id,
     const boost::shared_ptr<iota::Device>& item_dev,
     const boost::property_tree::ptree& service,
     std::string &command_id,
     boost::property_tree::ptree& command_line) {
+
+  std::string command_value(a_command_value);
+  std::string updateCommand_value(a_updateCommand_value);
+  boost::trim(command_value);
+  boost::trim(updateCommand_value);
 
   command_line.put(iota::store::types::NAME, command_name);
   std::string result;

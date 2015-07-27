@@ -47,7 +47,7 @@
             "resource": "/iot/mqtt",
             "options": {
                 "ConfigFile": "MqttService.xml",
-                "FileName": "IoTAgent-mqtt"
+                "FileName": "MqttService"
             },
             "services": [
                 {

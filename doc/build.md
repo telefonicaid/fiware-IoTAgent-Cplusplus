@@ -122,6 +122,8 @@ This way starts all RESOURCE configured in CONFIG_FILE.
 * -n IOTAGENT_NAME: The name assigned. This name is used as part of log file (IoTAgent-<name>.log)
 * -d PLUGINS_DIR: You can specify a directory where modules are located.
 * -v LOG_LEVEL: log level (DEBUG, INFO, WARNING, ERROR, FATAL).
+* -ipv4 server is started in 0.0.0.0
+* -ipv6 server is started in [::]
 
 Examples:
 
@@ -133,6 +135,17 @@ Configuration as iotagent is in /etc/iot/config.json file.
          iotagent -p 80 -n mqtt -v ERROR -c /etc/iot/config.json
 
 It defines a log level to ERROR.
+
+To check iotagent, you can use curl
+
+         curl -g -X GET http://127.0.0.1:80/iot/about 
+the response
+
+         Welcome to IoTAgents 1.1.0 commit 134.g5b92683 in Jul 23 2015
+
+if you start with -ipv6 you can use
+
+        curl -g -X GET http://[::1]:80/iot/about 
 
 ## Making your module-based iotagent
 [Sample Module](test_service.md)

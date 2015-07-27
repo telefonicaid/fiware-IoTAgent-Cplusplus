@@ -1,4 +1,4 @@
-* Fri Jul 31 2015 Agustin Gonzalez <lucas@tid.es> 1.2.0 
+* Fri Jul 31 2015 Agustin Gonzalez <lucas@tid.es> 1.2.0
 - FEATURE IDAS-20524: Add metadatas to attributes in device provision.
 - FEATURE IDAS-20527: Manager add error field ("errors") when agent fails.
 - FEATURE IDAS-20539: Protocol Description change and can be modified in configuration file.
@@ -7,9 +7,10 @@
 - FIX IDAS-20548: IoTA crash in statistics.
 - FIX IDAS-20542: IoTA PEP dont check uri to define a resource.
 - FIX IDAS-20551: IoTA log FATAL when set_option is not implemented by module.
+- FEATURE IDAS-20556: IpV6 support
 
-* Wed Jun 30 2015 Agustin Gonzalez <lucas@tid.es> 1.1.0 
-- FEATURE IDAS-20504: Improve building process with third party sofware. 
+* Wed Jun 30 2015 Agustin Gonzalez <lucas@tid.es> 1.1.0
+- FEATURE IDAS-20504: Improve building process with third party sofware.
 - FEATURE IDAS-20507: Add mongo connection pool.
 - FEATURE IDAS-20515: Create entity after provisioning or modifying a device.
 - FEATURE IDAS-20517: IoTA Manager device pagination.
@@ -37,7 +38,7 @@
 - FEATURE IDAS-20255: Attributes and static attributes can be configured by service.
 - FEATURE IDAS-20459: Check Fiware-Service and Fiware-ServicePath (naming
   conventions).
-- FEATURE IDAS-20515: When new device, IoTA creates entity in CB. 
+- FEATURE IDAS-20515: When new device, IoTA creates entity in CB.
 - FIX IDAS-20249: Duplicated headers in authorization requests.
 - FIX IDAS-20248: Command response must not be forwarded to CB after command timeout
 - FIX IDAS-20231: expired commands don&#39;t send to the correct CB
