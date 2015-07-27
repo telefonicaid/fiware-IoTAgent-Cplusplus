@@ -46,6 +46,13 @@ using ::testing::Invoke;
 
 //HttpMock cb_mock(1026, "/NGSI10/updateContext");
 
+#define  IOTASSERT_MESSAGE(x,y) \
+         std::cout << "@" << __LINE__ << "@" << x << std::endl; \
+         CPPUNIT_ASSERT_MESSAGE(x,y)
+
+#define  IOTASSERT(y) \
+         std::cout << "@" << __LINE__ << "@" << std::endl; \
+         CPPUNIT_ASSERT(y)
 
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MqttTest);
@@ -1307,6 +1314,77 @@ void MqttTest::testLocationContextBroker(){
 
   cb_mock->stop();
   std::cout << "Test testLocationContextBroker done!" << std::endl;
+
+}
+
+void MqttTest::testCommandsBody_BUG(){
+
+std::cout << "START testCommandsBody_BUG " << std::endl;
+
+
+  std::string service = "service2";
+  std::string id, res1;
+
+  std::string command_name="PING";
+  std::string sequence_id;
+  boost::shared_ptr<iota::Device> item_dev(new iota::Device("dev_mqtt_push", "service"));
+  const boost::property_tree::ptree ptreeservice;
+  std::string command_id;
+  std::string command_line;
+
+ {
+    std::cout << "@MQTT@normal command " << std::endl;
+    std::string provisioned_data = "";
+    std::string updateContext_data = "";
+    boost::property_tree::ptree pt;
+    mqttService->transform_command(command_name, provisioned_data, updateContext_data,
+                        sequence_id, item_dev, ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@UT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare("dev_mqtt_push@PING") == 0);
+  }
+
+  {
+    std::cout << "@MQTT@normal command with parameters " << std::endl;
+    std::string provisioned_data = "";
+    std::string updateContext_data = "param1|param2";
+    boost::property_tree::ptree pt;
+    mqttService->transform_command(command_name, provisioned_data, updateContext_data,
+                        sequence_id, item_dev, ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@UT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare("dev_mqtt_push@PING|param1|param2") == 0);
+  }
+
+ {
+    std::cout << "@MQTT@raw command " << std::endl;
+    std::string provisioned_data = "@@RAW@@";
+    std::string updateContext_data = "updateContextValue@command";
+    boost::property_tree::ptree pt;
+    mqttService->transform_command(command_name, provisioned_data, updateContext_data,
+                        sequence_id, item_dev, ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@MQTT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare(updateContext_data) == 0);
+  }
+
+  {
+    std::cout << "@MQTT@format command " << std::endl;
+    std::string provisioned_data = "dev_mqtt_push@PING";
+    std::string updateContext_data = "";
+    boost::property_tree::ptree pt;
+    std::string parameters1;
+    mqttService->transform_command(command_name, provisioned_data, updateContext_data,
+                        sequence_id, item_dev, ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@MQTT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare(provisioned_data) == 0);
+  }
+
+
+
+  std::cout << "TEST: testCommandsBody_BUG DONE  " << std::endl;
+
 
 }
 

@@ -344,7 +344,7 @@ void iota::esp::MqttService::transform_command(const std::string& command_name,
     result.append(item_dev->_name);
     result.append("@");
     result.append(command_name);
-    if (boost::starts_with(key, updateCommand_value)) {
+    if (!boost::starts_with(key, updateCommand_value)) {
       result.append(key);
     }
     if (!updateCommand_value.empty()){
@@ -360,6 +360,7 @@ void iota::esp::MqttService::transform_command(const std::string& command_name,
     command_id.assign(sequence_id);
   }
   command_line.put(iota::store::types::BODY, result);
+  IOTA_LOG_DEBUG(m_logger,"MqttService::transform_command "<< result);
 
 }
 
