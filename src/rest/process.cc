@@ -41,6 +41,7 @@ iota::Process& iota::Process::initialize(std::string url_base,
     if (!url_base.empty()) {
       iota::Process::_url_base = url_base;
     }
+		pion::process::initialize();
     mongo::client::initialize();
   }
 
@@ -49,14 +50,21 @@ iota::Process& iota::Process::initialize(std::string url_base,
 }
 void iota::Process::shutdown() {
   pion::process::shutdown();
+	_http_servers.clear();
+	_tcp_servers.clear();
 }
 
 void iota::Process::wait_for_shutdown() {
   pion::process::wait_for_shutdown();
+	iota::Process::get_process().shutdown();
 }
 
 boost::asio::io_service& iota::Process::get_io_service()  {
   return _scheduler.get_io_service();
+}
+
+pion::scheduler& iota::Process::get_scheduler() {
+	return _scheduler;
 }
 
 std::string& iota::Process::get_logger_name() {

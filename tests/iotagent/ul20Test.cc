@@ -278,9 +278,7 @@ void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
   **/
 void Ul20Test::testNormalPOST() {
   std::cout << "START testNormalPOST" << std::endl;
-  iota::Process& process = iota::Process::get_process();
-  MockService cb_mock;
-  process.add_service("/mock/testNormalPOST", &cb_mock);
+
   /*
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
@@ -321,7 +319,7 @@ void Ul20Test::testNormalPOST() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock.get_last();
+    cb_last = iota::Process::get_process().get_service("/mock")->get_last("testNormalPOST");
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=

@@ -27,26 +27,32 @@
 #include <cppunit/TextTestProgressListener.h>
 #include <cppunit/XmlOutputter.h>
 #include "adminManagerTest.h"
+#include "../mocks/http_mock.h"
 
-#include "mongo/client/init.h"
 
 int main(int argc, char* argv[]) {
 
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Process& process = iota::Process::initialize("",3);
+  iota::Process& process = iota::Process::initialize("",20);
   iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
-  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
-
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "127.0.0.1:7070");
   iota::AdminManagerService* admMgm = new iota::AdminManagerService();
-  admMgm->set_timeout(10);
+  admMgm->set_timeout(20);
   process.set_admin_service(admMgm);
   admMgm->add_service("/iot/res", admMgm);
   iota::AdminService* adm = new iota::AdminService();
   http_server->add_service("/iotagent", adm);
-  iota::UL20Service ul20_service;
-  adm->add_service("/iot/d", &ul20_service);
+  iota::UL20Service* ul20_service = new iota::UL20Service();
+  adm->add_service("/iot/d", ul20_service);
+
+  // Mock
+  MockService* mock = new MockService();
+  // Add to http server
+  process.add_service("/mock", mock);
+  // Add to adm (no function start in mock)
+  admMgm->add_service("/mock", mock);
   process.start();
 
   testing::GTEST_FLAG(throw_on_failure) = true;

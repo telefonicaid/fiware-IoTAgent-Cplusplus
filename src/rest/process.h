@@ -38,8 +38,9 @@ class Process: private boost::noncopyable {
     ~Process() {};
     static iota::Process& initialize(std::string url_base,
                                      unsigned int num_main_threads = 1);
-    static void shutdown();
+    void shutdown();
     static void wait_for_shutdown();
+		pion::scheduler& get_scheduler();
     boost::asio::io_service& get_io_service();
     static std::string& get_logger_name();
     static std::string& get_url_base();
@@ -55,6 +56,8 @@ class Process: private boost::noncopyable {
   protected:
   private:
     Process(unsigned int n_threads);
+		Process(Process const&) {};
+		void operator=(Process const&) {};
     pion::one_to_one_scheduler _scheduler;
     static std::string _logger_name;
     static std::string _url_base;

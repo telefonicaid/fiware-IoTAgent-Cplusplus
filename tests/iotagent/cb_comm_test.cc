@@ -28,6 +28,16 @@
 #include "cbCommTest.h"
 
 int main(int argc, char* argv[]) {
+pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Process& process = iota::Process::initialize("", 3);
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
+  iota::AdminService* adm = new iota::AdminService();
+  process.set_admin_service(adm);
+  MockService* mock = new MockService();
+  process.add_service("/mock", mock);
+  process.start();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(cbCommTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),

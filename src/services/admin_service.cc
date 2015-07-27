@@ -2272,7 +2272,7 @@ void iota::AdminService::check_logs() {
   }
   else {
     perror("Server shutdown for log file errors ");
-    iota::Process::shutdown();
+    iota::Process::get_process().shutdown();
   }
 }
 

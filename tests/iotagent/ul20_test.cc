@@ -27,6 +27,7 @@
 #include <cppunit/TextTestProgressListener.h>
 #include <cppunit/XmlOutputter.h>
 #include "rest/process.h"
+#include "../mocks/http_mock.h"
 #include "ul20Test.h"
 #include "services/admin_service.h"
 
@@ -36,10 +37,11 @@ int main(int argc, char* argv[]) {
   PION_LOG_CONFIG_BASIC;
   iota::Process& process = iota::Process::initialize("", 3);
   iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
-
   pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
   iota::AdminService* adm = new iota::AdminService();
   process.set_admin_service(adm);
+  MockService* mock = new MockService();
+  process.add_service("/mock", mock);
   process.start();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(Ul20Test::suite());
