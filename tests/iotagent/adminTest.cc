@@ -1524,6 +1524,16 @@ void AdminTest::testBADPostDevice() {
               "{\"reason\":\"The request is not well formed\",\"details\":\"empty body\"}")
             == 0);
 
+  std::cout << "@UT@11GET  negative offset " << std::endl;
+  code_res = http_test("/iot/services", "GET", "service2",
+                       "/ssrv2",
+                       "application/json",
+                       "", headers, "offset=-22", response);
+  std::cout << "@UT@response " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare(
+              "{ \"count\": 0,\"services\": []}")
+            == 0);
 
   std::cout << "END@UT@ testBADPostDevice" << std::endl;
 }

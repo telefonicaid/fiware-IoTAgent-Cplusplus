@@ -985,9 +985,82 @@ void AdminManagerTest::testBADServiceManagement() {
               "{ \"count\": 0,\"services\": []}")
             == 0);
 
+  std::cout << "@UT@bad limit" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET+ "/nodevice", "GET", "nodevice", "",
+                       "application/json",
+                       "", headers, "limit=-22", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare(
+              "{ \"count\": 0,\"services\": []}")
+            == 0);
+
+  std::cout << "@UT@bad limit2" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET+ "/nodevice", "GET", "nodevice", "",
+                       "application/json",
+                       "", headers, "limit=badlimit", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare(
+              "{ \"count\": 0,\"services\": []}")
+            == 0);
+
+  std::cout << "@UT@bad offset" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET+ "/nodevice", "GET", "nodevice", "",
+                       "application/json",
+                       "", headers, "offset=-22", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare(
+              "{ \"count\": 0,\"services\": []}")
+           == 0);
+
+  std::cout << "@UT@bad limit2" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET+ "/nodevice", "GET", "nodevice", "",
+                       "application/json",
+                       "", headers, "offset=badlimit", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare(
+             "{ \"count\": 0,\"services\": []}")
+          == 0);
+
+
   code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", "noservice", "",
                        "application/json",
                        "", headers, "", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
+
+  std::cout << "@UT@bad limit" << std::endl;
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", "noservice", "",
+                       "application/json",
+                       "", headers, "limit=-22", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
+
+  std::cout << "@UT@bad limit" << std::endl;
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", "noservice", "",
+                       "application/json",
+                       "", headers, "limit=badlimit", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
+
+  std::cout << "@UT@bad offset" << std::endl;
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", "noservice", "",
+                       "application/json",
+                       "", headers, "offset=-22", response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
+
+  std::cout << "@UT@bad offset2" << std::endl;
+  code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", "noservice", "",
+                       "application/json",
+                       "", headers, "offset=bad", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 200);
   IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);

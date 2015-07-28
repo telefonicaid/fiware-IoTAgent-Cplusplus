@@ -35,6 +35,7 @@
 #include <ctime>
 #include <iostream>
 #include <boost/chrono/thread_clock.hpp>
+#include "util/mongo_connection.h"
 
 #include "util/device.h"
 #include "util/command.h"
@@ -276,15 +277,18 @@ void MongoTest::testDeviceCollection() {
 void MongoTest::testNoMongo() {
   std::cout << "START testNoMongo" << std::endl;
   iota::Configurator::initialize(PATH_BAD_CONFIG);
-
-  const iota::JsonValue& storage=
-    iota::Configurator::instance()->get(iota::store::types::STORAGE);
-
   try {
+    iota::MongoConnection::instance()->reconnect();
+
+    const iota::JsonValue& storage=
+      iota::Configurator::instance()->get(iota::store::types::STORAGE);
+
+
      std::cout << "testGenericCollection2" << std::endl;
      iota::Collection table1("PRUEBA");
      CPPUNIT_ASSERT_MESSAGE("no exception mongo", true);
   }catch(std::exception e){
+     std::cout << "throw exception:" << e.what() << std::endl;
      CPPUNIT_ASSERT_MESSAGE("alarm not found", iota::Alarm::instance()->size() == 1);
   }
 
