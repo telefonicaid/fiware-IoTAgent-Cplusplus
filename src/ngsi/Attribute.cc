@@ -37,11 +37,7 @@ iota::Attribute::Attribute(const std::string name, const std::string& type,
     _name = name;
   }
 
-  if (type.empty()){
-    _type = EMPTY_VALUE;
-  }else{
-    _type = type;
-  }
+  _type = type;
 
   if (value.empty()){
     _value = EMPTY_VALUE;
@@ -57,11 +53,7 @@ iota::Attribute::Attribute(const std::string name, const std::string& type){
     _name = name;
   }
 
-  if (type.empty()){
-    _type = EMPTY_VALUE;
-  }else{
-    _type = type;
-  }
+  _type = type;
 }
 
 iota::Attribute::Attribute(const std::istringstream& str_attribute) {

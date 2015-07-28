@@ -2013,7 +2013,7 @@ void Ul20Test::testPUSHCommand() {
   std::string querySTR = "";
   std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
   bodySTR.append("\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\",");
-  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"22\",");
+  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"unitTest_dev1_endpoint@PING|22\",");
   bodySTR.append("\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}");
   bodySTR.append("]} ]}");
   {
@@ -2046,7 +2046,7 @@ void Ul20Test::testPUSHCommand() {
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
     IOTASSERT(
-      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"dev1@command|22\"")
+      cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"unitTest_dev1_endpoint@PING|22\"")
       !=
       std::string::npos);
     // OK
@@ -2059,7 +2059,7 @@ void Ul20Test::testPUSHCommand() {
 
     cb_last = device_mock->get_last();
     std::cout << "@UT@comando que llega al simulador "<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("dev1@command|22") !=
+    IOTASSERT(cb_last.find("unitTest_dev1_endpoint@PING|22") !=
                    std::string::npos);
 
     cb_last = cb_mock->get_last();

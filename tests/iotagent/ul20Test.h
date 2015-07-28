@@ -32,7 +32,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(Ul20Test);
 
 
-  /*  CPPUNIT_TEST(testTransformCommand);
+    CPPUNIT_TEST(testTransformCommand);
 
     CPPUNIT_TEST(testFileGET);
     CPPUNIT_TEST(testMongoGET);
@@ -69,9 +69,9 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testPollingCommandTimeout);
     CPPUNIT_TEST(testCommandNOUL);
 
-    CPPUNIT_TEST(testPUSHCommandParam);*/
+    CPPUNIT_TEST(testPUSHCommandParam);
 
-    CPPUNIT_TEST(testPUSHCommand_MONGO);/*
+    CPPUNIT_TEST(testPUSHCommand_MONGO);
     CPPUNIT_TEST(testPollingCommand_MONGO_CON);
     CPPUNIT_TEST(testPollingCommand_MONGO_SIN_ENTITY_NAME);
     CPPUNIT_TEST(testPollingCommand_MONGO_SIN_ENTITY_TYPE);
@@ -86,7 +86,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST(testChangeIPDevice);
     CPPUNIT_TEST(testChangeIPDevice_empty);
-*/
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
