@@ -120,7 +120,7 @@ AdminManagerTest::POST_PROTOCOLS2_RERE("{\"iotagent\": \"host2\","
                                        "\"service\": \"service2\","
                                        "\"service_path\": \"/ssrv2\","
                                        "\"token\": \"token2rere\","
-                                       "\"cbroker\": \"http://127.0.0.1:1026\","
+                                       "\"cbroker\": \"\","
                                        "\"resource\": \"/iot/mqtt\","
                                        "\"entity_type\": \"thingrere\""
                                        "},{"
@@ -811,6 +811,8 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
                     response.find("/ssrv2re") != std::string::npos);
   IOTASSERT_MESSAGE("no modified data reregister",
                     response.find("token2rere") != std::string::npos);
+  IOTASSERT_MESSAGE("cbroker modified",
+                    response.find("\"cbroker\" : \"\"") != std::string::npos);
 
   std::cout << "END@UT@ testProtocol" << std::endl;
 
