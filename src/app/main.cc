@@ -62,13 +62,6 @@ int main(int argc, char* argv[]) {
   ServiceOptionsType service_options;
   iota::Configurator* conf_iotagent = NULL;
 
-<<<<<<< HEAD
-=======
-  boost::asio::ip::tcp::endpoint cfg_endpoint;
-  // Default
-  cfg_endpoint.port(DEFAULT_PORT);
-
->>>>>>> f0cab76bebd4b9577cbc63f99f3a92a3d81ea6a8
   std::string service_config_file;
   std::string resource_name;
   std::string service_name;
@@ -185,7 +178,6 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  cfg_endpoint.address(boost::asio::ip::address::from_string(ZERO_IP));
 
   if (service_config_file.empty() && (resource_name.empty()
                                       || service_name.empty())) {

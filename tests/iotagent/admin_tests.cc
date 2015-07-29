@@ -35,18 +35,23 @@
 
 int main(int argc, char* argv[]) {
 
+  // Logger
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Process& process = iota::Process::initialize("",1);
+
+  // Url base
+  iota::Process& process = iota::Process::initialize("/TestAdmin",5);
   iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+
+  // Http Server and admin
   pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
   iota::AdminService* adm = new iota::AdminService();
   process.set_admin_service(adm);
 
   // This urls are only for testing
   std::map<std::string,std::string> filters;
-  adm->add_service("/iot/res", adm);
+  adm->add_service("/TestAdmin/res", adm);
   adm->add_url(iota::ADMIN_SERVICE_AGENTS, filters,
                REST_HANDLE(&iota::AdminService::agents),
                adm);
@@ -58,9 +63,9 @@ int main(int argc, char* argv[]) {
                filters,
                REST_HANDLE(&iota::AdminService::service), adm);
 
-  TestPlugin plugin;
-  plugin.set_resource("/iot/d");
-  adm->add_service("/iot/d", &plugin);
+  TestPlugin* plugin = new TestPlugin();
+  plugin->set_resource("/TestAdmin/d");
+  adm->add_service("/TestAdmin/d", plugin);
   process.start();
 
   CppUnit::TextUi::TestRunner runner;
@@ -68,7 +73,6 @@ int main(int argc, char* argv[]) {
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cerr));
   bool s = runner.run();
-
   process.shutdown();
   return s ? 0 : 1;
 

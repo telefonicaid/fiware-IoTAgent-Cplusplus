@@ -15,6 +15,19 @@
     },
     "resources": [
         {
+            "resource": "/TestAdmin/evadts",
+            "services": [
+                {
+                    "apikey": "apikey3",
+                    "cbroker": "http:://0.0.0.0:1026",
+                    "service": "6664",
+                    "entity_type": "thing",
+                    "service_path": "servicepath3",
+                    "token": "token3"
+                }
+            ]
+        },
+        {
             "resource": "/iot/d",
             "options": {
                 "FileName": "UL20Service"

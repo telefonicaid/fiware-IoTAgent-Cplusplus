@@ -63,7 +63,7 @@ const int AdminManagerTest::DELETE_RESPONSE_CODE = 204;
 
 ////////////////////
 ////  PROTOCOLS
-const std::string AdminManagerTest::URI_PROTOCOLS("/iot/protocols");
+const std::string AdminManagerTest::URI_PROTOCOLS("/TestManager/protocols");
 
 const std::string
 AdminManagerTest::POST_PROTOCOLS_NO_AGENT("{\"iotagent\": \"http://127.0.0.1:1000/iot\","
@@ -151,7 +151,7 @@ AdminManagerTest::GET_PROTOCOLS_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
 ////////////////////
 ////  SERVICE_MANAGEMENT
-const std::string AdminManagerTest::URI_SERVICES_MANAGEMET("/iot/services");
+const std::string AdminManagerTest::URI_SERVICES_MANAGEMET("/TestManager/services");
 //POST
 const std::string
 AdminManagerTest::POST_SERVICE_MANAGEMENT1("{\"services\": [{"
@@ -180,7 +180,7 @@ AdminManagerTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": [
 
 ////////////////////
 ////  DEVICE _MANAGEMENT
-const std::string AdminManagerTest::URI_DEVICES_MANAGEMEMT("/iot/devices");
+const std::string AdminManagerTest::URI_DEVICES_MANAGEMEMT("/TestManager/devices");
 //POST
 const std::string
 AdminManagerTest::POST_DEVICE_MANAGEMENT1("{\"devices\": "
@@ -218,22 +218,22 @@ AdminManagerTest::GET_DEVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []
 std::string
 s1_d_host2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
            "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host2\","
-           "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+           "\"protocol\":\"UL20\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
 std::string
 s1_d2("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
       "\"entity_type\":\"thing\",\"resource\":\"/iot/d2\",\"iotagent\":\"host1\","
-      "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+      "\"protocol\":\"UL20\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
 std::string
 s1_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
         "\"entity_type\":\"thing\",\"resource\":\"/iot/mqtt\",\"iotagent\":\"host1\","
-        "\"protocol\":\"MQTT\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+        "\"protocol\":\"MQTT\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
 std::string
 s2_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
      "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"host1\","
-     "\"protocol\":\"UL20\",\"service\": \"s1\",\"service_path\":\"/ss2\"}");
+     "\"protocol\":\"UL20\",\"service\": \"testmanagerservice\",\"service_path\":\"/ss2\"}");
 
 std::string
 s3_mqtt("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
@@ -270,15 +270,15 @@ AdminManagerTest::AdminManagerTest() {
 
   cleanDB();
   unsigned int port = iota::Process::get_process().get_http_port();
-  std::string service("s1");
-  std::string service_path("/ss1");
+  std::string service("testmanagerservice");
+  std::string service_path("/testmanagersubservice");
   pion::http::response http_response_;
   std::string response_;
   std::map<std::string, std::string> headers;
   std::string service_s1("{\"services\": [{"
                          "\"apikey\": \"apikey\",\"token\": \"token\","
                          "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
-  int code_res = http_test("/iotagent/services", "POST", "s1", "/ss1", "application/json",
+  int code_res = http_test("/iotagent/services", "POST", service, service_path, "application/json",
                        service_s1, headers, "", response_);
   /*
 
@@ -292,11 +292,8 @@ AdminManagerTest::AdminManagerTest() {
 void AdminManagerTest::cleanDB() {
 
   iota::ServiceCollection table_service;
-
   table_service.createTableAndIndex();
-
   mongo::BSONObj all;
-
   table_service.remove(all);
 }
 
@@ -329,8 +326,6 @@ void AdminManagerTest::testGetEndpointsFromDevices() {
 
   std::cout << "Test: testGetEndpointsFromDevices... starting" << std::endl;
 
-
-
   iota::ServiceMgmtCollection table1;
   table1.createTableAndIndex();
 
@@ -356,7 +351,7 @@ void AdminManagerTest::testGetEndpointsFromDevices() {
                       "\"static_attributes\": [{\"name\": \"humidity\",\"type\": \"int\", \"value\": \"50\"  }]"
                       "}]}");
 
-  manager_service.resolve_endpoints(v_endpoints_devices, devices, "s1", "/ss1");
+  manager_service.resolve_endpoints(v_endpoints_devices, devices, "testmanagerservice", "/testmanagersubservice");
 
   std::cout << "Test: testGetEndpointsFromDevices: result: [" <<
             v_endpoints_devices.size() << "] endpoints" << std::endl;
@@ -369,7 +364,7 @@ void AdminManagerTest::testGetEndpointsFromDevices() {
   // Test bad json
   std::string bad_devices("{\"devices\": [");
   CPPUNIT_ASSERT_THROW_MESSAGE("Resolve endpoints with bad json ",
-                               manager_service.resolve_endpoints(v_endpoints_devices, bad_devices, "s1", "/ss1"),
+                               manager_service.resolve_endpoints(v_endpoints_devices, bad_devices, "testmanagerservice", "/testmanagersubservice"),
                                iota::IotaException);
 
   std::cout << "Test: END" << std::endl;
@@ -402,8 +397,8 @@ void AdminManagerTest::testAddDevicesToEndpoints() {
 
   std::string temp;
   std::cout << "Endpoint: " << endpoint << std::endl;
-  int res = manager_service.operation_device_iotagent(endpoint, device, "s1",
-            "/ss1",
+  int res = manager_service.operation_device_iotagent(endpoint, device, "testmanagerservice",
+            "/testmanagersubservice",
             "test", "POST",temp);
   CPPUNIT_ASSERT(res == 200);
 
@@ -522,8 +517,8 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   std::string response;
   std::map<std::string, std::string> h;
   // Two endpoints. Repeat response for test
-  http_mock->set_response("/mock/testMultiplePostsWithResponse/devices", 201, "{}", h);
-  http_mock->set_response("/mock/testMultiplePostsWithResponse/devices", 201, "{}", h);
+  http_mock->set_response("/mock/testMultiplePostsWithResponse/devices", 201, "", h);
+  http_mock->set_response("/mock/testMultiplePostsWithResponse/devices", 201, "", h);
 
   std::string
   device_1("{\"protocol\":\"UL20\",\"device_id\": \"device_1\",\"entity_name\": \"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": \"http://device_endpoint\",\"timezone\": \"America/Santiago\","
@@ -548,13 +543,13 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   v_devices.push_back(iota::DeviceToBeAdded(device_2, endpoint));
   v_devices.push_back(iota::DeviceToBeAdded(device_2, "http://127.0.0.1:1000/iot"));
   std::string temp;
-  int res = manager_service->post_multiple_devices(v_devices, "s1",
-            "/ss1", "",temp);
+  int res = manager_service->post_multiple_devices(v_devices, "testmanagerservice",
+            "/testmanagersubservice", "",temp);
 
   std::cout << "Test: testMultiplePostsWithResponse: result: " << res <<
             std::endl;
 
-  CPPUNIT_ASSERT(res == 201);
+  CPPUNIT_ASSERT(res == 200);
   CPPUNIT_ASSERT_MESSAGE("Checking error ", temp.find("Connection refused") != std::string::npos);
   //sleep(2);
 
@@ -568,12 +563,12 @@ void AdminManagerTest::testPostJSONDevices() {
   std::string
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
-       + boost::lexical_cast<std::string>(port) + "/mock/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       + boost::lexical_cast<std::string>(port) + "/iotagent\","
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
   std::string
   s1_d_error("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:1000/mock/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
   iota::ServiceMgmtCollection table1;
   iota::DeviceCollection table_device;
@@ -594,25 +589,26 @@ void AdminManagerTest::testPostJSONDevices() {
 
   std::string response;
   pion::http::response http_response;
-
+  std::map<std::string, std::string> h;
+  http_mock->set_response("/mock/iotagent/devices", 201, "", h);
   std::cout << "Test testPostJSONDevices STARTING" << std::endl;
-  manager_service->post_device_json("s1", "/ss1", devices, http_response,
+  manager_service->post_device_json("testmanagerservice", "/testmanagersubservice", devices, http_response,
                                    response, "");
 
   std::cout << "Result " << response << std::endl;
 
-  CPPUNIT_ASSERT(http_response.get_status_code() == 201);
+  CPPUNIT_ASSERT(http_response.get_status_code() == 200);
   CPPUNIT_ASSERT_MESSAGE("Checking error ", response.find("Connection refused") != std::string::npos);
 
   //Now checking if the device has been added to the collection.
-  iota::Device q1("device_id_post", "s1");
-  q1._service_path.assign("/ss1");
+  iota::Device q1("device_id_post", "testmanagerservice");
+  q1._service_path.assign("/testmanagersubservice");
   int code = table_device.findd(q1);
   std::cout << "DEVICE FOUND?: " << (code < 0 ? "NO" : "YES") << std::endl;
   CPPUNIT_ASSERT(code >= 0);
 
   std::cout << "Test delete STARTING" << std::endl;
-  manager_service->delete_device_json("s1", "/ss1", "device_id_post",
+  manager_service->delete_device_json("testmanagerservice", "/testmanagersubservice", "device_id_post",
                                      http_response,
                                      response, "",
                                      "PDI-IoTA-UltraLight");
@@ -809,29 +805,30 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   IOTASSERT(response.compare("{ \"count\": 0,\"services\": []}") == 0);
 
   std::cout << "@UT@POST" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/protocols/services", 201, "", h);
+  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 201, "", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "",
                        "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
-/*
+  IOTASSERT(code_res == 200);
+
   std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
+  http_mock->set_response("/mock/testProtocol_ServiceManagement/devices/nodevice", 404, "", h);
   code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", service, "",
                        "application/json",
                        "", headers, "", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 200);
   IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
-*/
+
   std::cout << "@UT@PUT" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/protocols/services", 204, "", h);
+  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 204, "", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "",
                        "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   IOTASSERT(code_res == 200);
 
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/protocols/services", 400, "{\"reason\": \"hola\", \"details\": \"adios\"}");
+  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 400, "{\"reason\": \"hola\", \"details\": \"adios\"}");
   code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "",
                        "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
@@ -841,7 +838,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   IOTASSERT(code_res == 404);
 
   std::cout << "@UT@DELETE" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/protocols/services", 204, "", h);
+  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 204, "", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/ssrv2",
                        "application/json",
                        "", headers, "protocol=UL20", response);
@@ -954,14 +951,14 @@ void AdminManagerTest::testPutJSONDevice_Wrong() {
 
 
   CPPUNIT_ASSERT_THROW_MESSAGE("Missing protocol, Exception expected.",
-                               manager_service->put_device_json("s1", "/ss1", "device_1", device_put,
+                               manager_service->put_device_json("testmanagerservice", "/testmanagersubservice", "device_1", device_put,
                                    http_response, response, token, "")
                                , iota::IotaException);
 
 
 
   CPPUNIT_ASSERT_THROW_MESSAGE("Empty Services. Exception expected",
-                               manager_service->put_device_json("", "/ss1", "device_1", device_put,
+                               manager_service->put_device_json("", "/testmanagersubservice", "device_1", device_put,
                                    http_response, response, token, protocol)
                                , iota::IotaException);
 
@@ -976,11 +973,11 @@ void AdminManagerTest::testPutJSONDevice() {
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
        + boost::lexical_cast<std::string>(port) + "/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
   std::string
   s1_d_error("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:1000/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
   std::string
   device_put("{\"protocol\":\"PDI-IoTA-UltraLight\",\"device_id\": \"device_id_post\","
@@ -1007,8 +1004,6 @@ void AdminManagerTest::testPutJSONDevice() {
   table1.insert(mongo::fromjson(s1_d));
   table1.insert(mongo::fromjson(s1_d_error));
 
-
-
   iota::AdminManagerService* manager_service = (iota::AdminManagerService*)iota::Process::get_process().get_admin_service();
 
   std::string response;
@@ -1016,11 +1011,11 @@ void AdminManagerTest::testPutJSONDevice() {
 
   std::cout << "Test testPutJSONDevice STARTING" << std::endl;
   //DEVICE POSTED using Manager's API.
-  manager_service->post_device_json("s1", "/ss1", devices, http_response,
+  manager_service->post_device_json("testmanagerservice", "/testmanagersubservice", devices, http_response,
                                    response, "");
 
 
-  int res = manager_service->put_device_json("s1", "/ss1", device_id, device_put,
+  int res = manager_service->put_device_json("testmanagerservice", "/testmanagersubservice", device_id, device_put,
             http_response, response, "", protocol);
   CPPUNIT_ASSERT(res == 200);
   CPPUNIT_ASSERT_MESSAGE("Checking error ", response.find("Connection refused") != std::string::npos);
@@ -1040,7 +1035,7 @@ void AdminManagerTest::testPutProtocolDevice() {
 
   int code_res;
   std::string response;
-  std::string service = "s1" ;
+  std::string service = "testmanagerservice" ;
   std::cout << "@UT@service " << service << std::endl;
 
   std::string uri_query(URI_DEVICES_MANAGEMEMT);
@@ -1062,15 +1057,15 @@ void AdminManagerTest::testPutProtocolDevice() {
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
        + boost::lexical_cast<std::string>(port) + "/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
   std::string
   s1_d_error("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:1000/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
 
   //POST Device directly onto endpoint.
-  code_res = http_test("/iotagent/devices", "POST", "s1", "/ss1", "application/json",
+  code_res = http_test("/iotagent/devices", "POST", "testmanagerservice", "/testmanagersubservice", "application/json",
                        POST_DEVICE, headers, "", response);
 
   iota::ServiceMgmtCollection table1;
@@ -1086,7 +1081,7 @@ void AdminManagerTest::testPutProtocolDevice() {
   query_parameters.insert(std::make_pair<std::string, std::string>("protocol",
                           "PDI-IoTA-UltraLight"));
   query_string = iota::make_query_string(query_parameters);
-  code_res = http_test(uri_query, "PUT", service, "/ss1", "application/json",
+  code_res = http_test(uri_query, "PUT", service, "/testmanagersubservice", "application/json",
                        PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 200);
@@ -1106,11 +1101,11 @@ void AdminManagerTest::testPostJSONDeviceErrorHandling() {
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
        + boost::lexical_cast<std::string>(port) + "/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
   int code_res;
   std::string response;
-  std::string service = "s1" ;
+  std::string service = "testmanagerservice" ;
   std::cout << "@UT@service " << service << std::endl;
 
   std::string uri_query(URI_DEVICES_MANAGEMEMT);
@@ -1127,7 +1122,7 @@ void AdminManagerTest::testPostJSONDeviceErrorHandling() {
   query_parameters.insert(std::make_pair<std::string, std::string>("protocol",
                           "PDI-IoTA-UltraLight"));
   query_string = iota::make_query_string(query_parameters);
-  code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+  code_res = http_test(uri_query, "POST", service, "/testmanagersubservice", "application/json",
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 500);
@@ -1147,11 +1142,11 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
        + boost::lexical_cast<std::string>(port) + "/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
   int code_res;
   std::string response;
-  std::string service = "s1" ;
+  std::string service = "testmanagerservice" ;
   std::cout << "@UT@service " << service << std::endl;
 
   std::string uri_query(URI_DEVICES_MANAGEMEMT);
@@ -1170,7 +1165,7 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
   query_parameters.insert(std::make_pair<std::string, std::string>("protocol",
                           "PDI-IoTA-UltraLight"));
   query_string = iota::make_query_string(query_parameters);
-  code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+  code_res = http_test(uri_query, "POST", service, "/testmanagersubservice", "application/json",
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 400);
@@ -1180,21 +1175,21 @@ void AdminManagerTest::testNoEndpoints_Bug_IDAS20444(){
 //Insert endpoint for ss1 service
   table1.insert(mongo::fromjson(s1_d));
   //Second Scenario: inexistent service
-  code_res = http_test(uri_query, "POST", "nanana", "/ss1", "application/json",
+  code_res = http_test(uri_query, "POST", "nanana", "/testmanagersubservice", "application/json",
                        POST_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 400);
 
 
   //Scenario: no protocol on endpoint
-  code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+  code_res = http_test(uri_query, "POST", service, "/testmanagersubservice", "application/json",
                        POST_DEVICE, headers, "", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 500);
 
   //Scenario: no protocol on JSON
 
-   code_res = http_test(uri_query, "POST", service, "/ss1", "application/json",
+   code_res = http_test(uri_query, "POST", service, "/testmanagersubservice", "application/json",
                        POST_DEVICE_NO_PROTOCOL, headers, "", response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 400);
@@ -1216,11 +1211,11 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
   s1_d("{\"apikey\":\"apikey\",\"token\":\"token\",\"cbroker\":\"http://10.95.213.36:1026\","
        "\"entity_type\":\"thing\",\"resource\":\"/iot/d\",\"iotagent\":\"http://127.0.0.1:"
        + boost::lexical_cast<std::string>(port) + "/iotagent\","
-       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"s1\",\"service_path\":\"/ss1\"}");
+       "\"protocol\":\"PDI-IoTA-UltraLight\",\"service\": \"testmanagerservice\",\"service_path\":\"/testmanagersubservice\"}");
 
   int code_res;
   std::string response;
-  std::string service = "s1" ;
+  std::string service = "testmanagerservice" ;
   std::cout << "@UT@service " << service << std::endl;
 
   std::string uri_query(URI_DEVICES_MANAGEMEMT);
@@ -1239,7 +1234,7 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
 
   query_string = iota::make_query_string(query_parameters);
 
-  code_res = http_test(uri_query+"/device_id", "PUT", service, "/ss1", "application/json",
+  code_res = http_test(uri_query+"/device_id", "PUT", service, "/testmanagersubservice", "application/json",
                        PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);
@@ -1247,13 +1242,13 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
 //Insert endpoint for ss1 service
   table1.insert(mongo::fromjson(s1_d));
   //Second Scenario: inexistent service
-  code_res = http_test(uri_query+"/device_id", "PUT", service, "/ss1", "application/json",
+  code_res = http_test(uri_query+"/device_id", "PUT", service, "/testmanagersubservice", "application/json",
                        PUT_DEVICE2, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);
 
 
-  code_res = http_test(uri_query+"/device_id", "PUT", "nanan", "/ss1", "application/json",
+  code_res = http_test(uri_query+"/device_id", "PUT", "nanan", "/testmanagersubservice", "application/json",
                        PUT_DEVICE, headers, query_string, response);
   std::cout << "@UT@1RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 404);

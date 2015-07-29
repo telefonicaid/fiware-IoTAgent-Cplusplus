@@ -114,7 +114,7 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
     std::string get_trust_token();
     bool is_pep();
     std::string get_identifier();
-    void set_async_service(boost::shared_ptr<boost::asio::io_service> io_service);
+    void set_async_service(boost::asio::io_service& io_service);
 
     boost::property_tree::ptree get_ptree(std::string data);
     boost::property_tree::ptree get_user_roles(std::string user_id);
@@ -163,7 +163,7 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
     pion::logger m_logger;
     int _timeout;
     std::string _id;
-    boost::shared_ptr<boost::asio::io_service> _io_service;
+    boost::asio::io_service& _io_service;
     std::map<std::string, boost::shared_ptr<iota::HttpClient> > _connections;
     void add_connection(boost::shared_ptr<iota::HttpClient> connection);
     void remove_connection(boost::shared_ptr<iota::HttpClient> connection);

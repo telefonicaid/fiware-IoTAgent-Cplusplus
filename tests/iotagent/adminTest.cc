@@ -147,8 +147,8 @@ AdminTest::GET_DEVICE_RESPONSE("{ \"count\": 0,{ \"devices\": []}");
 
 ////////////////////
 ////  SERVICES
-const std::string AdminTest::URI_SERVICE("/iot/services");
-const std::string AdminTest::URI_SERVICE2("/iot/agents/d/services");
+const std::string AdminTest::URI_SERVICE("/TestAdmin/services");
+const std::string AdminTest::URI_SERVICE2("/TestAdmin/agents/d/services");
 //POST
 const std::string
 AdminTest::POST_SERVICE("{\"services\": [{"
@@ -264,7 +264,7 @@ AdminTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
 
 ////////////////////
 ////  DEVICE _MANAGEMENT
-const std::string AdminTest::URI_DEVICES_MANAGEMEMT("/iot/devices");
+const std::string AdminTest::URI_DEVICES_MANAGEMEMT("/TestAdmin/devices");
 //POST
 const std::string
 AdminTest::POST_DEVICE_MANAGEMENT1("{\"devices\": "
@@ -296,10 +296,6 @@ void AdminTest::tearDown() {
 void AdminTest::testGetConf() {
 
   std::cout << "START testGetConf" << std::endl;
-
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
@@ -307,7 +303,7 @@ void AdminTest::testGetConf() {
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string(HOST), iota::Process::get_process().get_http_port());
-  pion::http::request http_request("/iot/agents?conf");
+  pion::http::request http_request("/TestAdmin/agents?conf");
   http_request.set_method("GET");
   http_request.add_header("Fiware-Service", "ss");
   http_request.add_header("Fiware-ServicePath", "/ss");
@@ -322,7 +318,7 @@ void AdminTest::testGetConf() {
   tcp_conn.close();
   tcp_conn.connect(
     boost::asio::ip::address::from_string(HOST), iota::Process::get_process().get_http_port());
-  pion::http::request http_request1("/iot/agents?conf");
+  pion::http::request http_request1("/TestAdmin/agents?conf");
   http_request1.set_method("DELETE");
   http_request1.add_header("Fiware-Service", "ss");
   http_request1.add_header("Fiware-ServicePath", "/ss");
@@ -370,18 +366,14 @@ void AdminTest::testReload() {
 void AdminTest::testPostConf() {
 
   std::cout << "START testPostConf" << std::endl;
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
+
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-
-
   pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   tcp_conn.set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
-  pion::http::request http_request("/iot/agents");
+  pion::http::request http_request("/TestAdmin/agents");
   http_request.set_method("POST");
   http_request.set_content(conf->getAll());
   http_request.add_header("Fiware-Service", "ss");
@@ -400,7 +392,7 @@ void AdminTest::testPostConf() {
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   std::cout << "POST agent configuration" << std::endl;
-  pion::http::request http_request_1("/iot/agents/res");
+  pion::http::request http_request_1("/TestAdmin/agents/res");
   http_request_1.set_method("POST");
   http_request_1.add_header("Fiware-Service", "ss");
   http_request_1.add_header("Fiware-ServicePath", "/ss");
@@ -420,7 +412,7 @@ void AdminTest::testPostConf() {
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   std::cout << "PUT agent configuration 2" << std::endl;
-  pion::http::request http_request_2("/iot/agents/res");
+  pion::http::request http_request_2("/TestAdmin/agents/res");
   http_request_2.set_method("PUT");
   std::string mod_res_nok("{\[\"services\": [{\"service\": \"change\"}]}");
   http_request_2.set_content(mod_res_nok);
@@ -435,7 +427,7 @@ void AdminTest::testPostConf() {
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
   std::cout << "PUT agent configuration 2" << std::endl;
-  pion::http::request http_request_3("/iot/agents/evadts");
+  pion::http::request http_request_3("/TestAdmin/agents/evadts");
   http_request_3.set_method("PUT");
   http_request_3.add_header("Fiware-Service", "ss");
   http_request_3.add_header("Fiware-ServicePath", "/ss");
@@ -452,20 +444,12 @@ void AdminTest::testPostConf() {
                     http_response_3.get_status_code() == 200);
 
   conf->release();
-
-
-
   std::cout << "END testPostConf" << std::endl;
-
-
 }
 
 void AdminTest::testGetAgents() {
 
   std::cout << "START testGetAgents" << std::endl;
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
@@ -473,7 +457,7 @@ void AdminTest::testGetAgents() {
   boost::system::error_code error_code;
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
-  pion::http::request http_request("/iot/agents");
+  pion::http::request http_request("/TestAdmin/agents");
   http_request.set_method("GET");
   http_request.add_header("Fiware-Service", "ss");
   http_request.add_header("Fiware-ServicePath", "/ss");
@@ -485,28 +469,28 @@ void AdminTest::testGetAgents() {
   tcp_conn.close();
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
-  pion::http::request http_request_1("/iot/agents/noexist");
+  pion::http::request http_request_1("/TestAdmin/agents/noexist");
   http_request_1.set_method("GET");
   http_request_1.add_header("Fiware-Service", "ss");
   http_request_1.add_header("Fiware-ServicePath", "/ss");
   http_request_1.send(tcp_conn, error_code);
   pion::http::response http_response1(http_request_1);
   http_response1.receive(tcp_conn, error_code);
-  std::cout << "/iot/agents/noexist " << http_response1.get_status_code() <<
+  std::cout << "/TestAdmin/agents/noexist " << http_response1.get_status_code() <<
             std::endl;
   IOTASSERT_MESSAGE("404 agent no exists",
                     http_response1.get_status_code() == 404);
   tcp_conn.close();
   error_code = tcp_conn.connect(
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
-  pion::http::request http_request_2("/iot/agents");
+  pion::http::request http_request_2("/TestAdmin/agents");
   http_request_2.set_method("DELETE");
   http_request_2.add_header("Fiware-Service", "ss");
   http_request_2.add_header("Fiware-ServicePath", "/ss");
   http_request_2.send(tcp_conn, error_code);
   pion::http::response http_response2(http_request_2);
   http_response2.receive(tcp_conn, error_code);
-  std::cout << "/iot/agents " << http_response2.get_status_code() << std::endl;
+  std::cout << "/TestAdmin/agents " << http_response2.get_status_code() << std::endl;
   IOTASSERT(http_response2.get_status_code() == 501);
   tcp_conn.close();
 
@@ -544,7 +528,7 @@ void AdminTest::testCsvProvision() {
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
 
   // Multipart no content
-  pion::http::request http_request("/iot/devices");
+  pion::http::request http_request("/TestAdmin/devices");
   http_request.set_method("POST");
   http_request.set_content_type(
     pion::http::types::CONTENT_TYPE_MULTIPART_FORM_DATA);
@@ -561,7 +545,7 @@ void AdminTest::testCsvProvision() {
                  boost::asio::ip::address::from_string("127.0.0.1"), iota::Process::get_process().get_http_port());
 
   // Multipart csv
-  pion::http::request http_request_csv("/iot/devices");
+  pion::http::request http_request_csv("/TestAdmin/devices");
   http_request_csv.set_method("POST");
   std::string ct(pion::http::types::CONTENT_TYPE_MULTIPART_FORM_DATA);
   ct.append("; boundary=----WebKitFormBoundarynqrI4c1BfROrEpu7");
@@ -652,7 +636,7 @@ void  AdminTest::testPostBadContentType() {
   std::cout << "@UT@service " << service << std::endl;
 
   std::cout << "@UT@POST Service" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "", "application/xml",
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/xml",
                        "<value>XML not allowed</value>", headers, "", response);
   IOTASSERT(code_res == 415);
 
@@ -682,12 +666,12 @@ void  AdminTest::testPostDevice() {
 
   //PUT the service
   std::cout << "@UT@POST Service" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/json",
                        POST_SERVICE, headers, "", response);
   IOTASSERT(code_res == 201);
 
   std::cout << "@UT@GET get empty" << std::endl;
-  code_res = http_test("/iot/devices", "GET", service, "",
+  code_res = http_test("/TestAdmin/devices", "GET", service, "",
                        "application/json", "", headers, query_string, response);
   boost::algorithm::trim(response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -695,7 +679,7 @@ void  AdminTest::testPostDevice() {
   IOTASSERT(GET_EMPTY_RESPONSE_DEVICES.compare(response) == 0);
 
   std::cout << "@UT@GET The device does not exist" << std::endl;
-  code_res = http_test("/iot/devices/noexists", "GET", service, "",
+  code_res = http_test("/TestAdmin/devices/noexists", "GET", service, "",
                        "application/json", "", headers, query_string, response);
   boost::algorithm::trim(response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -705,40 +689,40 @@ void  AdminTest::testPostDevice() {
     == 0);
 
   std::cout << "@UT@POST" << std::endl;
-  code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/devices", "POST", service, "", "application/json",
                        POST_DEVICE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/devices", "GET", service, "", "application/json", "",
+  code_res = http_test("/TestAdmin/devices", "GET", service, "", "application/json", "",
                        headers, "entity=entity_name", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE("Search by entity name ", code_res = 200);
   IOTASSERT(response.find("device_id") != std::string::npos);
 
   std::cout << "@UT@GET limit = -1" << std::endl;
-  code_res = http_test("/iot/devices", "GET", service, "", "application/json", "",
+  code_res = http_test("/TestAdmin/devices", "GET", service, "", "application/json", "",
                        headers, "limit=-1", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE("Search by entity name ", code_res = 200);
   IOTASSERT(response.find("device_id") == std::string::npos);
 
   std::cout << "@UT@POST_BAD" << std::endl;
-  code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/devices", "POST", service, "", "application/json",
                        POST_DEVICE_NO_DEVICE_ID, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE_NO_DEVICE_ID);
 
   std::cout << "@UT@PUT" << std::endl;
-  code_res = http_test("/iot/devices/device_id", "PUT", service, "",
+  code_res = http_test("/TestAdmin/devices/device_id", "PUT", service, "",
                        "application/json",
                        PUT_DEVICE, headers, "", response);
   std::cout << "@UT@RESPONSEPUT: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == PUT_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/devices/device_id", "GET", service, "",
+  code_res = http_test("/TestAdmin/devices/device_id", "GET", service, "",
                        "application/json", "",
                        headers, query_string, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -757,7 +741,7 @@ void  AdminTest::testPostDevice() {
     std::string::npos);
 
   std::cout << "@UT@DELETE" << std::endl;
-  code_res = http_test("/iot/devices/device_id", "DELETE", service, "",
+  code_res = http_test("/TestAdmin/devices/device_id", "DELETE", service, "",
                        "application/json", "",
                        headers, "", response);
   std::cout << "@UT@RESPONSEDELETE: " <<  code_res << " " << response <<
@@ -765,7 +749,7 @@ void  AdminTest::testPostDevice() {
   IOTASSERT(code_res == DELETE_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/devices/device_id", "GET", service, "",
+  code_res = http_test("/TestAdmin/devices/device_id", "GET", service, "",
                        "application/json", "",
                        headers, query_string, response);
   boost::algorithm::trim(response);
@@ -773,7 +757,7 @@ void  AdminTest::testPostDevice() {
   IOTASSERT(code_res == GET_RESPONSE_CODE_NOT_FOUND);
 
   std::cout << "@UT@DELETE Service" << std::endl;
-  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "DELETE", service, "",
                        "application/json", "",
                        headers, "", response);
   IOTASSERT(code_res == 400);
@@ -790,9 +774,6 @@ void  AdminTest::testAttributeService() {
   std::map<std::string,std::string> headers;
   std::string query_string("apikey=apikey&resource=/iot/d");
 
-  pion::logger pion_logger(PION_GET_LOGGER("main"));
-  PION_LOG_SETLEVEL_DEBUG(pion_logger);
-  PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
   std::string response;
@@ -801,21 +782,21 @@ void  AdminTest::testAttributeService() {
   std::cout << "@UT@service " << service << std::endl;
   int code_res;
   // Removing
-  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "DELETE", service, "",
                        "application/json", "",
                        headers, query_string, response);
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
                     (code_res), code_res == 204);
 
   std::cout << "@UT@POST" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/json",
                        POST_SERVICE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
                     (code_res), code_res == POST_RESPONSE_CODE);
 
   std::cout << "@UT@medida" << std::endl;
-  code_res = http_test("/iot/d", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/d", "POST", service, "", "application/json",
                        "2014-02-18T16:41:20Z|t|23", headers, "i=unitTest_dev1_endpoint&k=apikey3",
                        response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -823,7 +804,7 @@ void  AdminTest::testAttributeService() {
 
 
   std::cout << "@UT@DELETE: " <<  service << std::endl;
-  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "DELETE", service, "",
                        "application/json", "",
                        headers, "apikey=apikey&resource=/iot/d", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -847,14 +828,14 @@ void  AdminTest::testPostService() {
   std::cout << "@UT@service " << service << std::endl;
   int code_res;
   // Removing
-  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "DELETE", service, "",
                        "application/json", "",
                        headers, query_string, response);
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
                     (code_res), code_res == 204);
 
   std::cout << "@UT@GET get empty this service" << std::endl;
-  code_res = http_test("/iot/services/" + service, "GET", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "GET", service, "",
                        "application/json", "",
                        headers, query_string, response);
   boost::algorithm::trim(response);
@@ -866,7 +847,7 @@ void  AdminTest::testPostService() {
 
 
   std::cout << "@UT@POST" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/json",
                        POST_SERVICE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
@@ -874,7 +855,7 @@ void  AdminTest::testPostService() {
 
   std::cout << "@UT@PUT" << std::endl;
   // PUT no apikey, no resource 400
-  code_res = http_test("/iot/services/" + service, "PUT", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "PUT", service, "",
                        "application/json",
                        PUT_SERVICE, headers,  query_string, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -882,7 +863,7 @@ void  AdminTest::testPostService() {
                     (code_res), code_res == PUT_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/services", "GET", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "GET", service, "", "application/json",
                        "",
                        headers, query_string, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -892,7 +873,7 @@ void  AdminTest::testPostService() {
                     response.find("entity_type2") != std::string::npos);
 
   std::cout << "@UT@GET with bad resource" << std::endl;
-  code_res = http_test("/iot/services", "GET", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "GET", service, "", "application/json",
                        "",
                        headers, "dd=d&resource=/io/kk", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -900,14 +881,14 @@ void  AdminTest::testPostService() {
                     response.compare("{ \"count\": 0,\"services\": []}") == 0);
 
   std::cout << "@UT@POST" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "",
+  code_res = http_test("/TestAdmin/services", "POST", service, "",
                        "application/json",
                        POST_SERVICE2, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
                     (code_res), code_res == POST_RESPONSE_CODE);
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/services", "GET", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "GET", service, "", "application/json",
                        "",
                        headers, "", response);
   IOTASSERT_MESSAGE(service + "|outgoing_route" + response,
@@ -915,7 +896,7 @@ void  AdminTest::testPostService() {
 
   std::cout << "@UT@PUTBAD" << std::endl;
   // PUT no apikey, no resource 400
-  code_res = http_test("/iot/services/" + service, "PUT", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "PUT", service, "",
                        "application/json",
                        "{\"resource\":\"/iot/d2\"}", headers,  query_string, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -925,7 +906,7 @@ void  AdminTest::testPostService() {
                     ) != std::string::npos);
 
   std::cout << "@UT@DELETE " << service << std::endl;
-  code_res = http_test("/iot/services", "DELETE", service, "/*",
+  code_res = http_test("/TestAdmin/services", "DELETE", service, "/*",
                        "application/json", "",
                        headers, query_string, response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -933,7 +914,7 @@ void  AdminTest::testPostService() {
                     (code_res), code_res == DELETE_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/services", "GET", service, "/*",
+  code_res = http_test("/TestAdmin/services", "GET", service, "/*",
                        "application/json", "",
                        headers, query_string, response);
   boost::algorithm::trim(response);
@@ -946,7 +927,7 @@ void  AdminTest::testPostService() {
   std::cout <<
             "@UT@GET Invalid Parameter (fiware-Service different from service-id)" <<
             std::endl;
-  code_res = http_test("/iot/services/OtherService", "GET", service, "",
+  code_res = http_test("/TestAdmin/services/OtherService", "GET", service, "",
                        "application/json", "",
                        headers, query_string, response);
   boost::algorithm::trim(response);
@@ -956,7 +937,7 @@ void  AdminTest::testPostService() {
 
   // Error cases
   std::cout << "@UT@POST" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/json",
                        POST_SERVICE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>
@@ -1992,7 +1973,7 @@ void AdminTest::testForbiddenCharacters() {
   std::string service = "service" ;
   service.append(boost::lexical_cast<std::string>(rand()));
   std::cout << "@UT@POST Service" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/json",
                        POST_SERVICE, headers, "", response);
 
   std::vector<std::string> forbidden_characters;
@@ -2010,7 +1991,7 @@ void AdminTest::testForbiddenCharacters() {
     post_str.append(device_forbidden);
     post_str.append(forbidden_characters[i]);
     post_str.append(cont);
-    code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+    code_res = http_test("/TestAdmin/devices", "POST", service, "", "application/json",
                          post_str , headers, "", response);
     std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
     IOTASSERT(code_res == 400);
@@ -2018,11 +1999,11 @@ void AdminTest::testForbiddenCharacters() {
   std::string post_str(device_with_forbidden);
   post_str.append(device_forbidden);
   post_str.append(cont);
-  code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/devices", "POST", service, "", "application/json",
                          post_str , headers, "", response);
     std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
     IOTASSERT(code_res == 201);
-  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "DELETE", service, "",
                        "application/json", "",
                        headers, "", response);
   std::cout << "End TestForbiddenCharacters" << std::endl;

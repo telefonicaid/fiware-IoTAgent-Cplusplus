@@ -560,7 +560,7 @@ int iota::AdminManagerService::post_multiple_devices(
   IOTA_LOG_DEBUG(m_log, log_message);
 
   response.assign("");
-  int code = 201;
+  int code = pion::http::types::RESPONSE_CODE_CREATED;
   for (int i = 0; i < v_devices_endpoint_in.size(); i++) {
     DeviceToBeAdded& dev = v_devices_endpoint_in[i];
     std::string temp_res;
@@ -593,6 +593,9 @@ int iota::AdminManagerService::post_multiple_devices(
   add_errors_to_response(response, response_from_iotagent_nok);
   if (response_from_iotagent.size() == 0) {
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
+  }
+  else if (!response.empty()) {
+    code = pion::http::types::RESPONSE_CODE_OK;
   }
   return code;
 
@@ -1284,6 +1287,9 @@ int iota::AdminManagerService::post_service_json(
     add_errors_to_response(response, response_from_iotagent_nok);
     if (response_from_iotagent.size() == 0) {
       code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
+    }
+    else if (!response.empty()) {
+      code = pion::http::types::RESPONSE_CODE_OK;
     }
 
   }

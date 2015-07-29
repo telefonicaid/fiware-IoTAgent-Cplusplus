@@ -31,7 +31,7 @@ iota::AccessControl::AccessControl(): _timeout(5),
 }
 iota::AccessControl::AccessControl(std::string endpoint_ac,
                                     int timeout,
-                                    boost::shared_ptr<boost::asio::io_service> io_service): _endpoint_ac(
+                                    boost::asio::io_service& io_service): _endpoint_ac(
                                         endpoint_ac),
   _timeout(timeout), _io_service(io_service), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }

@@ -32,18 +32,26 @@
 
 int main(int argc, char* argv[]) {
 
+  // Logger
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Process& process = iota::Process::initialize("",20);
+
+  // Http server
+  iota::Process& process = iota::Process::initialize("/TestManager",5);
   iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
   pion::http::plugin_server_ptr http_server = process.add_http_server("", "127.0.0.1:7070");
+
+  // Manager is admin service
   iota::AdminManagerService* admMgm = new iota::AdminManagerService();
   admMgm->set_timeout(20);
   process.set_admin_service(admMgm);
-  admMgm->add_service("/iot/res", admMgm);
+
+  // Admin service for agent
   iota::AdminService* adm = new iota::AdminService();
   http_server->add_service("/iotagent", adm);
+
+  // Plugin
   iota::UL20Service* ul20_service = new iota::UL20Service();
   adm->add_service("/iot/d", ul20_service);
 

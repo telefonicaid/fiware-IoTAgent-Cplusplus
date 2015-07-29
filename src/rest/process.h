@@ -49,6 +49,7 @@ class Process: private boost::noncopyable {
     void set_admin_service(iota::AdminService* admin_service);
     iota::AdminService* get_admin_service();
     void start();
+    void stop();
     static iota::Process& get_process();
     unsigned int get_http_port();
     pion::http::plugin_service* get_service(std::string http_resource);
@@ -59,6 +60,7 @@ class Process: private boost::noncopyable {
 		Process(Process const&) {};
 		void operator=(Process const&) {};
     pion::one_to_one_scheduler _scheduler;
+    pion::one_to_one_scheduler _server_scheduler;
     static std::string _logger_name;
     static std::string _url_base;
     std::map<std::string, pion::tcp::server_ptr> _tcp_servers;

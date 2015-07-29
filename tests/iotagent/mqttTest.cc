@@ -46,7 +46,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION(MqttTest);
 
 MqttTest::MqttTest() {
   mqttMsg.topic = NULL;
-  iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+
 
     try{
     iota::Collection table(iota::store::types::DEVICE_TABLE);
@@ -120,10 +120,8 @@ MqttTest::~MqttTest() {
 void MqttTest::setUp() {
 
   std::cout << "SETUP MqttTest " << std::endl;
-  cbPublish = new iota::esp::ngsi::IotaMqttServiceImpl("/iot/mqtt");
-  mqttService = new iota::esp::MqttService();
-
-  mqttService->set_resource("/iot/mqtt");
+  cbPublish = new iota::esp::ngsi::IotaMqttServiceImpl("/TestMqtt/mqtt");
+  mqttService = (iota::esp::MqttService*)iota::Process::get_process().get_service("/TestMqtt/mqtt");
   cbPublish->set_resthandle(mqttService);
   cbPublish->set_command_service(mqttService);
 
@@ -135,13 +133,12 @@ void MqttTest::tearDown() {
   if (mqttMsg.topic != NULL) {
     free(mqttMsg.topic);
   }
-  delete mqttService; //
 }
 
 
 void MqttTest::testCBPublisher() {
-  HttpMock cb_mock(1026, "/NGSI10/updateContext");
-  cb_mock.init();
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::cout << "Test CBPublisher starting ... " << std::endl;
 
   std::string entity;
@@ -151,7 +148,7 @@ void MqttTest::testCBPublisher() {
   std::string expected = "";
 
   const iota::JsonValue& service_object =
-    iota::Configurator::instance()->getServicebyApiKey("/iot/mqtt", "1234");
+    iota::Configurator::instance()->getServicebyApiKey("/TestMqtt/mqtt", "1234");
 
   if (service_object.HasMember("entity_type")) {
     entity.assign(service_object["entity_type"].GetString());
@@ -196,7 +193,7 @@ void MqttTest::testCBPublisher() {
   CPPUNIT_ASSERT(
     actual.find("{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":") !=
     std::string::npos);
-  cb_mock.stop();
+
 
   std::cout << "Test CBPublisher done!" << std::endl;
 }
@@ -230,8 +227,9 @@ void MqttTest::testCBPublisherMissingIDdevice() {
 
 void MqttTest::testReceivedMqtt() {
   std::cout << "Test Receive Mqtt Message starting .... " << std::endl;
-  HttpMock cb_mock(1026, "/NGSI10/updateContext");
-  cb_mock.init();
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+
   std::string jsonMqtt;
   //Test mqtt message is built at stubLoopToOnMessage method
   mqtt_alias.assign("te");
@@ -252,8 +250,6 @@ void MqttTest::testReceivedMqtt() {
   mockMosquitto = new MockMosquitto();
   mockPublisher = new MockIotaMqttService();
 
-
-
   defineExpectationsMqttt();
 
 
@@ -268,7 +264,6 @@ void MqttTest::testReceivedMqtt() {
   mqttService->initESPLib(logPath, sensorfile);
   delete(cbPublish);  //I'm going to use the mock.
   mqttService->setIotaMqttService(mockPublisher);
-
   mqttService->startESP();
 
   std::cout << "Sensor Started" << std::endl;
@@ -282,7 +277,6 @@ void MqttTest::testReceivedMqtt() {
 
   CPPUNIT_ASSERT(idsensor > 0);
   std::cout << "Test Receive MQTT message completed!" << std::endl;
-  cb_mock.stop();
   //delete mqttService;
 
 
@@ -292,8 +286,8 @@ void MqttTest::testReceivedMqtt() {
 void MqttTest::testBadEntityType() {
   //entity type should be taken from Configuration.
   //cb_mock.init();
-  HttpMock cb_mock(1026, "/NGSI10/updateContext");
-  cb_mock.init();
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
 
   std::string entity;
@@ -301,7 +295,7 @@ void MqttTest::testBadEntityType() {
   std::string expected = "";
 
   const iota::JsonValue& service_object =
-    iota::Configurator::instance()->getServicebyApiKey("/iot/mqtt", "1234");
+    iota::Configurator::instance()->getServicebyApiKey("/TestMqtt/mqtt", "1234");
 
   if (service_object.HasMember("entity_type")) {
     entity.assign(service_object["entity_type"].GetString());
@@ -348,7 +342,6 @@ void MqttTest::testBadEntityType() {
   CPPUNIT_ASSERT(
     actual.find("{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":") !=
     std::string::npos);
-  cb_mock.stop();
 
 }
 
@@ -437,18 +430,12 @@ void MqttTest::testNotInitCBPublisher() {
   SLEEP(1000);//Allow some time to process request
   std::cout << " Test NoInitCBPublisher completed" << std::endl;
 
-
- // delete mqttService;
-
-
-
-
 }
 
 void MqttTest::testBadXMLConfigOutputIoT() {
 
-  HttpMock cb_mock(1026, "/NGSI10/updateContext");
-  cb_mock.init();
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::string jsonMqtt;
   //Test mqtt message is built at stubLoopToOnMessage method
   std::cout << "Test BAD XML Config Output IoT " << std::endl;
@@ -503,15 +490,13 @@ void MqttTest::testBadXMLConfigOutputIoT() {
 
   CPPUNIT_ASSERT(idsensor > 0);
   std::cout << "Test BAD XML Config Output IoT completed!" << std::endl;
-  //delete mqttService;
-  cb_mock.stop();
 
 }
 
 void MqttTest::testLongAliasesNotWorking() {
 
-  HttpMock cb_mock(1026, "/NGSI10/updateContext");
-  cb_mock.init();
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::string jsonMqtt;
   //Test mqtt message is built at stubLoopToOnMessage method
   std::cout << "Test LongAliases not Working Starting..." << std::endl;
@@ -560,9 +545,6 @@ void MqttTest::testLongAliasesNotWorking() {
 
   CPPUNIT_ASSERT(idsensor > 0);
   std::cout << "Test Long Aliases not Working  completed!" << std::endl;
-  cb_mock.stop();
-
-  //delete mqttService;
 
 }
 
@@ -575,8 +557,8 @@ void MqttTest::testMultipleMeasures() {
   - Timestamp will be generated per publication, so it may be different on each one.
   - NOTE: CB doesn't accept same attribute more than once per publication. Hence
   */
-  HttpMock cb_mock(1026, "/NGSI10/updateContext");
-  cb_mock.init();
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::cout << "TEST: testMultipleMeasures starting... " << std::endl;
   mqtt_alias.assign("mul20");
   mqtt_payload.assign("t|23#t|34#pres|23.5#h|55");
@@ -644,8 +626,6 @@ void MqttTest::testMultipleMeasures() {
 
   CPPUNIT_ASSERT(idsensor > 0);
   std::cout << "TEST: testMultipleMeasures DONE " << std::endl;
-  //delete mqttService;
-  cb_mock.stop();
 }
 
 /**
@@ -699,9 +679,6 @@ void MqttTest::testGetAllCommandsPolling() {
 
   CPPUNIT_ASSERT(idsensor > 0);
   std::cout << "TEST: testGetAllCommandsPolling DONE " << std::endl;
-
-  //delete mqttService;
-
 }
 
 /**
@@ -713,9 +690,8 @@ void MqttTest::testGetAllCommandsPolling() {
 void MqttTest::testPollingOneMqttCommand() {
 
   std::cout << "TEST: testPollingOneMqttCommand Starting...  " << std::endl;
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock,"mongodb");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -726,7 +702,7 @@ void MqttTest::testPollingOneMqttCommand() {
   bodySTR.append("]} ]}");
 
   pion::http::request_ptr http_request(new
-                                       pion::http::request("/iot/ngsi/mqtt/updateContext"));
+                                       pion::http::request("/TestMqtt/ngsi/mqtt/updateContext"));
   http_request->set_method("POST");
   http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
   http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
@@ -801,10 +777,6 @@ void MqttTest::testPollingOneMqttCommand() {
 
 
   CPPUNIT_ASSERT(idsensor > 0);
-
-  cb_mock->stop();
-
-  //delete mqttService;
   std::cout << "TEST: testPollingOneMqttCommand DONE  " << std::endl;
 }
 
@@ -817,9 +789,8 @@ response sent back to IotAgent. The entry point is the "execute_command".
 void MqttTest::testPollingCommandExecution() {
 
   std::cout << "TEST: testPollingCommandExecution Starting...  " << std::endl;
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock,"mongodb");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -830,7 +801,7 @@ void MqttTest::testPollingCommandExecution() {
   bodySTR.append("]} ]}");
 
   pion::http::request_ptr http_request(new
-                                       pion::http::request("/iot/ngsi/mqtt/updateContext"));
+                                       pion::http::request("/TestMqtt/ngsi/mqtt/updateContext"));
   http_request->set_method("POST");
   http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
   http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
@@ -857,7 +828,7 @@ void MqttTest::testPollingCommandExecution() {
   std::cout << "TEST: testPollingCommandExecution Inserting command RESPONSE:   "
             << response << std::endl;
 
-  cb_mock->get_last(); //This will delete the updateContext on the mock
+  cb_mock->get_last("/mock/NGSI10/updateContext"); //This will delete the updateContext on the mock
 
   //I need to know the cmdid.
 
@@ -925,9 +896,6 @@ void MqttTest::testPollingCommandExecution() {
   CPPUNIT_ASSERT(all_commands.size() == 0);
   //cb_mock->get_last(); //for checking status
 
-  cb_mock->stop();
-
-  //delete mqttService;
   std::cout << "TEST: testPollingOneMqttCommand DONE  " << std::endl;
 
 
@@ -979,9 +947,8 @@ void MqttTest::testExtractingCmdId() {
 
 void MqttTest::testPushCommandExecution() {
   std::cout << "TEST: testPushCommandExecution Starting...  " << std::endl;
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock,"mongodb");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
   //Command to get processed.
   std::string querySTR = "";
@@ -992,7 +959,7 @@ void MqttTest::testPushCommandExecution() {
   bodySTR.append("]} ]}");
 
   pion::http::request_ptr http_request(new
-                                       pion::http::request("/iot/ngsi/mqtt/updateContext"));
+                                       pion::http::request("/TestMqtt/ngsi/mqtt/updateContext"));
   http_request->set_method("POST");
   http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
   http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
@@ -1080,9 +1047,6 @@ void MqttTest::testPushCommandExecution() {
   std::cout << "Sensor Stopping... " << std::endl;
 
   CPPUNIT_ASSERT(idsensor > 0);
-  cb_mock->stop();
-
-  //delete mqttService;
 
   std::cout << "TEST: testPushCommandExecution DONE  " << std::endl;
 }
@@ -1093,9 +1057,8 @@ void MqttTest::testPushCommandResponse() {
   */
 
   std::cout << "TEST: testPushCommandResponse Starting...  " << std::endl;
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock,"mongodb");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
 
   //Let's create and store a command like CommandHandle would do it
@@ -1170,9 +1133,7 @@ void MqttTest::testPushCommandResponse() {
   std::cout << "TEST: testPushCommandResponse Checking commands ...  # " <<
             all_commands.size() << std::endl;
   CPPUNIT_ASSERT(all_commands.size() == 0);
-  //cb_mock->get_last(); //for checking status
 
-  cb_mock->stop();
   SLEEP(1000);
   std::cout << "TEST: testPushCommandResponse Stopping sensor...  " << std::endl;
   //delete mqttService;
@@ -1242,10 +1203,8 @@ std::cout << "TEST: testPostprocessorJSON_IoTOutput_cmd starting... " << std::en
 void MqttTest::testLocationContextBroker(){
   std::cout << "testLocationContextBroker  starting .... " << std::endl;
 
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
-
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::string entity;
 
 
@@ -1253,7 +1212,7 @@ void MqttTest::testLocationContextBroker(){
   std::string expected = "";
 
   const iota::JsonValue& service_object =
-    iota::Configurator::instance()->getServicebyApiKey("/iot/mqtt", "1234");
+    iota::Configurator::instance()->getServicebyApiKey("/TestMqtt/mqtt", "1234");
 
   if (service_object.HasMember("entity_type")) {
     entity.assign(service_object["entity_type"].GetString());
@@ -1297,9 +1256,6 @@ void MqttTest::testLocationContextBroker(){
   CPPUNIT_ASSERT(
     actual.find(expected) != std::string::npos);
 
-
-
-  cb_mock->stop();
   std::cout << "Test testLocationContextBroker done!" << std::endl;
 
 }
@@ -1479,7 +1435,7 @@ int MqttTest::stubPublishPush(int* mid, const char* topic, int payloadLen,
 
   return 0;
 }
-
+/*
 void MqttTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
                             const std::string& type) {
   cb_mock->init();
@@ -1525,3 +1481,4 @@ void MqttTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
 
 
 }
+*/

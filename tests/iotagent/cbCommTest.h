@@ -23,6 +23,7 @@
 #define SRC_TESTS_IOTAGENT_CBCOMMTEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
+#include "services/admin_service.h"
 #include "../mocks/http_mock.h"
 
 
@@ -30,13 +31,11 @@ class cbCommTest: public CppUnit::TestFixture  {
 
     CPPUNIT_TEST_SUITE(cbCommTest);
 
-    //CPPUNIT_TEST(testSend);
+    CPPUNIT_TEST(testSend);
     CPPUNIT_TEST(testAsyncSend);
-		/*
     CPPUNIT_TEST(testSynchSendTimeout);
     CPPUNIT_TEST(testAlarm);
     CPPUNIT_TEST(testAsynchSendTimeout);
-		*/
 
     CPPUNIT_TEST_SUITE_END();
   public:

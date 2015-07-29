@@ -32,6 +32,7 @@ iota::Process* iota::Process::_process = NULL;
 
 iota::Process::Process(unsigned int num_main_threads) {
   _scheduler.set_num_threads(num_main_threads);
+  _server_scheduler.set_num_threads(num_main_threads);
 }
 
 iota::Process& iota::Process::initialize(std::string url_base,
@@ -49,9 +50,10 @@ iota::Process& iota::Process::initialize(std::string url_base,
 
 }
 void iota::Process::shutdown() {
-  pion::process::shutdown();
+  stop();
 	_http_servers.clear();
 	_tcp_servers.clear();
+	pion::process::shutdown();
 }
 
 void iota::Process::wait_for_shutdown() {
@@ -102,7 +104,7 @@ pion::http::plugin_server_ptr iota::Process::add_http_server(
     else {
       boost::asio::ip::tcp::endpoint e = get_endpoint(endpoint);
       http_server.reset(new pion::http::plugin_server(
-                          _scheduler,
+                          _server_scheduler,
                           e));
     }
     if (server_name.empty()) {
@@ -127,7 +129,6 @@ void iota::Process::set_admin_service(iota::AdminService* admin_service) {
   url_ngsi_common.append(iota::NGSI_SERVICE);
   admin_service->add_service(url_ngsi_common, ngsi_ptr);
   add_service(url_ngsi_common, ngsi_ptr);
-
   _admin_service = admin_service;
 }
 
@@ -145,7 +146,7 @@ iota::Process& iota::Process::get_process() {
 
 boost::asio::ip::tcp::endpoint iota::Process::get_endpoint(
   std::string endpoint) {
-  std::size_t endpoint_a = endpoint.find(':');
+  std::size_t endpoint_a = endpoint.find_last_of(':');
   boost::asio::ip::address address = boost::asio::ip::address::from_string(
                                        endpoint.substr(0, endpoint_a));
   boost::asio::ip::tcp::endpoint e(address,
@@ -166,7 +167,26 @@ void iota::Process::start() {
     i_http->second->start();
     ++i_http;
   }
+  _scheduler.startup();
 }
+
+void iota::Process::stop() {
+  std::map<std::string, pion::tcp::server_ptr>::iterator i_tcp =
+    _tcp_servers.begin();
+  std::map<std::string, pion::http::plugin_server_ptr>::iterator i_http =
+    _http_servers.begin();
+  while (i_tcp != _tcp_servers.end()) {
+    i_tcp->second->stop();
+    ++i_tcp;
+  }
+  while (i_http != _http_servers.end()) {
+    i_http->second->stop();
+    ++i_http;
+  }
+  _scheduler.shutdown();
+  _server_scheduler.shutdown();
+}
+
 
 unsigned int iota::Process::get_http_port() {
   return _http_servers.begin()->second->get_port();
