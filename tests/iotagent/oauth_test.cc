@@ -25,6 +25,9 @@
 #include <cppunit/TestResultCollector.h>
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TextTestProgressListener.h>
+#include "services/admin_service.h"
+#include "rest/process.h"
+#include "../mocks/http_mock.h"
 #include "oauthTest.h"
 
 int main(int argc, char* argv[]) {

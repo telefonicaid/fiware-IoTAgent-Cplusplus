@@ -53,7 +53,7 @@ void iota::NgsiService::start() {
         !oauth_map[iota::types::CONF_FILE_OAUTH_ROLES_URL].empty() &&
         !oauth_map[iota::types::CONF_FILE_OAUTH_PROJECTS_URL].empty() &&
         !oauth_map[iota::types::CONF_FILE_ACCESS_CONTROL].empty()) {
-      boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter());
+      boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter(iota::Process::get_process().get_io_service()));
       auth_ptr->set_filter_url_base(iota::Process::get_url_base());
       auth_ptr->set_configuration(oauth_map);
       auth_ptr->set_pep_rules(iota::Configurator::instance()->get_pep_rules());
@@ -64,7 +64,7 @@ void iota::NgsiService::start() {
     IOTA_LOG_INFO(m_log, "OAuth for northbound is not configured");
   }
 
-  boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter());
+  boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter(iota::Process::get_process().get_io_service()));
   add_pre_filter(media_ptr);
 }
 

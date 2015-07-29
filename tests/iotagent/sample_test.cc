@@ -31,27 +31,34 @@
 
 
 int main(int argc, char* argv[]) {
-  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config.json");
+  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
-  iota::Process& process = iota::Process::initialize("", 3);
-  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
-  iota::AdminService adminserv;
-  process.set_admin_service(&adminserv);
-  iota::TestService spserv;
-  http_server->add_service("/iot/tt", &spserv);
-  iota::TestService spserv_auth;
-  http_server->add_service("/iot/sp_auth", &spserv_auth);
-  iota::TestService spserv_test;
-  http_server->add_service("/iot/test", &spserv_test);
+  iota::Process& process = iota::Process::initialize("/TestSample", 3);
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "127.0.0.1:1026");
+  iota::AdminService* adm = new iota::AdminService();
+  process.set_admin_service(adm);
+
+  iota::TestService* spserv = new iota::TestService();
+  http_server->add_service("/TestSample/tt", spserv);
+  iota::TestService* spserv_auth = new iota::TestService();;
+  http_server->add_service("/TestSample/sp_auth", spserv_auth);
+  iota::TestService* spserv_test = new iota::TestService();;
+  http_server->add_service("/TestSample/test", spserv_test);
+
+  // Mock
+  MockService* mock = new MockService();
+  http_server->add_service("/mock", mock);
+  adm->add_service("/mock", mock);
+
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(SampleTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
                       std::cerr));
   process.start();
   bool s = runner.run();
-  iota::Process::wait_for_shutdown();
+  process.shutdown();
   return s ? 0 : 1;
 
 }

@@ -214,7 +214,7 @@ void iota::AdminService::add_oauth_media_filters() {
         !oauth_map[iota::types::CONF_FILE_OAUTH_ROLES_URL].empty() &&
         !oauth_map[iota::types::CONF_FILE_OAUTH_PROJECTS_URL].empty() &&
         !oauth_map[iota::types::CONF_FILE_ACCESS_CONTROL].empty()) {
-      boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter());
+      boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter(iota::Process::get_process().get_io_service()));
       auth_ptr->set_filter_url_base(get_resource());
       auth_ptr->set_configuration(oauth_map);
       auth_ptr->set_pep_rules(iota::Configurator::instance()->get_pep_rules());
@@ -227,7 +227,7 @@ void iota::AdminService::add_oauth_media_filters() {
   }
 
 
-  boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter());
+  boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter(iota::Process::get_process().get_io_service()));
   add_pre_filter(media_ptr);
 
 }
@@ -236,8 +236,8 @@ void iota::AdminService::add_oauth_media_filters() {
 void iota::AdminService::check_for_logs() {
 
   // Check for logs ok
-  _timer.reset(new boost::asio::deadline_timer(*
-               (_connectionManager->get_io_service())));
+  _timer.reset(new boost::asio::deadline_timer(
+               (iota::Process::get_process().get_io_service())));
   _timer->expires_from_now(boost::posix_time::seconds(1));
   _timer->async_wait(boost::bind(&iota::AdminService::timeout_check_logs,
                                  this,
@@ -248,10 +248,7 @@ void iota::AdminService::start() {
 
 
   std::map<std::string, std::string> filters;
-
-
   add_common_urls(filters);
-
 
   try {
     const JsonValue& tz_file = iota::Configurator::instance()->get(

@@ -53,8 +53,10 @@ class SampleTest : public CPPUNIT_NS::TestFixture {
   private:
 
     /** function toi fill data to cb_mock, it is not a test */
+    /*
     void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
                       const std::string& type = "file");
+                      */
 
     void testNormalPOST();
 

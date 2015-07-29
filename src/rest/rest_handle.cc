@@ -72,10 +72,6 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
   m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())),
   registeredDevices(iota::types::MAX_SIZE_CACHE, false), _manager_endpoint("") {
   IOTA_LOG_DEBUG(m_logger, "RestHandle constructor");
-
-  _connectionManager.reset(new CommonAsyncManager(1));
-  _connectionManager->run();
-
   std::string devices_store = "./devices.json";
 
   try {
@@ -121,9 +117,6 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
 }
 
 iota::RestHandle::~RestHandle() {
-  //std::cout << "DESTRUCTOR " << get_resource() << std::endl;
-  _connectionManager->stop();
-
 }
 
 void iota::RestHandle::set_option(const std::string& name, const std::string& value) {
@@ -290,7 +283,7 @@ void iota::RestHandle::register_iota_manager() {
         log_message.append(json_post);
         iota::IoTUrl dest(iota_manager_endpoint);
         boost::shared_ptr<iota::HttpClient> http_client(
-          new iota::HttpClient(*(_connectionManager->get_io_service()), dest.getHost(),
+          new iota::HttpClient(iota::Process::get_process().get_io_service(), dest.getHost(),
                                dest.getPort()));
         boost::property_tree::ptree additional_info;
         pion::http::request_ptr request(new pion::http::request());
@@ -410,20 +403,20 @@ void iota::RestHandle::execute_filters(
     if (num_filter != (_pre_filters.size() -1)) {
       int n_filter = num_filter;
       _pre_filters.at(num_filter)->set_async_filter(
-        _connectionManager->get_io_service(),
+        // TODO _connectionManager->get_io_service(),
         http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
         boost::bind(&iota::RestHandle::execute_filters, this, http_request_ptr,
                     tcp_conn, ++n_filter, _1));
     }
     else {
       _pre_filters.at(num_filter)->set_async_filter(
-        _connectionManager->get_io_service(),
+        // TODO _connectionManager->get_io_service(),
         http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
         boost::bind(&iota::RestHandle::handle_end_filters, this, http_request_ptr,
                     tcp_conn, num_filter, _1));
     }
 
-    _pre_filters.at(num_filter)->get_io_service()->post(
+    _pre_filters.at(num_filter)->get_io_service().post(
       boost::bind(&HTTPFilter::handle_request,
                   _pre_filters.at(num_filter), http_request_ptr, tcp_conn));
 

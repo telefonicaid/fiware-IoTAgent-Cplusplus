@@ -31,8 +31,7 @@
 const std::string iota::ContextBrokerCommunicator::NUMBER_OF_TRIES =
   "number_of_tries";
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator():
-  _connectionManager(new iota::CommonAsyncManager(1)),
-  _io_service(*(_connectionManager->get_io_service())),
+  _io_service(iota::Process::get_process().get_io_service()),
   m_logger(PION_GET_LOGGER(
              iota::Process::get_logger_name())) {
 }
@@ -46,16 +45,16 @@ iota::ContextBrokerCommunicator::ContextBrokerCommunicator(
 }
 
 iota::ContextBrokerCommunicator::~ContextBrokerCommunicator() {
-  if (_connectionManager.get() != NULL) {
-    _connectionManager->stop();
-  }
 };
 
+// TODO
+/*
 void iota::ContextBrokerCommunicator::start() {
   if (_connectionManager.get() != NULL) {
     _connectionManager->run();
   }
 }
+*/
 
 void iota::ContextBrokerCommunicator::receive_event(
   std::string url, std::string content,
@@ -142,7 +141,7 @@ bool iota::ContextBrokerCommunicator::async_send(std::string url,
     }
 
     if (!token.empty() && !oauth.empty()) {
-      iota::OAuth oauth_comm;
+      iota::OAuth oauth_comm(_io_service);
       oauth_comm.set_oauth_trust(oauth);
       // Setting trust_token  before identity
       oauth_comm.set_trust_token(token);
@@ -222,7 +221,7 @@ std::string iota::ContextBrokerCommunicator::send(std::string url,
 
     if (!token.empty() && !oauth.empty()) {
 
-      iota::OAuth oauth_comm;
+      iota::OAuth oauth_comm(_io_service);
       oauth_comm.set_oauth_trust(oauth);
       // Setting trust_token  before of identity
       oauth_comm.set_trust_token(token);

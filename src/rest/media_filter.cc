@@ -30,8 +30,8 @@
 #include "util/iota_exception.h"
 
 
-iota::MediaFilter::MediaFilter():
-  HTTPFilter(PION_GET_LOGGER(iota::Process::get_logger_name())) {
+iota::MediaFilter::MediaFilter(boost::asio::io_service& io_service):
+  HTTPFilter(io_service, PION_GET_LOGGER(iota::Process::get_logger_name())) {
 };
 
 iota::MediaFilter::~MediaFilter() {

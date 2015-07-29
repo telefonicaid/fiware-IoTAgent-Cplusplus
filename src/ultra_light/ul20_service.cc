@@ -443,7 +443,7 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
     }
 
     if (callback) {
-      http_client.reset(new iota::HttpClient(*(_connectionManager->get_io_service()),
+      http_client.reset(new iota::HttpClient(iota::Process::get_process().get_io_service(),
                                              endpoint, port));
       //pion::http::response_ptr response_ptr
       http_client->async_send(request, timeout,

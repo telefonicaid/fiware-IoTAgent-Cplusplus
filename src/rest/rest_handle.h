@@ -323,7 +323,7 @@ class RestHandle: public pion::http::plugin_service,
     Cache registeredDevices;
 
     // For async communications. It provides a parallel event loop.
-    boost::shared_ptr<CommonAsyncManager> _connectionManager;
+    // TODO boost::shared_ptr<CommonAsyncManager> _connectionManager;
 
     // Protocol data
     iota::ProtocolData _protocol_data;

@@ -117,16 +117,17 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
   private:
 
     /** function toi fill data to cb_mock, it is not a test */
+    /*
     void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
                       const std::string& type = "file",
                       bool vpn = false);
-
+    */
     void testPollingCommand_MONGO(
                     const std::string &name_device,
                     const std::string &entity_name,
                     const std::string &entity_type,
                     const std::string &post_device,
-                    const boost::shared_ptr<HttpMock> &create_mock);
+                    std::string service);
 
 
     void testNormalPOST();

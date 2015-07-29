@@ -52,7 +52,6 @@ TTTest::TTTest() {
 }
 
 TTTest::~TTTest() {
-  //cb_mock.stop();
 }
 
 void TTTest::setUp() {
@@ -70,10 +69,8 @@ void TTTest::tearDown() {
 
 void TTTest::testSearchResponses() {
 
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/NGSI10/queryContext"));
-  start_cbmock(cb_mock);
-
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
   ESPLib esplib;
   iota::esp::tt::TTResponse* myResponse;
@@ -127,7 +124,7 @@ void TTTest::testSearchResponses() {
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock->set_response(200,mockResponse);
+  cb_mock->set_response("/mock", 200,mockResponse);
 
   if (idsensor > 0) {
     esplib.startSensor(idsensor,"main");
@@ -157,7 +154,7 @@ void TTTest::testSearchResponses() {
 
 
     const iota::JsonValue& service_object =
-      iota::Configurator::instance()->getServicebyApiKey("/iot/tt","");
+      iota::Configurator::instance()->getServicebyApiKey("/TestTT/tt","");
 
     // rellenamos el ptree
     boost::property_tree::ptree pb_tree;
@@ -191,7 +188,6 @@ void TTTest::testSearchResponses() {
   esplib.destroySensor(idsensor);
 
   CPPUNIT_ASSERT(idsensor > 0);
-  cb_mock->stop();
 }
 
 void TTTest::testTTResponses() {
@@ -488,10 +484,8 @@ void TTTest::testTTResponsesB() {
 
 void TTTest::testTTCBPublisher() {
 
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/NGSI10/updateContext"));
-  start_cbmock(cb_mock);
-
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   CC_Logger::getSingleton()->logDebug("testTTCBPublisher: starting");
 
   std::string entity("thing");
@@ -562,7 +556,6 @@ void TTTest::testTTCBPublisher() {
 
   CPPUNIT_ASSERT_EQUAL(expected,actual);
   CC_Logger::getSingleton()->logDebug("testTTCBPublisher: DONE");
-  cb_mock->stop();
   delete ttPublisher;
 }
 
@@ -621,20 +614,23 @@ void TTTest::testDecodeTTJSONsError() {
 QueryContext will return empty responses for previous attributes (there are none yet). So the TTService has to publish them
 */
 void TTTest::testFirstTimeTTAttributes() {
-
+/*
   boost::shared_ptr<HttpMock> cb_mock_up;
   cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
   boost::shared_ptr<HttpMock> cb_mock_query;
   cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
 
   start_cbmock(cb_mock_up,cb_mock_query);
-
+  */
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   //Setting responses for http_mocks
   //queryContext should not find any attributes:
   std::string mockResponseError;
   mockResponseError.assign("{\"errorCode\": {\"code\" : \"404\",");
   mockResponseError.append("\"reasonPhrase\" : \"No context element found\"}}");
-  cb_mock_query->set_response(404,
+  // Query
+  cb_mock->set_response("/mock", 404,
                               mockResponseError); //First response, no contextElements found
 
   std::string mockResponse; //This response lacks P1.
@@ -650,8 +646,8 @@ void TTTest::testFirstTimeTTAttributes() {
   mockResponse.append("\"id\":\"8934075379000039321\",");
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
-
-  cb_mock_query->set_response(200,mockResponse); //Second query.
+  // Query
+  cb_mock->set_response("/mock", 200,mockResponse); //Second query.
 
   std::string mockResponseOK;
 
@@ -659,19 +655,15 @@ void TTTest::testFirstTimeTTAttributes() {
 
   CC_Logger::getSingleton()->logDebug("testFirstTimeTTAttributes: starting");
   //iota::esp::TTService ttService;
-  ttService = new iota::esp::TTService();
-
-  ttService->set_resource("/iot/tt");
-
-  ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
-
+  //ttService = new iota::esp::TTService();
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
   std::string query =
     "cadena=#8934075379000039321,#0,GC,config_time,34,#0,GM,posicion,33.000/-3.234234,#0,P1,214,07,33f,633c,#0,B,11,22,33,44,55,66";
 
   query.assign(pion::algorithm::url_encode(query));
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
   http_request->set_content(query);
   std::map<std::string, std::string> url_args;
@@ -691,7 +683,7 @@ void TTTest::testFirstTimeTTAttributes() {
     std::string("#0,GC,config_time,88,$,#0,GM,posicion,$,#0,P1,$,#0,B,22,55,66,$"),response);
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
 
-  std::string actual_mock(cb_mock_up->get_last());
+  std::string actual_mock(cb_mock->get_last("/mcok/update"));
 
   std::string expected_p1;
   expected_p1.append("{\"name\":\"P1\",\"type\":\"compound\",\"value\":");
@@ -713,10 +705,6 @@ void TTTest::testFirstTimeTTAttributes() {
   CPPUNIT_ASSERT (actual_mock.find(expected_b)!= std::string::npos);
   CPPUNIT_ASSERT (actual_mock.find(expected_p1) != std::string::npos);
 
-  cb_mock_query->stop();
-  cb_mock_up->stop();
-
-
 
 }
 
@@ -727,20 +715,22 @@ Check with ThinkingThings Team, but I think K1 attribute does not get published 
 
 void TTTest::testFirstTimeTTAttributesWithK() {
   CC_Logger::getSingleton()->logDebug("testFirstTimeTTAttributesWithK: starting");
-
+/*
   boost::shared_ptr<HttpMock> cb_mock_up;
   cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
   boost::shared_ptr<HttpMock> cb_mock_query;
   cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
 
   start_cbmock(cb_mock_up,cb_mock_query);
-
+  */
+   unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   //Setting responses for http_mocks
   //queryContext should not find any attributes:
   std::string mockResponseError;
   mockResponseError.assign("{\"errorCode\": {\"code\" : \"404\",");
   mockResponseError.append("\"reasonPhrase\" : \"No context element found\"}}");
-  cb_mock_query->set_response(404,
+  cb_mock->set_response("/mock/query", 404,
                               mockResponseError); //First response, no contextElements found
 
   std::string mockResponse; //This response lacks P1.
@@ -757,15 +747,13 @@ void TTTest::testFirstTimeTTAttributesWithK() {
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock_query->set_response(200,mockResponse); //Second query.
+  cb_mock->set_response("/mock/query", 200,mockResponse); //Second query.
 
   std::string mockResponseOK;
 
 
   //iota::esp::TTService ttService;
-  ttService = new iota::esp::TTService();
-  ttService->set_resource("/iot/tt");
-  ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
 
   std::string query =
@@ -774,7 +762,7 @@ void TTTest::testFirstTimeTTAttributesWithK() {
 
   query.assign(pion::algorithm::url_encode(query));
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestSample/tt"));
   http_request->set_method("POST");
   http_request->set_content(query);
   std::map<std::string, std::string> url_args;
@@ -789,14 +777,12 @@ void TTTest::testFirstTimeTTAttributesWithK() {
                                       http_response.get_status_code());
   CC_Logger::getSingleton()->logDebug("testFirstTimeTTAttributesWithK: Response:  %s ",
                                       response.c_str());
-  delete ttService;
 
   CPPUNIT_ASSERT_EQUAL(
     std::string("#0,GC,config_time,88,$,#0,GM,posicion,$,#0,P1,$,#0,K1,0$"),
     response);
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
-  cb_mock_query->stop();
-  cb_mock_up->stop();
+
 }
 
 
@@ -868,9 +854,8 @@ void TTTest::testParsingResponseOnBug_IDAS20197() {
 void TTTest::testSearchResponsesGPS() {
 
 
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/NGSI10/queryContext"));
-  start_cbmock(cb_mock);
+   unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock/update");
 
 
   ESPLib esplib;
@@ -896,7 +881,7 @@ void TTTest::testSearchResponsesGPS() {
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock->set_response(200,mockResponse);
+  cb_mock->set_response("/mock/update", 200,mockResponse);
 
   if (idsensor > 0) {
     esplib.startSensor(idsensor,"main");
@@ -924,7 +909,7 @@ void TTTest::testSearchResponsesGPS() {
 
 
     const iota::JsonValue& service_object =
-      iota::Configurator::instance()->getServicebyApiKey("/iot/tt","");
+      iota::Configurator::instance()->getServicebyApiKey("/TestTT/tt","");
 
     // rellenamos el ptree
     boost::property_tree::ptree pb_tree;
@@ -958,14 +943,12 @@ void TTTest::testSearchResponsesGPS() {
   esplib.destroySensor(idsensor);
 
   CPPUNIT_ASSERT(idsensor > 0);
-  cb_mock->stop();
 }
 
 void TTTest::testSearchResponseOnBug_IDAS20201() {
 
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/NGSI10/queryContext"));
-  start_cbmock(cb_mock);
+   unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
 
   ESPLib esplib;
@@ -991,7 +974,7 @@ void TTTest::testSearchResponseOnBug_IDAS20201() {
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock->set_response(200,mockResponse);
+  cb_mock->set_response("/mock/upd", 200,mockResponse);
 
   if (idsensor > 0) {
     esplib.startSensor(idsensor,"main");
@@ -1053,14 +1036,12 @@ void TTTest::testSearchResponseOnBug_IDAS20201() {
   esplib.destroySensor(idsensor);
   delete seeker;
   CPPUNIT_ASSERT(idsensor > 0);
-  cb_mock->stop();
 
 }
 
 void TTTest::testTTCBPublisherP1BOnBug_IDAS20202() {
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/NGSI10/updateContext"));
-  start_cbmock(cb_mock);
+   unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
   CC_Logger::getSingleton()->logDebug("testTTCBPublisherP1BOnBug_IDAS20202: starting");
 
@@ -1069,7 +1050,7 @@ void TTTest::testTTCBPublisherP1BOnBug_IDAS20202() {
   std::string expected ="";
   boost::property_tree::ptree pt_cb;
   const iota::JsonValue& service_object =
-    iota::Configurator::instance()->getServicebyApiKey("/iot/tt","");
+    iota::Configurator::instance()->getServicebyApiKey("/TestTT/tt","");
 
   if (service_object.HasMember("entity_type")) {
     entity.assign(service_object["entity_type"].GetString());
@@ -1145,15 +1126,13 @@ void TTTest::testTTCBPublisherP1BOnBug_IDAS20202() {
 
   CPPUNIT_ASSERT_EQUAL(expected,actual);
   CC_Logger::getSingleton()->logDebug("testTTCBPublisherP1BOnBug_IDAS20202: DONE");
-  cb_mock->stop();
   delete ttPublisher;
 
 }
 
 void TTTest::testTTCBPublisherGMOnBug_IDAS20202() {
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/NGSI10/updateContext"));
-  start_cbmock(cb_mock);
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
   CC_Logger::getSingleton()->logDebug("testTTCBPublisherGMOnBug_IDAS20202: starting");
 
@@ -1223,7 +1202,6 @@ void TTTest::testTTCBPublisherGMOnBug_IDAS20202() {
 
   CPPUNIT_ASSERT_EQUAL(expected,actual);
   CC_Logger::getSingleton()->logDebug("testTTCBPublisherGMOnBug_IDAS20202: DONE");
-  cb_mock->stop();
   delete ttPublisher;
 
 }
@@ -1232,17 +1210,15 @@ void TTTest::testMissingSubAttributesBug_single_P1_Module_IDAS20245(){
 
   //boost::shared_ptr<HttpMock> cb_mock_up;
   //cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
-  boost::shared_ptr<HttpMock> cb_mock_query;
-  cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
-
-  start_cbmock(cb_mock_query);
+   unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock/query");
 
   //Setting responses for http_mocks
   //queryContext should not find any attributes:
   std::string mockResponseError;
   mockResponseError.assign("{\"errorCode\": {\"code\" : \"404\",");
   mockResponseError.append("\"reasonPhrase\" : \"No context element found\"}}");
-  cb_mock_query->set_response(404,
+  cb_mock->set_response("/mock/query", 404,
                               mockResponseError); //First response, no contextElements found
 
    std::string mockResponseOK;
@@ -1251,19 +1227,14 @@ void TTTest::testMissingSubAttributesBug_single_P1_Module_IDAS20245(){
 
   CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_single_P1_Module_IDAS20245: starting");
   //esp::TTService ttService;
-  ttService = new iota::esp::TTService();
-
-  ttService->set_resource("/iot/tt");
-
-  ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
-
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
   std::string query =
     "cadena=#8934075379000039321,#0,P1,214,07,,633c";
 
   query.assign(pion::algorithm::url_encode(query));
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
   http_request->set_content(query);
   std::map<std::string, std::string> url_args;
@@ -1278,31 +1249,22 @@ void TTTest::testMissingSubAttributesBug_single_P1_Module_IDAS20245(){
                                       http_response.get_status_code());
   CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_single_P1_Module_IDAS20245: Response:  %s ",
                                       response.c_str());
-  delete ttService;
   CPPUNIT_ASSERT (http_response.get_status_code() == 200);
   CPPUNIT_ASSERT_EQUAL (std::string(""),response);
-
-
-  cb_mock_query->stop();
 
 }
 
 void TTTest::testMissingSubAttributesBug_multiple_P1_GPS_B_Module_IDAS20245(){
 CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS_B_Module_IDAS20245: starting");
 
-  boost::shared_ptr<HttpMock> cb_mock_up;
-  cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
-  boost::shared_ptr<HttpMock> cb_mock_query;
-  cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
-
-  start_cbmock(cb_mock_up,cb_mock_query);
-
+   unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock/query");
   //Setting responses for http_mocks
   //queryContext should not find any attributes:
   std::string mockResponseError;
   mockResponseError.assign("{\"errorCode\": {\"code\" : \"404\",");
   mockResponseError.append("\"reasonPhrase\" : \"No context element found\"}}");
-  cb_mock_query->set_response(404,
+  cb_mock->set_response("/mock/query", 404,
                               mockResponseError); //First response, no contextElements found
 
   std::string mockResponse; //This response lacks P1.
@@ -1316,15 +1278,14 @@ CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock_query->set_response(200,mockResponse); //Second query.
+  cb_mock->set_response("/mock/query", 200,mockResponse); //Second query.
 
   std::string mockResponseOK;
 
 
   //esp::TTService ttService;
-  ttService = new iota::esp::TTService();
-  ttService->set_resource("/iot/tt");
-  ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
+
   CPPUNIT_ASSERT_MESSAGE("Checking default protocol description ", ttService->get_protocol_data().description.compare("Thinking Things Protocol") == 0);
   ttService->set_option("ProtocolDescription", "TT");
   CPPUNIT_ASSERT_MESSAGE("Checking new protocol description ", ttService->get_protocol_data().description.compare("TT") == 0);
@@ -1336,7 +1297,7 @@ CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS
 
   query.assign(pion::algorithm::url_encode(query));
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
   http_request->set_content(query);
   std::map<std::string, std::string> url_args;
@@ -1351,24 +1312,16 @@ CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS
                                       http_response.get_status_code());
   CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS_B_Module_IDAS20245: Response:  %s ",
                                       response.c_str());
-  delete ttService;
 
   CPPUNIT_ASSERT_EQUAL(
     std::string("#0,GM,temp,$,#0,K1,0$"),
     response);
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
-  cb_mock_query->stop();
-  cb_mock_up->stop();
-
 }
 
 void TTTest::testNoEmptyResponsesOnBug_IDAS20303() {
 
-
-  ttService = new iota::esp::TTService();
-  ttService->set_resource("/iot/tt");
-  ttService->set_option("ConfigFile", "../../tests/iotagent/TTService.xml");
-
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
   std::string query;
 
@@ -1384,7 +1337,7 @@ void TTTest::testNoEmptyResponsesOnBug_IDAS20303() {
   v_query.push_back("cadena=#8934075379000039321,#0,B,11,22,33,,,$");
   v_query.push_back("cadena=#8934075379000039321,#0,GM,temp,,$,#0,GM,,,$");
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
 
   std::map<std::string, std::string> url_args;
@@ -1416,24 +1369,17 @@ void TTTest::testNoEmptyResponsesOnBug_IDAS20303() {
 
     CPPUNIT_ASSERT_EQUAL(std::string(""), response);
   }
-
-  delete ttService;
-
 }
 
 void TTTest::testErrorCodesOnBug_IDAS20303() {
-
-  ttService = new iota::esp::TTService();
-  ttService->set_resource("/iot/tt");
-  ttService->set_option("ConfigFile", "../../tests/iotagent/TTService.xml");
-
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
   std::string
   query_404("cadena=#89340753321,#0,GM,temp,23,$,#0,P1,23,23,44,55,$");
   std::string query_400("#8934075379000039321,#0,GM,,20,$");
 
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
 
   std::map<std::string, std::string> url_args;
@@ -1478,10 +1424,6 @@ void TTTest::testErrorCodesOnBug_IDAS20303() {
 
 
   CPPUNIT_ASSERT(http_response.get_status_code() == 400);
-
-
-
-  delete ttService;
 }
 
 /**
@@ -1490,19 +1432,15 @@ Bug was about getting 500 error when dealing with one incorrect GM but having ot
 void TTTest::testErrorCodesOnBug_IDAS20308(){
 CC_Logger::getSingleton()->logDebug("testErrorCodesOnBug_IDAS20308: starting");
 
-  boost::shared_ptr<HttpMock> cb_mock_up;
-  cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
-  boost::shared_ptr<HttpMock> cb_mock_query;
-  cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
-
-  start_cbmock(cb_mock_up,cb_mock_query);
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
   //Setting responses for http_mocks
   //queryContext should not find any attributes:
   std::string mockResponseError;
   mockResponseError.assign("{\"errorCode\": {\"code\" : \"404\",");
   mockResponseError.append("\"reasonPhrase\" : \"No context element found\"}}");
-  cb_mock_query->set_response(404,
+  cb_mock->set_response("/mock/query", 404,
                               mockResponseError); //First response, no contextElements found
 
   std::string mockResponse; //This response lacks P1.
@@ -1516,15 +1454,9 @@ CC_Logger::getSingleton()->logDebug("testErrorCodesOnBug_IDAS20308: starting");
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock_query->set_response(200,mockResponse); //Second query.
+  cb_mock->set_response("/mock/query", 200,mockResponse); //Second query.
 
-
-
-
-  //esp::TTService ttService;
-  ttService = new iota::esp::TTService();
-  ttService->set_resource("/iot/tt");
-  ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
+   iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
 
   std::string query =
@@ -1533,7 +1465,7 @@ CC_Logger::getSingleton()->logDebug("testErrorCodesOnBug_IDAS20308: starting");
 
   query.assign(pion::algorithm::url_encode(query));
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
   http_request->set_content(query);
   std::map<std::string, std::string> url_args;
@@ -1548,36 +1480,23 @@ CC_Logger::getSingleton()->logDebug("testErrorCodesOnBug_IDAS20308: starting");
                                       http_response.get_status_code());
   CC_Logger::getSingleton()->logDebug("testErrorCodesOnBug_IDAS20308: Response:  %s ",
                                       response.c_str());
-  delete ttService;
 
   CPPUNIT_ASSERT_EQUAL(
     std::string("#0,GM,test,$,#0,P1,$,#0,K1,0$"),
     response);
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
-  cb_mock_query->stop();
-  cb_mock_up->stop();
-
 }
 
 void TTTest::testNoEmpty_And_ValidResponse_OnBug_IDAS20308(){
 
-  boost::shared_ptr<HttpMock> cb_mock_up;
-  cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
-  boost::shared_ptr<HttpMock> cb_mock_query;
-
-  cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
-
-  start_cbmock(cb_mock_up,cb_mock_query);
-
-
-  ttService = new iota::esp::TTService();
-  ttService->set_resource("/iot/tt");
-  ttService->set_option("ConfigFile", "../../tests/iotagent/TTService.xml");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
   std::string mockResponseError;
   mockResponseError.assign("{\"errorCode\": {\"code\" : \"404\",");
   mockResponseError.append("\"reasonPhrase\" : \"No context element found\"}}");
-  cb_mock_query->set_response(404,
+  cb_mock->set_response("/mock/query", 404,
                               mockResponseError); //First response, no contextElements found
 
   std::string mockResponse; //This response lacks P1.
@@ -1591,10 +1510,10 @@ void TTTest::testNoEmpty_And_ValidResponse_OnBug_IDAS20308(){
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock_query->set_response(200,mockResponse); //Second query.
+  cb_mock->set_response("/mopck/query", 200,mockResponse); //Second query.
 
-  cb_mock_query->set_response(404,mockResponseError);
-  cb_mock_query->set_response(200,mockResponse);
+  cb_mock->set_response("/mopck/query",404,mockResponseError);
+  cb_mock->set_response("/mopck/query",200,mockResponse);
 
   std::string query;
 
@@ -1603,7 +1522,7 @@ void TTTest::testNoEmpty_And_ValidResponse_OnBug_IDAS20308(){
   v_query.push_back("cadena=#8934075379000039321,#0,GM,temp,33,$,#0,GM,,22,$");
   v_query.push_back("cadena=#8934075379000039321,#0,GM,test,,$,#0,GM,temp,55,$");
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
 
   std::map<std::string, std::string> url_args;
@@ -1635,33 +1554,18 @@ void TTTest::testNoEmpty_And_ValidResponse_OnBug_IDAS20308(){
 
     CPPUNIT_ASSERT_EQUAL(std::string("#0,GM,temp,$"), response);
   }
-
-  cb_mock_query->stop();
-  cb_mock_up->stop();
-  delete ttService;
-
 }
 
 void TTTest::testError_when_empty_response_from_CB(){
-boost::shared_ptr<HttpMock> cb_mock_up;
-  cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
-  boost::shared_ptr<HttpMock> cb_mock_query;
+ unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 
-  cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
-
-  start_cbmock(cb_mock_up,cb_mock_query);
-
-
-  ttService = new iota::esp::TTService();
-  ttService->set_resource("/iot/tt");
-  ttService->set_option("ConfigFile", "../../tests/iotagent/TTService.xml");
   std::string query;
-
-
 
   query.assign("cadena=#8934075379000039321,#0,GM,temp,33,$,#0,GM,,22,$");
 
-  pion::http::request_ptr http_request(new pion::http::request("/iot/tt"));
+  pion::http::request_ptr http_request(new pion::http::request("/TestTT/tt"));
   http_request->set_method("POST");
 
   std::map<std::string, std::string> url_args;
@@ -1687,11 +1591,10 @@ boost::shared_ptr<HttpMock> cb_mock_up;
     CPPUNIT_ASSERT(http_response.get_status_code() == 500);
 
 
-  cb_mock_query->stop();
-  cb_mock_up->stop();
-  delete ttService;
-}
 
+}
+// TODO
+/*
 void TTTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock) {
   cb_mock->init();
   std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
@@ -1786,4 +1689,5 @@ void TTTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock_up,
     std::cout << "start_cbmock_data:" << ss.str() << std::endl;
   }
 }
+*/
 

@@ -60,8 +60,8 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
         pion::tcp::connection_ptr&)> app_callback_t;
     */
     typedef boost::function<void (boost::shared_ptr<OAuth>)> app_callback_t;
-    OAuth();
-    OAuth(int timeout);
+    OAuth(boost::asio::io_service& io_service);
+    OAuth(boost::asio::io_service& io_service, int timeout);
     virtual ~OAuth();
     void set_domain(std::string service) {
       _domain = service;
@@ -105,6 +105,7 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
     std::string get_oauth_projects();
     std::string get_oauth_trust();
     std::string get_token(int status_code = 200);
+    std::string sync_get_token(int status_code = 200);
     boost::property_tree::ptree validate_user_token(std::string token,
         app_callback_t = app_callback_t());
     void set_identity(std::string scope_type, std::string username,
@@ -114,7 +115,7 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
     std::string get_trust_token();
     bool is_pep();
     std::string get_identifier();
-    void set_async_service(boost::asio::io_service& io_service);
+    // TODO void set_async_service(boost::asio::io_service& io_service);
 
     boost::property_tree::ptree get_ptree(std::string data);
     boost::property_tree::ptree get_user_roles(std::string user_id);
@@ -168,7 +169,7 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
     void add_connection(boost::shared_ptr<iota::HttpClient> connection);
     void remove_connection(boost::shared_ptr<iota::HttpClient> connection);
 
-    void renew_token(std::string scope);
+    void renew_token(std::string scope, bool sync=false);
     std::string get_user(std::string token, std::string token_pep);
 
     pion::http::request_ptr create_request(std::string server, std::string resource,

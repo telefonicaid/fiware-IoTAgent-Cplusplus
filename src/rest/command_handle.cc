@@ -1326,9 +1326,7 @@ int iota::CommandHandle::send(
   const boost::property_tree::ptree& service,
   std::string& cb_response) {
 
-  boost::shared_ptr<iota::ContextBrokerCommunicator> cb_comm(new
-      iota::ContextBrokerCommunicator());
-  cb_comm->start();
+  boost::shared_ptr<iota::ContextBrokerCommunicator> cb_comm;
 
   std::string cb_url;
 

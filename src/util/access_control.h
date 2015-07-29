@@ -65,7 +65,7 @@ class AccessControl: public boost::enable_shared_from_this<AccessControl> {
     pion::logger m_logger;
     boost::mutex _m;
     app_callback_t _application_callback;
-    boost::asio::io_service _io_service;
+    boost::asio::io_service& _io_service;
     std::string _id;
 
     pion::http::request_ptr create_request(std::string server, std::string resource,
