@@ -64,7 +64,7 @@ void cbCommTest::testSend() {
   response_cb.append("\"name\" : \"name\",\"type\" : \"type\",\"value\" : \"\",\"metadatas\" : [{");
   response_cb.append("\"name\" : \"name1\",\"type\" : \"type1\",\"value\" : \"value1\"},{\"name\" : \"name\",\"type\" : \"typecheck\",\"value\" : \"valor\"}]}]},");
   response_cb.append("\"statusCode\" : {\"code\" : \"200\",\"reasonPhrase\" : \"OK\"}}]}");
-  http_mock->set_response("/mock/testSend/", 200, response_cb);
+  http_mock->set_response("/mock/testSend", 200, response_cb);
   iota::ContextBrokerCommunicator cb;
 
   std::string url = "http://127.0.0.1:"+ mock_port + "/mock/testSend";

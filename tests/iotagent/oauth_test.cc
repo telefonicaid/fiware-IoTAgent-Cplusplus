@@ -41,7 +41,7 @@ int main(int argc, char* argv[]) {
   iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
 
   // Http Server and Admin Service
-  pion::http::plugin_server_ptr http_server = process.add_http_server("", "127.0.0.1:1026");
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
   iota::AdminService* adm = new iota::AdminService();
   process.set_admin_service(adm);
 

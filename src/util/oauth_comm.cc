@@ -277,6 +277,7 @@ std::string iota::OAuth::receive_event_get_user(
 }
 
 void iota::OAuth::renew_token(std::string scope, bool sync) {
+
   boost::mutex::scoped_lock l(_m);
   _data._subject_token.clear();
   IoTUrl dest(scope);
@@ -312,7 +313,7 @@ void iota::OAuth::renew_token(std::string scope, bool sync) {
   else {
     IOTA_LOG_DEBUG(m_logger,
                    "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
-                   _timeout);
+                   _timeout << " sync");
     http_client.reset(new iota::HttpClient(server, dest.getPort()));
     //add_connection(http_client);
     response = http_client->send(request, _timeout, proxy);

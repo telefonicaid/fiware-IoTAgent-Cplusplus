@@ -153,7 +153,7 @@ void OAuthTest::testGetTokenTrust() {
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
-  std::string endpoint("http://0.0.0.0:"+ boost::lexical_cast<std::string>(port) + "/mock/oauth/v3/auth/tokens");
+  std::string endpoint("http://127.0.0.1:"+ boost::lexical_cast<std::string>(port) + "/mock/testGetTokenTrust");
   std::string trust_token("trust-token");
   std::string username("iotagent");
   std::string password("iotagent");
@@ -168,8 +168,8 @@ void OAuthTest::testGetTokenTrust() {
 
   std::map<std::string, std::string> h;
   h["X-Subject-Token"] = "x-subject-token";
-  http_mock->set_response("/mock/oauth/v3/auth/tokens", 200, "", h);
-  http_mock->set_response("/mock/oauth/v3/auth/tokens", 200, "", h);
+  http_mock->set_response("/mock/testGetTokenTrust", 200, "", h);
+  http_mock->set_response("/mock/testGetTokenTrust", 200, "", h);
   CPPUNIT_ASSERT(oauth.sync_get_token().compare("x-subject-token") == 0);
 
   CPPUNIT_ASSERT(oauth.sync_get_token().compare("x-subject-token") == 0);
@@ -184,14 +184,14 @@ void OAuthTest::testValidateToken() {
   MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::map<std::string, std::string> h;
   h["X-Subject-Token"] = "x-auth-token";
-  http_mock->set_response("/mock/oauth", 200, "", h);
+  http_mock->set_response("/mock/testValidateToken", 200, "", h);
   std::string user_token("X-USER-TOKEN");
 
   std::string
   content_validate_token("{\"token\": {\"issued_at\": \"2014-10-06T08:20:13.484880Z\",\"extras\": {},\"methods\": [\"password\"],\"expires_at\": \"2014-10-06T09:20:13.484827Z\",");
   content_validate_token.append("\"user\": {\"domain\": {\"id\": \"f7a5b8e303ec43e8a912fe26fa79dc02\",\"name\": \"SmartValencia\"},\"id\": \"5e817c5e0d624ee68dfb7a72d0d31ce4\",\"name\": \"alice\"}}}");
 
-  std::string endpoint("http://0.0.0.0:"+ boost::lexical_cast<std::string>(port) + "/mock/oauth");
+  std::string endpoint("http://127.0.0.1:"+ boost::lexical_cast<std::string>(port) + "/mock/testValidateToken");
   std::string username("pep");
   std::string password("pep");
 
@@ -205,20 +205,19 @@ void OAuthTest::testValidateToken() {
   oauth->set_identity(OAUTH_PEP, username, password);
   oauth->set_domain("SmartValencia");
   oauth->set_project("Electricidad");
+  std::string my_token = oauth->sync_get_token();
+  std::cout << "MYTOKEN " << my_token<< std::endl;
+  CPPUNIT_ASSERT(my_token.compare("x-auth-token") == 0);
 
-
+  http_mock->set_response("/mock/testValidateToken", 200, "", h);
   CPPUNIT_ASSERT(oauth->sync_get_token().compare("x-auth-token") == 0);
-
-  http_mock->set_response("/mock/oauth", 200, "", h);
-  CPPUNIT_ASSERT(oauth->sync_get_token().compare("x-auth-token") == 0);
-  http_mock->set_response("/mock/oauth", 200, "", h);
+  http_mock->set_response("/mock/testValidateToken", 200, "", h);
   CPPUNIT_ASSERT(oauth->sync_get_token(401).compare("x-auth-token") == 0);
 
   h.clear();
   h["X-Subject-Token"] = "x-subject-token";
-  http_mock->set_response("/mock/oauth", 200, "", h);
-  http_mock->set_response("/mock/oauth", 200, content_validate_token);
-
+  http_mock->set_response("/mock/testValidateToken", 200, "", h);
+  http_mock->set_response("/mock/testValidateToken", 200, content_validate_token);
 
 
   std::cout << "Start validate token" << std::endl;

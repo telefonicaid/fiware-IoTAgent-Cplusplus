@@ -38,7 +38,7 @@ iota::Process::Process(unsigned int num_main_threads) {
 iota::Process& iota::Process::initialize(std::string url_base,
     unsigned int num_main_threads) {
   if (iota::Process::_process == NULL) {
-    iota::Process::_process = new iota::Process::Process(num_main_threads);
+    iota::Process::_process = new Process(num_main_threads);
     if (!url_base.empty()) {
       iota::Process::_url_base = url_base;
     }
