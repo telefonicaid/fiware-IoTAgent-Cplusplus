@@ -161,19 +161,19 @@ void OAuthTest::testGetTokenTrust() {
 
   iota::OAuth oauth(iota::Process::get_process().get_io_service());
   oauth.set_timeout(10);
+  oauth.set_sync_service();
   oauth.set_oauth_trust(endpoint);
   oauth.set_trust_token(trust_token);
   oauth.set_identity(OAUTH_ON_BEHALF_TRUST, username, password);
-  //oauth.set_async_service(io_service);
 
   std::map<std::string, std::string> h;
   h["X-Subject-Token"] = "x-subject-token";
   http_mock->set_response("/mock/testGetTokenTrust", 200, "", h);
   http_mock->set_response("/mock/testGetTokenTrust", 200, "", h);
-  CPPUNIT_ASSERT(oauth.sync_get_token().compare("x-subject-token") == 0);
+  CPPUNIT_ASSERT(oauth.get_token().compare("x-subject-token") == 0);
 
-  CPPUNIT_ASSERT(oauth.sync_get_token().compare("x-subject-token") == 0);
-  CPPUNIT_ASSERT(oauth.sync_get_token(401).compare("x-subject-token") == 0);
+  CPPUNIT_ASSERT(oauth.get_token().compare("x-subject-token") == 0);
+  CPPUNIT_ASSERT(oauth.get_token(401).compare("x-subject-token") == 0);
 
   std::cout << "END testGetTokenTrust" << std::endl;
 }
@@ -184,7 +184,7 @@ void OAuthTest::testValidateToken() {
   MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::map<std::string, std::string> h;
   h["X-Subject-Token"] = "x-auth-token";
-  http_mock->set_response("/mock/testValidateToken", 200, "", h);
+  http_mock->set_response("/mock/testValidateToken/v3/auth/tokens", 200, "", h);
   std::string user_token("X-USER-TOKEN");
 
   std::string
@@ -199,25 +199,26 @@ void OAuthTest::testValidateToken() {
   // No trust token
   boost::shared_ptr<iota::OAuth> oauth(new iota::OAuth(iota::Process::get_process().get_io_service()));
   oauth->set_timeout(10);
+  oauth->set_sync_service();
   oauth->set_oauth_validate(endpoint + OAUTH_VALIDATE_TOKEN_URL);
   oauth->set_oauth_roles(endpoint + OAUTH_ROLES_URL);
   oauth->set_oauth_projects(endpoint + OAUTH_PROJECTS_URL);
   oauth->set_identity(OAUTH_PEP, username, password);
   oauth->set_domain("SmartValencia");
   oauth->set_project("Electricidad");
-  std::string my_token = oauth->sync_get_token();
-  std::cout << "MYTOKEN " << my_token<< std::endl;
+  std::string my_token = oauth->get_token();
+
   CPPUNIT_ASSERT(my_token.compare("x-auth-token") == 0);
 
-  http_mock->set_response("/mock/testValidateToken", 200, "", h);
-  CPPUNIT_ASSERT(oauth->sync_get_token().compare("x-auth-token") == 0);
-  http_mock->set_response("/mock/testValidateToken", 200, "", h);
-  CPPUNIT_ASSERT(oauth->sync_get_token(401).compare("x-auth-token") == 0);
+  http_mock->set_response("/mock/testValidateToken/v3/auth/tokens", 200, "", h);
+  CPPUNIT_ASSERT(oauth->get_token().compare("x-auth-token") == 0);
+  http_mock->set_response("/mock/testValidateToken/v3/auth/tokens", 200, "", h);
+  CPPUNIT_ASSERT(oauth->get_token(401).compare("x-auth-token") == 0);
 
   h.clear();
   h["X-Subject-Token"] = "x-subject-token";
-  http_mock->set_response("/mock/testValidateToken", 200, "", h);
-  http_mock->set_response("/mock/testValidateToken", 200, content_validate_token);
+  http_mock->set_response("/mock/testValidateToken/v3/auth/tokens", 200, "", h);
+  http_mock->set_response("/mock/testValidateToken/v3/auth/tokens", 200, content_validate_token);
 
 
   std::cout << "Start validate token" << std::endl;
@@ -232,7 +233,8 @@ void OAuthTest::testGetUserRoles() {
   std::cout << "Start testGetUserRoles" << std::endl;
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
-  std::string endpoint("http://0.0.0.0:"+ boost::lexical_cast<std::string>(port) + "/mock/oauth");
+  std::string oauth_resource("/mock/testGetUserRoles");
+  std::string endpoint("http://0.0.0.0:"+ boost::lexical_cast<std::string>(port) + oauth_resource);
   std::string username("pep");
   std::string password("pep");
   std::string user_token("X-USER-TOKEN");
@@ -241,11 +243,12 @@ void OAuthTest::testGetUserRoles() {
 
   std::map<std::string, std::string> h;
   h["X-Subject-Token"] = "x-auth-token";
-  http_mock->set_response("/mock/oauth", 200, "", h);
+  http_mock->set_response(oauth_resource + OAUTH_VALIDATE_TOKEN_URL, 200, "", h);
 
 
   boost::shared_ptr<iota::OAuth> oauth(new iota::OAuth(iota::Process::get_process().get_io_service()));
   oauth->set_timeout(10);
+  oauth->set_sync_service();
   oauth->set_oauth_validate(endpoint + OAUTH_VALIDATE_TOKEN_URL);
   oauth->set_oauth_roles(endpoint + OAUTH_ROLES_URL);
   oauth->set_oauth_projects(endpoint + OAUTH_PROJECTS_URL);
@@ -260,7 +263,7 @@ void OAuthTest::testGetUserRoles() {
   h.clear();
   std::string
   user_roles("{\"role_assignments\": [{\"scope\": {\"project\": {\"id\": \"c6851f8ef57c4b91b567ab62ca3d0aef\"}},\"role\": {\"id\": \"a6407b6c597e4e1dad37a3420b6137dd\"},\"user\": {\"id\": \"5e817c5e0d624ee68dfb7a72d0d31ce4\"},\"links\": {\"assignment\": \"puthere\"}}],\"links\": {\"self\": \"http://${KEYSTONE_HOST}/v3/role_assignments\",\"previous\": null,\"next\": null}}");
-  http_mock->set_response("/mock/oauth", 200, user_roles);
+  http_mock->set_response(oauth_resource + OAUTH_ROLES_URL, 200, user_roles);
   roles = oauth->get_user_roles("5e817c5e0d624ee68dfb7a72d0d31ce4");
   CPPUNIT_ASSERT_MESSAGE("Checking user roles: response", !roles.empty());
   CPPUNIT_ASSERT_MESSAGE("Checking number user roles ",
@@ -282,14 +285,16 @@ void OAuthTest::testGetSubservice() {
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::string mock_port = boost::lexical_cast<std::string>(port);
-  std::string endpoint("http://0.0.0.0:"+ mock_port + "/mock/oauth");
+  std::string oauth_resource("/mock/testGetUserRoles");
+  std::string endpoint("http://0.0.0.0:"+ mock_port + oauth_resource);
   std::string username("pep");
   std::string password("pep");
   std::map<std::string, std::string> h;
   h["X-Subject-Token"] = "x-auth-token";
-  http_mock->set_response("/mock/oauth", 200, "", h);
+  http_mock->set_response(oauth_resource + OAUTH_VALIDATE_TOKEN_URL, 200, "", h);
   boost::shared_ptr<iota::OAuth> oauth(new iota::OAuth(iota::Process::get_process().get_io_service()));
   oauth->set_timeout(10);
+  oauth->set_sync_service();
   oauth->set_oauth_validate(endpoint + OAUTH_VALIDATE_TOKEN_URL);
   oauth->set_oauth_roles(endpoint + OAUTH_ROLES_URL);
   oauth->set_oauth_projects(endpoint + OAUTH_PROJECTS_URL);
@@ -301,10 +306,9 @@ void OAuthTest::testGetSubservice() {
   std::string subservicio("c6851f8ef57c4b91b567ab62ca3d0aef");
   std::string
   projects("{\"projects\": [{\"description\": \"SmartValencia Subservicio Electricidad\",\"links\": {\"self\": \"http://${KEYSTONE_HOST}/v3/projects/c6851f8ef57c4b91b567ab62ca3d0aef\"},\"enabled\": true,\"id\": \"c6851f8ef57c4b91b567ab62ca3d0aef\",\"domain_id\": \"f7a5b8e303ec43e8a912fe26fa79dc02\",\"name\": \"Electricidad\"}]}");
-  http_mock->set_response("/mock/oauth", 200, projects, h);
+  http_mock->set_response(oauth_resource + OAUTH_PROJECTS_URL, 200, projects, h);
   CPPUNIT_ASSERT_MESSAGE("Checking subservice ", oauth->get_subservice(domain,
                          "Electricidad").compare(subservicio) == 0);
-  http_mock->stop();
   std::cout << "End testGetSubservice" << std::endl;
 }
 
@@ -352,7 +356,7 @@ void OAuthTest::testValidateAsync() {
   content_validate_token("{\"token\": {\"issued_at\": \"2014-10-06T08:20:13.484880Z\",\"extras\": {},\"methods\": [\"password\"],\"expires_at\": \"2014-10-06T09:20:13.484827Z\",");
   content_validate_token.append("\"user\": {\"domain\": {\"id\": \"f7a5b8e303ec43e8a912fe26fa79dc02\",\"name\": \"SmartValencia\"},\"id\": \"5e817c5e0d624ee68dfb7a72d0d31ce4\",\"name\": \"alice\"}}}");
 
-  std::string endpoint("http://0.0.0.0:"+mock_port+"/mock/oauth");
+  std::string endpoint("http://0.0.0.0:"+mock_port+"/mock/testValidateAsync");
   std::string username("pep");
   std::string password("pep");
   std::string user_token("X-USER-TOKEN");
@@ -367,14 +371,15 @@ void OAuthTest::testValidateAsync() {
   oauth->set_project("Electricidad");
   h.clear();
   h["X-Subject-Token"] = "x-subject-token";
-  http_mock->set_response("/mock/oauth", 200, "", h);
-  http_mock->set_response("/mock/oauth", 200, content_validate_token);
+  std::string auth_resource("/mock/testValidateAsync");
+  http_mock->set_response(auth_resource + OAUTH_VALIDATE_TOKEN_URL, 200, "", h);
+  http_mock->set_response(auth_resource + OAUTH_VALIDATE_TOKEN_URL, 200, content_validate_token);
   std::string
   projects("{\"projects\": [{\"description\": \"SmartValencia Subservicio Electricidad\",\"links\": {\"self\": \"http://${KEYSTONE_HOST}/v3/projects/c6851f8ef57c4b91b567ab62ca3d0aef\"},\"enabled\": true,\"id\": \"c6851f8ef57c4b91b567ab62ca3d0aef\",\"domain_id\": \"f7a5b8e303ec43e8a912fe26fa79dc02\",\"name\": \"Electricidad\"}]}");
-  http_mock->set_response("/mock/oauth", 200, projects, h);
+  http_mock->set_response(auth_resource + OAUTH_PROJECTS_URL, 200, projects, h);
   std::string
   user_roles("{\"role_assignments\": [{\"scope\": {\"project\": {\"id\": \"c6851f8ef57c4b91b567ab62ca3d0aef\"}},\"role\": {\"id\": \"a6407b6c597e4e1dad37a3420b6137dd\"},\"user\": {\"id\": \"5e817c5e0d624ee68dfb7a72d0d31ce4\"},\"links\": {\"assignment\": \"puthere\"}}],\"links\": {\"self\": \"http://${KEYSTONE_HOST}/v3/role_assignments\",\"previous\": null,\"next\": null}}");
-  http_mock->set_response("/mock/oauth", 200, user_roles);
+  http_mock->set_response(auth_resource + OAUTH_ROLES_URL, 200, user_roles);
   pion::http::request_ptr req(new pion::http::request());
   pion::tcp::connection_ptr connection(new pion::tcp::connection(io_service));
   req->set_content("Hola");

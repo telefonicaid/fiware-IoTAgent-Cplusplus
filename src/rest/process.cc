@@ -198,7 +198,7 @@ pion::http::plugin_service* iota::Process::get_service(std::string
 }
 
 void iota::Process::add_service(std::string http_resource,
-                                pion::http::plugin_service* http_service) {
+                                iota::RestHandle* http_service) {
 
   std::map<std::string, pion::http::plugin_server_ptr>::iterator i_http =
     _http_servers.begin();
@@ -206,6 +206,7 @@ void iota::Process::add_service(std::string http_resource,
     i_http->second->add_service(http_resource, http_service);
     ++i_http;
   }
+
 }
 
 

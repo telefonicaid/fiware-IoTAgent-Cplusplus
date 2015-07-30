@@ -79,12 +79,12 @@ const int Ul20Test::POST_RESPONSE_CODE = 201;
 const std::string
 Ul20Test::POST_SERVICE("{\"services\": [{"
                         "\"apikey\": \"apikey%s\",\"token\": \"token\","
-                        "\"cbroker\": \"http://127.0.0.1:%s/mock\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
+                        "\"cbroker\": \"http://127.0.0.1:%s/mock\",\"entity_type\": \"thing\",\"resource\": \"/TestUL/d\"}]}");
 
 const std::string
 Ul20Test::POST_SERVICE_ENDPOINT("{\"services\": [{"
                         "\"apikey\": \"apikey3\",\"token\": \"token\","
-                        "\"cbroker\": \"http://127.0.0.1:1026/mock\",\"entity_type\": \"thing\",\"resource\": \"/iot/d\"}]}");
+                        "\"cbroker\": \"http://127.0.0.1:1026/mock\",\"entity_type\": \"thing\",\"resource\": \"/TestUL/d\"}]}");
 
 const std::string
 Ul20Test::POST_DEVICE_SIN("{\"devices\": "

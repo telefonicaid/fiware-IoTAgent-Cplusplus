@@ -30,7 +30,7 @@
 #include <boost/uuid/uuid_io.hpp>
 
 iota::OAuth::OAuth(boost::asio::io_service& io_service): _io_service(
-    io_service), _timeout(5),
+    io_service), _timeout(5), _sync(false),
   m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   if (_id.empty() == true) {
     _id = riot_uuid();
@@ -38,7 +38,7 @@ iota::OAuth::OAuth(boost::asio::io_service& io_service): _io_service(
 }
 iota::OAuth::OAuth(boost::asio::io_service& io_service,
                    int timeout): _io_service(
-                       io_service),
+                       io_service), _sync(false),
   _timeout(timeout), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   if (_id.empty() == true) {
     _id = riot_uuid();
@@ -87,12 +87,10 @@ std::string iota::OAuth::get_oauth_trust() {
   return _oauth_trust;
 }
 
-// TODO
-/*
-void iota::OAuth::set_async_service(boost::asio::io_service& io_service) {
-  _io_service = io_service;
+void iota::OAuth::set_sync_service() {
+  _sync = true;
 }
-*/
+
 
 void iota::OAuth::set_identity(std::string scope_type, std::string username,
                                std::string password) {
@@ -165,22 +163,6 @@ std::string iota::OAuth::get_token(int status_code) {
   return _data._subject_token;
 }
 
-std::string iota::OAuth::sync_get_token(int status_code) {
-  if (!is_pep()) {
-    if ((status_code == pion::http::types::RESPONSE_CODE_UNAUTHORIZED) ||
-        (_data._subject_token.empty())) {
-      renew_token(_oauth_trust, true);
-    }
-  }
-  else {
-    // Login as pep
-    // IoT Agent as PEP only for some urls and operations.
-    // Always new token
-    renew_token(_oauth_validate, true);
-  }
-  return _data._subject_token;
-}
-
 
 void iota::OAuth::receive_event_renew_token(
   boost::shared_ptr<iota::HttpClient> connection,
@@ -215,9 +197,8 @@ void iota::OAuth::receive_event_renew_token(
                    " conn_error=" << connection->get_error() <<
                    " subject-token=" << _data._subject_token.empty());
   }
-  //remove_connection(connection);
 
-  if (is_pep()) {
+  if (is_pep() && !_sync) {
     if (_data._subject_token.empty()) {
       if (_application_callback != NULL) {
         _application_callback(shared_from_this());
@@ -245,7 +226,6 @@ std::string iota::OAuth::receive_event_get_user(
 
   }
 
-  //remove_connection(connection);
 
   boost::property_tree::ptree ptree_user = get_ptree(str_response);
   if (!ptree_user.empty()) {
@@ -260,7 +240,7 @@ std::string iota::OAuth::receive_event_get_user(
   }
   IOTA_LOG_DEBUG(m_logger, "receive_event_get_user user=" << _user_id <<
                  " domain=" << _domain);
-  if (is_pep()) {
+  if (is_pep() && !_sync) {
 
     if (_user_id.empty()) {
       if (_application_callback != NULL) {
@@ -276,7 +256,7 @@ std::string iota::OAuth::receive_event_get_user(
   return str_response;
 }
 
-void iota::OAuth::renew_token(std::string scope, bool sync) {
+void iota::OAuth::renew_token(std::string scope) {
 
   boost::mutex::scoped_lock l(_m);
   _data._subject_token.clear();
@@ -299,7 +279,7 @@ void iota::OAuth::renew_token(std::string scope, bool sync) {
   boost::shared_ptr<iota::HttpClient> http_client;
   std::string proxy;
   pion::http::response_ptr response;
-  if (!sync) {
+  if (!_sync) {
 
     IOTA_LOG_DEBUG(m_logger,
                    "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
@@ -324,8 +304,9 @@ void iota::OAuth::renew_token(std::string scope, bool sync) {
 }
 
 std::string  iota::OAuth::get_user(std::string token, std::string token_pep) {
-  IOTA_LOG_DEBUG(m_logger,
-                 "get_user pep-token=" << token_pep << " user-token=" << token);
+  std::string log_msg("get_user pep-token=" + token_pep + " user-token=" + token);
+  IOTA_LOG_DEBUG(m_logger, log_msg);
+
   std::string str_response;
   _user_id.clear();
   boost::property_tree::ptree headers;
@@ -400,7 +381,7 @@ std::string iota::OAuth::receive_event_get_subservice(
                    " projects=" << str_response <<
                    " token-pep=" << _data._subject_token.empty());
   }
-  if (is_pep()) {
+  if (is_pep() && !_sync) {
     // When result is not from a OK response, we finalize.
     if (status_code == pion::http::types::RESPONSE_CODE_BAD_REQUEST) {
       if (_application_callback != NULL) {
@@ -431,8 +412,7 @@ std::string iota::OAuth::receive_event_get_user_roles(
 
   }
 
-  //remove_connection(connection);
-  if (is_pep()) {
+  if (is_pep() && !_sync) {
     if (!str_response.empty()) {
       _user_roles = get_ptree(str_response);
     }
@@ -472,8 +452,8 @@ boost::property_tree::ptree iota::OAuth::validate_user_token(std::string token,
     if (!is_pep()) {
       return user_from_auth_token;
     }
-    if (callback == NULL) {
-      std::string pep_token = sync_get_token();
+    if (_sync) {
+      std::string pep_token = get_token();
       user_from_auth_token = get_ptree(get_user(token, pep_token));
     }
     else {
@@ -520,11 +500,10 @@ boost::property_tree::ptree iota::OAuth::get_user_roles(std::string user_id) {
                               //boost::bind(&iota::OAuth::receive_event_get_user_roles, this, _1, _2, _3));
                               boost::bind(&iota::OAuth::receive_event_get_user_roles, shared_from_this(), _1,
                                           _2, _3));
-  /*
-    if (!str_response.empty() && _io_service.get() == NULL) {
+
+    if (!str_response.empty() && _sync) {
       pt_user_roles = get_ptree(str_response);
     }
-    */
 
   return pt_user_roles;
 }
@@ -584,7 +563,7 @@ std::string iota::OAuth::send_request(std::string endpoint,
   boost::shared_ptr<iota::HttpClient> http_client;
   std::string proxy;
   pion::http::response_ptr response;
-  if (handler != NULL) {
+  if (!_sync) {
 
     http_client.reset(new iota::HttpClient(_io_service, server, dest.getPort()));
     //add_connection(http_client);

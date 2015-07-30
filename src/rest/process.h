@@ -23,13 +23,16 @@
 #define SRC_REST_PROCESS_H_
 
 #include "rest/tcp_service.h"
+#include "rest_handle.h"
 #include "util/iota_logger.h"
 #include <boost/noncopyable.hpp>
 #include <pion/scheduler.hpp>
+#include "rest_handle.h"
 #include <pion/http/plugin_server.hpp>
 
 namespace iota {
 class AdminService;
+class RestHandle;
 
 class Process: private boost::noncopyable {
 
@@ -53,7 +56,7 @@ class Process: private boost::noncopyable {
     static iota::Process& get_process();
     unsigned int get_http_port();
     pion::http::plugin_service* get_service(std::string http_resource);
-    void add_service(std::string http_resource, pion::http::plugin_service* http_service);
+    void add_service(std::string http_resource, iota::RestHandle* http_service);
   protected:
   private:
     Process(unsigned int n_threads);
