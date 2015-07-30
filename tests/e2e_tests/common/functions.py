@@ -268,16 +268,15 @@ class Functions(object):
             }
             for kreplace in replaces:
                 cmd_value = cmd_value.replace(kreplace,replaces[kreplace])
-            command=[
-                     {
-                      "name": cmd_name,
-                      "type": 'command',
-                      "value": cmd_value
-                      }
-                     ]
-            self.device_precond(device_id, endpoint, protocol, command, device_name, ent_type)
-            world.device_name=device_name
-        world.device_id=device_id
+        command=[
+                 {
+                  "name": cmd_name,
+                  "type": 'command',
+                  "value": cmd_value
+                  }
+                 ]
+        self.device_precond(device_id, endpoint, protocol, command, device_name, ent_type)
+        world.device_name=device_name
        
     def not_device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id

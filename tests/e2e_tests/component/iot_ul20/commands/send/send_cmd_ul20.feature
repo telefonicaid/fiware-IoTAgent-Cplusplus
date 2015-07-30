@@ -12,10 +12,13 @@ Feature: UL20 Command Send
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker
 		
 		Examples:
-            |device_id	|device_name |service		|protocol	|command		|value					|cmd_value			|response						|status		|ent_type	|
-            |dev1		|room1		 |serviceul20	|IoTUL2		|attr_1_dev_1	|ping1					|dev1@%s			|dev1@ping1						|OK			|			|
-            |dev1_1		|room1_1	 |serviceul20	|IoTUL2		|attr_2_dev_1_1	|ping1_1#param1=value1	|dev1_1@%s#%s		|dev1_1@ping1_1#param1=value1	|OK			|			|
-            |dev1_2		|room1_2	 |serviceul20	|IoTUL2		|attr_3_dev_1_2	|ping1_2#p1=v1#p2=v2	|dev1_2@%s#%s#%s	|dev1_2@ping1_2#p1=v1#p2=v2		|OK			|			|
+            |device_id	|device_name |service		|protocol	|command	|value			|cmd_value	|response						|status		|ent_type	|
+            |dev1		|room1		 |serviceul20	|IoTUL2		|ping1		|				|			|dev1@ping1						|OK			|			|
+            |dev1_1		|room1_1	 |serviceul20	|IoTUL2		|ping1_1	|param1=value1	|			|dev1_1@ping1_1#param1=value1	|OK			|			|
+            |dev1_2		|room1_2	 |serviceul20	|IoTUL2		|ping1_2	|p1=v1#p2=v2	|			|dev1_2@ping1_2#p1=v1#p2=v2		|OK			|			|
+#            |dev1		|room1		 |serviceul20	|IoTUL2		|attr_1_dev_1	|ping1					|dev1@%s			|dev1@ping1						|OK			|			|
+#            |dev1_1		|room1_1	 |serviceul20	|IoTUL2		|attr_2_dev_1_1	|ping1_1#param1=value1	|dev1_1@%s#%s		|dev1_1@ping1_1#param1=value1	|OK			|			|
+#            |dev1_2		|room1_2	 |serviceul20	|IoTUL2		|attr_3_dev_1_2	|ping1_2#p1=v1#p2=v2	|dev1_2@%s#%s#%s	|dev1_2@ping1_2#p1=v1#p2=v2		|OK			|			|
 
 
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20236
@@ -27,13 +30,19 @@ Feature: UL20 Command Send
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker
 		
 		Examples:
-            |device_id	|device_name |service		|protocol	|command		|value			|cmd_value		|endpoint	|response			|status						|ent_type	|
-            |dev6		|room6		 |serviceul20	|IoTUL2		|attr_1_dev_6	|ping6			|dev6@%s		|void		|ping6_OK			|OK							|			|
-            |dev6_0		|room6_0	 |serviceul20	|IoTUL2		|attr_1_dev_6_0	|ping6_0		|dev6_0@%s		|void		|ping6_0_measure	|OK							|			|
-            |dev6_1		|room6_1	 |serviceul20	|IoTUL2		|attr_1_dev_6_1	|ping6_1#p1=v1	|dev6_1@%s#%s	|void		|ping6_1_OK			|OK							|			|
-            |dev6_2		|room6_2	 |serviceul20	|IoTUL2		|attr_1_dev_6_2	|ping6_2		|dev6_2@%s		|void		|					|delivered but no respond	|			|
-            |dev6_3		|room6_3	 |serviceul20	|IoTUL2		|attr_1_dev_6_3	|ping6_3		|dev6_3@%s		|void		|ping6_3_expired	|delivered but no respond	|			|
-            |dev6_4		|room6_4	 |serviceul20	|IoTUL2		|attr_1_dev_6_4	|ping6_4		|dev6_4@%s		|void		|not_read			|expired read				|			|
+            |device_id	|device_name |service		|protocol	|command	|value	|cmd_value	|endpoint	|response			|status						|ent_type	|
+            |dev6		|room6		 |serviceul20	|IoTUL2		|ping6		|		|			|void		|ping6_OK			|OK							|			|
+            |dev6_0		|room6_0	 |serviceul20	|IoTUL2		|ping6_0	|		|			|void		|ping6_0_measure	|OK							|			|
+            |dev6_1		|room6_1	 |serviceul20	|IoTUL2		|ping6_1	|p1=v1	|			|void		|ping6_1_OK			|OK							|			|
+            |dev6_2		|room6_2	 |serviceul20	|IoTUL2		|ping6_2	|		|			|void		|					|delivered but no respond	|			|
+            |dev6_3		|room6_3	 |serviceul20	|IoTUL2		|ping6_3	|		|			|void		|ping6_3_expired	|delivered but no respond	|			|
+            |dev6_4		|room6_4	 |serviceul20	|IoTUL2		|ping6_4	|		|			|void		|not_read			|expired read				|			|
+#            |dev6		|room6		 |serviceul20	|IoTUL2		|attr_1_dev_6	|ping6			|dev6@%s		|void		|ping6_OK			|OK							|			|
+#            |dev6_0	|room6_0	 |serviceul20	|IoTUL2		|attr_1_dev_6_0	|ping6_0		|dev6_0@%s		|void		|ping6_0_measure	|OK							|			|
+#            |dev6_1	|room6_1	 |serviceul20	|IoTUL2		|attr_1_dev_6_1	|ping6_1#p1=v1	|dev6_1@%s#%s	|void		|ping6_1_OK			|OK							|			|
+#            |dev6_2	|room6_2	 |serviceul20	|IoTUL2		|attr_1_dev_6_2	|ping6_2		|dev6_2@%s		|void		|					|delivered but no respond	|			|
+#            |dev6_3	|room6_3	 |serviceul20	|IoTUL2		|attr_1_dev_6_3	|ping6_3		|dev6_3@%s		|void		|ping6_3_expired	|delivered but no respond	|			|
+#            |dev6_4	|room6_4	 |serviceul20	|IoTUL2		|attr_1_dev_6_4	|ping6_4		|dev6_4@%s		|void		|not_read			|expired read				|			|
 
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20169
     	Scenario Outline: Send a wrong command
