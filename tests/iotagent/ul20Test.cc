@@ -2012,8 +2012,8 @@ void Ul20Test::testPUSHCommand() {
   // updateContext
   std::string querySTR = "";
   std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
-  bodySTR.append("\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\",");
-  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"unitTest_dev1_endpoint@PING|22\",");
+  bodySTR.append("\"contextElements\":[{\"id\":\"urn:x-iot:smartsantander:u7jcfa:fixed:testactuator1\",\"type\":\"santander:actuator\",\"isPattern\":\"false\",");
+  bodySTR.append("\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"urn:x-iot:smartsantander:u7jcfa:fixed:testactuator1@RawCommand1|{object_id:t,name:temperature,type:int}\",");
   bodySTR.append("\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":\"2014-11-23T17:33:36.341305Z\"}]}");
   bodySTR.append("]} ]}");
   {

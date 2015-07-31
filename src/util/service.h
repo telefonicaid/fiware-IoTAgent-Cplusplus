@@ -25,15 +25,17 @@
 #include "timer.h"
 #include <boost/functional/hash.hpp>
 #include <boost/shared_ptr.hpp>
+#include "common.h"
 
 namespace iota {
 
-struct Service : public virtual Timer {
+class Service : public virtual Timer {
+  public:
+    Service();
 
-    explicit Service(std::string service): Timer(),
-      _service(service) {};
+    Service(const std::string &service);
 
-    virtual ~Service() {};
+    virtual ~Service();
 
     bool operator==(const Service& a) const {
       if (_service.compare(a._service) == 0) {
@@ -77,57 +79,46 @@ struct Service : public virtual Timer {
       return seed;
     }
 
-    std::string get_resource() {
-      return _resource;
-    };
+    std::string get(const std::string& field, const std::string& default_value = std::string()) ;
 
-    void set_resource(const std::string& resource) {
-      _resource = resource;
-    }
+    void put(const std::string& field, const std::string& value) ;
 
-    std::string get_token() {
-      return _token;
-    };
+    int get(const std::string& field, int default_value) ;
 
-    void set_token(const std::string& token) {
-      _token = token;
-    }
+    void put(const std::string& field, int value) ;
 
-    std::string get_service_path() {
-      return _service_path;
-    };
+    std::string get_resource() ;
 
-    void set_service_path(const std::string& service_path) {
-      _service_path = service_path;
-    }
+    void set_resource(const std::string& resource) ;
 
-    int get_timeout() {
-      return _timeout;
-    };
+    std::string get_token() ;
 
-    void set_timeout(int timeout) {
-      _timeout = timeout;
-    }
+    void set_token(const std::string& token) ;
 
-    std::string get_service() {
-      return _service;
-    };
+    std::string get_service_path() ;
 
-    void set_service(const std::string& service) {
-      _service = service;
-    }
+    void set_service_path(const std::string& service_path) ;
 
-    std::string get_cbroker() {
-      return _cbroker;
-    };
+    int get_timeout() ;
 
-    void set_cbroker(const std::string& cbroker) {
-      _cbroker = cbroker;
-    }
+    void set_timeout(int timeout) ;
 
-    std::string get_real_name() const {
-      return _service;
-    }
+    std::string get_service() ;
+
+    void set_service(const std::string& service) ;
+
+    std::string get_cbroker() ;
+
+    void set_cbroker(const std::string& cbroker) ;
+
+    std::string get_real_name() const ;
+
+    void read_xml_file (const std::string& file_path) ;
+
+    std::string read_json (std::stringstream& _is) ;
+
+    std::string toString() const ;
+
 
   protected:
   private:
@@ -138,6 +129,8 @@ struct Service : public virtual Timer {
     std::string _cbroker;
     std::string _token;
     std::string _resource;
+
+    JsonDocument _document;
 
 };
 };

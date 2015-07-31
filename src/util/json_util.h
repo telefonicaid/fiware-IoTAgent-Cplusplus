@@ -26,7 +26,7 @@
 #include "iota_exception.h"
 #include "rest/types.h"
 #include <boost/lexical_cast.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include "service.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
@@ -104,7 +104,7 @@ void get_map_from_rapidjson(const JsonValue& value,
  * @param bson is a mongo::BSONObj.
  * @param p_tree is a boost::property_tree::ptree where result will be stored
  */
-void bson_to_ptree(const mongo::BSONObj& bson, boost::property_tree::ptree& p_tree);
+void bson_to_ptree(const mongo::BSONObj& bson, boost::shared_ptr<Service>& p_tree);
 
 /**
  * Convert a rapidjson::Value to string

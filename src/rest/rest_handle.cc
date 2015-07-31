@@ -299,7 +299,6 @@ void iota::RestHandle::register_iota_manager() {
         boost::shared_ptr<iota::HttpClient> http_client(
           new iota::HttpClient(*(_connectionManager->get_io_service()), dest.getHost(),
                                dest.getPort()));
-        boost::property_tree::ptree additional_info;
         pion::http::request_ptr request(new pion::http::request());
         request->set_method(pion::http::types::REQUEST_METHOD_POST);
         request->set_resource(dest.getPath());
@@ -848,7 +847,7 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device_by_entity(
 
 
 bool iota::RestHandle::get_service_by_name(
-  boost::property_tree::ptree& pt,
+  boost::shared_ptr<Service>& pt,
   const std::string& item_name,
   const std::string& service_path) {
 
@@ -865,7 +864,7 @@ bool iota::RestHandle::get_service_by_name(
 }
 
 bool iota::RestHandle::get_service_by_apiKey(
-  boost::property_tree::ptree& pt,
+  boost::shared_ptr<Service>& pt,
   const std::string& apiKey) {
 
   int code = ERROR_NO_SERVICE;
@@ -881,25 +880,25 @@ bool iota::RestHandle::get_service_by_apiKey(
 
 
 void iota::RestHandle::fill_service_with_bson(const mongo::BSONObj& bson,
-    boost::property_tree::ptree& pt) {
+    boost::shared_ptr<Service>& pt) {
 
   int default_timeout = get_default_timeout();
   std::string default_context_broker = get_default_context_broker();
   std::string http_proxy = get_http_proxy();
 
   bson_to_ptree(bson, pt);
-  if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
-    pt.put(iota::store::types::CBROKER, default_context_broker);
+  if (pt->get(iota::store::types::CBROKER).empty()) {
+    pt->put(iota::store::types::CBROKER, default_context_broker);
   }
-  if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
-    pt.put(iota::store::types::TIMEOUT, default_timeout);
+  if (pt->get(iota::store::types::TIMEOUT, -1) == -1) {
+    pt->put(iota::store::types::TIMEOUT, default_timeout);
   }
-  pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+  pt->put(iota::types::CONF_FILE_PROXY, http_proxy);
 
 }
 
 int iota::RestHandle::get_service_by_name_bbdd(
-  boost::property_tree::ptree& pt,
+  boost::shared_ptr<Service>& pt,
   const std::string& name,
   const std::string& service_path) {
 
@@ -938,7 +937,7 @@ int iota::RestHandle::get_service_by_name_bbdd(
 }
 
 int iota::RestHandle::get_service_by_apiKey_bbdd(
-  boost::property_tree::ptree& pt,
+  boost::shared_ptr<Service>& pt,
   const std::string& apiKey) {
 
   std::string resource = get_resource();
@@ -975,7 +974,7 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
 }
 
 const iota::JsonValue& iota::RestHandle::get_service_by_name_file(
-  boost::property_tree::ptree& pt,
+  boost::shared_ptr<Service>& pt,
   const std::string& item_name,
   const std::string& service_path) {
 
@@ -992,14 +991,14 @@ const iota::JsonValue& iota::RestHandle::get_service_by_name_file(
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   service_object.Accept(writer);
   ss << buffer.GetString();
-  boost::property_tree::read_json(ss, pt);
-  if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
-    pt.put(iota::store::types::CBROKER, default_context_broker);
+ //TODO boost::property_tree::read_json(ss, pt);
+  if (pt->get(iota::store::types::CBROKER, "").empty()) {
+    pt->put(iota::store::types::CBROKER, default_context_broker);
   }
-  if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
-    pt.put(iota::store::types::TIMEOUT, default_timeout);
+  if (pt->get(iota::store::types::TIMEOUT, -1) == -1) {
+    pt->put(iota::store::types::TIMEOUT, default_timeout);
   }
-  pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+  pt->put(iota::types::CONF_FILE_PROXY, http_proxy);
   return service_object;
 
 }
@@ -1010,14 +1009,14 @@ void iota::RestHandle::send_update_context(
   const std::string& device_id,
   const std::vector<iota::Attribute>& attributes) {
 
-  boost::property_tree::ptree pt_cb;
+  boost::shared_ptr<Service> pt_cb(new Service());
   boost::shared_ptr<iota::Device> dev;
 
   get_service_by_apiKey(pt_cb, apikey);
 
   dev = get_device(device_id,
-                   pt_cb.get<std::string>(iota::store::types::SERVICE, ""),
-                   pt_cb.get<std::string>(iota::store::types::SERVICE_PATH, ""));
+                   pt_cb->get_service(),
+                   pt_cb->get_service_path());
 
   iota::RiotISO8601 mi_hora;
   std::string date_to_cb = mi_hora.toUTC().toString();
@@ -1043,7 +1042,7 @@ void iota::RestHandle::send_update_context(
 }
 
 const iota::JsonValue& iota::RestHandle::get_service_by_apiKey_file(
-  boost::property_tree::ptree& pt,
+  boost::shared_ptr<Service>& pt,
   const std::string& apiKey) {
 
   std::string default_context_broker = get_default_context_broker();
@@ -1059,14 +1058,14 @@ const iota::JsonValue& iota::RestHandle::get_service_by_apiKey_file(
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   service_object.Accept(writer);
   ss << buffer.GetString();
-  boost::property_tree::read_json(ss, pt);
-  if (pt.get<std::string>(iota::store::types::CBROKER, "").empty()) {
-    pt.put(iota::store::types::CBROKER, default_context_broker);
+ //TODO boost::property_tree::read_json(ss, pt);
+  if (pt->get(iota::store::types::CBROKER, "").empty()) {
+    pt->put(iota::store::types::CBROKER, default_context_broker);
   }
-  if (pt.get<int>(iota::store::types::TIMEOUT, -1) == -1) {
-    pt.put(iota::store::types::TIMEOUT, default_timeout);
+  if (pt->get(iota::store::types::TIMEOUT, -1) == -1) {
+    pt->put(iota::store::types::TIMEOUT, default_timeout);
   }
-  pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+  pt->put(iota::types::CONF_FILE_PROXY, http_proxy);
   return service_object;
 
 

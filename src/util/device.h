@@ -26,7 +26,7 @@
 #include "store_const.h"
 #include "rest/riot_conf.h"
 #include <boost/functional/hash.hpp>
-#include <boost/property_tree/ptree.hpp>
+#include "service.h"
 #include <boost/shared_ptr.hpp>
 
 namespace iota {
@@ -177,13 +177,12 @@ struct Device : public virtual Timer {
     return _name;
   }
 
-  std::string get_real_name(const boost::property_tree::ptree& service_ptree)
+  std::string get_real_name(const boost::shared_ptr<Service>& service_ptree)
   const {
 
     std::string entity_type("thing");
     std::string entity_id(_name);
-    std::string service_entity_type = service_ptree.get<std::string>
-                        (iota::store::types::ENTITY_TYPE, "");
+    std::string service_entity_type = service_ptree->get(iota::store::types::ENTITY_TYPE);
 
     if (!_entity_type.empty() &&
         _entity_type.compare(iota::store::types::DEFAULT) != 0) {

@@ -94,7 +94,7 @@ int iota::TestCommandService::execute_command(const std::string& endpoint,
                         const boost::property_tree::ptree& command_to_send,
                         int timeout,
                         const boost::shared_ptr<iota::Device> &item_dev,
-                        const boost::property_tree::ptree& service,
+                        const boost::shared_ptr<Service>& service,
                         std::string& response,
                         iota::HttpClient::application_callback_t callback) {
 
@@ -226,7 +226,7 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
 
     IOTA_LOG_DEBUG(m_logger, "device sends command result device:" <<
                     device << " " <<content );
-    boost::property_tree::ptree service_ptree;
+    boost::shared_ptr<Service> service_ptree;
     boost::shared_ptr<iota::Device> dev;
 
     get_service_by_apiKey(service_ptree, apikey);
@@ -238,8 +238,8 @@ void iota::TestCommandService::receive_command_results(pion::http::request_ptr& 
         id_command = content;
     }
     IOTA_LOG_DEBUG(m_logger, "id_command:" <<id_command );
-    std::string srv = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-    std::string srv_path = service_ptree.get<std::string>(iota::store::types::SERVICE_PATH , "");
+    std::string srv = service_ptree->get_service();
+    std::string srv_path = service_ptree->get_service_path();
 
     dev = get_device(device, srv, srv_path);
 

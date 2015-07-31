@@ -147,7 +147,7 @@ void iota::CommandHandle::handle_updateContext(
 
 boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
   boost::shared_ptr<Command> item) {
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<Service> service_ptree(new Service());
 
   IOTA_LOG_INFO(m_logger, "timeout command: entity:" <<
                 item->get_entity() << " service:" << item->get_service()
@@ -407,7 +407,7 @@ void iota::CommandHandle::send_all_registrations() {
           std::string original_entity_type = item_dev->_entity_type;
 
           //check service
-          boost::property_tree::ptree service_ptree;
+          boost::shared_ptr<Service> service_ptree(new Service());
           get_service_by_name(service_ptree, service);
 
           IOTA_LOG_DEBUG(m_logger, "setting env info");
@@ -501,7 +501,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
 
     while (srv_table.more()) {
       mongo::BSONObj srv_resu =srv_table.next();
-      boost::property_tree::ptree service_ptree;
+      boost::shared_ptr<Service> service_ptree(new Service());
       fill_service_with_bson(srv_resu, service_ptree);
 
       srv = srv_resu.getStringField(iota::store::types::SERVICE);
@@ -636,7 +636,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
           register_device = dev_table.nextd();
           IOTA_LOG_DEBUG(m_logger, "Found device: " <<  register_device._name);
 
-          boost::property_tree::ptree service_ptree;
+          boost::shared_ptr<Service> service_ptree(new Service());
           get_service_by_name(service_ptree, srv, service_path);
           boost::shared_ptr<Device> item_dev(new Device(register_device));
 
@@ -728,7 +728,7 @@ void iota::CommandHandle::send_register_device(Device& device) {
 
 
 int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
-                                       const boost::property_tree::ptree& service_ptree,
+                                       const boost::shared_ptr<Service>& service_ptree,
                                        const std::string& sequence,
                                        iota::ContextResponses&  context_responses) {
 
@@ -738,11 +738,9 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
   std::vector<iota::ContextElement>::const_iterator i;
   std::vector<iota::ContextElement> contextElemts =
     updateContext.get_context_elements();
-  std::string service = service_ptree.get<std::string>
-                        (iota::store::types::SERVICE, "");
+  std::string service = service_ptree->get_service();
 
-  std::string service_path = service_ptree.get<std::string>
-                             (iota::store::types::SERVICE_PATH, "");
+  std::string service_path = service_ptree->get_service_path();
 
   for (i=contextElemts.begin(); i!=contextElemts.end(); ++i) {
     iota::ContextResponse res;
@@ -773,7 +771,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
         if (entity_type.empty()) {
           IOTA_LOG_DEBUG(m_logger,
                          "dev "<< item_dev->_name << " has not got entity_type");
-          entity_type = service_ptree.get<std::string>("entity_type", "");
+          entity_type = service_ptree->get("entity_type");
         }
         IOTA_LOG_DEBUG(m_logger,
                        "devvvv "<< item_dev->_name << " entity_type " <<
@@ -832,7 +830,7 @@ int iota::CommandHandle::updateContext(iota::UpdateContext& updateContext,
 void iota::CommandHandle::response_command(const std::string& id_command,
     const std::string& response,
     const boost::shared_ptr<Device>& device,
-    const boost::property_tree::ptree& service_ptree) {
+    const boost::shared_ptr<Service>& service_ptree) {
 
   std::string cb_response;
   send_updateContext(id_command, iota::types::STATUS,
@@ -852,7 +850,7 @@ void iota::CommandHandle::getCommandLine(const std::string& command_name,
     const std::string& updateCommand_value,
     const std::string& sequence_id,
     const boost::shared_ptr<Device>& item_dev,
-    const boost::property_tree::ptree& service,
+    const boost::shared_ptr<Service>& service,
     std::string& command_id,
     boost::property_tree::ptree& command_line) {
 
@@ -913,7 +911,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
                                         boost::shared_ptr<iota::Device> item_dev,
                                         const std::string& entity_type,
                                         const std::string& sequence,
-                                        const boost::property_tree::ptree& service) {
+                                        const boost::shared_ptr<Service>& service) {
   IOTA_LOG_DEBUG(m_logger,
                  "updateCommand: "  <<  command_name  << "->" << parameters);
   int res_code = -1;
@@ -987,10 +985,8 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
 
         IOTA_LOG_DEBUG(m_logger,
                        "response:" << res_code << "->" << resp_cmd);
-        std::string service_name = service.get<std::string>(iota::store::types::SERVICE,
-                                   "");
-        std::string service_path = service.get<std::string>
-                                   (iota::store::types::SERVICE_PATH, "");
+        std::string service_name = service->get_service();
+        std::string service_path = service->get_service_path();
         if (resp_cmd.empty()) {
           IOTA_LOG_DEBUG(m_logger, "command response from plugin_terceros is empty");
           // empty is a good response, do not add anything
@@ -1031,7 +1027,7 @@ void iota::CommandHandle::transform_command(const std::string& command_name,
     const std::string& updateCommand_value,
     const std::string& sequence_id,
     const boost::shared_ptr<Device>& item_dev,
-    const boost::property_tree::ptree& service,
+    const boost::shared_ptr<Service>& service,
     std::string& command_id,
     boost::property_tree::ptree& command_line) {
 
@@ -1137,7 +1133,7 @@ void iota::CommandHandle::default_op_ngsi(pion::http::request_ptr&
                                    iota::types::FIWARE_SERVICEPATH);
 
       //check service
-      boost::property_tree::ptree service_ptree;
+      boost::shared_ptr<Service> service_ptree(new Service());
       get_service_by_name(service_ptree, service, service_path);
 
       // Add proxy
@@ -1240,7 +1236,7 @@ void iota::CommandHandle::default_queryContext_ngsi(pion::http::request_ptr&
                                    iota::types::FIWARE_SERVICEPATH);
 
       //check service
-      boost::property_tree::ptree service_ptree;
+      boost::shared_ptr<Service> service_ptree(new Service());
       get_service_by_name(service_ptree, service, service_path);
 
       // Add proxy
@@ -1326,7 +1322,7 @@ std::string iota::CommandHandle::create_ngsi_response(int code,
 int iota::CommandHandle::send(
   iota::ContextElement ngsi_context_element,
   const std::string& opSTR,
-  const boost::property_tree::ptree& service,
+  const boost::shared_ptr<Service>& service,
   std::string& cb_response) {
 
   boost::shared_ptr<iota::ContextBrokerCommunicator> cb_comm(new
@@ -1335,7 +1331,7 @@ int iota::CommandHandle::send(
 
   std::string cb_url;
 
-  std::string cbrokerURL = service.get<std::string>("cbroker", "");
+  std::string cbrokerURL = service->get("cbroker");
   if (!cbrokerURL.empty()) {
     cb_url.assign(cbrokerURL);
     cb_url.append(get_ngsi_operation("updateContext"));
@@ -1372,7 +1368,7 @@ std::string iota::CommandHandle::get_ngsi_operation(const std::string&
 
 int iota::CommandHandle::send_register(
   std::vector<iota::ContextRegistration> context_registrations,
-  boost::property_tree::ptree& pt_cb,
+  boost::shared_ptr<Service>& pt_cb,
   const boost::shared_ptr<Device> device,
   const std::string& regId,
   std::string& cb_response) {
@@ -1381,19 +1377,19 @@ int iota::CommandHandle::send_register(
   std::string cb_url;
   std::string entity_type("thing");
   try {
-    std::string cbrokerSTR = pt_cb.get<std::string>("cbroker", "");
+    std::string cbrokerSTR = pt_cb->get("cbroker");
     if (!cbrokerSTR.empty()) {
       cb_url.assign(cbrokerSTR);
       cb_url.append(get_ngsi_operation("registerContext"));
     }
-    std::string entity_typeSTR = pt_cb.get<std::string>("entity_type", "");
+    std::string entity_typeSTR = pt_cb->get("entity_type");
     if (!entity_typeSTR.empty()) {
       entity_type.assign(entity_typeSTR);
     }
 
     // Setting Accept to "application/json,text/json"
-    pt_cb.put<std::string>(iota::types::IOT_HTTP_HEADER_ACCEPT,
-                           iota::types::IOT_CONTENT_TYPE_JSON);
+    pt_cb->put(iota::types::IOT_HTTP_HEADER_ACCEPT,
+              iota::types::IOT_CONTENT_TYPE_JSON);
 
   }
   catch (std::exception& e) {
@@ -1440,7 +1436,7 @@ int iota::CommandHandle::send_updateContext(
   const std::string& type,
   const std::string& value,
   const boost::shared_ptr<Device>& item_dev,
-  const boost::property_tree::ptree& service,
+  const boost::shared_ptr<Service>& service,
   const std::string& opSTR) {
 
   int code_resp = -1;
@@ -1481,7 +1477,7 @@ int iota::CommandHandle::send_updateContext(
   const std::string& type2,
   const std::string& value2,
   const boost::shared_ptr<Device>& item_dev,
-  const boost::property_tree::ptree& service,
+  const boost::shared_ptr<Service>& service,
   const std::string& opSTR) {
 
   iota::ContextElement ngsi_context_element;
@@ -1516,13 +1512,11 @@ void iota::CommandHandle::save_command(const std::string& command_name,
                                        const boost::shared_ptr<Device>& item_dev,
                                        const std::string& entity_type,
                                        const std::string& endpoint,
-                                       const boost::property_tree::ptree& service_ptree,
+                                       const boost::shared_ptr<Service>& service_ptree,
                                        const std::string& sequence,
                                        int   status) {
-  std::string service = service_ptree.get<std::string>
-                        (iota::store::types::SERVICE, "");
-  std::string service_path = service_ptree.get<std::string>
-                             (iota::store::types::SERVICE_PATH, "");
+  std::string service = service_ptree->get_service();
+  std::string service_path = service_ptree->get_service_path();
   if (command_id.empty()) {
     std::string errSTR  = "command is is empty ";
     errSTR.append(command_name);
@@ -1563,35 +1557,33 @@ iota::CommandVect iota::CommandHandle::get_all_command(const std::string&
     device_id,
     const std::string&   apikey) {
 
-  boost::property_tree::ptree pt_cb;
+  boost::shared_ptr<Service> pt_cb(new Service());
   boost::shared_ptr<Device> dev;
 
   get_service_by_apiKey(pt_cb, apikey);
 
   dev = get_device(device_id,
-                   pt_cb.get<std::string>(iota::store::types::SERVICE, ""),
-                   pt_cb.get<std::string>(iota::store::types::SERVICE_PATH, ""));
+                   pt_cb->get_service(),
+                   pt_cb->get_service_path());
 
   return get_all_command(dev, pt_cb);
 }
 
-iota::CommandVect iota::CommandHandle::get_all_command(const
-    boost::shared_ptr<Device>
-    & dev,
-    const boost::property_tree::ptree& service_ptree) {
+iota::CommandVect iota::CommandHandle::get_all_command(
+    const boost::shared_ptr<Device>& dev,
+    const boost::shared_ptr<Service>& service_ptree) {
   iota::CommandVect res;
 
-  if (_storage_type.compare(iota::types::CONF_FILE_MONGO) != 0){
-    IOTA_LOG_INFO(m_logger, "get_all_command not work if storage_type is not mongodb ");
+  if (_storage_type.compare(iota::types::CONF_FILE_MONGO) != 0) {
+    IOTA_LOG_INFO(m_logger,
+                  "get_all_command not work if storage_type is not mongodb ");
     return res;
   }
-  std::string service =  service_ptree.get<std::string>
-                         (iota::store::types::SERVICE,
-                          "");
-  std::string service_path =  service_ptree.get<std::string>
-                              (iota::store::types::SERVICE_PATH, "");
+  std::string service =  service_ptree->get_service();
+  std::string service_path =  service_ptree->get_service_path();
   if (dev.get() == NULL) {
-    IOTA_LOG_INFO(m_logger, "get_all_command not work if storage_type is not mongodb ");
+    IOTA_LOG_INFO(m_logger,
+                  "get_all_command not work if storage_type is not mongodb ");
     return res;
   }
 
@@ -1792,10 +1784,8 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
     int& res_code,
     std::string& resp_cmd) {
 
-  std::string service_name = cmd_data.service.get<std::string>
-                             (iota::store::types::SERVICE, "");
-  std::string service_path = cmd_data.service.get<std::string>
-                             (iota::store::types::SERVICE_PATH, "");
+  std::string service_name = cmd_data.service->get_service();
+  std::string service_path = cmd_data.service->get_service_path();
 
   if (res_code == pion::http::types::RESPONSE_CODE_OK) {
     remove_command(cmd_data.command_id, service_name, service_path);
@@ -1864,15 +1854,14 @@ void iota::CommandHandle::process_command_response(CommandData& cmd_data,
 }
 
 int iota::CommandHandle::queryContext(iota::QueryContext& queryContext,
-                                       const boost::property_tree::ptree& service_ptree,
+                                       const boost::shared_ptr<Service>& service_ptree,
                                        iota::ContextResponses&  context_responses){
 
   IOTA_LOG_DEBUG(m_logger,"queryContext");
   int iresponse=200;
 
-  std::string service = service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-  std::string service_path = service_ptree.get<std::string>(iota::store::types::SERVICE_PATH
-                         , "");
+  std::string service = service_ptree->get_service();
+  std::string service_path = service_ptree->get_service_path();
 
   if (service.empty() || service_path.empty()){
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,

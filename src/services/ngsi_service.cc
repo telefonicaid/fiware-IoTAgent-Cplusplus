@@ -24,10 +24,6 @@
 #include "rest/media_filter.h"
 #include <sstream>
 #include <pion/http/response_writer.hpp>
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/json_parser.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/filesystem/operations.hpp>
 
 namespace iota {
 extern std::string logger;

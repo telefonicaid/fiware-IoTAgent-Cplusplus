@@ -25,11 +25,11 @@
 
 #include <pion/http/plugin_service.hpp>
 #include <rest/rest_handle.h>
-#include <boost/property_tree/ptree.hpp>
 #include <ESPLib.h>
 
 #include "util/TTCBPublisher.h"
 #include "util/RiotISO8601.h"
+#include "util/service.h"
 
 #include "../esp/plugins/postprocessor_tt/ESP_Plugin_Postprocessor_TT.h"
 
@@ -57,7 +57,7 @@ class TTService : public iota::RestHandle {
     virtual void set_option(const std::string& name, const std::string& value);
 
     int initESPLib(std::string& pathToLog, std::string& sensorFile);
-    void add_info(boost::property_tree::ptree& pt,
+    void add_info(boost::shared_ptr<Service>& pt,
                   const std::string& iotService,
                   const std::string& apiKey);//Can be taken to another class
 
@@ -70,7 +70,7 @@ class TTService : public iota::RestHandle {
     static ESPLib* esplib_instance;
     int idSensor;
     std::string resource;
-    boost::property_tree::ptree _service_configuration;
+    boost::shared_ptr<Service> _service_configuration;
 
     ESP_Postprocessor_TT* tt_post_ptr_;
 

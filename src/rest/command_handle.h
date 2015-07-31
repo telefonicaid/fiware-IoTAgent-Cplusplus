@@ -56,7 +56,7 @@ class CommandHandle :
       int timeout;
       boost::shared_ptr<iota::Device> item_dev;
       std::string entity_type;
-      boost::property_tree::ptree service;
+      boost::shared_ptr<iota::Service> service;
 
     } CommandData;
 
@@ -67,13 +67,13 @@ class CommandHandle :
     void make_registrations(void);
 
     int queryContext(iota::QueryContext& queryContext,
-                                       const boost::property_tree::ptree& service_ptree,
+                                       const boost::shared_ptr<Service>& service_ptree,
                                        iota::ContextResponses&  context_responses);
 
 
 
     int updateContext(iota::UpdateContext& updateContext,
-                      const boost::property_tree::ptree& service,
+                      const boost::shared_ptr<Service>& service,
                       const std::string& sequence,
                       iota::ContextResponses& response);
 
@@ -93,7 +93,7 @@ class CommandHandle :
                         const std::string& updateCommand_value,
                         const std::string& sequence_id,
                         const boost::shared_ptr<Device>& item_dev,
-                        const boost::property_tree::ptree& service,
+                        const boost::shared_ptr<Service>& service,
                         std::string& command_id,
                         boost::property_tree::ptree& command_line);
 
@@ -142,7 +142,7 @@ class CommandHandle :
                        boost::shared_ptr<Device> device,
                        const std::string& entity_type,
                        const std::string& sequence,
-                       const boost::property_tree::ptree& service);
+                       const boost::shared_ptr<Service>& service);
 
 
     void send_all_registrations(void);
@@ -154,7 +154,7 @@ class CommandHandle :
     bool find_service_name(std::string srv);
 
     int send_register(std::vector<iota::ContextRegistration> context_registrations,
-                      boost::property_tree::ptree& service,
+                      boost::shared_ptr<Service>& service,
                       const boost::shared_ptr<Device> device,
                       const std::string& regId,
                       std::string& cb_response);
@@ -162,7 +162,7 @@ class CommandHandle :
     int send(
       iota::ContextElement ngsi_context_element,
       const std::string& opSTR,
-      const boost::property_tree::ptree& service,
+      const boost::shared_ptr<Service>& service,
       std::string& cb_response);
 
     /**
@@ -185,7 +185,7 @@ class CommandHandle :
       const std::string& type,
       const std::string& value,
       const boost::shared_ptr<Device>& item_dev,
-      const boost::property_tree::ptree& service,
+      const boost::shared_ptr<Service>& service,
       const std::string& opSTR);
 
     int  send_updateContext(
@@ -197,7 +197,7 @@ class CommandHandle :
       const std::string& type2,
       const std::string& value2,
       const boost::shared_ptr<Device>& item_dev,
-      const boost::property_tree::ptree& service,
+      const boost::shared_ptr<Service>& service,
       const std::string& opSTR);
 
     /**
@@ -223,7 +223,7 @@ class CommandHandle :
                                 const boost::property_tree::ptree& command_to_send,
                                 int timeout,
                                 const boost::shared_ptr<Device>& item_dev,
-                                const boost::property_tree::ptree& service,
+                                const boost::shared_ptr<Service>& service,
                                 std::string& response,
                                 iota::HttpClient::application_callback_t callback = NULL) = 0;
 
@@ -255,7 +255,7 @@ class CommandHandle :
                                    const std::string& updateCommand_value,
                                    const std::string& sequence_id,
                                    const boost::shared_ptr<Device>& item_dev,
-                                   const boost::property_tree::ptree& service,
+                                   const boost::shared_ptr<Service>& service,
                                    std::string& command_id,
                                    boost::property_tree::ptree& command_line);
 
@@ -301,7 +301,7 @@ class CommandHandle :
                       const boost::shared_ptr<Device>& item_dev,
                       const std::string& entity_type,
                       const std::string& endpoint,
-                      const boost::property_tree::ptree& service_ptree,
+                      const boost::shared_ptr<Service>& service_ptree,
                       const std::string& sequence,
                       int   status);
 
@@ -319,7 +319,7 @@ class CommandHandle :
     *
     */
     CommandVect get_all_command(const boost::shared_ptr<Device>& device,
-                                const boost::property_tree::ptree& service);
+                                const boost::shared_ptr<Service>& service);
 
     CommandVect get_all_command(const std::string& device_id,
                                 const std::string&   apikey);
@@ -370,7 +370,7 @@ class CommandHandle :
     void response_command(const std::string& id_command,
                           const std::string& response,
                           const boost::shared_ptr<Device>& device,
-                          const boost::property_tree::ptree& service);
+                          const boost::shared_ptr<Service>& service);
 
 
     std::string create_ngsi_response(int code,

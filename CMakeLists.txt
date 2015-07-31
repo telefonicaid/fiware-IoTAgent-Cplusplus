@@ -210,34 +210,34 @@ add_subdirectory(tests)
 
 ###  GENERAL PURPOSE
 # util Test:  general test about  cache, csv, url
-add_test(NAME UtilTest COMMAND util_tests)
+#add_test(NAME UtilTest COMMAND util_tests)
 # ngsi Test: tests about ngsi operation
 add_test(NAME NgsiTest COMMAND ngsi_tests)
 # CB Communicator: general functions to communicate with Context Broker
-add_test(NAME CBCommTest COMMAND cb_comm_tests)
+#add_test(NAME CBCommTest COMMAND cb_comm_tests)
 # Mongo: general functions to use mongo collections
-add_test(NAME MongoTest COMMAND mongo_tests)
+#add_test(NAME MongoTest COMMAND mongo_tests)
 # OAuth: general functions to check oauth privileges
-add_test(NAME OAuthTest COMMAND oauth_tests)
+#add_test(NAME OAuthTest COMMAND oauth_tests)
 # TCP: simple test to check tcp plugin
-add_test(NAME TcpTest COMMAND tcp_tests)
+#add_test(NAME TcpTest COMMAND tcp_tests)
 
 ### Administration APIs
 # API reference for IotAgent adminitration
-add_test(NAME AdminTest COMMAND admin_tests)
+#add_test(NAME AdminTest COMMAND admin_tests)
 # API reference for Iot Manager adminitration
-add_test(NAME AdminManagerTest COMMAND admin_manager_tests)
+#add_test(NAME AdminManagerTest COMMAND admin_manager_tests)
 
 ###  PROTOCOLS
 # Tutorial basic sample protocol
-add_test(NAME SampleTest COMMAND sample_tests)
+#add_test(NAME SampleTest COMMAND sample_tests)
 # UltraLight protocol
-add_test(NAME Ul20Test COMMAND ul20_tests)
+#add_test(NAME Ul20Test COMMAND ul20_tests)
 # Thinking things protocol
-add_test(NAME ttTest COMMAND tt_tests)
+#add_test(NAME ttTest COMMAND tt_tests)
 if(MOSQUITTO_FOUND)
 # MQTT UltraLight protocol
-add_test(NAME MqttTest COMMAND mqtt_tests)
+#add_test(NAME MqttTest COMMAND mqtt_tests)
 endif()
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/BaseChangeLog.txt BASECHANGELOG)

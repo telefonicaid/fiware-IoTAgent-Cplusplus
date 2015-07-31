@@ -23,7 +23,6 @@
 #define SRC_REST_REST_HANDLE_H_
 
 #include <map>
-#include <boost/property_tree/ptree.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
@@ -39,6 +38,7 @@
 #include "util/http_client.h"
 #include <ngsi/Attribute.h>
 
+#include "util/service.h"
 #include <util/async_comm.h>
 #include <mongo/client/dbclient.h>
 
@@ -134,10 +134,10 @@ class RestHandle: public pion::http::plugin_service,
         const std::string& service = std::string(),
         const std::string& service_path = std::string());
 
-    bool get_service_by_apiKey(boost::property_tree::ptree& pt_cb,
+    bool get_service_by_apiKey(boost::shared_ptr<Service>& pt_cb,
                                const std::string& apiKey);
 
-    bool get_service_by_name(boost::property_tree::ptree& pt_cb,
+    bool get_service_by_name(boost::shared_ptr<Service>& pt_cb,
                              const std::string& name = std::string(),
                              const std::string& service_path = std::string());
 
@@ -205,7 +205,7 @@ class RestHandle: public pion::http::plugin_service,
                                 const std::string& new_endpoint);
 
     void fill_service_with_bson(const mongo::BSONObj& bson,
-      boost::property_tree::ptree& pt);
+      boost::shared_ptr<Service>& pt);
 
 
   protected:
@@ -226,7 +226,7 @@ class RestHandle: public pion::http::plugin_service,
       * search the service in database using apiKey
       * if there is more than one throw excepciton
       **/
-    int get_service_by_apiKey_bbdd(boost::property_tree::ptree& pt_cb,
+    int get_service_by_apiKey_bbdd(boost::shared_ptr<Service>& pt_cb,
                                    const std::string& apiKey);
 
     /**
@@ -234,7 +234,7 @@ class RestHandle: public pion::http::plugin_service,
        * if service_path is empty only use name
        * if there is more than one throw excepciton
        **/
-    int get_service_by_name_bbdd(boost::property_tree::ptree& pt_cb,
+    int get_service_by_name_bbdd(boost::shared_ptr<Service>& pt_cb,
                                  const std::string& name,
                                  const std::string& service_path = std::string());
 
@@ -243,7 +243,7 @@ class RestHandle: public pion::http::plugin_service,
        * if service_path is empty only use name
        * if there is more than one throw excepciton
        **/
-    const JsonValue& get_service_by_apiKey_file(boost::property_tree::ptree& pt_cb,
+    const JsonValue& get_service_by_apiKey_file(boost::shared_ptr<Service>& pt_cb,
         const std::string& apiKey);
 
     /**
@@ -251,7 +251,7 @@ class RestHandle: public pion::http::plugin_service,
        * if service_path is empty only use name
        * if there is more than one throw excepciton
        **/
-    const JsonValue& get_service_by_name_file(boost::property_tree::ptree& pt_cb,
+    const JsonValue& get_service_by_name_file(boost::shared_ptr<Service>& pt_cb,
         const std::string& name,
         const std::string& service_path = std::string());
 

@@ -62,7 +62,7 @@ class ULInsertObservation {
 
     void translate(std::string str_io,
                    const boost::shared_ptr<Device>& dev,
-                   const boost::property_tree::ptree& service_ptree,
+                   const boost::shared_ptr<Service>& service_ptree,
                    std::vector<KVP>& query,
                    std::vector<iota::ContextElement>& cb_eltos,
                    unsigned short protocol = 1);

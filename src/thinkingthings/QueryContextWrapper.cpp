@@ -27,16 +27,16 @@ extern std::string logger; //usually declared as "main"
 }
 
 iota::esp::tt::QueryContextWrapper::QueryContextWrapper(
-  boost::property_tree::ptree* propTree) : m_logger(
+  boost::shared_ptr<Service>& propTree) : m_logger(
       PION_GET_LOGGER(iota::logger)) {
 
   this->pt_cb = propTree;
 
-  std::string  cbroker = propTree->get<std::string>("cbroker", "");
+  std::string  cbroker = propTree->get("cbroker");
 
   if (!cbroker.empty()) {
     cb_url.assign(cbroker);
-    std::string  queryContext = propTree->get<std::string>("queryContext", "");
+    std::string  queryContext = propTree->get("queryContext");
     if (!queryContext.empty()) {
       cb_url.append(queryContext);
     }
@@ -76,7 +76,7 @@ iota::esp::tt::QueryContextWrapper::~QueryContextWrapper() {
 
   IOTA_LOG_DEBUG(m_logger,
                  "doQueryContext: SENDING to Context Broker... ["<<qc.get_string()<<"]");
-  cb_response.assign(cb_communicator.send(cb_url, qc.get_string(), *pt_cb));
+  cb_response.assign(cb_communicator.send(cb_url, qc.get_string(), pt_cb));
 
   std::istringstream iss(cb_response);
 

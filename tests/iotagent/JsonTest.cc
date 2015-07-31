@@ -31,9 +31,14 @@
 #include "ngsi/SubscribeResponse.h"
 #include "util/json_util.h"
 #include "util/common.h"
+#include "util/service.h"
 #include "services/admin_service.h"
 #include <stdexcept>
 #include <boost/property_tree/json_parser.hpp>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/filestream.h>
+#include <rapidjson/prettywriter.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION(JsonTest);
 
@@ -43,7 +48,7 @@ std::string URL_BASE("/iot");
 }
 iota::AdminService* AdminService_ptr;
 
-
+/*
 void JsonTest::testContextElement() {
   std::cout << "@UT@START testContextElement " << std::endl;
   std::string service= "service2";
@@ -902,12 +907,12 @@ void JsonTest::testConversionUpdateContext() {
           type = att.get_type();
           value = att.get_value();
           std::cout << "attribute:" << name<< " " << type << " " << value << std::endl;
-       /* CPPUNIT_ASSERT_MESSAGE("name",
+        CPPUNIT_ASSERT_MESSAGE("name",
                                name.compare("PING") == 0);
         CPPUNIT_ASSERT_MESSAGE("type",
                                type.compare("command") == 0);
         CPPUNIT_ASSERT_MESSAGE("value",
-                               value.compare("22") == 0);*/
+                               value.compare("22") == 0);
         }
       }
     }
@@ -973,4 +978,41 @@ void JsonTest::testConversion() {
 
 
 }
+*/
+void JsonTest::testService() {
+  std::cout << "@UT@START testService" << std::endl;
 
+
+  boost::shared_ptr<iota::Service> service(new iota::Service());
+
+  service->set_service("service");
+  service->set_service_path("service_path");
+  service->put("cbroker", "micbroker");
+  service->put("timeout", 22);
+
+  std::string res = service->toString();
+  std::cout << "@UT@toString " << res << std::endl;
+
+  CPPUNIT_ASSERT_MESSAGE("bad service name",
+                         service->get_service().compare("service") == 0);
+
+  CPPUNIT_ASSERT_MESSAGE("bad service_path",
+                         service->get_service_path().compare("service_path") == 0);
+
+  std::string cbro = service->get("cbroker");
+  std::cout << "@UT@cbroker: " << cbro << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("bad cbroker",
+                         service->get("cbroker").compare("micbroker") == 0);
+
+  CPPUNIT_ASSERT_MESSAGE("bad timeout",
+                         service->get("timeout", 0) == 22);
+
+  CPPUNIT_ASSERT_MESSAGE("bad nofield",
+                         service->get("nofield").empty());
+
+
+  CPPUNIT_ASSERT_MESSAGE("bad toString",
+                         res.compare("{}") == 0);
+
+  std::cout << "@UT@END testService" << std::endl;
+}

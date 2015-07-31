@@ -144,7 +144,7 @@ void iota::ContextElement::format() const {
   // If device info has entity_type, this info is taken.
   // If device info has not entity_type, service entity_type is taken.
   // If _type is defined in constructor, does not follow default.
-  std::string service_entity_type = _service_info.get<std::string>
+  std::string service_entity_type = _service_info->get
                                     (iota::store::types::ENTITY + "_" +
                                      iota::store::types::TYPE, "");
 
@@ -221,6 +221,9 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
     if (_device_info.get() != NULL) {
       attr_mapping = _device_info->get_attribute(attribute.get_name());
     }
+
+    //TODO
+    /*
     if (attr_mapping.empty()) {
       try {
         boost::property_tree::ptree::const_iterator it = _service_info.get_child(
@@ -290,13 +293,12 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
     }
     else {
       _attributes.push_back(attribute);
-    }
+    }*/
 
   }
 };
 
-void iota::ContextElement::set_env_info(boost::property_tree::ptree
-                                        service_info,
+void iota::ContextElement::set_env_info(boost::shared_ptr<Service> service_info,
                                         boost::shared_ptr<Device> device) {
   _service_info = service_info;
   _device_info = device;
@@ -320,7 +322,8 @@ void iota::ContextElement::set_env_info(boost::property_tree::ptree
       ++it;
     }
   }
-
+//TODO
+/*
   try {
     BOOST_FOREACH(boost::property_tree::ptree::value_type& v,
                   _service_info.get_child(iota::store::types::STATIC_ATTRIBUTES)) {
@@ -346,7 +349,7 @@ void iota::ContextElement::set_env_info(boost::property_tree::ptree
   }
   catch (boost::property_tree::ptree_bad_path& e) {
     // Nothing
-  }
+  }*/
 }
 
 bool iota::ContextElement::exists(std::string& name) {

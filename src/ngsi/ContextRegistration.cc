@@ -139,7 +139,7 @@ void iota::ContextRegistration::add_provider(const std::string& provider) {
   _provider.assign(provider);
 };
 
-void iota::ContextRegistration::set_env_info(boost::property_tree::ptree
+void iota::ContextRegistration::set_env_info(boost::shared_ptr<Service>
                                         service_info,
                                         boost::shared_ptr<Device> device) {
   _service_info = service_info;
@@ -157,7 +157,7 @@ void iota::ContextRegistration::set_env_info(boost::property_tree::ptree
   // If device info has not entity_type, service entity_type is taken.
   // If _type is defined in constructor, does not follow default.
 
-  std::string service_entity_type = _service_info.get<std::string>
+  std::string service_entity_type = _service_info->get
                                     (iota::store::types::ENTITY + "_" +
                                      iota::store::types::TYPE, "");
 

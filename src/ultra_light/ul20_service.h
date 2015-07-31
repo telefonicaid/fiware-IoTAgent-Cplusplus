@@ -27,6 +27,7 @@
 #include <rest/command_handle.h>
 #include <ngsi/ContextElement.h>
 #include <boost/property_tree/ptree.hpp>
+#include <util/Service.h>
 #include <ngsi/RegisterContext.h>
 #include <util/http_client.h>
 #include <util/timer.h>
@@ -85,7 +86,7 @@ class UL20Service :
                         const boost::property_tree::ptree& command_to_send,
                         int timeout,
                         const boost::shared_ptr<Device> &item_dev,
-                        const boost::property_tree::ptree& service,
+                        const boost::shared_ptr<Service> &service,
                         std::string& response,
                         iota::HttpClient::application_callback_t callback = NULL);
 
@@ -123,7 +124,7 @@ class UL20Service :
                                           const std::string& updateCommand_value,
                                           const std::string& sequence_id,
                                           const boost::shared_ptr<Device>& item_dev,
-                                          const boost::property_tree::ptree& service,
+                                          const boost::shared_ptr<Service>& service,
                                           std::string &command_id,
                                           boost::property_tree::ptree& command_line);
 

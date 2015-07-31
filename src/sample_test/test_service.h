@@ -24,7 +24,6 @@
 
 #include <pion/http/plugin_service.hpp>
 #include <rest/rest_handle.h>
-#include <boost/property_tree/ptree.hpp>
 
 namespace iota {
 

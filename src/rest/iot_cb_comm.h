@@ -24,10 +24,11 @@
 
 #include <string>
 #include <map>
-#include <boost/property_tree/ptree.hpp>
+
 #include <boost/enable_shared_from_this.hpp>
 #include "util/http_client.h"
 #include "util/async_comm.h"
+#include "util/service.h"
 
 #include <ngsi/ContextElement.h>
 #include <ngsi/UpdateContext.h>
@@ -43,18 +44,18 @@ class ContextBrokerCommunicator: public
     virtual ~ContextBrokerCommunicator();
     void start();
     void receive_event(std::string url, std::string content,
-                       boost::property_tree::ptree additional_info,
+                       boost::shared_ptr<Service> additional_info,
                        boost::shared_ptr<iota::HttpClient> connection,
                        pion::http::response_ptr response_ptr,
                        const boost::system::error_code& error);
     bool async_send(std::string url,
                     std::string content,
-                    boost::property_tree::ptree additional_info,
+                    boost::shared_ptr<Service> additional_info,
                     app_callback_t callback = app_callback_t(),
                     int status_code = pion::http::types::RESPONSE_CODE_OK);
     std::string send(std::string url,
                      std::string content,
-                     boost::property_tree::ptree additional_info,
+                     boost::shared_ptr<Service> additional_info,
                      int status_code = pion::http::types::RESPONSE_CODE_OK);
 
 
@@ -64,7 +65,7 @@ class ContextBrokerCommunicator: public
       const std::string& type,
       const std::string& value,
       const boost::shared_ptr<iota::Device>& item_dev,
-      const boost::property_tree::ptree& service,
+      const boost::shared_ptr<Service>& service,
       const std::string& opSTR);
 
     static void add_updateContext(
@@ -73,13 +74,13 @@ class ContextBrokerCommunicator: public
       const std::string& type,
       const std::string& value,
       const boost::shared_ptr<iota::Device>& item_dev,
-      const boost::property_tree::ptree& service,
+      const boost::shared_ptr<Service>& service,
       iota::ContextElement &ngsi_context_element);
 
     int send(
       iota::ContextElement ngsi_context_element,
       const std::string& opSTR,
-      const boost::property_tree::ptree& service,
+      const boost::shared_ptr<Service>& service,
       std::string& cb_response);
 
     std::string get_ngsi_operation(const std::string& operation);
@@ -114,7 +115,7 @@ class ContextBrokerCommunicator: public
                                            std::string& resource,
                                            std::string& content,
                                            std::string& query,
-                                           boost::property_tree::ptree& additional_info);
+                                           boost::shared_ptr<Service>& additional_info);
 
     std::string  process_response(const std::string &url,
                                   boost::shared_ptr<iota::HttpClient> connection,
