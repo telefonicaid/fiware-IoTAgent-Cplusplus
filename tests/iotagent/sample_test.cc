@@ -30,6 +30,7 @@
 #include "services/admin_service.h"
 #include "sample_test/test_service.h"
 #include "sample_test/test_command_service.h"
+#include "util/dev_file.h"
 
 
 int main(int argc, char* argv[]) {
@@ -52,10 +53,14 @@ int main(int argc, char* argv[]) {
   iota::TestCommandService* cmd_service = new iota::TestCommandService();
   process.add_service("/TestSample/cmdtest", cmd_service);
 
+
   // Mock
   MockService* mock = new MockService();
   process.add_service("/mock", mock);
   adm->add_service("/mock", mock);
+
+  // Load devices in file
+  iota::DevicesFile::initialize("../../tests/iotagent/devices_ut.json");
 
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(SampleTest::suite());

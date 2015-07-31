@@ -1,0 +1,471 @@
+{
+    "devices": [
+        {
+            "device_id": "dev1",
+            "entity_type": "thing",
+            "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
+            "entity_name": "room1",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_1",
+                    "type": "command",
+                    "value": "dev1@%s"
+                },
+                {
+                    "name": "attr_2_dev_1",
+                    "type": "command",
+                    "value": "dev1@%s|%s"
+                },
+                {
+                    "name": "attr_3_dev_1",
+                    "type": "command",
+                    "value": "dev1@%s|%s|%s"
+                },
+                {
+                    "name": "attr_4_dev_1",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ]
+        },
+        {
+            "device_id": "dev2",
+            "entity_type": "thing",
+            "endpoint": "http://10.95.213.159:5371/simulaClient/lightCommand",
+            "entity_name": "room2",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_2",
+                    "type": "command",
+                    "value": "dev2@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev3",
+            "entity_type": "thing",
+            "endpoint": "http://192.168.1.1:9001",
+            "entity_name": "room3",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_3",
+                    "type": "command",
+                    "value": "dev3@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev4",
+            "entity_type": "thing",
+            "endpoint": "http://192.0.0.1:9001",
+            "entity_name": "room4",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_4",
+                    "type": "command",
+                    "value": "dev4@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev5",
+            "entity_type": "thing",
+            "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
+            "entity_name": "room5",
+            "service": "serviceMqtt",
+            "service_path": "/path_serviceMqtt",
+            "commands": [
+                {
+                    "name": "attr_1_dev_5",
+                    "type": "command",
+                    "value": "dev5@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev6",
+            "entity_type": "thing",
+            "endpoint": "",
+            "entity_name": "room6",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_6",
+                    "type": "command",
+                    "value": "dev6@%s"
+                },
+                {
+                    "name": "attr_2_dev_6",
+                    "type": "command",
+                    "value": "dev6@%s|%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev7",
+            "entity_type": "thing7",
+            "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
+            "entity_name": "room7",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_7",
+                    "type": "command",
+                    "value": "dev7@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev8",
+            "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
+            "entity_name": "room8",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_8",
+                    "type": "command",
+                    "value": "dev8@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev9",
+            "entity_type": "thing9",
+            "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_9",
+                    "type": "command",
+                    "value": "dev9@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "dev10",
+            "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
+            "service": "serviceul20",
+            "service_path": "/path_serviceul20",
+            "commands": [
+                {
+                    "name": "attr_1_dev_10",
+                    "type": "command",
+                    "value": "dev10@%s"
+                }
+            ]
+        },
+        {
+            "device_id": "unitTest_dev1_endpoint",
+            "endpoint": "http://127.0.0.1:9999/device",
+            "entity_name": "room_ut1",
+            "entity_type": "type2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "attributes": [
+                {
+                   "object_id":"t",
+                   "type": "string",
+                   "name":"temperature"
+                },
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ],
+            "static_attributes": [
+               {
+                  "name": "att_name_static",
+                  "type": "string",
+                  "value": "value"
+                }
+            ]
+        },
+        {
+            "device_id": "OutgoingRoute_dev1_endpoint",
+            "endpoint": "http://127.0.0.1:9999/mock/OutgoingRoute_dev1_endpoint",
+            "entity_name": "outgoing_route",
+            "entity_type": "type2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "attributes": [
+                {
+                   "object_id":"t",
+                   "type": "string",
+                   "name":"temperature"
+                },
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ],
+            "static_attributes": [
+               {
+                  "name": "att_name_static",
+                  "type": "string",
+                  "value": "value"
+                }
+            ]
+        },
+        {
+            "device_id": "unitTest_dev111_endpoint",
+            "endpoint": "http://127.0.0.1:9999/device",
+            "entity_name": "room_ut111",
+            "entity_type": "type2",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "%s"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "%s"
+                }
+            ]
+        },
+        {
+            "device_id": "unitTest_dev2_inactive",
+            "entity_type": "type2",
+            "endpoint": "http://127.0.0.1:1026/NGSI10/updateContext",
+            "entity_name": "room_ut2",
+            "service": "service2",
+            "status":"inactive",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ]
+        },{
+            "device_id": "unitTest_dev2_badendpoint",
+            "entity_type": "type2",
+            "endpoint": "htp://127.0.0.1:1026/NGSI10/updateContext",
+            "entity_name": "room_utbad",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ]
+        },{
+            "device_id": "unitTest_dev3_polling",
+            "entity_type": "type2",
+            "endpoint": "",
+            "entity_name": "room_ut3",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "static_attributes": [
+               {
+                  "name": "att_name_static",
+                  "type": "string",
+                  "value": "value"
+                }
+            ]
+        },
+        {
+            "device_id": "unitTest_dev4_polling",
+            "endpoint": "",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "static_attributes": [
+               {
+                  "name": "att_name_static",
+                  "type": "string",
+                  "value": "value"
+                }
+            ]
+        },{
+            "device_id": "unitTest_devtest_endpoint",
+            "endpoint": "http://127.0.0.1:9999/device",
+            "entity_name": "room_uttest",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "attributes": [
+                {
+                   "object_id":"attr_name",
+                   "type":"string",
+                   "name":"temperature"
+                },
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ]
+        },{
+            "device_id": "unitTest_devtest_noendpoint",
+            "entity_name": "room_uttestno",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "attributes": [
+                {
+                   "object_id":"attr_name",
+                   "type":"string",
+                   "name":"temperature"
+                },
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ]
+        },
+        {
+            "device_id": "8934075379000039321",
+            "endpoint": "",
+            "entity_name": "room13333",
+            "service": "serviceTT",
+            "service_path": "/subservice",
+            "entity_type": "thing"
+        },
+	{
+            "device_id": "dev_mqtt",
+            "entity_type": "type2",
+            "endpoint": "",
+            "entity_name": "dev_mqtt",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "static_attributes": [
+               {
+                  "name": "att_name_static",
+                  "type": "string",
+                  "value": "value"
+                }
+            ]
+        },
+	{
+            "device_id": "dev_mqtt_push",
+            "entity_type": "type2",
+            "endpoint": "some_end_point",
+            "entity_name": "dev_mqtt_push",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "static_attributes": [
+               {
+                  "name": "att_name_static",
+                  "type": "string",
+                  "value": "value"
+                }
+            ]
+        },{
+            "device_id": "unitTest_mqtt_location",
+            "endpoint": "http://127.0.0.1:9999/device",
+            "entity_name": "room_uttest",
+            "service": "service2",
+            "service_path": "/ssrv2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "attributes": [
+                {
+                   "object_id":"attr_name",
+                   "name":"temperature"
+                },
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ]
+        }
+      ]
+}

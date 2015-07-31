@@ -30,6 +30,7 @@
 #include "../mocks/http_mock.h"
 #include "ul20Test.h"
 #include "services/admin_service.h"
+#include "util/dev_file.h"
 
 int main(int argc, char* argv[]) {
   pion::logger pion_logger(PION_GET_LOGGER("main"));
@@ -42,11 +43,15 @@ int main(int argc, char* argv[]) {
   process.set_admin_service(adm);
   MockService* mock = new MockService();
   process.add_service("/mock", mock);
-
+  adm->add_service("/mock", mock);
    // UL Service
   iota::UL20Service* ulService = new iota::UL20Service();
   http_server->add_service("/TestUL/d", ulService);
   adm->add_service("/TestUL/d", ulService);
+
+   // Load devices in file
+  iota::DevicesFile::initialize("../../tests/iotagent/devices_ut.json");
+
   process.start();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(Ul20Test::suite());

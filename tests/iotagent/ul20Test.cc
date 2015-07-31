@@ -20,7 +20,7 @@
 * please contact with iot_support at tid dot es
 */
 #include "util/device_collection.h"
-
+#include "util_functions.h"
 #include "ul20Test.h"
 #include "util/FuncUtil.h"
 #include "util/KVP.h"
@@ -287,17 +287,39 @@ void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
 void Ul20Test::testNormalPOST() {
   std::cout << "START testNormalPOST" << std::endl;
 
-  /*
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
-  */
   std::string cb_last;
 
   iota::UL20Service* ul20serv = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  std::string service(get_service_name(__FUNCTION__));
+  std::string service_path("/");
+  service_path.append(service);
+
+  std::string cbroker_url("http://127.0.0.1:");
+  cbroker_url.append(boost::lexical_cast<std::string>(port));
+  cbroker_url.append("/mock/testNormalPOST");
+  std::string
+  post_service("{\"services\": [{"
+               "\"apikey\": \"apikey3\",\"token\": \"token\","
+               "\"cbroker\": \"" + cbroker_url +
+               "\",\"entity_type\": \"thing\",\"resource\": \"/TestUL/d\"}]}");
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
+  pion::http::response http_r;
+  std::string r;
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->delete_service_json(
+     col, service, service_path, service, "apikey3", "/TestUL/d", true,
+     http_r, r, "1234", "4444");
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->post_service_json(col,
+       service, service_path, post_service,
+       http_r, r, "apikey3", "5678");
 
   // fecha  + temperatura
+  std::string device = get_device("unitTest_dev1_endpoint", ul20serv->get_protocol_data().protocol);
+  add_device(device, service);
+
   std::string querySTR = "i=unitTest_dev1_endpoint&k=apikey3";
   std::string bodySTR = "2014-02-18T16:41:20Z|t|23";
   std::cout << "@UT@284 " << querySTR << "<-->" << bodySTR << std::endl;
@@ -306,8 +328,8 @@ void Ul20Test::testNormalPOST() {
     http_request->set_method("POST");
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
 
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
@@ -326,7 +348,7 @@ void Ul20Test::testNormalPOST() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("testNormalPOST");
+    cb_last = cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext");
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -348,8 +370,8 @@ void Ul20Test::testNormalPOST() {
     http_request->set_method("POST");
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR_no_mapping);
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
 
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
@@ -368,7 +390,7 @@ void Ul20Test::testNormalPOST() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("/mock");
+    cb_last = cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext");
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -389,8 +411,8 @@ void Ul20Test::testNormalPOST() {
     http_request->set_method("POST");
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service22");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv22");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
 
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
@@ -409,7 +431,7 @@ void Ul20Test::testNormalPOST() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("/mock");
+    cb_last = cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext");
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -446,8 +468,8 @@ void Ul20Test::testNormalPOST() {
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("/mock");
-    cb_last.append(cb_mock->get_last("/mock"));
+    cb_last = cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext");
+    cb_last.append(cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext"));
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -489,8 +511,8 @@ void Ul20Test::testNormalPOST() {
 
     ASYNC_TIME_WAIT
     // we don't know the order of meassurements to CB, so we join the two observations
-    cb_last = cb_mock->get_last("/mock");
-    cb_last.append(cb_mock->get_last("/mock"));
+    cb_last = cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext");
+    cb_last.append(cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext"));
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -533,8 +555,8 @@ void Ul20Test::testNormalPOST() {
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     // updateContext to CB
     // we don't know the order of meassurements to CB, so we join the two observations
-    cb_last = cb_mock->get_last("/mock");
-    cb_last.append(cb_mock->get_last("/mock"));
+    cb_last = cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext");
+    cb_last.append(cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext"));
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -574,8 +596,8 @@ void Ul20Test::testNormalPOST() {
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     // updateContext to CB
     // we don't know the order of meassurements to CB, so we join the two observations
-    cb_last = cb_mock->get_last("/mock");
-    cb_last.append(cb_mock->get_last("/mock"));
+    cb_last = cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext");
+    cb_last.append(cb_mock->get_last("/mock/testNormalPOST/NGSI10/updateContext"));
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -594,7 +616,14 @@ void Ul20Test::testNormalPOST() {
       std::string::npos);
 
   }
-  //cb_mock->stop();
+  delete_device(device, service);
+  r.clear();
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->delete_service_json(
+     col, service, service_path, service, "apikey3",
+     "/TestUL/d", true,
+     http_r, r, "1234", "4444");
+
   std::cout << "END testNormalPOST " << std::endl;
 }
 
@@ -611,25 +640,52 @@ void Ul20Test::testFileGET() {
   std::cout << "START testFileGET" << std::endl;
   iota::UL20Service* ul20serv = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  std::string service(get_service_name(__FUNCTION__));
+  std::string service_path("/");
+  service_path.append(service);
 
+  std::string cbroker_url("http://127.0.0.1:");
+  cbroker_url.append(boost::lexical_cast<std::string>(port));
+  cbroker_url.append("/mock/testFileGet");
+  std::string
+  post_service("{\"services\": [{"
+               "\"apikey\": \"apikey4\",\"token\": \"token\","
+               "\"cbroker\": \"" + cbroker_url +
+               "\",\"entity_type\": \"thing\",\"resource\": \"/TestUL/d\"}]}");
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
+  pion::http::response http_r;
+  std::string r;
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->delete_service_json(
+     col, service, service_path, service, "apikey4", "/TestUL/d", true,
+     http_r, r, "1234", "4444");
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->post_service_json(col,
+       service, service_path, post_service,
+       http_r, r, "apikey4", "5678");
+
+  // fecha  + temperatura
+  std::string device = get_device("unitTest_dev1_endpoint", ul20serv->get_protocol_data().protocol);
+  add_device(device, service);
   std::string cb_last;
 
 
   // fecha  + temperatura
-  std::string querySTR = "i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23";
-  std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
+  std::string querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23";
+  std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
   {
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
     http_request->set_query_string(querySTR);
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
 
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey3"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|23"));
     pion::http::response http_response;
@@ -644,7 +700,7 @@ void Ul20Test::testFileGET() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("/mock");
+    cb_last = cb_mock->get_last("/mock/testFileGet/NGSI10/updateContext");
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -661,19 +717,19 @@ void Ul20Test::testFileGET() {
   }
   // No attribute mapping
   {
-    querySTR = "i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=nomap|23";
-    std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=nomap|23" << std::endl;
+    querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=nomap|23";
+    std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=nomap|23" << std::endl;
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
     http_request->set_query_string(querySTR);
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
 
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey3"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","nomap|23"));
     pion::http::response http_response;
@@ -688,7 +744,7 @@ void Ul20Test::testFileGET() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("/mock");
+    cb_last = cb_mock->get_last("/mock/testFileGet/NGSI10/updateContext");
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -704,13 +760,13 @@ void Ul20Test::testFileGET() {
 
   }
   {
-    querySTR = "i=no_device&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23";
-    std::cout << "@UT@i=no_device&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
+    querySTR = "i=no_device&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23";
+    std::cout << "@UT@i=no_device&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
     http_request->set_query_string(querySTR);
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service22");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv22");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
 
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
@@ -731,7 +787,7 @@ void Ul20Test::testFileGET() {
                            http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("/mock");
+    cb_last = cb_mock->get_last("/mock/testFileGet/NGSI10/updateContext");
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT_MESSAGE("translate the name of device",
                            cb_last.find("\"id\":\"thing_apikey3:no_device\",\"type\":\"thing_apikey3\"") !=
@@ -743,8 +799,8 @@ void Ul20Test::testFileGET() {
 
   }
   // Dos Medidas
-  querySTR = "i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23&d=t|24";
-  std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23&d=t|24" << std::endl;
+  querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23&d=t|24";
+  std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23&d=t|24" << std::endl;
   {
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
@@ -754,7 +810,7 @@ void Ul20Test::testFileGET() {
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey3"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|23"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|24"));
@@ -767,8 +823,8 @@ void Ul20Test::testFileGET() {
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
     ASYNC_TIME_WAIT
     // updateContext to CB
-    cb_last = cb_mock->get_last("/mock");
-    cb_last.append(cb_mock->get_last("/mock"));
+    cb_last = cb_mock->get_last("/mock/testFileGet/NGSI10/updateContext");
+    cb_last.append(cb_mock->get_last("/mock/testFileGet/NGSI10/updateContext"));
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
                    std::string::npos);
@@ -788,7 +844,7 @@ void Ul20Test::testFileGET() {
   }
 
   // medida localizacion
-  querySTR = "i=unitTest_dev1_endpoint&k=apikey3&t=2014-02-18T16:41:20Z&d=t|23&d=l|-3.3423/2.345";
+  querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23&d=l|-3.3423/2.345";
   std::cout << "@UT@" << querySTR << std::endl;
   {
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
@@ -799,7 +855,7 @@ void Ul20Test::testFileGET() {
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey3"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|23"));
     query_parameters.insert(std::pair<std::string,std::string>("d","l|-3.3423/2.345"));
@@ -814,8 +870,8 @@ void Ul20Test::testFileGET() {
 
     ASYNC_TIME_WAIT
     // we don't know the order of meassurements to CB, so we join the two observations
-    cb_last = cb_mock->get_last("/mock");
-    cb_last.append(cb_mock->get_last("/mock"));
+    cb_last = cb_mock->get_last("/mock/testFileGet/NGSI10/updateContext");
+    cb_last.append(cb_mock->get_last("/mock/testFileGet/NGSI10/updateContext"));
 
     std::cout << "@UT@CB"<< cb_last << std::endl;
     IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
@@ -833,7 +889,13 @@ void Ul20Test::testFileGET() {
       !=
       std::string::npos);
   }
-
+  delete_device(device, service);
+  r.clear();
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->delete_service_json(
+     col, service, service_path, service, "apikey4",
+     "/TestUL/d", true,
+     http_r, r, "1234", "4444");
   std::cout << "END testFileGET " << std::endl;
 }
 
@@ -2020,6 +2082,31 @@ void Ul20Test::testPUSHCommandProxyAndOutgoingRoute() {
   std::cout << "@UT@START testPUSHCommandProxyAndOutgoingRoute" << std::endl;
   iota::UL20Service* ul20serv = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  std::string service(get_service_name(__FUNCTION__));
+  std::string service_path("/");
+  service_path.append(service);
+
+  std::string cbroker_url("http://127.0.0.1:");
+  cbroker_url.append(boost::lexical_cast<std::string>(port));
+  cbroker_url.append("/mock/testPUSHCommandProxyAndOutgoingRoute");
+  std::string
+  post_service("{\"services\": [{"
+               "\"apikey\": \"apikeyOR\",\"token\": \"token\","
+               "\"outgoing_route\": \"gretunnel-service2\","
+               "\"cbroker\": \"" + cbroker_url +
+               "\",\"entity_type\": \"thing\",\"resource\": \"/TestUL/d\"}]}");
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
+  pion::http::response http_r;
+  std::string r;
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->delete_service_json(
+     col, service, service_path, service, "apikeyOR", "/TestUL/d", true,
+     http_r, r, "1234", "4444");
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestUL"))->post_service_json(col,
+       service, service_path, post_service,
+       http_r, r, "apikeyOR", "5678");
 
 
   // updateContext
@@ -2033,8 +2120,8 @@ void Ul20Test::testPUSHCommandProxyAndOutgoingRoute() {
     pion::http::request_ptr http_request(new
                                          pion::http::request("/TestUL/ngsi/d/updateContext"));
     http_request->set_method("POST");
-    http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
 
@@ -2053,32 +2140,32 @@ void Ul20Test::testPUSHCommandProxyAndOutgoingRoute() {
                    std::string::npos);
     IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
 
-    std::string cb_last = cb_mock->get_last("/mock");
+    std::string cb_last = cb_mock->get_last("/mock/testPUSHCommandProxyAndOutgoingRoute/NGSI10/updateContext");
     // info
     std::cout << "@UT@INFO" << cb_last << std::endl;
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+    IOTASSERT(cb_last.find("\"id\":\"outgoing_route\",\"type\":\"type2\"") !=
                    std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\",\"value\":\"dev1@command|22\"")
       !=
       std::string::npos);
     // OK
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+    IOTASSERT(cb_last.find("\"id\":\"outgoing_route\",\"type\":\"type2\"") !=
                    std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"OK\"")
       !=
       std::string::npos);
 
-    cb_last = cb_mock->get_last("/mock/device");
+    cb_last = cb_mock->get_last("/mock/OutgoingRoute_dev1_endpoint");
     std::cout << "@UT@comando que llega al simulador "<< cb_last << std::endl;
     IOTASSERT(cb_last.find("dev1@command|22") !=
                    std::string::npos);
 
-    cb_last = cb_mock->get_last("/mock");
+    cb_last = cb_mock->get_last("/mock/testPUSHCommandProxyAndOutgoingRoute/NGSI10/updateContext");
     // pending
     std::cout << "@UT@Pending"<< cb_last << std::endl;
-    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+    IOTASSERT(cb_last.find("\"id\":\"outgoing_route\",\"type\":\"type2\"") !=
                    std::string::npos);
     IOTASSERT(
       cb_last.find("{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"pending\"")

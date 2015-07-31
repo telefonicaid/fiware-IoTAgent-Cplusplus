@@ -39,7 +39,7 @@
 #include <util/service_collection.h>
 #include <boost/algorithm/string/replace.hpp>
 #include "rest/oauth_filter.h"
-
+#include "util_functions.h"
 #include <cmath>
 #include <ctime>
 
@@ -137,7 +137,10 @@ void SampleTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
   **/
 void SampleTest::testNormalPOST() {
   std::cout << "START testNormalPOST" << std::endl;
-  std::string service("testnormalpost");
+  std::string service(get_service_name(__FUNCTION__));
+  std::string service_path("/");
+  service_path.append(service);
+
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock = (MockService*)
                          iota::Process::get_process().get_service("/mock");
@@ -213,7 +216,11 @@ void SampleTest::testCommandNormalPOST() {
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock = (MockService*)
                          iota::Process::get_process().get_service("/mock");
-  std::string service("testcommandnormalpost");
+
+  std::string service(get_service_name(__FUNCTION__));
+  std::string service_path("/");
+  service_path.append(service);
+
   std::string cbroker_url("http://127.0.0.1:");
   cbroker_url.append(boost::lexical_cast<std::string>(port));
   cbroker_url.append("/mock/testCommandNormalPOST");
@@ -221,26 +228,29 @@ void SampleTest::testCommandNormalPOST() {
   post_service("{\"services\": [{"
                "\"apikey\": \"apikey-test-1\",\"token\": \"token\","
                "\"cbroker\": \"" + cbroker_url +
-               "\",\"entity_type\": \"thing\",\"resource\": \"/TestSample/test\"}]}");
+               "\",\"entity_type\": \"thing\",\"resource\": \"/TestSample/cmdtest\"}]}");
   boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
   pion::http::response http_r;
   std::string r;
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestSample"))->delete_service_json(
-     col, service, "/", service, "apikey-test-1", "/TestSample/test", true,
+     col, service, service_path, service, "apikey-test-1", "/TestSample/cmdtest", true,
      http_r, r, "1234", "4444");
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestSample"))->post_service_json(col,
-       service, "/", post_service,
+       service, service_path, post_service,
        http_r, r, "apikey-test-1", "5678");
   std::string cb_last;
-  iota::TestService* sampleserv = (iota::TestService*)
-                                  iota::Process::get_process().get_service("/TestSample/test");
+  iota::TestCommandService* sampleserv = (iota::TestCommandService*)
+                                  iota::Process::get_process().get_service("/TestSample/cmdtest");
+
+
+
   std::string querySTR = "i=dev_1&k=apikey-test-1";
   std::string bodySTR = "Hello World";
   {
     pion::http::request_ptr http_request(new
-                                         pion::http::request("/TestSample/test"));
+                                         pion::http::request("/TestSample/cmdtest"));
     http_request->set_method("POST");
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
@@ -265,11 +275,15 @@ void SampleTest::testCommandNormalPOST() {
                    std::string::npos);
 
   }
+
+  // Device
+  std::string device = get_device("unitTest_devtest_endpoint", sampleserv->get_protocol_data().protocol);
+  add_device(device, service);
   querySTR = "i=unitTest_devtest_endpoint&k=apikey-test-1";
   bodySTR = "Hello World2";
   {
     pion::http::request_ptr http_request(new
-                                         pion::http::request("/TestSample/test"));
+                                         pion::http::request("/TestSample/cmdtest"));
     http_request->set_method("POST");
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
@@ -295,10 +309,11 @@ void SampleTest::testCommandNormalPOST() {
     CPPUNIT_ASSERT(cb_last.find("\"temperature") !=
                    std::string::npos);
   }
+  delete_device(device, service);
   r.clear();
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestSample"))->delete_service_json(
-     col, service, "/", service, "apikey-test-1", "/TestSample/test", true,
+     col, service, service_path, service, "apikey-test-1", "/TestSample/cmdtest", true,
      http_r, r, "1234", "4444");
   std::cout << "END testCommandNormalPOST " << std::endl;
 }
@@ -310,7 +325,10 @@ void SampleTest::testPUSHCommand() {
   iota::TestCommandService* plugin = (iota::TestCommandService*)
                                      iota::Process::get_process().get_service("/TestSample/cmdtest");
 
-  std::string service("testpushcommand");
+  std::string service(get_service_name(__FUNCTION__));
+  std::string service_path("/");
+  service_path.append(service);
+
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* mock = (MockService*)
                       iota::Process::get_process().get_service("/mock");
@@ -327,12 +345,14 @@ void SampleTest::testPUSHCommand() {
   std::string r;
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestSample"))->delete_service_json(
-     col, service, "/", service, "apikey-test-2", "/TestSample/cmdtest", true,
+     col, service, service_path, service, "apikey-test-2", "/TestSample/cmdtest", true,
      http_r, r, "1234", "4444");
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestSample"))->post_service_json(col,
-       service, "/", post_service,
+       service, service_path, post_service,
        http_r, r, "apikey-test-2", "5678");
+  std::string device = get_device("unitTest_devtest_endpoint", plugin->get_protocol_data().protocol);
+  add_device(device, service);
 
   // updateContext
   std::string querySTR = "";
@@ -346,7 +366,7 @@ void SampleTest::testPUSHCommand() {
                                          pion::http::request("/TestSample/ngsi/cmdtest/updateContext"));
     http_request->set_method("POST");
     http_request->add_header(iota::types::FIWARE_SERVICE, service);
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/");
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
 
@@ -391,47 +411,49 @@ void SampleTest::testPUSHCommand() {
       !=
       std::string::npos);
   }
-
+  delete_device(device, service);
   r.clear();
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestSample"))->delete_service_json(
-     col, service, "/", service, "apikey-test-2", "/TestSample/cmdtest", true,
+     col, service, service_path, service, "apikey-test-2", "/TestSample/cmdtest", true,
      http_r, r, "1234", "4444");
   std::cout << "@UT@END testPUSHCommand " << std::endl;
 }
 
 void SampleTest::testPollingCommand() {
   std::cout << __LINE__ << "@UT@START testPollingCommand" << std::endl;
+  std::string service(get_service_name(__FUNCTION__));
+  std::string service_path("/");
+  service_path.append(service);
+
   unsigned int port = iota::Process::get_process().get_http_port();
-  MockService* cb_mock = (MockService*)
-                         iota::Process::get_process().get_service("/mock");
+  MockService* mock = (MockService*)
+                      iota::Process::get_process().get_service("/mock");
+  std::string cbroker_url("http://127.0.0.1:");
+  cbroker_url.append(boost::lexical_cast<std::string>(port));
+  cbroker_url.append("/mock/testPollingCommand");
+  std::string
+  post_service("{\"services\": [{"
+               "\"apikey\": \"apikey-test-4\",\"token\": \"token\","
+               "\"cbroker\": \"" + cbroker_url +
+               "\",\"entity_type\": \"thing\",\"resource\": \"/TestSample/cmdtest\"}]}");
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
   pion::http::response http_r;
   std::string r;
-  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
-  try {
-    iota::Collection table(iota::store::types::DEVICE_TABLE);
-    mongo::BSONObj p = BSON("_id" << "unit_test" <<
-                            "device_id"<< "unitTest_devtest_noendpoint_polling" <<
-                            "entity_name"<< "room_uttestno"<<
-                            "service"<< "testpollingcommand"<<
-                            "service_path"<< "/srvpathtest"<<
-                            "commands"<< BSON_ARRAY(
-                              BSON("name"<< "PING"<< "type"<< "command"<<"value"<< "") <<
-                              BSON("name"<< "RAW"<<"type"<< "command"<<"value"<< ""))<<
-                            "attributes" << BSON_ARRAY(
-                              BSON("object_id"<<"attr_name"<<"name"<<"temperature")<<
-                              BSON("object_id"<<"l"<<"type"<< "coords"<<"name"<<"position")));
-
-    std::cout << "insert device unitTest_devtest_noendpoint" << std::endl;
-    table.insert(p);
-  }
-  catch (std::exception exc) {
-    std::cout << "unitTest_devtest_noendpoint_polling already exists" << exc.what() <<
-              std::endl;
-  }
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestSample"))->delete_service_json(
+     col, service, service_path, service, "apikey-test-4", "/TestSample/cmdtest", true,
+     http_r, r, "1234", "4444");
+  ((iota::AdminService*)
+   iota::Process::get_process().get_service("/TestSample"))->post_service_json(col,
+       service, service_path, post_service,
+       http_r, r, "apikey-test-4", "5678");
 
   iota::TestCommandService* plugin = (iota::TestCommandService*)
                                      iota::Process::get_process().get_service("/TestSample/cmdtest");
+
+  std::string device = get_device("unitTest_devtest_noendpoint", plugin->get_protocol_data().protocol);
+  add_device(device, service);
 
   // updateContext
   std::string querySTR = "";
@@ -442,10 +464,10 @@ void SampleTest::testPollingCommand() {
   bodySTR.append("]} ]}");
   {
     pion::http::request_ptr http_request(new
-                                         pion::http::request("/TestSample/ngsi/d/updateContext"));
+                                         pion::http::request("/TestSample/ngsi/cmdtest/updateContext"));
     http_request->set_method("POST");
-    http_request->add_header(iota::types::FIWARE_SERVICE, "testpollingcommand");
-    http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/srvpathtest");
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
 
@@ -462,7 +484,7 @@ void SampleTest::testPollingCommand() {
     IOTASSERT_MESSAGE("@UT@POST, response code no 200" ,
                       http_response.get_status_code() == 200);
 
-    std::string cb_last = cb_mock->get_last("/mock");
+    std::string cb_last = mock->get_last("/mock/testPollingCommand/NGSI10/updateContext");
     std::cout << "@UT@READY_FOR_READ" <<cb_last << std::endl;
     // ready_for_read
     IOTASSERT_MESSAGE("@UT@READY_FOR_READ, entity or entity_type in not correct"
@@ -477,12 +499,12 @@ void SampleTest::testPollingCommand() {
   }
 
   // GET desde el device
-  querySTR = "i=unitTest_devtest_noendpoint_polling&k=apikey-test-4";
+  querySTR = "i=unitTest_devtest_noendpoint&k=apikey-test-4";
   bodySTR = "";
   std::string command;
   {
     pion::http::request_ptr http_request(new
-                                         pion::http::request("/TestSample/test"));
+                                         pion::http::request("/TestSample/cmdtest"));
     http_request->set_method("GET");
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
@@ -490,7 +512,7 @@ void SampleTest::testPollingCommand() {
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
-                            "unitTest_devtest_noendpoint_polling"));
+                            "unitTest_devtest_noendpoint"));
     query_parameters.insert(std::pair<std::string,std::string>("k","apikey-test-4"));
     pion::http::response http_response;
     std::string response;
@@ -505,7 +527,7 @@ void SampleTest::testPollingCommand() {
     IOTASSERT_MESSAGE("@UT@GET response code no 200" ,
                       http_response.get_status_code() == 200);
 
-    std::string cb_last = cb_mock->get_last("/mock");
+    std::string cb_last = mock->get_last("/mock/testPollingCommand/NGSI10/updateContext");
     std::cout << "@UT@DELIVERED" << cb_last << std::endl;
     // delivered
     IOTASSERT_MESSAGE("@UT@DELIVERED, entity or entity_type in not correct" ,
@@ -524,13 +546,13 @@ void SampleTest::testPollingCommand() {
     command = command.substr(0, found);
   }
 
-  querySTR = "i=unitTest_devtest_noendpoint_polling&k=apikey-test";
+  querySTR = "i=unitTest_devtest_noendpoint&k=apikey-test-4";
   bodySTR = command;
   bodySTR.append("|command_result");
   std::cout << "@UT@POST command result " << bodySTR << std::endl;
   {
     pion::http::request_ptr http_request(new
-                                         pion::http::request("/TestSample/test"));
+                                         pion::http::request("/TestSample/cmdtest"));
     http_request->set_method("PUT");
     http_request->set_query_string(querySTR);
     http_request->set_content(bodySTR);
@@ -538,8 +560,8 @@ void SampleTest::testPollingCommand() {
     std::map<std::string, std::string> url_args;
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
-                            "unitTest_devtest_noendpoint_polling"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey-test"));
+                            "unitTest_devtest_noendpoint"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","apikey-test-4"));
     pion::http::response http_response;
     std::string response;
     plugin->service(http_request, url_args, query_parameters,
@@ -550,7 +572,7 @@ void SampleTest::testPollingCommand() {
     IOTASSERT_MESSAGE("@UT@GET response code no 200" ,
                       http_response.get_status_code() == 200);
 
-    std::string cb_last = cb_mock->get_last("/mock");
+    std::string cb_last = mock->get_last("/mock/testPollingCommand/NGSI10/updateContext");
     std::cout << "@UT@INFO" << cb_last << std::endl;
     // info
     IOTASSERT_MESSAGE("@UT@INFO, entity or entity_type in not correct" ,
@@ -572,17 +594,14 @@ void SampleTest::testPollingCommand() {
                       std::string::npos);
 
   }
+  delete_device(device, service);
   r.clear();
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestSample"))->delete_service_json(
-     col, "testpollingcommand", "/srvpathtest", "testpollingcommand", "apikey-test",
+     col, service, service_path, service, "apikey-test-4",
      "/TestSample/test", true,
      http_r, r, "1234", "4444");
 
-  ((iota::AdminService*)
-   iota::Process::get_process().get_service("/TestSample"))->delete_device_json("testpollingcommand",
-       "/srvpathtest","unitTest_devtest_noendpoint_polling",http_r,r,
-       "12334","");
   std::cout << "@UT@END testPollingCommand " << std::endl;
 }
 
