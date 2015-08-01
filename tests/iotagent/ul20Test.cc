@@ -650,7 +650,7 @@ void Ul20Test::testFileGET() {
   cbroker_url.append("/mock/testFileGet");
   std::string
   post_service("{\"services\": [{"
-               "\"apikey\": \"apikey4\",\"token\": \"token\","
+               "\"apikey\": \"testFileGET\",\"token\": \"token\","
                "\"cbroker\": \"" + cbroker_url +
                "\",\"entity_type\": \"thing\",\"resource\": \"/TestUL/d\"}]}");
   boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
@@ -658,12 +658,12 @@ void Ul20Test::testFileGET() {
   std::string r;
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestUL"))->delete_service_json(
-     col, service, service_path, service, "apikey4", "/TestUL/d", true,
+     col, service, service_path, service, "testFileGET", "/TestUL/d", true,
      http_r, r, "1234", "4444");
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestUL"))->post_service_json(col,
        service, service_path, post_service,
-       http_r, r, "apikey4", "5678");
+       http_r, r, "testFileGET", "5678");
 
   // fecha  + temperatura
   std::string device = get_device("unitTest_dev1_endpoint", ul20serv->get_protocol_data().protocol);
@@ -672,8 +672,8 @@ void Ul20Test::testFileGET() {
 
 
   // fecha  + temperatura
-  std::string querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23";
-  std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
+  std::string querySTR = "i=unitTest_dev1_endpoint&k=testFileGET&t=2014-02-18T16:41:20Z&d=t|23";
+  std::cout << "@UT@i=unitTest_dev1_endpoint&k=testFileGET&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
   {
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
@@ -685,7 +685,7 @@ void Ul20Test::testFileGET() {
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","testFileGET"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|23"));
     pion::http::response http_response;
@@ -717,8 +717,8 @@ void Ul20Test::testFileGET() {
   }
   // No attribute mapping
   {
-    querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=nomap|23";
-    std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=nomap|23" << std::endl;
+    querySTR = "i=unitTest_dev1_endpoint&k=testFileGET&t=2014-02-18T16:41:20Z&d=nomap|23";
+    std::cout << "@UT@i=unitTest_dev1_endpoint&k=testFileGET&t=2014-02-18T16:41:20Z&d=nomap|23" << std::endl;
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
     http_request->set_query_string(querySTR);
@@ -729,7 +729,7 @@ void Ul20Test::testFileGET() {
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","testFileGET"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","nomap|23"));
     pion::http::response http_response;
@@ -753,15 +753,15 @@ void Ul20Test::testFileGET() {
                            cb_last.find("{\"name\":\"nomap\",\"type\":\"string\",\"value\":\"23\"")
                            !=
                            std::string::npos);
-    IOTASSERT_MESSAGE("add statis attributes",
+    IOTASSERT_MESSAGE("add static attributes",
                            cb_last.find("{\"name\":\"att_name_static\",\"type\":\"string\",\"value\":\"value\"")
                            !=
                            std::string::npos);
 
   }
   {
-    querySTR = "i=no_device&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23";
-    std::cout << "@UT@i=no_device&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
+    querySTR = "i=no_device&k=testFileGET&t=2014-02-18T16:41:20Z&d=t|23";
+    std::cout << "@UT@i=no_device&k=testFileGET&t=2014-02-18T16:41:20Z&d=t|23" << std::endl;
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
     http_request->set_query_string(querySTR);
@@ -799,8 +799,8 @@ void Ul20Test::testFileGET() {
 
   }
   // Dos Medidas
-  querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23&d=t|24";
-  std::cout << "@UT@i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23&d=t|24" << std::endl;
+  querySTR = "i=unitTest_dev1_endpoint&k=testFileGET&t=2014-02-18T16:41:20Z&d=t|23&d=t|24";
+  std::cout << "@UT@i=unitTest_dev1_endpoint&k=testFileGET&t=2014-02-18T16:41:20Z&d=t|23&d=t|24" << std::endl;
   {
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
     http_request->set_method("GET");
@@ -810,7 +810,7 @@ void Ul20Test::testFileGET() {
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","testFileGET"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|23"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|24"));
@@ -844,7 +844,7 @@ void Ul20Test::testFileGET() {
   }
 
   // medida localizacion
-  querySTR = "i=unitTest_dev1_endpoint&k=apikey4&t=2014-02-18T16:41:20Z&d=t|23&d=l|-3.3423/2.345";
+  querySTR = "i=unitTest_dev1_endpoint&k=testFileGET&t=2014-02-18T16:41:20Z&d=t|23&d=l|-3.3423/2.345";
   std::cout << "@UT@" << querySTR << std::endl;
   {
     pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
@@ -855,7 +855,7 @@ void Ul20Test::testFileGET() {
     std::multimap<std::string, std::string> query_parameters;
     query_parameters.insert(std::pair<std::string,std::string>("i",
                             "unitTest_dev1_endpoint"));
-    query_parameters.insert(std::pair<std::string,std::string>("k","apikey4"));
+    query_parameters.insert(std::pair<std::string,std::string>("k","testFileGET"));
     query_parameters.insert(std::pair<std::string,std::string>("t","2014-02-18T16:41:20Z"));
     query_parameters.insert(std::pair<std::string,std::string>("d","t|23"));
     query_parameters.insert(std::pair<std::string,std::string>("d","l|-3.3423/2.345"));
@@ -893,7 +893,7 @@ void Ul20Test::testFileGET() {
   r.clear();
   ((iota::AdminService*)
    iota::Process::get_process().get_service("/TestUL"))->delete_service_json(
-     col, service, service_path, service, "apikey4",
+     col, service, service_path, service, "testFileGET",
      "/TestUL/d", true,
      http_r, r, "1234", "4444");
   std::cout << "END testFileGET " << std::endl;
