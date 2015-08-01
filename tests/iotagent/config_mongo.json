@@ -1,6 +1,5 @@
 {
     "ngsi_url": {
-        "cbroker": "http://127.0.0.1:1026",
         "updateContext": "/NGSI10/updateContext",
         "registerContext": "/NGSI9/registerContext",
         "queryContext": "/NGSI10/queryContext"
@@ -30,7 +29,7 @@
             ]
         },
         {
-            "resource": "/iot/d",
+            "resource": "/TestUL/d",
             "options": {
                 "FileName": "UL20Service"
             },

@@ -168,7 +168,6 @@
         },
         {
             "device_id": "unitTest_dev1_endpoint",
-            "endpoint": "http://127.0.0.1:9999/device",
             "entity_name": "room_ut1",
             "entity_type": "type2",
             "commands": [
@@ -263,11 +262,8 @@
         {
             "device_id": "unitTest_dev2_inactive",
             "entity_type": "type2",
-            "endpoint": "http://127.0.0.1:1026/NGSI10/updateContext",
             "entity_name": "room_ut2",
-            "service": "service2",
             "status":"inactive",
-            "service_path": "/ssrv2",
             "commands": [
                 {
                     "name": "PING",
@@ -280,8 +276,6 @@
             "entity_type": "type2",
             "endpoint": "htp://127.0.0.1:1026/NGSI10/updateContext",
             "entity_name": "room_utbad",
-            "service": "service2",
-            "service_path": "/ssrv2",
             "commands": [
                 {
                     "name": "PING",
@@ -292,10 +286,7 @@
         },{
             "device_id": "unitTest_dev3_polling",
             "entity_type": "type2",
-            "endpoint": "",
             "entity_name": "room_ut3",
-            "service": "service2",
-            "service_path": "/ssrv2",
             "commands": [
                 {
                     "name": "PING",

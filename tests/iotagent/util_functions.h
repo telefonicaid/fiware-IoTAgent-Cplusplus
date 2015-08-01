@@ -24,7 +24,7 @@
 #define TESTS_IOTAGENT_UTIL_TEST_H
 
 #include <string>
-std::string get_device(std::string device_id, std::string protocol);
+std::string get_device(std::string device_id, std::string protocol, bool endpoint = false);
 int add_device(std::string device_json, std::string service);
 int delete_device(std::string device_id, std::string service);
 std::string get_service_name(std::string name);

@@ -28,22 +28,39 @@
 #include <rapidjson/prettywriter.h>
 #include <algorithm>
 
-std::string get_device(std::string device_id, std::string protocol) {
+std::string get_device(std::string device_id, std::string protocol, bool endpoint) {
   const iota::JsonValue& devices = iota::DevicesFile::instance()->getDevicesObject();
   std::string device_json;
+  bool has_endpoint = false;
   for (rapidjson::SizeType i = 0; i < devices.Size(); i++) {
     if (device_id.compare(devices[i]["device_id"].GetString()) == 0) {
+      if (devices[i].HasMember("endpoint")) {
+        has_endpoint = true;
+      }
       rapidjson::StringBuffer buffer;
       rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
       devices[i].Accept(writer);
+      std::cout << buffer.GetString() << std::endl;
       device_json.assign(buffer.GetString());
       break;
     }
   }
+
+
   std::string prot("\"protocol\": \"");
   prot.append(protocol);
   prot.append("\",");
   device_json.insert(1, prot);
+  if (endpoint && !has_endpoint) {
+    std::string port = boost::lexical_cast<std::string>(iota::Process::get_process().get_http_port());
+    std::string endpoint("\"endpoint\": \"");
+    endpoint.append("http://127.0.0.1:");
+    endpoint.append(port);
+    endpoint.append("/mock/");
+    endpoint.append(device_id);
+    endpoint.append("\",");
+    device_json.insert(1, endpoint);
+  }
   device_json.insert(0, "{\"devices\": [");
   device_json.append("]}");
   return device_json;

@@ -615,6 +615,10 @@ void iota::AdminService::devices(pion::http::request_ptr& http_request_ptr,
         op  ="offset";
         if (!temp.empty()) {
           offset = boost::lexical_cast<int>(temp);
+          if (offset < 0) {
+            IOTA_LOG_ERROR(m_log, " bad offset using default");
+            offset = 0;
+          }
         }
         else {
           offset = 0;
@@ -896,6 +900,10 @@ void iota::AdminService::services(pion::http::request_ptr& http_request_ptr,
         op = "offset";
         if (!temp.empty()) {
           offset = boost::lexical_cast<int>(temp);
+          if (offset < 0) {
+            IOTA_LOG_ERROR(m_log, " bad offset using default");
+            offset = 0;
+          }
         }
         else {
           offset = 0;

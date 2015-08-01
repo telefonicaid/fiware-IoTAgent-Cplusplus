@@ -55,6 +55,7 @@ iota::MongoConnection::MongoConnection():
 void iota::MongoConnection::reconnect(){
   boost::mutex::scoped_lock lock(_m);
   std::string db_info;
+  IOTA_LOG_DEBUG(m_logger, "MongoConnection::reconnect");
   try {
     const JsonValue& storage=
       iota::Configurator::instance()->get(iota::store::types::STORAGE);
