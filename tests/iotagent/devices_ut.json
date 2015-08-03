@@ -167,6 +167,37 @@
             ]
         },
         {
+            "device_id": "unitTest_dev2_endpoint",
+            "entity_name": "room_ut1",
+            "entity_type": "type2",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": ""
+                }
+            ],
+            "attributes": [
+                {
+                   "object_id":"t",
+                   "type": "string",
+                   "name":"temperature"
+                },
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ],
+            "static_attributes": [
+               {
+                  "name": "att_name_static",
+                  "type": "string",
+                  "value": "value"
+                }
+            ]
+        },
+        {
             "device_id": "unitTest_dev1_endpoint",
             "entity_name": "room_ut1",
             "entity_type": "type2",
