@@ -610,6 +610,9 @@ int iota::AdminManagerService::post_multiple_devices(
   if (response_from_iotagent.size() == 0) {
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
   }
+	else if (!response.empty()) {
+		code = pion::http::types::RESPONSE_CODE_OK;
+	}
   return code;
 
 }
@@ -1301,7 +1304,9 @@ int iota::AdminManagerService::post_service_json(
     if (response_from_iotagent.size() == 0) {
       code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
     }
-
+    else if (!response.empty()) {
+			code = pion::http::types::RESPONSE_CODE_OK;
+		}
   }
   else {
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,

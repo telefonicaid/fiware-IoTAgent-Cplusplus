@@ -597,7 +597,7 @@ void AdminManagerTest::testMultiplePostsWithResponse() {
   std::cout << "Test: testMultiplePostsWithResponse: result: " << res <<
             std::endl;
 
-  CPPUNIT_ASSERT(res == 201);
+  CPPUNIT_ASSERT(res == 200);
   CPPUNIT_ASSERT_MESSAGE("Checking error ", temp.find("Connection refused") != std::string::npos);
   sleep(2);
   http_mock->stop();
@@ -649,7 +649,7 @@ void AdminManagerTest::testPostJSONDevices() {
 
   std::cout << "Result " << response << std::endl;
 
-  CPPUNIT_ASSERT(http_response.get_status_code() == 201);
+  CPPUNIT_ASSERT(http_response.get_status_code() == 200);
   CPPUNIT_ASSERT_MESSAGE("Checking error ", response.find("Connection refused") != std::string::npos);
 
   //Now checking if the device has been added to the collection.
@@ -865,7 +865,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
                        "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == POST_RESPONSE_CODE);
+  IOTASSERT(code_res == 200);
 
   std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
   code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", service, "",

@@ -3,11 +3,13 @@
 - FEATURE IDAS-20527: Manager add error field ("errors") when agent fails.
 - FEATURE IDAS-20539: Protocol Description change and can be modified in configuration file.
 - FEATURE IDAS-20526: Forbidden characters in API provision.
+- FEATURE IDAS-20556: IpV6 support
 - FIX IDAS-20544: Cannot remove cbroker url with PUT service.
 - FIX IDAS-20548: IoTA crash in statistics.
 - FIX IDAS-20542: IoTA PEP dont check uri to define a resource.
 - FIX IDAS-20551: IoTA log FATAL when set_option is not implemented by module.
-- FEATURE IDAS-20556: IpV6 support
+- FIX IDAS-20560: Manager (POST device/service) does not return 200 with
+  'errors' field.
 
 * Wed Jun 30 2015 Agustin Gonzalez <lucas@tid.es> 1.1.0
 - FEATURE IDAS-20504: Improve building process with third party sofware.
