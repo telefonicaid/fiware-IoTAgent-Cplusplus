@@ -52,14 +52,19 @@ Feature: UL20 Command Send
 		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received or NOT by context broker
 		
 		Examples:
-            |device_id	|device_name |service		|protocol	|command		|value		|cmd_value	|endpoint														|status		|wrong_field			|response																			|
-            |dev2		|room2		 |serviceul20	|IoTUL2		|attr_1_dev_2	|ping2		|dev2@%s	|http://10.95.213.159:5371/simulaClient/lightCommand			|OK			|simulator_type			|no ul20 response command:															|
-            |dev3		|room3		 |serviceul20	|IoTUL2		|attr_1_dev_3	|ping3		|dev3@%s	|http://192.168.1.1:9001										|error		|nonexist_destination	|http://192.168.1.1:9001/  [No route to host]										|
-            |dev4		|room4		 |serviceul20	|IoTUL2		|attr_1_dev_4	|ping4		|dev4@%s	|http://10.95.213.159:5371/simulaClient/lightCommand?delay=10	|error		|unreachable_dest		|http://10.95.213.159:5371/simulaClient/lightCommand delay=10 [Connection timed out]|         
-            |dev2_1		|room2_1	 |serviceul20	|IoTUL2		|attr_2_dev_2_1	|ping2_1	|%s			|																|fail		|wrong_command_format	|this is not a valid command														|
-            |dev2		|room2	 	 |serviceul20	|IoTUL2		|attr_2_dev_2	|ping2_1	|			|																|fail		|nonexistent_command	|the device does not have implemented this command									|         
-            |dev11		|room11	 	 |serviceul20	|IoTUL2		|attr_1_dev_11	|ping11		|			|																|fail		|nonexistent_device		|The device does not exist															| 
-            |dev5		|room5		 |serviceMqtt	|			|attr_1_dev_5	|ping5		|			|																|fail		|nonexistent_service	|Fiware-Service not accepted														|        
+            |device_id	|device_name |service		|protocol	|command	|value		|cmd_value	|endpoint														|status		|wrong_field			|response																			|
+            |dev2		|room2		 |serviceul20	|IoTUL2		|ping2		|ping2		|			|http://10.95.213.159:5371/simulaClient/lightCommand			|OK			|simulator_type			|no ul20 response command:															|
+            |dev3		|room3		 |serviceul20	|IoTUL2		|ping3		|ping3		|			|http://192.168.1.1:9001										|error		|nonexist_destination	|http://192.168.1.1:9001/  [No route to host]										|
+            |dev2		|room2	 	 |serviceul20	|IoTUL2		|ping2_1	|ping2_1	|			|																|fail		|nonexistent_command	|the device does not have implemented this command									|         
+            |dev11		|room11	 	 |serviceul20	|IoTUL2		|ping11		|ping11		|fail		|																|fail		|nonexistent_device		|The device does not exist															| 
+            |dev5		|room5		 |serviceMqtt	|			|ping5		|ping5		|fail		|																|fail		|nonexistent_service	|Fiware-Service not accepted														|        
+#            |dev2		|room2		 |serviceul20	|IoTUL2		|attr_1_dev_2	|ping2		|dev2@%s	|http://10.95.213.159:5371/simulaClient/lightCommand			|OK			|simulator_type			|no ul20 response command:															|
+#            |dev3		|room3		 |serviceul20	|IoTUL2		|attr_1_dev_3	|ping3		|dev3@%s	|http://192.168.1.1:9001										|error		|nonexist_destination	|http://192.168.1.1:9001/  [No route to host]										|
+#            |dev4		|room4		 |serviceul20	|IoTUL2		|attr_1_dev_4	|ping4		|dev4@%s	|http://10.95.213.159:5371/simulaClient/lightCommand?delay=10	|error		|unreachable_dest		|http://10.95.213.159:5371/simulaClient/lightCommand delay=10 [Connection timed out]|         
+#            |dev2_1	|room2_1	 |serviceul20	|IoTUL2		|attr_2_dev_2_1	|ping2_1	|%s			|																|fail		|wrong_command_format	|this is not a valid command														|
+#            |dev2		|room2	 	 |serviceul20	|IoTUL2		|attr_2_dev_2	|ping2_1	|			|																|fail		|nonexistent_command	|the device does not have implemented this command									|         
+#            |dev11		|room11	 	 |serviceul20	|IoTUL2		|attr_1_dev_11	|ping11		|			|																|fail		|nonexistent_device		|The device does not exist															| 
+#            |dev5		|room5		 |serviceMqtt	|			|attr_1_dev_5	|ping5		|			|																|fail		|nonexistent_service	|Fiware-Service not accepted														|        
 
 
     	@iot_ul20 @iot_cmd_ul20 @IDAS-20171
@@ -70,9 +75,13 @@ Feature: UL20 Command Send
 		Then the command of device "<device_name>" with response "<response>", entity_type "<ent_type>" and status "<status>" is received by context broker
 		
 		Examples:
-            |device_id	|device_name |service		|protocol	|command		|value	|cmd_value	|response		|status	|ent_type	|ent_name	|
-            |dev7		|room7		 |serviceul20	|IoTUL2		|attr_1_dev_7	|ping7	|dev7@%s	|dev7@ping7		|OK		|thing7		|room7		|
-            |dev8		|room8		 |serviceul20	|IoTUL2		|attr_1_dev_8	|ping8	|dev8@%s	|dev8@ping8		|OK		|			|room8		|
-            |dev9		|			 |serviceul20	|IoTUL2		|attr_1_dev_9	|ping9	|dev9@%s	|dev9@ping9		|OK		|thing9		|			|
-            |dev10		|			 |serviceul20	|IoTUL2		|attr_1_dev_10	|ping10	|dev10@%s	|dev10@ping10	|OK		|			|			|
+            |device_id	|device_name |service		|protocol	|command	|value	|cmd_value	|response		|status	|ent_type	|ent_name	|
+            |dev7		|room7		 |serviceul20	|IoTUL2		|ping7		|ping7	|			|dev7@ping7		|OK		|thing7		|room7		|
+            |dev8		|room8		 |serviceul20	|IoTUL2		|ping8		|ping8	|			|dev8@ping8		|OK		|			|room8		|
+            |dev9		|			 |serviceul20	|IoTUL2		|ping9		|ping9	|			|dev9@ping9		|OK		|thing9		|			|
+            |dev10		|			 |serviceul20	|IoTUL2		|ping10		|ping10	|			|dev10@ping10	|OK		|			|			|
+#            |dev7		|room7		 |serviceul20	|IoTUL2		|attr_1_dev_7	|ping7	|dev7@%s	|dev7@ping7		|OK		|thing7		|room7		|
+#            |dev8		|room8		 |serviceul20	|IoTUL2		|attr_1_dev_8	|ping8	|dev8@%s	|dev8@ping8		|OK		|			|room8		|
+#            |dev9		|			 |serviceul20	|IoTUL2		|attr_1_dev_9	|ping9	|dev9@%s	|dev9@ping9		|OK		|thing9		|			|
+#            |dev10		|			 |serviceul20	|IoTUL2		|attr_1_dev_10	|ping10	|dev10@%s	|dev10@ping10	|OK		|			|			|
                                     
