@@ -1,5 +1,5 @@
 import time, re, datetime
-from common.steps import service_created_precond,device_with_commands_created_precond,check_status_info
+from common.steps import service_created_precond,device_with_endpoint_created_precond,check_status_info
 from lettuce import step, world
 from iotqautils.cbUtils import CBUtils
 from common.gw_mqtt_commands import mqtt_command
