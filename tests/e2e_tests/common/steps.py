@@ -467,7 +467,7 @@ def delete_device_data(step, device_name):
 @step('I delete in manager the device "([^"]*)"')
 def delete_device_data_manager(step, device_name):
     device = functions.delete_device_data(device_name, world.service_name, world.srv_path, True, world.protocol)
-    assert device.status_code == 200, 'ERROR: ' + device.text + "El device {} no se ha borrado correctamente".format(device_name)
+    assert (device.status_code == 204) | (device.status_code == 200), 'ERROR: ' + device.text + "El device {} no se ha borrado correctamente".format(device_name)
     print 'Se ha borrado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
 
 @step('I receive the device data of "([^"]*)"')
