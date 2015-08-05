@@ -97,8 +97,10 @@ def send_wrong_command(step, service, device_id, cmd_name, value, field):
 @step('I get the command and send the response "([^"]*)" for device "([^"]*)"')
 def send_response(step, response, device_id):
     functions.check_command_cbroker(world.device_name, "pending")
-#    command = str(world.cmd_name)+"@"+str(world.value)
-    command = str(device_id)+"@"+str(world.value)
+#    command = str(device_id)+"@"+str(world.value)
+    command = str(device_id)+"@"+str(world.cmd_name)
+    if world.value:
+        command =command+"|"+str(world.value)
     if response != 'not_read':
         if not 'measure' in response:
             print "Voy a recuperar los comandos del device: " + str(device_id)
