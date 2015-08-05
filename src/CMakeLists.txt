@@ -11,15 +11,18 @@ endif()
 
 add_subdirectory(ultra_light)
 add_subdirectory(sample_test)
+add_subdirectory(modbus)
 
 add_library(iota_a STATIC $<TARGET_OBJECTS:util_objs>
                         $<TARGET_OBJECTS:ngsi_objs>
+                        $<TARGET_OBJECTS:modbus_objs>
                         $<TARGET_OBJECTS:rest_objs>
                         $<TARGET_OBJECTS:admin_objs>
                         $<TARGET_OBJECTS:Variant>
                         )
 add_library(iota SHARED $<TARGET_OBJECTS:util_objs>
                         $<TARGET_OBJECTS:ngsi_objs>
+                        $<TARGET_OBJECTS:modbus_objs>
                         $<TARGET_OBJECTS:rest_objs>
                         $<TARGET_OBJECTS:admin_objs>
                         $<TARGET_OBJECTS:Variant>

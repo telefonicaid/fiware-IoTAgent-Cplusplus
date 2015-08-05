@@ -36,7 +36,7 @@ void TcpTest::testConnection() {
   boost::shared_ptr<iota::TcpService> tcp_service(new iota::TcpService(e));
   boost::shared_ptr<iota::TcpService> my_tcp_service =
     tcp_service->register_handler("TEST", boost::bind(&TestService::handle_data,
-                                 &test_service, _1, _2, _3));
+                                 &test_service, _1, _2, _3, _4));
   test_service.add_tcp_service(my_tcp_service);
   tcp_service->start();
   pion::single_service_scheduler sch;

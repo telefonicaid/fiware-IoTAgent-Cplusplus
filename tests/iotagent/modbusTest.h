@@ -19,41 +19,29 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_TESTS_IOTAGENT_TCPTEST_H_
-#define SRC_TESTS_IOTAGENT_TCPTEST_H_
-#include "rest/tcp_service.h"
+#ifndef SRC_TESTS_IOTAGENT_MODBUSTEST_H_
+#define SRC_TESTS_IOTAGENT_MODBUSTEST_H_
+
 #include <cppunit/extensions/HelperMacros.h>
-class TestService {
-  public:
-    TestService() {};
-    virtual ~TestService() {};
-    void handle_data(pion::tcp::connection_ptr& conn, const std::vector<unsigned char>& r,
-      std::vector<unsigned char>& b_read,
-      const boost::system::error_code& e) {
-      if (b_read.size() != 0) {
-      std::string res("GOODBYE");
-      std::vector<unsigned char> v(res.begin(), res.end());
-      s_->send(conn, v);
-      }
-      else {
-        s_->read(conn);
-      }
-    }
-    void add_tcp_service(boost::shared_ptr<iota::TcpService> s) {s_ = s;};
-  protected:
-  private:
-    boost::shared_ptr<iota::TcpService> s_;
-};
-class TcpTest: public CppUnit::TestFixture  {
 
-    CPPUNIT_TEST_SUITE(TcpTest);
-    CPPUNIT_TEST(testConnection);
+
+class ModbusTest : public CPPUNIT_NS::TestFixture {
+    CPPUNIT_TEST_SUITE(ModbusTest);
+    CPPUNIT_TEST (testBuildFrame);
+    CPPUNIT_TEST (testDecodeFrame);
+    CPPUNIT_TEST (testProcessor);
     CPPUNIT_TEST_SUITE_END();
-  public:
-    void setUp() {};
-    void tearDown() {};
-  protected:
-    void testConnection();
 
+  public:
+    void setUp();
+    void tearDown();
+  protected:
+    void testBuildFrame();
+    void testDecodeFrame();
+    void testProcessor();
 };
+
 #endif
+
+
+
