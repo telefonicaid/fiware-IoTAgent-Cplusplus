@@ -98,7 +98,7 @@ class Functions(object):
             resource=world.resource
         else:
             service = iotagent.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token, attributes, static_attributes)
-        if service.status_code == 201 or service.status_code == 409:
+        if service.status_code == 201 or service.status_code == 200 or service.status_code == 409:
             world.remember.setdefault(service_name, {})
             if service_path == 'void':
                 service_path='/'
