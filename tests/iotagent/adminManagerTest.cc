@@ -509,7 +509,6 @@ void AdminManagerTest::testGetDevices() {
   std::string response;
   //  manager_service.get_devices(http_request, args, query, "s4_agus", "/ss3", 0, 0,
   //                              "on", "", http_response, response);
-
   manager_service.get_all_devices_json("s4_agus", "/ss3", 0, 0, "on", "",
                                        http_response, response, "12345", "token", "UL20");
 
