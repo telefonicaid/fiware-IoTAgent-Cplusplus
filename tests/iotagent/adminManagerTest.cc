@@ -186,6 +186,12 @@ AdminManagerTest::POST_BAD_SERVICE_MANAGEMENT1("{\"services\": [{"
     "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
     "}]}");
 
+const std::string
+AdminManagerTest::POST_SERVICE_MANAGEMENT3("{\"services\": [{"
+    "\"protocol\": [\"UL20\"],"
+    "\"apikey\": \"apikey\",\"token\": \"token\","
+    "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+    "}]}");
 
 const std::string
 AdminManagerTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
@@ -648,6 +654,7 @@ void AdminManagerTest::testPostJSONDevices() {
                                    response, "");
 
   std::cout << "Result " << response << std::endl;
+	std::cout << iota::http2string(http_response) << std::endl;
 
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
   CPPUNIT_ASSERT_MESSAGE("Checking error ", response.find("Connection refused") != std::string::npos);
@@ -728,6 +735,11 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   int code_res;
   std::string response, cb_last;
   std::string service="service2";
+  boost::shared_ptr<HttpMock> http_mock;
+  http_mock.reset(new HttpMock(7071, "/", false));
+  http_mock->init();
+  std::map<std::string, std::string> h;
+  http_mock->set_response(201, "", h);
 
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
@@ -745,6 +757,18 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
+  std::cout << "@UT@POST One endpoint" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "",
+                       "application/json",
+                       POST_SERVICE_MANAGEMENT3, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("Waiting 201", code_res == 201);	
+  std::cout << "@UT@DELETE" << std::endl;
+  http_mock->set_response(204, "{}", h);
+  code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "",
+                       "application/json",
+                       "", headers, "protocol=UL20", response);
+  std::cout << "@UT@RESPONSE: XXXXXXXXX" <<  code_res << " " << response << std::endl;
   std::cout << "@UT@Post agent unreacheable" << std::endl;
   code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
@@ -839,13 +863,8 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
 
 
   srand(time(NULL));
-  std::cout << "START @UT@START testServiceManagement" << std::endl;
-  boost::shared_ptr<HttpMock> http_mock;
-  http_mock.reset(new HttpMock(7071, "/", false));
-  http_mock->init();
-  std::map<std::string, std::string> h;
-  // Two endpoints. Repeat response for test
   http_mock->set_response(201, "{}", h);
+  std::cout << "START @UT@START testServiceManagement" << std::endl;
 
   service= "service" ;
   service.append(boost::lexical_cast<std::string>(rand()));
