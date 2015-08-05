@@ -94,6 +94,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     static const std::string POST_SERVICE_MANAGEMENT1;
     static const std::string PUT_SERVICE_MANAGEMENT1;
     static const std::string POST_SERVICE_MANAGEMENT2;
+    static const std::string POST_SERVICE_MANAGEMENT3;
     static const std::string POST_BAD_SERVICE_MANAGEMENT1;
     static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
 

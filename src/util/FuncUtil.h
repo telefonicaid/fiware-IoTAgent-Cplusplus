@@ -66,6 +66,7 @@ void check_fiware_service_path_name(std::string& header_fiware_service_path);
 bool check_forbidden_characters(std::string forbidden, std::string& str);
 bool check_forbidden_characters(mongo::BSONObjBuilder& in_bson_builder);
 std::string http2string(pion::http::request& req);
+std::string http2string(pion::http::response& req);
 void writeDictionaryTerm(std::ostringstream& os, const pion::ihash_multimap::value_type& val);
 };
 

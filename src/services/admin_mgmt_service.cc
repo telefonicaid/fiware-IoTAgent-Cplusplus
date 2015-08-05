@@ -409,7 +409,8 @@ int iota::AdminManagerService::get_all_devices_json(
                                      pion::http::types::RESPONSE_CODE_OK));
   IOTA_LOG_DEBUG(m_log, "content=" + response);
 
-  return code;
+  return create_response(code, "", "", http_response, response);
+  //return code;
 }
 
 int iota::AdminManagerService::get_a_device_json(
@@ -537,7 +538,8 @@ int iota::AdminManagerService::get_a_device_json(
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                      pion::http::types::RESPONSE_CODE_OK));
   code = pion::http::types::RESPONSE_CODE_OK;
-  return code;
+  return create_response(code, "", "", http_response, response);
+  //return code;
 
 }
 
@@ -721,7 +723,8 @@ int iota::AdminManagerService::delete_device_json(
 
   IOTA_LOG_DEBUG(m_log, "delete_device_json: POSTs processed: [" << code << "]");
 
-  return http_response.get_status_code();
+  //return http_response.get_status_code();
+  return create_response(code, "", "", http_response, response);
 
 }
 
@@ -753,8 +756,8 @@ int iota::AdminManagerService::post_device_json(
   http_response.set_status_code(code);
 
   IOTA_LOG_DEBUG(m_log, "post_device_json: POSTs processed: [" << code << "]");
-  return http_response.get_status_code();
-
+  //return http_response.get_status_code();
+ return create_response(code, "", "", http_response, response); 
 }
 
 int iota::AdminManagerService::put_device_json(
@@ -772,7 +775,7 @@ int iota::AdminManagerService::put_device_json(
 
 
   std::string error_details;
-
+  int code = pion::http::types::RESPONSE_CODE_NO_CONTENT;
 
   if (service.empty() || service_path.empty()) {
     IOTA_LOG_ERROR(m_log, "Missing Service or Service_path");
@@ -819,7 +822,7 @@ int iota::AdminManagerService::put_device_json(
     IOTA_LOG_DEBUG(m_log, "put_device_json:  sending request to "
                    << v_endpoints_put.size() << " endpoints");
 
-    int code = put_multiple_devices(v_endpoints_put, device_id, service,
+    code = put_multiple_devices(v_endpoints_put, device_id, service,
                                     service_path, token, response);
     http_response.set_status_code(code);
 
@@ -829,7 +832,8 @@ int iota::AdminManagerService::put_device_json(
                               error_details,
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
-  return http_response.get_status_code();
+  //return http_response.get_status_code();
+  return create_response(code, "", "", http_response, response);
 
 
 }
@@ -1730,7 +1734,7 @@ void iota::AdminManagerService::add_errors_to_response(std::string& response,
     errors.append("]");
   }
   boost::erase_all(errors, "\n");
-  if (response.empty()) {
+  if (response.empty() && !errors.empty()) {
     response.append("{" + errors + "}");
   }
   else if (!errors.empty()) {
