@@ -46,7 +46,7 @@ __Note__: When IoTAgent MQTT is installed from RPMS, the Mosquitto dependencies 
 __Only this version  (Mosquitto 1.2.3) has been tested and validated with IoTAgent MQTT__
 
 #### Libmosquitto and Libmosquittopp
-These two libraries are requiered by MqttService.so. Currently we have tested version __1.2.3__. Some Linux OS have RPMs packages for this particular version. When not available, it can be built from source <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 
+These two libraries are requiered by MqttService.so. You have to use the RPMs provided above if you are installing IoTAgent from RPMs (otherwise, dependencies will not be resolved). However, if you are installing the IoTAgent from source, then you can build the Mosquitto dependency from sources <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 
 
 #### Mosquitto MQTT Broker.
 When your infrastructure features a different MQTT broker, you could use that instead, (see next section). The use of Mosquitto allows us to configure a very basic but effective way of preventing devices of a particular service from publishing/subscribing to topics of other services, which can be problematic in a multi-vendor scenario. This is done by means of its ACL capabilities. If for whatever reason this convenient feature does not suit your needs, it can be turned off (any device could publish/subscribe to any topic). 
