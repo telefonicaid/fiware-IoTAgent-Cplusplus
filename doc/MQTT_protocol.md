@@ -37,6 +37,14 @@ You can follow more detailed instructions about how to build IoTAgent on this [l
 ##### Install from RPM.
 RPMs have been tested on Centos 6.5. The RPM follows this pattern: iot-agent-mqtt-[version].[commit].x86_64.rpm. Please note that it will require other components are also installed (like the IotAgent base or libmosquitto and libmosquittopp). 
 
+__Note__: When IoTAgent MQTT is installed from RPMS, the Mosquitto dependencies must be installed from these RPMs that have been tested on CentOS 6.5:
+
+- libmosquitto1-1.2.3-1.28.x86_64.rpm (MQTT C Client)
+- libmosquittopp1-1.2.3-1.28.x86_64.rpm (C++ Wrapper for client)
+- mosquitto-1.2.3-1.28.x86_64.rpm (MQTT Broker)
+
+__Only this version  (Mosquitto 1.2.3) has been tested and validated with IoTAgent MQTT__
+
 #### Libmosquitto and Libmosquittopp
 These two libraries are requiered by MqttService.so. Currently we have tested version __1.2.3__. Some Linux OS have RPMs packages for this particular version. When not available, it can be built from source <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 
 
