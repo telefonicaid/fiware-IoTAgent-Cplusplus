@@ -39,9 +39,9 @@ RPMs have been tested on Centos 6.5. The RPM follows this pattern: iot-agent-mqt
 
 __Note__: When IoTAgent MQTT is installed from RPMS, the Mosquitto dependencies must be installed from these RPMs that have been tested on CentOS 6.5:
 
-- libmosquitto1-1.2.3-1.28.x86_64.rpm (MQTT C Client)
-- libmosquittopp1-1.2.3-1.28.x86_64.rpm (C++ Wrapper for client)
-- mosquitto-1.2.3-1.28.x86_64.rpm (MQTT Broker)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/libmosquitto1-1.2.3-1.1.x86_64.rpm">libmosquitto1-1.2.3-1.1.x86_64.rpm</a> (MQTT C Client)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/libmosquittopp1-1.2.3-1.1.x86_64.rpm">libmosquittopp1-1.2.3-1.1.x86_64.rpm</a> (C++ Wrapper for client)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/mosquitto-1.2.3-1.1.x86_64.rpm">mosquitto-1.2.3-1.1.x86_64.rpm</a> (MQTT Broker)
 
 __Only this version  (Mosquitto 1.2.3) has been tested and validated with IoTAgent MQTT__
 
