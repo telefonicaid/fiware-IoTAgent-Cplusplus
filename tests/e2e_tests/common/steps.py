@@ -175,7 +175,7 @@ def create_service_manager(step,srv_name,srv_path,protocol,apikey,cbroker,entity
     world.entity_type = entity_type
     world.token = token
     service=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,entity_type,token,{},{},protocol)
-    assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
+    assert (service.status_code == 201) | (service.status_code == 200), 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
     print 'Se ha creado el servicio:{} path:{} protocol:{} y apikey:{}'.format(srv_name,srv_path,protocol,apikey)
 
 @step('I create a service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)"')
@@ -210,7 +210,7 @@ def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey
     world.st_attributes=[]
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     service=functions.create_service_with_params(srv_name,srv_path,{},apikey,cbroker,{},{},world.attributes,world.st_attributes,protocol)
-    assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
+    assert (service.status_code == 201) | (service.status_code == 200), 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
     print 'Se ha creado el servicio:{} path:{} protocol:{} y apikey:{}'.format(srv_name,srv_path,protocol,apikey)
 
 @step('the Service with name "([^"]*)" and path "([^"]*)" is created')
@@ -227,7 +227,7 @@ def update_service_data(step, attribute, service_name, value):
 @step('I update in manager the attribute "([^"]*)" of service "([^"]*)" with value "([^"]*)"')
 def update_service_data_manager(step, attribute, service_name, value):
     service=functions.update_service_with_params(attribute, service_name, value, world.srv_path, {}, world.apikey, False, True, world.protocol)
-    assert service.status_code == 200, 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
+    assert (service.status_code == 204) | (service.status_code == 200), 'ERROR: ' + service.text + "El servicio {} no se ha actualizado correctamente".format(service_name)
     print 'Se ha actualizado el servicio:{} path:{} protocol:{} y apikey:{}'.format(service_name,world.srv_path,world.protocol,world.apikey)
 
 @step('I retrieve the service data of "([^"]*)", path "([^"]*)", resource "([^"]*)", limit "([^"]*)" and offset "([^"]*)"')
@@ -429,7 +429,7 @@ def update_device_data(step, attribute, device_name, value):
 @step('I update in manager the attribute "([^"]*)" of device "([^"]*)" with value "([^"]*)"')
 def update_device_data_manager(step, attribute, device_name, value):
     device=functions.update_device_with_params(attribute, device_name, value, world.service_name, world.srv_path, False, True, world.protocol)
-    assert device.status_code == 200, 'ERROR: ' + device.text + "El device {} no se ha actualizado correctamente".format(device_name)
+    assert (device.status_code == 204) | (device.status_code == 200), 'ERROR: ' + device.text + "El device {} no se ha actualizado correctamente".format(device_name)
     print 'Se ha actualizado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
 
 @step('I retrieve the device data of "([^"]*)"')
@@ -467,7 +467,7 @@ def delete_device_data(step, device_name):
 @step('I delete in manager the device "([^"]*)"')
 def delete_device_data_manager(step, device_name):
     device = functions.delete_device_data(device_name, world.service_name, world.srv_path, True, world.protocol)
-    assert device.status_code == 200, 'ERROR: ' + device.text + "El device {} no se ha borrado correctamente".format(device_name)
+    assert (device.status_code == 204) | (device.status_code == 200), 'ERROR: ' + device.text + "El device {} no se ha borrado correctamente".format(device_name)
     print 'Se ha borrado el device:{} del servicio:{} path:{} resource:{} y apikey:{}'.format(device_name, world.service_name,world.srv_path,world.resource,world.apikey)
 
 @step('I receive the device data of "([^"]*)"')
