@@ -21,12 +21,9 @@ def update_service_data_failed(step, attribute, value, service_name, service_pat
     assert world.req.status_code != 204, 'ERROR: ' + world.req.text + "El servicio {} se ha podido actualizar".format(service_name)
     print 'No se ha actualizado el servicio {}'.format(service_name)
 
-@step('user receives the "([^"]*)" and the "([^"]*)"')
-def assert_service_created_failed(step, http_status, error_text):
+@step('user receives the "([^"]*)", the "([^"]*)" and the "([^"]*)"')
+def assert_service_created_failed(step, http_status, http_code, error_text):
     assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
     assert str(error_text) in world.req.text, 'ERROR: ' + world.req.text
-    if http_status=="409":
-        assert world.apikey in world.req.text, 'ERROR: ' + world.req.text        
-        assert world.resource in world.req.text, 'ERROR: ' + world.req.text        
-        assert world.service_name in world.req.text, 'ERROR: ' + world.req.text        
-        assert world.srv_path in world.req.text, 'ERROR: ' + world.req.text        
+    if http_code:
+        assert str(http_code) in world.req.text, 'ERROR: ' + world.req.text
