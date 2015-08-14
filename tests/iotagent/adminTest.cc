@@ -1478,7 +1478,7 @@ void AdminTest::testBADPostDevice() {
             == 0);
 
   std::cout << "@UT@11GET  negative offset " << std::endl;
-  code_res = http_test("/iot/services", "GET", "service2",
+  code_res = http_test("/TestAdmin/services", "GET", "service2",
                        "/ssrv2",
                        "application/json",
                        "", headers, "offset=-22", response);

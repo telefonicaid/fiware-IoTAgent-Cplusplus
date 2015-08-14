@@ -30,13 +30,10 @@
 
 class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(Ul20Test);
-/*
     CPPUNIT_TEST(testTransformCommand);
     CPPUNIT_TEST(testFileGET);
     CPPUNIT_TEST(testMongoGET);
-
     CPPUNIT_TEST(testNormalPOST);
-
     CPPUNIT_TEST(testTimePOST);
     CPPUNIT_TEST(testBadPost);
     CPPUNIT_TEST(testNoDevicePost);
@@ -45,20 +42,15 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testCommand);
     CPPUNIT_TEST(testGetAllCommand);
     CPPUNIT_TEST(testDevices);
-
     CPPUNIT_TEST(testisCommandResponse);
-
     CPPUNIT_TEST(testFindService);
     CPPUNIT_TEST(testSendRegister);
     CPPUNIT_TEST(testDevicesConfig);
     CPPUNIT_TEST(testNoDeviceFile);
     CPPUNIT_TEST(testRegisterDuration);
     CPPUNIT_TEST(testKVP);
-
     CPPUNIT_TEST(testCacheMongoGet);
     CPPUNIT_TEST(testCacheMongoGetNotFound);
-
-*/
     CPPUNIT_TEST(testPUSHCommand);
     CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
     CPPUNIT_TEST(testPUSHCommandAsync);
