@@ -31,6 +31,7 @@
 #include "services/admin_mgmt_service.h"
 #include "util/iota_exception.h"
 #include "util/FuncUtil.h"
+#include <sys/time.h>
 
 #define PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 
@@ -57,9 +58,6 @@ CPPUNIT_TEST_SUITE_REGISTRATION(AdminManagerTest);
 std::string URL_BASE = "/iot";
 std::string logger("main");
 }*/
-
-const std::string AdminManagerTest::HOST("127.0.0.1");
-const std::string AdminManagerTest::CONTENT_JSON("application/json");
 
 const int AdminManagerTest::POST_RESPONSE_CODE = 201;
 //GET ALL empty
@@ -676,57 +674,6 @@ void AdminManagerTest::testPostJSONDevices() {
 
 }
 
-int AdminManagerTest::http_test(const std::string& uri,
-                                const std::string& method,
-                                const std::string& service,
-                                const std::string& service_path,
-                                const std::string& content_type,
-                                const std::string& body,
-                                const std::map<std::string, std::string>& headers,
-                                const std::string& query_string,
-                                std::string& response) {
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
-  boost::system::error_code error_code;
-  error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string(HOST), wserver->get_port());
-
-  pion::http::request http_request(uri);
-  http_request.set_method(method);
-  http_request.set_content_type(content_type);
-  if (!service.empty()) {
-    http_request.add_header(iota::types::FIWARE_SERVICE, service);
-  }
-  if (!service_path.empty()) {
-    http_request.add_header(iota::types::FIWARE_SERVICEPATH, service_path);
-  }
-
-  //http_request.add_header("Accept", "application/json");
-
-  if (!query_string.empty()) {
-    http_request.set_query_string(query_string);
-  }
-
-  std::map<std::string, std::string>::const_iterator iter;
-  for (iter = headers.begin(); iter != headers.end(); ++iter) {
-    std::cout << "header: " << iter->first << iter->second << std::endl;
-    http_request.add_header(iter->first, iter->second);
-  }
-  if (!body.empty()) {
-    http_request.set_content(body);
-  }
-  std::cout << "send" << std::endl;
-  http_request.send(tcp_conn, error_code);
-  pion::http::response http_response(http_request);
-  http_response.receive(tcp_conn, error_code);
-  tcp_conn.close();
-  int code_res = http_response.get_status_code();
-  response.assign(http_response.get_content());
-
-  return code_res;
-
-}
-
-
 void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "START @UT@START testProtocol_ServiceManagement" << std::endl;
   std::map<std::string, std::string> headers;
@@ -761,7 +708,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
                        "application/json",
                        POST_SERVICE_MANAGEMENT3, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  CPPUNIT_ASSERT_MESSAGE("Waiting 201", code_res == 201);	
+  CPPUNIT_ASSERT_MESSAGE("Waiting 201", code_res == 201);
   std::cout << "@UT@DELETE" << std::endl;
   http_mock->set_response(204, "{}", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "",
@@ -1455,4 +1402,59 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
 
   std::cout << "END@UT@ testNoDeviceError_Bug_IDAS20463" << std::endl;
 
+}
+
+
+
+void AdminManagerTest::testReregistration_diff_protocol_description() {
+  std::cout << "@UT@START testReregistration_diff_protocol_description" <<
+            std::endl;
+
+  iota::AdminManagerService manager_service;
+
+  std::string service = create_random_service("s");
+  std::string service_path("/ss1");
+  std::string description1("des1");
+  std::string description2("des2");
+  delete_mongo(service, service_path);
+  pion::http::response http_response;
+  std::string response;
+  std::string body1("{\"iotagent\": \"host2\","
+                    "\"resource\": \"/iot/mqtt\","
+                    "\"protocol\": \"MQTT\","
+                    "\"services\": [{"
+                    "\"apikey\": \"apikey3\","
+                    "\"token\": \"token2\","
+                    "\"cbroker\": \"http://127.0.0.1:1026\","
+                    "\"resource\": \"/iot/mqtt\","
+                    "\"entity_type\": \"thing\",");
+  body1.append("\"service\":\"");
+  body1.append(service);
+  body1.append("\",\"service_path\":\"");
+  body1.append(service_path);
+  body1.append("\"}],");
+  body1.append("\"description\":\"");
+  std::string body2 = body1;
+  body1.append(description1);
+  body1.append("\"}");
+  body2.append(description2);
+  body2.append("\"}");
+
+  int code_res1 = manager_service.post_protocol_json(service, service_path, body1,
+                  http_response, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res1 << " " << response << std::endl;
+  IOTASSERT(code_res1 == 201);
+  IOTASSERT(response.empty());
+  IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description1) == 1 );
+
+  int code_res2 = manager_service.post_protocol_json(service, service_path, body2,
+                  http_response, response);
+  std::cout << "@UT@2RESPONSE: " <<  code_res2 << " " << response << std::endl;
+  IOTASSERT(code_res2 == 201);
+  IOTASSERT(response.empty());
+  IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description1) == 0 );
+  IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description2) == 1 );
+
+  std::cout << "@UT@END testReregistration_diff_protocol_description" <<
+            std::endl;
 }
