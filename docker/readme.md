@@ -7,6 +7,7 @@ Run this command:
 ```
 docker-compose -f iota.yaml up -d iotacpp
 ```
+This command will build the IoTAgent docker image and it will run three different containers with Orion ContextBroker, MongoDB and IoTAgent all of them linked. The IoTAgent container will expose the 8080 (HTTP) port and 1883 for MQTT protocol. 
 
 #Build just IoTAgent docker image
 ```

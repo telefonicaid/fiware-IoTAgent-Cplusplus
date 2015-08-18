@@ -18,6 +18,11 @@ echo $MONGODB_PORT
 echo $ORION_HOSTNAME
 echo $ORION_PORT
 
+sed -i /etc/init.d/mosquitto \
+    -e "s|etc/mosquitto/mosquitto.conf|etc/iot/mosquitto.conf|g"
+
+sed -i /etc/iot/mosquitto.conf \
+    -e "s|user root|user iotagent|g"
 
 sed -i /etc/iot/config.json \
 	-e "s|ORION_HOSTNAME|${ORION_HOSTNAME}|g" \
@@ -30,6 +35,9 @@ sed -i /etc/iot/config.json \
 #cat /etc/iot/config.json
 
 exec /sbin/init
+
+
+
 
 #/bin/bash
 

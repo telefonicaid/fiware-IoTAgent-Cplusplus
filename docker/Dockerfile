@@ -59,6 +59,8 @@ RUN yum -y install tar gzip unzip file \
     yum clean all && \
     chkconfig iotagent on
 
+RUN chkconfig mosquitto on
+
 COPY config.json /etc/iot/
 RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json
 
@@ -67,7 +69,6 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8080
 EXPOSE 1883
-
 
 
 
