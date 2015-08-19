@@ -31,21 +31,24 @@ RUN yum -y install tar gzip unzip file \
     make install && \
     make package && \
     cd pack/Linux/RPM 
-    # && \
-    # yum -y erase autoconf automake bzip2-devel \
-    #       cmake cpp file gcc gcc-c++ git \
-    #     libtool openssl-devel rpm-build \
-    #     scons zlib-devel bzip2 cloog-ppl \
-    #     elfutils elfutils-libs gdb glibc-devel \
-    #     glibc-headers kernel-headers \
-    #     keyutils-libs-devel krb5-devel \
-    #     libarchive libcom_err-devel libgomp \
-    #     libselinux-devel libsepol-devel \
-    #     libstdc++-devel m4 mpfr patch perl \
-    #     perl-Error perl-Git perl-Module-Pluggable \
-    #     perl-Pod-Escapes perl-Pod-Simple \
-    #     perl-libs perl-version pkgconfig \
-    #     ppl rsync xz-lzma-compa && \
+   
+RUN yum clean all
+
+RUN yum -y remove autoconf automake bzip2-devel \
+          cmake cpp file gcc gcc-c++ git \
+         libtool openssl-devel rpm-build \
+         scons zlib-devel bzip2 cloog-ppl \
+         elfutils elfutils-libs gdb glibc-devel \
+         glibc-headers kernel-headers \
+         keyutils-libs-devel krb5-devel \
+         libarchive libcom_err-devel libgomp \
+         libselinux-devel libsepol-devel \
+         libstdc++-devel m4 mpfr patch \
+         perl-Error perl-Git perl-Module-Pluggable \
+         perl-Pod-Escapes perl-Pod-Simple \
+         perl-libs perl-version  \
+         ppl rsync
+    
     
  RUN cd ${GIT_PATH_IOTACPP} && \
     cd build/${IOTACPP_BUILD_TYPE} && \
@@ -53,9 +56,6 @@ RUN yum -y install tar gzip unzip file \
     curl -kOL http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/home:oojah:mqtt.repo && \
     mv home:oojah:mqtt.repo /etc/yum.repos.d/ && \
     yum localinstall -y iot-agent-*.rpm && \
-   # cd /root && \
-   # rm -rf ${GIT_PATH_IOTACPP} && \
-   # rm -rf /root/rpmbuild && \
     yum clean all && \
     chkconfig iotagent on
 
@@ -68,6 +68,7 @@ COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8080
+EXPOSE 8081
 EXPOSE 1883
 
 

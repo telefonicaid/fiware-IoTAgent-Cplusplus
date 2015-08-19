@@ -27,5 +27,6 @@ iotacpp:
         - orion
     expose:
         - "8080"
+        - "8081"
         - "1883"    
             
