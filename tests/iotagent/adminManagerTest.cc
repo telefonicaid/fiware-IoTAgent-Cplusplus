@@ -1455,6 +1455,7 @@ void AdminManagerTest::testReregistration_diff_protocol_description() {
   IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description1) == 0 );
   IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description2) == 1 );
 
+  delete_mongo(service, service_path);
   std::cout << "@UT@END testReregistration_diff_protocol_description" <<
             std::endl;
 }

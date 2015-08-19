@@ -128,7 +128,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     void testNoDeviceError_Bug_IDAS20463();
 
     /**
-    @IDAS-
+    @IDAS-20553
     Scenario: changing protocol description
        an iotagent send a registration with a description of protocol
        then you update a new version of iotagent with a new description
