@@ -45,15 +45,6 @@ std::string URL_BASE = "/iot";
 }
 iota::AdminService* AdminService_ptr;
 
-// displays an error message if the arguments are invalid
-void argument_error(void) {
-  std::cerr << "usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE" <<
-            std::endl
-            << "         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE" << std::endl
-            << "options: [-m] [–ipv4] [–ipv6] [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]"
-            << std::endl;
-}
-
 void config_error(const std::string& err) {
   std::cerr << "ERROR" <<  err << std::endl;
 }
@@ -61,10 +52,9 @@ void config_error(const std::string& err) {
 
 int main(int argc, char* argv[]) {
 
-  static const unsigned int DEFAULT_PORT = 8080;
-  std::string  ZERO_IP = "0.0.0.0";
+  iota::Arguments arguments;
 
-  std::string prov_ip = ZERO_IP;
+  std::string prov_ip = arguments.get_ZERO_IP();
 
   mongo::client::initialize();
 
@@ -75,146 +65,23 @@ int main(int argc, char* argv[]) {
 
   boost::asio::ip::tcp::endpoint cfg_endpoint;
   // Default
-  cfg_endpoint.port(DEFAULT_PORT);
+  cfg_endpoint.port(arguments.get_DEFAULT_PORT());
 
-  std::string service_config_file;
-  std::string resource_name;
-  std::string service_name;
-  std::string ssl_pem_file;
-  std::string url_base;
-  std::string iotagent_name;
-  std::string log_level;
-  std::string standalone_config_file;
-  std::string component_name("iota");
-  bool manager = false;
-  bool ssl_flag = false;
-  bool verbose_flag = false;
-  int  port = DEFAULT_PORT;
-
-  for (int argnum=1; argnum < argc; ++argnum) {
-    if (argv[argnum][0] == '-') {
-      if (argv[argnum][1] == 'p' && argv[argnum][2] == '\0' && argnum+1 < argc) {
-        // set port number
-        ++argnum;
-        cfg_endpoint.port(strtoul(argv[argnum], 0, 10));
-        if (cfg_endpoint.port() == 0) {
-          cfg_endpoint.port(DEFAULT_PORT);
-        }
-        port = strtoul(argv[argnum], 0, 10);
-        if (port == 0) {
-          port = DEFAULT_PORT;
-        }
-      }
-      else if (argv[argnum][1] == 'i' && argv[argnum][2] == '\0' &&
-               argnum+1 < argc) {
-        // set ip address
-        cfg_endpoint.address(boost::asio::ip::address::from_string(ZERO_IP));
-        prov_ip = argv[++argnum];
-      }
-      else if (argv[argnum][1] == 'u' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        url_base.assign(argv[++argnum]);
-        if (url_base.empty() == false) {
-          iota::URL_BASE.assign(url_base);
-        }
-      }
-      else if (argv[argnum][1] == 'f' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        standalone_config_file.assign(argv[++argnum]);
-      }
-      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
-            && argv[argnum][3] == 'v' && argv[argnum][4] == '4'
-            && argv[argnum][5] == '\0'
-               && argnum+1 < argc) {
-        // default ip
-        ZERO_IP = "0.0.0.0";
-      }
-      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
-            && argv[argnum][3] == 'v' && argv[argnum][4] == '6'
-            && argv[argnum][5] == '\0'
-               && argnum+1 < argc) {
-        ZERO_IP = "::";
-      }
-      else if (argv[argnum][1] == 'n' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        iotagent_name.assign(argv[++argnum]);
-      }
-      else if (argv[argnum][1] == 'c' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        service_config_file = argv[++argnum];
-      }
-      else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        // add the service plug-ins directory to the search path
-        try {
-          pion::plugin::add_plugin_directory(argv[++argnum]);
-        }
-        catch (pion::error::directory_not_found&) {
-          std::cerr << "piond: Web service plug-ins directory does not exist: "
-                    << argv[argnum] << std::endl;
-          return 1;
-        }
-      }
-      else if (argv[argnum][1] == 'o' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        std::string option_name(argv[++argnum]);
-        std::string::size_type pos = option_name.find('=');
-        if (pos == std::string::npos) {
-          argument_error();
-          return 1;
-        }
-        std::string option_value(option_name, pos + 1);
-        option_name.resize(pos);
-        service_options.push_back(std::make_pair(option_name, option_value));
-      }
-      else if (argv[argnum][1] == 's' && argv[argnum][2] == 's' &&
-               argv[argnum][3] == 'l' && argv[argnum][4] == '\0' && argnum+1 < argc) {
-        ssl_flag = true;
-        ssl_pem_file = argv[++argnum];
-      }
-      else if (argv[argnum][1] == 'v' && argv[argnum][2] == '\0') {
-        verbose_flag = true;
-        if (argnum+1 < argc) {
-          log_level.assign(argv[++argnum]);
-        }
-      }
-      else if (argv[argnum][1] == 'm' && argv[argnum][2] == '\0') {
-        // Start as IoTA Manager
-        manager = true;
-      }
-      else {
-        argument_error();
-        return 1;
-      }
-    }
-    else if (argnum+2 == argc) {
-      // second to last argument = RESOURCE
-      resource_name = argv[argnum];
-    }
-    else if (argnum+1 == argc) {
-      // last argument = WEBSERVICE
-      service_name = argv[argnum];
-    }
-    else {
-      argument_error();
-      return 1;
-    }
-  }
-
-  cfg_endpoint.address(boost::asio::ip::address::from_string(ZERO_IP));
-
-  if (service_config_file.empty() && (resource_name.empty()
-                                      || service_name.empty())) {
-    argument_error();
+  std::string error = arguments.parser(argc, argv);
+  if (!error.empty()){
+    std::cout << error << std::endl;
     return 1;
   }
 
+  cfg_endpoint.address(boost::asio::ip::address::from_string(arguments.get_ZERO_IP()));
+
+
   // Initialization Configurator
-  if (!standalone_config_file.empty()) {
-    conf_iotagent = iota::Configurator::initialize(standalone_config_file);
+  if (!arguments.get_standalone_config_file().empty()) {
+    conf_iotagent = iota::Configurator::initialize(arguments.get_standalone_config_file());
   }
-  else if (!service_config_file.empty()) {
-    conf_iotagent = iota::Configurator::initialize(service_config_file);
+  else if (!arguments.get_service_config_file().empty()) {
+    conf_iotagent = iota::Configurator::initialize(arguments.get_service_config_file());
   }
 
   if (conf_iotagent == NULL) {
