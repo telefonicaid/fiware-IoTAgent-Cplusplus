@@ -86,7 +86,6 @@ MqttTest::MqttTest() {
     mongo::BSONObj p2 = BSON( "_id" << "dev_mqtt_push" <<
             "device_id"<< "dev_mqtt_push" <<
             "entity_type"<< "type2"<<
-            "endpoint"<< "some_end_point"<<
             "entity_name"<< "dev_mqtt_push"<<
             "service"<< "service2"<<
             "service_path"<< "/ssrv2"<<
@@ -105,7 +104,6 @@ MqttTest::MqttTest() {
     iota::Collection table(iota::store::types::DEVICE_TABLE);
     mongo::BSONObj p3 = BSON( "_id" << "unitTest_mqtt_location" <<
             "device_id"<< "unitTest_mqtt_location" <<
-            "endpoint"<< "http://127.0.0.1:9999/device"<<
             "entity_name"<< "room_uttest"<<
             "service"<< "service2"<<
             "service_path"<< "/ssrv2"<<

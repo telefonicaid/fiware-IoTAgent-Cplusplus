@@ -21,6 +21,10 @@
 */
 #include "IotaMqttService.h"
 
+/**
+TODO: this service has some methods for handling  pull commands, but as a new feture of 1.2.0 version, mqtt will support
+push commands only, so it would make sense to remove some of these commands.
+*/
 
 namespace iota {
   extern std::string logger;

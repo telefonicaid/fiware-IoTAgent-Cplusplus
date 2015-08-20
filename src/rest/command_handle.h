@@ -233,6 +233,17 @@ class CommandHandle :
                                   pion::http::response_ptr http_response,
                                   const boost::system::error_code& error);
 
+
+    /**
+    * @name is_push_type_of_command
+    * @brief virtual function that will return true if PUSH commands are enabled for a particular device. It's virtual
+    * so other plugins may implement a different behaviour. A default implementation is provided where the presence of an
+    * endpoint will determine that PUSH is the type for commands.
+    * @param [in] device, pointer to the device for checking type of command.
+    * @return bool: TRUE for PUSH commands, FALSE for PULL.
+    */
+    virtual bool is_push_type_of_command(boost::shared_ptr<Device> device);
+
     /**
     * @name    transform_command
     * @brief   virtual function, default implementation but every pluging can overwrite it.
