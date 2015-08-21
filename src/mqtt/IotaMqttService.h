@@ -56,7 +56,6 @@ class IotaMqttService {
     std::string publishContextBroker(std::string& jsonMsg,std::string& apikey,
                                      std::string& idDevice);
 
-    void askForCommands(std::string& apikey, std::string& idDevice);
 
     void handle_mqtt_message(std::string& apikey, std::string& idDevice, std::string& payload,std::string& type);
 
@@ -66,7 +65,7 @@ class IotaMqttService {
     virtual std::string doPublishCB(std::string& jsonMsg,std::string& apikey,
                                     std::string& idDevice) = 0;
 
-    virtual void doRequestCommands(std::string& apikey, std::string& idDevice) = 0;
+
 
     virtual void processCommandResponse(std::string& apikey,std::string& idDevice, std::string& payload) = 0;
 

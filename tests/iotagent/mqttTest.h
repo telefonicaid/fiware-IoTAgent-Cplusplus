@@ -58,10 +58,7 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST (testBadEntityType);
     CPPUNIT_TEST (testNotInitCBPublisher);
     CPPUNIT_TEST (testMultipleMeasures);
-    //CPPUNIT_TEST (testGetAllCommandsPolling);
 
-    //CPPUNIT_TEST (testPollingOneMqttCommand);
-    //CPPUNIT_TEST (testPollingCommandExecution);
     CPPUNIT_TEST (testExtractingCmdId);
     CPPUNIT_TEST (testPushCommandExecution);
     CPPUNIT_TEST (testPushCommandResponse);
@@ -94,11 +91,7 @@ protected:
 
     void testMultipleMeasures();
 
-    void testGetAllCommandsPolling();
 
-    void testPollingOneMqttCommand();
-
-    void testPollingCommandExecution();
 
     void testExtractingCmdId();
 

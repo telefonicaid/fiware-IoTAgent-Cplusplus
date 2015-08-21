@@ -44,16 +44,10 @@ std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(std::string& 
 }
 
 
-void iota::esp::ngsi::IotaMqttService::askForCommands(std::string& apikey,std::string& idDevice){
-  doRequestCommands(apikey,idDevice);
-}
 
 
 void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(std::string& apikey,std::string& idDevice,std::string& payload,std::string& type){
 
-  if (MQTT_COMMAND_REQUEST == type){
-    return askForCommands(apikey,idDevice);
-  }
 
   if (MQTT_COMMAND_RESPONSE == type){
     return processCommandResponse(apikey,idDevice,payload);
