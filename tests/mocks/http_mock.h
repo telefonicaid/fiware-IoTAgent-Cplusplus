@@ -42,8 +42,9 @@ class MockService: public pion::http::plugin_service {
 };
 class HttpMock {
   public:
-    HttpMock(std::string url);
-    HttpMock(unsigned short port, std::string url, bool extended_echo = false);
+    HttpMock(std::string url, const std::string name="CBMock");
+    HttpMock(unsigned short port, std::string url,
+       bool extended_echo = false, const std::string name="CBMock");
     virtual ~HttpMock() {
       delete _ws;
     };
@@ -70,10 +71,14 @@ class HttpMock {
       return _service->_content.size();
     };
 
+    std::string get_name(){
+      return _name;
+    }
 
   protected:
 
   private:
+    std::string _name;
     void run();
     unsigned short _port;
     std::string _url;

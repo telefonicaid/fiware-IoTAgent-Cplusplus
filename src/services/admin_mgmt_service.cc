@@ -1097,6 +1097,13 @@ int iota::AdminManagerService::post_protocol_json(
 
     // Resource and description define a protocol
     std::string endpoint = obj.getStringField(iota::store::types::IOTAGENT);
+    std::string endpoint_id = obj.getStringField(iota::store::types::ENDPOINT_ID);
+    if (endpoint_id.empty()){
+      IOTA_LOG_DEBUG(m_log, "in update protocol, there is an empty endpoint identifier:" + endpoint +
+                   ", check this iotagent to update, using ip as identifier");
+
+      endpoint_id = endpoint;
+    }
     std::string resource = obj.getStringField(iota::store::types::RESOURCE);
     std::string description = obj.getStringField(
                                 iota::store::types::PROTOCOL_DESCRIPTION);
@@ -1105,18 +1112,35 @@ int iota::AdminManagerService::post_protocol_json(
 
     IOTA_LOG_DEBUG(m_log, "update protocol :" + protocol_name +
                    " iotagent:" + endpoint + " resource:" + resource);
-    // query only protocol name (identifier)
-    // update description because it can be different
-    // if there are several iotagents with different description
-    // with every register, the description would change
-    int num_ups = protocol_table->update_r(
+
+    int num_ups;
+    try {
+      num_ups = protocol_table->update_r(
+                    BSON(iota::store::types::PROTOCOL_NAME << protocol_name <<
+                         iota::store::types::ENDPOINTS <<
+                         BSON( "$elemMatch" <<
+                         BSON(iota::store::types::ENDPOINT_ID<< endpoint_id))) ,
+                    BSON("$set" << BSON("endpoints.$.endpoint" << endpoint <<
+                                    "endpoints.$.resource"  << resource)
+                         ), true, 0);
+
+    }catch (iota::IotaException e){
+      IOTA_LOG_DEBUG(m_log, "update protocol : no exists this protocol" << e.what());
+
+      // query only protocol name (identifier)
+      // update description because it can be different
+      // if there are several iotagents with different description
+      // with every register, the description would change
+      num_ups = protocol_table->update_r(
                     BSON(iota::store::types::PROTOCOL_NAME << protocol_name) ,
                     BSON("$set" << BSON(iota::store::types::PROTOCOL_DESCRIPTION << description) <<
                          "$addToSet"  <<
                          BSON(iota::store::types::ENDPOINTS << BSON(iota::store::types::ENDPOINT <<
                               endpoint <<
-                              iota::store::types::RESOURCE << resource)
+                              iota::store::types::RESOURCE << resource <<
+                              iota::store::types::ENDPOINT_ID << endpoint_id)
                              )), true, 0);
+    }
 
     mongo::BSONElement element =  obj.getField(iota::store::types::SERVICES);
     std::map<std::string,mongo::BSONObj> services_in_mongo;

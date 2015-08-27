@@ -27,8 +27,9 @@
 #include "services/ngsi_service.h"
 #include "ultra_light/ul20_service.h"
 #include "../mocks/http_mock.h"
+#include "baseTest.h"
 
-class Ul20Test : public CPPUNIT_NS::TestFixture {
+class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
     CPPUNIT_TEST_SUITE(Ul20Test);
 
 
@@ -87,12 +88,16 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testChangeIPDevice);
     CPPUNIT_TEST(testChangeIPDevice_empty);
 
+    CPPUNIT_TEST(test_register_iota_manager12);
+    CPPUNIT_TEST(test_register_iota_manager34);
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
     void setUp();
     void tearDown();
 
+    static const std::string SERVICE2;
     static const std::string POST_SERVICE;
     static const std::string POST_SERVICE_ENDPOINT;
     static const  std::string POST_DEVICE;
@@ -116,11 +121,6 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
 
   private:
-
-    /** function toi fill data to cb_mock, it is not a test */
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
-                      const std::string& type = "file",
-                      bool vpn = false);
 
     void testPollingCommand_MONGO(
                     const std::string &name_device,
@@ -181,6 +181,9 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     void testChangeIPDevice();
     void testChangeIPDevice_empty();
 
+
+    void test_register_iota_manager12();
+    void test_register_iota_manager34();
 
     void populate_command_attributes(
                      const boost::shared_ptr<iota::Device>& device,

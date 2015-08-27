@@ -1,4 +1,5 @@
 {
+    "iota_manager" : "http://127.0.0.1:8081/iot/protocols",
     "ngsi_url": {
         "updateContext": "/NGSI10/updateContext",
         "registerContext": "/NGSI9/registerContext",

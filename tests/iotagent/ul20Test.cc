@@ -76,6 +76,22 @@
 
 const int Ul20Test::POST_RESPONSE_CODE = 201;
 
+const std::string Ul20Test::SERVICE2("{"
+                    "\"apikey\": \"apikey3\","
+                    "\"cbroker\": \"http://127.0.0.1:%%port%%/mock\","
+                    "\"service\": \"service2\","
+                    "\"service_path\": \"/ssrv2\","
+                    "\"token\": \"token2\","
+                    "\"entity_type\": \"thing_apikey3\","
+                    "\"attributes\": ["
+                    "  {"
+                    "    \"object_id\":\"t\","
+                    "    \"type\": \"string\","
+                    "    \"name\":\"temperature\""
+                    "  }"
+                    "]"
+                    "}");
+
 const std::string
 Ul20Test::POST_SERVICE("{\"services\": [{"
                         "\"apikey\": \"apikey%s\",\"token\": \"token\","
@@ -204,90 +220,6 @@ void Ul20Test::tearDown() {
   std::cout << "tearDown Ul20Test " << std::endl;
 }
 
-void Ul20Test::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
-                            const std::string& type,
-                            bool vpn) {
-  cb_mock->init();
-  std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
-  std::cout << "mock with port:" << mock_port << std::endl;
-
-  iota::Configurator::release();
-  iota::Configurator* my_instance = iota::Configurator::instance();
-
-  std::stringstream ss;
-  if (!vpn) {
-  ss << "{ \"ngsi_url\": {"
-     <<   "     \"updateContext\": \"/NGSI10/updateContext\","
-     <<   "     \"registerContext\": \"/NGSI9/registerContext\","
-     <<   "     \"queryContext\": \"/NGSI10/queryContext\""
-     <<   "},"
-     <<   "\"timeout\": 1,"
-     <<   "\"dir_log\": \"/tmp/\","
-     <<   "\"timezones\": \"/etc/iot/date_time_zonespec.csv\","
-    <<   "\"schema_path\": \"../../schema\","
-     <<   "\"storage\": {"
-     <<   "\"host\": \"127.0.0.1\","
-     <<   "\"type\": \"" <<  type << "\","
-     <<   "\"port\": \"27017\","
-     <<   "\"dbname\": \"iotest\","
-     <<   "\"file\": \"../../tests/iotagent/devices.json\""
-     << "},"
-     << "\"resources\":[{\"resource\": \"/iot/d\","
-     << "  \"options\": {\"FileName\": \"UL20Service\" },"
-     <<    " \"services\":[ {"
-     <<   "\"apikey\": \"apikey3\","
-     <<   "\"service\": \"service2\","
-     <<   "\"service_path\": \"/ssrv2\","
-     <<   "\"token\": \"token2\","
-     <<   "\"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
-     <<   "\"entity_type\": \"thing_apikey3\","
-     <<   "\"attributes\": ["
-     <<     "{\"object_id\":\"t\",\"type\": \"string\",\"name\":\"temperature\"}"
-     <<   "]"
-     << "} ] } ] }";
-     }
-     else {
-     ss << "{ \"ngsi_url\": {"
-     <<   "     \"updateContext\": \"/NGSI10/updateContext\","
-     <<   "     \"registerContext\": \"/NGSI9/registerContext\","
-     <<   "     \"queryContext\": \"/NGSI10/queryContext\""
-     <<   "},"
-     <<   "\"timeout\": 1,"
-     <<   "\"http_proxy\": \"127.0.0.1:8888\","
-     <<   "\"dir_log\": \"/tmp/\","
-     <<   "\"timezones\": \"/etc/iot/date_time_zonespec.csv\","
-    <<   "\"schema_path\": \"../../schema\","
-     <<   "\"storage\": {"
-     <<   "\"host\": \"127.0.0.1\","
-     <<   "\"type\": \"" <<  type << "\","
-     <<   "\"port\": \"27017\","
-     <<   "\"dbname\": \"iotest\","
-     <<   "\"file\": \"../../tests/iotagent/devices.json\""
-     << "},"
-     << "\"resources\":[{\"resource\": \"/iot/d\","
-     << "  \"options\": {\"FileName\": \"UL20Service\" },"
-     <<    " \"services\":[ {"
-     <<   "\"apikey\": \"apikey3\","
-     <<   "\"service\": \"service2\","
-     <<   "\"service_path\": \"/ssrv2\","
-     <<   "\"token\": \"token2\","
-     <<   "\"outgoing_route\": \"gretunnel-service2\","
-     <<   "\"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
-     <<   "\"entity_type\": \"thing\""
-     << "} ] } ] }";
-     }
-  //my_instance->update_conf(ss);
-  std::string err = my_instance->read_file(ss);
-  std::cout << "GET CONF " << my_instance->getAll() << std::endl;
-  if (!err.empty()) {
-    std::cout << "start_cbmock:" << err << std::endl;
-    std::cout << "start_cbmock_data:" << ss.str() << std::endl;
-  }
-
-
-}
-
-
 /***
   *  POST http://10.95.26.51:8002/d?i=Device_UL2_0_RESTv2&k=4orh3jl3h40qkd7fk2qrc52ggb
   *     ${#Project#END_TIME2}|t|${Properties#value}
@@ -298,7 +230,9 @@ void Ul20Test::testNormalPOST() {
   std::cout << "START testNormalPOST" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
   std::string cb_last;
 
   iota::UL20Service ul20serv;
@@ -619,7 +553,9 @@ void Ul20Test::testFileGET() {
   std::cout << "START testFileGET" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
   std::string cb_last;
 
   iota::UL20Service ul20serv;
@@ -853,7 +789,9 @@ void Ul20Test::testMongoGET() {
   std::cout << "START testMongoGET" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock, "mongodb");
+  start_cbmock(cb_mock, "mongodb", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
   std::string cb_last;
 
   iota::UL20Service ul20serv;
@@ -1077,7 +1015,9 @@ void Ul20Test::testTimePOST() {
   std::cout << "START testTimePOST " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
@@ -1143,7 +1083,9 @@ void Ul20Test::testBadPost() {
   std::cout << "START testBadPost" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
@@ -1269,7 +1211,9 @@ void Ul20Test::testNoDevicePost() {
   std::cout << "START testNoDevicePost" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
   std::string cb_last;
 
   iota::UL20Service ul20serv;
@@ -1747,7 +1691,9 @@ void Ul20Test::testSendRegister() {
   std::cout << "START testSendRegister " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
@@ -1997,7 +1943,9 @@ void Ul20Test::testPUSHCommand() {
   std::cout << "@UT@START testPUSHCommand" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
@@ -2081,8 +2029,20 @@ void Ul20Test::testPUSHCommand() {
 void Ul20Test::testPUSHCommandProxyAndOutgoingRoute() {
   std::cout << "@UT@START testPUSHCommandProxyAndOutgoingRoute" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
+  std::string serviceVPN( "{"
+        "\"apikey\": \"apikey3\","
+        "\"cbroker\": \"http://127.0.0.1:%%port%%/mock\","
+        "\"service\": \"service2\","
+        "\"service_path\": \"/ssrv2\","
+        "\"token\": \"token2\","
+        "\"outgoing_route\": \"gretunnel-service2\","
+        "\"entity_type\": \"thing\"}");
+
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock, "file", true);
+  start_cbmock(cb_mock, "file", "/iot/d", "", "", "",
+           "", serviceVPN);
+
+
 
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG_VPN);
 
@@ -2168,7 +2128,9 @@ void Ul20Test::testPUSHCommandAsync() {
   std::cout << "@UT@START testPUSHCommandAsync" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
@@ -2257,7 +2219,9 @@ void Ul20Test::testBADPUSHCommand() {
   std::cout << "@UT@START testBADPUSHCommand" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   std::string cb_last;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
@@ -2399,7 +2363,9 @@ void Ul20Test::testPollingCommandTimeout() {
   std::cout << "@UT@START testPollingCommandTimeout" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
@@ -2470,7 +2436,9 @@ void Ul20Test::testCommandNOUL() {
   std::cout << "@UT@START testCommandNOUL" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   //simulador del device
   boost::shared_ptr<HttpMock> device_mock;
@@ -2532,9 +2500,10 @@ void Ul20Test::testPUSHCommandParam() {
   std::cout << "@UT@START testPUSHCommandParam" << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
 
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   //simulador del device
   boost::shared_ptr<HttpMock> device_mock;
@@ -3328,10 +3297,13 @@ void Ul20Test::testPollingCommand_MONGO(
   **/
 void Ul20Test::testQueryContext() {
   std::cout << "START testQueryContext" << std::endl;
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
   std::string cb_last;
   std::string responseOK( "{\"contextResponses\":[{\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\",\"details\":\"\"},\"contextElement\":{\"id\":\"room_ut1\",\"type\":\"type2\",\"isPattern\":\"false\",\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"@@RAW@@\"},{\"name\":\"RAW\",\"type\":\"command\",\"value\":\"@@RAW@@\"}]}}]}");
 
@@ -3706,5 +3678,106 @@ void Ul20Test::testChangeIPDevice_empty(){
 
 
   std::cout << "END testChangeIPDevice_empty " << std::endl;
+
+}
+
+void Ul20Test::test_register_iota_manager12() {
+
+  feature("Iot Agent register when start, new param identifier",
+         "IDAS-20521", "description");
+
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock(8081, "/iot/protocols"));
+  start_cbmock(cb_mock, "mongodb", "/iot/d", "http://127.0.0.1:8081/iot/protocols",
+                    "public_ip", "myIotaIdentifier" );
+  std::string cb_last;
+
+  pion::http::response http_response;
+  iota::AdminService adminService;
+  AdminService_ptr = &adminService;
+  iota::Configurator::instance()->set_listen_port(80);
+
+  {
+    iota::UL20Service ul20serv;
+    ul20serv.set_resource("/iot/d");
+    scenario("register with identifier in config.json");
+
+    ul20serv.start();
+
+    check_last_contains(cb_mock, "\"identifier\" : \"myIotaIdentifier:80\"",
+                        "", 1);
+
+  }
+
+ {
+    iota::UL20Service ul20serv2;
+    ul20serv2.set_resource("/iot/d2");
+    scenario("register with identifier in command parameter line");
+    iota::Configurator::instance()->set_iotagent_name("iotagent_name2");
+    iota::Configurator::instance()->set_iotagent_identifier("iotagent_identifier2");
+
+    ul20serv2.start();
+
+
+    check_last_contains(cb_mock, "\"identifier\" : \"iotagent_identifier2:80\"",
+                        "", 1);
+  }
+
+  std::cout << "@UT@END test_register_iota_manager12 " << std::endl;
+
+}
+
+void Ul20Test::test_register_iota_manager34() {
+
+  feature("Iot Agent register when start, new param identifier",
+         "IDAS-20521",
+         "description");
+
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock(8081, "/iot/protocols"));
+  start_cbmock(cb_mock, "mongodb", "/iot/d", "http://127.0.0.1:8081/iot/protocols",
+                "public_ip" );
+  std::string cb_last;
+
+  pion::http::response http_response;
+  iota::AdminService adminService;
+  AdminService_ptr = &adminService;
+  iota::Configurator::instance()->set_listen_port(80);
+
+ {
+    iota::UL20Service ul20serv3;
+    ul20serv3.set_resource("/iot/d3");
+
+    scenario("register without identifier",
+             "description") ;
+    std::cout << "@UT@" << std::endl;
+    iota::Configurator::instance()->set_iotagent_name("iotagent_name3");
+    iota::Configurator::instance()->set_iotagent_identifier("");
+
+    // when
+    ul20serv3.start();
+
+    ASYNC_TIME_WAIT
+
+    check_last_contains(cb_mock,
+                  "\"identifier\" : \"iotagent_name3:80\"",
+                  "", 1);
+  }
+
+ {
+    iota::UL20Service ul20serv4;
+    ul20serv4.set_resource("/iot/d4");
+    scenario("register without identifier or name");
+    iota::Configurator::instance()->set_iotagent_name("");
+    iota::Configurator::instance()->set_iotagent_identifier("");
+
+    ul20serv4.start();
+
+    check_last_contains(cb_mock, "\"identifier\" : \"public_ip:80\"",
+                        "", 1);
+
+  }
+
+  std::cout << "@UT@END test_register_iota_manager34 " << std::endl;
 
 }

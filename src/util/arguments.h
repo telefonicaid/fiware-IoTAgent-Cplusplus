@@ -24,6 +24,7 @@
 
 #include <string>
 #include "util/iota_logger.h"
+#include <pion/http/plugin_server.hpp>
 
 
 namespace iota {
@@ -33,6 +34,8 @@ namespace iota {
 */
 class Arguments {
   public:
+
+    Arguments();
 
     /**
      * @name    parser
@@ -44,7 +47,7 @@ class Arguments {
      * @return  error text or empty if everything is ok
      *
      */
-    std::string parser(int argc, char* argv[]);
+    std::string parser(int argc, const char* argv[]);
 
     /**
      * @name    argument_error
@@ -55,68 +58,92 @@ class Arguments {
      */
     std::string argument_error();
 
-    std::string get_service_config_file(){
+    std::string get_service_config_file() const {
       return service_config_file;
     }
 
-    std::string get_resource_name(){
+    std::string get_resource_name() const {
       return resource_name;
     }
 
-    std::string get_service_name(){
+    std::string get_service_name() const {
       return service_name;
     }
 
-    std::string get_ssl_pem_file(){
+    std::string get_ssl_pem_file() const {
       return ssl_pem_file;
     }
 
-    std::string get_url_base(){
+    std::string get_url_base() const {
       return url_base;
     }
 
-    std::string get_iotagent_name(){
+    std::string get_iotagent_name() const {
       return iotagent_name;
     }
 
-    std::string get_log_level(){
+    std::string get_log_level() const {
       return log_level;
     }
 
-    std::string get_standalone_config_file(){
+    std::string get_standalone_config_file() const {
       return standalone_config_file;
     }
 
-    std::string get_component_name(){
+    std::string get_component_name()const {
       return component_name;
     }
 
-    bool get_manager(){
+    bool get_manager() {
       return manager;
     }
 
-    bool get_ssl_flag(){
+    bool get_ssl_flag() {
       return ssl_flag;
     }
 
-    bool get_verbose_flag(){
+    bool get_verbose_flag() {
       return verbose_flag;
     }
 
-    int  get_port(){
+    int  get_port() {
       return port;
     }
 
-    std::string  get_ZERO_IP(){
+    std::string  get_plugin_directory() const {
+      return plugin_directory;
+    }
+
+    std::string  get_ZERO_IP()const {
       return ZERO_IP;
     }
 
-    unsigned int get_DEFAULT_PORT (){
+    std::string  get_iotagent_identifier()const {
+      return identifier;
+    }
+
+    unsigned int get_DEFAULT_PORT() {
       return DEFAULT_PORT;
+    }
+
+    std::vector<std::pair<std::string, std::string> > get_service_options() const {
+      return service_options;
+    }
+
+    void set_service_options(pion::http::plugin_server_ptr& web_server);
+
+    std::string get_log_file();
+
+    std::string get_prov_ip() const {
+      return prov_ip;
     }
 
   protected:
 
+    bool check_parameter(const  char short_param,
+                         const std::string& large_param,
+                         int argnum, int argc, const char* argv[],
+                         bool has_parameter=true);
 
   private:
 
@@ -131,23 +158,29 @@ class Arguments {
     std::string iotagent_name;
     /** level for logs, FATAL,ERROR, INFO, WARNING, DEBUG */
     std::string log_level;
-    /** */
-    std::string standalone_config_file;
-    /** name for the component */
-    std::string component_name("iota");
+    /** directory to look for pion plugins */
+    std::string plugin_directory;
+
+    /** */std::string component_name;
     /** true if the program is an iota manager, false if it is an iota agent */
-    bool manager = false;
+    bool manager;
     /** if iota must have a port with ssl */
-    bool ssl_flag = false;
+    bool ssl_flag;
     /** level for logs, FATAL,ERROR, INFO, WARNING, DEBUG */
-    bool verbose_flag = false;
+    bool verbose_flag;
     /** port where is started the server */
-    int  port = DEFAULT_PORT;
+    int  port;
+    /** public ip fot send to Context Broker */
+    std::string prov_ip;
+    /** identifier for iota manager */
+    std::string identifier;
 
-    std::string  ZERO_IP = "0.0.0.0";
+    std::string  ZERO_IP;
 
-    unsigned int DEFAULT_PORT =8080;
+    unsigned int DEFAULT_PORT;
+    std::string standalone_config_file;
 
+    std::vector<std::pair<std::string, std::string> > service_options;
 };
 };
 
