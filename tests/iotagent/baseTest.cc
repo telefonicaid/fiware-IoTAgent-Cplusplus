@@ -32,13 +32,6 @@
 
 #define  DOC_MESSAGE  "##"
 
-#define  IOTASSERT_MESSAGE(x,y) \
-         std::cout << "@" << __LINE__ << "@" << x << std::endl; \
-         CPPUNIT_ASSERT_MESSAGE(x,y)
-
-#define  IOTASSERT(y) \
-         std::cout << "@" << __LINE__ << "@" << std::endl; \
-         CPPUNIT_ASSERT(y)
 
 const std::string BaseTest::HOST("127.0.0.1");
 const std::string BaseTest::CONTENT_JSON("application/json");
@@ -127,42 +120,53 @@ int BaseTest::http_test(const std::string& uri,
                                 const std::map<std::string, std::string>& headers,
                                 const std::string& query_string,
                                 std::string& response) {
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
-  boost::system::error_code error_code;
-  error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string(HOST), wserver->get_port());
 
-  pion::http::request http_request(uri);
-  http_request.set_method(method);
-  http_request.set_content_type(content_type);
+  boost::shared_ptr<iota::HttpClient> http_client;
+  pion::http::response_ptr http_response;
+
+  pion::http::request_ptr http_request(new pion::http::request());
+  http_request->set_resource(uri);
+
+  http_request->set_method(method);
+  http_request->set_content_type(content_type);
   if (!service.empty()) {
-    http_request.add_header(iota::types::FIWARE_SERVICE, service);
+    http_request->add_header(iota::types::FIWARE_SERVICE, service);
   }
   if (!service_path.empty()) {
-    http_request.add_header(iota::types::FIWARE_SERVICEPATH, service_path);
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH, service_path);
   }
 
   //http_request.add_header("Accept", "application/json");
 
   if (!query_string.empty()) {
-    http_request.set_query_string(query_string);
+    http_request->set_query_string(query_string);
   }
 
   std::map<std::string, std::string>::const_iterator iter;
   for (iter = headers.begin(); iter != headers.end(); ++iter) {
     std::cout << "header: " << iter->first << iter->second << std::endl;
-    http_request.add_header(iter->first, iter->second);
+    http_request->add_header(iter->first, iter->second);
   }
   if (!body.empty()) {
-    http_request.set_content(body);
+    http_request->set_content(body);
   }
   std::cout << "send" << std::endl;
-  http_request.send(tcp_conn, error_code);
-  pion::http::response http_response(http_request);
-  http_response.receive(tcp_conn, error_code);
-  tcp_conn.close();
-  int code_res = http_response.get_status_code();
-  response.assign(http_response.get_content());
+  http_client.reset(
+      new iota::HttpClient(HOST, iota::Process::get_process().get_http_port()));
+
+  int timeout = 2;
+  std::string proxy = "";
+  http_response = http_client->send(http_request, timeout, proxy);
+
+  int code_res;
+
+  if (http_response.get() == NULL){
+    code_res = -1;
+    response.assign("ERROR no response from server");
+  }else {
+    code_res = http_response->get_status_code();
+    response.assign(http_response->get_content());
+  }
 
   return code_res;
 
@@ -179,7 +183,7 @@ void BaseTest::feature(const std::string& name,
 
   std::cout << DOC_MESSAGE << "Feature:" << name << std::endl;
   if (!description.empty()){
-    std::cout << description << std::endl;
+    std::cout << DOC_MESSAGE << description << std::endl;
   }
   std::cout << DOC_MESSAGE << std::endl;
 }
@@ -195,12 +199,12 @@ void BaseTest::scenario(const std::string& name,
 
   std::cout << DOC_MESSAGE << "Scenario:" << name << std::endl;
   if (!description.empty()){
-    std::cout <<  description << std::endl;
+    std::cout << DOC_MESSAGE << description << std::endl;
   }
   std::cout << DOC_MESSAGE << std::endl;
 }
 
-void BaseTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
+void BaseTest::init_config(unsigned int cb_port,
                       const std::string& type,
                       const std::string& resource,
                       const std::string& manager,
@@ -208,16 +212,13 @@ void BaseTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
                       const std::string& identifier,
                       const std::string& proxy,
                       const std::string& service) {
-  cb_mock->init();
-  std::string mock_port = boost::lexical_cast<std::string>(cb_mock->get_port());
-  std::cout << "mock with port:" << mock_port << std::endl;
 
   iota::Configurator::release();
   iota::Configurator* my_instance = iota::Configurator::instance();
 
   std::stringstream ss;
   ss <<   "{\"ngsi_url\": {"
-     <<   "     \"cbroker\": \"http://127.0.0.1:" << mock_port << "/mock\", "
+     <<   "     \"cbroker\": \"http://127.0.0.1:" << cb_port << "/mock\", "
      <<   "     \"updateContext\": \"/NGSI10/updateContext\","
      <<   "     \"registerContext\": \"/NGSI9/registerContext\","
      <<   "     \"queryContext\": \"/NGSI10/queryContext\""
@@ -261,7 +262,8 @@ void BaseTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
   }
 
   if (!service.empty()){
-    ss << boost::replace_all_copy(service, "%%port%%", mock_port);;
+    std::string cb_port_string = boost::lexical_cast<std::string>(cb_port);
+    ss << boost::replace_all_copy(service, "%%port%%", cb_port_string);
   }
   ss << "] } ] }";
 
@@ -272,9 +274,13 @@ void BaseTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
     std::cout << "start_cbmock:" << err << std::endl;
     std::cout << "start_cbmock_data:" << ss.str() << std::endl;
   }
+
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
 }
 
-void BaseTest::check_last_contains(boost::shared_ptr<HttpMock>& cb_mock,
+void BaseTest::check_last_contains(MockService* cb_mock,
           const std::string& data,
           const std::string& message,
           int wait){
@@ -283,15 +289,15 @@ void BaseTest::check_last_contains(boost::shared_ptr<HttpMock>& cb_mock,
     // for asynchronous operation it is neccesary wait time
     boost::this_thread::sleep(boost::posix_time::milliseconds(wait * 100));
   }
-  std::string cb_last = cb_mock->get_last();
+  std::string cb_last = cb_mock->get_last("/mock");
   std::cout << "@UT@Last simulator:" << cb_last << std::endl;
-  std::cout << "Then last message received by " << cb_mock->get_name() <<
+  std::cout << "Then last message received by "  <<
                    " must contain " << data << std::endl;
   IOTASSERT_MESSAGE(message,
         cb_last.find(data) != std::string::npos);
 }
 
-void BaseTest::check_last_equal(boost::shared_ptr<HttpMock>& cb_mock,
+void BaseTest::check_last_equal(MockService* cb_mock,
           const std::string& data,
           const std::string& message,
           int wait){
@@ -301,7 +307,7 @@ void BaseTest::check_last_equal(boost::shared_ptr<HttpMock>& cb_mock,
     boost::this_thread::sleep(boost::posix_time::milliseconds(wait * 100));
   }
 
-  std::string cb_last = cb_mock->get_last();
+  std::string cb_last = cb_mock->get_last("/mock");
   std::cout << "@UT@Last simulator:" << cb_last << std::endl;
   IOTASSERT_MESSAGE(message, cb_last.compare(data) == 0);
 }

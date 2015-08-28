@@ -35,6 +35,19 @@
 
 #include "util/service_collection.h"
 
+#define  IOTASSERT_MESSAGE(x,y) \
+         std::cout << "##Then @" << __LINE__ << "@" << x << std::endl; \
+         CPPUNIT_ASSERT_MESSAGE(x,y)
+
+#define  IOTASSERT(y) \
+         std::cout << "##Then @" << __LINE__ << "@" << std::endl; \
+         CPPUNIT_ASSERT(y)
+
+#define WHEN(m, w) \
+         std::cout << "##When " << m << std::endl; \
+         w
+
+
 
 class BaseTest  {
 
@@ -68,11 +81,11 @@ class BaseTest  {
 
                       /** function to fill data to cb_mock, it is not a test */
    /**
-     * @name    start_cbmock
+     * @name    init_config
      * @brief   fill data to config.json and init a iota::Configuration
      *          start a mock for cb
      *
-     * @param [in] cb_mock  mock to be started.
+     * @param [in] cb_port  context broker port.
      * @param [in] type  if storage is in file  or in mongodb, file by default
      * @param [in] resource  resource for config.json, by default "/iot/d"
      * @param [in] manager, value for field iota_manager, empty by default
@@ -83,12 +96,12 @@ class BaseTest  {
      *
      * Example Usage:
      * @code
-     *    start_cbmock(cb_mock, "mongodb", "http://127.0.0.1:8081/iot/protocols",
+     *    init_config("1026", "mongodb", "http://127.0.0.1:8081/iot/protocols",
                     "public_ip", "myIdentifier", "http://proxy:8999",
                     "{\"apikey\": \"apikey3\","\"service\":\"service2\","\"service_path\":\"/ssrv2\"}");
      * @endcode
      */
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
+    void init_config( unsigned int cb_port,
                       const std::string& type = "file",
                       const std::string& resource = "/iot/d",
                       const std::string& manager = "",
@@ -98,12 +111,12 @@ class BaseTest  {
                       const std::string& service = "");
 
 
-    void check_last_contains(boost::shared_ptr<HttpMock>& cb_mock,
+    void check_last_contains(MockService* cb_mock,
           const std::string& data,
           const std::string& message = "",
           int wait =0);
 
-    void check_last_equal(boost::shared_ptr<HttpMock>& cb_mock,
+    void check_last_equal(MockService* cb_mock,
           const std::string& data,
           const std::string& message= "",
           int wait =0);
@@ -177,8 +190,6 @@ class BaseTest  {
     int check_mongo(const std::string& table,
                  const std::string& json);
 
-    pion::http::plugin_server_ptr wserver;
-    pion::one_to_one_scheduler scheduler;
 
 };
 

@@ -35,16 +35,6 @@
 
 #define PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 
-#define  IOTASSERT_MESSAGE(x,y) \
-         std::cout << "@" << __LINE__ << "@" << x << std::endl; \
-         CPPUNIT_ASSERT_MESSAGE(x,y)
-
-#define  IOTASSERT(y) \
-         std::cout << "@" << __LINE__ << "@" << std::endl; \
-         CPPUNIT_ASSERT(y)
-
-//#define  PATH_CONFIG "../../tests/iotagent/config_mongo.json"
-
 using ::testing::Return;
 using ::testing::NotNull;
 using ::testing::StrEq;

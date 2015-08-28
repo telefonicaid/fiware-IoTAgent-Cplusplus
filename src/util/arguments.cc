@@ -132,7 +132,8 @@ std::string iota::Arguments::parser(int argc, const char* argv[]) {
       identifier.assign(argv[++argnum]);
     }
     else if (argv[argnum][0] == '-') {
-      return  iota::types::HELP_MESSAGE_ERR_BAD_PARAM + argument_error();
+      return  iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
+         iota::types::HELP_MESSAGE_OPS + iota::types::HELP_MESSAGE();
     }
     else if (argnum+2 == argc) {
       // second to last argument = RESOURCE

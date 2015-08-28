@@ -824,6 +824,7 @@ void UtilFunctionTest::testCommandLine() {
   result = arguments.parser(2, argv5);
   std::cout << "@UT@result5:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
+      iota::types::HELP_MESSAGE_OPS +
       iota::types::HELP_MESSAGE) == 0);
 
 
