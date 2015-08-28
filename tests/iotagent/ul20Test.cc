@@ -243,8 +243,8 @@ void Ul20Test::testNormalPOST()
         query_parameters.insert(std::pair<std::string,std::string>("k",test_setup.get_apikey()));
         pion::http::response http_response;
         std::string response;
-        ul20serv->service(http_request, url_args, query_parameters,
-                          http_response, response);
+        WHEN("ul20 observation",ul20serv->service(http_request, url_args, query_parameters,
+                          http_response, response);)
 
         std::cout << "POST fecha + temperatura " <<
                   http_response.get_status_code() << response <<

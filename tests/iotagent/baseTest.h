@@ -44,9 +44,11 @@
          CPPUNIT_ASSERT(y)
 
 #define WHEN(m, w) \
-         std::cout << "##When " << m << std::endl; \
-         w
-
+         { std::cout << "##When " << m << std::endl; \
+         std::clock_t start = std::clock(); \
+         w \
+         std::cout << "##Time: " << (std::clock() - start) / (double)(CLOCKS_PER_SEC / 1000) << " ms" << std::endl; \
+         }
 
 
 class BaseTest  {
