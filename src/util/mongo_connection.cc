@@ -36,17 +36,13 @@
 #define SIZE_POOL 10
 #define MAX_SIZE_POOL 1000
 
-namespace iota {
-extern std::string logger;
-}
-
 iota::MongoConnection* iota::MongoConnection::pinstance = 0;// Inicializar el puntero
 
 const int MONGO_TIMEOUT = 3;
 
 iota::MongoConnection::MongoConnection():
        _conex_pool(SIZE_POOL),
-       m_logger(PION_GET_LOGGER(iota::logger)) {
+       m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 
   try{
     reconnect();

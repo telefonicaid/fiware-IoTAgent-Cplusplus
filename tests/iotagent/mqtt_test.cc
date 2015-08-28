@@ -29,15 +29,34 @@
 #include "mqttTest.h"
 
 
-namespace iota {
-std::string URL_BASE = "/iot";
-std::string logger("main");
-}
-iota::AdminService* AdminService_ptr;
-
 int main(int argc, char* argv[]) {
 
-  mongo::client::initialize();
+  // Logger
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+
+  // Url base
+  iota::Process& process = iota::Process::initialize("/TestMqtt",5);
+  iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+
+  // Http Server and Admin Service
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "127.0.0.1:1026");
+  iota::AdminService* adm = new iota::AdminService();
+  process.set_admin_service(adm);
+
+
+  // Mqtt Service
+  iota::esp::MqttService* mqttService = new iota::esp::MqttService();
+  http_server->add_service("/TestMqtt/mqtt", mqttService);
+  adm->add_service("/TestMqtt/mqtt", mqttService);
+
+  // Mock
+  MockService* mock = new MockService();
+  http_server->add_service("/mock", mock);
+  adm->add_service("/mock", mock);
+
+  process.start();
 
   testing::GTEST_FLAG(throw_on_failure) = true;
   testing::InitGoogleMock(&argc, argv);
@@ -54,6 +73,6 @@ int main(int argc, char* argv[]) {
   std::ofstream xmlFileOut("mqttcpptestresults.xml");
   CppUnit::XmlOutputter xmlOut(&result, xmlFileOut);
   xmlOut.write();
-
+  process.shutdown();
   return result.wasSuccessful() ? 0 : 1;
 }

@@ -34,13 +34,6 @@
 
 #include "util/iota_exception.h"
 
-namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
-}
-extern iota::AdminService* AdminService_ptr;
-
-
 ESPLib* iota::esp::TTService::esplib_instance = NULL;
 
 ESPLib* iota::esp::TTService::getESPLib() {
@@ -52,7 +45,7 @@ ESPLib* iota::esp::TTService::getESPLib() {
 
 }
 
-iota::esp::TTService::TTService() : m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::esp::TTService::TTService() : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   std::cout << "esp::TTService " << std::endl;
   IOTA_LOG_DEBUG(m_logger,"iota::esp::TTService Running...  ");
 
@@ -68,7 +61,7 @@ iota::esp::TTService::TTService() : m_logger(PION_GET_LOGGER(iota::logger)) {
 }
 
 iota::esp::TTService::TTService(boost::shared_ptr<iota::tt::TTCBPublisher> cbPub) : m_logger(
-    PION_GET_LOGGER(iota::logger)) {
+    PION_GET_LOGGER(iota::Process::get_logger_name())) {
   _protocol_data.description = "Thinking Things Protocol";
   _protocol_data.protocol = "PDI-IoTA-ThinkingThings";
   contextBrokerPub = cbPub;

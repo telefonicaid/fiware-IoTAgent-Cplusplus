@@ -28,6 +28,7 @@
 #include <boost/enable_shared_from_this.hpp>
 #include "util/http_client.h"
 #include "util/async_comm.h"
+#include "rest/process.h"
 
 #include <ngsi/ContextElement.h>
 #include <ngsi/UpdateContext.h>
@@ -41,7 +42,7 @@ class ContextBrokerCommunicator: public
     ContextBrokerCommunicator();
     ContextBrokerCommunicator(boost::asio::io_service& io_service);
     virtual ~ContextBrokerCommunicator();
-    void start();
+    // TODO void start();
     void receive_event(std::string url, std::string content,
                        boost::property_tree::ptree additional_info,
                        boost::shared_ptr<iota::HttpClient> connection,
@@ -98,7 +99,7 @@ class ContextBrokerCommunicator: public
     std::map<std::string, boost::shared_ptr<iota::HttpClient> > _connections;
 
     // Connection Manager
-    boost::shared_ptr<iota::CommonAsyncManager> _connectionManager;
+    // TODO boost::shared_ptr<iota::CommonAsyncManager> _connectionManager;
 
     // io_service when external event loop is used
     boost::asio::io_service& _io_service;

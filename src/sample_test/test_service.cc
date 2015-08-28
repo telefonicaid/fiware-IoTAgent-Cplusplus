@@ -29,15 +29,8 @@
 #include "ngsi/UpdateContext.h"
 #include "ngsi/ContextElement.h"
 
-namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
-}
-extern iota::AdminService* AdminService_ptr;
 
-
-
-iota::TestService::TestService(): m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::TestService::TestService(): m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   IOTA_LOG_DEBUG(m_logger, "iota::TestService::TestService");
 }
 

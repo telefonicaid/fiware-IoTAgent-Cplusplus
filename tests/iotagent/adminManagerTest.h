@@ -29,7 +29,7 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-#include "../mocks/http_mock.h"
+
 
 #include <boost/property_tree/ptree.hpp>
 #include "util/iota_logger.h"
@@ -52,14 +52,11 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     CPPUNIT_TEST(testProtocol_ServiceManagement);
     CPPUNIT_TEST(testBADServiceManagement);
     CPPUNIT_TEST(testPostJSONDevices);
-
     CPPUNIT_TEST(testPutJSONDevice);
     CPPUNIT_TEST(testPutJSONDevice_Wrong);
     CPPUNIT_TEST(testPutProtocolDevice);
     CPPUNIT_TEST(testPostJSONDeviceErrorHandling);
-
     CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
-
     CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
 
     CPPUNIT_TEST(testReregistration_diff_protocol_description);
@@ -83,7 +80,6 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
 
     //PROTOCOL
     static const std::string URI_PROTOCOLS;
-    static const std::string POST_PROTOCOLS1;
     static const std::string POST_PROTOCOLS2;
     static const std::string POST_PROTOCOLS3;
     static const std::string POST_PROTOCOLS4;
@@ -167,10 +163,6 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     void testBADServiceManagement();
 
     iota::AdminService* adm;
-    iota::AdminManagerService* admMgm;
-
-
-
 
 };
 

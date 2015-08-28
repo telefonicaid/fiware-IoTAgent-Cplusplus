@@ -22,13 +22,10 @@
 #include "QueryContextWrapper.h"
 #include <rest/riot_conf.h>
 
-namespace iota {
-extern std::string logger; //usually declared as "main"
-}
 
 iota::esp::tt::QueryContextWrapper::QueryContextWrapper(
   boost::property_tree::ptree* propTree) : m_logger(
-      PION_GET_LOGGER(iota::logger)) {
+      PION_GET_LOGGER(iota::Process::get_logger_name())) {
 
   this->pt_cb = propTree;
 

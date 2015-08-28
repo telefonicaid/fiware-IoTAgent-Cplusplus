@@ -19,14 +19,11 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
+
+#include "rest/process.h"
 #include "IotaMqttService.h"
 
-
-namespace iota {
-  extern std::string logger;
-}
-
-iota::esp::ngsi::IotaMqttService::IotaMqttService() : m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::esp::ngsi::IotaMqttService::IotaMqttService() : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   //ctor
 }
 

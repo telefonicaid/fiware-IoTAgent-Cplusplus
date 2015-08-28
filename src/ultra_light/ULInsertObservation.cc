@@ -35,12 +35,8 @@
 
 #include "util/RiotISO8601.h"
 
-namespace iota {
-extern std::string logger;
-}
-
 iota::ULInsertObservation::ULInsertObservation():
-  m_logger(PION_GET_LOGGER(iota::logger)) {
+  m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 
 void iota::ULInsertObservation::translate(std::string str_io,

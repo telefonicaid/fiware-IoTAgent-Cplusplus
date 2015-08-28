@@ -22,11 +22,7 @@
 #include "TTCBPublisher.h"
 #include "util/iota_logger.h"
 
-namespace iota {
-extern std::string logger;
-}
-
-iota::tt::TTCBPublisher::TTCBPublisher():m_logger((PION_GET_LOGGER(iota::logger))) {
+iota::tt::TTCBPublisher::TTCBPublisher():m_logger((PION_GET_LOGGER(iota::Process::get_logger_name()))) {
   //ctor
 }
 

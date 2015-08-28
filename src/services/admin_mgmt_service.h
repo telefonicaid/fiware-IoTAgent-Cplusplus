@@ -75,7 +75,6 @@ class AdminManagerService : public iota::AdminService {
   public:
 
     AdminManagerService();
-    AdminManagerService(pion::http::plugin_server_ptr web_server);
 
     virtual void start();
 

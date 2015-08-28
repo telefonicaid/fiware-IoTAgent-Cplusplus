@@ -31,7 +31,7 @@ namespace iota {
 class MediaFilter: public virtual iota::HTTPFilter {
 
   public:
-    MediaFilter();
+    MediaFilter(boost::asio::io_service& io_service);
     virtual ~MediaFilter();
     virtual bool handle_request(pion::http::request_ptr& http_request_ptr,
                                 pion::tcp::connection_ptr& tcp_conn);

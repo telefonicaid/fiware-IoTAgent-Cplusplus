@@ -405,7 +405,10 @@ std::string iota::http2string(pion::http::request& req) {
 
 std::string iota::http2string(pion::http::response& req) {
 	std::ostringstream os;
-		 os << "Headers: ";
+	os << "Content length: "
+		 << (unsigned long)req.get_content_length()
+		 << pion::http::types::STRING_CRLF
+		 << "Headers: ";
 	std::for_each(req.get_headers().begin(), req.get_headers().end(), boost::bind(&iota::writeDictionaryTerm, boost::ref(os), _1));
 	if (req.get_content_length() != 0) {
 		os << req.get_content();

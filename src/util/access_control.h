@@ -22,6 +22,7 @@
 #ifndef SRC_UTIL_ACCESS_CONTROL_H_
 #define SRC_UTIL_ACCESS_CONTROL_H_
 
+#include "rest/process.h"
 #include "http_client.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -34,7 +35,7 @@ class AccessControl: public boost::enable_shared_from_this<AccessControl> {
     app_callback_t;
     AccessControl();
     AccessControl(std::string endpoint, int timeout,
-                  boost::shared_ptr<boost::asio::io_service> io_service);
+                  boost::asio::io_service& io_service);
     virtual ~AccessControl();
     void set_timeout(int timeout);
     int get_timeout();
@@ -64,7 +65,7 @@ class AccessControl: public boost::enable_shared_from_this<AccessControl> {
     pion::logger m_logger;
     boost::mutex _m;
     app_callback_t _application_callback;
-    boost::shared_ptr<boost::asio::io_service> _io_service;
+    boost::asio::io_service& _io_service;
     std::string _id;
 
     pion::http::request_ptr create_request(std::string server, std::string resource,

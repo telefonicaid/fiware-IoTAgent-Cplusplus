@@ -33,12 +33,12 @@ target_link_libraries(admin_manager_tests iotmock sul20 iota_a ${IOTAGENT_LIBS}
 
 ###  PROTOCOLS
 # Tutorial basic sample protocol
-add_executable(sample_tests sampleTest.cc sample_test.cc)
+add_executable(sample_tests util_functions.cc sampleTest.cc sample_test.cc)
 target_link_libraries(sample_tests stestsrv iotmock iota_a ${IOTAGENT_LIBS}
         ${TEST_LIBS})
 
 # UltraLight protocol
-add_executable(ul20_tests ul20Test.cc ul20_test.cc  baseTest.cc)
+add_executable(ul20_tests util_functions.cc  baseTest.cc ul20Test.cc ul20_test.cc)
 target_link_libraries(ul20_tests sul20 iotmock iota_a ${IOTAGENT_LIBS}
 	${TEST_LIBS})
 

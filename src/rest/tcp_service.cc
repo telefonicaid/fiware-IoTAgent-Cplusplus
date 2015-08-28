@@ -24,12 +24,8 @@
 #include "services/admin_service.h"
 #include <iomanip>
 
-namespace iota {
-extern std::string logger;
-}
-
 iota::TcpService::TcpService(const boost::asio::ip::tcp::endpoint& endpoint):
-  pion::tcp::server(endpoint), m_logger(PION_GET_LOGGER(logger)) {
+  pion::tcp::server(endpoint), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 
 iota::TcpService::~TcpService() {}

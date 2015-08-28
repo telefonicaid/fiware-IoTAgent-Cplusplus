@@ -27,9 +27,6 @@
 #include <pion/process.hpp>
 #include <pion/http/plugin_server.hpp>
 
-
-
-
 void writeDictionaryTerm(pion::http::response_writer_ptr& writer,
                          const pion::ihash_multimap::value_type& val) {
   // text is copied into writer text cache
@@ -37,87 +34,6 @@ void writeDictionaryTerm(pion::http::response_writer_ptr& writer,
          << val.second
          << pion::http::types::STRING_CRLF;
 }
-
-
-HttpMock::HttpMock(unsigned short port, std::string url,
-                   bool extended_echo,
-                   const std::string name):_name(name), _port(port), _url(url) {
-  std::cout << "CONTRUCTOR MOCK" << std::endl;
-  _service = new MockService();
-  _service->_extended_echo = extended_echo;
-  pion::process::initialize();
-}
-
-HttpMock::HttpMock(std::string url,
-            const std::string name):_name(name), _url(url), _port(0) {
-  std::cout << "CONTRUCTOR MOCK" << std::endl;
-  _name = name;
-  pion::process::initialize();
-  _service = new MockService();
-  _service->_extended_echo = false;
-}
-
-void HttpMock::init() {
-
-  std::cout << "Mock HTTP init" << std::endl;
-  _thr.reset(new boost::thread(&HttpMock::run, this));
-  boost::unique_lock<boost::mutex> lock(m_mutex);
-  condition.timed_wait(lock, boost::posix_time::milliseconds(5000));
-  std::cout << "Espere" << std::endl;
-}
-
-
-void HttpMock::stop() {
-  boost::unique_lock<boost::mutex> lock(m_mutex);
-  condition.timed_wait(lock, boost::posix_time::milliseconds(1000));
-  std::cout << "STOP" << std::endl;
-  if (_ws != NULL) {
-    _ws->stop();
-    pion::process::shutdown();
-    std::cout << "MOCK " << _ws->get_connections() << std::endl;
-    _ws->clear();
-  }
-  _thr->detach();
-  _thr.reset();
-}
-
-
-void HttpMock::run() {
-  boost::asio::ip::tcp::endpoint cfg_endpoint(boost::asio::ip::tcp::v4(), _port);
-  if (_port != 0) {
-    _ws = new pion::http::plugin_server(cfg_endpoint);
-  }
-  else {
-    _ws = new pion::http::plugin_server();
-  }
-  PION_LOG_CONFIG_BASIC;
-  PION_LOG_SETLEVEL_DEBUG(PION_GET_LOGGER("pion"));
-  _ws->add_service(_url, _service);
-  std::cout << "START " << std::endl;
-  _ws->start();
-  condition.notify_one();
-  pion::process::wait_for_shutdown();
-  std::cout << "After Stop" << std::endl;
-  //condition.notify_one();
-}
-
-unsigned short HttpMock::get_port() {
-  return _ws->get_port();
-}
-
-void HttpMock::set_response(int status_code, std::string content,
-                            std::map<std::string, std::string> headers) {
-
-  _service->_sc = status_code;
-  //_content.push_back(content);
-  _service->_content.insert(_service->_content.begin(), content);
-  if (headers.size() > 0) {
-    _service->_headers = headers;
-  }
-  std::cout << "SET RESPONSE " << _service->_content.size() << std::endl;
-}
-
-
 
 void MockService::operator()(pion::http::request_ptr& http_request_ptr,
                              pion::tcp::connection_ptr& tcp_conn) {
@@ -132,29 +48,40 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
   static const std::string POST_CONTENT_TEXT("[POST Content]");
   static const std::string USER_INFO_TEXT("[USER Info]");
 
-  std::cout << "RECIBIDO " << _content.size() << std::endl;
+  std::string test_function(http_request_ptr->get_resource());
+  /*
+  std::string resource = get_resource();
+  std::size_t pos = resource.find_last_of("/");
+  if (pos != std::string::npos) {
+   test_function = resource.substr(pos+1);
+  }
+  */
+  std::cout << "Executing test " << test_function << " " << http_request_ptr->get_method() << std::endl;
+  std::cout << "RECIBIDO " << _content[test_function].size() << " " << _sc[test_function] << std::endl;
   std::string content;
   // save body received to chech it in unit test
-  _received_content.push_back(http_request_ptr->get_content());
+  _received_content[test_function].push_back(http_request_ptr->get_content());
 
-  if (_content.size() > 0) {
-    content.assign(_content.back());
-    _content.pop_back();
-    std::cout << "CONTENT TO SEND " << content << std::endl;
-
-    for (std::map<std::string, std::string>::iterator it = _headers.begin();
-         it != _headers.end(); ++it) {
+  if (_content[test_function].size() > 0) {
+    content.assign(_content[test_function].back());
+    _content[test_function].pop_back();
+    std::cout << "CONTENT TO SEND " << content << " " << _sc[test_function] << std::endl;
+    if (_sc[test_function] == 204) {
+      content.clear();
+    }
+    for (std::map<std::string, std::string>::iterator it = _headers[test_function].begin();
+         it != _headers[test_function].end(); ++it) {
 
       writer->get_response().add_header(it->first, it->second);
     }
-    writer->get_response().set_status_code(_sc);
+    writer->get_response().set_status_code(_sc[test_function]);
     writer->write_no_copy(content);
     writer->write_no_copy(pion::http::types::STRING_CRLF);
     writer->write_no_copy(pion::http::types::STRING_CRLF);
     std::cout << "SENT " << content << std::endl;
   }
   else {
-    if (!_extended_echo) {
+    if (!_extended_echo[test_function]) {
       content = http_request_ptr->get_content();
       writer->write_no_copy(content);
       writer->write_no_copy(pion::http::types::STRING_CRLF);
@@ -232,30 +159,59 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
 
 }
 
-std::string HttpMock::get_last() {
-  std::string result;
+void MockService::set_response(std::string test_function, int status_code, std::string content,
+                            std::map<std::string, std::string> headers) {
+  std::cout << "Setting response for " << test_function << " " << status_code << std::endl;
+  std::map<std::string, int >::iterator i_sc = _sc.begin();
+  i_sc = _sc.find(test_function);
+  if (i_sc != _sc.end()) {
+    _sc[test_function] = status_code;
+  }
+  else {
+    _sc.insert(std::pair<std::string, int>(test_function, status_code));
+  }
+  std::map<std::string, std::vector<std::string> >::iterator i = _content.begin();
+  i = _content.find(test_function);
+  if (i != _content.end()) {
+    _content[test_function].insert(_content[test_function].begin(), content);
+  }
+  else {
+    std::vector<std::string> test_content;
+    test_content.push_back(content);
+    _content.insert(std::pair<std::string, std::vector<std::string> >(test_function, test_content));
+    _content[test_function] = test_content;
+  }
+  if (headers.size() > 0) {
+    _headers.insert(std::pair<std::string, std::map<std::string, std::string> >(test_function, headers));
+  }
+  std::cout << "SET RESPONSE " << _content[test_function].size() << std::endl;
+}
 
-  if (_service->_received_content.size() > 0) {
-    result.assign(_service->_received_content.back());
-    _service->_received_content.pop_back();
+
+std::string MockService::get_last(std::string test_function) {
+    std::string result;
+
+  if (_received_content[test_function].size() > 0) {
+    result.assign(_received_content[test_function].back());
+    _received_content[test_function].pop_back();
   }
 
   return result;
 }
-
-void HttpMock::reset() {
+void MockService::reset(std::string test_function) {
   std::cout << "RESET" << std::endl;
   std::string result;
 
-  if (_service->_content.size() > 0) {
-    _service->_content.clear();
+  if (_content[test_function].size() > 0) {
+    _content[test_function].clear();
   }
-  if (_service->_received_content.size() > 0) {
-    _service->_received_content.clear();
+  if (_received_content[test_function].size() > 0) {
+    _received_content[test_function].clear();
   }
 }
 
-int HttpMock::size() {
-  return   _service->_received_content.size();
+int MockService::size(std::string test_function) {
+  return _received_content[test_function].size();
 
 }
+

@@ -37,12 +37,6 @@
 
 CPPUNIT_TEST_SUITE_REGISTRATION(JsonTest);
 
-namespace iota {
-std::string logger("main");
-std::string URL_BASE("/iot");
-}
-iota::AdminService* AdminService_ptr;
-
 
 void JsonTest::testContextElement() {
   std::cout << "@UT@START testContextElement " << std::endl;

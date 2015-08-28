@@ -205,10 +205,6 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
     void testConfiguratorMongo();
     void testForbiddenCharacters();
 
-    iota::AdminService* adm;
-    pion::http::plugin_server_ptr wserver;
-    pion::one_to_one_scheduler scheduler;
-    TestPlugin plugin;
 };
 
 #endif
