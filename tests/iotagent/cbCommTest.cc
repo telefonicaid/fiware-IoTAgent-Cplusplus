@@ -284,3 +284,86 @@ void cbCommTest::testAlarm() {
 
 }
 
+/**
+Test to demonstrate what the example of multiple measures (bulk) in a updateContext should look like
+*/
+void cbCommTest::testMultiMeasuresUpdateContext(){
+
+ /*std::string response_cb;
+
+  response_cb.append("{\"contextResponses\" : [{\"contextElement\" : {\"type\" : \"type\",\"isPattern\" : \"false\",\"id\" : \"id\",\"attributes\" : [{");
+  response_cb.append("\"name\" : \"name\",\"type\" : \"type\",\"value\" : \"\",\"metadatas\" : [{");
+  response_cb.append("\"name\" : \"name1\",\"type\" : \"type1\",\"value\" : \"value1\"},{\"name\" : \"name\",\"type\" : \"typecheck\",\"value\" : \"valor\"}]}]},");
+  response_cb.append("\"statusCode\" : {\"code\" : \"200\",\"reasonPhrase\" : \"OK\"}},");
+  response_cb.append("{\"contextElement\" : {\"type\" : \"type\",\"isPattern\" : \"false\",\"id\" : \"id\",\"attributes\" : [{");
+  response_cb.append("\"name\" : \"name2\",\"type\" : \"type\",\"value\" : \"33\",\"metadatas\" : [{");
+  response_cb.append("\"name\" : \"name3\",\"type\" : \"type1\",\"value\" : \"value1\"},{\"name\" : \"name\",\"type\" : \"typecheck\",\"value\" : \"valor\"}]}]},");
+  response_cb.append("\"statusCode\" : {\"code\" : \"200\",\"reasonPhrase\" : \"OK\"}}]}");
+*/
+  std::string response_cb;
+  response_cb.append("{\"updateAction\":\"UPDATE\",\"contextElements\":[{\"id\":\"id\",\"type\":\"type\",\"isPattern\":\"false\",\"attributes\":[{");
+  response_cb.append("\"name\":\"name\",\"type\":\"type\",\"value\":\"value\",\"metadatas\":[{\"name\":\"name1\",\"type\":\"type1\",\"value\":\"value1\"},");
+  response_cb.append("{\"name\":\"name\",\"type\":\"typecheck\",\"value\":\"valor\"}]}]},{\"id\":\"id\",\"type\":\"type\",\"isPattern\":\"false\",\"attributes\":");
+  response_cb.append("[{\"name\":\"name2\",\"type\":\"type\",\"value\":\"value\",\"metadatas\":[{\"name\":\"name\",\"type\":\"typecheck\",\"value\":\"valor\"},");
+  response_cb.append("{\"name\":\"name3\",\"type\":\"type1\",\"value\":\"value1\"}]}]}]}");
+
+
+
+ boost::shared_ptr<HttpMock> http_mock;
+  http_mock.reset(new HttpMock("/mock"));
+  http_mock->init();
+  std::string mock_port = boost::lexical_cast<std::string>(http_mock->get_port());
+
+  std::cout << "START testMultiMeasuresUpdateContext" << std::endl;
+  iota::Attribute attribute("name", "type", "value");
+  iota::Attribute metadata("name", "typecheck", "valor");
+  iota::Attribute metadata1("name1", "type1", "value1");
+  attribute.add_metadata(metadata1);
+  attribute.add_metadata(metadata);
+
+  iota::ContextElement context_element("id", "type", "false");
+  context_element.add_attribute(attribute);
+
+
+
+  iota::Attribute attribute2("name2", "type", "value");
+  iota::Attribute metadata3("name", "typecheck", "valor");
+  iota::Attribute metadata4("name3", "type1", "value1");
+  attribute2.add_metadata(metadata3);
+  attribute2.add_metadata(metadata4);
+
+  iota::ContextElement context_element_2("id", "type", "false");
+  context_element_2.add_attribute(attribute2);
+
+   iota::UpdateContext operation(std::string("UPDATE"));
+
+  operation.add_context_element(context_element);
+
+  operation.add_context_element(context_element_2);//Another context element.
+
+  std::cout <<"String to be sent: " <<  operation.get_string() << std::endl;
+
+
+  iota::ContextBrokerCommunicator cb;
+  //cb.start();
+  //std::string url("http://10.95.168.57:1026/NGSI10/updateContext");
+  std::string url = "http://127.0.0.1:"+ mock_port + "/mock";
+  boost::property_tree::ptree pt1;
+  pt1.put("service", "service");
+  boost::property_tree::ptree c1;
+  c1.put("timeout", 10);
+  pt1.add_child("config.cbroker", c1);
+  std::string response = cb.send(url, operation.get_string(), pt1);
+  std::cout << "Received:" << response << std::endl;
+
+  boost::trim(response);
+  boost::erase_all(response,"\n");
+  boost::erase_all(response,"\r");
+
+  CPPUNIT_ASSERT_MESSAGE("UpdateContext incorrect",response.compare(response_cb) == 0);
+
+  http_mock->stop();
+
+
+}
+

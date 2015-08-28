@@ -37,6 +37,8 @@ class cbCommTest: public CppUnit::TestFixture  {
     CPPUNIT_TEST(testAlarm);
     CPPUNIT_TEST(testAsynchSendTimeout);
 
+    CPPUNIT_TEST(testMultiMeasuresUpdateContext);
+
 
     CPPUNIT_TEST_SUITE_END();
   public:
@@ -48,6 +50,8 @@ class cbCommTest: public CppUnit::TestFixture  {
     void testSynchSendTimeout();
     void testAsynchSendTimeout();
     void testAlarm();
+    void testMultiMeasuresUpdateContext();
+
   private:
 
 };
