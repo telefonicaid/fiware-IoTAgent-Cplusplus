@@ -24,6 +24,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include "util/http_client.h"
@@ -78,6 +79,12 @@ class ContextBrokerCommunicator: public
 
     int send(
       iota::ContextElement ngsi_context_element,
+      const std::string& opSTR,
+      const boost::property_tree::ptree& service,
+      std::string& cb_response);
+
+   int send(
+      std::vector<iota::ContextElement> v_ngsi_context_element,
       const std::string& opSTR,
       const boost::property_tree::ptree& service,
       std::string& cb_response);

@@ -301,6 +301,43 @@ int iota::ContextBrokerCommunicator::send(
   return pion::http::types::RESPONSE_CODE_OK;
 }
 
+int iota::ContextBrokerCommunicator::send(
+  std::vector<iota::ContextElement> v_ngsi_context_element,
+  const std::string& opSTR,
+  const boost::property_tree::ptree& service,
+  std::string& cb_response) {
+  boost::property_tree::ptree pt_cb;
+  std::string cb_url;
+
+  std::string cbrokerURL = service.get<std::string>("cbroker", "");
+  if (!cbrokerURL.empty()) {
+    cb_url.assign(cbrokerURL);
+    cb_url.append(get_ngsi_operation("updateContext"));
+  }
+
+  // Envio
+  //
+  // UpdateContext
+  std::string updateAction(opSTR);
+  iota::UpdateContext op(updateAction);
+
+  for (int i=0;i < v_ngsi_context_element.size(); i++){
+    op.add_context_element(v_ngsi_context_element[i]);
+    IOTA_LOG_DEBUG(m_logger,
+                 "-----sendtoCB ["<< i << "]:" <<  v_ngsi_context_element[i].get_string());
+  }
+
+
+  IOTA_LOG_DEBUG(m_logger, "send to CB:" << cb_url << ":op:" << op.get_string());
+  iota::ContextBrokerCommunicator cb_communicator;
+  cb_response.append(send(cb_url, op.get_string(), service));
+
+  IOTA_LOG_DEBUG(m_logger, "CB  response " << cb_response);
+  return pion::http::types::RESPONSE_CODE_OK;
+}
+
+
+
 std::string iota::ContextBrokerCommunicator::get_ngsi_operation(
   const std::string& operation) {
 
