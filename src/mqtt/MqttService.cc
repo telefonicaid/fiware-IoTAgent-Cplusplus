@@ -62,6 +62,7 @@ iota::esp::MqttService::~MqttService() {
   //dtor
   //is delete contextBrokerPub missing?
   delete iota_mqtt_service_ptr_; //Be careful when using on as a mock
+  /*
   if (idsensor > 0){
     iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
     // SLEEP(1000);//not the best way to allow a task to finish...
@@ -69,6 +70,8 @@ iota::esp::MqttService::~MqttService() {
 
     iota::esp::MqttService::getESPLib()->sensors.clear();
   }
+*/
+  resetESPSensor();
 
   if (MqttService::esplib_instance != NULL){
     delete esplib_instance;
@@ -97,6 +100,19 @@ void iota::esp::MqttService::initESPLib(std::string& pathToLog,
 
 
 }
+
+void iota::esp::MqttService::resetESPSensor(){
+
+  if (idsensor > 0){
+    iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
+       iota::esp::MqttService::getESPLib()->destroySensor(idsensor);
+
+    iota::esp::MqttService::getESPLib()->sensors.clear();
+    idsensor = 0;
+  }
+
+}
+
 
 void iota::esp::MqttService::setIotaMqttService(iota::esp::ngsi::IotaMqttService*
     CBPublisher_ptr) {

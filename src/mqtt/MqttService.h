@@ -48,6 +48,9 @@ class MqttService : public iota::esp::ngsi::IotaMqttCommands {
     void setIotaMqttService(iota::esp::ngsi::IotaMqttService* CBPublisher_ptr);
     void startESP();
 
+
+    void resetESPSensor();
+
     virtual ~MqttService();
     void start();
     void op_mqtt(pion::http::request_ptr& http_request_ptr,
