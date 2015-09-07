@@ -98,7 +98,7 @@ set(INSTALL_PION ${Pion_LIBS_DIR}/lib${Pion_LIBRARIES}*.so)
 set(MONGODB_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver)
 ExternalProject_Add(mongo-driver PREFIX
 		${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
-		GIT_REPOSITORY git@github.com:mongodb/mongo-cxx-driver.git
+		GIT_REPOSITORY https://github.com/mongodb/mongo-cxx-driver.git
 		GIT_TAG legacy-1.0.1
 	CONFIGURE_COMMAND ""
 	BUILD_IN_SOURCE 1
