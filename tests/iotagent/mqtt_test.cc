@@ -27,7 +27,7 @@
 #include <cppunit/TextTestProgressListener.h>
 #include <cppunit/XmlOutputter.h>
 #include "mqttTest.h"
-
+#include "util/dev_file.h"
 
 int main(int argc, char* argv[]) {
 
@@ -55,6 +55,9 @@ int main(int argc, char* argv[]) {
   MockService* mock = new MockService();
   http_server->add_service("/mock", mock);
   adm->add_service("/mock", mock);
+
+  iota::DevicesFile::initialize("../../tests/iotagent/devices_mqtt.json");
+
 
   process.start();
 

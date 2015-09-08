@@ -33,7 +33,7 @@
 
 #include "mqtt/MqttService.h"
 #include "util/iota_exception.h"
-
+#include "util_functions.h"
 
 using ::testing::Return;
 using ::testing::NotNull;
@@ -142,7 +142,7 @@ void MqttTest::setUp() {
 
 void MqttTest::tearDown() {
   // delete cbPublish; //Already deleted inside MqttService.
-
+  mqttService->resetESPSensor();
   if (mqttMsg.topic != NULL) {
     free(mqttMsg.topic);
   }
@@ -247,7 +247,7 @@ void MqttTest::testReceivedMqtt() {
   //Test mqtt message is built at stubLoopToOnMessage method
   mqtt_alias.assign("te");
   mqtt_payload.assign("23");
-  mqtt_apikey.assign("1234");
+  mqtt_apikey.assign("1234"); //TestSetup.get_apikey
   mqtt_device.assign("dev01");
 
 
@@ -963,6 +963,17 @@ void MqttTest::testPushCommandExecution() {
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestMqtt/mqtt");
+
+
+  test_setup.set_apikey("1234");
+
+
+
+  test_setup.add_device("dev_mqtt_push", mqttService->get_protocol_data().protocol,true);
+  //DGF: and commands?
+
+
   //Command to get processed.
   std::string querySTR = "";
   std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
@@ -974,8 +985,8 @@ void MqttTest::testPushCommandExecution() {
   pion::http::request_ptr http_request(new
                                        pion::http::request("/TestMqtt/ngsi/mqtt/updateContext"));
   http_request->set_method("POST");
-  http_request->add_header(iota::types::FIWARE_SERVICE, "service2");
-  http_request->add_header(iota::types::FIWARE_SERVICEPATH, "/ssrv2");
+  http_request->add_header(iota::types::FIWARE_SERVICE, test_setup.get_service());
+  http_request->add_header(iota::types::FIWARE_SERVICEPATH, test_setup.get_service_path());
   http_request->set_query_string(querySTR);
   http_request->set_content(bodySTR);
 
