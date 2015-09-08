@@ -1579,9 +1579,9 @@ void Ul20Test::testTransformCommand()
     std::cout << "START testTransformCommand " << std::endl;
     iota::UL20Service* ul20serv = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
     MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+    TestSetup test_setup(get_service_name(__FUNCTION__), "/TestUL/d");
 
-
-    std::string service = "service2";
+    std::string service = get_service_name(__FUNCTION__);
     std::string id, res1;
 
     std::string command_name="PING";
@@ -1723,9 +1723,9 @@ void Ul20Test::testCommand()
 
     iota::UL20Service* ul20serv = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
     MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
-
-    std::string service = "service2";
-    std::string apikey = "apikey3";
+    TestSetup test_setup(get_service_name(__FUNCTION__), "/TestUL/d");
+    std::string service = get_service_name(__FUNCTION__);
+    std::string apikey = test_setup.get_apikey();
     boost::property_tree::ptree service_ptree;
 
     ul20serv->get_service_by_apiKey(service_ptree, apikey);
@@ -2607,6 +2607,7 @@ void Ul20Test::testCommandHandle()
                            pt,
                            "sequence",
                            0);
+    ul20serv->remove_command(command_id, get_service_name(__FUNCTION__), "/"+get_service_name(__FUNCTION__));
     std::cout << "@UT@END testCommandHandle " << std::endl;
 }
 
