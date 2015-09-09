@@ -49,7 +49,7 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(MqttTest);
 
 
-   /* CPPUNIT_TEST(testCBPublisher);
+    CPPUNIT_TEST(testCBPublisher);
     CPPUNIT_TEST(testCBPublisherMissingApikey);
     CPPUNIT_TEST (testCBPublisherMissingIDdevice);
     CPPUNIT_TEST (testReceivedMqtt);
@@ -60,13 +60,14 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST (testMultipleMeasures);
 
     CPPUNIT_TEST (testExtractingCmdId);
-    */
-    CPPUNIT_TEST (testPushCommandExecution);
-   // CPPUNIT_TEST (testPushCommandResponse);
-   // CPPUNIT_TEST (testPostprocessorJSON_IoTOutput_cmd);
-   // CPPUNIT_TEST (testLocationContextBroker);
 
-   // CPPUNIT_TEST (testCommandsBody_BUG);
+    CPPUNIT_TEST (testPushCommandExecution);
+    CPPUNIT_TEST (testPushCommandResponse);
+    CPPUNIT_TEST (testPostprocessorJSON_IoTOutput_cmd);
+
+    CPPUNIT_TEST (testLocationContextBroker);
+
+    CPPUNIT_TEST (testCommandsBody_BUG);
 
     CPPUNIT_TEST_SUITE_END();
 

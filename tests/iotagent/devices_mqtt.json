@@ -1,6 +1,34 @@
 {
     "devices": [
         {
+            "device_id": "dev1",
+            "entity_type": "thing",
+            "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
+            "entity_name": "room1",
+
+            "commands": [
+                {
+                    "name": "attr_1_dev_1",
+                    "type": "command",
+                    "value": "dev1@%s"
+                },
+                {
+                    "name": "attr_2_dev_1",
+                    "type": "command",
+                    "value": "dev1@%s|%s"
+                },
+                {
+                    "name": "attr_3_dev_1",
+                    "type": "command",
+                    "value": "dev1@%s|%s|%s"
+                },
+                {
+                    "name": "attr_4_dev_1",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ]
+        },{
             "device_id": "8934075379000039321",
             "endpoint": "",
             "entity_name": "room13333",
@@ -13,8 +41,6 @@
             "entity_type": "type2",
             "endpoint": "",
             "entity_name": "dev_mqtt",
-            "service": "service2",
-            "service_path": "/ssrv2",
             "commands": [
                 {
                     "name": "PING",
@@ -35,8 +61,6 @@
             "entity_type": "type2",
             "endpoint": "some_end_point",
             "entity_name": "dev_mqtt_push",
-            "service": "service2",
-            "service_path": "/ssrv2",
             "commands": [
                 {
                     "name": "PING",
@@ -55,8 +79,6 @@
             "device_id": "unitTest_mqtt_location",
             "endpoint": "http://127.0.0.1:9999/device",
             "entity_name": "room_uttest",
-            "service": "service2",
-            "service_path": "/ssrv2",
             "commands": [
                 {
                     "name": "PING",
