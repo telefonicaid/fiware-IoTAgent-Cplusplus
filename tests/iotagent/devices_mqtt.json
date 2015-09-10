@@ -30,8 +30,6 @@
             "device_id": "8934075379000039321",
             "endpoint": "",
             "entity_name": "room13333",
-            "service": "serviceTT",
-            "service_path": "/subservice",
             "entity_type": "thing"
         },
 	{

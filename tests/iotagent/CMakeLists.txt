@@ -43,7 +43,7 @@ target_link_libraries(ul20_tests sul20 iotmock iota_a ${IOTAGENT_LIBS}
 	${TEST_LIBS})
 
 # Thinking things protocol
-add_executable(tt_tests ttTest.cc tt_test.cc TTBufferTests.cc)
+add_executable(tt_tests util_functions.cc ttTest.cc tt_test.cc TTBufferTests.cc)
 target_link_libraries(tt_tests esp sttservice iotmock iota_a
 	${IOTAGENT_LIBS} ${TEST_LIBS})
 if(MOSQUITTO_FOUND)

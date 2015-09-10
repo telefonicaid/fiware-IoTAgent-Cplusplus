@@ -28,6 +28,7 @@
 #include <cppunit/XmlOutputter.h>
 #include "ttTest.h"
 #include "TTBufferTests.h"
+#include "util/dev_file.h"
 
 
 int main(int argc, char* argv[]) {
@@ -49,6 +50,8 @@ int main(int argc, char* argv[]) {
   // TT Service
   iota::esp::TTService* ttService = new iota::esp::TTService();
   ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
+  ttService->set_iota_manager_endpoint("http://127.0.0.1/fake");
+
   http_server->add_service("/TestTT/tt", ttService);
   adm->add_service("/TestTT/tt", ttService);
 
@@ -56,6 +59,8 @@ int main(int argc, char* argv[]) {
   MockService* mock = new MockService();
   http_server->add_service("/mock", mock);
   adm->add_service("/mock", mock);
+
+  iota::DevicesFile::initialize("../../tests/iotagent/devices_mqtt.json");
 
   process.start();
   testing::GTEST_FLAG(throw_on_failure) = true;
@@ -66,9 +71,8 @@ int main(int argc, char* argv[]) {
   controller.addListener(&result);
 
   CppUnit::TextUi::TestRunner runner;
-  runner.addTest(TTBufferTests::suite());
+ // runner.addTest(TTBufferTests::suite());
   runner.addTest( TTTest::suite());
- // runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),std::cerr));
 
   runner.run(controller);
   //important stuff happens next
