@@ -79,7 +79,7 @@
             "device_id": "unitTest_mqtt_location",
             "endpoint": "http://127.0.0.1:9999/device",
             "entity_name": "room_uttest",
-            "commands": [
+	    "commands": [
                 {
                     "name": "PING",
                     "type": "command",
@@ -92,10 +92,6 @@
                 }
             ],
             "attributes": [
-                {
-                   "object_id":"attr_name",
-                   "name":"temperature"
-                },
                 {
                    "object_id":"l",
                    "type": "coords",
