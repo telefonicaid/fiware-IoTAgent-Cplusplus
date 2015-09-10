@@ -1266,8 +1266,7 @@ void MqttTest::testLocationContextBroker(){
 
   expected.append("{\"updateAction\":\"APPEND\",\"contextElements\":");
   expected.append("[{\"id\":\"");
-  expected.append(entity_type);
-  expected.append(":room_uttest\",\"type\":\"");
+  expected.append("room_uttest\",\"type\":\"");
   expected.append(entity_type);
   expected.append("\",\"isPattern\":\"false\",\"attributes\"");
   expected.append(":[{\"name\":\"position\",\"type\":\"coords\",\"value\":\"23.2234,33.23424243\",\"metadatas\"");

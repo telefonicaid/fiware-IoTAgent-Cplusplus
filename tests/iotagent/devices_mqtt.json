@@ -2,10 +2,8 @@
     "devices": [
         {
             "device_id": "dev1",
-            "entity_type": "thing",
             "endpoint": "http://10.95.213.159:6500/simulaClient/ul20Command",
             "entity_name": "room1",
-
             "commands": [
                 {
                     "name": "attr_1_dev_1",
@@ -38,7 +36,6 @@
         },
 	{
             "device_id": "dev_mqtt",
-            "entity_type": "type2",
             "endpoint": "",
             "entity_name": "dev_mqtt",
             "commands": [
@@ -58,7 +55,6 @@
         },
 	{
             "device_id": "dev_mqtt_push",
-            "entity_type": "type2",
             "endpoint": "some_end_point",
             "entity_name": "dev_mqtt_push",
             "commands": [
