@@ -38,7 +38,7 @@ To build IoT Agents you need cmake 2.8.12 (minimum version). If you want to buil
 
 ### Build
 We use out-of-source building, so you must build out of source directory.
-The directory where source is downloaded will be called _SourcePath_. From this directory let'us make a directory build/*build_type* (*build_type* must be Debug, Release or DebugCoverage) and execute (in this example we use Debug as *build_type* and you must replace <path-to-boost> with path to your boost installation):
+The directory where source is downloaded will be called _SourcePath_. From this directory let'us make a directory build/*build_type* (*build_type* must be Debug, Release or DebugCoverage) and execute (in this example we use Debug as *build_type* ):
 (target install only copy built libraries in a directory to concentrate them).
 
 ```
@@ -47,10 +47,9 @@ $ /home/develop/dca-core
 $ mkdir -p build/Debug
 $ cd build/Debug
 $ cmake -DGIT_VERSION=<version> -DGIT_COMMIT=<release> -DMQTT=ON -DCMAKE_BUILD_TYPE=Debug ../../
+$ make
 $ make check install
 ```
-If you want use environment variables add -D option:
-`-DPION_ROOT=<path-to-pion>`
 The target _check_ execute unit tests and target _install_ copies libraries in _SourcePath_/lib/*build_type* and executable in _SourcePath_/bin/*build_type*. For example, for _DebugCoverage_ target:
 
 ```
