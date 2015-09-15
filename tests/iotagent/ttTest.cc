@@ -56,8 +56,6 @@ TTTest::~TTTest() {
 
 void TTTest::setUp() {
 
-  ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
-
 }
 
 
@@ -70,6 +68,7 @@ void TTTest::tearDown() {
 
 void TTTest::testSearchResponses() {
 
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
 
@@ -473,6 +472,7 @@ void TTTest::testTTResponsesB() {
 
 void TTTest::testTTCBPublisher() {
 
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   CC_Logger::getSingleton()->logDebug("testTTCBPublisher: starting");
@@ -609,14 +609,9 @@ void TTTest::testDecodeTTJSONsError() {
 QueryContext will return empty responses for previous attributes (there are none yet). So the TTService has to publish them
 */
 void TTTest::testFirstTimeTTAttributes() {
-/*
-  boost::shared_ptr<HttpMock> cb_mock_up;
-  cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
-  boost::shared_ptr<HttpMock> cb_mock_query;
-  cb_mock_query.reset(new HttpMock("/NGSI10/queryContext"));
+  std::cout << "@UT@START testFirstTimeTTAttributes" << std::endl; 
 
-  start_cbmock(cb_mock_up,cb_mock_query);
-  */
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   TestSetup test_setup(get_service_name(__FUNCTION__),"/TestTT/tt");
@@ -656,12 +651,7 @@ void TTTest::testFirstTimeTTAttributes() {
 
   std::string mockResponseOK;
 
-
-
-  CC_Logger::getSingleton()->logDebug("testFirstTimeTTAttributes: starting");
-  //iota::esp::TTService ttService;
-  //ttService = new iota::esp::TTService();
-
+  std::cout << "@UT@ testFirstTimeTTAttributes: starting" << std::endl;
 
   std::string query =
     "cadena=#8934075379000039321,#0,GC,config_time,34,#0,GM,posicion,33.000/-3.234234,#0,P1,214,07,33f,633c,#0,B,11,22,33,44,55,66";
@@ -683,13 +673,13 @@ void TTTest::testFirstTimeTTAttributes() {
                                       http_response.get_status_code());
   CC_Logger::getSingleton()->logDebug("testFirstTimeTTAttributes: Response:  %s ",
                                       response.c_str());
-  delete ttService;
   CPPUNIT_ASSERT_EQUAL(
     std::string("#0,GC,config_time,88,$,#0,GM,posicion,$,#0,P1,$,#0,B,22,55,66,$"),response);
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
-
-  std::string actual_mock(cb_mock->get_last("/mock" + test_setup.get_service()+"/NGSI10/updateContext"));
-
+ 
+  std::string actual_mock(cb_mock->get_last("/mock/" + test_setup.get_service()+"/NGSI10/updateContext"));
+  std::cout << "@UT@CB: " << actual_mock << std::endl;
+  CPPUNIT_ASSERT( !actual_mock.empty());
   std::string expected_p1;
   expected_p1.append("{\"name\":\"P1\",\"type\":\"compound\",\"value\":");
   expected_p1.append("[{\"name\":\"mcc\",\"type\":\"string\",\"value\":\"214\"},");
@@ -710,6 +700,7 @@ void TTTest::testFirstTimeTTAttributes() {
   CPPUNIT_ASSERT (actual_mock.find(expected_b)!= std::string::npos);
   CPPUNIT_ASSERT (actual_mock.find(expected_p1) != std::string::npos);
 
+  std::cout << "@UT@END testFirstTimeTTAttributes" << std::endl;
 
 }
 
@@ -720,6 +711,7 @@ Check with ThinkingThings Team, but I think K1 attribute does not get published 
 
 void TTTest::testFirstTimeTTAttributesWithK() {
   CC_Logger::getSingleton()->logDebug("testFirstTimeTTAttributesWithK: starting");
+  iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
 /*
   boost::shared_ptr<HttpMock> cb_mock_up;
   cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
@@ -755,11 +747,6 @@ void TTTest::testFirstTimeTTAttributesWithK() {
   cb_mock->set_response("/mock/query", 200,mockResponse); //Second query.
 
   std::string mockResponseOK;
-
-
-  //iota::esp::TTService ttService;
-  //iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
-
 
   std::string query =
     "cadena=#8934075379000039321,#0,GC,config_time,34,#0,GM,posicion,33.000/-3.234234,#0,P1,214,07,33f,633c,#0,K1,0$";

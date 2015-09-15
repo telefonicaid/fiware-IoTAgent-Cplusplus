@@ -73,6 +73,23 @@
                     "cbroker": "http://127.0.0.1:1026"
                 }
             ]
+        },
+        {
+         "resource": "/TestTT/tt",
+         "options": {
+                "ConfigFile": "TTService.xml",
+                "FileName": "TTService"
+           },
+           "services": [
+                {
+                    "apikey": "1234",
+                    "service": "service2",
+                    "service_path": "/ssrv2",
+                    "token": "token6",
+                    "entity_type": "thing",
+                    "cbroker": "http://127.0.0.1:1026"
+                }
+            ]
         }
     ]
 }

@@ -108,7 +108,6 @@ class TTTest : public CPPUNIT_NS::TestFixture {
 
   private:
 
-  iota::esp::TTService* ttService;
 
 
 };
