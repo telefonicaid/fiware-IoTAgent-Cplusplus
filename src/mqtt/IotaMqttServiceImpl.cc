@@ -59,42 +59,6 @@ iota::esp::ngsi::IotaMqttServiceImpl::~IotaMqttServiceImpl() {
 
 }
 
-void iota::esp::ngsi::IotaMqttServiceImpl::doRequestCommands(std::string& apikey,std::string& device){
-
-  if (NULL == resthandle_ptr_ || NULL == mqtt_command_ptr_){
-    throw new iota::IotaException("Missing Services RestHandle or CommandHandle",
-    "IotaMqttServiceImpl badly initialized",500);
-  }
-
-  IOTA_LOG_DEBUG(m_logger,
-                   "doRequestCommands: apikey [ " << apikey << "] device:[" << device << "]");
-  //we've got apikey and device id, so with these two pieces of information, we should be able
-  //to obtain all commands for that particular device, but not without some previous calls
-  //for getting other info.
-
-  boost::property_tree::ptree pt_cb;
-  add_info(pt_cb, apikey);
-  std::string serviceMQTT = pt_cb.get<std::string>("service", "");
-
-  boost::shared_ptr<iota::Device> dev = resthandle_ptr_->get_device(device,
-                                  serviceMQTT);
-
-  iota::CommandVect all_commands =  mqtt_command_ptr_->get_all_command(dev,pt_cb);
- IOTA_LOG_DEBUG(m_logger,
-                   "doRequestCommands: Commands retrieved: "<< all_commands.size());
-
-  std::map<std::string, std::string> parameters;
-
-  for (int i=0; i< all_commands.size(); i++){
-    std::string command_payload = all_commands[i]->get_command().get(iota::store::types::BODY, "");
-
-      mqtt_command_ptr_->execute_mqtt_command(apikey,device,all_commands[i]->get_name(),command_payload,all_commands[i]->get_id());
-
-  }
-
-
-}
-
 void iota::esp::ngsi::IotaMqttServiceImpl::extract_command_id(std::string payload, std::string& out_payload,std::string& out_id){
 
  //examples of valid payloads:

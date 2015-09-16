@@ -91,6 +91,7 @@ class MqttService : public iota::esp::ngsi::IotaMqttCommands {
                                 iota::HttpClient::application_callback_t callback = NULL);
 
 
+    bool is_push_type_of_command(boost::shared_ptr<Device> device);
 
 
     void transform_command(const std::string& command_name,

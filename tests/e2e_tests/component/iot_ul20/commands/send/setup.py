@@ -1,6 +1,6 @@
 from lettuce import step, world
 from common.steps import service_created_precond,device_with_commands_created_precond,device_with_endpoint_created_precond,device_with_cmds_entity_values_created_precond,check_status_info,check_wrong_status_info,check_status_entity_info
-from iotqautils.cbUtils import CBUtils
+from iotqautils.cb_utils import CBUtils
 from iotqautils.gtwMeasures import Gw_Measures_Utils
 from common.gw_configuration import GW_HOSTNAME,IOT_PORT,PATH_UL20_COMMAND,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,TIMEOUT_COMMAND
 from common.functions import Functions
@@ -97,8 +97,10 @@ def send_wrong_command(step, service, device_id, cmd_name, value, field):
 @step('I get the command and send the response "([^"]*)" for device "([^"]*)"')
 def send_response(step, response, device_id):
     functions.check_command_cbroker(world.device_name, "pending")
-#    command = str(world.cmd_name)+"@"+str(world.value)
-    command = str(device_id)+"@"+str(world.value)
+#    command = str(device_id)+"@"+str(world.value)
+    command = str(device_id)+"@"+str(world.cmd_name)
+    if world.value:
+        command =command+"|"+str(world.value)
     if response != 'not_read':
         if not 'measure' in response:
             print "Voy a recuperar los comandos del device: " + str(device_id)

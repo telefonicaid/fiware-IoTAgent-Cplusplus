@@ -942,7 +942,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
   cmd_data.entity_type = entity_type;
   cmd_data.service = service;
 
-  if (!item_dev->_endpoint.empty()) {
+  if (is_push_type_of_command(item_dev)) {
     send_updateContext(command_name, iota::types::STATUS, iota::types::STATUS_TYPE,
                        iota::types::PENDING, item_dev, service, iota::types::STATUS_OP);
     // always we save command in cache
@@ -1022,6 +1022,11 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
 
 }
 
+
+bool iota::CommandHandle::is_push_type_of_command(boost::shared_ptr<Device> device){
+
+  return !device->_endpoint.empty();
+}
 
 void iota::CommandHandle::transform_command(const std::string& command_name,
     const std::string& command_value,

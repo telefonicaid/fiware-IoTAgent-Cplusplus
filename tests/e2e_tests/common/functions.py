@@ -98,7 +98,7 @@ class Functions(object):
             resource=world.resource
         else:
             service = iotagent.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token, attributes, static_attributes)
-        if service.status_code == 201 or service.status_code == 409:
+        if service.status_code == 201 or service.status_code == 200 or service.status_code == 409:
             world.remember.setdefault(service_name, {})
             if service_path == 'void':
                 service_path='/'
@@ -268,6 +268,7 @@ class Functions(object):
             }
             for kreplace in replaces:
                 cmd_value = cmd_value.replace(kreplace,replaces[kreplace])
+        if not cmd_value=='fail':
             command=[
                      {
                       "name": cmd_name,
@@ -277,8 +278,8 @@ class Functions(object):
                      ]
             self.device_precond(device_id, endpoint, protocol, command, device_name, ent_type)
             world.device_name=device_name
-        world.device_id=device_id
-       
+        else:
+            world.device_id=device_id
     def not_device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
         if iotagent.device_created(world.service_name, device_id, world.srv_path):

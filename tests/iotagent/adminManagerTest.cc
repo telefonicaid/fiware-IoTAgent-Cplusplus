@@ -31,6 +31,7 @@
 #include "services/admin_mgmt_service.h"
 #include "util/iota_exception.h"
 #include "util/FuncUtil.h"
+#include <sys/time.h>
 
 #define PATH_CONFIG_MONGO "../../tests/iotagent/config_mongo.json"
 
@@ -52,8 +53,15 @@ using ::testing::Invoke;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminManagerTest);
 
+<<<<<<< HEAD
 const std::string AdminManagerTest::HOST("127.0.0.1");
 const std::string AdminManagerTest::CONTENT_JSON("application/json");
+=======
+/*namespace iota {
+std::string URL_BASE = "/iot";
+std::string logger("main");
+}*/
+>>>>>>> e633c6727c8b61a3051d23625b9295a4cf5583bd
 
 const int AdminManagerTest::POST_RESPONSE_CODE = 201;
 //GET ALL empty
@@ -174,6 +182,12 @@ AdminManagerTest::POST_BAD_SERVICE_MANAGEMENT1("{\"services\": [{"
     "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
     "}]}");
 
+const std::string
+AdminManagerTest::POST_SERVICE_MANAGEMENT3("{\"services\": [{"
+    "\"protocol\": [\"UL20\"],"
+    "\"apikey\": \"apikey\",\"token\": \"token\","
+    "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+    "}]}");
 
 const std::string
 AdminManagerTest::GET_SERVICE_MANAGEMENT_RESPONSE("{ \"count\": 0,\"devices\": []}");
@@ -464,6 +478,7 @@ void AdminManagerTest::testGetDevices() {
   //                              "on", "", http_response, response);
 
   manager_service->get_all_devices_json("s4_agus", "/ss3", 0, 0, "on", "",
+
                                        http_response, response, "12345", "token", "UL20");
 
   std::cout << "@UT@get_all_devices" <<  response << std::endl;
@@ -596,6 +611,7 @@ void AdminManagerTest::testPostJSONDevices() {
                                    response, "");
 
   std::cout << "Result " << response << std::endl;
+	std::cout << iota::http2string(http_response) << std::endl;
 
   CPPUNIT_ASSERT(http_response.get_status_code() == 200);
   CPPUNIT_ASSERT_MESSAGE("Checking error ", response.find("Connection refused") != std::string::npos);
@@ -617,6 +633,7 @@ void AdminManagerTest::testPostJSONDevices() {
   std::cout << "Test testPostJSONDevices DONE" << std::endl;
 
 }
+
 int AdminManagerTest::http_test(const std::string& uri,
                                 const std::string& method,
                                 const std::string& service,
@@ -675,6 +692,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   int code_res;
   std::string response, cb_last;
   std::string service="service2";
+
   std::string
   POST_PROTOCOLS1("{\"iotagent\": \"http://127.0.0.1:7070/mock/testProtocol_ServiceManagement\","
                                   "\"resource\": \"/iot/d\","
@@ -693,6 +711,18 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
+  std::cout << "@UT@POST One endpoint" << std::endl;
+  code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "",
+                       "application/json",
+                       POST_SERVICE_MANAGEMENT3, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("Waiting 201", code_res == 201);
+  std::cout << "@UT@DELETE" << std::endl;
+  http_mock->set_response(204, "{}", h);
+  code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "",
+                       "application/json",
+                       "", headers, "protocol=UL20", response);
+  std::cout << "@UT@RESPONSE: XXXXXXXXX" <<  code_res << " " << response << std::endl;
   std::cout << "@UT@Post agent unreacheable" << std::endl;
   code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
@@ -787,6 +817,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
 
 
   srand(time(NULL));
+
   std::cout << "START @UT@START testServiceManagement" << std::endl;
   MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   unsigned int port = iota::Process::get_process().get_http_port();
@@ -1330,5 +1361,59 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
 
   std::cout << "END@UT@ testNoDeviceError_Bug_IDAS20463" << std::endl;
 
+}
+
+
+void AdminManagerTest::testReregistration_diff_protocol_description() {
+  std::cout << "@UT@START testReregistration_diff_protocol_description" <<
+            std::endl;
+
+  iota::AdminManagerService manager_service;
+
+  std::string service = create_random_service("s");
+  std::string service_path("/ss1");
+  std::string description1("des1");
+  std::string description2("des2");
+  delete_mongo(service, service_path);
+  pion::http::response http_response;
+  std::string response;
+  std::string body1("{\"iotagent\": \"host2\","
+                    "\"resource\": \"/iot/mqtt\","
+                    "\"protocol\": \"MQTT\","
+                    "\"services\": [{"
+                    "\"apikey\": \"apikey3\","
+                    "\"token\": \"token2\","
+                    "\"cbroker\": \"http://127.0.0.1:1026\","
+                    "\"resource\": \"/iot/mqtt\","
+                    "\"entity_type\": \"thing\",");
+  body1.append("\"service\":\"");
+  body1.append(service);
+  body1.append("\",\"service_path\":\"");
+  body1.append(service_path);
+  body1.append("\"}],");
+  body1.append("\"description\":\"");
+  std::string body2 = body1;
+  body1.append(description1);
+  body1.append("\"}");
+  body2.append(description2);
+  body2.append("\"}");
+
+  int code_res1 = manager_service.post_protocol_json(service, service_path, body1,
+                  http_response, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res1 << " " << response << std::endl;
+  IOTASSERT(code_res1 == 201);
+  IOTASSERT(response.empty());
+  IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description1) == 1 );
+
+  int code_res2 = manager_service.post_protocol_json(service, service_path, body2,
+                  http_response, response);
+  std::cout << "@UT@2RESPONSE: " <<  code_res2 << " " << response << std::endl;
+  IOTASSERT(code_res2 == 201);
+  IOTASSERT(response.empty());
+  IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description1) == 0 );
+  IOTASSERT(check_mongo("SERVICE_MGMT", service, service_path, "description", description2) == 1 );
+
+  std::cout << "@UT@END testReregistration_diff_protocol_description" <<
+            std::endl;
 }
 

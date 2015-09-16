@@ -38,10 +38,12 @@
 
 #include "util/service_collection.h"
 #include "ultra_light/ul20_service.h"
+#include "baseTest.h"
 
 
-class AdminManagerTest : public CPPUNIT_NS::TestFixture {
+class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     CPPUNIT_TEST_SUITE(AdminManagerTest);
+
     CPPUNIT_TEST(testDeviceToBeAdded);
     CPPUNIT_TEST(testGetEndpointsFromDevices);
     CPPUNIT_TEST(testAddDevicesToEndpoints);
@@ -56,6 +58,8 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testPostJSONDeviceErrorHandling);
     CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
     CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
+
+    CPPUNIT_TEST(testReregistration_diff_protocol_description);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -63,9 +67,6 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     virtual ~AdminManagerTest();
     void setUp();
     void tearDown();
-
-    static const std::string HOST;
-    static const std::string CONTENT_JSON;
 
     static const int POST_RESPONSE_CODE;
     //GET ALL empty
@@ -90,6 +91,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     static const std::string POST_SERVICE_MANAGEMENT1;
     static const std::string PUT_SERVICE_MANAGEMENT1;
     static const std::string POST_SERVICE_MANAGEMENT2;
+    static const std::string POST_SERVICE_MANAGEMENT3;
     static const std::string POST_BAD_SERVICE_MANAGEMENT1;
     static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
 
@@ -102,19 +104,6 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     static const std::string POST_DEVICE_NO_PROTOCOL;
     static const std::string PUT_DEVICE;
     static const std::string PUT_DEVICE2;
-
-
-
-    int http_test(const std::string& uri,
-                  const std::string& method,
-                  const std::string& service,
-                  const std::string& service_path,
-                  const std::string& content_type,
-                  const std::string& body,
-                  const std::map<std::string,std::string>& headers,
-                  const std::string& query_string,
-                  std::string& response);
-
 
   protected:
 
@@ -133,6 +122,22 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture {
     void testPostJSONDeviceErrorHandling();
     void testNoEndpoints_Bug_IDAS20444();
     void testNoDeviceError_Bug_IDAS20463();
+
+    /**
+    @IDAS-
+    Scenario: changing protocol description
+       an iotagent send a registration with a description of protocol
+       then you update a new version of iotagent with a new description
+       old versions has an error and it produces duplication key error
+
+    Given a iota::AdminManagerService
+    When iot manager receive a post protocol with the information of iotagent
+      Then a service is created in SRV_MGM table
+    when iot manager receive a post protocol from the same iotagent
+      the same information instead protocol description
+      Then the protocol description is update in SRV_MGM
+      **/
+    void testReregistration_diff_protocol_description();
 
   private:
     void cleanDB();

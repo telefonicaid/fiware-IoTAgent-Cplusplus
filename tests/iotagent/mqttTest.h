@@ -93,11 +93,7 @@ protected:
 
     void testMultipleMeasures();
 
-    void testGetAllCommandsPolling();
 
-    void testPollingOneMqttCommand();
-
-    void testPollingCommandExecution();
 
     void testExtractingCmdId();
 
@@ -126,8 +122,6 @@ private:
     MockMosquitto* mockMosquitto;
     MockMosquitto* mockMosquittoPub;
     MockIotaMqttService* mockPublisher;
-    iota::esp::MqttService* mqttService;
-
 
 
     void defineExpectationsMqttt();

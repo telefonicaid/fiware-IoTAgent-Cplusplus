@@ -37,8 +37,16 @@ You can follow more detailed instructions about how to build IoTAgent on this [l
 ##### Install from RPM.
 RPMs have been tested on Centos 6.5. The RPM follows this pattern: iot-agent-mqtt-[version].[commit].x86_64.rpm. Please note that it will require other components are also installed (like the IotAgent base or libmosquitto and libmosquittopp). 
 
+__Note__: When IoTAgent MQTT is installed from RPMS, the Mosquitto dependencies must be installed from these RPMs that have been tested on CentOS 6.5:
+
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/libmosquitto1-1.2.3-1.1.x86_64.rpm">libmosquitto1-1.2.3-1.1.x86_64.rpm</a> (MQTT C Client)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/libmosquittopp1-1.2.3-1.1.x86_64.rpm">libmosquittopp1-1.2.3-1.1.x86_64.rpm</a> (C++ Wrapper for client)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/mosquitto-1.2.3-1.1.x86_64.rpm">mosquitto-1.2.3-1.1.x86_64.rpm</a> (MQTT Broker)
+
+__Only this version  (Mosquitto 1.2.3) has been tested and validated with IoTAgent MQTT__
+
 #### Libmosquitto and Libmosquittopp
-These two libraries are requiered by MqttService.so. Currently we have tested version __1.2.3__. Some Linux OS have RPMs packages for this particular version. When not available, it can be built from source <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 
+These two libraries are requiered by MqttService.so. You have to use the RPMs provided above if you are installing IoTAgent from RPMs (otherwise, dependencies will not be resolved). However, if you are installing the IoTAgent from source, then you can build the Mosquitto dependency from sources <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 
 
 #### Mosquitto MQTT Broker.
 When your infrastructure features a different MQTT broker, you could use that instead, (see next section). The use of Mosquitto allows us to configure a very basic but effective way of preventing devices of a particular service from publishing/subscribing to topics of other services, which can be problematic in a multi-vendor scenario. This is done by means of its ACL capabilities. If for whatever reason this convenient feature does not suit your needs, it can be turned off (any device could publish/subscribe to any topic). 
@@ -247,31 +255,25 @@ You could review [Ultra Light](UL20_protocol.md) for more information about this
 <a name="def-commands"></a>
 ## 8. Commands.
 
-As per it's described in [IoTAgent Commands](commands.md), there are two kind of commands depending on what actor is requesting the sending of the commands. The IoTAgent for MQTT supports both. When sending a command, the IoTAgent will publish a mqtt message on a particular topic, and as it was described previously it will follow the "api-key"/"device-id"/cmd/"command-name" pattern. The keyword "cmd" is fixed. That is to say, devices have to subscribe to topics following that pattern: <api-key>/<device-id>/cmd/+  (as defined in the mqtt protocol, the '+' character means any topic on that level) where "api-key" and "device-id" are the identifiers for service and device provisioned. 
+As per it's described in [IoTAgent Commands](commands.md), most protocols support two types of commands depending on what actor is requesting the sending of the commands (push and pull). However, the MQTT protocol works in an asynchrnous fashion, so it makes more sense to have only PUSH commands (the IoTAgent will publish a MQTT message with the command as soon as it's received, while the opposite behaviour, pull commands, it's the device the one that has to ask for commands and then the IoTAgent would publish the MQTT message). When sending a command, the IoTAgent will publish a mqtt message on a particular topic, and as it was described previously it will follow the "api-key"/"device-id"/cmd/"command-name" pattern. The keyword "cmd" is fixed. That is to say, devices have to subscribe to topics following that pattern: <api-key>/<device-id>/cmd/+  (as defined in the mqtt protocol, the '+' character means any topic on that level) where "api-key" and "device-id" are the identifiers for service and device provisioned. With PUSH commands, devices have to just subscribe to that particular topic and "wait" for commands. It means they are connected all the time, as a reward, they don't need to ask for new commands.
+ 
 
-### Polling commands. 
+The IoTAgent, will then publish all available (not expired) commands for that device. 
+### Push Commands. 
 
-For this kind of commands, devices are the ones to request the sending of any available command by polling the IoTAgent. To do so they have to publish a message on this topic:
-
-	<api-key>/<device-id>/cmdget
-
-Payload is not relevant (it can be null)
-
-The IoTAgent, will then publish all available (not expired) commands for that device. For example a command will be a mqtt message with this topic: 
+Devices don't need to do anything else apart from subscribing to the correct topic. IoTAgent will publish the MQTT message representing the command as soon as the command request is received from the ContextBroker. 
+For example a command will be a mqtt message with this topic: 
 
 	822asijn7jwb9kn367fjz235/id234/cmd/set_time
 
 Note: devices must subscribe to that topic pattern only, otherwise they may receive commands addressed to other devices, causing issues. So for this example, the device must be subscribed to: 822asijn7jwb9kn367fjz235/id234/cmd/+    (including ‘+’). 
 
-### Push Commands. 
 
-In this case, devices don't need to do anything else apart from subscribing to the correct topic. IoTAgent will publish the MQTT message representing the command as soon as the command request is received from the ContextBroker. So the message will look exactly the same as the one explained. 
-
-''Note'': devices have to be connected and subscribed to the mentioned topic in order to receive a command. Depending on how they interact with the broker, they may get messages delivered to them when they weren't connected. For doing this, they have to set the flag "clean-session" to false. Commands can expire after some time in IoTAgent storage, so if devices connect periodically to send measures (for instance) the expiration period must be set to be greater than the time between connections. 
+''Note'': devices have to be connected and subscribed to the mentioned topic in order to receive a command. Depending on how they interact with the broker, they may get messages delivered to them when they weren't connected. For doing this, they have to set the flag "clean-session" to false. Also note that commands will expire after some time in IoTAgent internal storage. 
 
 #### Payload format for commands.
 	
-Regardless of the type of command (push or polling) information within payload must follow same format used in multi-measures. Command parameters will have name and value that will be separated by “|” and each parameter will be separated by “#”. There is one critical piece of information in the payload, this is the command id. That has to be returned to the IoTAgent in the response of the command using the previous format. 
+Information within payload must follow same format used in multi-measures. Command parameters will have name and value that will be separated by “|” and each parameter will be separated by “#”. There is one critical piece of information in the payload, this is the command id. That has to be returned to the IoTAgent in the response of the command using the previous format. 
 
 Example of command payload:
 	

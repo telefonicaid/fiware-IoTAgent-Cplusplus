@@ -9,7 +9,11 @@ def update_wrong_device_data(step, device_name, service_name, protocol, service_
     world.req =  functions.update_device_with_params(attribute, device_name, value, service_name, service_path, True, True, protocol)
     assert world.req.status_code != 200, 'ERROR: ' + world.req.text + "El dispositivo {} se ha podido actualizar".format(service_name)
         
-@step('user receives the "([^"]*)" and the "([^"]*)"')
-def assert_device_created_failed(step, http_status, error_text):
+@step('user receives the "([^"]*)", the "([^"]*)" and the "([^"]*)"')
+def assert_device_created_failed(step, http_status, http_code, error_text):
     assert world.req.status_code == int(http_status), "El codigo de respuesta {} es incorrecto".format(world.req.status_code)
     assert str(error_text) in world.req.text, 'ERROR: ' + world.req.text
+    if http_code:
+        assert str(http_code) in world.req.text, 'ERROR: ' + world.req.text
+    if http_code=="409":
+        assert world.entity_name in world.req.text, 'ERROR: ' + world.req.text        

@@ -24,24 +24,24 @@ Feature: Manager API Service Update
     	@iot_manager_api @IDAS-20495 
     	Scenario Outline: Update data into service with invalid fields
 		When I try to update the attribute "<attribute>" with value "<value>" of service "<srv_name>" with path "<srv_path>", protocol "<protocol>", apikey "<apikey>" and cbroker "<cbroker>"
-        Then user receives the "<HTTP_status>" and the "<exceptionText>"
+        Then user receives the "<HTTP_status>", the "<HTTP_code>" and the "<exceptionText>"
         And the service data NOT contains attribute "<attribute>" with value "<value>"
 		
 		Examples:
-			|srv_name	|srv_path		 |protocol	 |apikey		|cbroker			|attribute	|value				|HTTP_status	|exceptionText 									|
-			|void		|void			 |IoTUL2	 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-Service not accepted					|
-			|void		|/path_srvm_put	 |IoTUL2	 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-Service not accepted					|
-			|srvm_put	|path_srvm_put	 |IoTUL2	 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-ServicePath not accepted				|
-			|srvm_put	|/path_srvm_put	 |IoTTT		 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|
-			|srvm_put	|/path_srvm_put	 |IoTUL2	 |srvm_putkey2	|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|
-			|srvm_put	|/path_srvm_put	 |			 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Missing required property: protocol			|
-			|srvm_put	|/path_srvm_put	 |IoTTT		 |				|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|
-			|srvm_put	|/path_srvm_put3 |IoTTT		 |srvm_putkey2	|http://myurl:80	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|
-			|srvm_put	|void			 |IoTUnknown |				|http://myurl:80	|cbroker	|http://myurl2:2000	|400			|No exists protocol IoTUnknown					|
-			|srvm_put	|/path_srvm_put2 |void		 |srvm_putkey2	|http://myurl:80	|cbroker	|http://myurl2:2000	|400			|Array is to short (0), minimum 1 				|
-			|srvm_put	|/path_srvm_put2 |			 |srvm_putkey2	|http://myurl:80	|protocol	|					|400			|invalid data type: StringType expected: array	|
-			|srvm_put	|/path_srvm_put2 |IoTUL2	 |srvm_putkey2	|http://myurl:80	|empty_json	|					|400			|empty body										|
-			|srvm_put	|/path_srvm_put2 |			 |srvm_putkey2	|http://myurl:80	|empty_json	|					|400			|Missing required property: protocol			|
+			|srv_name	|srv_path		 |protocol	 |apikey		|cbroker			|attribute	|value				|HTTP_status	|exceptionText 									|HTTP_code	|
+			|void		|void			 |IoTUL2	 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-Service not accepted					|			|
+			|void		|/path_srvm_put	 |IoTUL2	 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-Service not accepted					|			|
+			|srvm_put	|path_srvm_put	 |IoTUL2	 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Fiware-ServicePath not accepted				|			|
+			|srvm_put	|/path_srvm_put	 |IoTTT		 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|			|
+			|srvm_put	|/path_srvm_put	 |IoTUL2	 |srvm_putkey2	|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|			|
+			|srvm_put	|/path_srvm_put	 |			 |srvm_putkey	|http://myurl2:200	|cbroker	|http://myurl2:2000	|400			|Missing required property: protocol			|			|
+			|srvm_put	|/path_srvm_put	 |IoTTT		 |				|http://myurl2:200	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|			|
+			|srvm_put	|/path_srvm_put3 |IoTTT		 |srvm_putkey2	|http://myurl:80	|cbroker	|http://myurl2:2000	|404			|The service does not exist						|			|
+			|srvm_put	|void			 |IoTUnknown |				|http://myurl:80	|cbroker	|http://myurl2:2000	|400			|No exists protocol IoTUnknown					|			|
+			|srvm_put	|/path_srvm_put2 |void		 |srvm_putkey2	|http://myurl:80	|cbroker	|http://myurl2:2000	|400			|Array is to short (0), minimum 1 				|			|
+			|srvm_put	|/path_srvm_put2 |			 |srvm_putkey2	|http://myurl:80	|protocol	|					|400			|invalid data type: StringType expected: array	|			|
+			|srvm_put	|/path_srvm_put2 |IoTUL2	 |srvm_putkey2	|http://myurl:80	|empty_json	|					|404			|empty body										|400		|
+			|srvm_put	|/path_srvm_put2 |			 |srvm_putkey2	|http://myurl:80	|empty_json	|					|400			|Missing required property: protocol			|			|
 
 
     	@iot_manager_api @IDAS-20496 
