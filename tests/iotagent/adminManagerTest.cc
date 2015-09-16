@@ -53,15 +53,8 @@ using ::testing::Invoke;
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminManagerTest);
 
-<<<<<<< HEAD
 const std::string AdminManagerTest::HOST("127.0.0.1");
 const std::string AdminManagerTest::CONTENT_JSON("application/json");
-=======
-/*namespace iota {
-std::string URL_BASE = "/iot";
-std::string logger("main");
-}*/
->>>>>>> e633c6727c8b61a3051d23625b9295a4cf5583bd
 
 const int AdminManagerTest::POST_RESPONSE_CODE = 201;
 //GET ALL empty
@@ -692,6 +685,11 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   int code_res;
   std::string response, cb_last;
   std::string service="service2";
+  std::map<std::string, std::string> h;
+
+  MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 201, "", h);
 
   std::string
   POST_PROTOCOLS1("{\"iotagent\": \"http://127.0.0.1:7070/mock/testProtocol_ServiceManagement\","
@@ -718,7 +716,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   CPPUNIT_ASSERT_MESSAGE("Waiting 201", code_res == 201);
   std::cout << "@UT@DELETE" << std::endl;
-  http_mock->set_response(204, "{}", h);
+  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 204, "{}", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "",
                        "application/json",
                        "", headers, "protocol=UL20", response);
@@ -819,10 +817,6 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   srand(time(NULL));
 
   std::cout << "START @UT@START testServiceManagement" << std::endl;
-  MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
-  unsigned int port = iota::Process::get_process().get_http_port();
-
-  std::map<std::string, std::string> h;
 
   service= "service" ;
   service.append(boost::lexical_cast<std::string>(rand()));

@@ -33,7 +33,7 @@
 
 #include "mqtt/MqttService.h"
 #include "util/iota_exception.h"
-
+#include "util_functions.h"
 
 using ::testing::Return;
 using ::testing::NotNull;
@@ -142,7 +142,6 @@ void MqttTest::testCBPublisher() {
   CPPUNIT_ASSERT(
     actual.find("{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":") !=
     std::string::npos);
-  cb_mock.stop();
 
   std::cout << "Test CBPublisher done!" << std::endl;
 }
@@ -304,6 +303,7 @@ void MqttTest::testBadEntityType() {
 void MqttTest::testNotInitCBPublisher() {
 
   std::cout << "Test NotInitCBPublisher starting... " << std::endl;
+  iota::esp::MqttService* mqttService = (iota::esp::MqttService*)iota::Process::get_process().get_service("/TestMqtt/mqtt");
   std::string jsonMqtt;
   //Test mqtt message is built at stubLoopToOnMessage method
   mqtt_alias.assign("te");

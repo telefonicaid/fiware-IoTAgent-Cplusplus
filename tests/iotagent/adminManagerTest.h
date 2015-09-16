@@ -69,6 +69,9 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     void tearDown();
 
     static const int POST_RESPONSE_CODE;
+    static const std::string HOST;
+    static const std::string CONTENT_JSON;
+
     //GET ALL empty
     static const std::string GET_EMPTY_RESPONSE_DEVICES;
     static const int GET_RESPONSE_CODE;
@@ -106,6 +109,16 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     static const std::string PUT_DEVICE2;
 
   protected:
+
+    int http_test(const std::string& uri,
+                                const std::string& method,
+                                const std::string& service,
+                                const std::string& service_path,
+                                const std::string& content_type,
+                                const std::string& body,
+                                const std::map<std::string, std::string>& headers,
+                                const std::string& query_string,
+                                std::string& response) ;
 
     void testDeviceToBeAdded();
     void testGetEndpointsFromDevices();
