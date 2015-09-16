@@ -122,6 +122,7 @@ private:
     MockMosquitto* mockMosquitto;
     MockMosquitto* mockMosquittoPub;
     MockIotaMqttService* mockPublisher;
+    iota::esp::MqttService* mqttService;
 
 
     void defineExpectationsMqttt();
