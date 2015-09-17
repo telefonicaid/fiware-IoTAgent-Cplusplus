@@ -1867,8 +1867,7 @@ int iota::AdminService::delete_device_json(
   devTable.findd(q1);
   while(devTable.more()){
     iota::Device d1 =  devTable.nextd();
-    boost::shared_ptr<Device> dev;
-    dev.assign(d1);
+    boost::shared_ptr<Device> dev (new Device(d1));
     undeploy_device(service_ptree, dev);
     devTable2.removed(d1);
   }
@@ -2252,8 +2251,8 @@ void iota::AdminService::undeploy_device(
       const boost::shared_ptr<Device> device) {
 
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
-  IOTA_LOG_DEBUG(m_log, "undeploy_device " << device._protocol);
-  std::string protocol_name = device._protocol;
+  IOTA_LOG_DEBUG(m_log, "undeploy_device " << device->_protocol);
+  std::string protocol_name = device->_protocol;
   std::string cb_response;
 
   std::map<std::string, iota::RestHandle*>::const_iterator it =
@@ -2266,7 +2265,8 @@ void iota::AdminService::undeploy_device(
       if (cmd_handle != NULL) {
         iota::ProtocolData pro = cmd_handle->get_protocol_data();
         if (protocol_name.compare(pro.protocol) ==0) {
-          cmd_handle->send_unregister(service_ptree, device);
+          cmd_handle->send_unregister(service_ptree, device,
+          device->_registration_id, cb_response);
           IOTA_LOG_DEBUG(m_log, "unregister to CB:" + cb_response);
         }
       }
