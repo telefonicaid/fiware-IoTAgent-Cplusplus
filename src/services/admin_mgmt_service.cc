@@ -265,7 +265,8 @@ int iota::AdminManagerService::get_all_devices_json(
   int total_count=0;
   mongo::BSONArrayBuilder builder_array;
   mongo::BSONObjBuilder builder_json;
-  int code, code_i = pion::http::types::RESPONSE_CODE_OK;
+ 	int code = pion::http::types::RESPONSE_CODE_OK;
+ 	int code_i = pion::http::types::RESPONSE_CODE_OK;
 
   IOTA_LOG_DEBUG(m_log, "AdminManagerService: get_all_devices_json, starting...");
 
@@ -398,6 +399,7 @@ int iota::AdminManagerService::get_all_devices_json(
       IOTA_LOG_ERROR(m_log, "Processing endpoint " << all_dest.at(i) << " " << message);
     }
   }
+  IOTA_LOG_DEBUG(m_log, "code" + boost::lexical_cast<std::string>(code));
 
   builder_json.append("count", total_count);
   builder_json.appendArray(iota::store::types::DEVICES, builder_array.obj());
@@ -407,7 +409,7 @@ int iota::AdminManagerService::get_all_devices_json(
   http_response.set_status_code(pion::http::types::RESPONSE_CODE_OK);
   http_response.set_status_message(iota::Configurator::instance()->getHttpMessage(
                                      pion::http::types::RESPONSE_CODE_OK));
-  IOTA_LOG_DEBUG(m_log, "content=" + response);
+  IOTA_LOG_DEBUG(m_log, "content=" + response + boost::lexical_cast<std::string>(code));
 
   return create_response(code, "", "", http_response, response);
   //return code;
@@ -424,7 +426,8 @@ int iota::AdminManagerService::get_a_device_json(
   std::string protocol_filter) {
 
 
-  int code, code_i = pion::http::types::RESPONSE_CODE_NOT_FOUND;
+  int code = pion::http::types::RESPONSE_CODE_NOT_FOUND;
+  int code_i = pion::http::types::RESPONSE_CODE_NOT_FOUND;
 
   iota::ServiceMgmtCollection manager_service_collection;
 
@@ -757,7 +760,7 @@ int iota::AdminManagerService::post_device_json(
 
   IOTA_LOG_DEBUG(m_log, "post_device_json: POSTs processed: [" << code << "]");
   //return http_response.get_status_code();
- return create_response(code, "", "", http_response, response); 
+ return create_response(code, "", "", http_response, response);
 }
 
 int iota::AdminManagerService::put_device_json(
@@ -1141,12 +1144,16 @@ int iota::AdminManagerService::post_protocol_json(
 
           query.append(iota::store::types::IOTAGENT, endpoint);
           query.append(iota::store::types::PROTOCOL, protocol_name);
-          query.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
 
           srvObj = srvObj.removeField(iota::store::types::SERVICE);
           srvObj = srvObj.removeField(iota::store::types::SERVICE_PATH);
           srvObj = srvObj.removeField(iota::store::types::RESOURCE);
-          service_table.update(query.obj(), srvObj, true,0);
+
+          mongo::BSONObjBuilder data2set;
+          data2set.appendElements(srvObj);
+          data2set.append(iota::store::types::PROTOCOL_DESCRIPTION, description);
+
+          service_table.update(query.obj(), data2set.obj(), true,0);
         }
         else {
           IOTA_LOG_DEBUG(m_log, "services no changed service:"+ srv + " " + srv_path);

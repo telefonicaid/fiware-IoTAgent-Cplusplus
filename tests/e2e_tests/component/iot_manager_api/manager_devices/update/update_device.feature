@@ -28,19 +28,19 @@ Feature: Manager API Device Update
     	@iot_manager_api @IDAS-20458 
     	Scenario Outline: Update device data with invalid fields
 		When I try to update the device data of device "<dev_id>" with service "<srv_name>", protocol "<protocol>" and path "<srv_path>" with the attribute "<attribute>" and value "<attr_value>"
-        Then user receives the "<HTTP_status>" and the "<exceptionText>"
+        Then user receives the "<HTTP_status>", the "<HTTP_code>" and the "<exceptionText>"
 		
 		Examples:
-			|srv_name		|srv_path			 |dev_id	|protocol	|attribute		|attr_value	|HTTP_status	|exceptionText 									|
-			|void			|void				 |devm_put1	|IoTUL2		|entity_name	|room_put1	|400			|Fiware-Service not accepted					|
-			|srv_devm_put	|path_srv_devm_put	 |devm_put1	|IoTUL2		|entity_name	|room_put1	|400			|Fiware-ServicePath not accepted				|
-			|srv_devm_put	|/path_srv_devm_put1 |devm_put1	|IoTUL2		|entity_name	|room_put1	|404			|there aren't iotagents for this operation		|
-			|srv_devm_put	|/path_srv_devm_put	 |devm_put3	|IoTUL2		|entity_name	|room_put3	|404			|The device does not exist						|
-			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|entity_name	|room_put2	|409			|entity already exists							|
-			|srv_devm_put	|/path_srv_devm_put	 |			|IoTUL2		|entity_name	|room_put1	|404			|												|
-			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|				|			|400			|Additional properties not allowed. [/]			|
-			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|empty_json		|			|400			|empty body										|
-			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|			|entity_type	|thing_put2	|400			|protocol parameter is mandatory				|
-			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTTT		|entity_type	|thing_put2	|404			|there aren't iotagents for this operation		|
-			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUnknow	|entity_type	|thing_put2	|404			|there aren't iotagents for this operation		|
+			|srv_name		|srv_path			 |dev_id	|protocol	|attribute		|attr_value	|HTTP_status	|exceptionText 									|HTTP_code	|
+			|void			|void				 |devm_put1	|IoTUL2		|entity_name	|room_put1	|400			|Fiware-Service not accepted					|			|
+			|srv_devm_put	|path_srv_devm_put	 |devm_put1	|IoTUL2		|entity_name	|room_put1	|400			|Fiware-ServicePath not accepted				|			|
+			|srv_devm_put	|/path_srv_devm_put1 |devm_put1	|IoTUL2		|entity_name	|room_put1	|404			|there aren't iotagents for this operation		|			|
+			|srv_devm_put	|/path_srv_devm_put	 |devm_put3	|IoTUL2		|entity_name	|room_put3	|404			|The device does not exist						|			|
+			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|entity_name	|room_put2	|404			|entity already exists							|409		|
+			|srv_devm_put	|/path_srv_devm_put	 |			|IoTUL2		|entity_name	|room_put1	|404			|												|			|
+			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|				|			|400			|Additional properties not allowed. [/]			|			|
+			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUL2		|empty_json		|			|404			|empty body										|400		|
+			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|			|entity_type	|thing_put2	|400			|protocol parameter is mandatory				|			|
+			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTTT		|entity_type	|thing_put2	|404			|there aren't iotagents for this operation		|			|
+			|srv_devm_put	|/path_srv_devm_put	 |devm_put1	|IoTUnknow	|entity_type	|thing_put2	|404			|there aren't iotagents for this operation		|			|
 			
