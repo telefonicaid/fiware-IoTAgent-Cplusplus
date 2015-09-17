@@ -1854,19 +1854,24 @@ int iota::AdminService::delete_device_json(
   IOTA_LOG_DEBUG(m_log, param_request);
   std::string reason;
   std::string error_details;
+  std::string cb_response;
+  std::string regId;
+  boost::property_tree::ptree service_ptree;
+  get_service_by_name(service_ptree, service, service_path);
 
-  mongo::BSONObjBuilder b;
-  if (!id_device.empty()) {
-    b.append(iota::store::types::DEVICE_ID, id_device);
+  iota::DeviceCollection devTable;
+  iota::DeviceCollection devTable2;
+  iota::Device q1(id_device, service );
+  q1._service_path  = service_path;
+
+  devTable.findd(q1);
+  while(devTable.more()){
+    iota::Device d1 =  devTable.nextd();
+    boost::shared_ptr<Device> dev;
+    dev.assign(d1);
+    undeploy_device(service_ptree, dev);
+    devTable2.removed(d1);
   }
-  if (!service.empty()) {
-    b.append(iota::store::types::SERVICE, service);
-  }
-  if (!service_path.empty()) {
-    b.append(iota::store::types::SERVICE_PATH, service_path);
-  }
-  Collection devTable(iota::store::types::DEVICE_TABLE);
-  devTable.remove(b.obj());
 
   return create_response(code, reason, error_details, http_response,
                          response);
@@ -2237,6 +2242,37 @@ void iota::AdminService::deploy_device(Device& device) {
     }
     catch (std::exception& e) {
       IOTA_LOG_DEBUG(m_log, "deploy_device error: " <<  e.what());
+    }
+    ++it;
+  }
+}
+
+void iota::AdminService::undeploy_device(
+      boost::property_tree::ptree& service_ptree,
+      const boost::shared_ptr<Device> device) {
+
+  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  IOTA_LOG_DEBUG(m_log, "undeploy_device " << device._protocol);
+  std::string protocol_name = device._protocol;
+  std::string cb_response;
+
+  std::map<std::string, iota::RestHandle*>::const_iterator it =
+    _service_manager.begin();
+  while (it != _service_manager.end()) {
+    try {
+
+      iota::CommandHandle* cmd_handle = dynamic_cast<iota::CommandHandle*>
+                                        (it->second);
+      if (cmd_handle != NULL) {
+        iota::ProtocolData pro = cmd_handle->get_protocol_data();
+        if (protocol_name.compare(pro.protocol) ==0) {
+          cmd_handle->send_unregister(service_ptree, device);
+          IOTA_LOG_DEBUG(m_log, "unregister to CB:" + cb_response);
+        }
+      }
+    }
+    catch (std::exception& e) {
+      IOTA_LOG_DEBUG(m_log, "undeploy_device error: " <<  e.what());
     }
     ++it;
   }

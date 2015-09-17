@@ -1406,18 +1406,14 @@ int iota::CommandHandle::send_unregister(
     IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
 
-  std::vector<iota::ContextRegistration> context_registrations;
   iota::ContextRegistration  cr;
-
   iota::Entity entity(entity_name, entity_type, "false");
   cr.add_entity(entity);
-
-  context_registrations.push_back(cr);
 
   IOTA_LOG_DEBUG(m_logger, "send_unregister: " << regId);
   reg.add_registrationId(regId);
   reg.add_duration("PT1S");
-  reg.add_context_registration(context_registrations);
+  reg.add_context_registration(cr);
   ContextBrokerCommunicator cb_communicator_unreg;
   cb_communicator_unreg.send(cb_url, reg.get_string(), pt_cb);
 }
