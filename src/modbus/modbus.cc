@@ -88,14 +88,14 @@ static const unsigned char table_crc_lo[] = {
   0x43, 0x83, 0x41, 0x81, 0x80, 0x40
 };
 
-
 iota::Modbus::Modbus(unsigned char slave_addr,
                      iota::Modbus::FunctionCode function_code,
                      unsigned short address_data,
                      unsigned short number_of, std::string app_operation):
-                     _slave_address(slave_addr),
+  _slave_address(slave_addr),
   _function_code(function_code), _address_data(address_data),
-  _number_of_or_value(number_of), _app_operation(app_operation),
+  _number_of_or_value(number_of), _app_operation(app_operation), _finished(false),
+  _time_instant(-1),
   m_logger(PION_GET_LOGGER(logger)) {
   _modbus_frame.push_back(_slave_address);
   _modbus_frame.push_back(_function_code);
@@ -114,10 +114,20 @@ iota::Modbus::Modbus(std::vector<unsigned char>& mb_msg) {
   receive_modbus_frame(mb_msg);
 }
 */
+void iota::Modbus::set_time_instant(std::time_t timestamp) {
+  _time_instant = timestamp;
+}
 
-bool iota::Modbus::receive_modbus_frame(const std::vector<unsigned char>& mb_msg) {
+std::time_t iota::Modbus::get_time_instant() {
+  return _time_instant;
+}
+bool iota::Modbus::receive_modbus_frame(const std::vector<unsigned char>&
+                                        mb_msg) {
   // Reading
   bool frame_ok = true;
+
+  // here, if this operation receive a response (bad or good), operation finish.
+  _finished = true;
   std::string str_frame = iota::str_to_hex(mb_msg);
   IOTA_LOG_DEBUG(m_logger, str_frame);
   std::string error_frame;
@@ -144,14 +154,17 @@ bool iota::Modbus::receive_modbus_frame(const std::vector<unsigned char>& mb_msg
                          boost::lexical_cast<std::string>(_address_data));
           // Additional check
           // Last byte must be before CRC
-          if (mb_msg.size() - 2 != bytes +3) {
+          if (mb_msg.size() - 2 != bytes + 3) {
             IOTA_LOG_INFO(m_logger, "Bad frame?");
+            error_frame = "Modbus read holding registers incomplete";
+            frame_ok = false;
           }
-          while (i < bytes + 3) {
+          while (frame_ok == true && i < bytes + 3) {
             unsigned short value = (mb_msg.at(i) << 8) | mb_msg.at(i+1);
             ++num_reg;
             IOTA_LOG_DEBUG(m_logger,
-                           "Read value [" + boost::lexical_cast<std::string>(_address_data + num_reg) + "] " <<
+                           "Read value [" + boost::lexical_cast<std::string>(_address_data + num_reg) +
+                           "] " <<
                            boost::lexical_cast<std::string>(value));
             _values.insert(std::pair<unsigned short, unsigned short>
                            (_address_data + num_reg,
@@ -228,9 +241,18 @@ std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
   std::vector<std::string>& mapped_fields) {
   // Original values are map but unsigned short and ordered.
   std::map<std::string, unsigned short> mapped_values;
-  if (mapped_fields.size() > 0 && mapped_fields.size() == _values.size()) {
+  std::map<unsigned short, unsigned short>::iterator it_values = _values.begin();
+  if (mapped_fields.size() == 0) {
+    // Set labels to key in values map
+    while (it_values != _values.end()) {
+      mapped_values.insert(std::pair<std::string, unsigned short>
+                           (boost::lexical_cast<std::string>(it_values->first),
+                            it_values->second));
+      ++it_values;
+    }
+  }
+  else if (mapped_fields.size() > 0 && mapped_fields.size() == _values.size()) {
     int i = 0;
-    std::map<unsigned short, unsigned short>::iterator it_values = _values.begin();
     for (i = 0; i < mapped_fields.size(); i++) {
       std::stringstream ss;
       ss << it_values->first;
@@ -239,7 +261,7 @@ std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
         str_field = mapped_fields.at(i);
       }
       mapped_values.insert(std::pair<std::string, unsigned short>(str_field,
-                             it_values->second));
+                           it_values->second));
       ++it_values;
     }
   }

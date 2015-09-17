@@ -22,6 +22,7 @@
 
 #include "tcp_service.h"
 #include "services/admin_service.h"
+#include "util/FuncUtil.h"
 #include <iomanip>
 
 namespace iota {
@@ -30,6 +31,10 @@ extern std::string logger;
 
 iota::TcpService::TcpService(const boost::asio::ip::tcp::endpoint& endpoint):
   pion::tcp::server(endpoint), m_logger(PION_GET_LOGGER(logger)) {
+}
+iota::TcpService::TcpService(pion::scheduler& scheduler,
+                             const boost::asio::ip::tcp::endpoint& endpoint):
+  pion::tcp::server(scheduler, endpoint), m_logger(PION_GET_LOGGER(logger)) {
 }
 
 iota::TcpService::~TcpService() {}
@@ -50,9 +55,9 @@ boost::shared_ptr<iota::TcpService> iota::TcpService::register_handler(
 }
 
 void iota::TcpService::handle_connection(pion::tcp::connection_ptr& tcp_conn) {
-   // Empty buffer in read (start connection)
-   // Aplication must use b_read to decide if it is a new connection.
-   // Flow dependant
+  // Empty buffer in read (start connection)
+  // Aplication must use b_read to decide if it is a new connection.
+  // Flow dependant
   const std::vector<unsigned char> b_read;
   call_client(tcp_conn, b_read, boost::system::error_code());
 }
@@ -71,8 +76,9 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
   IOTA_LOG_DEBUG(m_logger,
                  " read_error=" << read_error << " bytes_read=" << bytes_read);
   if (!read_error) {
-    const std::vector<unsigned char> reading_buffer(tcp_conn->get_read_buffer().begin(),
-        tcp_conn->get_read_buffer().begin() + bytes_read);
+    const std::vector<unsigned char> reading_buffer(
+      tcp_conn->get_read_buffer().begin(),
+      tcp_conn->get_read_buffer().begin() + bytes_read);
     call_client(tcp_conn, reading_buffer, read_error);
   }
   else {
@@ -82,17 +88,29 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
 };
 
 void iota::TcpService::send(pion::tcp::connection_ptr& tcp_conn,
-                            std::vector<unsigned char>& buffer_response) {
+                            std::vector<unsigned char>& buffer_response,
+                            bool wait_data) {
 
-  print_buffer(buffer_response, buffer_response.size());
-
+  //print_buffer(buffer_response, buffer_response.size());
+  std::ostringstream os;
+  os << tcp_conn->get_remote_endpoint();
+  std::string endpoint(os.str());
   if (tcp_conn->is_open()) {
-    tcp_conn->async_write(boost::asio::buffer(buffer_response.data(),
-                          buffer_response.size()),
-                          boost::bind(&iota::TcpService::finish, this, tcp_conn));
+    IOTA_LOG_DEBUG(m_logger,
+                   "Sending to " + endpoint + " " + iota::str_to_hex(buffer_response));
+    if (!wait_data) {
+      tcp_conn->async_write(boost::asio::buffer(buffer_response.data(),
+                            buffer_response.size()),
+                            boost::bind(&iota::TcpService::finish_write, this, tcp_conn));
+    }
+    else {
+      tcp_conn->async_write(boost::asio::buffer(buffer_response.data(),
+                            buffer_response.size()),
+                            boost::bind(&iota::TcpService::read, this, tcp_conn));
+    }
   }
   else {
-    IOTA_LOG_ERROR(m_logger, "Connection is closed");
+    IOTA_LOG_ERROR(m_logger, endpoint + " connection is closed");
   }
 
 }
@@ -100,14 +118,18 @@ void iota::TcpService::send(pion::tcp::connection_ptr& tcp_conn,
 
 void iota::TcpService::print_buffer(std::vector<unsigned char>& buffer,
                                     int bytes_read) {
+  /*
   std::stringstream ss;
   ss << std::hex << std::setfill('0');
   for (int i = 0; i < bytes_read; ++i) {
-    ss << std::setw(2) << static_cast<unsigned>(buffer[i]);
+  ss << std::setw(2) << static_cast<unsigned>(buffer[i]);
   }
-  IOTA_LOG_DEBUG(m_logger, ss.str());
+  */
+  IOTA_LOG_DEBUG(m_logger, iota::str_to_hex(buffer));
 }
-
+void iota::TcpService::finish_write(pion::tcp::connection_ptr& tcp_conn) {
+  //clear_buffer(tcp_conn);
+}
 void iota::TcpService::finish(pion::tcp::connection_ptr& tcp_conn) {
 
   tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);

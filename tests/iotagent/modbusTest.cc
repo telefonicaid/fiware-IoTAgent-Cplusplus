@@ -105,9 +105,9 @@ void ModbusTest::testProcessor() {
   iota::ModbusOperationProcessor processor(os);
   boost::property_tree::ptree op_1 = processor.get_operation("operation_name_1");
   CPPUNIT_ASSERT_MESSAGE("Value modbusOperation 3",
-                         op_1.get<unsigned short>("modbusOperation"));
+                         op_1.get<unsigned short>("modbusOperation") == 3);
   CPPUNIT_ASSERT_MESSAGE("Value modbusAddress 200",
-                         op_1.get<unsigned short>("modbusAddress"));
+                         op_1.get<unsigned short>("modbusAddress") == 200);
   CPPUNIT_ASSERT_MESSAGE("Labels ",
                          processor.get_mapped_labels("operation_name").size() == 3);
   CPPUNIT_ASSERT_MESSAGE("Label label_1 ",
@@ -129,4 +129,24 @@ void ModbusTest::testProcessor() {
   CPPUNIT_ASSERT_MESSAGE("Checking label 1", mapped_values["label_1"] == 1);
   CPPUNIT_ASSERT_MESSAGE("Checking label 2", mapped_values["102"] == 12305);
   CPPUNIT_ASSERT_MESSAGE("Checking label 3", mapped_values["label_3"] == 2321);
+}
+
+void ModbusTest::testProcessorFile() {
+
+  iota::ModbusOperationProcessor processor;
+  processor.read_operations("../../tests/iotagent/modbus_config_repsol.json");
+  boost::property_tree::ptree op_1 = processor.get_operation("GetSAPCode");
+  CPPUNIT_ASSERT_MESSAGE("Value modbusOperation 3",
+                         op_1.get<unsigned short>("modbusOperation") == 3);
+}
+
+void ModbusTest::testCrc() {
+  std::string f = "01 03 06 00 01 30 11 09 11";
+  std::vector<unsigned char> o = iota::hex_str_to_vector(f);
+  iota::Modbus modbus;
+  std::cout << modbus.crc(o) << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("34284", modbus.crc(o) == 34284);
+  std::string t ="01 03 08 AA AA BB BB CC CC DD DD";
+  std::vector<unsigned char> o1 = iota::hex_str_to_vector(t);
+  std::cout << modbus.crc(o1) << std::endl;
 }

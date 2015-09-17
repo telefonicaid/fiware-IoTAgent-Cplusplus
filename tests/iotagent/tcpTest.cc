@@ -47,6 +47,7 @@ void TcpTest::testConnection() {
   std::cout << error_code.message() << std::endl;
   CPPUNIT_ASSERT_MESSAGE("Checking success connection", !error_code);
   tcp_conn.write(boost::asio::buffer("HELLO"), error_code);
+  std::cout << "READ" << std::endl;
   tcp_conn.read_some(error_code);
   CPPUNIT_ASSERT_MESSAGE("Checking no read error", !error_code);
   CPPUNIT_ASSERT_MESSAGE("Checking response",

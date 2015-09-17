@@ -72,7 +72,7 @@ void iota::ModbusOperationProcessor::read_operations(std::string modbus_operatio
     read(ss);
   }
   else {
-    //IOTA_LOG_ERROR(m_log, "does not exists " << modbus_operation_file);
+    std::cout <<  "does not exists " << modbus_operation_file << std::endl;
   }
   f.close();
 

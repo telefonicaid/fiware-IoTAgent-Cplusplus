@@ -463,7 +463,7 @@ int main(int argc, char* argv[]) {
                                                        resource_url.getPort());
                       IOTA_LOG_DEBUG(main_log, "tcp server: "  << e.address() << ":" << e.port());
                       //pion::tcp::server_ptr tcp_server(new iota::TcpService(e));
-                      boost::shared_ptr<iota::TcpService> tcp_server(new iota::TcpService(e));
+                      boost::shared_ptr<iota::TcpService> tcp_server(new iota::TcpService(pion_scheduler, e));
                       //iota::tcp_servers[e] = tcp_server;
                       iota::tcp_servers.insert(std::pair<boost::asio::ip::tcp::endpoint,
                                                            boost::shared_ptr<iota::TcpService> >(e, tcp_server));

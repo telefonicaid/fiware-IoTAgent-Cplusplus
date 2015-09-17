@@ -52,12 +52,14 @@ class TcpService: public pion::tcp::server,
       const boost::system::error_code&)> IotaRequestHandler;
 
     TcpService(const boost::asio::ip::tcp::endpoint& endpoint);
+    TcpService(pion::scheduler& scheduler, const boost::asio::ip::tcp::endpoint& endpoint);
     virtual ~TcpService();
     boost::shared_ptr<iota::TcpService> register_handler(std::string client_name,
                           iota::TcpService::IotaRequestHandler client_handler);
     void read(pion::tcp::connection_ptr& tcp_conn);
     void send(pion::tcp::connection_ptr& tcp_conn,
-              std::vector<unsigned char>& buffer_response);
+              std::vector<unsigned char>& buffer_response,
+              bool wait_data = false);
     void close_connection(pion::tcp::connection_ptr& tcp_conn);
 
   private:
@@ -66,6 +68,7 @@ class TcpService: public pion::tcp::server,
                      const boost::system::error_code& read_error,
                      std::size_t bytes_read);
     void print_buffer(std::vector<unsigned char>& buffer, int bytes_read);
+    void finish_write(pion::tcp::connection_ptr& tcp_conn);
     void finish(pion::tcp::connection_ptr& tcp_conn);
 
     // Lock buffer map. Every connection buffer to send

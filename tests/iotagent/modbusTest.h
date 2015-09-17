@@ -30,6 +30,8 @@ class ModbusTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST (testBuildFrame);
     CPPUNIT_TEST (testDecodeFrame);
     CPPUNIT_TEST (testProcessor);
+    CPPUNIT_TEST (testProcessorFile);
+    CPPUNIT_TEST (testCrc);
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -39,6 +41,8 @@ class ModbusTest : public CPPUNIT_NS::TestFixture {
     void testBuildFrame();
     void testDecodeFrame();
     void testProcessor();
+    void testProcessorFile();
+    void testCrc();
 };
 
 #endif

@@ -39,6 +39,7 @@ class Modbus {
       //FORCE_SINGLE_COIL = 0x05,
       PRESET_SINGLE_REGISTER = 0x06
     } FunctionCode;
+    Modbus() {};
     Modbus(unsigned char slave_addr, iota::Modbus::FunctionCode function_code,
            unsigned short address_data, unsigned short number_of_or_value,
            std::string app_operation);
@@ -55,6 +56,13 @@ class Modbus {
       std::vector<std::string>& mapped_fields);
     unsigned short crc(std::vector<unsigned char>& frame);
     std::string get_operation() { return _app_operation;};
+
+
+    bool finished() { return _finished;};
+    void finish() { _finished = true;};
+
+    void set_time_instant(std::time_t timestamp);
+    std::time_t get_time_instant();
   protected:
   private:
     std::string _app_operation;
@@ -64,12 +72,17 @@ class Modbus {
     unsigned short _address_data;
     unsigned short _number_of_or_value;
     std::map<unsigned short, unsigned short> _values;
+    bool _finished;
+
+    // To store timestamp
+    std::time_t _time_instant;
 
     // Logger
     pion::logger m_logger;
 
     // Check received crc
     bool check_crc(const std::vector<unsigned char>& frame);
+
 
 };
 }
