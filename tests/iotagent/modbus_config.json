@@ -1,0 +1,64 @@
+{
+   "operations": [
+     {
+       "operation": "GetSAPCode",
+       "modbusOperation": 3,
+       "modbusAddress": 200,
+       "modbusNumberOfPositions": 4,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "SetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 1
+     },
+     {
+       "operation": "GetNumberOfTanks",
+       "modbusOperation": 3,
+       "modbusAddress": 1,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "TimeOfDataAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 2,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "LastTimeOfAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 731,
+       "modbusNumberOfPositions": 3,
+       "modbusNumberOfRegisters": 1,
+       "positions": [
+         "DDMM", "AAHH", "MMSS"
+         ]
+     },
+     {
+       "operation": "GetDataHistory",
+       "modbusOperation": 3,
+       "modbusAddress": 800,
+       "modbusNumberOfPositions": 22,
+       "modbusNumberOfRegisters": 75,
+       "positions": [
+         "blockNumber", "servicePressure", "serviceTemp", "environmentTemp", "impulsionTemp",
+         "returnTemp", "", "fillLevel1", "pressure1", "fillLevel2", "pressure2",
+         "fillLevel3", "pressure3", "fillLevel4", "pressure4", "fillLevel5",
+         "pressure5", "fillLevel6", "pressure6", "", "", ""
+         ]
+     },
+     {
+       "operation": "UnsetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 0
+     }
+    ]
+}

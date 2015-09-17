@@ -134,7 +134,7 @@ void ModbusTest::testProcessor() {
 void ModbusTest::testProcessorFile() {
 
   iota::ModbusOperationProcessor processor;
-  processor.read_operations("../../tests/iotagent/modbus_config_repsol.json");
+  processor.read_operations("../../tests/iotagent/modbus_config.json");
   boost::property_tree::ptree op_1 = processor.get_operation("GetSAPCode");
   CPPUNIT_ASSERT_MESSAGE("Value modbusOperation 3",
                          op_1.get<unsigned short>("modbusOperation") == 3);
