@@ -38,6 +38,7 @@ struct Device : public virtual Timer {
     _active = INT_MIN;
     _duration_cb = LONG_MIN;
     _protocol="";
+    _timestamp_data = -1;
   };
 
   explicit Device(std::string entity_name, std::string entity_type,
@@ -47,6 +48,7 @@ struct Device : public virtual Timer {
     _active = INT_MIN;
     _duration_cb = LONG_MIN;
     _protocol="";
+    _timestamp_data = -1;
   };
 
   Device(const Device& dev):
@@ -88,6 +90,14 @@ struct Device : public virtual Timer {
     }
     else {
       _duration_cb = LONG_MIN;
+    }
+
+    // Timestamp for registering last communication
+    if (dev._timestamp_data != -1) {
+      _timestamp_data = dev._timestamp_data;
+    }
+    else {
+      _timestamp_data = -1;
     }
 
     std::map<std::string, std::string>::const_iterator iter;
@@ -227,7 +237,7 @@ struct Device : public virtual Timer {
   int _active;
   std::string _registration_id;
   long long _duration_cb;
-
+  long long _timestamp_data;
 };
 
 struct entity_hash {

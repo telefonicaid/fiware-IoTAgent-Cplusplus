@@ -19,47 +19,33 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_IOT_URL_H_
-#define SRC_UTIL_IOT_URL_H_
+#ifndef SRC_TESTS_IOTAGENT_MODBUSTEST_H_
+#define SRC_TESTS_IOTAGENT_MODBUSTEST_H_
 
-#include <string>
-#include <vector>
+#include <cppunit/extensions/HelperMacros.h>
 
-#define URL_PROTOCOL_DELIMITER "://"
-#define URL_PATH_DELIMITER "/"
-#define URL_PROTOCOL_HTTP "http"
-#define URL_PROTOCOL_HTTPS "https"
-#define URL_PROTOCOL_TCP "tcp"
 
-namespace iota {
+class ModbusTest : public CPPUNIT_NS::TestFixture {
+    CPPUNIT_TEST_SUITE(ModbusTest);
+    CPPUNIT_TEST (testBuildFrame);
+    CPPUNIT_TEST (testDecodeFrame);
+    CPPUNIT_TEST (testProcessor);
+    CPPUNIT_TEST (testProcessorFile);
+    CPPUNIT_TEST (testCrc);
+    CPPUNIT_TEST_SUITE_END();
 
-class IoTUrl {
   public:
-    IoTUrl(std::string url);
-
-    ~IoTUrl(void);
-
-    std::string getProtocol(void);
-
-    std::string getHost(void);
-
-    int getPort(void);
-
-    std::string getPath(void);
-
-    std::string getQuery(void);
-
-    bool getSSL(void);
-
+    void setUp();
+    void tearDown();
   protected:
+    void testBuildFrame();
+    void testDecodeFrame();
+    void testProcessor();
+    void testProcessorFile();
+    void testCrc();
+};
 
-  private:
-    std::string _url;
-    std::string _protocol;
-    std::string _host;
-    int         _port;
-    std::string _path;
-    std::string _query;
-};
-};
 #endif
+
+
+

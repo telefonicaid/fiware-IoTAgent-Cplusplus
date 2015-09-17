@@ -19,47 +19,32 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_IOT_URL_H_
-#define SRC_UTIL_IOT_URL_H_
+#include <iostream>
+#include <cppunit/TestResult.h>
+#include <cppunit/ui/text/TestRunner.h>
+#include <cppunit/TestResultCollector.h>
+#include <cppunit/CompilerOutputter.h>
+#include <cppunit/TextTestProgressListener.h>
+#include <cppunit/XmlOutputter.h>
 
-#include <string>
-#include <vector>
-
-#define URL_PROTOCOL_DELIMITER "://"
-#define URL_PATH_DELIMITER "/"
-#define URL_PROTOCOL_HTTP "http"
-#define URL_PROTOCOL_HTTPS "https"
-#define URL_PROTOCOL_TCP "tcp"
+#include "modbusTest.h"
+#include <pion/logger.hpp>
 
 namespace iota {
+std::string logger("main");
+}
 
-class IoTUrl {
-  public:
-    IoTUrl(std::string url);
+int main(int argc, char* argv[]) {
 
-    ~IoTUrl(void);
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
 
-    std::string getProtocol(void);
+  CppUnit::TextUi::TestRunner runner;
+  runner.addTest(ModbusTest::suite());
+  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
+                      std::cerr));
+  bool s = runner.run();
+  return s ? 0 : 1;
 
-    std::string getHost(void);
-
-    int getPort(void);
-
-    std::string getPath(void);
-
-    std::string getQuery(void);
-
-    bool getSSL(void);
-
-  protected:
-
-  private:
-    std::string _url;
-    std::string _protocol;
-    std::string _host;
-    int         _port;
-    std::string _path;
-    std::string _query;
-};
-};
-#endif
+}
