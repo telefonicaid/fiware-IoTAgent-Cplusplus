@@ -1743,6 +1743,74 @@ void Ul20Test::testFindService() {
   std::cout << "END testFindService " << std::endl;
 }
 
+void Ul20Test::testSendUnRegister() {
+  std::cout << "START testSendRegister " << std::endl;
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock("/mock"));
+  start_cbmock(cb_mock);
+
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+
+  boost::property_tree::ptree pt_cb;
+  try {
+    ul20serv.get_service_by_name(pt_cb, "service2", "/");
+    IOTASSERT(true);
+  }
+  catch (std::exception& e) {
+    std::cout << "exception " << e.what() << std::endl;
+  }
+
+  ul20serv.get_service_by_name(pt_cb, "service2", "");
+  std::string uri_cb = pt_cb.get<std::string>("cbroker", "");
+  std::cout << "uri_cb:" << uri_cb << std::endl;
+
+  std::vector<iota::ContextRegistration> context_registrations;
+  iota::ContextRegistration  cr;
+  std::string cb_response;
+  std::string reg_id;
+
+  iota::Entity entity("entity1", "thingf", "false");
+  cr.add_entity(entity);
+
+  context_registrations.push_back(cr);
+  boost::shared_ptr<iota::Device> device(new iota::Device("dev1", "thingf"));
+
+  ul20serv.send_unregister(pt_cb,
+                         device,
+                         reg_id,
+                         cb_response);
+
+  std::string cb_last = cb_mock->get_last();
+  std::cout << "@UT@INFO" << cb_last << std::endl;
+  IOTASSERT(cb_last.find("\"id\":\"entity1\",\"type\":\"thingf\"") !=
+                 std::string::npos);
+  IOTASSERT(
+    cb_last.find("\"providingApplication\":\"http://0.0.0.0/1026/iot/d\"") !=
+    std::string::npos);
+
+  boost::shared_ptr<iota::Device> device2(new iota::Device("entity1", "thingf", "service1"));
+
+  cb_mock->reset();
+  ul20serv.send_register(context_registrations,
+                         pt_cb,
+                         device2,
+                         reg_id,
+                         cb_response);
+
+  std::string cb_last1 = cb_mock->get_last();
+  std::cout << "@UT@INFO1" << cb_last1 << std::endl;
+  std::string cb_last2 = cb_mock->get_last();
+  std::cout << "@UT@INFO2" << cb_last2 << std::endl;
+  IOTASSERT(cb_last.compare("{\"updateAction\":\"APPEND\",\"contextElements\":[{\"id\":\"entity1\",\"type\":\"thingf\",\"isPattern\":\"false\"}]}") !=0);
+  IOTASSERT(cb_last.compare("{\"updateAction\":\"APPEND\",\"contextElements\":[{\"id\":\"ent1\",\"type\":\"thingf\",\"isPattern\":\"false\"}]}") !=0);
+
+  cb_mock->stop();
+  std::cout << "END testSendUnRegister " << std::endl;
+}
+
 void Ul20Test::testSendRegister() {
   std::cout << "START testSendRegister " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
@@ -1855,7 +1923,6 @@ void Ul20Test::testNoDeviceFile() {
 
   std::cout << "END testNoDeviceFile " << std::endl;
 }
-
 
 void Ul20Test::testRegisterDuration() {
 

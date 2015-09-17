@@ -159,6 +159,24 @@ class CommandHandle :
                       const std::string& regId,
                       std::string& cb_response);
 
+    /**
+     * @name    send_unregister
+     * @brief   send a register to Context Broker with 1 second expiration
+     *
+     * This API provides certain actions as an example.
+     *
+     * @param [in] service,  service with ContextBroker data.
+     * @param [in] device  device to unregister.
+     * @param [in] regId  registrationId to be unregister, it cannot be empty .
+     * @param [out] cb_response  response from context broker .
+     *
+     *
+     */
+    int send_unregister(boost::property_tree::ptree& service,
+                      const boost::shared_ptr<Device> device,
+                      const std::string& regId,
+                      std::string& cb_response);
+
     int send(
       iota::ContextElement ngsi_context_element,
       const std::string& opSTR,
