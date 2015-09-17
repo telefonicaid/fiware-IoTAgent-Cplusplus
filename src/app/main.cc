@@ -535,8 +535,7 @@ int main(int argc, char* argv[]) {
 
     pion::process::wait_for_shutdown();
     std::cout << "Server shutdown finish " << std::endl;
-
-    //AdminService_ptr->stop();
+    iota::tcp_servers.clear();
   }
   catch (std::exception& e) {
     IOTA_LOG_FATAL(pion_log, pion::diagnostic_information(e));
