@@ -1172,7 +1172,7 @@ void TTTest::testMissingSubAttributesBug_single_P1_Module_IDAS20245(){
                                       response.c_str());
   CPPUNIT_ASSERT (http_response.get_status_code() == 200);
   CPPUNIT_ASSERT_EQUAL (std::string(""),response);
-
+  test_setup.delete_device("8934075379000039321",test_setup.get_service(),test_setup.get_service_path());
 }
 
 void TTTest::testMissingSubAttributesBug_multiple_P1_GPS_B_Module_IDAS20245(){
@@ -1207,14 +1207,7 @@ CC_Logger::getSingleton()->logDebug("testMissingSubAttributesBug_multiple_P1_GPS
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock->set_response("/mock/query", 200,mockResponse); //Second query.
-
-
-
-  CPPUNIT_ASSERT_MESSAGE("Checking default protocol description ", ttService->get_protocol_data().description.compare("Thinking Things Protocol") == 0);
-  ttService->set_option("ProtocolDescription", "TT");
-  CPPUNIT_ASSERT_MESSAGE("Checking new protocol description ", ttService->get_protocol_data().description.compare("TT") == 0);
-
+  cb_mock->set_response("/mock/"+ test_setup.get_service() + "/NGSI10/queryContext", 200,mockResponse); //Second query.
 
   std::string query =
     "cadena=#8934075379000039321,#0,GM,temp,23,$#0,GPS,11,,33,44,#0,B,12,23,34,,56,67,#0,P1,214,,33f,633c,#0,K1,0$";
@@ -1365,6 +1358,7 @@ CC_Logger::getSingleton()->logDebug("testErrorCodesOnBug_IDAS20308: starting");
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
   TestSetup test_setup(get_service_name(__FUNCTION__),"/TestTT/tt");
+  test_setup.add_device("8934075379000039321",ttService->get_protocol_data().protocol);
 
   //Setting responses for http_mocks
   //queryContext should not find any attributes:
@@ -1496,7 +1490,9 @@ void TTTest::testError_when_empty_response_from_CB(){
  unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
+  TestSetup test_setup(get_service_name(__FUNCTION__),"/TestTT/tt");
 
+   test_setup.add_device("8934075379000039321",ttService->get_protocol_data().protocol);
   std::string query;
 
   query.assign("cadena=#8934075379000039321,#0,GM,temp,33,$,#0,GM,,22,$");
