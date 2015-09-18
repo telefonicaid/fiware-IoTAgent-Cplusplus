@@ -1785,27 +1785,9 @@ void Ul20Test::testSendUnRegister() {
 
   std::string cb_last = cb_mock->get_last();
   std::cout << "@UT@INFO" << cb_last << std::endl;
-  IOTASSERT(cb_last.find("\"id\":\"entity1\",\"type\":\"thingf\"") !=
-                 std::string::npos);
-  IOTASSERT(
-    cb_last.find("\"providingApplication\":\"http://0.0.0.0/1026/iot/d\"") !=
-    std::string::npos);
-
-  boost::shared_ptr<iota::Device> device2(new iota::Device("entity1", "thingf", "service1"));
-
-  cb_mock->reset();
-  ul20serv.send_register(context_registrations,
-                         pt_cb,
-                         device2,
-                         reg_id,
-                         cb_response);
-
-  std::string cb_last1 = cb_mock->get_last();
-  std::cout << "@UT@INFO1" << cb_last1 << std::endl;
-  std::string cb_last2 = cb_mock->get_last();
-  std::cout << "@UT@INFO2" << cb_last2 << std::endl;
-  IOTASSERT(cb_last.compare("{\"updateAction\":\"APPEND\",\"contextElements\":[{\"id\":\"entity1\",\"type\":\"thingf\",\"isPattern\":\"false\"}]}") !=0);
-  IOTASSERT(cb_last.compare("{\"updateAction\":\"APPEND\",\"contextElements\":[{\"id\":\"ent1\",\"type\":\"thingf\",\"isPattern\":\"false\"}]}") !=0);
+  IOTASSERT(cb_last.compare("{\"contextRegistrations\":["
+   "{\"entities\":[{\"id\":\"thing_apikey3:dev1\",\"type\":\"thing_apikey3\",\"isPattern\":\"false\"}],\"attributes\":[],\"providingApplication\":\"\"}],\"duration\":\"PT1S\"}")
+    == 0);
 
   cb_mock->stop();
   std::cout << "END testSendUnRegister " << std::endl;
