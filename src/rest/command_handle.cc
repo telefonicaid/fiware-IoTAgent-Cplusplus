@@ -1413,7 +1413,7 @@ int iota::CommandHandle::send_unregister(
   if (_myProvidingApp == UNKOWN_PROVIDING_APP) {
     IOTA_LOG_DEBUG(m_logger,
                    "Registrations are not sent because a valid ProvidingApp can not be obtained");
-    return;
+    return -1;
   }else{
     cr.add_provider(_myProvidingApp);
   }

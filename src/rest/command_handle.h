@@ -373,7 +373,9 @@ class CommandHandle :
     */
     void set_async_commands();
 
-
+    void set_myProvidingApp(const std::string &myapp){
+      _myProvidingApp = myapp;
+    }
 
 
   protected:

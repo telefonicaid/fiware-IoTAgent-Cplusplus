@@ -1754,6 +1754,8 @@ void Ul20Test::testSendUnRegister() {
   iota::UL20Service ul20serv;
   ul20serv.set_resource("/iot/d");
 
+  ul20serv.set_myProvidingApp("http://myApp");
+
   boost::property_tree::ptree pt_cb;
   try {
     ul20serv.get_service_by_name(pt_cb, "service2", "/");
@@ -1786,7 +1788,7 @@ void Ul20Test::testSendUnRegister() {
   std::string cb_last = cb_mock->get_last();
   std::cout << "@UT@INFO" << cb_last << std::endl;
   IOTASSERT(cb_last.compare("{\"contextRegistrations\":["
-   "{\"entities\":[{\"id\":\"thing_apikey3:dev1\",\"type\":\"thing_apikey3\",\"isPattern\":\"false\"}],\"attributes\":[],\"providingApplication\":\"\"}],\"duration\":\"PT1S\"}")
+   "{\"entities\":[{\"id\":\"thing_apikey3:dev1\",\"type\":\"thing_apikey3\",\"isPattern\":\"false\"}],\"attributes\":[],\"providingApplication\":\"http://myApp\"}],\"duration\":\"PT1S\"}")
     == 0);
 
   cb_mock->stop();
