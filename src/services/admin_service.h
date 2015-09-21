@@ -501,8 +501,7 @@ class AdminService :
     bool is_mongo_active();
 
     void deploy_device(Device& device);
-    void undeploy_device( boost::property_tree::ptree& service_ptree,
-                          const boost::shared_ptr<Device> device);
+    void undeploy_device( const boost::shared_ptr<Device> device);
 
     void register_iota_manager();
     void print_services();

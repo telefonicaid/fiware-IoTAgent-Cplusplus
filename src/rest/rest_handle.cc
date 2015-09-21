@@ -44,6 +44,7 @@
 #include <ngsi/UpdateContext.h>
 #include "util/RiotISO8601.h"
 #include "util/json_util.h"
+#include <algorithm>
 
 #define ERROR_MORE_THAN_ONE  -100
 #define ERROR_NO_SERVICE  -404
@@ -899,8 +900,8 @@ int iota::RestHandle::get_service_by_name_bbdd(
   if (!service_path.empty()) {
     p2.append(iota::store::types::SERVICE_PATH, service_path);
   }
-  if (!resource.empty() && resource.compare("/iot") != 0) {
-    p2.append(iota::store::types::RESOURCE, resource);
+  if (!resource.empty()){
+      p2.append(iota::store::types::RESOURCE, resource);
   }
 
 

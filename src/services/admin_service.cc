@@ -1809,13 +1809,11 @@ int iota::AdminService::delete_device_json(
   std::string error_details;
   std::string cb_response;
   std::string regId;
-  boost::property_tree::ptree service_ptree;
-  get_service_by_name(service_ptree, service, service_path);
 
   // unregister in CB
   boost::shared_ptr<Device> dev (new Device(id_device, service));
   dev->_service_path  = service_path;
-  undeploy_device(service_ptree, dev);
+  undeploy_device(dev);
 
   //remove from mongo
   mongo::BSONObjBuilder b;
@@ -2210,7 +2208,6 @@ void iota::AdminService::deploy_device(Device& device) {
 }
 
 void iota::AdminService::undeploy_device(
-      boost::property_tree::ptree& service_ptree,
       const boost::shared_ptr<Device> device) {
 
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
@@ -2228,6 +2225,9 @@ void iota::AdminService::undeploy_device(
       if (cmd_handle != NULL) {
         iota::ProtocolData pro = cmd_handle->get_protocol_data();
         if (protocol_name.compare(pro.protocol) ==0) {
+          boost::property_tree::ptree service_ptree;
+          cmd_handle->get_service_by_name(service_ptree,
+              device->_service, device->_service_path);
           cmd_handle->send_unregister(service_ptree, device,
           device->_registration_id, cb_response);
           IOTA_LOG_DEBUG(m_log, "unregister to CB:" + cb_response);
