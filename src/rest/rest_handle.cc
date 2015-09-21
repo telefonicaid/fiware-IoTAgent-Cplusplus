@@ -904,6 +904,8 @@ int iota::RestHandle::get_service_by_name_bbdd(
   const std::string& service_path) {
 
   std::string resource = get_resource();
+  IOTA_LOG_DEBUG(m_logger, "get_service_by_name_bbdd-" <<
+                   "resource:"<< resource);
 
   iota::Collection q1(iota::store::types::SERVICE_TABLE);
   mongo::BSONObjBuilder p2;
@@ -911,7 +913,8 @@ int iota::RestHandle::get_service_by_name_bbdd(
   if (!service_path.empty()) {
     p2.append(iota::store::types::SERVICE_PATH, service_path);
   }
-  if (!resource.empty()) {
+  ////TODO  no entiendo por qué ahora el resource es /iot
+  if (!resource.empty() && resource.compare("/iot") != 0) {
     p2.append(iota::store::types::RESOURCE, resource);
   }
 

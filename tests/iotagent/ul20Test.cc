@@ -3560,11 +3560,11 @@ void Ul20Test::testChangeIPDevice(){
 
     dev = ul20serv.get_device(dev_name,service,subservice);
 
-    code_res = adminService.delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
-                     http_response, response, "1234", "4444");
-
     std::string protocol = "";
     code_res = adminService.delete_device_json(service,subservice,dev_name,http_response,response,"12334",protocol);
+
+    code_res = adminService.delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
+                     http_response, response, "1234", "4444");
 
     if (dev.get() != NULL){
 
@@ -3707,8 +3707,8 @@ void Ul20Test::testChangeIPDevice_empty(){
 
 
    {
-    std::string encoded_endpoint = "";
-    encoded_endpoint = pion::algorithm::url_encode(new_endpoint);
+    new_endpoint = "http://new_endpoint:8080/";
+    std::string encoded_endpoint = pion::algorithm::url_encode(new_endpoint);
     std::string querySTR = "i="+dev_name+"&k=" + apikey + "&ip="+encoded_endpoint;
 
     pion::http::request_ptr http_request(new pion::http::request("/iot/d"));
@@ -3735,15 +3735,12 @@ void Ul20Test::testChangeIPDevice_empty(){
     dev = ul20serv.get_device(dev_name,service,subservice);
 
 
-    code_res = adminService.delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
-                     http_response, response, "1234", "4444");
-
-
     //change of endpoint parameter should NOT have happend, let's check it.
 
    code_res = adminService.delete_device_json(service,subservice,dev_name,http_response,response,"12334",protocol);
 
-
+    code_res = adminService.delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
+                     http_response, response, "1234", "4444");
 
     if (dev.get() != NULL){
 

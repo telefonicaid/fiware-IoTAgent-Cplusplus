@@ -1859,18 +1859,28 @@ int iota::AdminService::delete_device_json(
   boost::property_tree::ptree service_ptree;
   get_service_by_name(service_ptree, service, service_path);
 
-  iota::DeviceCollection devTable;
-  iota::DeviceCollection devTable2;
-  iota::Device q1(id_device, service );
-  q1._service_path  = service_path;
+  // unregister in CB
+  boost::shared_ptr<Device> dev (new Device(id_device, service));
+  dev->_service_path  = service_path;
+  undeploy_device(service_ptree, dev);
 
-  devTable.findd(q1);
-  while(devTable.more()){
-    iota::Device d1 =  devTable.nextd();
-    boost::shared_ptr<Device> dev (new Device(d1));
-    undeploy_device(service_ptree, dev);
-    devTable2.removed(d1);
+  //remove from mongo
+  mongo::BSONObjBuilder b;
+  if (!id_device.empty()) {
+    b.append(iota::store::types::DEVICE_ID, id_device);
   }
+  if (!service.empty()) {
+    b.append(iota::store::types::SERVICE, service);
+  }
+  if (!service_path.empty()) {
+    b.append(iota::store::types::SERVICE_PATH, service_path);
+  }
+  Collection devTable(iota::store::types::DEVICE_TABLE);
+  devTable.remove(b.obj());
+
+  //remove device from cache, to force reload new data
+  remove_from_cache(*dev.get());
+
 
   return create_response(code, reason, error_details, http_response,
                          response);

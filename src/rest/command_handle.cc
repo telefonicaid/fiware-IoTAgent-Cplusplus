@@ -1410,6 +1410,14 @@ int iota::CommandHandle::send_unregister(
   iota::Entity entity(entity_name, entity_type, "false");
   cr.add_entity(entity);
 
+  if (_myProvidingApp == UNKOWN_PROVIDING_APP) {
+    IOTA_LOG_DEBUG(m_logger,
+                   "Registrations are not sent because a valid ProvidingApp can not be obtained");
+    return;
+  }else{
+    cr.add_provider(_myProvidingApp);
+  }
+
   IOTA_LOG_DEBUG(m_logger, "send_unregister: " << regId);
   reg.add_registrationId(regId);
   reg.add_duration("PT1S");
