@@ -28,17 +28,41 @@
 #include <cppunit/XmlOutputter.h>
 #include "ttTest.h"
 #include "TTBufferTests.h"
+#include "util/dev_file.h"
 
-namespace iota {
-std::string URL_BASE = "/iot";
-std::string logger("main");
-}
-iota::AdminService* AdminService_ptr;
 
 int main(int argc, char* argv[]) {
 
-  //AdminService_ptr = new iota::AdminService();
+// Logger
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
 
+  // Url base
+  iota::Process& process = iota::Process::initialize("/TestTT",5);
+  iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+
+  // Http Server and Admin Service
+  pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
+  iota::AdminService* adm = new iota::AdminService();
+  process.set_admin_service(adm);
+
+  // TT Service
+  iota::esp::TTService* ttService = new iota::esp::TTService();
+  ttService->set_option("ConfigFile","../../tests/iotagent/TTService.xml");
+  ttService->set_iota_manager_endpoint("http://127.0.0.1/fake");
+
+  http_server->add_service("/TestTT/tt", ttService);
+  adm->add_service("/TestTT/tt", ttService);
+
+  // Mock
+  MockService* mock = new MockService();
+  http_server->add_service("/mock", mock);
+  adm->add_service("/mock", mock);
+
+  iota::DevicesFile::initialize("../../tests/iotagent/devices_mqtt.json");
+
+  process.start();
   testing::GTEST_FLAG(throw_on_failure) = true;
   testing::InitGoogleMock(&argc, argv);
 
@@ -47,15 +71,15 @@ int main(int argc, char* argv[]) {
   controller.addListener(&result);
 
   CppUnit::TextUi::TestRunner runner;
-  runner.addTest(TTBufferTests::suite());
+ // runner.addTest(TTBufferTests::suite());
   runner.addTest( TTTest::suite());
- // runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),std::cerr));
 
   runner.run(controller);
   //important stuff happens next
   std::ofstream xmlFileOut("ttcpptestresults.xml");
   CppUnit::XmlOutputter xmlOut(&result, xmlFileOut);
   xmlOut.write();
+  process.shutdown();
   return result.wasSuccessful() ? 0 : 1;
 
 

@@ -38,21 +38,21 @@
 #include "thinkingthings/SearchResponse.h"
 #include "util/TTCBPublisher.h"
 #include "thinkingthings/TTService.h"
+#include "../mocks/util_functions.h"
 
 
 class TTTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(TTTest);
     CPPUNIT_TEST(testTTResponses);
-
     CPPUNIT_TEST(testSearchResponses);
-    CPPUNIT_TEST(testTTCBPublisher);
+   /* CPPUNIT_TEST(testTTCBPublisher);
     CPPUNIT_TEST(testTTResponsesP1);
     CPPUNIT_TEST(testTTResponsesP1NoTResponse);
     CPPUNIT_TEST(testTTResponsesB);
     CPPUNIT_TEST(testDecodeTTJSONS);
     CPPUNIT_TEST(testDecodeTTJSONsError);
-    CPPUNIT_TEST(testFirstTimeTTAttributes);
-    CPPUNIT_TEST(testFirstTimeTTAttributesWithK);
+   */ CPPUNIT_TEST(testFirstTimeTTAttributes);
+   /* CPPUNIT_TEST(testFirstTimeTTAttributesWithK);
     CPPUNIT_TEST(testParsingResponseOnBug_IDAS20197);
     CPPUNIT_TEST(testSearchResponsesGPS);
     CPPUNIT_TEST(testSearchResponseOnBug_IDAS20201);
@@ -64,8 +64,7 @@ class TTTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testErrorCodesOnBug_IDAS20303);
     CPPUNIT_TEST(testErrorCodesOnBug_IDAS20308);
     CPPUNIT_TEST(testNoEmpty_And_ValidResponse_OnBug_IDAS20308);
-    CPPUNIT_TEST(testError_when_empty_response_from_CB);
-
+    CPPUNIT_TEST(testError_when_empty_response_from_CB);*/
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -108,11 +107,7 @@ class TTTest : public CPPUNIT_NS::TestFixture {
     void testError_when_empty_response_from_CB();
 
   private:
-    iota::esp::TTService* ttService;
 
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock);
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock_update,
-                      boost::shared_ptr<HttpMock>& cb_mock_query);
 
 
 };

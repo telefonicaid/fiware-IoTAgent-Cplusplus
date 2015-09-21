@@ -33,7 +33,7 @@ namespace iota {
 class OAuthFilter: public virtual iota::HTTPFilter {
 
   public:
-    OAuthFilter();
+    OAuthFilter(boost::asio::io_service& io_service);
     virtual ~OAuthFilter();
     void set_configuration(std::map<std::string, std::string>& oauth_conf);
     void set_pep_rules(std::multimap<std::string, iota::PepRule>& pep_rules);

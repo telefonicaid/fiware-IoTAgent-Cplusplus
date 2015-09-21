@@ -51,7 +51,7 @@ if(MOSQUITTO_FOUND)
 include_directories(${MOSQUITTO_INCLUDE_DIR})
 link_directories(${MOSQUITTO_LIBS_DIR})
 
-add_executable(mqtt_tests mqttTest.cc mqtt_test.cc)
+add_executable(mqtt_tests mqttTest.cc mqtt_test.cc )
 target_link_libraries(mqtt_tests esp_mqtt mosquittopp mosquitto smqttservice iotmock iota_a
 	${IOTAGENT_LIBS} ${MOSQUITTO_LIBRARIES} ${TEST_LIBS})
 

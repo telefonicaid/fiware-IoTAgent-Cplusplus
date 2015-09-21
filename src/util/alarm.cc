@@ -24,12 +24,8 @@
 
 iota::Alarm* iota::Alarm::pinstance = 0;// Inicializar el puntero
 
-namespace iota {
-extern std::string logger;
-}
-
 iota::Alarm::Alarm():
-  m_log(PION_GET_LOGGER(iota::logger)) {
+  m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 
 iota::Alarm* iota::Alarm::instance() {

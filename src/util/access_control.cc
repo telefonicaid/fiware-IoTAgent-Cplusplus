@@ -25,17 +25,17 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/foreach.hpp>
-namespace iota {
-extern std::string logger;
-}
+
 iota::AccessControl::AccessControl(): _timeout(5),
-  m_logger(PION_GET_LOGGER(iota::logger)) {
+  _io_service(iota::Process::get_process().get_io_service()),
+  m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 iota::AccessControl::AccessControl(std::string endpoint_ac,
                                     int timeout,
-                                    boost::shared_ptr<boost::asio::io_service> io_service): _endpoint_ac(
+                                    boost::asio::io_service& io_service):
+                                    _endpoint_ac(
                                         endpoint_ac),
-  _timeout(timeout), _io_service(io_service), m_logger(PION_GET_LOGGER(iota::logger)) {
+  _timeout(timeout), _io_service(io_service), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 
 iota::AccessControl::~AccessControl() {
@@ -85,7 +85,7 @@ bool iota::AccessControl::authorize(std::vector<std::string> roles,
     create_request(compound_server, resource, content, query,
                    additional_info);
 
-  boost::shared_ptr<iota::HttpClient> http_client(new iota::HttpClient(*_io_service, server,
+  boost::shared_ptr<iota::HttpClient> http_client(new iota::HttpClient(_io_service, server,
       dest.getPort()));
   std::string proxy;
   http_client->async_send(request, _timeout, proxy,

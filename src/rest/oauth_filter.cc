@@ -29,16 +29,15 @@
 
 
 namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
 std::map<std::string, std::string> actions =
   boost::assign::map_list_of("GET","read")("POST","create")("PUT","update")
   ("DELETE","delete");
 };
 
 
-iota::OAuthFilter::OAuthFilter(): _timeout(3),
-  HTTPFilter(PION_GET_LOGGER(iota::logger)) {
+iota::OAuthFilter::OAuthFilter(boost::asio::io_service& io_service):
+  _timeout(3),
+  HTTPFilter(io_service, PION_GET_LOGGER(iota::Process::get_logger_name())) {
   std::string context("POST[[:space:]]+");
   context += "/";
   context += iota::NGSI_SERVICE;
@@ -80,7 +79,8 @@ void iota::OAuthFilter::set_pep_rules(std::multimap<std::string, iota::PepRule>&
     std::vector<std::string> url_args;
     verb["method"] = i_pep_rules->second.verb;
     iota::format_pattern(i_pep_rules->second.uri, verb, expr_regex, url_args);
-    _pep_rules.insert(std::pair<std::string, std::string>(i_pep_rules->first, expr_regex));
+    _pep_rules.insert(std::pair<std::string, std::string>(i_pep_rules->first,
+                      expr_regex));
     i_pep_rules++;
   }
 }
@@ -94,9 +94,9 @@ bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
 
   // URI for protocols is not authorized
   // Exception for about and protocols
-  if (http_request_ptr->get_resource().compare(iota::URL_BASE +
+  if (http_request_ptr->get_resource().compare(iota::Process::get_url_base() +
       iota::ADMIN_SERVICE_ABOUT) == 0 ||
-      http_request_ptr->get_resource().compare(iota::URL_BASE +
+      http_request_ptr->get_resource().compare(iota::Process::get_url_base() +
           iota::ADMIN_SERVICE_PROTOCOLS) == 0
      ) {
     tcp_conn->get_io_service().post(boost::bind(
@@ -143,11 +143,12 @@ bool iota::OAuthFilter::handle_request(pion::http::request_ptr&
       handle_no_allowed(http_request_ptr, tcp_conn, status);
     }
     else {
-      boost::shared_ptr<iota::OAuth> oauth_comm(new iota::OAuth(_timeout));
+      boost::shared_ptr<iota::OAuth> oauth_comm(new iota::OAuth(_io_service,
+          _timeout));
       oauth_comm->set_oauth_validate(_auth_endpoint_validate);
       oauth_comm->set_oauth_roles(_auth_endpoint_roles);
       oauth_comm->set_oauth_projects(_auth_endpoint_projects);
-      oauth_comm->set_async_service(_io_service);
+      // TODO oauth_comm->set_async_service(_io_service);
       oauth_comm->set_identity(_domain, _user, _password);
       oauth_comm->set_domain(fiware_service);
       oauth_comm->set_project(fiware_servicepath);
@@ -176,7 +177,8 @@ void iota::OAuthFilter::authorize(pion::http::request_ptr& http_request_ptr,
   std::vector<std::string> user_subservice_roles;
   std::string resource_id(get_resource(domain, project,
                                        get_relative_resource(http_request_ptr->get_resource())));
-  std::string action(get_action(http_request_ptr->get_method(), get_relative_resource(http_request_ptr->get_resource())));
+  std::string action(get_action(http_request_ptr->get_method(),
+                                get_relative_resource(http_request_ptr->get_resource())));
   try {
     BOOST_FOREACH(boost::property_tree::ptree::value_type& v,
                   roles.get_child("role_assignments")) {

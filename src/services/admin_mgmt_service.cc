@@ -9,10 +9,6 @@
 #include <boost/property_tree/ptree.hpp>
 #include "util/device_collection.h"
 
-namespace iota {
-extern std::string logger;
-}
-
 std::string iota::AdminManagerService::_POST_PROTOCOL_SCHEMA;
 std::string iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA;
 
@@ -20,21 +16,9 @@ std::string iota::AdminManagerService::_POST_SERVICE_SCHEMA;
 std::string iota::AdminManagerService::_PUT_SERVICE_SCHEMA;
 
 
-iota::AdminManagerService::AdminManagerService(pion::http::plugin_server_ptr
-    web_server): iota::AdminService(web_server),
-  _timeout(5),
-  m_log(PION_GET_LOGGER(
-          iota::logger)),
-  _class_name("iota::AdminManagerService") {
-  read_schema("post_protocol.schema", iota::AdminManagerService::_POST_PROTOCOL_SCHEMA);
-  read_schema("put_protocol.schema", iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA);
-  read_schema("post_service_manager.schema", iota::AdminManagerService::_POST_SERVICE_SCHEMA);
-  read_schema("put_service_manager.schema", iota::AdminManagerService::_PUT_SERVICE_SCHEMA);
-}
-
 iota::AdminManagerService::AdminManagerService() :
   _class_name("iota::AdminManagerService"), _timeout(5),
-  m_log(PION_GET_LOGGER(iota::logger)) {
+  m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   read_schema("post_protocol.schema", iota::AdminManagerService::_POST_PROTOCOL_SCHEMA);
   read_schema("put_protocol.schema", iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA);
   read_schema("post_service_manager.schema", iota::AdminManagerService::_POST_SERVICE_SCHEMA);
@@ -581,7 +565,7 @@ int iota::AdminManagerService::post_multiple_devices(
   IOTA_LOG_DEBUG(m_log, log_message);
 
   response.assign("");
-  int code = 201;
+  int code = pion::http::types::RESPONSE_CODE_CREATED;
   for (int i = 0; i < v_devices_endpoint_in.size(); i++) {
     DeviceToBeAdded& dev = v_devices_endpoint_in[i];
     std::string temp_res;
@@ -615,9 +599,10 @@ int iota::AdminManagerService::post_multiple_devices(
   if (response_from_iotagent.size() == 0) {
     code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
   }
-	else if (!response.empty()) {
-		code = pion::http::types::RESPONSE_CODE_OK;
-	}
+  else if (!response.empty()) {
+    code = pion::http::types::RESPONSE_CODE_OK;
+  }
+
   return code;
 
 }
@@ -1316,8 +1301,9 @@ int iota::AdminManagerService::post_service_json(
       code = pion::http::types::RESPONSE_CODE_SERVER_ERROR;
     }
     else if (!response.empty()) {
-			code = pion::http::types::RESPONSE_CODE_OK;
-		}
+      code = pion::http::types::RESPONSE_CODE_OK;
+    }
+
   }
   else {
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,

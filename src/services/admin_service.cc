@@ -19,7 +19,8 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#include "admin_service.h"
+#include "services/admin_service.h"
+#include "rest/process.h"
 #include "rest/riot_conf.h"
 #include "util/csv_reader.h"
 #include "rest/types.h"
@@ -34,7 +35,6 @@
 #include <boost/filesystem/operations.hpp>
 #include <boost/algorithm/string/trim.hpp>
 #include <boost/algorithm/string/erase.hpp>
-#include <pion/process.hpp>
 #include "version.h"
 #include "util/device_collection.h"
 #include "util/service_collection.h"
@@ -56,10 +56,6 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
-namespace iota {
-extern std::string URL_BASE;
-extern std::string logger;
-}
 const std::string iota::AdminService::_api_service_holder ="service";
 const std::string iota::AdminService::_api_device_holder = "device";
 const unsigned short iota::AdminService::TIME_FOR_LOG = 2;
@@ -73,23 +69,9 @@ std::string iota::AdminService::_PUT_SERVICE_SCHEMA;
 
 
 
-iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
-  iota::RestHandle(),
-  //_web_server(web_server),
-  _class_name("iota::AdminService"),
-  m_log(PION_GET_LOGGER(iota::logger)) {
-  IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
-  checkIndexes();
-  read_schema("post_device.schema", iota::AdminService::_POST_DEVICE_SCHEMA);
-  read_schema("put_device.schema", iota::AdminService::_PUT_DEVICE_SCHEMA);
-  read_schema("post_service.schema", iota::AdminService::_POST_SERVICE_SCHEMA);
-  read_schema("put_service.schema", iota::AdminService::_PUT_SERVICE_SCHEMA);
-}
-
-iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
+iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::Process::get_logger_name())),
   _class_name("iota::AdminService") {
   IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService2");
-  // iota::AdminService::_web_server = NULL;
   checkIndexes();
   read_schema("post_device.schema", iota::AdminService::_POST_DEVICE_SCHEMA);
   read_schema("put_device.schema", iota::AdminService::_PUT_DEVICE_SCHEMA);
@@ -127,7 +109,6 @@ void iota::AdminService::read_schema(std::string file_name,
 }
 
 iota::AdminService::~AdminService() {
-  //std::cout << "DESTRUCTOR AdminService " << _web_server.use_count() << std::endl;
   if (_timer.get() != NULL) {
     _timer->cancel();
   }
@@ -165,13 +146,6 @@ void iota::AdminService::checkIndexes() {
                    e.what());
   }
 }
-
-/*
-pion::http::plugin_server_ptr iota::AdminService::get_web_server() {
-  boost::shared_ptr<pion::http::plugin_server> w_s = _web_server.lock();
-  return w_s;
-}
-*/
 
 void iota::AdminService::set_timezone_database(std::string timezones_file) {
 
@@ -240,7 +214,7 @@ void iota::AdminService::add_oauth_media_filters() {
         !oauth_map[iota::types::CONF_FILE_OAUTH_ROLES_URL].empty() &&
         !oauth_map[iota::types::CONF_FILE_OAUTH_PROJECTS_URL].empty() &&
         !oauth_map[iota::types::CONF_FILE_ACCESS_CONTROL].empty()) {
-      boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter());
+      boost::shared_ptr<iota::OAuthFilter> auth_ptr(new iota::OAuthFilter(iota::Process::get_process().get_io_service()));
       auth_ptr->set_filter_url_base(get_resource());
       auth_ptr->set_configuration(oauth_map);
       auth_ptr->set_pep_rules(iota::Configurator::instance()->get_pep_rules());
@@ -253,7 +227,7 @@ void iota::AdminService::add_oauth_media_filters() {
   }
 
 
-  boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter());
+  boost::shared_ptr<iota::MediaFilter> media_ptr(new iota::MediaFilter(iota::Process::get_process().get_io_service()));
   add_pre_filter(media_ptr);
 
 }
@@ -262,8 +236,8 @@ void iota::AdminService::add_oauth_media_filters() {
 void iota::AdminService::check_for_logs() {
 
   // Check for logs ok
-  _timer.reset(new boost::asio::deadline_timer(*
-               (_connectionManager->get_io_service())));
+  _timer.reset(new boost::asio::deadline_timer(
+               (iota::Process::get_process().get_io_service())));
   _timer->expires_from_now(boost::posix_time::seconds(1));
   _timer->async_wait(boost::bind(&iota::AdminService::timeout_check_logs,
                                  this,
@@ -274,10 +248,7 @@ void iota::AdminService::start() {
 
 
   std::map<std::string, std::string> filters;
-
-
   add_common_urls(filters);
-
 
   try {
     const JsonValue& tz_file = iota::Configurator::instance()->get(
@@ -296,16 +267,6 @@ void iota::AdminService::start() {
 
 
 }
-
-void iota::AdminService::stop() {
-  /*
-    if ( _web_server.get() != NULL ) {
-      std::cout << "RESET" << std::endl;
-      _web_server.reset();
-    }
-    */
-}
-
 
 void iota::AdminService::about(pion::http::request_ptr& http_request_ptr,
                                std::map<std::string, std::string>& url_args,
@@ -460,7 +421,7 @@ void iota::AdminService::agent(pion::http::request_ptr& http_request_ptr,
   IOTA_LOG_INFO(m_log, method << " " << url_args["agent"]);
 
   // Esto esta implementado suponiendo un despliegue a partir de una url-base
-  std::string my_resource(iota::URL_BASE);
+  std::string my_resource(iota::Process::get_url_base());
   my_resource.append("/");
   my_resource.append(url_args["agent"]);
   iota::RestHandle* agent = get_service(my_resource);
@@ -1261,14 +1222,6 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
 }
 
 
-void iota::AdminService::start_plugin(std::string& resource,
-                                      std::string& plugin_name) {
-  /*
-  boost::shared_ptr<pion::http::plugin_server> w_s = _web_server.lock();
-  w_s->load_service(resource, plugin_name);
-  */
-}
-
 int iota::AdminService::create_response(
   const unsigned int status_code,
   const std::string& content,
@@ -1605,7 +1558,7 @@ int iota::AdminService::post_device_json(
     }
     if (be.size() == 1) {
       http_response.add_header(pion::http::types::HEADER_LOCATION,
-                               iota::URL_BASE + iota::ADMIN_SERVICE_DEVICES + "/" + device_to_post);
+                               iota::Process::get_url_base() + iota::ADMIN_SERVICE_DEVICES + "/" + device_to_post);
     }
   }
   else {
@@ -1926,7 +1879,7 @@ int iota::AdminService::post_service_json(
     register_iota_manager();
     if (be.size() == 1) {
       http_response.add_header(pion::http::types::HEADER_LOCATION,
-                               iota::URL_BASE + iota::ADMIN_SERVICE_SERVICES + "/" + service);
+                               iota::Process::get_url_base() + iota::ADMIN_SERVICE_SERVICES + "/" + service);
     }
   }
   else {
@@ -2324,13 +2277,8 @@ void iota::AdminService::check_logs() {
   }
   else {
     perror("Server shutdown for log file errors ");
-    //get_web_server()->shutdown();
-    pion::process::shutdown();
+    iota::Process::get_process().shutdown();
   }
-}
-
-void iota::AdminService::set_log_file(std::string& log_file) {
-  _log_file = log_file;
 }
 
 bool iota::AdminService::check_device_protocol(const std::string& protocol_name,

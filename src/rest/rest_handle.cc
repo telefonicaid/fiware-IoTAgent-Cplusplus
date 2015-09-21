@@ -48,11 +48,6 @@
 #define ERROR_MORE_THAN_ONE  -100
 #define ERROR_NO_SERVICE  -404
 #define ERROR_SERVICE_OK  0
-namespace iota {
-extern std::string URL_BASE;
-extern std::string logger;
-}
-extern iota::AdminService* AdminService_ptr;
 
 
 boost::shared_ptr<iota::Device> get_func(boost::shared_ptr<iota::Device> item) {
@@ -74,13 +69,9 @@ boost::shared_ptr<iota::Device> get_func(boost::shared_ptr<iota::Device> item) {
 }
 
 iota::RestHandle::RestHandle(): _enabled_stats(true),
-  m_logger(PION_GET_LOGGER(iota::logger)),
+  m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())),
   registeredDevices(iota::types::MAX_SIZE_CACHE, false), _manager_endpoint("") {
   IOTA_LOG_DEBUG(m_logger, "RestHandle constructor");
-
-  _connectionManager.reset(new CommonAsyncManager(1));
-  _connectionManager->run();
-
   std::string devices_store = "./devices.json";
 
   try {
@@ -126,9 +117,6 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
 }
 
 iota::RestHandle::~RestHandle() {
-  //std::cout << "DESTRUCTOR " << get_resource() << std::endl;
-  _connectionManager->stop();
-
 }
 
 void iota::RestHandle::set_option(const std::string& name, const std::string& value) {
@@ -146,6 +134,7 @@ void iota::RestHandle::set_my_url_base(std::string st) {
 }
 
 void iota::RestHandle::register_plugin() {
+  iota::AdminService* AdminService_ptr = iota::Process::get_process().get_admin_service();
   if (AdminService_ptr != NULL) {
     AdminService_ptr->add_service(get_resource(), this);
   }
@@ -222,10 +211,7 @@ std::string iota::RestHandle::get_public_ip() {
   }
   if (public_ip.empty()) {
     // Own endpoint to register
-    /*
-    boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
-      AdminService_ptr->get_web_server()->get_endpoint();
-    */
+
     std::string my_ip = iota::Configurator::instance()->get_listen_ip();
     unsigned short my_port =  iota::Configurator::instance()->get_listen_port();
 
@@ -255,7 +241,7 @@ void iota::RestHandle::register_iota_manager() {
     return;
   }
   std::string public_ip = get_public_ip();
-  public_ip.append(iota::URL_BASE);
+  public_ip.append(iota::Process::get_url_base());
 
   try {
     bool using_database = true;
@@ -297,7 +283,7 @@ void iota::RestHandle::register_iota_manager() {
         log_message.append(json_post);
         iota::IoTUrl dest(iota_manager_endpoint);
         boost::shared_ptr<iota::HttpClient> http_client(
-          new iota::HttpClient(*(_connectionManager->get_io_service()), dest.getHost(),
+          new iota::HttpClient(iota::Process::get_process().get_io_service(), dest.getHost(),
                                dest.getPort()));
         boost::property_tree::ptree additional_info;
         pion::http::request_ptr request(new pion::http::request());
@@ -349,7 +335,7 @@ std::string iota::RestHandle::add_url(std::string url,
                                       iota::RestHandle* context) {
   register_plugin();
   IOTA_LOG_DEBUG(m_logger,
-                 "Add url " << url << " to url base " << iota::URL_BASE);
+                 "Add url " << url << " to url base " << iota::Process::get_url_base());
   struct ResourceHandler resource_handler;
   std::string url_base_plus_url(get_resource());
   std::string url_trimmed = remove_url_base(url);
@@ -417,20 +403,20 @@ void iota::RestHandle::execute_filters(
     if (num_filter != (_pre_filters.size() -1)) {
       int n_filter = num_filter;
       _pre_filters.at(num_filter)->set_async_filter(
-        _connectionManager->get_io_service(),
+        // TODO _connectionManager->get_io_service(),
         http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
         boost::bind(&iota::RestHandle::execute_filters, this, http_request_ptr,
                     tcp_conn, ++n_filter, _1));
     }
     else {
       _pre_filters.at(num_filter)->set_async_filter(
-        _connectionManager->get_io_service(),
+        // TODO _connectionManager->get_io_service(),
         http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
         boost::bind(&iota::RestHandle::handle_end_filters, this, http_request_ptr,
                     tcp_conn, num_filter, _1));
     }
 
-    _pre_filters.at(num_filter)->get_io_service()->post(
+    _pre_filters.at(num_filter)->get_io_service().post(
       boost::bind(&HTTPFilter::handle_request,
                   _pre_filters.at(num_filter), http_request_ptr, tcp_conn));
 
@@ -623,8 +609,8 @@ void iota::RestHandle::error_response(pion::http::response& http_response,
 }
 
 std::string iota::RestHandle::remove_url_base(std::string url) {
-  if (url.substr(0, iota::URL_BASE.size()) == iota::URL_BASE) {
-    return url.substr(iota::URL_BASE.size());
+  if (url.substr(0, iota::Process::get_url_base().size()) == iota::Process::get_url_base()) {
+    return url.substr(iota::Process::get_url_base().size());
   }
   return url;
 }

@@ -25,16 +25,12 @@
 #include "util/FuncUtil.h"
 #include <iomanip>
 
-namespace iota {
-extern std::string logger;
-}
-
 iota::TcpService::TcpService(const boost::asio::ip::tcp::endpoint& endpoint):
-  pion::tcp::server(endpoint), m_logger(PION_GET_LOGGER(logger)) {
+  pion::tcp::server(endpoint), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 iota::TcpService::TcpService(pion::scheduler& scheduler,
                              const boost::asio::ip::tcp::endpoint& endpoint):
-  pion::tcp::server(scheduler, endpoint), m_logger(PION_GET_LOGGER(logger)) {
+  pion::tcp::server(scheduler, endpoint), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 }
 
 iota::TcpService::~TcpService() {}
@@ -43,6 +39,7 @@ boost::shared_ptr<iota::TcpService> iota::TcpService::register_handler(
   std::string client_name,
   iota::TcpService::IotaRequestHandler client_handler) {
   boost::shared_ptr<iota::TcpService> your_tcp_service;
+	IOTA_LOG_DEBUG(m_logger, "Registering tcp " + client_name);
   try {
     c_handlers.insert(std::pair<std::string, iota::TcpService::IotaRequestHandler>
                       (client_name, client_handler));

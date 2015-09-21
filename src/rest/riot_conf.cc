@@ -20,6 +20,7 @@
 * please contact with iot_support at tid dot es
 */
 #include "riot_conf.h"
+#include "rest/process.h"
 #include "util/json_util.h"
 #include "util/store_const.h"
 
@@ -38,12 +39,9 @@
 
 
 iota::Configurator* iota::Configurator::pinstance = 0;// Inicializar el puntero
-namespace iota {
-extern std::string logger;
-}
 
 iota::Configurator::Configurator():
-  m_log(PION_GET_LOGGER(iota::logger)) {
+  m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   _error= "error, no config file was initializated";
   http_message = createMessagesMap();
 }

@@ -23,6 +23,7 @@
 #define SRC_UTIL_OAUTH_COMM_H_
 
 #include "util/iota_logger.h"
+#include "rest/process.h"
 #include "http_client.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/property_tree/ptree.hpp>
@@ -59,8 +60,8 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
         pion::tcp::connection_ptr&)> app_callback_t;
     */
     typedef boost::function<void (boost::shared_ptr<OAuth>)> app_callback_t;
-    OAuth();
-    OAuth(int timeout);
+    OAuth(boost::asio::io_service& io_service);
+    OAuth(boost::asio::io_service& io_service, int timeout);
     virtual ~OAuth();
     void set_domain(std::string service) {
       _domain = service;
@@ -113,7 +114,9 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
     std::string get_trust_token();
     bool is_pep();
     std::string get_identifier();
-    void set_async_service(boost::shared_ptr<boost::asio::io_service> io_service);
+
+    // This function is deprecated
+    void set_sync_service();
 
     boost::property_tree::ptree get_ptree(std::string data);
     boost::property_tree::ptree get_user_roles(std::string user_id);
@@ -162,7 +165,10 @@ class OAuth: public boost::enable_shared_from_this<OAuth> {
     pion::logger m_logger;
     int _timeout;
     std::string _id;
-    boost::shared_ptr<boost::asio::io_service> _io_service;
+    boost::asio::io_service& _io_service;
+
+    // Deprecated and temporary variable
+    bool _sync;
     std::map<std::string, boost::shared_ptr<iota::HttpClient> > _connections;
     void add_connection(boost::shared_ptr<iota::HttpClient> connection);
     void remove_connection(boost::shared_ptr<iota::HttpClient> connection);

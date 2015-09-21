@@ -5,6 +5,7 @@
         "queryContext": "/NGSI10/queryContext"
     },
     "timeout": 1,
+    "public_ip": "127.0.0.1",
     "dir_log": "/tmp/",
     "timezones": "/etc/iot/date_time_zonespec.csv",
     "schema_path": "../../schema",
@@ -15,7 +16,20 @@
     },
     "resources": [
         {
-            "resource": "/iot/d",
+            "resource": "/TestAdmin/evadts",
+            "services": [
+                {
+                    "apikey": "apikey3",
+                    "cbroker": "http:://0.0.0.0:1026",
+                    "service": "6664",
+                    "entity_type": "thing",
+                    "service_path": "servicepath3",
+                    "token": "token3"
+                }
+            ]
+        },
+        {
+            "resource": "/TestUL/d",
             "options": {
                 "FileName": "UL20Service"
             },
@@ -50,6 +64,23 @@
                 "FileName": "MqttService"
             },
             "services": [
+                {
+                    "apikey": "1234",
+                    "service": "service2",
+                    "service_path": "/ssrv2",
+                    "token": "token6",
+                    "entity_type": "thing",
+                    "cbroker": "http://127.0.0.1:1026"
+                }
+            ]
+        },
+        {
+         "resource": "/TestTT/tt",
+         "options": {
+                "ConfigFile": "TTService.xml",
+                "FileName": "TTService"
+           },
+           "services": [
                 {
                     "apikey": "1234",
                     "service": "service2",

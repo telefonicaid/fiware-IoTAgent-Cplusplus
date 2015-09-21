@@ -57,14 +57,7 @@
 #include <pion/tcp/server.hpp>
 #include "boost/format.hpp"
 
-namespace iota {
-extern std::string logger;
-extern std::string URL_BASE;
-}
-extern iota::AdminService* AdminService_ptr;
-
-
-iota::UL20Service::UL20Service(): m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::UL20Service::UL20Service(): m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   IOTA_LOG_DEBUG(m_logger, "iota::UL20Service::UL20Service");
   _protocol_data.description = "UL2";
   _protocol_data.protocol = "PDI-IoTA-UltraLight";
@@ -450,7 +443,7 @@ int iota::UL20Service::sendHTTP(const std::string& endpoint, int port,
     }
 
     if (callback) {
-      http_client.reset(new iota::HttpClient(*(_connectionManager->get_io_service()),
+      http_client.reset(new iota::HttpClient(iota::Process::get_process().get_io_service(),
                                              endpoint, port));
       //pion::http::response_ptr response_ptr
       http_client->async_send(request, timeout,

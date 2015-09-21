@@ -27,6 +27,7 @@
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
+#include "rest/process.h"
 #include <pion/http/plugin_service.hpp>
 #include <pion/http/response_writer.hpp>
 #include "util/iota_logger.h"
@@ -322,7 +323,7 @@ class RestHandle: public pion::http::plugin_service,
     Cache registeredDevices;
 
     // For async communications. It provides a parallel event loop.
-    boost::shared_ptr<CommonAsyncManager> _connectionManager;
+    // TODO boost::shared_ptr<CommonAsyncManager> _connectionManager;
 
     // Protocol data
     iota::ProtocolData _protocol_data;

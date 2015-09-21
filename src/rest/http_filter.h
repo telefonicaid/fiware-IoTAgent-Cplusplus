@@ -39,14 +39,14 @@ typedef boost::function<void (int)> filter_handle_t;
 class HTTPFilter: public boost::enable_shared_from_this<HTTPFilter> {
 
   public:
-    HTTPFilter() {};
+    HTTPFilter(boost::asio::io_service& io_service): _io_service(io_service) {};
     virtual ~HTTPFilter() {
-      std::cout << "HTTPFilter DESTRUCTOR " << _io_service.use_count() << std::endl;
+      // TODO std::cout << "HTTPFilter DESTRUCTOR " << _io_service.use_count() << std::endl;
       // TODO Con este reset no problema en destruccion ¿por que?
-      _io_service.reset();
+      // _io_service.reset();
     };
 
-    boost::shared_ptr<boost::asio::io_service> get_io_service() {
+    boost::asio::io_service& get_io_service() {
        return _io_service;
     }
 
@@ -66,12 +66,9 @@ class HTTPFilter: public boost::enable_shared_from_this<HTTPFilter> {
 
 
     };
-    void set_async_filter(boost::shared_ptr<boost::asio::io_service> io_service,
-                          std::string uuid_request,
+    void set_async_filter(std::string uuid_request,
                           filter_handle_t callback) {
-      if (_io_service.get() == NULL) {
-        _io_service = io_service;
-      }
+
       boost::mutex::scoped_lock lock(_m_callbacks);
       _callbacks.insert(std::make_pair<std::string, filter_handle_t>(uuid_request, callback));
     };
@@ -88,8 +85,8 @@ class HTTPFilter: public boost::enable_shared_from_this<HTTPFilter> {
       my_callback(s);
     };
   protected:
-    HTTPFilter(pion::logger logger): m_logger(logger) {};
-    boost::shared_ptr<boost::asio::io_service> _io_service;
+    HTTPFilter(boost::asio::io_service& io_service, pion::logger logger): _io_service(io_service), m_logger(logger) {};
+    boost::asio::io_service& _io_service;
     std::map<std::string, filter_handle_t> _callbacks;
     pion::logger m_logger;
     boost::mutex _m_callbacks;
