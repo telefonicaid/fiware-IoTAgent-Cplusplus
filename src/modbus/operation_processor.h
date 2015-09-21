@@ -19,47 +19,30 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef SRC_UTIL_IOT_URL_H_
-#define SRC_UTIL_IOT_URL_H_
+#ifndef SRC_MODBUS_OPERATION_PROCESSOR_H_
+#define SRC_MODBUS_OPERATION_PROCESSOR_H_
 
-#include <string>
-#include <vector>
+// We use boost json processor.
 
-#define URL_PROTOCOL_DELIMITER "://"
-#define URL_PATH_DELIMITER "/"
-#define URL_PROTOCOL_HTTP "http"
-#define URL_PROTOCOL_HTTPS "https"
-#define URL_PROTOCOL_TCP "tcp"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <map>
 
 namespace iota {
-
-class IoTUrl {
+class ModbusOperationProcessor {
   public:
-    IoTUrl(std::string url);
-
-    ~IoTUrl(void);
-
-    std::string getProtocol(void);
-
-    std::string getHost(void);
-
-    int getPort(void);
-
-    std::string getPath(void);
-
-    std::string getQuery(void);
-
-    bool getSSL(void);
-
+  ModbusOperationProcessor() {};
+    ModbusOperationProcessor(std::stringstream& json_operations);
+    virtual ~ModbusOperationProcessor() {};
+    void read_operations(std::string modbus_operation_file);
+    boost::property_tree::ptree& get_operation(std::string operation);
+    std::vector<std::string>& get_mapped_labels(std::string operation);
   protected:
-
   private:
-    std::string _url;
-    std::string _protocol;
-    std::string _host;
-    int         _port;
-    std::string _path;
-    std::string _query;
+    std::map<std::string, boost::property_tree::ptree> _operations;
+    std::map<std::string, std::vector<std::string> > _position_map;
+    void read(std::stringstream& json_operations);
 };
-};
+}
+
 #endif

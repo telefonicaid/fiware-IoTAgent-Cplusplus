@@ -36,7 +36,7 @@
 #include "input_buffer/ESP_Plugin_Input_Buffer.h"
 #include "thinkingthings/DecodeTTJSON.h"
 
-#include "util_functions.h"
+#include "../mocks/util_functions.h"
 
 
 using ::testing::Return;

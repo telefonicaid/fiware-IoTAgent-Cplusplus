@@ -28,7 +28,9 @@
 #include "tcpTest.h"
 
 int main(int argc, char* argv[]) {
-
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(TcpTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),

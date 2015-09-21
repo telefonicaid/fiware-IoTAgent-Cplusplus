@@ -33,6 +33,7 @@ class TestSetup
 {
 public:
     TestSetup(std::string service, std::string resource, std::string my_post_service = std::string());
+    TestSetup(std::string service, std::string resource, bool empty_apikey);
     ~TestSetup();
     std::string get_service() {
        return _service;

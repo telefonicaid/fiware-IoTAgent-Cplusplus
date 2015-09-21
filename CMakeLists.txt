@@ -243,6 +243,8 @@ if(MOSQUITTO_FOUND)
 # MQTT UltraLight protocol
 add_test(NAME MqttTest COMMAND mqtt_tests)
 endif()
+# Modbus 
+add_test(NAME ModbusTest COMMAND modbus_tests)
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/BaseChangeLog.txt BASECHANGELOG)
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/MqttChangeLog.txt MQTTCHANGELOG)

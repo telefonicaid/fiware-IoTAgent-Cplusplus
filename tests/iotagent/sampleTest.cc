@@ -39,7 +39,7 @@
 #include <util/service_collection.h>
 #include <boost/algorithm/string/replace.hpp>
 #include "rest/oauth_filter.h"
-#include "util_functions.h"
+#include "../mocks/util_functions.h"
 #include <cmath>
 #include <ctime>
 

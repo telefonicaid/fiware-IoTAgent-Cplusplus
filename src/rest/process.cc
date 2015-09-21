@@ -42,7 +42,7 @@ iota::Process& iota::Process::initialize(std::string url_base,
     if (!url_base.empty()) {
       iota::Process::_url_base = url_base;
     }
-		pion::process::initialize();
+    pion::process::initialize();
     mongo::client::initialize();
   }
 
@@ -51,14 +51,14 @@ iota::Process& iota::Process::initialize(std::string url_base,
 }
 void iota::Process::shutdown() {
   stop();
-	_http_servers.clear();
-	_tcp_servers.clear();
-	pion::process::shutdown();
+  _http_servers.clear();
+  _tcp_servers.clear();
+  pion::process::shutdown();
 }
 
 void iota::Process::wait_for_shutdown() {
   pion::process::wait_for_shutdown();
-	iota::Process::get_process().shutdown();
+  iota::Process::get_process().shutdown();
 }
 
 boost::asio::io_service& iota::Process::get_io_service()  {
@@ -66,7 +66,7 @@ boost::asio::io_service& iota::Process::get_io_service()  {
 }
 
 pion::scheduler& iota::Process::get_scheduler() {
-	return _scheduler;
+  return _scheduler;
 }
 
 std::string& iota::Process::get_logger_name() {
@@ -80,11 +80,23 @@ std::string& iota::Process::get_url_base() {
 pion::tcp::server_ptr iota::Process::add_tcp_server(std::string server_name,
     std::string endpoint) {
   boost::asio::ip::tcp::endpoint e = get_endpoint(endpoint);
-  pion::tcp::server_ptr tcp_server(new iota::TcpService(e));
+  boost::shared_ptr<iota::TcpService> tcp_server(new iota::TcpService(get_scheduler(), e));
   if (server_name.empty()) {
     server_name = endpoint;
   }
-  _tcp_servers[server_name] = tcp_server;
+  _tcp_servers.insert(std::pair<std::string,
+                      boost::shared_ptr<iota::TcpService> >(server_name, tcp_server));
+	return tcp_server;
+}
+
+boost::shared_ptr<iota::TcpService> iota::Process::get_tcp_service(std::string tcp_server) {
+  std::map<std::string, boost::shared_ptr<iota::TcpService> >::iterator i_tcp = _tcp_servers.begin();
+	boost::shared_ptr<iota::TcpService> tcp_s;
+	i_tcp = _tcp_servers.find(tcp_server);
+  if (i_tcp != _tcp_servers.end()) {
+		tcp_s = i_tcp->second;
+  }
+	return tcp_s;
 }
 
 pion::http::plugin_server_ptr iota::Process::add_http_server(
@@ -155,7 +167,7 @@ boost::asio::ip::tcp::endpoint iota::Process::get_endpoint(
 }
 
 void iota::Process::start() {
-  std::map<std::string, pion::tcp::server_ptr>::iterator i_tcp =
+  std::map<std::string, boost::shared_ptr<iota::TcpService> >::iterator i_tcp =
     _tcp_servers.begin();
   std::map<std::string, pion::http::plugin_server_ptr>::iterator i_http =
     _http_servers.begin();
@@ -171,7 +183,7 @@ void iota::Process::start() {
 }
 
 void iota::Process::stop() {
-  std::map<std::string, pion::tcp::server_ptr>::iterator i_tcp =
+  std::map<std::string, boost::shared_ptr<iota::TcpService> >::iterator i_tcp =
     _tcp_servers.begin();
   std::map<std::string, pion::http::plugin_server_ptr>::iterator i_http =
     _http_servers.begin();
@@ -207,6 +219,12 @@ void iota::Process::add_service(std::string http_resource,
     ++i_http;
   }
 
+}
+
+pion::http::plugin_service* iota::Process::add_tcp_service(
+  std::string http_resource, std::string file_name) {
+
+  return _tcp_plugin_manager.load(http_resource, file_name);
 }
 
 
