@@ -57,6 +57,8 @@ class Process: private boost::noncopyable {
     unsigned int get_http_port();
     pion::http::plugin_service* get_service(std::string http_resource);
     void add_service(std::string http_resource, iota::RestHandle* http_service);
+    pion::http::plugin_service* add_tcp_service(std::string http_resource, std::string file_name);
+    boost::shared_ptr<iota::TcpService> get_tcp_service(std::string tcp_server);
   protected:
   private:
     Process(unsigned int n_threads);
@@ -66,8 +68,9 @@ class Process: private boost::noncopyable {
     pion::one_to_one_scheduler _server_scheduler;
     static std::string _logger_name;
     static std::string _url_base;
-    std::map<std::string, pion::tcp::server_ptr> _tcp_servers;
+    std::map<std::string, boost::shared_ptr<iota::TcpService> > _tcp_servers;
     std::map<std::string, pion::http::plugin_server_ptr> _http_servers;
+    pion::plugin_manager<pion::http::plugin_service> _tcp_plugin_manager;
     static iota::Process* _process;
     iota::AdminService* _admin_service;
     boost::asio::ip::tcp::endpoint get_endpoint(std::string endpoint);

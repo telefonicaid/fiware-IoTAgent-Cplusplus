@@ -20,7 +20,7 @@
 * please contact with iot_support at tid dot es
 */
 #include "util/device_collection.h"
-#include "util_functions.h"
+#include "../mocks/util_functions.h"
 #include "ul20Test.h"
 #include "util/FuncUtil.h"
 #include "util/KVP.h"

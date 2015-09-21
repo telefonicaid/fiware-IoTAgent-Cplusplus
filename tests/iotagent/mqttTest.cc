@@ -33,7 +33,7 @@
 
 #include "mqtt/MqttService.h"
 #include "util/iota_exception.h"
-#include "util_functions.h"
+#include "../mocks/util_functions.h"
 
 using ::testing::Return;
 using ::testing::NotNull;

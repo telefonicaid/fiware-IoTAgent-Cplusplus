@@ -33,17 +33,17 @@ target_link_libraries(admin_manager_tests iotmock sul20 iota_a ${IOTAGENT_LIBS}
 
 ###  PROTOCOLS
 # Tutorial basic sample protocol
-add_executable(sample_tests util_functions.cc sampleTest.cc sample_test.cc)
+add_executable(sample_tests sampleTest.cc sample_test.cc)
 target_link_libraries(sample_tests stestsrv iotmock iota_a ${IOTAGENT_LIBS}
         ${TEST_LIBS})
 
 # UltraLight protocol
-add_executable(ul20_tests util_functions.cc  ul20Test.cc ul20_test.cc)
+add_executable(ul20_tests ul20Test.cc ul20_test.cc)
 target_link_libraries(ul20_tests sul20 iotmock iota_a ${IOTAGENT_LIBS}
 	${TEST_LIBS})
 
 # Thinking things protocol
-add_executable(tt_tests util_functions.cc ttTest.cc tt_test.cc TTBufferTests.cc)
+add_executable(tt_tests ttTest.cc tt_test.cc TTBufferTests.cc)
 target_link_libraries(tt_tests esp sttservice iotmock iota_a
 	${IOTAGENT_LIBS} ${TEST_LIBS})
 if(MOSQUITTO_FOUND)
@@ -51,10 +51,14 @@ if(MOSQUITTO_FOUND)
 include_directories(${MOSQUITTO_INCLUDE_DIR})
 link_directories(${MOSQUITTO_LIBS_DIR})
 
-add_executable(mqtt_tests util_functions.cc mqttTest.cc mqtt_test.cc )
+add_executable(mqtt_tests mqttTest.cc mqtt_test.cc )
 target_link_libraries(mqtt_tests esp_mqtt mosquittopp mosquitto smqttservice iotmock iota_a
 	${IOTAGENT_LIBS} ${MOSQUITTO_LIBRARIES} ${TEST_LIBS})
 
 endif()
 
+# Modbus 
+add_executable(modbus_tests modbusTest.cc modbus_test.cc)
+target_link_libraries(modbus_tests iota_a ${IOTAGENT_LIBS}
+	${TEST_LIBS})
 

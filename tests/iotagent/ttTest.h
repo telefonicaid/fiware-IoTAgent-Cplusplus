@@ -38,7 +38,7 @@
 #include "thinkingthings/SearchResponse.h"
 #include "util/TTCBPublisher.h"
 #include "thinkingthings/TTService.h"
-#include "util_functions.h"
+#include "../mocks/util_functions.h"
 
 
 class TTTest : public CPPUNIT_NS::TestFixture {
