@@ -1766,27 +1766,23 @@ void Ul20Test::testFindService()
 
 void Ul20Test::testSendUnRegister() {
   std::cout << "START testSendUnRegister " << std::endl;
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  iota::UL20Service* ul20serv = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
+  MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestUL/d");
 
-  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-
-  iota::UL20Service ul20serv;
-  ul20serv.set_resource("/iot/d");
-
-  ul20serv.set_myProvidingApp("http://myApp");
+  ul20serv->set_myProvidingApp("http://myApp");
 
   boost::property_tree::ptree pt_cb;
   try {
-    ul20serv.get_service_by_name(pt_cb, "service2", "/");
+    ul20serv->get_service_by_name(pt_cb, "service2", "/");
     IOTASSERT(true);
   }
   catch (std::exception& e) {
     std::cout << "exception " << e.what() << std::endl;
   }
 
-  ul20serv.get_service_by_name(pt_cb, "service2", "");
+  ul20serv->get_service_by_name(pt_cb, "service2", "");
   std::string uri_cb = pt_cb.get<std::string>("cbroker", "");
   std::cout << "uri_cb:" << uri_cb << std::endl;
 
@@ -1801,18 +1797,17 @@ void Ul20Test::testSendUnRegister() {
   context_registrations.push_back(cr);
   boost::shared_ptr<iota::Device> device(new iota::Device("dev1", "thingf"));
 
-  ul20serv.send_unregister(pt_cb,
+  ul20serv->send_unregister(pt_cb,
                          device,
                          reg_id,
                          cb_response);
 
-  std::string cb_last = cb_mock->get_last();
+  std::string cb_last = cb_mock->get_last("/mock/" + test_setup.get_service() + "/NGSI9/registerContext");
   std::cout << "@UT@INFO" << cb_last << std::endl;
   IOTASSERT(cb_last.compare("{\"contextRegistrations\":["
    "{\"entities\":[{\"id\":\"thing_apikey3:dev1\",\"type\":\"thing_apikey3\",\"isPattern\":\"false\"}],\"attributes\":[],\"providingApplication\":\"http://myApp\"}],\"duration\":\"PT1S\"}")
     == 0);
 
-  cb_mock->stop();
   std::cout << "END testSendUnRegister " << std::endl;
 }
 
