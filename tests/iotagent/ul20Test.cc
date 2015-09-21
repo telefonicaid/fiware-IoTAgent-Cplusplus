@@ -1764,6 +1764,58 @@ void Ul20Test::testFindService()
     std::cout << "END testFindService " << std::endl;
 }
 
+void Ul20Test::testSendUnRegister() {
+  std::cout << "START testSendUnRegister " << std::endl;
+  boost::shared_ptr<HttpMock> cb_mock;
+  cb_mock.reset(new HttpMock("/mock"));
+  start_cbmock(cb_mock);
+
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  iota::UL20Service ul20serv;
+  ul20serv.set_resource("/iot/d");
+
+  ul20serv.set_myProvidingApp("http://myApp");
+
+  boost::property_tree::ptree pt_cb;
+  try {
+    ul20serv.get_service_by_name(pt_cb, "service2", "/");
+    IOTASSERT(true);
+  }
+  catch (std::exception& e) {
+    std::cout << "exception " << e.what() << std::endl;
+  }
+
+  ul20serv.get_service_by_name(pt_cb, "service2", "");
+  std::string uri_cb = pt_cb.get<std::string>("cbroker", "");
+  std::cout << "uri_cb:" << uri_cb << std::endl;
+
+  std::vector<iota::ContextRegistration> context_registrations;
+  iota::ContextRegistration  cr;
+  std::string cb_response;
+  std::string reg_id;
+
+  iota::Entity entity("entity1", "thingf", "false");
+  cr.add_entity(entity);
+
+  context_registrations.push_back(cr);
+  boost::shared_ptr<iota::Device> device(new iota::Device("dev1", "thingf"));
+
+  ul20serv.send_unregister(pt_cb,
+                         device,
+                         reg_id,
+                         cb_response);
+
+  std::string cb_last = cb_mock->get_last();
+  std::cout << "@UT@INFO" << cb_last << std::endl;
+  IOTASSERT(cb_last.compare("{\"contextRegistrations\":["
+   "{\"entities\":[{\"id\":\"thing_apikey3:dev1\",\"type\":\"thing_apikey3\",\"isPattern\":\"false\"}],\"attributes\":[],\"providingApplication\":\"http://myApp\"}],\"duration\":\"PT1S\"}")
+    == 0);
+
+  cb_mock->stop();
+  std::cout << "END testSendUnRegister " << std::endl;
+}
+
 void Ul20Test::testSendRegister()
 {
     std::cout << "START testSendRegister " << std::endl;
@@ -3491,8 +3543,8 @@ void Ul20Test::testChangeIPDevice_empty()
 
 
     {
-        std::string encoded_endpoint = "";
-        encoded_endpoint = pion::algorithm::url_encode(new_endpoint);
+        new_endpoint = "http://new_endpoint:8080/";
+        std::string encoded_endpoint = pion::algorithm::url_encode(new_endpoint);
         std::string querySTR = "i="+dev_name+"&k=" + apikey + "&ip="+encoded_endpoint;
 
         pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
@@ -3518,15 +3570,13 @@ void Ul20Test::testChangeIPDevice_empty()
 
     dev = ul20serv->get_device(dev_name,service,subservice);
 
-    code_res = ((iota::AdminService*)iota::Process::get_process().get_service("/TestUL"))->delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
-               http_response, response, "1234", "4444");
-
 
     //change of endpoint parameter should NOT have happend, let's check it.
 
     code_res = ((iota::AdminService*)iota::Process::get_process().get_service("/TestUL"))->delete_device_json(service,subservice,dev_name,http_response,response,"12334",protocol);
 
-
+    code_res = ((iota::AdminService*)iota::Process::get_process().get_service("/TestUL"))->delete_service_json(col, service, "/ssrv2", service, apikey, "/iot/d", true,
+               http_response, response, "1234", "4444");
 
     if (dev.get() != NULL)
     {

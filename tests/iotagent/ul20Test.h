@@ -45,6 +45,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testisCommandResponse);
     CPPUNIT_TEST(testFindService);
     CPPUNIT_TEST(testSendRegister);
+    CPPUNIT_TEST(testSendUnRegister);
     CPPUNIT_TEST(testDevicesConfig);
     CPPUNIT_TEST(testNoDeviceFile);
     CPPUNIT_TEST(testRegisterDuration);
@@ -138,6 +139,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture {
 
     void testFindService();
     void testSendRegister();
+    void testSendUnRegister();
     void testDevicesConfig();
     void testNoDeviceFile();
     void testRegisterDuration();

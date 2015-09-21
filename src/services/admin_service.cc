@@ -1807,7 +1807,17 @@ int iota::AdminService::delete_device_json(
   IOTA_LOG_DEBUG(m_log, param_request);
   std::string reason;
   std::string error_details;
+  std::string cb_response;
+  std::string regId;
+  boost::property_tree::ptree service_ptree;
+  get_service_by_name(service_ptree, service, service_path);
 
+  // unregister in CB
+  boost::shared_ptr<Device> dev (new Device(id_device, service));
+  dev->_service_path  = service_path;
+  undeploy_device(service_ptree, dev);
+
+  //remove from mongo
   mongo::BSONObjBuilder b;
   if (!id_device.empty()) {
     b.append(iota::store::types::DEVICE_ID, id_device);
@@ -1820,6 +1830,10 @@ int iota::AdminService::delete_device_json(
   }
   Collection devTable(iota::store::types::DEVICE_TABLE);
   devTable.remove(b.obj());
+
+  //remove device from cache, to force reload new data
+  remove_from_cache(*dev.get());
+
 
   return create_response(code, reason, error_details, http_response,
                          response);
@@ -2190,6 +2204,38 @@ void iota::AdminService::deploy_device(Device& device) {
     }
     catch (std::exception& e) {
       IOTA_LOG_DEBUG(m_log, "deploy_device error: " <<  e.what());
+    }
+    ++it;
+  }
+}
+
+void iota::AdminService::undeploy_device(
+      boost::property_tree::ptree& service_ptree,
+      const boost::shared_ptr<Device> device) {
+
+  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  IOTA_LOG_DEBUG(m_log, "undeploy_device " << device->_protocol);
+  std::string protocol_name = device->_protocol;
+  std::string cb_response;
+
+  std::map<std::string, iota::RestHandle*>::const_iterator it =
+    _service_manager.begin();
+  while (it != _service_manager.end()) {
+    try {
+
+      iota::CommandHandle* cmd_handle = dynamic_cast<iota::CommandHandle*>
+                                        (it->second);
+      if (cmd_handle != NULL) {
+        iota::ProtocolData pro = cmd_handle->get_protocol_data();
+        if (protocol_name.compare(pro.protocol) ==0) {
+          cmd_handle->send_unregister(service_ptree, device,
+          device->_registration_id, cb_response);
+          IOTA_LOG_DEBUG(m_log, "unregister to CB:" + cb_response);
+        }
+      }
+    }
+    catch (std::exception& e) {
+      IOTA_LOG_DEBUG(m_log, "undeploy_device error: " <<  e.what());
     }
     ++it;
   }
