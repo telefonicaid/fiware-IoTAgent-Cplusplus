@@ -256,9 +256,9 @@ std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
       std::string str_field = ss.str();
       if (!mapped_fields.at(i).empty()) {
         str_field = mapped_fields.at(i);
-      }
-      mapped_values.insert(std::pair<std::string, unsigned short>(str_field,
+        mapped_values.insert(std::pair<std::string, unsigned short>(str_field,
                            it_values->second));
+      }
       ++it_values;
     }
   }
