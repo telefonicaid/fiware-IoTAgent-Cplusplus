@@ -1775,14 +1775,14 @@ void Ul20Test::testSendUnRegister() {
 
   boost::property_tree::ptree pt_cb;
   try {
-    ul20serv->get_service_by_name(pt_cb, "service2", "/");
+    ul20serv->get_service_by_name(pt_cb, test_setup.get_service(), test_setup.get_service_path());
     IOTASSERT(true);
   }
   catch (std::exception& e) {
     std::cout << "exception " << e.what() << std::endl;
   }
 
-  ul20serv->get_service_by_name(pt_cb, "service2", "");
+  ul20serv->get_service_by_name(pt_cb, test_setup.get_service(), "");
   std::string uri_cb = pt_cb.get<std::string>("cbroker", "");
   std::cout << "uri_cb:" << uri_cb << std::endl;
 
@@ -1805,7 +1805,7 @@ void Ul20Test::testSendUnRegister() {
   std::string cb_last = cb_mock->get_last("/mock/" + test_setup.get_service() + "/NGSI9/registerContext");
   std::cout << "@UT@INFO" << cb_last << std::endl;
   IOTASSERT(cb_last.compare("{\"contextRegistrations\":["
-   "{\"entities\":[{\"id\":\"thing_apikey3:dev1\",\"type\":\"thing_apikey3\",\"isPattern\":\"false\"}],\"attributes\":[],\"providingApplication\":\"http://myApp\"}],\"duration\":\"PT1S\"}")
+   "{\"entities\":[{\"id\":\"testsendunregister:dev1\",\"type\":\"testsendunregister\",\"isPattern\":\"false\"}],\"attributes\":[],\"providingApplication\":\"http://myApp\"}],\"duration\":\"PT1S\"}")
     == 0);
 
   std::cout << "END testSendUnRegister " << std::endl;

@@ -1269,6 +1269,8 @@ int iota::AdminManagerService::post_service_json(
           param_request.append(" error-conn=" + http_client->get_error().message());
           param_request.append(" status-code=" + boost::lexical_cast<std::string>
                                (code_i));
+          IOTA_LOG_DEBUG(m_log, "response from "  << http_client->getRemoteEndpoint()
+               << ":" << code_i <<  ":"  << http_client->get_error().message());
 
           // If no successful response, nothing
           if (code_i == pion::http::types::RESPONSE_CODE_CREATED) {
