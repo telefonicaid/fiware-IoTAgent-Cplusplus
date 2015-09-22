@@ -904,6 +904,8 @@ int iota::RestHandle::get_service_by_name_bbdd(
   const std::string& service_path) {
 
   std::string resource = get_resource();
+  IOTA_LOG_DEBUG(m_logger, "get_service_by_name_bbdd-" <<
+                   "resource:"<< resource);
 
   iota::Collection q1(iota::store::types::SERVICE_TABLE);
   mongo::BSONObjBuilder p2;
@@ -911,10 +913,10 @@ int iota::RestHandle::get_service_by_name_bbdd(
   if (!service_path.empty()) {
     p2.append(iota::store::types::SERVICE_PATH, service_path);
   }
+
   if (!resource.empty()) {
     p2.append(iota::store::types::RESOURCE, resource);
   }
-
 
   int code_res = q1.find(p2.obj());
   if (q1.more()) {
