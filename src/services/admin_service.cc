@@ -2272,7 +2272,7 @@ void iota::AdminService::undeploy_device(
       if (cmd_handle != NULL) {
         iota::ProtocolData pro = cmd_handle->get_protocol_data();
         if (protocol_name.compare(pro.protocol) ==0) {
-          boost::property_tree::ptree& service_ptree;
+          boost::property_tree::ptree service_ptree;
           cmd_handle->get_service_by_name(service_ptree,
               device->_service, device->_service_path);
 
