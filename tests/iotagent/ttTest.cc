@@ -693,6 +693,9 @@ Check with ThinkingThings Team, but I think K1 attribute does not get published 
 void TTTest::testFirstTimeTTAttributesWithK() {
   CC_Logger::getSingleton()->logDebug("testFirstTimeTTAttributesWithK: starting");
   iota::esp::TTService* ttService = (iota::esp::TTService*)iota::Process::get_process().get_service("/TestTT/tt");
+  TestSetup test_setup(get_service_name(__FUNCTION__),"/TestTT/tt");
+  test_setup.add_device("8934075379000039321",ttService->get_protocol_data().protocol);
+
 /*
   boost::shared_ptr<HttpMock> cb_mock_up;
   cb_mock_up.reset(new HttpMock("/NGSI10/updateContext"));
@@ -708,7 +711,7 @@ void TTTest::testFirstTimeTTAttributesWithK() {
   std::string mockResponseError;
   mockResponseError.assign("{\"errorCode\": {\"code\" : \"404\",");
   mockResponseError.append("\"reasonPhrase\" : \"No context element found\"}}");
-  cb_mock->set_response("/mock/query", 404,
+  cb_mock->set_response("/mock/"+test_setup.get_service()+"/NGSI10/queryContext", 404,
                               mockResponseError); //First response, no contextElements found
 
   std::string mockResponse; //This response lacks P1.
@@ -725,7 +728,7 @@ void TTTest::testFirstTimeTTAttributesWithK() {
   mockResponse.append("\"isPattern\":\"false\",\"type\":\"thing\"},");
   mockResponse.append("\"statusCode\":{\"code\":\"200\",\"reasonPhrase\":\"OK\"}}]}");
 
-  cb_mock->set_response("/mock/query", 200,mockResponse); //Second query.
+  cb_mock->set_response("/mock/"+test_setup.get_service()+"/NGSI10/queryContext", 200,mockResponse); //Second query.
 
   std::string mockResponseOK;
 
