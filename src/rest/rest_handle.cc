@@ -913,11 +913,10 @@ int iota::RestHandle::get_service_by_name_bbdd(
   if (!service_path.empty()) {
     p2.append(iota::store::types::SERVICE_PATH, service_path);
   }
-  ////TODO  no entiendo por qué ahora el resource es /iot
-  if (!resource.empty() && resource.compare("/iot") != 0) {
+
+  if (!resource.empty()) {
     p2.append(iota::store::types::RESOURCE, resource);
   }
-
 
   int code_res = q1.find(p2.obj());
   if (q1.more()) {
