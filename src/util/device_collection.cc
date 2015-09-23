@@ -44,10 +44,10 @@ int iota::DeviceCollection::insertd(const Device& obj) {
 }
 
 int iota::DeviceCollection::updated(const Device& query,
-                                   const Device& sett) {
+                                   const Device& sett, bool upsert) {
   return iota::Collection::update(
                 Obj2BSON(query, true),
-                Obj2BSON(sett, true));
+                Obj2BSON(sett, true), upsert);
 }
 
 int iota::DeviceCollection::findd(const Device& query) {
