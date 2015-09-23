@@ -100,9 +100,6 @@ void ESP_MosquittoImpl::on_unsubscribe(int mid) {
   mqttCallBack->on_unsubscribe(mid);
 }
 
-void ESP_MosquittoImpl::on_log(int level, const char* str) {
-  //mqttCallBack->on_log(level,str);
-}
 
 void ESP_MosquittoImpl::on_error() {
   mqttCallBack->on_error();
