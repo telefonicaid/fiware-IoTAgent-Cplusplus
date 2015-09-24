@@ -146,5 +146,7 @@ if you start with -ipv6 you can use
 
         curl -g -X GET http://[::1]:80/iot/about 
 
+To check your installation exists a [Sanity check iotagent](#iotagent-testing), execute it to be sure that everything is ok.
+
 ## Making your module-based iotagent
 [Sample Module](test_service.md)
