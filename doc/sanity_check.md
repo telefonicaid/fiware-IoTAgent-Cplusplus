@@ -237,7 +237,6 @@ response HTTP/1.1 204 No Content
 
 [Top](#top)
 
-## Network Interfaces Up and Open
 ## <a name="network-interfaces-up-and-open">Network Interfaces Up and Open</a>
 
 
@@ -251,7 +250,6 @@ mongo database 1027 default port, in /etc/iot/config.json storage parameter.
 
 [Top](#top)
 
-## Databases
 ## <a name="databases">Databases</a>
 
 Iota uses a MongoDB database, whose parameters are
