@@ -223,6 +223,7 @@ std::string iota::str_to_hex(std::string& fr) {
     trama_hex.append(boost::str(boost::format("%02X ") %
                                 static_cast<unsigned short>((unsigned char)(fr.at(i)))));
   }
+  boost::trim(trama_hex);
   return (trama_hex);
 };
 
@@ -234,8 +235,39 @@ std::string str_to_hex(boost::asio::mutable_buffer& fr) {
     trama_hex.append(boost::str(boost::format("%02X ") %
                                 static_cast<unsigned short>((unsigned char)(p[i]))));
   }
+
   return (trama_hex);
 };
+
+
+std::string iota::str_to_hex(const std::vector<unsigned char>& fr) {
+  std::string trama_hex;
+  int b_size = fr.size();
+  for (int i = 0; i < b_size; i++) {
+    trama_hex.append(boost::str(boost::format("%02X ") %
+                                static_cast<unsigned short>((unsigned char)(fr[i]))));
+  }
+  boost::trim(trama_hex);
+  return (trama_hex);
+}
+
+std::vector<unsigned char> iota::hex_str_to_vector(std::string& str) {
+  std::vector<unsigned char> v;
+  std::string str_wit_no_whitspaces(str);
+  boost::erase_all(str_wit_no_whitspaces, " ");
+  std::size_t l = str_wit_no_whitspaces.size();
+  for (int i = 0; i < l; i += 2) {
+    std::istringstream ss(str_wit_no_whitspaces.substr(i,2));
+    unsigned short x;
+    if ( !(ss >> std::hex >> x) ) {
+      // Conversion error.
+      v.clear();
+      break;
+    }
+    v.push_back(x);
+  }
+  return v;
+}
 
 std::string iota::writeDictionaryTerm(pion::http::response& resp_http) {
   pion::ihash_multimap h = resp_http.get_headers();

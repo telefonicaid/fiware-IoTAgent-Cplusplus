@@ -120,7 +120,7 @@ iota::RestHandle::RestHandle(): _enabled_stats(true),
 
   }
   catch (...) {
-    IOTA_LOG_DEBUG(m_logger, " Problem with devices config file");
+    IOTA_LOG_INFO(m_logger, " Incomplete onfiguration file");
   }
 
 }

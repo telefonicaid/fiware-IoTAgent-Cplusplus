@@ -29,6 +29,7 @@
 #define URL_PATH_DELIMITER "/"
 #define URL_PROTOCOL_HTTP "http"
 #define URL_PROTOCOL_HTTPS "https"
+#define URL_PROTOCOL_TCP "tcp"
 
 namespace iota {
 
