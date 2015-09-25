@@ -7,7 +7,7 @@
 * [List of running processes](#list-processes)
 * [Network Interfaces Up and Open](#network-interfaces-up-and-open)
 * [Databases](#databases)
-* [More tests ](#end-to-end-checks)
+* [Script tests ](#end-to-end-checks)
 
 The Sanity Check Procedures are the steps that a System Administrator will take to verify that an installation is
 ready to be tested. This is therefore a preliminary set of tests to ensure that obvious or basic malfunctioning

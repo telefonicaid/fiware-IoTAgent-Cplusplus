@@ -6,7 +6,7 @@
 * [Documentation](#documentation)
 * [How to start agents](#how_to_start_agents)
 * [Making your module-based iotagent](#making_your_module)
-* [Sanity check procedures](sanity_check.md))
+* [Sanity check procedures](sanity_check.md)
 * [Diagnosis Procedures](diagnosis_procedures.md)
 
 
