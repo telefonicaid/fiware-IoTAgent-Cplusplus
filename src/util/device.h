@@ -237,7 +237,7 @@ struct Device : public virtual Timer {
   int _active;
   std::string _registration_id;
   long long _duration_cb;
-  long long _timestamp_data;
+	long long _timestamp_data;
 };
 
 struct entity_hash {

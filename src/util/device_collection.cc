@@ -188,7 +188,7 @@ iota::Device iota::DeviceCollection::BSON2Obj(mongo::BSONObj& obj) {
 
   result._registration_id = obj.getStringField(iota::store::types::REGISTRATION_ID);
   result._duration_cb = obj.getIntField(iota::store::types::DURATION_CB);
-  result._timestamp_data = obj.getIntField(iota::store::types::TIMESTAMP_DATA);
+  result._timestamp_data = obj.getField(iota::store::types::TIMESTAMP_DATA).numberLong();
 
   mongo::BSONObj objAttr = obj.getObjectField(iota::store::types::ATTRIBUTES);
   BSON2MapAttribute(objAttr, iota::store::types::ATTRIBUTES, result._attributes, iota::store::types::ATTRIBUTE_ID);
@@ -260,7 +260,7 @@ mongo::BSONObj iota::DeviceCollection::Obj2BSON(const Device& device,
   }
 
   if (device._timestamp_data != -1) {
-    obj.appendNumber(iota::store::types::TIMESTAMP_DATA, device._timestamp_data);
+    obj.appendIntOrLL(iota::store::types::TIMESTAMP_DATA, device._timestamp_data);
   }
 
   if (!device._timezone.empty()) {
