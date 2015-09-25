@@ -1,4 +1,4 @@
-# Build, Installation and Administration guide
+# Build and Install
 
 ## Index
 
