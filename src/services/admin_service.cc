@@ -1452,6 +1452,13 @@ boost::posix_time::ptime iota::AdminService::get_local_time_from_timezone(
   return my_time;
 }
 
+boost::local_time::time_zone_ptr iota::AdminService::get_timezone(std::string region) {
+  if (region.empty()) {
+    region = "Europe/Madrid";
+  }
+  return _timezone_database.time_zone_from_region(region);
+}
+
 bool iota::AdminService::validate_json_schema(
   const std::string& json_str,
   std::string& schema,
