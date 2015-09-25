@@ -7,6 +7,8 @@
 * Installation and Administration Guide
     - [Build and Install](doc/build.md), including how to make your own module-based iotagent.
     - [Deployment](doc/deploy.md)
+    - [Sanity check procedures](doc/sanity_check.md)
+    - [Diagnosis Procedures](doc/diagnosis_procedures.md)
     - [Authentication, Authorization and PEP Rules](doc/pep.md)
     - [Configuration API](doc/north_api.md)
     
