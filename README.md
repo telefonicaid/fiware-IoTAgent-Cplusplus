@@ -3,7 +3,7 @@
 
 * [Overview](#overview)
 * [Architecture](doc/architecture.md)
-* [Build and Install](doc/build.md), including how to make your own module-based iotagent.
+* [Build, Installation and Administration guide](doc/build.md), including how to make your own module-based iotagent.
 * [Deployment](doc/deploy.md)
 * [Authentication, Authorization and PEP Rules](doc/pep.md)
 * [Configuration API](doc/north_api.md)

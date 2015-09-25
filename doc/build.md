@@ -1,6 +1,17 @@
-# Build and Install
+# Build, Installation and Administration guide
 
-## Building IoT Agents
+## Index
+
+* [Building IoT Agents](#building_iot_agents)
+* [Documentation](#documentation)
+* [How to start agents](#how_to_start_agents)
+* [Making your module-based iotagent](#making_your_module)
+* [Sanity check procedures](sanity_check.md))
+* [Diagnosis Procedures](diagnosis_procedures.md)
+
+
+
+## <a name="building_iot_agents">Building IoT Agents</a>
 
 These IoT Agents are successfully built in CentOS 6.5 distribution.
 
@@ -89,7 +100,7 @@ Some dependencies are include in rpm (boost, pion, log library).
 An unit test called _testPUSHCommandProxyAndOutgoingRoute_ needs tinyproxy in port 8888 (this test checks sending command through http proxy).
  
 
-### Documentation
+## <a name="documentation">Documentation</a>
 TBC.
 If you have doxygen installed, you can generate html documentation of the libvariant public interface from the source code with:
 
@@ -101,7 +112,7 @@ $ make doc
 
 The output html is in build/Debug/doc
 
-### How to start agents ###
+## <a name="how_to_start_agents">How to start agents</a>
 
 The general procedure to start an IoT Agent needs needs that libraries generated or
 deployed can be loaded by executable (LD_LIBRARY_PATH environment variable). The executable is named _iotagent_.
@@ -148,5 +159,6 @@ if you start with -ipv6 you can use
 
 To check your installation exists a [Sanity check iotagent](sanity_check.md), execute it to be sure that everything is ok.
 
-## Making your module-based iotagent
+
+## <a name="making_your_module">Making your module-based iotagent</a>
 [Sample Module](test_service.md)
