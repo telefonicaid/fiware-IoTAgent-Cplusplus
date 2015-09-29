@@ -829,7 +829,7 @@ void UtilFunctionTest::testCommandLine() {
   result = arguments.parser(2, argv5);
   std::cout << "@UT@result5:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
-      iota::types::HELP_MESSAGE) == 0);
+      iota::types::HELP_MESSAGE_OPS) == 0);
 
 
   std::cout << "@UT@Scenario: iotagent ok " << std::endl;
@@ -842,7 +842,7 @@ void UtilFunctionTest::testCommandLine() {
   CPPUNIT_ASSERT(!arguments.get_manager());
 
   std::cout << "@UT@Scenario: iota manager ok " << std::endl;
-  const char* argv7[] = {"iotagent", "-m", "-ipv6", "-v", "DEBUG", "-n", "manager",
+  const char* argv7[] = {"iotagent", "-m", "-6", "-v", "DEBUG", "-n", "manager",
        "-i", "192.0.3.25", "-p", "8081", "-d",
        "/home/develop/GH/lib/Debug", "-c",
        "/home/iotagent/config.json"};
@@ -867,7 +867,7 @@ void UtilFunctionTest::testCommandLine() {
   result = arguments.parser(2, argv6);
   std::cout << "@UT@result8:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
-      iota::types::HELP_MESSAGE) == 0);
+      iota::types::HELP_MESSAGE_OPS) == 0);
 
   std::cout << "@UT@END testCommandLine" << std::endl;
 }

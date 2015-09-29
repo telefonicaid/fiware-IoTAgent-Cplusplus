@@ -49,19 +49,6 @@ std::map<boost::asio::ip::tcp::endpoint, boost::shared_ptr<iota::TcpService> > t
 }
 iota::AdminService* AdminService_ptr;
 
-<<<<<<< HEAD
-=======
-
-// displays an error message if the arguments are invalid
-void argument_error(void) {
-  std::cerr << "usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE" <<
-            std::endl
-            << "         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE" << std::endl
-            << "options: [-m] [–ipv4] [–ipv6] [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]"
-            << std::endl;
-}
-
->>>>>>> 5981f8b750e4e87646f1251be19d17fdaa1280ad
 void config_error(const std::string& err) {
   std::cerr << "ERROR" <<  err << std::endl;
 }
@@ -203,12 +190,9 @@ int main(int argc, const char* argv[]) {
                                         true));
 
   log4cplus::tstring pattern =
-<<<<<<< HEAD
-    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%5p | comp=" + arguments.get_component_name() +
-=======
+
     LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%5p | comp=" +
-                   component_name +
->>>>>>> 5981f8b750e4e87646f1251be19d17fdaa1280ad
+                   arguments.get_component_name() +
                    " %m %n");
   //LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
 
@@ -255,22 +239,8 @@ int main(int argc, const char* argv[]) {
           pion_scheduler,
           cfg_endpoint));
 
-<<<<<<< HEAD
-    // Map to store tcp servers
-    std::map<boost::asio::ip::tcp::endpoint, pion::tcp::server_ptr> tcp_servers;
-    try {
-      const iota::JsonValue& tcp_s = iota::Configurator::instance()->get(
-                                       iota::types::CONF_FILE_TCP_SERVERS.c_str());
-      if (!tcp_s.IsArray()) {
-        IOTA_LOG_ERROR(main_log, "ERROR in Config File " << arguments.get_service_config_file() <<
-                       " Configuration error [tcp_servers]");
-
-      }
-      else {
-=======
     // To load plugin for tcp services
     pion::plugin_manager<pion::http::plugin_service> tcp_plugin_manager;
->>>>>>> 5981f8b750e4e87646f1251be19d17fdaa1280ad
 
     // static service
 

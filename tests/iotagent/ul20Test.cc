@@ -1688,10 +1688,12 @@ void Ul20Test::testFindService() {
 }
 
 void Ul20Test::testSendUnRegister() {
-  std::cout << "START testSendRegister " << std::endl;
+  std::cout << "START testSendUnRegister " << std::endl;
   boost::shared_ptr<HttpMock> cb_mock;
   cb_mock.reset(new HttpMock("/mock"));
-  start_cbmock(cb_mock);
+  start_cbmock(cb_mock, "file", "/iot/d",
+                      "http://127.0.0.1:8081/iot/protocols",
+                      "", "testID", "", SERVICE2);
 
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
 
