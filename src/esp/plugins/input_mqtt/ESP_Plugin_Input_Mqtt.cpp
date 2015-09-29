@@ -45,7 +45,7 @@ ESP_MqttWrapper::ESP_MqttWrapper(IMosquitto* mqtt,int port, std::string host,
   (topicPub.compare("")==0)?canPublish = false:canPublish = true;
   (topicSub.compare("")==0)?canSubscribe= false:canSubscribe = true;
 
-  status = StatusType::MQTT_DISCONNECTED;
+  status = StatusType::MQTT_CONNECTING;
 
   if (user.length()>0) {
     //username_pw_set(user.c_str(),passwd.c_str());
@@ -56,15 +56,19 @@ ESP_MqttWrapper::ESP_MqttWrapper(IMosquitto* mqtt,int port, std::string host,
 void ESP_MqttWrapper::doConnectHost() {
   int res;
 
-  if (status == StatusType::MQTT_DISCONNECTED) {
+  CC_Logger::getSingleton()->logDebug("doConnectHost : status %s",
+      status == StatusType::MQTT_CONNECTING ? "Connecting" : (status == StatusType::MQTT_DISCONNECTED ? "Disconnected" : "Connected"));
+
+
+  if (status == StatusType::MQTT_CONNECTING) {
     CC_Logger::getSingleton()->logDebug("LIB MQTT trying connection to host %s:%d.... ",
                                         host.c_str(),port);
-    status = StatusType::MQTT_CONNECTING;
+    //status = StatusType::MQTT_CONNECTING;
 
     //res = connect(host.c_str(),port,60);
     res = mqttObj->mqttConnect(host.c_str(),port,60);
   }
-  else {
+  else if (status == StatusType::MQTT_DISCONNECTED) {
     //res = reconnect();
     CC_Logger::getSingleton()->logDebug("Trying to reconnect");
     res = mqttObj->mqttReconnect(); //it should jump to on_connection if succeeds
@@ -169,7 +173,8 @@ void ESP_MqttWrapper::on_disconnect(int rc) {
     //Endpoint disconnection.
     CC_Logger::getSingleton()->logDebug("Connection terminated abnormally RC:%d",
                                         rc);
-    status = StatusType::MQTT_CONNECTING;
+    //status = StatusType::MQTT_CONNECTING;
+    status = StatusType::MQTT_DISCONNECTED;
   }
   //status = StatusType::MQTT_DISCONNECTED;
 }

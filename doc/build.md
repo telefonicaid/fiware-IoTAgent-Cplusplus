@@ -1,6 +1,17 @@
 # Build and Install
 
-## Building IoT Agents
+## Index
+
+* [Building IoT Agents](#building_iot_agents)
+* [Documentation](#documentation)
+* [How to start agents](#how_to_start_agents)
+* [Making your module-based iotagent](#making_your_module)
+* [Sanity check procedures](sanity_check.md)
+* [Diagnosis Procedures](diagnosis_procedures.md)
+
+
+
+## <a name="building_iot_agents">Building IoT Agents</a>
 
 These IoT Agents are successfully built in CentOS 6.5 distribution.
 
@@ -38,7 +49,7 @@ To build IoT Agents you need cmake 2.8.12 (minimum version). If you want to buil
 
 ### Build
 We use out-of-source building, so you must build out of source directory.
-The directory where source is downloaded will be called _SourcePath_. From this directory let'us make a directory build/*build_type* (*build_type* must be Debug, Release or DebugCoverage) and execute (in this example we use Debug as *build_type* and you must replace <path-to-boost> with path to your boost installation):
+The directory where source is downloaded will be called _SourcePath_. From this directory let'us make a directory build/*build_type* (*build_type* must be Debug, Release or DebugCoverage) and execute (in this example we use Debug as *build_type* ):
 (target install only copy built libraries in a directory to concentrate them).
 
 ```
@@ -47,10 +58,9 @@ $ /home/develop/dca-core
 $ mkdir -p build/Debug
 $ cd build/Debug
 $ cmake -DGIT_VERSION=<version> -DGIT_COMMIT=<release> -DMQTT=ON -DCMAKE_BUILD_TYPE=Debug ../../
+$ make
 $ make check install
 ```
-If you want use environment variables add -D option:
-`-DPION_ROOT=<path-to-pion>`
 The target _check_ execute unit tests and target _install_ copies libraries in _SourcePath_/lib/*build_type* and executable in _SourcePath_/bin/*build_type*. For example, for _DebugCoverage_ target:
 
 ```
@@ -90,7 +100,7 @@ Some dependencies are include in rpm (boost, pion, log library).
 An unit test called _testPUSHCommandProxyAndOutgoingRoute_ needs tinyproxy in port 8888 (this test checks sending command through http proxy).
 
 
-### Documentation
+## <a name="documentation">Documentation</a>
 TBC.
 If you have doxygen installed, you can generate html documentation of the libvariant public interface from the source code with:
 
@@ -102,7 +112,7 @@ $ make doc
 
 The output html is in build/Debug/doc
 
-### How to start agents ###
+## <a name="how_to_start_agents">How to start agents</a>
 
 The general procedure to start an IoT Agent needs needs that libraries generated or
 deployed can be loaded by executable (LD_LIBRARY_PATH environment variable). The executable is named _iotagent_.
@@ -160,5 +170,8 @@ if you start with -6 you can use
 
         curl -g -X GET http://[::1]:80/iot/about
 
-## Making your module-based iotagent
+To check your installation exists a [Sanity check iotagent](sanity_check.md), execute it to be sure that everything is ok.
+
+
+## <a name="making_your_module">Making your module-based iotagent</a>
 [Sample Module](test_service.md)

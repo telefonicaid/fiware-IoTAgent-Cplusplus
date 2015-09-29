@@ -159,6 +159,24 @@ class CommandHandle :
                       const std::string& regId,
                       std::string& cb_response);
 
+    /**
+     * @name    send_unregister
+     * @brief   send a register to Context Broker with 1 second expiration
+     *
+     * This API provides certain actions as an example.
+     *
+     * @param [in] service,  service with ContextBroker data.
+     * @param [in] device  device to unregister.
+     * @param [in] regId  registrationId to be unregister, it cannot be empty .
+     * @param [out] cb_response  response from context broker .
+     *
+     *
+     */
+    int send_unregister(boost::property_tree::ptree& service,
+                      const boost::shared_ptr<Device> device,
+                      const std::string& regId,
+                      std::string& cb_response);
+
     int send(
       iota::ContextElement ngsi_context_element,
       const std::string& opSTR,
@@ -232,6 +250,17 @@ class CommandHandle :
                                   boost::shared_ptr<iota::HttpClient> http_client,
                                   pion::http::response_ptr http_response,
                                   const boost::system::error_code& error);
+
+
+    /**
+    * @name is_push_type_of_command
+    * @brief virtual function that will return true if PUSH commands are enabled for a particular device. It's virtual
+    * so other plugins may implement a different behaviour. A default implementation is provided where the presence of an
+    * endpoint will determine that PUSH is the type for commands.
+    * @param [in] device, pointer to the device for checking type of command.
+    * @return bool: TRUE for PUSH commands, FALSE for PULL.
+    */
+    virtual bool is_push_type_of_command(boost::shared_ptr<Device> device);
 
     /**
     * @name    transform_command
@@ -344,7 +373,9 @@ class CommandHandle :
     */
     void set_async_commands();
 
-
+    void set_myProvidingApp(const std::string &myapp){
+      _myProvidingApp = myapp;
+    }
 
 
   protected:

@@ -51,6 +51,7 @@ const std::string types::MODEL("model");
 const std::string types::ACTIVATE("activate");
 const std::string types::REGISTRATION_ID("registration_id");
 const std::string types::DURATION_CB("duration");
+const std::string types::TIMESTAMP_DATA("timestamp_data");
 const std::string types::ATTRIBUTE_ID("object_id");
 const std::string types::ATTRIBUTE_VALUE("value");
 const std::string types::TYPE("type");

@@ -55,6 +55,7 @@ struct types {
   static const std::string ACTIVATE;
   static const std::string REGISTRATION_ID;
   static const std::string DURATION_CB;
+  static const std::string TIMESTAMP_DATA;
   static const std::string ATTRIBUTE_ID;
   static const std::string ATTRIBUTE_VALUE;
 

@@ -86,7 +86,7 @@ class IotaMqttServiceImpl : public IotaMqttService {
   std::string doPublishCB(std::string& apikey,
                           std::string& idDevice,std::string& json);
 
-  void doRequestCommands(std::string& apikey,std::string& device);
+
 
   void processCommandResponse(std::string& apikey,std::string& idDevice, std::string& payload);
 

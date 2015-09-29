@@ -53,7 +53,7 @@ RUN yum -y remove autoconf automake bzip2-devel \
  RUN cd ${GIT_PATH_IOTACPP} && \
     cd build/${IOTACPP_BUILD_TYPE} && \
     cd pack/Linux/RPM && \
-    curl -kOL http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/home:oojah:mqtt.repo && \
+    curl -kOL http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-6/home:oojah:mqtt.repo && \
     mv home:oojah:mqtt.repo /etc/yum.repos.d/ && \
     yum localinstall -y iot-agent-*.rpm && \
     yum clean all && \

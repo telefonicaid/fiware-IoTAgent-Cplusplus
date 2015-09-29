@@ -57,4 +57,8 @@ target_link_libraries(mqtt_tests esp_mqtt mosquittopp mosquitto smqttservice iot
 
 endif()
 
+# Modbus 
+add_executable(modbus_tests modbusTest.cc modbus_test.cc)
+target_link_libraries(modbus_tests iota_a ${IOTAGENT_LIBS}
+	${TEST_LIBS})
 

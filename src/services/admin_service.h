@@ -53,7 +53,7 @@ class AdminService :
     void set_timezone_database(std::string timezone_str);
 
     boost::posix_time::ptime get_local_time_from_timezone(std::string timezone_str);
-
+    boost::local_time::time_zone_ptr get_timezone(std::string region);
     /**
          * @name    getServiceCollectionName
          * @brief   return the name of collection
@@ -508,6 +508,7 @@ class AdminService :
     bool is_mongo_active();
 
     void deploy_device(Device& device);
+    void undeploy_device( const boost::shared_ptr<Device> device);
     void register_iota_manager();
     void print_services();
 

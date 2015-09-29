@@ -48,7 +48,8 @@ class DeviceCollection : public Collection {
     int countd(const Device& query) ;
 
     int updated(const Device& query,
-               const Device& sett);
+               const Device& sett,
+               bool upsert = false);
 
     int createTableAndIndex();
 

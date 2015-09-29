@@ -21,6 +21,10 @@
 */
 #include "IotaMqttService.h"
 
+/**
+TODO: this service has some methods for handling  pull commands, but as a new feture of 1.2.0 version, mqtt will support
+push commands only, so it would make sense to remove some of these commands.
+*/
 
 namespace iota {
   extern std::string logger;
@@ -40,16 +44,10 @@ std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(std::string& 
 }
 
 
-void iota::esp::ngsi::IotaMqttService::askForCommands(std::string& apikey,std::string& idDevice){
-  doRequestCommands(apikey,idDevice);
-}
 
 
 void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(std::string& apikey,std::string& idDevice,std::string& payload,std::string& type){
 
-  if (MQTT_COMMAND_REQUEST == type){
-    return askForCommands(apikey,idDevice);
-  }
 
   if (MQTT_COMMAND_RESPONSE == type){
     return processCommandResponse(apikey,idDevice,payload);

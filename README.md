@@ -2,13 +2,21 @@
 ## Index
 
 * [Overview](#overview)
+
 * [Architecture](doc/architecture.md)
-* [Build and Install](doc/build.md), including how to make your own module-based iotagent.
-* [Deployment](doc/deploy.md)
-* [Authentication, Authorization and PEP Rules](doc/pep.md)
-* [Configuration API](doc/north_api.md)
-* [Commands in IoT Agent](doc/commands.md)
-* [Southbound APIs](doc/modules.md)
+* Installation and Administration Guide
+    - [Build and Install](doc/build.md), including how to make your own module-based iotagent.
+    - [Deployment](doc/deploy.md)
+    - [Sanity check procedures](doc/sanity_check.md)
+    - [Diagnosis Procedures](doc/diagnosis_procedures.md)
+    - [Authentication, Authorization and PEP Rules](doc/pep.md)
+    - [Configuration API](doc/north_api.md)
+    
+* User & Programmers Manual
+    - Introduction. This manual describes how to use the IoT Agents hosted in this repository.
+    - User Manual
+        * [Commands in IoT Agent](doc/commands.md)
+        * [Southbound APIs](doc/modules.md)
 
 ## <a name="overview">Overview</a>
 This project aims to provide a C++ platform to enable IoT Agent developers to build custom agents for their devices that can easily connect to NGSI Context Brokers (such as Orion ).

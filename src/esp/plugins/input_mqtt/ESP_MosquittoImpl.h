@@ -19,7 +19,7 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
-#ifndef ESP_MOSQUITTOIMPL_H 
+#ifndef ESP_MOSQUITTOIMPL_H
 #define ESP_MOSQUITTOIMPL_H
 
 #include "mosquittopp.h"
@@ -49,7 +49,6 @@ class ESP_MosquittoImpl : public IMosquitto ,mosqpp::mosquittopp {
     void on_message(const struct mosquitto_message* message);
     void on_subscribe(int mid, int qos_count, const int* granted_qos);
     void on_unsubscribe(int mid);
-    void on_log(int level, const char* str);
     void on_error();
 
 

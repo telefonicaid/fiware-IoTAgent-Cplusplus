@@ -203,6 +203,14 @@ void iota::esp::MqttService::op_mqtt(pion::http::request_ptr& http_request_ptr,
   response.assign("Executing iota::esp::MqttService::op_mqtt MqttService");
 }
 
+/**
+  This means that MQTT will always support PUSH command only.
+*/
+bool iota::esp::MqttService::is_push_type_of_command(boost::shared_ptr<Device> device){
+   IOTA_LOG_DEBUG(m_logger,
+                 "MqttService::is_push_type_of_command : TRUE" );
+  return true;
+}
 
 int iota::esp::MqttService::execute_mqtt_command(std::string apikey,
     std::string device, std::string name, std::string command_payload,

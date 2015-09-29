@@ -945,7 +945,7 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
   cmd_data.entity_type = entity_type;
   cmd_data.service = service;
 
-  if (!item_dev->_endpoint.empty()) {
+  if (is_push_type_of_command(item_dev)) {
     send_updateContext(command_name, iota::types::STATUS, iota::types::STATUS_TYPE,
                        iota::types::PENDING, item_dev, service, iota::types::STATUS_OP);
     // always we save command in cache
@@ -1025,6 +1025,11 @@ void iota::CommandHandle::updateCommand(const std::string& command_name,
 
 }
 
+
+bool iota::CommandHandle::is_push_type_of_command(boost::shared_ptr<Device> device){
+
+  return !device->_endpoint.empty();
+}
 
 void iota::CommandHandle::transform_command(const std::string& command_name,
     const std::string& command_value,
@@ -1368,6 +1373,57 @@ std::string iota::CommandHandle::get_ngsi_operation(const std::string&
     IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
   return op;
+}
+
+int iota::CommandHandle::send_unregister(
+  boost::property_tree::ptree& pt_cb,
+  const boost::shared_ptr<Device> device,
+  const std::string& regId,
+  std::string& cb_response) {
+
+  iota::RegisterContext reg;
+  std::string cb_url;
+  std::string entity_type("thing");
+  std::string entity_name = device->get_real_name(pt_cb);
+
+  try {
+    std::string cbrokerSTR = pt_cb.get<std::string>("cbroker", "");
+    if (!cbrokerSTR.empty()) {
+      cb_url.assign(cbrokerSTR);
+      cb_url.append(get_ngsi_operation("registerContext"));
+    }
+    std::string entity_typeSTR = pt_cb.get<std::string>("entity_type", "");
+    if (!entity_typeSTR.empty()) {
+      entity_type.assign(entity_typeSTR);
+    }
+
+    // Setting Accept to "application/json,text/json"
+    pt_cb.put<std::string>(iota::types::IOT_HTTP_HEADER_ACCEPT,
+                           iota::types::IOT_CONTENT_TYPE_JSON);
+
+  }
+  catch (std::exception& e) {
+    IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
+  }
+
+  iota::ContextRegistration  cr;
+  iota::Entity entity(entity_name, entity_type, "false");
+  cr.add_entity(entity);
+
+  if (_myProvidingApp == UNKOWN_PROVIDING_APP) {
+    IOTA_LOG_DEBUG(m_logger,
+                   "Registrations are not sent because a valid ProvidingApp can not be obtained");
+    return -1;
+  }else{
+    cr.add_provider(_myProvidingApp);
+  }
+
+  IOTA_LOG_DEBUG(m_logger, "send_unregister: " << regId);
+  reg.add_registrationId(regId);
+  reg.add_duration("PT1S");
+  reg.add_context_registration(cr);
+  ContextBrokerCommunicator cb_communicator_unreg;
+  cb_communicator_unreg.send(cb_url, reg.get_string(), pt_cb);
 }
 
 int iota::CommandHandle::send_register(

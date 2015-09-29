@@ -106,6 +106,12 @@
             ]
         },
         {
+            "resource": "tcp://127.0.0.1:8085/iot/rr",
+            "options": {
+                "FileName": "UL20Service"
+            }
+        },
+        {
             "resource": "/iot/tt",
             "options": {
                 "ConfigFile": "TTService.xml",
