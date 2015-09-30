@@ -259,6 +259,12 @@ struct types {
   static const std::string FORMATERROR_NO_SERVICE;
   static const std::string FORMATERROR_SERVICE_NO_ACTIVE;
 
+  static const std::string HELP_MESSAGE_OPS;
+  static const std::string HELP_MESSAGE;
+  static const std::string HELP_MESSAGE_ERR_CONFIG;
+  static const std::string HELP_MESSAGE_ERR_PARAM;
+  static const std::string HELP_MESSAGE_ERR_BAD_PARAM;
+  static const std::string HELP_MESSAGE_ERR_PARAMO;
 
   static const char* ERROR_MESSAGE[];
 

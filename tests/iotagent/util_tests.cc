@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(UtilFunctionTest::suite());
   runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cout));
+                      std::cerr));
   bool s = runner.run();
   return s ? 0 : 1;
 }

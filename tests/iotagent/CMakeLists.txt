@@ -38,7 +38,7 @@ target_link_libraries(sample_tests stestsrv iotmock iota_a ${IOTAGENT_LIBS}
         ${TEST_LIBS})
 
 # UltraLight protocol
-add_executable(ul20_tests ul20Test.cc ul20_test.cc)
+add_executable(ul20_tests ul20Test.cc ul20_test.cc  baseTest.cc)
 target_link_libraries(ul20_tests sul20 iotmock iota_a ${IOTAGENT_LIBS}
 	${TEST_LIBS})
 

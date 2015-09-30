@@ -283,7 +283,29 @@ const std::string types::EXECUTED_MESSAGE("OK");
 const int types::NOT_DELIVERED = 5;
 const std::string types::NOT_DELIVERED_MESSAGE("not delivered");
 
+const std::string types::HELP_MESSAGE_OPS("usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE\n"
+"         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE\n"
+"options: [-m] [-4] [-6] [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]\n");
+const std::string types::HELP_MESSAGE("options explication:\n"
+"-c/--config_file <CONFIG_FILE> starts all RESOURCE configured in CONFIG_FILE\n"
+"-h/--help             This help text.\n"
+"-m/--manager          an iota manager server is started, without this option an iota agent is started.\n"
+"-4/--ipv4             server is started in 0.0.0.0\n"
+"-6/--ipv6             server is started in [::]\n"
+"-i/--ip <IP>          ip address where server is started (Default is 0.0.0.0). If no provided we cannot register for commands. Thus, this parameter is recommended to provide, any way.\n"
+"-p/--port <PORT>      the port where server is listening (Default is 8080)\n"
+"-u/--url <URL_BASE>   It defines a root url (Default is /iot)\n"
+"-n/--name <IOTAGENT_NAME>  The name assigned. This name is used as part of log file (IoTAgent-.log)\n"
+"-d/--plugins-dir <PLUGINS_DIR>  You can specify a directory where modules are located.\n"
+"-o/--option <OPTION=VALUE>   options for web server.\n"
+"-v/--verbose <LOG_LEVEL> log level (DEBUG, INFO, WARNING, ERROR, FATAL).\n"
+"-s/--ssl <ssl_pem_file> start ssl interface.\n"
+"-I/--identifier <UNIQUE_IDENTIFIER> identifier used with iota manager.");
 
+const std::string types::HELP_MESSAGE_ERR_CONFIG("You need to put a config file [-c] or resource name or service name.\n");
+const std::string types::HELP_MESSAGE_ERR_PARAM("You need to put some parameters\n");
+const std::string types::HELP_MESSAGE_ERR_BAD_PARAM("Bad argument: you put a parameter that we don't understand\n");
+const std::string types::HELP_MESSAGE_ERR_PARAMO("Bad argument: -o parameter wrong, should be followed by OPTION=VALUE");
 }
 
 
