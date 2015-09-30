@@ -172,6 +172,39 @@ For doing so, you have to include another parameter into the command line: "-m".
 
 Replace  x.x.x.x  with  VM IP address. By default  iotagent listen in port 8080
 
+#### Identify an IoTAgent in Manager
+
+If you have several iotagents, you will use an iot manager, and it is very usefull to identify iotagent with an special name.
+
+  
+In command line exists a paramater -n or --name  to set a name for iotagent, this name is used to set the file name for logs (it will be IoTAgent-<name>.log)
+
+
+In config file there is another way to define the identifier for iotagent.
+```
+{ 
+  "identifier":"id1",
+....
+```
+
+This name is only used to talk with iota manager.
+
+Because of the name of iotagent is associated with log file name. In command line exists another parameter to define the iota identifier
+-I or --identifier set the identifier and it is more priority than any identifier in config file.
+
+To see the identifier for an iotagent execute
+
+```
+curl -X GET http://localhost:8080/iot/about
+
+``` 
+then you can see the identifier
+```
+Welcome to IoTAgents  identifier:idcl1:8080  1.2.1 commit 55.g7fd08a6 in Sep 30 2015
+```
+When you ask to iot manager for iotagents and protocols, you can see identifiers
+[API REFERENCE MANAGER](API_REFERENCE_MANAGER.md)
+
 #### Starting IoTAgent as a Service
 
 After installing iot-agent-base RPM an init.d script can be found in this folder ```/usr/local/iot/init.d```. Such script will take all input parameters for starting the IoTAgent process from a config file located in ```/usr/local/iot/config``` and named __iotagent_protocol.conf__ or __iotagent_manager.conf__ (for starting the IoTAgent as manager).

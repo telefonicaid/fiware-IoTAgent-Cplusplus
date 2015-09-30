@@ -38,6 +38,7 @@
 
 #include "util/iot_url.h"
 #include "util/alarm.h"
+#include "util/arguments.h"
 #include <boost/property_tree/ptree.hpp>
 #include "util/json_parser.hpp"
 #include <boost/property_tree/json_parser.hpp>
@@ -788,3 +789,85 @@ void UtilFunctionTest::testForbiddenCharacters() {
 
 
 
+void UtilFunctionTest::testCommandLine() {
+  std::cout << "@UT@START testCommandLine" << std::endl;
+  iota::Arguments arguments;
+
+  std::cout << "@UT@Scenario: no parameters in command line" << std::endl;
+  int argc=1;
+  const char* argv1[] = { "iotagent" };
+  std::string result = arguments.parser(argc, argv1);
+  std::cout << "@UT@result1:" << result << std::endl;
+  CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_CONFIG +
+      iota::types::HELP_MESSAGE_OPS) == 0);
+
+  std::cout << "@UT@Scenario: not all necesary parameters" << std::endl;
+  const char* argv2[] = { "iotagent" "param0", "param1", "param2" };
+  result = arguments.parser(4, argv2);
+  std::cout << "@UT@result2:" << result << std::endl;
+  CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_PARAM +
+      iota::types::HELP_MESSAGE_OPS) == 0);
+  std::cout << "service_name:" << arguments.get_service_name() << std::endl;
+  std::cout << "component_name:" << arguments.get_component_name() << std::endl;
+
+  std::cout << "@UT@Scenario: iotagent  -h " << std::endl;
+  const char* argv3[] = { "iotagent", "-h" };
+  result = arguments.parser(2, argv3);
+  std::cout << "@UT@result3:" << result << std::endl;
+  CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_OPS +
+      iota::types::HELP_MESSAGE) == 0);
+
+  std::cout << "@UT@Scenario: iotagent  --help " << std::endl;
+  const char* argv4[] = { "iotagent", "--help" };
+  result = arguments.parser(2, argv4);
+  std::cout << "@UT@result4:" << result << std::endl;
+  CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_OPS +
+      iota::types::HELP_MESSAGE) == 0);
+
+  std::cout << "@UT@Scenario: param not recognize " << std::endl;
+  const char* argv5[] = { "iotagent", "--bomb" };
+  result = arguments.parser(2, argv5);
+  std::cout << "@UT@result5:" << result << std::endl;
+  CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
+      iota::types::HELP_MESSAGE_OPS) == 0);
+
+
+  std::cout << "@UT@Scenario: iotagent ok " << std::endl;
+  const char* argv6[] = {"iotagent", "-v", "DEBUG", "-n", "dev", "-i", "127.0.0.1",
+        "-p", "8080", "-d", "/home/develop/GH/lib/Debug", "-c",
+        "/home/iotagent/config_iot.json"};
+  result = arguments.parser(13, argv6);
+  std::cout << "@UT@result6:" << result << std::endl;
+  CPPUNIT_ASSERT(result.empty());
+  CPPUNIT_ASSERT(!arguments.get_manager());
+
+  std::cout << "@UT@Scenario: iota manager ok " << std::endl;
+  const char* argv7[] = {"iotagent", "-m", "-6", "-v", "DEBUG", "-n", "manager",
+       "-i", "192.0.3.25", "-p", "8081", "-d",
+       "/home/develop/GH/lib/Debug", "-c",
+       "/home/iotagent/config.json"};
+  result = arguments.parser(15, argv7);
+  std::cout << "@UT@result7:" << result << std::endl;
+  CPPUNIT_ASSERT(result.empty());
+  CPPUNIT_ASSERT(arguments.get_manager());
+
+  std::cout << "@UT@Scenario: iota manager large param ok " << std::endl;
+  const char* argv75[] = {"iotagent", "--manager", "--ipv6", "--verbose", "DEBUG", "--name", "manager",
+       "--ip", "192.0.3.25", "--port", "8081", "--plugins-dir",
+       "/home/develop/GH/lib/Debug", "--config_file",
+       "/home/iotagent/config.json"};
+  result = arguments.parser(15, argv75);
+  std::cout << "@UT@result75:" << result << std::endl;
+  CPPUNIT_ASSERT(result.empty());
+  CPPUNIT_ASSERT(arguments.get_manager());
+  CPPUNIT_ASSERT(arguments.get_plugin_directory().compare("/home/develop/GH/lib/Debug") ==0);
+
+  std::cout << "@UT@Scenario: no core for few parameters " << std::endl;
+  const char* argv8[] = {"iotagent", "-"};
+  result = arguments.parser(2, argv6);
+  std::cout << "@UT@result8:" << result << std::endl;
+  CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
+      iota::types::HELP_MESSAGE_OPS) == 0);
+
+  std::cout << "@UT@END testCommandLine" << std::endl;
+}

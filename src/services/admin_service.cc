@@ -315,6 +315,9 @@ void iota::AdminService::about(pion::http::request_ptr& http_request_ptr,
   std::ostringstream ss;
   ss << "Welcome to IoTAgents ";
   ss << get_role();
+  ss << " identifier:";
+  ss << get_iotagent_identifier();
+  ss << "  ";
   ss << gV_GIT;
   ss << " commit ";
   ss << gV_COMMIT;

@@ -29,14 +29,14 @@ CMakeLists.txt add external projects in order to download and build following de
 #####IMPORTANT
 If you want to  modify the URL from dependencies are downloaded, you must modify CMakeLists.txt
 
-*Note*: our CMakeLists.txt requires `cmake 2.8.12` or higher to build the project. 
+*Note*: our CMakeLists.txt requires `cmake 2.8.12` or higher to build the project.
 
 IoT Agents need MongoDB as persistent storage. Be sure that MongoDB is started in your host in order to execute unit tests.
 
 
-### Get the source 
+### Get the source
 
-Run: 
+Run:
 ```
 git clone https://github.com/telefonicaid/fiware-IoTAgent-Cplusplus.git
 ```
@@ -98,7 +98,7 @@ If you need _rpms_ execute `make package` in order to build:
 Some dependencies are include in rpm (boost, pion, log library).
 
 An unit test called _testPUSHCommandProxyAndOutgoingRoute_ needs tinyproxy in port 8888 (this test checks sending command through http proxy).
- 
+
 
 ## <a name="documentation">Documentation</a>
 TBC.
@@ -117,6 +117,26 @@ The output html is in build/Debug/doc
 The general procedure to start an IoT Agent needs needs that libraries generated or
 deployed can be loaded by executable (LD_LIBRARY_PATH environment variable). The executable is named _iotagent_.
 
+To get information about parameter uses
+$iotagent -h
+usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE
+         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE
+options: [-m] [-4] [-6] [-i IP] [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]
+options explication:
+-c/--config_file <CONFIG_FILE> starts all RESOURCE configured in CONFIG_FILE
+-h/--help             This help text.
+-m/--manager          an iota manager server is started, without this option an iota agent is started.
+-4/--ipv4             server is started in 0.0.0.0
+-6/--ipv6             server is started in [::]
+-i/--ip <IP>          ip address where server is started (Default is 0.0.0.0). If no provided we cannot register for commands. Thus, this parameter is recommended to provide, any way.
+-p/--port <PORT>      the port where server is listening (Default is 8080)
+-u/--url <URL_BASE>   It defines a root url (Default is /iot)
+-n/--name <IOTAGENT_NAME>  The name assigned. This name is used as part of log file (IoTAgent-.log)
+-d/--plugins-dir <PLUGINS_DIR>  You can specify a directory where modules are located.
+-o/--option <OPTION=VALUE>   options for web server.
+-v/--verbose <LOG_LEVEL> log level (DEBUG, INFO, WARNING, ERROR, FATAL).
+-s/--ssl <ssl_pem_file> start ssl interface.
+-I/--identifier <UNIQUE_IDENTIFIER> identifier used with iota manager.
 
 You can start an iotagent by following procedure:
 
@@ -125,15 +145,6 @@ You can start an iotagent by following procedure:
 This way starts all RESOURCE configured in CONFIG_FILE.
 
          options:  [-p PORT] [-u URL_BASE] [-n IOTAGENT_NAME] [-d PLUGINS_DIR] [-v LOG_LEVEL]
-
-* -i IP: It defines the ip address where server is started (Default is 0.0.0.0). If no provided we cannot register for commands. Thus, this parameter is recommended to provide, any way.
-* -p PORT: It defines the port where server is listening (Default is 8080)
-* -u URL_BASE: It defines a root url (Default is _/iot_)
-* -n IOTAGENT_NAME: The name assigned. This name is used as part of log file (IoTAgent-<name>.log)
-* -d PLUGINS_DIR: You can specify a directory where modules are located.
-* -v LOG_LEVEL: log level (DEBUG, INFO, WARNING, ERROR, FATAL).
-* -ipv4 server is started in 0.0.0.0
-* -ipv6 server is started in [::]
 
 Examples:
 
@@ -148,14 +159,16 @@ It defines a log level to ERROR.
 
 To check iotagent, you can use curl
 
-         curl -g -X GET http://127.0.0.1:80/iot/about 
+         curl -g -X GET http://127.0.0.1:80/iot/about
 the response
 
-         Welcome to IoTAgents 1.1.0 commit 134.g5b92683 in Jul 23 2015
+         Welcome to IoTAgents 1.1.0 identifier:dev:80 commit 134.g5b92683 in Jul 23 2015
 
-if you start with -ipv6 you can use
+Identifier is the unique name sending to iota manager.
 
-        curl -g -X GET http://[::1]:80/iot/about 
+if you start with -6 you can use
+
+        curl -g -X GET http://[::1]:80/iot/about
 
 To check your installation exists a [Sanity check iotagent](sanity_check.md), execute it to be sure that everything is ok.
 

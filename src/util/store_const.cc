@@ -25,6 +25,10 @@ namespace iota   {
 
 namespace store  {
 
+const std::string types::IOTAGENT_ID("identifier");
+const std::string types::IOTAGENT_NAME("name");
+
+
 /// DEVICE_TABLE
 const std::string types::DEVICE_TABLE("DEVICE");
 const std::string types::DEVICE_SORT("device_id");
@@ -88,6 +92,7 @@ const std::string types::PROTOCOL_NAME("protocol");
 const std::string types::PROTOCOL_ID("_id");
 const std::string types::ENDPOINTS("endpoints");
 const std::string types::ENDPOINT_AG("endpoint");
+const std::string types::ENDPOINT_ID("identifier");
 
 // Also has resource from service table.
 

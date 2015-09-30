@@ -92,6 +92,12 @@ class Configurator {
     std::string get_listen_ip();
     void set_listen_ip(std::string ip);
 
+    std::string get_iotagent_name();
+    void set_iotagent_name(std::string name);
+
+    std::string get_iotagent_identifier();
+    void set_iotagent_identifier(std::string id);
+
 
   protected:
   private:
@@ -126,6 +132,9 @@ class Configurator {
     std::string _error;
     int listen_port;
     std::string listen_ip;
+
+    std::string iotagent_name;
+    std::string iotagent_identifier;
 
     static Configurator* pinstance;
 

@@ -83,6 +83,34 @@ void iota::Configurator::set_listen_ip(std::string ip) {
   listen_ip = ip;
 }
 
+std::string iota::Configurator::get_iotagent_name(){
+  return iotagent_name;
+}
+
+void iota::Configurator::set_iotagent_name(std::string name){
+  iotagent_name = name;
+}
+
+std::string iota::Configurator::get_iotagent_identifier() {
+  if (iotagent_identifier.empty()) {
+    try {
+      const iota::JsonValue& iot_id = iota::Configurator::instance()->get(
+                                         iota::store::types::IOTAGENT_ID.c_str());
+      if (iot_id.IsString()) {
+        iotagent_identifier.assign(iot_id.GetString());
+      }
+    }
+    catch (std::exception& e) {
+      IOTA_LOG_ERROR(m_log, "error reading iotagent identifier in config.json " << e.what());
+    }
+  }
+  return iotagent_identifier;
+}
+
+void iota::Configurator::set_iotagent_identifier(std::string id){
+  iotagent_identifier = id;
+}
+
 /**
    flush all data from istream to ptree in memmory
 

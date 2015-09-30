@@ -54,6 +54,11 @@ class UtilFunctionTest: public CppUnit::TestFixture  {
 
     // forbidden characters
     CPPUNIT_TEST(testForbiddenCharacters);
+
+    //command line
+    CPPUNIT_TEST(testCommandLine);
+
+
     CPPUNIT_TEST_SUITE_END();
   public:
     void setUp() {};
@@ -86,5 +91,33 @@ class UtilFunctionTest: public CppUnit::TestFixture  {
 
     // Forbiden characters
     void testForbiddenCharacters();
+
+    // command line
+    /**
+    Feature: command line parameter -h to show help for parameters
+options:
+
+[-m]                manager
+[–ipv4]             ipv4
+[–ipv6]             ipv6
+[-i IP]             ip
+[-p PORT]           port
+[-u URL_BASE]       url base
+[-n IOTAGENT_NAME]  name
+[-d PLUGINS_DIR]    directory
+[-o OPTION=VALUE]   option
+[-v LOG_LEVEL]      verbose
+ -id                identifier
+
+-h                  help
+
+
+    Scenario: no parameters in command line
+
+    Scenario: not all necesary parametes
+
+    Scenario: iotagent  -h or iotagent --help
+    **/
+    void testCommandLine();
 };
 #endif

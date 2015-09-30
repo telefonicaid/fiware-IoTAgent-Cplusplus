@@ -40,15 +40,18 @@ void writeDictionaryTerm(pion::http::response_writer_ptr& writer,
 
 
 HttpMock::HttpMock(unsigned short port, std::string url,
-                   bool extended_echo): _port(port), _url(url) {
+                   bool extended_echo,
+                   const std::string name):_name(name), _port(port), _url(url) {
   std::cout << "CONTRUCTOR MOCK" << std::endl;
   _service = new MockService();
   _service->_extended_echo = extended_echo;
   pion::process::initialize();
 }
 
-HttpMock::HttpMock(std::string url): _url(url), _port(0) {
+HttpMock::HttpMock(std::string url,
+            const std::string name):_name(name), _url(url), _port(0) {
   std::cout << "CONTRUCTOR MOCK" << std::endl;
+  _name = name;
   pion::process::initialize();
   _service = new MockService();
   _service->_extended_echo = false;
