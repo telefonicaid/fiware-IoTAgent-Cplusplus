@@ -1091,16 +1091,18 @@ int iota::AdminManagerService::post_protocol_json(
     reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
     code = types::RESPONSE_CODE_BAD_REQUEST;
   }
-  else if (validate_json_schema(body, iota::AdminManagerService::_POST_PROTOCOL_SCHEMA, error_details)) {
+  else if (validate_json_schema(body,
+                                iota::AdminManagerService::_POST_PROTOCOL_SCHEMA, error_details)) {
     mongo::BSONObj obj =  mongo::fromjson(body);
     mongo::BSONObj insObj;
 
     // Resource and description define a protocol
     std::string endpoint = obj.getStringField(iota::store::types::IOTAGENT);
     std::string endpoint_id = obj.getStringField(iota::store::types::ENDPOINT_ID);
-    if (endpoint_id.empty()){
-      IOTA_LOG_DEBUG(m_log, "in update protocol, there is an empty endpoint identifier:" + endpoint +
-                   ", check this iotagent to update, using ip as identifier");
+    if (endpoint_id.empty()) {
+      IOTA_LOG_DEBUG(m_log,
+                     "in update protocol, there is an empty endpoint identifier:" + endpoint +
+                     ", check this iotagent to update, using ip as identifier");
 
       endpoint_id = endpoint;
     }
@@ -1113,33 +1115,60 @@ int iota::AdminManagerService::post_protocol_json(
     IOTA_LOG_DEBUG(m_log, "update protocol :" + protocol_name +
                    " iotagent:" + endpoint + " resource:" + resource);
 
-    int num_ups;
+    int num_ups=0;
     try {
+      // db.PROTOCOL.update( { protocol: "PDI-IoTA-UltraLight", endpoints: { $elemMatch: { identifier: "KK1:8080" } } },
+      //        { $set: { "endpoints.$.endpoint": "http://127.0.0.2:8080/iot", "endpoints.$.resource": "/iot/d" } }  )
+      //   update endpoint and resource if exists identifier, example change ip
       num_ups = protocol_table->update_r(
+                  BSON(iota::store::types::PROTOCOL_NAME << protocol_name <<
+                       iota::store::types::ENDPOINTS <<
+                       BSON("$elemMatch" <<
+                            BSON(iota::store::types::ENDPOINT_ID<< endpoint_id))) ,
+                  BSON("$set" << BSON("endpoints.$.endpoint" << endpoint <<
+                                      "endpoints.$.resource"  << resource)
+                      ), true, 0);
+
+    }
+    catch (iota::IotaException e) {
+      IOTA_LOG_DEBUG(m_log, "update protocol : no exists this protocol" << e.what());
+    }
+
+    if (num_ups==0) {
+      try {
+        // db.PROTOCOL.update( { protocol: "PDI-IoTA-UltraLight", endpoints: { $elemMatch: { endpoint: "http://127.0.0.2:8080/iot" } } },
+        //        { $set: { "endpoints.$.identifier": "KK1:8080", "endpoints.$.resource": "/iot/d" } }  )
+        //   update identifier and resource if exists endpoint, example change identifier
+        num_ups = protocol_table->update_r(
                     BSON(iota::store::types::PROTOCOL_NAME << protocol_name <<
                          iota::store::types::ENDPOINTS <<
-                         BSON( "$elemMatch" <<
-                         BSON(iota::store::types::ENDPOINT_ID<< endpoint_id))) ,
-                    BSON("$set" << BSON("endpoints.$.endpoint" << endpoint <<
-                                    "endpoints.$.resource"  << resource)
-                         ), true, 0);
+                         BSON("$elemMatch" <<
+                              BSON(iota::store::types::ENDPOINT<< endpoint))) ,
+                    BSON("$set" << BSON("endpoints.$.identifier" << endpoint_id <<
+                                        "endpoints.$.resource"  << resource)
+                        ), true, 0);
 
-    }catch (iota::IotaException e){
-      IOTA_LOG_DEBUG(m_log, "update protocol : no exists this protocol" << e.what());
+      }
+      catch (iota::IotaException e) {
+        IOTA_LOG_DEBUG(m_log, "update protocol : no exists this identifier" <<
+                       e.what());
+      }
+    }
 
+    if (num_ups==0) {
       // query only protocol name (identifier)
       // update description because it can be different
       // if there are several iotagents with different description
       // with every register, the description would change
       num_ups = protocol_table->update_r(
-                    BSON(iota::store::types::PROTOCOL_NAME << protocol_name) ,
-                    BSON("$set" << BSON(iota::store::types::PROTOCOL_DESCRIPTION << description) <<
-                         "$addToSet"  <<
-                         BSON(iota::store::types::ENDPOINTS << BSON(iota::store::types::ENDPOINT <<
-                              endpoint <<
-                              iota::store::types::RESOURCE << resource <<
-                              iota::store::types::ENDPOINT_ID << endpoint_id)
-                             )), true, 0);
+                  BSON(iota::store::types::PROTOCOL_NAME << protocol_name) ,
+                  BSON("$set" << BSON(iota::store::types::PROTOCOL_DESCRIPTION << description) <<
+                       "$addToSet"  <<
+                       BSON(iota::store::types::ENDPOINTS << BSON(iota::store::types::ENDPOINT <<
+                            endpoint <<
+                            iota::store::types::RESOURCE << resource <<
+                            iota::store::types::ENDPOINT_ID << endpoint_id)
+                           )), true, 0);
     }
 
     mongo::BSONElement element =  obj.getField(iota::store::types::SERVICES);

@@ -3737,8 +3737,10 @@ void Ul20Test::test_register_iota_manager12() {
          "IDAS-20521", "description");
 
   boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock(8081, "/iot/protocols"));
-  start_cbmock(cb_mock, "mongodb", "/iot/d", "http://127.0.0.1:8081/iot/protocols",
+  cb_mock.reset(new HttpMock(9999, "/iot/protocols"));
+  std::string uri_endpoint = "http://127.0.0.1:9999/iot/protocols";
+  start_cbmock(cb_mock, "mongodb", "/iot/d",
+                    uri_endpoint,
                     "public_ip", "myIotaIdentifier" );
   std::string cb_last;
 
@@ -3784,9 +3786,11 @@ void Ul20Test::test_register_iota_manager34() {
          "description");
 
   boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock(8081, "/iot/protocols"));
-  start_cbmock(cb_mock, "mongodb", "/iot/d", "http://127.0.0.1:8081/iot/protocols",
-                "public_ip" );
+  cb_mock.reset(new HttpMock(9999, "/iot/protocols"));
+  std::string uri_endpoint = "http://127.0.0.1:9999/iot/protocols";
+  start_cbmock(cb_mock, "mongodb", "/iot/d",
+                    uri_endpoint,
+                    "public_ip", "" );
   std::string cb_last;
 
   pion::http::response http_response;
@@ -3798,10 +3802,10 @@ void Ul20Test::test_register_iota_manager34() {
     iota::UL20Service ul20serv3;
     ul20serv3.set_resource("/iot/d3");
 
-    scenario("register without identifier",
+    scenario("register without identifier or name",
              "description") ;
     std::cout << "@UT@" << std::endl;
-    iota::Configurator::instance()->set_iotagent_name("iotagent_name3");
+    iota::Configurator::instance()->set_iotagent_name("");
     iota::Configurator::instance()->set_iotagent_identifier("");
 
     // when
@@ -3810,20 +3814,21 @@ void Ul20Test::test_register_iota_manager34() {
     ASYNC_TIME_WAIT
 
     check_last_contains(cb_mock,
-                  "\"identifier\" : \"iotagent_name3:80\"",
+                  "\"identifier\" : \"public_ip:80\"",
                   "", 1);
   }
 
  {
     iota::UL20Service ul20serv4;
     ul20serv4.set_resource("/iot/d4");
-    scenario("register without identifier or name");
-    iota::Configurator::instance()->set_iotagent_name("");
+    scenario("register without identifier");
+    iota::Configurator::instance()->set_iotagent_name("iotagent_name3");
     iota::Configurator::instance()->set_iotagent_identifier("");
 
     ul20serv4.start();
 
-    check_last_contains(cb_mock, "\"identifier\" : \"public_ip:80\"",
+    check_last_contains(cb_mock,
+                        "\"identifier\" : \"iotagent_name3:80\"",
                         "", 1);
 
   }

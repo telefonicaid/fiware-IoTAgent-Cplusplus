@@ -1517,3 +1517,52 @@ void AdminManagerTest::testReregistration_changing_ip() {
   std::cout << "@UT@END testReregistration_changing_ip" <<
             std::endl;
 }
+
+
+void AdminManagerTest::testReregistration_changing_identifier() {
+  std::cout << "@UT@START testReregistration_changing_identifier" <<
+            std::endl;
+
+  iota::AdminManagerService manager_service;
+
+  std::string service = create_random_service("s");
+  std::string service_path("/ss1");
+  std::string description1("des1");
+  std::string description2("des2");
+  delete_mongo(iota::store::types::MANAGER_SERVICE_TABLE,
+               service, service_path);
+  pion::http::response http_response;
+  std::string response;
+  std::string body1("{\"iotagent\": \"host2ip\","
+                     "\"identifier\": \"id1:80\","
+                    "\"resource\": \"/iot/mqtt\","
+                    "\"protocol\": \"MQTT\","
+                    "\"services\": []}");
+  std::string body2("{\"iotagent\": \"host2ip\","
+                     "\"identifier\": \"id2:80\","
+                    "\"resource\": \"/iot/mqtt\","
+                    "\"protocol\": \"MQTT\","
+                    "\"services\": []}");
+
+  int code_res1 = manager_service.post_protocol_json(service, service_path, body1,
+                  http_response, response);
+  std::cout << "@UT@1RESPONSE: " <<  code_res1 << " " << response << std::endl;
+  IOTASSERT(code_res1 == 201);
+  IOTASSERT(response.empty());
+  IOTASSERT(check_mongo(iota::store::types::PROTOCOL_TABLE,
+        "{ \"protocol\" : \"MQTT\", \"endpoints.identifier\": \"id1:80\"}") == 1 );
+
+  int code_res2 = manager_service.post_protocol_json(service, service_path, body2,
+                  http_response, response);
+  std::cout << "@UT@2RESPONSE: " <<  code_res2 << " " << response << std::endl;
+  IOTASSERT(code_res2 == 201);
+  IOTASSERT(response.empty());
+  IOTASSERT(check_mongo(iota::store::types::PROTOCOL_TABLE,
+       "{ \"protocol\" : \"MQTT\", \"endpoints.identifier\": \"id1:80\"}") == 0 );
+  IOTASSERT(check_mongo(iota::store::types::PROTOCOL_TABLE,
+       "{ \"protocol\" : \"MQTT\", \"endpoints.identifier\": \"id2:80\"}") == 1 );
+
+  delete_mongo(iota::store::types::PROTOCOL_TABLE, "", "");
+  std::cout << "@UT@END testReregistration_changing_identifier" <<
+            std::endl;
+}
