@@ -65,6 +65,7 @@ COPY config.json /etc/iot/
 RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json
 
 COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8080
