@@ -276,6 +276,9 @@ void iota::AdminService::about(pion::http::request_ptr& http_request_ptr,
   std::ostringstream ss;
   ss << "Welcome to IoTAgents ";
   ss << get_role();
+  ss << " identifier:";
+  ss << get_iotagent_identifier();
+  ss << "  ";
   ss << gV_GIT;
   ss << " commit ";
   ss << gV_COMMIT;
@@ -1403,6 +1406,13 @@ boost::posix_time::ptime iota::AdminService::get_local_time_from_timezone(
   }
   IOTA_LOG_DEBUG(m_log, "End get_local_time_from_timezone " << my_time);
   return my_time;
+}
+
+boost::local_time::time_zone_ptr iota::AdminService::get_timezone(std::string region) {
+  if (region.empty()) {
+    region = "Europe/Madrid";
+  }
+  return _timezone_database.time_zone_from_region(region);
 }
 
 bool iota::AdminService::validate_json_schema(

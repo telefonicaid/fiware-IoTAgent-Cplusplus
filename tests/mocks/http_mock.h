@@ -33,6 +33,7 @@ class MockService: public iota::RestHandle {
     }
     void operator()(pion::http::request_ptr& http_request_ptr,
                     pion::tcp::connection_ptr& tcp_conn);
+
     std::map<std::string, int> _sc;
     std::map<std::string, std::vector<std::string> > _content;
     std::map<std::string, std::vector<std::string> > _received_content;
@@ -51,6 +52,7 @@ class MockService: public iota::RestHandle {
     int r_size(std::string test_function) {
       return _content[test_function].size();
     };
+
   private:
 };
 

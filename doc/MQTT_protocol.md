@@ -21,7 +21,7 @@ The IoTAgent for MQTT will accept MQTT 3.1.1 compliant messages that will be tra
 #### 1.1 IoTAgent MQTT
 
 With regards to the IoTAgent, the MQTT protocol is another plugin that is loaded by the IoTAgent core if all relevant components are installed and configured properly. There are, however, two kind of dependencies that must be resolved in order to have a fully working MQTT environment. The MQTT plugin (_MqttService.so_ file) also requires several libraries to run: libmosquitto and libmosquittopp (part of Mosquitto project). Those are needed at build time as well, hence their code has been included as third party elements in the code base. However, they have to be installed in the system. 
-	The other important dependency is the MQTT broker as mentioned before. The one that has been tested with IoTAgent MQTT is Mosquitto (1.2.3 version). Some Linux distributions may have it as par of their available packages to install, otherwise, it has to be built from source. The plugin is compatible with any other MQTT broker, however, all the documentation from now on is based on configuring Mosquitto broker. 
+	The other important dependency is the MQTT broker as mentioned before. The one that has been tested with IoTAgent MQTT is Mosquitto (up to 1.4.4 version). Some Linux distributions may have it as part of their available packages to install, otherwise, it has to be built from source (if IoTAgent is installed from RPMs, Mosquitto must be resolved as RPMs dependencies). The plugin is compatible with any other MQTT broker, however, all the documentation from now on is based on configuring Mosquitto broker. 
 
 
 
@@ -39,11 +39,10 @@ RPMs have been tested on Centos 6.5. The RPM follows this pattern: iot-agent-mqt
 
 __Note__: When IoTAgent MQTT is installed from RPMS, the Mosquitto dependencies must be installed from these RPMs that have been tested on CentOS 6.5:
 
-- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/libmosquitto1-1.2.3-1.1.x86_64.rpm">libmosquitto1-1.2.3-1.1.x86_64.rpm</a> (MQTT C Client)
-- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/libmosquittopp1-1.2.3-1.1.x86_64.rpm">libmosquittopp1-1.2.3-1.1.x86_64.rpm</a> (C++ Wrapper for client)
-- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-5/x86_64/mosquitto-1.2.3-1.1.x86_64.rpm">mosquitto-1.2.3-1.1.x86_64.rpm</a> (MQTT Broker)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-6/x86_64/libmosquitto1-1.4.4-1.1.x86_64.rpm">libmosquitto1-1.4.4-1.1.x86_64.rpm</a> (MQTT C Client)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-6/x86_64/libmosquittopp1-1.4.4-1.1.x86_64.rpm">libmosquittopp1-1.4.4-1.1.x86_64.rpm</a> (C++ Wrapper for client)
+- <a href="http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-6/x86_64/mosquitto-1.4.4-1.1.x86_64.rpm">mosquitto-1.4.4-1.1.x86_64.rpm</a> (MQTT Broker)
 
-__Only this version  (Mosquitto 1.2.3) has been tested and validated with IoTAgent MQTT__
 
 #### Libmosquitto and Libmosquittopp
 These two libraries are requiered by MqttService.so. You have to use the RPMs provided above if you are installing IoTAgent from RPMs (otherwise, dependencies will not be resolved). However, if you are installing the IoTAgent from source, then you can build the Mosquitto dependency from sources <a href="http://mosquitto.org/download/">here</a> (you will find the whole Mosquitto package, including broker and client libraries). 

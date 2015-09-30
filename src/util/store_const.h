@@ -28,6 +28,11 @@ namespace store {
 struct types {
   virtual ~types() {};
 
+  /** unique iotagent identifier to send to iota manager */
+  static const std::string IOTAGENT_ID;
+  /** name for iotagent for logs */
+  static const std::string IOTAGENT_NAME;
+
   /// DEVICES
   static const std::string DEVICE_TABLE;
   static const std::string DEVICE_SORT;
@@ -110,6 +115,7 @@ struct types {
   static const std::string PROTOCOL_NAME;
   static const std::string ENDPOINTS;
   static const std::string ENDPOINT_AG;
+  static const std::string ENDPOINT_ID;
 
 
   // Types for values

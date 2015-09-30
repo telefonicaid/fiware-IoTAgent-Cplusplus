@@ -21,6 +21,11 @@
       "pattern": "^([^<>();'=\"]+)+$",
       "type": "string"
     },
+    "identifier": {
+      "description": "identifier of iotagent",
+      "pattern": "^([^<>();'=\"]+)+$",
+      "type": "string"
+    },
     "resource": {
       "description": "protocol resource, uri path for the iotagent",
       "pattern": "^([^<>();'=\"]+)+$",

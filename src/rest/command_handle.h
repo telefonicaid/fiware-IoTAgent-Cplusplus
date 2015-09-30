@@ -159,7 +159,11 @@ class CommandHandle :
                       const std::string& regId,
                       std::string& cb_response);
 
+<<<<<<< HEAD
    /**
+=======
+    /**
+>>>>>>> f4840091866f1486bb4407eb28aabb180b3e8821
      * @name    send_unregister
      * @brief   send a register to Context Broker with 1 second expiration
      *
@@ -373,7 +377,10 @@ class CommandHandle :
     */
     void set_async_commands();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> f4840091866f1486bb4407eb28aabb180b3e8821
     void set_myProvidingApp(const std::string &myapp){
       _myProvidingApp = myapp;
     }

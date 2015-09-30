@@ -60,6 +60,11 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
 
     CPPUNIT_TEST(testReregistration_diff_protocol_description);
+
+    CPPUNIT_TEST(testReregistration_changing_ip);
+    CPPUNIT_TEST(testReregistration_changing_identifier);
+
+
     CPPUNIT_TEST_SUITE_END();
 
   public:
@@ -137,7 +142,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     void testNoDeviceError_Bug_IDAS20463();
 
     /**
-    @IDAS-
+    @IDAS-20553
     Scenario: changing protocol description
        an iotagent send a registration with a description of protocol
        then you update a new version of iotagent with a new description
@@ -151,6 +156,34 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
       Then the protocol description is update in SRV_MGM
       **/
     void testReregistration_diff_protocol_description();
+
+    /**
+    @IDAS-20521
+    Scenario: changing ip in iotagent registration to manager
+       an iotagent send a registration with a different ip but same identifier
+
+    Given a iota::AdminManagerService
+    When iotamanager receives a post_protocol with id and identifier
+      Then a protocol is added to PROTOCOL table
+    when iotamanager receives post_protocol from the same iotagent
+      the same identifier but different ip
+      Then the protocol ip is update in PROTOCOL table, no new iotagent inserted
+      **/
+    void testReregistration_changing_ip();
+
+    /**
+    @IDAS-20521
+    Scenario: changing identifier in iotagent registration to manager
+       an iotagent send a registration with a different identifier but same endpoint
+
+    Given a iota::AdminManagerService
+    When iotamanager receives a post_protocol with id and identifier
+      Then a protocol is added to PROTOCOL table
+    when iotamanager receives post_protocol from the same iotagent
+      the same ip but different identifier
+      Then the protocol identifier is update in PROTOCOL table, no new iotagent inserted
+      **/
+    void testReregistration_changing_identifier();
 
   private:
     void cleanDB();

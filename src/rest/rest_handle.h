@@ -198,8 +198,25 @@ class RestHandle: public pion::http::plugin_service,
     void register_iota_manager();
 
     /**
+     * @name get_public_ip
+     * @brief return public ip (command line parameter  -i or --ip )
+     *        this information is sent to the manager to use that IP to communicate with us
+     *
+     * @result identifier + ":" + port
     */
     std::string get_public_ip();
+
+    /**
+     * @name get_iotagent_identifier
+     * @brief read iotagent identifier for iota manager, look it in
+     *        first,  command line parameter -I or --identifier,
+     *        second, config.json value identifier
+     *        third,  command line parameter -n or --name
+     *        last,   ip
+     *
+     * @result identifier + ":" + port
+     */
+    std::string get_iotagent_identifier();
 
 
     void update_endpoint_device(const boost::shared_ptr<Device>& dev,

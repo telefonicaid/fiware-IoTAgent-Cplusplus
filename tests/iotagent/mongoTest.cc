@@ -265,6 +265,26 @@ void MongoTest::testDeviceCollection() {
     int num = table2.countd(q1);
     CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);
 
+    std::cout << "create a device with update" << std::endl;
+    iota::DeviceCollection device_table;
+    iota::Device device_query("name_update",
+                        "service_update");
+    device_query._service_path = "/srv_path";
+    device_query._protocol = "protocol";
+    iota::Device device_timestamp("", "");
+    device_timestamp._timestamp_data = 123456789;
+    device_table.updated(device_query, device_timestamp, true);
+
+    code_res = table2.findd(device_query);
+    CPPUNIT_ASSERT_MESSAGE("no inserted data",
+           table2.more());
+    r1 =  table2.nextd();
+    CPPUNIT_ASSERT_MESSAGE("no timestam", r1._timestamp_data == 123456789);
+
+    table2.removed(device_query);
+    num = table2.countd(device_query);
+    CPPUNIT_ASSERT_MESSAGE("remove error", num == 0);
+
   std::cout << "END testDeviceCollection " << std::endl;
 }
 

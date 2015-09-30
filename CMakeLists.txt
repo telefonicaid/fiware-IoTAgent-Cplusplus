@@ -135,12 +135,12 @@ set(WITH_CARES ON)
 if (WITH_CARES)
       ExternalProject_Add(libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0 CONFIGURE_COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/third_party/c-ares-1.10.0/configure --prefix=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares BUILD_COMMAND ${MAKE})
     include_directories(${CMAKE_CURRENT_BINARY_DIR}/include)
-      ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 CMAKE_ARGS -DC-ARES-ROOT=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt)
+      ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.4.4 CMAKE_ARGS -DC-ARES-ROOT=${CMAKE_CURRENT_BINARY_DIR}/third_party/libcares -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/third_party/broker-mqtt)
 else()
       set(WITH_SRV OFF)
-      ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 CMAKE_ARGS -DWITH_SRV=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt)
+      ExternalProject_Add(broker-mqtt DEPENDS libcares PREFIX ${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.4.4 CMAKE_ARGS -DWITH_SRV=OFF -DCMAKE_INSTALL_PREFIX=${CMAKE_CURRENT_BINARY_DIR}/broker-mqtt)
 endif()
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.3.5/lib/cpp)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.4.4 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/mosquitto-1.4.4/lib/cpp)
 
 set(MOSQUITTO_FOUND TRUE)
 set(IOTAGENT_LIBS ${IOTAGENT_LIBS})
@@ -189,19 +189,19 @@ set(LIBVARIANT_INCLUDE_DIR
 	 ${CMAKE_CURRENT_SOURCE_DIR}/third_party/variant/include)
 include_directories(${LIBVARIANT_INCLUDE_DIR})
 
-#find_package(Doxygen)
-#if(DOXYGEN_FOUND)
-#message(STATUS "Doxygen found.")
-#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/doxyfile.in
-#               ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-#add_custom_target(doc
-#${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
-#WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-#COMMENT "Generating API documentation with Doxygen" VERBATIM
-#)
-#else()
-#  message(STATUS "Doxygen not found.")
-#endif()
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+message(STATUS "Doxygen found.")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules/doxyfile.in
+               ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+add_custom_target(doc
+${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile
+WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+COMMENT "Generating API documentation with Doxygen" VERBATIM
+)
+else()
+  message(STATUS "Doxygen not found.")
+endif()
 
 set(IOTAGENT_LIBS ${IOTAGENT_LIBS} pthread rt ssl crypto dl)
 

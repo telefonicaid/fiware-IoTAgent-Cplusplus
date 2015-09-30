@@ -38,7 +38,6 @@ void writeDictionaryTerm(pion::http::response_writer_ptr& writer,
          << pion::http::types::STRING_CRLF;
 }
 
-
 void MockService::operator()(pion::http::request_ptr& http_request_ptr,
                              pion::tcp::connection_ptr& tcp_conn) {
   pion::http::response_writer_ptr writer(pion::http::response_writer::create(

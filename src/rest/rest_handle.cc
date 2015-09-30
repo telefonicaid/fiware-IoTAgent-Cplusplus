@@ -228,6 +228,38 @@ std::string iota::RestHandle::get_public_ip() {
   return public_ip;
 }
 
+std::string iota::RestHandle::get_iotagent_identifier() {
+
+  // first identifier defined in command line
+  // second identifier defined in config.json
+  std::string iotagent_id = iota::Configurator::instance()->get_iotagent_identifier();
+  //third compnent name defined in config.json
+  if (iotagent_id.empty()) {
+    iotagent_id =  iota::Configurator::instance()->get_iotagent_name();
+  }
+
+  //last public ip
+  if (iotagent_id.empty()) {
+    // use ip as identifier
+    iotagent_id = get_public_ip();
+     if (boost::starts_with(iotagent_id, "http://")){
+        iotagent_id = iotagent_id.substr (7);
+     }
+  }
+
+  std::size_t found = iotagent_id.find(":");
+  if (found==std::string::npos)
+  {
+    // add port
+    unsigned short my_port =  iota::Configurator::instance()->get_listen_port();
+
+    iotagent_id.append(":");
+    iotagent_id.append(boost::lexical_cast<std::string>(my_port));
+  }
+
+  return iotagent_id;
+}
+
 void iota::RestHandle::register_iota_manager() {
 
   std::string iota_manager_endpoint = get_iota_manager_endpoint();
@@ -272,6 +304,8 @@ void iota::RestHandle::register_iota_manager() {
         json_builder.append(iota::store::types::PROTOCOL_DESCRIPTION,
                             protocol_data.description);
         json_builder.append(iota::store::types::IOTAGENT, public_ip);
+        // new parameter to avoid changing dynamic ip
+        json_builder.append(iota::store::types::IOTAGENT_ID, get_iotagent_identifier());
         json_builder.append(iota::store::types::RESOURCE, get_resource());
         while (srv_table.more()) {
           mongo::BSONObj srv_resu =srv_table.next();
@@ -903,7 +937,6 @@ int iota::RestHandle::get_service_by_name_bbdd(
   if (!resource.empty()){
       p2.append(iota::store::types::RESOURCE, resource);
   }
-
 
   int code_res = q1.find(p2.obj());
   if (q1.more()) {
