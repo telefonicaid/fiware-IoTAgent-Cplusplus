@@ -93,13 +93,19 @@ It retrieves all protocols.
             {
               "count": 1,
               "protocols": [
-                {
-                    "id": "apikey3",
-                    "protocol": "service2",
-                    "description": "/srvpath2",
+                { 
+                  "protocol" : "PDI-IoTA-UltraLight",
+                  "description" : "UL2",
+                  "endpoints" : [
+                     { "endpoint" : "http://127.0.0.1:8080/iot",
+                       "identifier" : "idcl1:8080", 
+                       "resource" : "/iot/d" 
+                     }
+                   ]
                 }
-              ]
+               ]
             }
+
 
 ## Services [/services{?limit,offset,protocol,apikey}]
 Services are the higher level in IoT Platform. When you manipulate a service, you use a Fiware-Service header with its name. Parameters apply to different operations.
