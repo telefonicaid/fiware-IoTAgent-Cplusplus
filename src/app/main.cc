@@ -495,7 +495,7 @@ int main(int argc, char* argv[]) {
                   }
                   catch (std::exception& e) {
 
-                    IOTA_LOG_ERROR(main_log, pion::diagnostic_information(e));
+                    IOTA_LOG_DEBUG(main_log, "No tcp address " + pion::diagnostic_information(e));
                     web_server->load_service(res, s_n);
 
                     for (iota::JsonValue::ConstMemberIterator it_r = options.MemberBegin();

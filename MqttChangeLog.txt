@@ -1,2 +1,7 @@
+* Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
+- FEATURE IDAS-20562: Commandas are always PUSH type.
+- FEATURE IDAS-20577: Update to use mosquitto 1.4.4.
+- FEATURE IDAS-20578: Add mosquitto 1.4.4 support to Docker
+
 * Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
 - FEATURE IDAS-20368: Add protocol description (IoTA Manager integration).

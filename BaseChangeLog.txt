@@ -1,3 +1,8 @@
+* Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
+- FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.
+- FIX IDAS-20575: Unregister device from Context Broker when device is deleted.
+- FIX IDAS-20576: Delete device from internal cache when device is deleted.
+
 * Fri Jul 31 2015 Agustin Gonzalez <lucas@tid.es> 1.2.0
 - FEATURE IDAS-20524: Add metadatas to attributes in device provision.
 - FEATURE IDAS-20527: Manager add error field ("errors") when agent fails.
