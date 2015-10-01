@@ -28,6 +28,10 @@ ESP_MosquittoImpl::ESP_MosquittoImpl(const char* id,
 
 }
 
+int ESP_MosquittoImpl::mqttGetVersion(){
+  return LIBMOSQUITTO_VERSION_NUMBER;
+}
+
 ESP_MosquittoImpl::~ESP_MosquittoImpl() {
   //dtor
 }
