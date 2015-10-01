@@ -165,6 +165,9 @@ ESP_MqttWrapper::~ESP_MqttWrapper() {
 void ESP_MqttWrapper::on_connect(int rc) {
   CC_Logger::getSingleton()->logDebug("Connection established with %s:%d rc=%d OK",
                                       host.c_str(),port,rc);
+
+  CC_Logger::getSingleton()->logDebug("LIB MOSQUITTO %d",
+                                      mqttObj->mqttGetVersion());
   this->status = StatusType::MQTT_CONNECTED;
 }
 

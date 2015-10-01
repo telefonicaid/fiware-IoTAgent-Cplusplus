@@ -40,6 +40,8 @@ class IMosquitto {
   virtual int mqttReconnect() = 0;
   virtual int mqttSetPassword(const char* username, const char* password=NULL)= 0;
 
+  virtual int mqttGetVersion() { return 0;}
+
   //more and more
 
 };

@@ -42,6 +42,8 @@ class ESP_MosquittoImpl : public IMosquitto ,mosqpp::mosquittopp {
     int mqttReconnect();
     int mqttSetPassword(const char* username, const char* password=NULL);
 
+    int mqttGetVersion();
+
     //Methods of mosquittopp
     void on_connect(int rc);
     void on_disconnect(int rc);
