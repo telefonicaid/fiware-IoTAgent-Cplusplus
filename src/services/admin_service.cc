@@ -68,8 +68,20 @@ std::string iota::AdminService::_POST_SERVICE_SCHEMA;
 std::string iota::AdminService::_PUT_SERVICE_SCHEMA;
 
 
+iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
+  iota::RestHandle(),
+  //_web_server(web_server),
+  _class_name("iota::AdminService"),
+  m_log(PION_GET_LOGGER(iota::logger)) {
+  IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
+  checkIndexes();
+  read_schema("post_device.schema", iota::AdminService::_POST_DEVICE_SCHEMA);
+  read_schema("put_device.schema", iota::AdminService::_PUT_DEVICE_SCHEMA);
+  read_schema("post_service.schema", iota::AdminService::_POST_SERVICE_SCHEMA);
+  read_schema("put_service.schema", iota::AdminService::_PUT_SERVICE_SCHEMA);
+}
 
-iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::Process::get_logger_name())),
+iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
   _class_name("iota::AdminService") {
   IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService2");
   checkIndexes();
@@ -266,6 +278,15 @@ void iota::AdminService::start() {
   check_for_logs();
 
 
+}
+
+void iota::AdminService::stop() {
+  /*
+    if ( _web_server.get() != NULL ) {
+      std::cout << "RESET" << std::endl;
+      _web_server.reset();
+    }
+    */
 }
 
 void iota::AdminService::about(pion::http::request_ptr& http_request_ptr,
@@ -1224,6 +1245,13 @@ void iota::AdminService::service(pion::http::request_ptr& http_request_ptr,
                 " response:" + response);
 }
 
+void iota::AdminService::start_plugin(std::string& resource,
+                                      std::string& plugin_name) {
+  /*
+  boost::shared_ptr<pion::http::plugin_server> w_s = _web_server.lock();
+  w_s->load_service(resource, plugin_name);
+  */
+}
 
 int iota::AdminService::create_response(
   const unsigned int status_code,
@@ -2335,6 +2363,10 @@ void iota::AdminService::check_logs() {
     perror("Server shutdown for log file errors ");
     iota::Process::get_process().shutdown();
   }
+}
+
+void iota::AdminService::set_log_file(std::string& log_file) {
+  _log_file = log_file;
 }
 
 bool iota::AdminService::check_device_protocol(const std::string& protocol_name,

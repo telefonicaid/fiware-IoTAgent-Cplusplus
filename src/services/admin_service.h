@@ -36,9 +36,11 @@ namespace iota {        // begin namespace iota
 class AdminService :
   public iota::RestHandle {
   public:
+    AdminService(pion::http::plugin_server_ptr web_server);
     AdminService();
     virtual ~AdminService();
     virtual void start();
+    virtual void stop();
 
     virtual void create_collection( boost::shared_ptr<iota::ServiceCollection>& col);
 
@@ -435,6 +437,8 @@ class AdminService :
       */
     void  check_mongo_config();
 
+    void set_log_file(std::string& log_file);
+
   protected:
     virtual std::string get_class_name();
     virtual std::string get_role(){ return ""; };
@@ -473,6 +477,7 @@ class AdminService :
     // Timezones
     boost::local_time::tz_database _timezone_database;
 
+    void start_plugin(std::string& resource, std::string& plugin_name);
     void get_info_agent(iota::RestHandle* agent,
                         std::multimap<std::string, std::string>& query_parameters,
                         JsonDocument& d);
