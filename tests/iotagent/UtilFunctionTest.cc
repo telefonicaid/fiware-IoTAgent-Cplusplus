@@ -47,6 +47,11 @@
 #include <stdexcept>
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtilFunctionTest);
+namespace iota {
+std::string URL_BASE = "/iot";
+std::string logger("main");
+}
+iota::AdminService* AdminService_ptr;
 
 void UtilFunctionTest::testFormatPattern() {
 

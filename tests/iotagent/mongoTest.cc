@@ -50,7 +50,10 @@
 #define  PATH_NO_MONGO_CONFIG "../../tests/iotagent/config_no_mongo.json"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(MongoTest);
-
+namespace iota {
+std::string logger("main");
+std::string URL_BASE = "/iot";
+}
 
 void MongoTest::setUp() {
   std::cout << "setUp mongoTest " << std::endl;

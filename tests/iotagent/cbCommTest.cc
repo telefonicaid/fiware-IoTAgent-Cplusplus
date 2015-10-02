@@ -34,6 +34,10 @@
 #define  PATH_BAD_CONFIG "../../tests/iotagent/config_bad_mongo.json"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(cbCommTest);
+namespace iota {
+std::string logger("main");
+std::string URL_BASE("/iot");
+}
 
 bool handler_invoked = false;
 void handler_function(std::string response, int status) {

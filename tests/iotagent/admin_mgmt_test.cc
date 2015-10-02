@@ -29,6 +29,10 @@
 #include "adminManagerTest.h"
 #include "../mocks/http_mock.h"
 
+namespace iota {
+std::string URL_BASE = "/iot";
+std::string logger("main");
+}
 
 int main(int argc, char* argv[]) {
 

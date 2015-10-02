@@ -1366,10 +1366,6 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
 
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> f4840091866f1486bb4407eb28aabb180b3e8821
 void AdminManagerTest::testReregistration_diff_protocol_description() {
   std::cout << "@UT@START testReregistration_diff_protocol_description" <<
             std::endl;
@@ -1425,9 +1421,6 @@ void AdminManagerTest::testReregistration_diff_protocol_description() {
   std::cout << "@UT@END testReregistration_diff_protocol_description" <<
             std::endl;
 }
-
-<<<<<<< HEAD
-=======
 
 void AdminManagerTest::testReregistration_changing_ip() {
   std::cout << "@UT@START testReregistration_changing_ip" <<
@@ -1525,4 +1518,4 @@ void AdminManagerTest::testReregistration_changing_identifier() {
   std::cout << "@UT@END testReregistration_changing_identifier" <<
             std::endl;
 }
->>>>>>> f4840091866f1486bb4407eb28aabb180b3e8821
+

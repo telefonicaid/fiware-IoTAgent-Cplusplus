@@ -29,6 +29,10 @@
 #include <boost/foreach.hpp>
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OAuthTest);
+namespace iota {
+std::string logger("main");
+std::string URL_BASE("/iot");
+}
 
 bool handler_invoked = false;
 bool access_control_handler = false;

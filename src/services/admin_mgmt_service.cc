@@ -9,6 +9,10 @@
 #include <boost/property_tree/ptree.hpp>
 #include "util/device_collection.h"
 
+namespace iota {
+extern std::string logger;
+}
+
 std::string iota::AdminManagerService::_POST_PROTOCOL_SCHEMA;
 std::string iota::AdminManagerService::_PUT_PROTOCOL_SCHEMA;
 

@@ -63,6 +63,10 @@
 #define  ASYNC_TIME_WAIT  boost::this_thread::sleep(boost::posix_time::milliseconds(100));
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SampleTest);
+namespace iota {
+std::string logger("main");
+std::string URL_BASE("/iot");
+}
 
 void SampleTest::setUp() {
   std::cout << "setUp SampleTest " << std::endl;

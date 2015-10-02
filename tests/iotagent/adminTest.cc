@@ -60,6 +60,12 @@
          CPPUNIT_ASSERT(y)
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminTest);
+iota::AdminService* AdminService_ptr;
+namespace iota {
+std::string URL_BASE = "/iot";
+std::string logger("main");
+}
+
 const std::string AdminTest::HOST("127.0.0.1");
 const std::string AdminTest::CONTENT_JSON("application/json");
 

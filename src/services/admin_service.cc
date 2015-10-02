@@ -56,6 +56,11 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
+namespace iota {
+extern std::string URL_BASE;
+extern std::string logger;
+}
+
 const std::string iota::AdminService::_api_service_holder ="service";
 const std::string iota::AdminService::_api_device_holder = "device";
 const unsigned short iota::AdminService::TIME_FOR_LOG = 2;
