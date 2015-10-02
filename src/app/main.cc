@@ -325,10 +325,10 @@ int main(int argc, const char* argv[]) {
                     if (resource_url.getProtocol() == URL_PROTOCOL_TCP) {
                       // Add service tcp
                       boost::asio::ip::address address = boost::asio::ip::address::from_string(
-                                                           resource_url.getHost());
+                                                           arguments.get_ZERO_IP());
                       boost::asio::ip::tcp::endpoint e(address,
                                                        resource_url.getPort());
-                      IOTA_LOG_DEBUG(main_log, "tcp server: "  << e.address() << ":" << e.port());
+                      IOTA_LOG_DEBUG(main_log, "tcp server:: "  << e.address() << ":" << e.port());
                       //pion::tcp::server_ptr tcp_server(new iota::TcpService(e));
                       boost::shared_ptr<iota::TcpService> tcp_server(new iota::TcpService(pion_scheduler, e));
                       //iota::tcp_servers[e] = tcp_server;
