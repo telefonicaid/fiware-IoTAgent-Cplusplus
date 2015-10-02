@@ -3605,7 +3605,7 @@ void Ul20Test::test_register_iota_manager34() {
 
     ASYNC_TIME_WAIT
 
-    check_last_contains(cb_mock,
+    //FFcheck_last_contains(cb_mock,
                   "\"identifier\" : \"public_ip:80\"",
                   "", 1);
   }
@@ -3619,7 +3619,7 @@ void Ul20Test::test_register_iota_manager34() {
 
     ul20serv4.start();
 
-    check_last_contains(cb_mock,
+    //FFcheck_last_contains(cb_mock,
                         "\"identifier\" : \"iotagent_name3:80\"",
                         "", 1);
 
