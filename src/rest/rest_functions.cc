@@ -31,14 +31,17 @@ bool iota::restResourceParse(std::string& regex,
   boost::regex resource_re(regex, boost::regex::perl);
   boost::smatch m;
   bool res = false;
+  std::string data;
+
   if (regex_match(url_resource, m, resource_re)) {
     res = true;
     int i = 1;
     for (i = 1; i < m.size(); i++) {
       // Only store placeholders if provided.
       if (url_placeholders.size() > 0) {
-        resources.insert(std::make_pair<std::string, std::string>(url_placeholders.at(
-                           i-1), m[i]));
+        data = std::make_pair<std::string, std::string>(url_placeholders.at(
+                           i-1), m[i]);
+        resources.insert(pion::algorithm::url_decode(data));
       }
     }
   }
