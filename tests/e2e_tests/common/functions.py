@@ -598,7 +598,15 @@ class Functions(object):
                 assert resp['statusCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['statusCode']['reasonPhrase']
     
     def check_timestamp (self, timestamp):
-        st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
+        #st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
+        st = datetime.datetime.utcfromtimestamp(world.ts)
+        my_timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
+        diff_ts = st - my_timestamp
+        if abs(diff_ts.total_seconds()) < 10:
+            return True
+        else:
+            return False 
+        ''' 
         if st in timestamp:
             return True
         else:
@@ -611,6 +619,7 @@ class Functions(object):
                     return True
                 else:
                     return False        
+        '''
     
     def check_attribute (self, contextElement, name, typ, value):
         attr_matches=False
