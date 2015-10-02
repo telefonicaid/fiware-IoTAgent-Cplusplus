@@ -2234,6 +2234,8 @@ void AdminTest::testConfiguratorMongo() {
 void  AdminTest::testSpaceURI() {
 
   std::cout << "START @UT@START testSpaceURI" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string;
 
   const std::string POST_DEVICE_SPACE("{\"devices\": "
                        "[{\"device_id\": \"dev 1\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"ent 1\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\""
