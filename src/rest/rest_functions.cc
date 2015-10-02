@@ -21,6 +21,7 @@
 */
 #include <boost/regex.hpp>
 #include <pion/http/types.hpp>
+#include <pion/algorithm.hpp>
 
 #include "rest/rest_functions.h"
 
@@ -31,14 +32,18 @@ bool iota::restResourceParse(std::string& regex,
   boost::regex resource_re(regex, boost::regex::perl);
   boost::smatch m;
   bool res = false;
+  std::string data, datad;
+
   if (regex_match(url_resource, m, resource_re)) {
     res = true;
     int i = 1;
     for (i = 1; i < m.size(); i++) {
       // Only store placeholders if provided.
       if (url_placeholders.size() > 0) {
-        resources.insert(std::make_pair<std::string, std::string>(url_placeholders.at(
-                           i-1), m[i]));
+        data = m[i];
+        datad = pion::algorithm::url_decode(data);
+        resources.insert(std::make_pair<std::string, std::string>(
+                        url_placeholders.at(i-1), datad));
       }
     }
   }
