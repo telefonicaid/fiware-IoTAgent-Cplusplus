@@ -840,7 +840,7 @@ void AdminManagerTest::testErrorsManager() {
 }
 
 void AdminManagerTest::testServiceManagement() {
-  std::cout << "START @UT@START testServiceManagement" << std::endl;
+  std::cout << "START @UT@START testServiceManagementt" << std::endl;
   std::map<std::string, std::string> headers;
   std::string query_string;
   int code_res;
