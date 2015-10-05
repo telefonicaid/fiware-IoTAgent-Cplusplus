@@ -49,7 +49,9 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
     CPPUNIT_TEST(testAddDevicesToEndpoints);
     CPPUNIT_TEST(testGetDevices);
     CPPUNIT_TEST(testMultiplePostsWithResponse);
-    CPPUNIT_TEST(testProtocol_ServiceManagement);
+    CPPUNIT_TEST(testProtocol);
+    CPPUNIT_TEST(testErrorsManager);
+    CPPUNIT_TEST(testServiceManagement);
     CPPUNIT_TEST(testBADServiceManagement);
     CPPUNIT_TEST(testPostJSONDevices);
     CPPUNIT_TEST(testPutJSONDevice);
@@ -188,7 +190,9 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
   private:
     void cleanDB();
 
-    void testProtocol_ServiceManagement();
+    void testProtocol();
+    void testErrorsManager();
+    void testServiceManagement();
     void testBADServiceManagement();
 
     iota::AdminService* adm;

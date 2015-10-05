@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
   PION_LOG_CONFIG_BASIC;
 
   // Http server
-  iota::Process& process = iota::Process::initialize("/TestManager",5);
+  iota::Process& process = iota::Process::initialize("/TestManager",12);
   iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
   pion::http::plugin_server_ptr http_server = process.add_http_server("", "127.0.0.1:7070");
 
