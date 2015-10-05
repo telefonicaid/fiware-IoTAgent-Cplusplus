@@ -48,7 +48,7 @@ Feature: MQTT Command Send
 		
 		Examples:
 			|device_id	|device_name |service		|protocol	|command	|cmd_name	|cmd_value	|cmd_type 		|cmdURL				|status							|timeout |
-#			|dev3		|room3		 |servicemqtt	|IoTMqtt	|ping3		|			|dev3@%s	|push	  		|void				|delivered but no respond read					|10		 |
+			|dev3		|room3		 |servicemqtt	|IoTMqtt	|ping3		|			|dev3@%s	|push	  		|void				|delivered but no respond 					|10		 |
 			|dev3_1		|room3_1	 |servicemqtt	|IoTMqtt	|ping3_1	|			|dev3_1@%s	|push	 	 	|http://myurl.com	|delivered but no respond		|10		 |
 			|dev3_2		|room3_2	 |servicemqtt	|IoTMqtt	|ping3_2	|			|dev3_2@%s	|push_not_resp	|void				|delivered but no respond		|10		 |
 			|dev3_3		|room3_3	 |servicemqtt	|IoTMqtt	|ping3_3	|			|dev3_3@%s	|push_not_resp 	|http://myurl.com	|delivered but no respond		|10		 |
