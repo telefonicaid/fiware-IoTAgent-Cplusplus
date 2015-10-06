@@ -67,23 +67,8 @@ int main(int argc, const char* argv[]) {
     return 1;
   }
 
-  cfg_endpoint.port(arguments.get_port());
 
-  cfg_endpoint.address(boost::asio::ip::address::from_string(arguments.get_ZERO_IP()));
-
-  if (arguments.get_url_base().empty() == false) {
-          iota::URL_BASE.assign(arguments.get_url_base());
-  }
-  try {
-    pion::plugin::add_plugin_directory(arguments.get_plugin_directory());
-  }
-  catch (pion::error::directory_not_found&) {
-    std::cerr << "piond: Web service plug-ins directory does not exist: "
-    << arguments.get_plugin_directory() << std::endl;
-    return 1;
-  }
-
-  iota::Process& process = iota::Process::initialize(url_base, 8);
+  iota::Process& process = iota::Process::initialize(arguments.get_url_base(), 8);
   // Initialization Configurator
   if (!arguments.get_standalone_config_file().empty()) {
     conf_iotagent = iota::Configurator::initialize(arguments.get_standalone_config_file());
@@ -214,6 +199,13 @@ int main(int argc, const char* argv[]) {
     }
     */
 
+    std::string endpoint_ws(arguments.get_ZERO_IP());
+    endpoint_ws.append(":");
+    endpoint_ws.append(boost::lexical_cast<std::string>(arguments.get_port()));
+
+    pion::http::plugin_server_ptr http_server = process.add_http_server("",
+        endpoint_ws);
+
     if (!arguments.get_manager()) {
       IOTA_LOG_INFO(main_log,
                     "======= IoTAgent StartingWebServer: " << http_server->get_address() <<
@@ -227,7 +219,7 @@ int main(int argc, const char* argv[]) {
 
     // Static service
     iota::AdminService* AdminService_ptr;
-    if (manager) {
+    if (arguments.get_manager()) {
       AdminService_ptr = new iota::AdminManagerService();
     }
     else {
@@ -240,8 +232,8 @@ int main(int argc, const char* argv[]) {
     if (arguments.get_ssl_flag()) {
 #ifdef PION_HAVE_SSL
       // configure server for SSL
-      IOTA_LOG_INFO(pion_log, "SSL support enabled using key file: " << ssl_pem_file);
-      http_server->set_ssl_key_file(ssl_pem_file);
+      IOTA_LOG_INFO(pion_log, "SSL support enabled using key file: " << arguments.get_ssl_pem_file());
+      http_server->set_ssl_key_file(arguments.get_ssl_pem_file());
       /*
       web_server->get_ssl_context_type().set_options(boost::asio::ssl::context::default_workarounds |
                                                      boost::asio::ssl::context::no_sslv2 |
@@ -259,18 +251,8 @@ int main(int argc, const char* argv[]) {
     }
 
     std::string url_complete(process.get_url_base());
-    if (service_config_file.empty()) {
-      // load a single web service using the command line arguments
-      // after url base
-      url_complete.append("/");
-      url_complete.append(resource_name);
-      http_server->load_service(url_complete, service_name);
-
-      // set web service options if any are defined
-      for (ServiceOptionsType::iterator i = service_options.begin();
-           i != service_options.end(); ++i) {
-        http_server->set_service_option(url_complete, i->first, i->second);
-      }
+    if ( arguments.get_service_config_file().empty()) {
+        arguments.set_service_options(http_server);
     }
     else if (!arguments.get_manager()) {
       // load services using the configuration file
