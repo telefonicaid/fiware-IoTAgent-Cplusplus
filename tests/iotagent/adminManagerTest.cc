@@ -678,8 +678,8 @@ int AdminManagerTest::http_test(const std::string& uri,
 
 }
 
-void AdminManagerTest::testProtocol_ServiceManagement() {
-  std::cout << "START @UT@START testProtocol_ServiceManagement" << std::endl;
+void AdminManagerTest::testProtocol() {
+  std::cout << "START @UT@START testProtocol" << std::endl;
   std::map<std::string, std::string> headers;
   std::string query_string;
   int code_res;
@@ -689,10 +689,9 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
 
   MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   unsigned int port = iota::Process::get_process().get_http_port();
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 201, "", h);
 
   std::string
-  POST_PROTOCOLS1("{\"iotagent\": \"http://127.0.0.1:7070/mock/testProtocol_ServiceManagement\","
+  POST_PROTOCOLS1("{\"iotagent\": \"http://127.0.0.1:7070/mock/testProtocol\","
                                   "\"resource\": \"/iot/d\","
                                   "\"protocol\": \"UL20\","
                                   "\"description\": \"Ultralight 2.0\""
@@ -702,6 +701,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   pion::http::response http_response;
   ((iota::AdminManagerService*)(iota::Process::get_process().get_admin_service()))->delete_all_protocol_json(http_response, "", response);
 
+  http_mock->set_response("/mock/testProtocol/services", 201, "", h);
   std::cout << "@UT@Post iotagents without services" << std::endl;
   code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
                        "application/json",
@@ -709,6 +709,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
+  http_mock->set_response("/mock/testProtocol/services", 201, "", h);
   std::cout << "@UT@POST One endpoint" << std::endl;
   code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "",
                        "application/json",
@@ -716,7 +717,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   CPPUNIT_ASSERT_MESSAGE("Waiting 201", code_res == 201);
   std::cout << "@UT@DELETE" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 204, "{}", h);
+  http_mock->set_response("/mock/testProtocol/services", 204, "{}", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "",
                        "application/json",
                        "", headers, "protocol=UL20", response);
@@ -801,6 +802,20 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
 
   std::cout << "END@UT@ testProtocol" << std::endl;
 
+}
+
+void AdminManagerTest::testErrorsManager() {
+  std::cout << "START @UT@START testErrorsManager" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string;
+  int code_res;
+  std::string response, cb_last;
+  std::string service="service2";
+  std::map<std::string, std::string> h;
+
+  MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  http_mock->set_response("/mock/testErrorsManager/services", 201, "", h);
   std::cout << "START @UT@START testErrorsManager" << std::endl;
 
   std::cout << "@UT@POST" << std::endl;
@@ -822,6 +837,53 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
 
   std::cout << "END@UT@ testErrorsManager" << std::endl;
 
+}
+
+void AdminManagerTest::testServiceManagement() {
+  std::cout << "START @UT@START testServiceManagementt" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string;
+  int code_res;
+  std::string response, cb_last;
+  std::string service="service2";
+  std::map<std::string, std::string> h;
+
+  MockService* http_mock = (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+
+  std::string
+  POST_PROTOCOLS1("{\"iotagent\": \"http://127.0.0.1:7070/mock/testServiceManagement\","
+                                  "\"resource\": \"/iot/d\","
+                                  "\"protocol\": \"UL20\","
+                                  "\"description\": \"Ultralight 2.0\""
+                                  "}");
+
+  std::string
+  POST_PROTOCOLS2 ("{\"iotagent\": \"http://127.0.0.1:7070/mock/testServiceManagement\","
+                                  "\"resource\": \"/iot/mqtt\","
+                                  "\"protocol\": \"MQTT\","
+                                  "\"description\": \"mqtt example\""
+                                  "}");
+
+  std::cout << "@UT@Remove all data in protocols" << std::endl;
+  pion::http::response http_response;
+  ((iota::AdminManagerService*)(iota::Process::get_process().get_admin_service()))->delete_all_protocol_json(http_response, "", response);
+
+  http_mock->set_response("/mock/testServiceManagement/services", 201, "", h);
+  std::cout << "@UT@Post iotagents without services" << std::endl;
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
+                       "application/json",
+                       POST_PROTOCOLS1, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+  http_mock->set_response("/mock/testServiceManagement/services", 201, "", h);
+  std::cout << "@UT@Post iotagents without services" << std::endl;
+  code_res = http_test(URI_PROTOCOLS, "POST", "ss", "",
+                       "application/json",
+                       POST_PROTOCOLS2, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
 
   srand(time(NULL));
 
@@ -841,15 +903,15 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   IOTASSERT(response.compare("{ \"count\": 0,\"services\": []}") == 0);
 
   std::cout << "@UT@POST" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 201, "", h);
+  http_mock->set_response("/mock/testServiceManagement/services", 201, "", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "POST", service, "",
                        "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 200);
+  IOTASSERT(code_res == 201);
 
   std::cout << "@UT@GET IDAS-20462 nodevice" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/devices/nodevice", 404, "", h);
+  http_mock->set_response("/mock/testServiceManagement/devices/nodevice", 404, "", h);
   code_res = http_test(URI_DEVICES_MANAGEMEMT+ "/nodevice", "GET", service, "",
                        "application/json",
                        "", headers, "", response);
@@ -858,29 +920,37 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   IOTASSERT(response.compare("{ \"count\" : 0, \"devices\" : [] }") == 0);
 
   std::cout << "@UT@PUT" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 204, "", h);
+  http_mock->set_response("/mock/testServiceManagement/services", 204, "", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "",
                        "application/json",
-                       POST_SERVICE_MANAGEMENT1, headers, "", response);
-  IOTASSERT(code_res == 200);
+                       "{\"services\": [{\"protocol\":[\"MQTT\"],\"cbroker\": \"http://cbrokerPUT\"}]}",
+                       headers, "", response);
+  std::cout << "@UT@PUTRESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 204);
 
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 400, "{\"reason\": \"hola\", \"details\": \"adios\"}");
-  code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", service, "",
+  code_res = http_test(URI_SERVICES_MANAGEMET , "GET", service, "",
+                       "application/json", "",
+                       headers, query_string, response);
+  boost::algorithm::trim(response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 200);
+  IOTASSERT(response.compare("{ \"count\": 0,\"services\": []}") == 0);
+
+  http_mock->set_response("/mock/testServiceManagement/services", 400, "{\"reason\": \"hola\", \"details\": \"adios\"}");
+  code_res = http_test(URI_SERVICES_MANAGEMET, "PUT", "noservice", "",
                        "application/json",
                        POST_SERVICE_MANAGEMENT1, headers, "", response);
   std::cout << "PUT RESPONSE BAD " << response << std::endl;
-  //cb_last = http_mock->get_last("/mock/protocols/services");
-  //std::cout << "@UT@iotagent mock: " <<  cb_last << std::endl;
   IOTASSERT(code_res == 404);
 
   std::cout << "@UT@DELETE" << std::endl;
-  http_mock->set_response("/mock/testProtocol_ServiceManagement/services", 204, "", h);
+  http_mock->set_response("/mock/testServiceManagement/services", 204, "", h);
   code_res = http_test(URI_SERVICES_MANAGEMET, "DELETE", service, "/ssrv2",
                        "application/json",
                        "", headers, "protocol=UL20", response);
   std::cout << "@UT@RESPONSE: XXXXXXXXX" <<  code_res << " " << response << std::endl;
-  IOTASSERT(code_res == 200);
-  cb_last = http_mock->get_last("/mock/testProtocol_ServiceManagement/protocols/services");
+  IOTASSERT(code_res == 204);
+  cb_last = http_mock->get_last("/mock/testServiceManagement/protocols/services");
   std::cout << "@UT@iotagent mock: " <<  cb_last << std::endl;
 
   std::cout << "@UT@POST reregister POST_PROTOCOLS2_RERERE" << std::endl;
@@ -899,7 +969,7 @@ void AdminManagerTest::testProtocol_ServiceManagement() {
   IOTASSERT(code_res == POST_RESPONSE_CODE);
   //http_mock->stop();
 
-  std::cout << "END@UT@ testProtocol_ServiceManagement" << std::endl;
+  std::cout << "END@UT@ testServiceManagement" << std::endl;
 
 }
 
@@ -1366,10 +1436,6 @@ void AdminManagerTest::testNoDeviceError_Bug_IDAS20463(){
 
 }
 
-<<<<<<< HEAD
-
-=======
->>>>>>> f4840091866f1486bb4407eb28aabb180b3e8821
 void AdminManagerTest::testReregistration_diff_protocol_description() {
   std::cout << "@UT@START testReregistration_diff_protocol_description" <<
             std::endl;
@@ -1425,9 +1491,6 @@ void AdminManagerTest::testReregistration_diff_protocol_description() {
   std::cout << "@UT@END testReregistration_diff_protocol_description" <<
             std::endl;
 }
-
-<<<<<<< HEAD
-=======
 
 void AdminManagerTest::testReregistration_changing_ip() {
   std::cout << "@UT@START testReregistration_changing_ip" <<
@@ -1525,4 +1588,4 @@ void AdminManagerTest::testReregistration_changing_identifier() {
   std::cout << "@UT@END testReregistration_changing_identifier" <<
             std::endl;
 }
->>>>>>> f4840091866f1486bb4407eb28aabb180b3e8821
+

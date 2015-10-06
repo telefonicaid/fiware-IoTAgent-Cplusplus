@@ -199,7 +199,7 @@ void BaseTest::scenario(const std::string& name,
   }
   std::cout << DOC_MESSAGE << std::endl;
 }
-
+/*
 void BaseTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
                       const std::string& type,
                       const std::string& resource,
@@ -306,3 +306,4 @@ void BaseTest::check_last_equal(boost::shared_ptr<HttpMock>& cb_mock,
   IOTASSERT_MESSAGE(message, cb_last.compare(data) == 0);
 }
 
+*/
