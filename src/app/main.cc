@@ -57,124 +57,19 @@ int main(int argc, const char* argv[]) {
   iota::Arguments arguments;
 
 
-
   iota::Configurator* conf_iotagent = NULL;
 
-  std::string service_config_file;
-  std::string resource_name;
-  std::string service_name;
-  std::string ssl_pem_file;
-  std::string url_base;
-  std::string iotagent_name;
-  std::string log_level;
-  std::string standalone_config_file;
-  std::string component_name("iota");
-  bool manager = false;
-  bool ssl_flag = false;
-  bool verbose_flag = false;
-  int  port = DEFAULT_PORT;
+  boost::asio::ip::tcp::endpoint cfg_endpoint;
 
-  for (int argnum=1; argnum < argc; ++argnum) {
-    if (argv[argnum][0] == '-') {
-      if (argv[argnum][1] == 'p' && argv[argnum][2] == '\0' && argnum+1 < argc) {
-        // set port number
-        ++argnum;
-        port = strtoul(argv[argnum], 0, 10);
-        if (port == 0) {
-          port = DEFAULT_PORT;
-        }
-      }
-      else if (argv[argnum][1] == 'i' && argv[argnum][2] == '\0' &&
-               argnum+1 < argc) {
-        // set ip address
-        prov_ip = argv[++argnum];
-      }
-      else if (argv[argnum][1] == 'u' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        url_base.assign(argv[++argnum]);
-      }
-      else if (argv[argnum][1] == 'f' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        standalone_config_file.assign(argv[++argnum]);
-      }
-      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
-               && argv[argnum][3] == 'v' && argv[argnum][4] == '4'
-               && argv[argnum][5] == '\0'
-               && argnum+1 < argc) {
-        // default ip
-        ZERO_IP = "0.0.0.0";
-      }
-      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
-               && argv[argnum][3] == 'v' && argv[argnum][4] == '6'
-               && argv[argnum][5] == '\0'
-               && argnum+1 < argc) {
-        ZERO_IP = "::";
-      }
-      else if (argv[argnum][1] == 'n' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        iotagent_name.assign(argv[++argnum]);
-      }
-      else if (argv[argnum][1] == 'c' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        service_config_file = argv[++argnum];
-      }
-      else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        // add the service plug-ins directory to the search path
-        try {
-          pion::plugin::add_plugin_directory(argv[++argnum]);
-        }
-        catch (pion::error::directory_not_found&) {
-          std::cerr << "piond: Web service plug-ins directory does not exist: "
-                    << argv[argnum] << std::endl;
-          return 1;
-        }
-      }
-      else if (argv[argnum][1] == 'o' && argv[argnum][2] == '\0'
-               && argnum+1 < argc) {
-        std::string option_name(argv[++argnum]);
-        std::string::size_type pos = option_name.find('=');
-        if (pos == std::string::npos) {
-          argument_error();
-          return 1;
-        }
-        std::string option_value(option_name, pos + 1);
-        option_name.resize(pos);
-        service_options.push_back(std::make_pair(option_name, option_value));
-      }
-      else if (argv[argnum][1] == 's' && argv[argnum][2] == 's' &&
-               argv[argnum][3] == 'l' && argv[argnum][4] == '\0' && argnum+1 < argc) {
-        ssl_flag = true;
-        ssl_pem_file = argv[++argnum];
-      }
-      else if (argv[argnum][1] == 'v' && argv[argnum][2] == '\0') {
-        verbose_flag = true;
-        if (argnum+1 < argc) {
-          log_level.assign(argv[++argnum]);
-        }
-      }
-      else if (argv[argnum][1] == 'm' && argv[argnum][2] == '\0') {
-        // Start as IoTA Manager
-        manager = true;
-      }
-      else {
-        argument_error();
-        return 1;
-      }
-    }
-    else if (argnum+2 == argc) {
-      // second to last argument = RESOURCE
-      resource_name = argv[argnum];
-    }
-    else if (argnum+1 == argc) {
-      // last argument = WEBSERVICE
-      service_name = argv[argnum];
-    }
-    else {
-      argument_error();
-      return 1;
-    }
+  std::string error = arguments.parser(argc, argv);
+  if (!error.empty()){
+    std::cout << error << std::endl;
+    return 1;
   }
+
+  cfg_endpoint.port(arguments.get_port());
+
+  cfg_endpoint.address(boost::asio::ip::address::from_string(arguments.get_ZERO_IP()));
 
   if (arguments.get_url_base().empty() == false) {
           iota::URL_BASE.assign(arguments.get_url_base());
@@ -319,14 +214,7 @@ int main(int argc, const char* argv[]) {
     }
     */
 
-    std::string endpoint_ws(ZERO_IP);
-    endpoint_ws.append(":");
-    endpoint_ws.append(boost::lexical_cast<std::string>(port));
-
-    pion::http::plugin_server_ptr http_server = process.add_http_server("",
-        endpoint_ws);
-
-    if (!manager) {
+    if (!arguments.get_manager()) {
       IOTA_LOG_INFO(main_log,
                     "======= IoTAgent StartingWebServer: " << http_server->get_address() <<
                     " ========");
