@@ -3528,8 +3528,6 @@ void Ul20Test::test_register_iota_manager12() {
   std::string cb_last;
 
   pion::http::response http_response;
-  iota::AdminService adminService;
-  AdminService_ptr = &adminService;
   iota::Configurator::instance()->set_listen_port(80);
 
   {
@@ -3581,8 +3579,6 @@ void Ul20Test::test_register_iota_manager34() {
   std::string cb_last;
 
   pion::http::response http_response;
-  iota::AdminService adminService;
-  AdminService_ptr = &adminService;
   iota::Configurator::instance()->set_listen_port(80);
 
  {
