@@ -199,11 +199,6 @@ const std::string Ul20Test::HOST("127.0.0.1");
 const std::string Ul20Test::CONTENT_JSON("aplication/json");
 
 CPPUNIT_TEST_SUITE_REGISTRATION(Ul20Test);
-namespace iota {
-std::string logger("main");
-std::string URL_BASE("/iot");
-}
-iota::AdminService* AdminService_ptr;
 
 void Ul20Test::setUp()
 {
@@ -3533,8 +3528,6 @@ void Ul20Test::test_register_iota_manager12() {
   std::string cb_last;
 
   pion::http::response http_response;
-  iota::AdminService adminService;
-  AdminService_ptr = &adminService;
   iota::Configurator::instance()->set_listen_port(80);
 
   {
@@ -3576,18 +3569,9 @@ void Ul20Test::test_register_iota_manager34() {
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::string mock_port = boost::lexical_cast<std::string>(iota::Process::get_process().get_http_port());
 
-/*
-  boost::shared_ptr<HttpMock> cb_mock;
-  cb_mock.reset(new HttpMock(9999, "/iot/protocols"));
-  std::string uri_endpoint = "http://127.0.0.1:9999/iot/protocols";
-  start_cbmock(cb_mock, "mongodb", "/iot/d",
-                    uri_endpoint,
-                    "public_ip", "" );*/
   std::string cb_last;
 
   pion::http::response http_response;
-  iota::AdminService adminService;
-  AdminService_ptr = &adminService;
   iota::Configurator::instance()->set_listen_port(80);
 
  {
@@ -3604,10 +3588,11 @@ void Ul20Test::test_register_iota_manager34() {
     ul20serv3.start();
 
     ASYNC_TIME_WAIT
-
-    //FFcheck_last_contains(cb_mock,
-    //FF              "\"identifier\" : \"public_ip:80\"",
-    //FF              "", 1);
+/*
+    check_last_contains(cb_mock,
+                 "\"identifier\" : \"public_ip:80\"",
+                 "", 1);
+*/
   }
 
  {
@@ -3618,11 +3603,11 @@ void Ul20Test::test_register_iota_manager34() {
     iota::Configurator::instance()->set_iotagent_identifier("");
 
     ul20serv4.start();
-
-    //FFcheck_last_contains(cb_mock,
-    //FF                    "\"identifier\" : \"iotagent_name3:80\"",
-    //FF                    "", 1);
-
+/*
+    check_last_contains(cb_mock,
+                       "\"identifier\" : \"iotagent_name3:80\"",
+                       "", 1);
+*/
   }
 
   std::cout << "@UT@END test_register_iota_manager34 " << std::endl;

@@ -68,7 +68,6 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST (testLocationContextBroker);
 
     CPPUNIT_TEST (testCommandsBody_BUG);
-
     CPPUNIT_TEST_SUITE_END();
 
 public:
