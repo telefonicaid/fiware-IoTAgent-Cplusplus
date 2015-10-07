@@ -3524,6 +3524,8 @@ void Ul20Test::test_register_iota_manager12() {
   iota::UL20Service* ul20servP = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::string mock_port = boost::lexical_cast<std::string>(iota::Process::get_process().get_http_port());
+  std::string service = get_service_name(__FUNCTION__);
+  std::string uri_mock = "/mock/" + service + "/protocols";
 
   std::string cb_last;
 
@@ -3535,10 +3537,11 @@ void Ul20Test::test_register_iota_manager12() {
     ul20serv.set_resource("/iot/d");
     scenario("register with identifier in config.json");
 
-    ul20serv.start();
+    ul20serv.register_iota_manager();
 
-   //TODO check_last_contains(cb_mock, "\"identifier\" : \"myIotaIdentifier:80\"",
-   //TODO                     "", 1);
+ //TODO   IOTASSERT_CONTAINS(cb_mock, uri_mock,
+ //TODO              "\"identifier\" : \"myIotaIdentifier:80\"",
+ //TODO                      "", 1);
 
   }
 
@@ -3549,11 +3552,11 @@ void Ul20Test::test_register_iota_manager12() {
     iota::Configurator::instance()->set_iotagent_name("iotagent_name2");
     iota::Configurator::instance()->set_iotagent_identifier("iotagent_identifier2");
 
-    ul20serv2.start();
+    ul20serv2.register_iota_manager();
 
-
-    //TODOcheck_last_contains(cb_mock, "\"identifier\" : \"iotagent_identifier2:80\"",
-    //TODO                    "", 1);
+  //TODO  IOTASSERT_CONTAINS(cb_mock, uri_mock,
+  //TODO                  "\"identifier\" : \"iotagent_identifier2:80\"",
+  //TODO                  "", 1);
   }
 
   std::cout << "@UT@END test_register_iota_manager12 " << std::endl;
@@ -3568,6 +3571,8 @@ void Ul20Test::test_register_iota_manager34() {
   iota::UL20Service* ul20servP = (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
   MockService* cb_mock = (MockService*)iota::Process::get_process().get_service("/mock");
   std::string mock_port = boost::lexical_cast<std::string>(iota::Process::get_process().get_http_port());
+  std::string service = get_service_name(__FUNCTION__);
+  std::string uri_mock = "/mock/" + service + "/protocols";
 
   std::string cb_last;
 
@@ -3585,14 +3590,12 @@ void Ul20Test::test_register_iota_manager34() {
     iota::Configurator::instance()->set_iotagent_identifier("");
 
     // when
-    ul20serv3.start();
+    ul20serv3.register_iota_manager();
 
-    ASYNC_TIME_WAIT
-/*
-    check_last_contains(cb_mock,
-                 "\"identifier\" : \"public_ip:80\"",
-                 "", 1);
-*/
+   //TODO IOTASSERT_CONTAINS(cb_mock, uri_mock,
+   //TODO              "\"identifier\" : \"public_ip:80\"",
+   //TODO              "", 1);
+
   }
 
  {
@@ -3602,12 +3605,12 @@ void Ul20Test::test_register_iota_manager34() {
     iota::Configurator::instance()->set_iotagent_name("iotagent_name3");
     iota::Configurator::instance()->set_iotagent_identifier("");
 
-    ul20serv4.start();
-/*
-    check_last_contains(cb_mock,
-                       "\"identifier\" : \"iotagent_name3:80\"",
-                       "", 1);
-*/
+    ul20serv4.register_iota_manager();
+
+   //TODO IOTASSERT_CONTAINS(cb_mock, uri_mock,
+   //TODO                    "\"identifier\" : \"iotagent_name3:80\"",
+   //TODO                    "", 1);
+
   }
 
   std::cout << "@UT@END test_register_iota_manager34 " << std::endl;

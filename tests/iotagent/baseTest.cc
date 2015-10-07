@@ -40,6 +40,8 @@
          std::cout << "@" << __LINE__ << "@" << std::endl; \
          CPPUNIT_ASSERT(y)
 
+
+
 const std::string BaseTest::HOST("127.0.0.1");
 const std::string BaseTest::CONTENT_JSON("application/json");
 
@@ -273,37 +275,45 @@ void BaseTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
     std::cout << "start_cbmock_data:" << ss.str() << std::endl;
   }
 }
-
-void BaseTest::check_last_contains(boost::shared_ptr<HttpMock>& cb_mock,
-          const std::string& data,
-          const std::string& message,
-          int wait){
-
-  if (wait > 0){
-    // for asynchronous operation it is neccesary wait time
-    boost::this_thread::sleep(boost::posix_time::milliseconds(wait * 100));
-  }
-  std::string cb_last = cb_mock->get_last();
-  std::cout << "@UT@Last simulator:" << cb_last << std::endl;
-  std::cout << "Then last message received by " << cb_mock->get_name() <<
-                   " must contain " << data << std::endl;
-  IOTASSERT_MESSAGE(message,
-        cb_last.find(data) != std::string::npos);
-}
-
-void BaseTest::check_last_equal(boost::shared_ptr<HttpMock>& cb_mock,
-          const std::string& data,
-          const std::string& message,
-          int wait){
-
-  if (wait > 0){
-    // for asynchronous operation it is neccesary wait time
-    boost::this_thread::sleep(boost::posix_time::milliseconds(wait * 100));
-  }
-
-  std::string cb_last = cb_mock->get_last();
-  std::cout << "@UT@Last simulator:" << cb_last << std::endl;
-  IOTASSERT_MESSAGE(message, cb_last.compare(data) == 0);
-}
-
 */
+void BaseTest::check_last_contains(MockService* cb_mock,
+          const std::string& uri_mock,
+          const std::string& data,
+          int line,
+          const std::string& message,
+          int wait){
+
+  if (wait > 0){
+    // for asynchronous operation it is neccesary wait time
+    boost::this_thread::sleep(boost::posix_time::milliseconds(wait * 100));
+  }
+  std::string cb_last = cb_mock->get_last(uri_mock);
+  std::cout << "@UT@Last simulator:" << cb_last << std::endl;
+  std::cout << "Then last message received by " << uri_mock <<
+                   " must contain " << data << std::endl;
+
+  std::cout << "@" << line << "@" << message << std::endl; \
+  CPPUNIT_ASSERT_MESSAGE(message, cb_last.find(data) != std::string::npos);
+
+}
+
+void BaseTest::check_last_equal(MockService* cb_mock,
+          const std::string& uri_mock,
+          const std::string& data,
+          int line,
+          const std::string& message,
+          int wait){
+
+  if (wait > 0){
+    // for asynchronous operation it is neccesary wait time
+    boost::this_thread::sleep(boost::posix_time::milliseconds(wait * 100));
+  }
+
+  std::string cb_last = cb_mock->get_last(uri_mock);
+  std::cout << "@UT@Last simulator:" << cb_last << std::endl;
+  std::cout << "@" << line << "@" << message << std::endl; \
+  CPPUNIT_ASSERT_MESSAGE(message, cb_last.compare(data) == 0);
+
+}
+
+

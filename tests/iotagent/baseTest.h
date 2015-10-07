@@ -35,6 +35,11 @@
 
 #include "util/service_collection.h"
 
+#define  IOTASSERT_CONTAINS(a, b, c, d, e) \
+         check_last_contains(a, b, c, __LINE__, d, e);
+
+#define  IOTASSERT_EQUALS(a, b, c, d, e) \
+         check_last_equal(a, b, c, __LINE__, d,e);
 
 class BaseTest  {
 
@@ -96,17 +101,21 @@ class BaseTest  {
                       const std::string& identifier = "",
                       const std::string& proxy = "",
                       const std::string& service = "");
+  */
 
-
-    void check_last_contains(boost::shared_ptr<HttpMock>& cb_mock,
+    void check_last_contains(MockService* cb_mock,
+          const std::string& uri_mock,
           const std::string& data,
-          const std::string& message = "",
-          int wait =0);
+          int line,
+          const std::string& message,
+          int wait);
 
-    void check_last_equal(boost::shared_ptr<HttpMock>& cb_mock,
+    void check_last_equal(MockService* cb_mock,
+          const std::string& uri_mock,
           const std::string& data,
-          const std::string& message= "",
-          int wait =0);*/
+          int line,
+          const std::string& message,
+          int wait);
 
     /**
      * @name    create_random_service
