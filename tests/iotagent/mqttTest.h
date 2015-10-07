@@ -48,7 +48,7 @@
 class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(MqttTest);
 
-
+/*
     CPPUNIT_TEST(testCBPublisher);
     CPPUNIT_TEST(testCBPublisherMissingApikey);
     CPPUNIT_TEST (testCBPublisherMissingIDdevice);
@@ -67,7 +67,7 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
     CPPUNIT_TEST (testLocationContextBroker);
 
-    CPPUNIT_TEST (testCommandsBody_BUG);
+    CPPUNIT_TEST (testCommandsBody_BUG);*/
 
     CPPUNIT_TEST_SUITE_END();
 
