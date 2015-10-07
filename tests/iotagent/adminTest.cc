@@ -2184,4 +2184,88 @@ void AdminTest::testConfiguratorMongo() {
   std::cout << "END  apiKeyTest testConfiguratorMongo" << std::endl;
 }
 
+/**
+ * Feature:  encode and decode uri and query params in uri
+ *     create a device with an space in the name  'dev 1'  and entity 'ent 1'
+ *     check you can get device by entity
+ *     check that you can delete the device and query
+ **/
+void  AdminTest::testSpaceURI() {
+
+  std::cout << "START @UT@START testSpaceURI" << std::endl;
+  std::map<std::string, std::string> headers;
+  std::string query_string;
+
+  const std::string POST_DEVICE_SPACE("{\"devices\": "
+                       "[{\"device_id\": \"dev 1\",\"protocol\": \"PDI-IoTA-UltraLight\",\"entity_name\": \"ent 1\",\"entity_type\": \"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": \"America/Santiago\""
+                       "}]}");
+
+
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  std::string response;
+  int code_res;
+  std::string service = "srvspace" ;
+  std::string device = "dev%201" ;
+  std::cout << "@UT@service " << service << std::endl;
+
+  //POST the service
+  std::cout << "@UT@POST Service" << std::endl;
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/json",
+                       POST_SERVICE, headers, "", response);
+  IOTASSERT(code_res == 201);
+
+  std::cout << "@UT@GET The device does not exist" << std::endl;
+  code_res = http_test("/TestAdmin/devices/noexists", "GET", service, "",
+                       "application/json", "", headers, query_string, response);
+  boost::algorithm::trim(response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 404);
+  IOTASSERT(
+    response.compare("{\"reason\":\"The device does not exist\",\"details\":\"noexists\"}")
+    == 0);
+
+  std::cout << "@UT@POST device" << std::endl;
+  code_res = http_test("/TestAdmin/devices", "POST", service, "", "application/json",
+                       POST_DEVICE_SPACE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+  std::cout << "@UT@GET" << std::endl;
+  code_res = http_test("/TestAdmin/devices", "GET", service, "", "application/json", "",
+                       headers, "entity=ent%201", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE("Search by entity name ", code_res = 200);
+  IOTASSERT(response.find("device_id") != std::string::npos);
+
+  std::cout << "@UT@DELETE" << std::endl;
+  code_res = http_test("/TestAdmin/devices/dev%201", "DELETE", service, "",
+                       "application/json", "",
+                       headers, "", response);
+  std::cout << "@UT@RESPONSEDELETE: " <<  code_res << " " << response <<
+            std::endl;
+  IOTASSERT(code_res == DELETE_RESPONSE_CODE);
+
+  std::cout << "@UT@GET" << std::endl;
+  code_res = http_test("/TestAdmin/devices/dev%201", "GET", service, "",
+                       "application/json", "",
+                       headers, query_string, response);
+  boost::algorithm::trim(response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
+  IOTASSERT(code_res == GET_RESPONSE_CODE_NOT_FOUND);
+
+  std::cout << "@UT@DELETE Service" << std::endl;
+  code_res = http_test("/TestAdmin/services/" + service, "DELETE", service, "",
+                       "application/json", "",
+                       headers, "", response);
+  IOTASSERT(code_res == 400);
+  IOTASSERT(
+    response.find("resource parameter is mandatory")
+    != std::string::npos);
+
+  std::cout << "END@UT@ testSpaceURI" << std::endl;
+}
 
