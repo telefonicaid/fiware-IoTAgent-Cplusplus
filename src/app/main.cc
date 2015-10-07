@@ -20,12 +20,10 @@
 * please contact with iot_support at tid dot es
 */
 
-
 #include <boost/asio.hpp>
 #include <rest/process.h>
 #include "rest/riot_conf.h"
 #include "rest/types.h"
-#include "util/iot_url.h"
 #ifdef IOTA_USE_LOG4CPP
 #include <log4cpp/Category.hh>
 #include <log4cpp/RollingFileAppender.hh>
@@ -35,8 +33,6 @@
 #endif
 #include "util/common.h"
 #include "services/admin_mgmt_service.h"
-#include "util/arguments.h"
-
 
 // displays an error message if the arguments are invalid
 void argument_error(void) {
@@ -52,29 +48,150 @@ void config_error(const std::string& err) {
 }
 
 
-int main(int argc, const char* argv[]) {
+int main(int argc, char* argv[]) {
 
-  iota::Arguments arguments;
+  static const unsigned int DEFAULT_PORT = 8080;
+  std::string  ZERO_IP = "0.0.0.0";
+
+  std::string prov_ip = ZERO_IP;
 
 
+
+  // used to keep track of web service name=value options
+  typedef std::vector<std::pair<std::string, std::string> >   ServiceOptionsType;
+  ServiceOptionsType service_options;
   iota::Configurator* conf_iotagent = NULL;
 
-  boost::asio::ip::tcp::endpoint cfg_endpoint;
+  std::string service_config_file;
+  std::string resource_name;
+  std::string service_name;
+  std::string ssl_pem_file;
+  std::string url_base;
+  std::string iotagent_name;
+  std::string log_level;
+  std::string standalone_config_file;
+  std::string component_name("iota");
+  bool manager = false;
+  bool ssl_flag = false;
+  bool verbose_flag = false;
+  int  port = DEFAULT_PORT;
 
-  std::string error = arguments.parser(argc, argv);
-  if (!error.empty()){
-    std::cout << error << std::endl;
+  for (int argnum=1; argnum < argc; ++argnum) {
+    if (argv[argnum][0] == '-') {
+      if (argv[argnum][1] == 'p' && argv[argnum][2] == '\0' && argnum+1 < argc) {
+        // set port number
+        ++argnum;
+        port = strtoul(argv[argnum], 0, 10);
+        if (port == 0) {
+          port = DEFAULT_PORT;
+        }
+      }
+      else if (argv[argnum][1] == 'i' && argv[argnum][2] == '\0' &&
+               argnum+1 < argc) {
+        // set ip address
+        prov_ip = argv[++argnum];
+      }
+      else if (argv[argnum][1] == 'u' && argv[argnum][2] == '\0'
+               && argnum+1 < argc) {
+        url_base.assign(argv[++argnum]);
+      }
+      else if (argv[argnum][1] == 'f' && argv[argnum][2] == '\0'
+               && argnum+1 < argc) {
+        standalone_config_file.assign(argv[++argnum]);
+      }
+      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
+            && argv[argnum][3] == 'v' && argv[argnum][4] == '4'
+            && argv[argnum][5] == '\0'
+               && argnum+1 < argc) {
+        // default ip
+        ZERO_IP = "0.0.0.0";
+      }
+      else if (argv[argnum][1] == 'i' && argv[argnum][2] == 'p'
+            && argv[argnum][3] == 'v' && argv[argnum][4] == '6'
+            && argv[argnum][5] == '\0'
+               && argnum+1 < argc) {
+        ZERO_IP = "::";
+      }
+      else if (argv[argnum][1] == 'n' && argv[argnum][2] == '\0'
+               && argnum+1 < argc) {
+        iotagent_name.assign(argv[++argnum]);
+      }
+      else if (argv[argnum][1] == 'c' && argv[argnum][2] == '\0'
+               && argnum+1 < argc) {
+        service_config_file = argv[++argnum];
+      }
+      else if (argv[argnum][1] == 'd' && argv[argnum][2] == '\0'
+               && argnum+1 < argc) {
+        // add the service plug-ins directory to the search path
+        try {
+          pion::plugin::add_plugin_directory(argv[++argnum]);
+        }
+        catch (pion::error::directory_not_found&) {
+          std::cerr << "piond: Web service plug-ins directory does not exist: "
+                    << argv[argnum] << std::endl;
+          return 1;
+        }
+      }
+      else if (argv[argnum][1] == 'o' && argv[argnum][2] == '\0'
+               && argnum+1 < argc) {
+        std::string option_name(argv[++argnum]);
+        std::string::size_type pos = option_name.find('=');
+        if (pos == std::string::npos) {
+          argument_error();
+          return 1;
+        }
+        std::string option_value(option_name, pos + 1);
+        option_name.resize(pos);
+        service_options.push_back(std::make_pair(option_name, option_value));
+      }
+      else if (argv[argnum][1] == 's' && argv[argnum][2] == 's' &&
+               argv[argnum][3] == 'l' && argv[argnum][4] == '\0' && argnum+1 < argc) {
+        ssl_flag = true;
+        ssl_pem_file = argv[++argnum];
+      }
+      else if (argv[argnum][1] == 'v' && argv[argnum][2] == '\0') {
+        verbose_flag = true;
+        if (argnum+1 < argc) {
+          log_level.assign(argv[++argnum]);
+        }
+      }
+      else if (argv[argnum][1] == 'm' && argv[argnum][2] == '\0') {
+        // Start as IoTA Manager
+        manager = true;
+      }
+      else {
+        argument_error();
+        return 1;
+      }
+    }
+    else if (argnum+2 == argc) {
+      // second to last argument = RESOURCE
+      resource_name = argv[argnum];
+    }
+    else if (argnum+1 == argc) {
+      // last argument = WEBSERVICE
+      service_name = argv[argnum];
+    }
+    else {
+      argument_error();
+      return 1;
+    }
+  }
+
+
+  if (service_config_file.empty() && (resource_name.empty()
+                                      || service_name.empty())) {
+    argument_error();
     return 1;
   }
 
-
-  iota::Process& process = iota::Process::initialize(arguments.get_url_base(), 8);
+  iota::Process& process = iota::Process::initialize(url_base, 8);
   // Initialization Configurator
-  if (!arguments.get_standalone_config_file().empty()) {
-    conf_iotagent = iota::Configurator::initialize(arguments.get_standalone_config_file());
+  if (!standalone_config_file.empty()) {
+    conf_iotagent = iota::Configurator::initialize(standalone_config_file);
   }
-  else if (!arguments.get_service_config_file().empty()) {
-    conf_iotagent = iota::Configurator::initialize(arguments.get_service_config_file());
+  else if (!service_config_file.empty()) {
+    conf_iotagent = iota::Configurator::initialize(service_config_file);
   }
 
   if (conf_iotagent == NULL) {
@@ -82,18 +199,8 @@ int main(int argc, const char* argv[]) {
     return 1;
   }
 
-  iota::Configurator::instance()->set_listen_port(arguments.get_port());
-  iota::Configurator::instance()->set_listen_ip(arguments.get_prov_ip());
-
-  // add iotagent name
-  if (!arguments.get_iotagent_name().empty()){
-    iota::Configurator::instance()->set_iotagent_name(arguments.get_iotagent_name());
-  }
-
-  // add iotagent identifier
-  if (!arguments.get_iotagent_identifier().empty()){
-    iota::Configurator::instance()->set_iotagent_identifier(arguments.get_iotagent_identifier());
-  }
+  iota::Configurator::instance()->set_listen_port(port);
+  iota::Configurator::instance()->set_listen_ip(prov_ip);
 
   // Path logs
   std::string dir_log("/tmp/");
@@ -112,10 +219,16 @@ int main(int argc, const char* argv[]) {
   pion::logger main_log(PION_GET_LOGGER(process.get_logger_name()));
 
   std::string log_file(dir_log);
-  log_file.append(arguments.get_log_file());
+  log_file.append("IoTAgent");
+  if (iotagent_name.empty() == false) {
+    log_file.append("-");
+    log_file.append(iotagent_name);
+    component_name.append(":" + iotagent_name);
+  }
 
-  std::string log_level = arguments.get_log_level();
-  if (arguments.get_verbose_flag()) {
+  log_file.append(".log");
+
+  if (verbose_flag) {
     if (log_level.empty() == true) {
       PION_LOG_SETLEVEL_INFO(pion_log);
       PION_LOG_SETLEVEL_INFO(main_log);
@@ -147,14 +260,13 @@ int main(int argc, const char* argv[]) {
   }
 #ifdef IOTA_USE_LOG4CPP
   log4cpp::Appender* ptrApp = new log4cpp::RollingFileAppender("cppApp",
-      log_file,
-      10*1024*1024,
-      5,
-      true);
-  std::string pattern = "time=%d{%Y-%m-%dT%H:%M:%S,%l%Z} | lvl=%5p | comp=" +
-                        component_name + " %m %n";
-  log4cpp::Layout* layout = new log4cpp::PatternLayout();
-  ((log4cpp::PatternLayout*)layout)->setConversionPattern(pattern);
+                                        log_file,
+                                        10*1024*1024,
+                                        5,
+                                        true);
+  std::string pattern = "time=%d{%Y-%m-%dT%H:%M:%S,%l%Z} | lvl=%5p | comp=" + component_name + " %m %n";
+  log4cpp::Layout *layout = new log4cpp::PatternLayout();
+   ((log4cpp::PatternLayout *)layout)->setConversionPattern(pattern);
   ptrApp->setLayout(layout);
   log4cpp::Category::getRoot().setAppender(ptrApp);
 
@@ -166,9 +278,7 @@ int main(int argc, const char* argv[]) {
                                         true));
 
   log4cplus::tstring pattern =
-
-    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%5p | comp=" +
-                   arguments.get_component_name() +
+    LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%5p | comp=" + component_name +
                    " %m %n");
   //LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
 
@@ -179,7 +289,7 @@ int main(int argc, const char* argv[]) {
   main_log.addAppender(ptrApp);
 
 #endif
-  if (arguments.get_iotagent_name().empty() == true) {
+  if (iotagent_name.empty() == true) {
     PION_LOG_CONFIG_BASIC;
   }
 
@@ -199,14 +309,13 @@ int main(int argc, const char* argv[]) {
     }
     */
 
-    std::string endpoint_ws(arguments.get_ZERO_IP());
+    std::string endpoint_ws(ZERO_IP);
     endpoint_ws.append(":");
-    endpoint_ws.append(boost::lexical_cast<std::string>(arguments.get_port()));
+    endpoint_ws.append(boost::lexical_cast<std::string>(port));
 
-    pion::http::plugin_server_ptr http_server = process.add_http_server("",
-        endpoint_ws);
+    pion::http::plugin_server_ptr http_server = process.add_http_server("", endpoint_ws);
 
-    if (!arguments.get_manager()) {
+    if (!manager) {
       IOTA_LOG_INFO(main_log,
                     "======= IoTAgent StartingWebServer: " << http_server->get_address() <<
                     " ========");
@@ -217,9 +326,35 @@ int main(int argc, const char* argv[]) {
                     " ========");
     }
 
+    try {
+      const iota::JsonValue& tcp_s = iota::Configurator::instance()->get(
+                                       iota::types::CONF_FILE_TCP_SERVERS.c_str());
+      if (!tcp_s.IsArray()) {
+        IOTA_LOG_ERROR(main_log, "ERROR in Config File " << service_config_file <<
+                       " Configuration error [tcp_servers]");
+
+      }
+      else {
+
+        try {
+          for (rapidjson::SizeType it_r = 0; it_r < tcp_s.Size(); it_r++) {
+            std::string endpoint(tcp_s[it_r].GetString());
+            process.add_tcp_server("", endpoint);
+          }
+        }
+        catch (std::exception& e) {
+          IOTA_LOG_FATAL(main_log, e.what());
+        }
+      }
+    }
+    catch (std::exception& e) {
+      IOTA_LOG_ERROR(main_log, e.what());
+    }
+
+
     // Static service
     iota::AdminService* AdminService_ptr;
-    if (arguments.get_manager()) {
+    if (manager) {
       AdminService_ptr = new iota::AdminManagerService();
     }
     else {
@@ -229,17 +364,17 @@ int main(int argc, const char* argv[]) {
     process.set_admin_service(AdminService_ptr);
 
 
-    if (arguments.get_ssl_flag()) {
+    if (ssl_flag) {
 #ifdef PION_HAVE_SSL
       // configure server for SSL
-      IOTA_LOG_INFO(pion_log, "SSL support enabled using key file: " << arguments.get_ssl_pem_file());
-      http_server->set_ssl_key_file(arguments.get_ssl_pem_file());
+      IOTA_LOG_INFO(pion_log, "SSL support enabled using key file: " << ssl_pem_file);
+      http_server->set_ssl_key_file(ssl_pem_file);
       /*
-      web_server->get_ssl_context_type().set_options(boost::asio::ssl::context::default_workarounds |
-                                                     boost::asio::ssl::context::no_sslv2 |
-                                                     boost::asio::ssl::context::single_dh_use);
-      web_server->get_ssl_context_type().set_verify_mode(boost::asio::ssl::verify_peer |
-                                                     boost::asio::ssl::verify_fail_if_no_peer_cert);
+			web_server->get_ssl_context_type().set_options(boost::asio::ssl::context::default_workarounds |
+			                                               boost::asio::ssl::context::no_sslv2 |
+			                                               boost::asio::ssl::context::single_dh_use);
+			web_server->get_ssl_context_type().set_verify_mode(boost::asio::ssl::verify_peer |
+			                                               boost::asio::ssl::verify_fail_if_no_peer_cert);
       web_server->get_ssl_context_type().use_certificate_file(ssl_pem_file, boost::asio::ssl::context::pem);
       web_server->get_ssl_context_type().use_private_key_file(ssl_pem_file, boost::asio::ssl::context::pem);
       web_server->get_ssl_context_type().load_verify_file("/home/develop/Projects/fiware-IoTAgent-Cplusplus/build/Debug/server.crt");
@@ -251,17 +386,27 @@ int main(int argc, const char* argv[]) {
     }
 
     std::string url_complete(process.get_url_base());
-    if ( arguments.get_service_config_file().empty()) {
-        arguments.set_service_options(http_server);
+    if (service_config_file.empty()) {
+      // load a single web service using the command line arguments
+      // after url base
+      url_complete.append("/");
+      url_complete.append(resource_name);
+      http_server->load_service(url_complete, service_name);
+
+      // set web service options if any are defined
+      for (ServiceOptionsType::iterator i = service_options.begin();
+           i != service_options.end(); ++i) {
+        http_server->set_service_option(url_complete, i->first, i->second);
+      }
     }
-    else if (!arguments.get_manager()) {
+    else if (!manager) {
       // load services using the configuration file
       try {
-        IOTA_LOG_DEBUG(main_log, "Config file " << arguments.get_service_config_file());
+        IOTA_LOG_DEBUG(main_log, "Config file " << service_config_file);
         const iota::JsonValue& resources = iota::Configurator::instance()->get(
                                              iota::types::CONF_FILE_RESOURCES.c_str());
         if (!resources.IsArray()) {
-          IOTA_LOG_FATAL(main_log, "ERROR in Config File " << arguments.get_service_config_file() <<
+          IOTA_LOG_FATAL(main_log, "ERROR in Config File " << service_config_file <<
                          " Configuration error [resources]");
           return 1;
         }
@@ -272,9 +417,6 @@ int main(int argc, const char* argv[]) {
             if (resources[i].HasMember(iota::types::CONF_FILE_RESOURCE.c_str())) {
               std::string res =
                 resources[i][iota::types::CONF_FILE_RESOURCE.c_str()].GetString();
-
-
-
               if (resources[i].HasMember(iota::types::CONF_FILE_OPTIONS.c_str())) {
                 const iota::JsonValue& options =
                   resources[i][iota::types::CONF_FILE_OPTIONS.c_str()];
@@ -282,63 +424,23 @@ int main(int argc, const char* argv[]) {
                     && (options[iota::types::CONF_FILE_FILE_NAME.c_str()].IsString())) {
                   std::string s_n(options[iota::types::CONF_FILE_FILE_NAME.c_str()].GetString());
                   IOTA_LOG_DEBUG(main_log, "Starting___ " << res);
-                  // If resource has tcp url, it is a TCP service
-                  try {
-                    iota::IoTUrl resource_url(res);
-                    IOTA_LOG_DEBUG(main_log, res);
-                    if (resource_url.getProtocol() == URL_PROTOCOL_TCP) {
-
-                      std::string str_endpoint = resource_url.getHost() + ":" +
-                                                 resource_url.getHost();
-                      IOTA_LOG_DEBUG(main_log, "tcp server: "  + str_endpoint);
-                      process.add_tcp_server("", str_endpoint);
-
-                      // Creating plugin
-                      IOTA_LOG_DEBUG(main_log, res + " " + s_n);
-                      pion::http::plugin_service* plugin_ptr = process.add_tcp_service(res, s_n);
-
-                      for (iota::JsonValue::ConstMemberIterator it_r = options.MemberBegin();
-                           it_r != options.MemberEnd(); ++it_r) {
-                        std::string name(it_r->name.GetString());
-                        std::string value(it_r->value.GetString());
-                        IOTA_LOG_DEBUG(main_log, "set_service_option: " << name << " " << value);
-                        try {
-                          plugin_ptr->set_option(name, value);
-
-                        }
-                        catch (boost::exception& e) {
-                          IOTA_LOG_INFO(main_log, "Setting option " << boost::diagnostic_information(e));
-                        }
-                      }
-                      // Additional option: plugin must know endpoint registering tcp service
-                      plugin_ptr->set_option("ServerEndpoint",
-                                             resource_url.getHost() + ":" + boost::lexical_cast<std::string>
-                                             (resource_url.getPort()));
-                      plugin_ptr->set_resource(resource_url.getPath());
-                      plugin_ptr->start();
-                    }
-                  }
-                  catch (std::exception& e) {
-
-                    IOTA_LOG_INFO(main_log, pion::diagnostic_information(e));
-
-                    http_server->load_service(res, s_n);
-                    for (iota::JsonValue::ConstMemberIterator it_r = options.MemberBegin();
-                         it_r != options.MemberEnd(); ++it_r) {
-                      std::string name(it_r->name.GetString());
-                      std::string value(it_r->value.GetString());
-                      IOTA_LOG_DEBUG(main_log, "set_service_option: " << name << " " << value);
-                      try {
-                        http_server->set_service_option(res, name, value);
-                      }
-                      catch (boost::exception& e) {
-                        IOTA_LOG_INFO(main_log, "Setting option " << boost::diagnostic_information(e));
-                      }
-                    }
+                  http_server->load_service(res, s_n);
+                  for (iota::JsonValue::ConstMemberIterator it_r = options.MemberBegin();
+                       it_r != options.MemberEnd(); ++it_r) {
+                    std::string name(it_r->name.GetString());
+                    std::string value(it_r->value.GetString());
+                    IOTA_LOG_DEBUG(main_log, "set_service_option: " << name << " " << value);
+										try {
+                    http_server->set_service_option(res, name, value);
+										}
+										catch(boost::exception& e) {
+                      IOTA_LOG_INFO(main_log, "Setting option " << boost::diagnostic_information(e));
+										}
 
                   }
 
                 }
+
               }
             }
           }
@@ -348,7 +450,7 @@ int main(int argc, const char* argv[]) {
         }
       }
       catch (std::exception& e) {
-        IOTA_LOG_FATAL(main_log, "ERROR in Config File " << arguments.get_service_config_file());
+        IOTA_LOG_FATAL(main_log, "ERROR in Config File " << service_config_file);
         IOTA_LOG_FATAL(main_log, e.what());
         return 1;
       }
@@ -357,7 +459,6 @@ int main(int argc, const char* argv[]) {
     // Start
     process.start();
     iota::Process::wait_for_shutdown();
-    process.shutdown();
   }
   catch (std::exception& e) {
     IOTA_LOG_FATAL(pion_log, pion::diagnostic_information(e));
