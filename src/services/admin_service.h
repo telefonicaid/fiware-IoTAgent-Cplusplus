@@ -36,7 +36,6 @@ namespace iota {        // begin namespace iota
 class AdminService :
   public iota::RestHandle {
   public:
-    AdminService(pion::http::plugin_server_ptr web_server);
     AdminService();
     virtual ~AdminService();
     virtual void start();

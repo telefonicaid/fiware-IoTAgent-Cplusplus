@@ -56,10 +56,6 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/prettywriter.h>
 
-namespace iota {
-extern std::string URL_BASE;
-extern std::string logger;
-}
 
 const std::string iota::AdminService::_api_service_holder ="service";
 const std::string iota::AdminService::_api_device_holder = "device";
@@ -73,20 +69,8 @@ std::string iota::AdminService::_POST_SERVICE_SCHEMA;
 std::string iota::AdminService::_PUT_SERVICE_SCHEMA;
 
 
-iota::AdminService::AdminService(pion::http::plugin_server_ptr web_server):
-  iota::RestHandle(),
-  //_web_server(web_server),
-  _class_name("iota::AdminService"),
-  m_log(PION_GET_LOGGER(iota::logger)) {
-  IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService");
-  checkIndexes();
-  read_schema("post_device.schema", iota::AdminService::_POST_DEVICE_SCHEMA);
-  read_schema("put_device.schema", iota::AdminService::_PUT_DEVICE_SCHEMA);
-  read_schema("post_service.schema", iota::AdminService::_POST_SERVICE_SCHEMA);
-  read_schema("put_service.schema", iota::AdminService::_PUT_SERVICE_SCHEMA);
-}
 
-iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::logger)),
+iota::AdminService::AdminService(): m_log(PION_GET_LOGGER(iota::Process::get_logger_name())),
   _class_name("iota::AdminService") {
   IOTA_LOG_DEBUG(m_log, "iota::AdminService::AdminService2");
   checkIndexes();

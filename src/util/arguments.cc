@@ -24,10 +24,6 @@
 #include <boost/lexical_cast.hpp>
 #include "rest/types.h"
 
-namespace iota {
-extern std::string logger;
-}
-
 iota::Arguments::Arguments() {
   component_name = "iota";
   manager = false;
