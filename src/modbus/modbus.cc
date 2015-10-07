@@ -21,12 +21,9 @@
 */
 
 #include "modbus.h"
+#include "rest/process.h"
 #include "util/FuncUtil.h"
 #include <iostream>
-
-namespace iota {
-extern std::string logger;
-}
 
 /* Table of CRC values for high-order byte */
 static const unsigned char table_crc_hi[] = {
@@ -96,7 +93,7 @@ iota::Modbus::Modbus(unsigned char slave_addr,
   _function_code(function_code), _address_data(address_data),
   _number_of_or_value(number_of), _app_operation(app_operation), _finished(false),
   _time_instant(-1),
-  m_logger(PION_GET_LOGGER(logger)) {
+  m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   _modbus_frame.push_back(_slave_address);
   _modbus_frame.push_back(_function_code);
   _modbus_frame.push_back((_address_data >> 8) & 0xFF);

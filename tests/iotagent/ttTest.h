@@ -38,14 +38,14 @@
 #include "thinkingthings/SearchResponse.h"
 #include "util/TTCBPublisher.h"
 #include "thinkingthings/TTService.h"
+#include "../mocks/util_functions.h"
 
 
 class TTTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST_SUITE(TTTest);
     CPPUNIT_TEST(testTTResponses);
-
     CPPUNIT_TEST(testSearchResponses);
-    CPPUNIT_TEST(testTTCBPublisher);
+   CPPUNIT_TEST(testTTCBPublisher);
     CPPUNIT_TEST(testTTResponsesP1);
     CPPUNIT_TEST(testTTResponsesP1NoTResponse);
     CPPUNIT_TEST(testTTResponsesB);
@@ -58,13 +58,15 @@ class TTTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testSearchResponseOnBug_IDAS20201);
     CPPUNIT_TEST(testTTCBPublisherP1BOnBug_IDAS20202);
     CPPUNIT_TEST(testTTCBPublisherGMOnBug_IDAS20202);
-    CPPUNIT_TEST(testMissingSubAttributesBug_single_P1_Module_IDAS20245);
-    CPPUNIT_TEST(testMissingSubAttributesBug_multiple_P1_GPS_B_Module_IDAS20245);
-    CPPUNIT_TEST(testNoEmptyResponsesOnBug_IDAS20303);
-    CPPUNIT_TEST(testErrorCodesOnBug_IDAS20303);
-    CPPUNIT_TEST(testErrorCodesOnBug_IDAS20308);
-    CPPUNIT_TEST(testNoEmpty_And_ValidResponse_OnBug_IDAS20308);
-    CPPUNIT_TEST(testError_when_empty_response_from_CB);
+
+   CPPUNIT_TEST(testMissingSubAttributesBug_single_P1_Module_IDAS20245); //awaiting fix for a bug
+   CPPUNIT_TEST(testMissingSubAttributesBug_multiple_P1_GPS_B_Module_IDAS20245); //awaiting fix for a bug
+
+    CPPUNIT_TEST(testNoEmptyResponsesOnBug_IDAS20303); //it works
+    CPPUNIT_TEST(testErrorCodesOnBug_IDAS20303); // it works
+    CPPUNIT_TEST(testErrorCodesOnBug_IDAS20308); // it works
+    CPPUNIT_TEST(testNoEmpty_And_ValidResponse_OnBug_IDAS20308); //awaiting fix
+    CPPUNIT_TEST(testError_when_empty_response_from_CB); //awaiting fix.
 
     CPPUNIT_TEST_SUITE_END();
 
@@ -108,11 +110,7 @@ class TTTest : public CPPUNIT_NS::TestFixture {
     void testError_when_empty_response_from_CB();
 
   private:
-    iota::esp::TTService* ttService;
 
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock);
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock_update,
-                      boost::shared_ptr<HttpMock>& cb_mock_query);
 
 
 };

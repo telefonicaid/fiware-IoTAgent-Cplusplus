@@ -25,6 +25,7 @@
 #include <string>
 #include <map>
 #include "util/iota_logger.h"
+#include "rest/process.h"
 #include <boost/thread/recursive_mutex.hpp>
 
 namespace iota {

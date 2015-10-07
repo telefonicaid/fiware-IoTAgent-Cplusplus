@@ -60,13 +60,14 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST (testMultipleMeasures);
 
     CPPUNIT_TEST (testExtractingCmdId);
+
     CPPUNIT_TEST (testPushCommandExecution);
     CPPUNIT_TEST (testPushCommandResponse);
     CPPUNIT_TEST (testPostprocessorJSON_IoTOutput_cmd);
+
     CPPUNIT_TEST (testLocationContextBroker);
 
     CPPUNIT_TEST (testCommandsBody_BUG);
-
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -123,7 +124,6 @@ private:
     iota::esp::MqttService* mqttService;
 
 
-
     void defineExpectationsMqttt();
 
     void defineExpectationsMqttNoIncomingMsg();
@@ -137,7 +137,7 @@ private:
 
     int stubConnect(const char* host, int port, int keepalive);
 
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,const std::string& type = "mongodb");
+    //void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,const std::string& type = "mongodb");
 
     void defineExpectationsMqttPublisher();
 

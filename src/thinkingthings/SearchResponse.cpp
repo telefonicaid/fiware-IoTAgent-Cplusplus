@@ -22,11 +22,7 @@
 #include "SearchResponse.h"
 #include "ngsi/Entity.h"
 
-namespace iota {
-extern std::string logger; //usually declared as "main"
-}
-
-iota::esp::tt::SearchResponse::SearchResponse() : m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::esp::tt::SearchResponse::SearchResponse() : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
 
 
 
@@ -137,7 +133,7 @@ std::string iota::esp::tt::SearchResponse::doSearchTTResponse(
 }
 
 iota::esp::tt::TTResponse::TTResponse(std::string m) : m_logger(PION_GET_LOGGER(
-        iota::logger)) {
+        iota::Process::get_logger_name())) {
   module.assign(m);
   mainResponse.assign("");
   ignore_module = false;

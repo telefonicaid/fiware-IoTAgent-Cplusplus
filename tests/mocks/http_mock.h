@@ -22,72 +22,38 @@
 #ifndef SRC_TESTS_MOCKS_HTTP_MOCK_H_
 #define SRC_TESTS_MOCKS_HTTP_MOCK_H_
 
-#include <pion/http/plugin_service.hpp>
+#include <rest/rest_handle.h>
 #include <pion/http/plugin_server.hpp>
 #include <boost/thread/mutex.hpp>
 
-class MockService: public pion::http::plugin_service {
+class MockService: public iota::RestHandle {
   public:
     MockService() {};
     ~MockService() {
     }
     void operator()(pion::http::request_ptr& http_request_ptr,
                     pion::tcp::connection_ptr& tcp_conn);
-    int _sc;
-    std::vector<std::string> _content;
-    std::vector<std::string> _received_content;
-    std::map<std::string, std::string> _headers;
-    bool _extended_echo;
-  private:
-};
-class HttpMock {
-  public:
-    HttpMock(std::string url, const std::string name="CBMock");
-    HttpMock(unsigned short port, std::string url,
-       bool extended_echo = false, const std::string name="CBMock");
-    virtual ~HttpMock() {
-      delete _ws;
-    };
-    void init();
-    void stop();
-    unsigned short get_port();
-    void set_response(int status_code, std::string content,
+
+    std::map<std::string, int> _sc;
+    std::map<std::string, std::vector<std::string> > _content;
+    std::map<std::string, std::vector<std::string> > _received_content;
+    std::map<std::string, std::map<std::string, std::string> > _headers;
+    std::map<std::string, bool> _extended_echo;
+    std::string get_last(std::string test_name);
+    void set_response(std::string test_function, int status_code, std::string content,
                       std::map<std::string, std::string> headers =
                         std::map<std::string, std::string>());
-    void set_extended_echo() {
-      _service->_extended_echo = true;
+    void set_extended_echo(std::string test_function) {
+      _extended_echo[test_function] = true;
     };
 
-    boost::asio::ip::tcp::endpoint get_endpoint() {
-      return _ws->get_endpoint();
+    void reset(std::string test_function);
+    int size(std::string test_function);
+    int r_size(std::string test_function) {
+      return _content[test_function].size();
     };
-
-    /** return the last content **/
-    std::string get_last();
-
-    void reset();
-    int size();
-    int r_size() {
-      return _service->_content.size();
-    };
-
-    std::string get_name(){
-      return _name;
-    }
-
-  protected:
 
   private:
-    std::string _name;
-    void run();
-    unsigned short _port;
-    std::string _url;
-    pion::http::plugin_server* _ws;
-    MockService* _service;
-    boost::condition_variable condition;
-    boost::mutex m_mutex;
-    boost::shared_ptr<boost::thread> _thr;
 };
-
 
 #endif

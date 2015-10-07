@@ -29,16 +29,17 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
-namespace iota {
-extern std::string logger;
-}
-iota::OAuth::OAuth(): _timeout(5), m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::OAuth::OAuth(boost::asio::io_service& io_service): _io_service(
+    io_service), _timeout(5), _sync(false),
+  m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   if (_id.empty() == true) {
     _id = riot_uuid();
   }
 }
-iota::OAuth::OAuth(int timeout):
-  _timeout(timeout), m_logger(PION_GET_LOGGER(iota::logger)) {
+iota::OAuth::OAuth(boost::asio::io_service& io_service,
+                   int timeout): _io_service(
+                       io_service), _sync(false),
+  _timeout(timeout), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   if (_id.empty() == true) {
     _id = riot_uuid();
   }
@@ -86,13 +87,13 @@ std::string iota::OAuth::get_oauth_trust() {
   return _oauth_trust;
 }
 
-void iota::OAuth::set_async_service(boost::shared_ptr<boost::asio::io_service>
-                                     io_service) {
-  _io_service = io_service;
+void iota::OAuth::set_sync_service() {
+  _sync = true;
 }
 
+
 void iota::OAuth::set_identity(std::string scope_type, std::string username,
-                                std::string password) {
+                               std::string password) {
 
   // If _auth is set, clear.
   _auth.clear();
@@ -162,6 +163,7 @@ std::string iota::OAuth::get_token(int status_code) {
   return _data._subject_token;
 }
 
+
 void iota::OAuth::receive_event_renew_token(
   boost::shared_ptr<iota::HttpClient> connection,
   pion::http::response_ptr response,
@@ -195,9 +197,8 @@ void iota::OAuth::receive_event_renew_token(
                    " conn_error=" << connection->get_error() <<
                    " subject-token=" << _data._subject_token.empty());
   }
-  //remove_connection(connection);
 
-  if (is_pep() && _io_service.get() != NULL) {
+  if (is_pep() && !_sync) {
     if (_data._subject_token.empty()) {
       if (_application_callback != NULL) {
         _application_callback(shared_from_this());
@@ -225,7 +226,6 @@ std::string iota::OAuth::receive_event_get_user(
 
   }
 
-  //remove_connection(connection);
 
   boost::property_tree::ptree ptree_user = get_ptree(str_response);
   if (!ptree_user.empty()) {
@@ -240,7 +240,7 @@ std::string iota::OAuth::receive_event_get_user(
   }
   IOTA_LOG_DEBUG(m_logger, "receive_event_get_user user=" << _user_id <<
                  " domain=" << _domain);
-  if (is_pep() && _io_service.get() != NULL) {
+  if (is_pep() && !_sync) {
 
     if (_user_id.empty()) {
       if (_application_callback != NULL) {
@@ -257,6 +257,7 @@ std::string iota::OAuth::receive_event_get_user(
 }
 
 void iota::OAuth::renew_token(std::string scope) {
+
   boost::mutex::scoped_lock l(_m);
   _data._subject_token.clear();
   IoTUrl dest(scope);
@@ -278,12 +279,12 @@ void iota::OAuth::renew_token(std::string scope) {
   boost::shared_ptr<iota::HttpClient> http_client;
   std::string proxy;
   pion::http::response_ptr response;
-  if (_io_service.get() != NULL) {
+  if (!_sync) {
 
     IOTA_LOG_DEBUG(m_logger,
                    "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
                    _timeout);
-    http_client.reset(new iota::HttpClient(*_io_service, server, dest.getPort()));
+    http_client.reset(new iota::HttpClient(_io_service, server, dest.getPort()));
     //add_connection(http_client);
     http_client->async_send(request, _timeout, proxy,
                             boost::bind(&iota::OAuth::receive_event_renew_token,
@@ -292,7 +293,7 @@ void iota::OAuth::renew_token(std::string scope) {
   else {
     IOTA_LOG_DEBUG(m_logger,
                    "renew_token is_pep=" << is_pep() << " oauth=" << server << " timeout=" <<
-                   _timeout);
+                   _timeout << " sync");
     http_client.reset(new iota::HttpClient(server, dest.getPort()));
     //add_connection(http_client);
     response = http_client->send(request, _timeout, proxy);
@@ -303,8 +304,9 @@ void iota::OAuth::renew_token(std::string scope) {
 }
 
 std::string  iota::OAuth::get_user(std::string token, std::string token_pep) {
-  IOTA_LOG_DEBUG(m_logger,
-                 "get_user pep-token=" << token_pep << " user-token=" << token);
+  std::string log_msg("get_user pep-token=" + token_pep + " user-token=" + token);
+  IOTA_LOG_DEBUG(m_logger, log_msg);
+
   std::string str_response;
   _user_id.clear();
   boost::property_tree::ptree headers;
@@ -357,7 +359,7 @@ std::string iota::OAuth::receive_event_get_subservice(
           }
           else {
 
-          // TODO Review. Bad style
+            // TODO Review. Bad style
             if (found == false) {
               status_code = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
             }
@@ -379,7 +381,7 @@ std::string iota::OAuth::receive_event_get_subservice(
                    " projects=" << str_response <<
                    " token-pep=" << _data._subject_token.empty());
   }
-  if (is_pep() && _io_service.get() != NULL) {
+  if (is_pep() && !_sync) {
     // When result is not from a OK response, we finalize.
     if (status_code == pion::http::types::RESPONSE_CODE_BAD_REQUEST) {
       if (_application_callback != NULL) {
@@ -410,8 +412,7 @@ std::string iota::OAuth::receive_event_get_user_roles(
 
   }
 
-  //remove_connection(connection);
-  if (is_pep() && _io_service.get() != NULL) {
+  if (is_pep() && !_sync) {
     if (!str_response.empty()) {
       _user_roles = get_ptree(str_response);
     }
@@ -425,7 +426,7 @@ std::string iota::OAuth::receive_event_get_user_roles(
 }
 
 std::string iota::OAuth::get_subservice(std::string domain,
-    std::string project) {
+                                        std::string project) {
   std::string str_response;
   //std::string query("domain_id=" + _service_id + "&name=" + project);
   std::string query("domain_id=" + _service_id);
@@ -451,8 +452,7 @@ boost::property_tree::ptree iota::OAuth::validate_user_token(std::string token,
     if (!is_pep()) {
       return user_from_auth_token;
     }
-
-    if (_io_service.get() == NULL) {
+    if (_sync) {
       std::string pep_token = get_token();
       user_from_auth_token = get_ptree(get_user(token, pep_token));
     }
@@ -501,9 +501,9 @@ boost::property_tree::ptree iota::OAuth::get_user_roles(std::string user_id) {
                               boost::bind(&iota::OAuth::receive_event_get_user_roles, shared_from_this(), _1,
                                           _2, _3));
 
-  if (!str_response.empty() && _io_service.get() == NULL) {
-    pt_user_roles = get_ptree(str_response);
-  }
+    if (!str_response.empty() && _sync) {
+      pt_user_roles = get_ptree(str_response);
+    }
 
   return pt_user_roles;
 }
@@ -534,11 +534,11 @@ pion::http::request_ptr iota::OAuth::create_request(std::string server,
 }
 
 std::string iota::OAuth::send_request(std::string endpoint,
-                                       std::string method,
-                                       std::string content, std::string query,
-                                       boost::property_tree::ptree headers,
-                                       std::string f,
-                                       oauth_comm_t handler) {
+                                      std::string method,
+                                      std::string content, std::string query,
+                                      boost::property_tree::ptree headers,
+                                      std::string f,
+                                      oauth_comm_t handler) {
   std::string p_request(" operation=" + f + " endpoint=" +  endpoint + " method="
                         + method +
                         " content=" + content + " query=" + query);
@@ -563,12 +563,11 @@ std::string iota::OAuth::send_request(std::string endpoint,
   boost::shared_ptr<iota::HttpClient> http_client;
   std::string proxy;
   pion::http::response_ptr response;
-  if (_io_service.get() != NULL) {
+  if (!_sync) {
 
-    http_client.reset(new iota::HttpClient(*_io_service, server, dest.getPort()));
+    http_client.reset(new iota::HttpClient(_io_service, server, dest.getPort()));
     //add_connection(http_client);
     http_client->async_send(request, _timeout, proxy, handler);
-
   }
   else {
     http_client.reset(new iota::HttpClient(server, dest.getPort()));
@@ -577,7 +576,6 @@ std::string iota::OAuth::send_request(std::string endpoint,
     str_response = handler(http_client, response, http_client->get_error());
 
   }
-
   return str_response;
 }
 

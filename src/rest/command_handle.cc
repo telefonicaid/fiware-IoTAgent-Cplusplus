@@ -19,6 +19,8 @@
 * For those usages not covered by the GNU Affero General Public License
 * please contact with iot_support at tid dot es
 */
+
+#include "rest/process.h"
 #include "command_handle.h"
 
 #include <algorithm>
@@ -56,11 +58,6 @@
 #include <unistd.h>
 #include "util/device_collection.h"
 
-namespace iota {
-extern std::string URL_BASE;
-extern std::string logger;
-}
-extern iota::AdminService* AdminService_ptr;
 
 extern "C"  void* _begin_registrations(void* arg) {
 
@@ -87,7 +84,7 @@ boost::shared_ptr<iota::Command> command_from_mongo(
   return resu;
 }
 
-iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::logger)),
+iota::CommandHandle::CommandHandle():m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())),
   m_asyncCommands(iota::types::MAX_SIZE_CACHE, false) {
   IOTA_LOG_DEBUG(m_logger, "iota::CommandHandle::CommandHandle");
   m_asyncCommands.set_timeout_function(boost::bind(
@@ -1334,9 +1331,7 @@ int iota::CommandHandle::send(
   const boost::property_tree::ptree& service,
   std::string& cb_response) {
 
-  boost::shared_ptr<iota::ContextBrokerCommunicator> cb_comm(new
-      iota::ContextBrokerCommunicator());
-  cb_comm->start();
+  boost::shared_ptr<iota::ContextBrokerCommunicator> cb_comm(new iota::ContextBrokerCommunicator());
 
   std::string cb_url;
 
@@ -1739,8 +1734,9 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
   iota::RestHandle* ngsi_service = NULL;
   std::string url_ngsi_update;
   std::string url_ngsi_query;
+  iota::AdminService* AdminService_ptr = iota::Process::get_process().get_admin_service();
   if (AdminService_ptr != NULL) {
-    std::string ngsi_service_str(iota::URL_BASE);
+    std::string ngsi_service_str(iota::Process::get_url_base());
     ngsi_service_str.append("/");
     ngsi_service_str.append(iota::NGSI_SERVICE);
     ngsi_service = AdminService_ptr->get_service(ngsi_service_str);
@@ -1772,15 +1768,6 @@ void iota::CommandHandle::enable_ngsi_service(std::map<std::string, std::string>
 
     init_services_by_resource();
     // Obtaining ip and port from pion
-/*
-    boost::asio::ip::basic_endpoint<boost::asio::ip::tcp> my_endpoint =
-      AdminService_ptr->get_web_server()->get_endpoint();
-    boost::asio::ip::address pru_addr = my_endpoint.address();
-    std::string my_ip = pru_addr.to_string();
-    IOTA_LOG_DEBUG(m_logger, "admin service ip: " << my_ip);
-    unsigned short my_port =  my_endpoint.port();
-    IOTA_LOG_DEBUG(m_logger, "admin service  port: " << my_port);
-		*/
 
     std::string my_resource = url_ngsi_update;
     size_t pos = url_ngsi_update.find("/updateContext");

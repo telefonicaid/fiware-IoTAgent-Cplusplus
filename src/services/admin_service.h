@@ -36,7 +36,6 @@ namespace iota {        // begin namespace iota
 class AdminService :
   public iota::RestHandle {
   public:
-    AdminService(pion::http::plugin_server_ptr web_server);
     AdminService();
     virtual ~AdminService();
     virtual void start();
@@ -439,8 +438,6 @@ class AdminService :
 
     void set_log_file(std::string& log_file);
 
-
-
   protected:
     virtual std::string get_class_name();
     virtual std::string get_role(){ return ""; };
@@ -509,6 +506,7 @@ class AdminService :
 
     void deploy_device(Device& device);
     void undeploy_device( const boost::shared_ptr<Device> device);
+
     void register_iota_manager();
     void print_services();
 

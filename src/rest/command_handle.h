@@ -159,7 +159,8 @@ class CommandHandle :
                       const std::string& regId,
                       std::string& cb_response);
 
-    /**
+
+   /**
      * @name    send_unregister
      * @brief   send a register to Context Broker with 1 second expiration
      *
@@ -372,6 +373,7 @@ class CommandHandle :
     * @brief   set command interface to be asynchronous.
     */
     void set_async_commands();
+
 
     void set_myProvidingApp(const std::string &myapp){
       _myProvidingApp = myapp;

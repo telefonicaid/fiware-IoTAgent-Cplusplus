@@ -88,7 +88,7 @@ class BaseTest  {
                     "{\"apikey\": \"apikey3\","\"service\":\"service2\","\"service_path\":\"/ssrv2\"}");
      * @endcode
      */
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
+    /*void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
                       const std::string& type = "file",
                       const std::string& resource = "/iot/d",
                       const std::string& manager = "",
@@ -106,7 +106,7 @@ class BaseTest  {
     void check_last_equal(boost::shared_ptr<HttpMock>& cb_mock,
           const std::string& data,
           const std::string& message= "",
-          int wait =0);
+          int wait =0);*/
 
     /**
      * @name    create_random_service
