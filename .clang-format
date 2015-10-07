@@ -48,18 +48,6 @@ IndentWidth:     2
 TabWidth:        2
 UseTab:          Never
 BreakBeforeBraces: Attach 
-BraceWrapping:
-  AfterClass:      false
-  AfterControlStatement: false
-  AfterEnum:       false
-  AfterFunction:   true
-  AfterNamespace:  false
-  AfterObjCDeclaration: false
-  AfterStruct:     false
-  AfterUnion:      false
-  BeforeCatch:     false
-  BeforeElse:      false
-  IndentBraces:    false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 SpacesInAngles:  false
