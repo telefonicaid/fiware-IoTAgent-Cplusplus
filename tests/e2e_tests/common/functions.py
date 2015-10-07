@@ -125,7 +125,7 @@ class Functions(object):
                     json['services'][0]['protocol']= [prot]
             req =  iota_manager.update_service_with_params(json, service_name, service_path, {}, apikey)
         else:
-            req =  iotagent.update_service_with_params(json, service_name, service_path, resource, apikey)            
+            req =  iotagent.update_service_with_params(json, service_name, service_path, resource, apikey)
         if service_path == 'void':
             service_path='/'
         if attribute == 'apikey':
@@ -141,12 +141,12 @@ class Functions(object):
             world.remember[service_name][service_path]['resource'].setdefault(value, {})
             world.remember[service_name][service_path]['resource'][value].setdefault(world.apikey)
             print world.remember[service_name][service_path]['resource']
-        return req           
+        return req
 
     def get_service_created(self, service_name, service_path, resource={}, limit={}, offset={}, protocol={}, manager=False):
         if manager:
             req =  iota_manager.get_service_with_params(service_name, service_path, {}, limit, offset, protocol)
-            world.check_manager=True            
+            world.check_manager=True
         else:
             req =  iotagent.get_service_with_params(service_name, service_path, resource, limit, offset)
             world.check_manager=False
@@ -165,7 +165,7 @@ class Functions(object):
                     if attribute == 'protocol':
                         resource = URLTypes.get(value)
                     else:
-                        resource = value                    
+                        resource = value
                     assert response['resource'] != world.resource, 'NOT Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
                     assert response['resource'] == resource, 'Expected Result: ' + resource + '\nObtained Result: ' + response['resource']
                 else:
@@ -209,7 +209,7 @@ class Functions(object):
             if attribute == 'protocol':
                 resource = URLTypes.get(value)
             else:
-                resource = value                    
+                resource = value
             assert response['resource'] != resource, 'NOT Expected Result: ' + resource + '\nObtained Result: ' + response['resource']
         assert response['resource'] == world.resource, 'Expected Result: ' + world.resource + '\nObtained Result: ' + response['resource']
         if attribute == 'apikey':
@@ -261,7 +261,7 @@ class Functions(object):
                 if not "http://" in endpoint:
                     endpoint = CBROKER_URL + endpoint
         else:
-            endpoint =  CBROKER_URL+PATH_UL20_SIMULATOR      
+            endpoint =  CBROKER_URL+PATH_UL20_SIMULATOR
         if cmd_value:
             replaces = {
                 "#": "|"
@@ -320,12 +320,12 @@ class Functions(object):
             if not prot:
                 prot = protocol
         else:
-            prot = {}    
+            prot = {}
         world.prot=prot
         if manager:
             device = iota_manager.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
         else:
-            device = iotagent.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)            
+            device = iotagent.create_device(world.service_name, device_id, service_path, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
         if device.status_code == 201 or device.status_code == 409:
             if service_path=='void':
                 service_path2='/'
@@ -341,28 +341,28 @@ class Functions(object):
         if manager:
             req =  iota_manager.update_device_with_params(json, device_name, service_name, service_path, protocol)
         else:
-            req =  iotagent.update_device_with_params(json, device_name, service_name, service_path)            
+            req =  iotagent.update_device_with_params(json, device_name, service_name, service_path)
         if service_path == 'void':
             service_path='/'
         if (attribute == 'device_id') and (not fail):
             world.device_id=value
             world.remember[world.service_name][world.srv_path]['device'].remove(device_name)
-        return req           
+        return req
 
     def get_device_created(self, service_name, service_path, device_name, protocol={}, manager=False):
         if manager:
             req =  iota_manager.get_device_with_params(service_name, device_name, service_path, protocol)
-            world.check_manager=True            
+            world.check_manager=True
         else:
             req =  iotagent.get_device_with_params(service_name, device_name, service_path)
             world.check_manager=False
         world.req = req
         return req
-    
+
     def get_devices_created(self, service_name, service_path, entity={}, limit={}, offset={}, detailed={}, protocol={}, manager=False):
         if manager:
             req =  iota_manager.get_devices_with_params(service_name, service_path, protocol, entity, detailed, limit, offset)
-            world.check_manager=True            
+            world.check_manager=True
         else:
             req =  iotagent.get_devices_with_params(service_name, service_path, protocol, entity, detailed, limit, offset)
             world.check_manager=False
@@ -403,7 +403,7 @@ class Functions(object):
         if world.prot:
             assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
         self.check_attributes(attribute, value, response)
-    
+
     def check_devices_data(self, num_devices, data):
         entity_name={}
         entity_type={}
@@ -414,7 +414,7 @@ class Functions(object):
         if len(res['devices']) > 1:
             for i in data.split('/'):
                 if '#' in i:
-                    d = dict([i.split('#')]) 
+                    d = dict([i.split('#')])
                     device_name=str(d.items()[0][0])
                     attrs=str(d.items()[0][1])
                     if ':' in attrs:
@@ -457,7 +457,7 @@ class Functions(object):
         typeElement = contextElement['type']
         #print 'Dispositivo {}'.format(typeElement)
         for i in measures.split('#'):
-                d = dict([i.split(':')]) 
+                d = dict([i.split(':')])
                 measure_name=str(d.items()[0][0])
                 measure_value=str(d.items()[0][1])
                 metadata_value=""
@@ -526,7 +526,7 @@ class Functions(object):
         assert typeElement == ent_type, 'ERROR: ' + ent_type + ' type expected, ' + typeElement + ' received'
         print 'TYPE: ' + str(typeElement)
 
-    
+
     def check_command_cbroker(self, asset_name, status, response={}, entity_type={}):
         time.sleep(1)
         timeinstant=1
@@ -571,7 +571,7 @@ class Functions(object):
         nameTime = contextElement['attributes'][timeinstant]['name']
         assert nameTime == "TimeInstant", 'ERROR: ' + "TimeInstant" + ' name expected, ' + nameTime + ' received'
         assert self.check_timestamp(contextElement['attributes'][timeinstant]['value']), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][timeinstant])
-    
+
     def check_NOT_command_cbroker(self, asset_name, response, cmd_type):
         time.sleep(1)
         if cmd_type == "Status":
@@ -596,9 +596,17 @@ class Functions(object):
                 assert resp['statusCode']['reasonPhrase'] == str(world.response), 'ERROR: text error expected ' + str(world.response) + " received " + resp['statusCode']['reasonPhrase']
             else:
                 assert resp['statusCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['statusCode']['reasonPhrase']
-    
+
     def check_timestamp (self, timestamp):
-        st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
+       #st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
+        st = datetime.datetime.utcfromtimestamp(world.ts)
+        my_timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
+        diff_ts = st - my_timestamp
+        if abs(diff_ts.total_seconds()) < 10:
+            return True
+        else:
+            return False
+        '''
         if st in timestamp:
             return True
         else:
@@ -610,8 +618,9 @@ class Functions(object):
                 if st in timestamp:
                     return True
                 else:
-                    return False        
-    
+                    return False
+        '''
+
     def check_attribute (self, contextElement, name, typ, value):
         attr_matches=False
         for attr in contextElement['attributes']:
@@ -672,7 +681,7 @@ class Functions(object):
             if value1:
                 if value1=='void':
                     value1=""
-                st_attribute['value']=value1       
+                st_attribute['value']=value1
             world.st_attributes.append(st_attribute)
         if (service and (typ2=='srv_st_att')) | (not service and (typ2=='dev_st_att')):
             st_attribute={
@@ -716,7 +725,7 @@ class Functions(object):
             if attribute=='protocol':
                 resource=URLTypes.get(value)
                 if resource:
-                    self.update_service_with_params("resource", world.service_name, value, world.srv_path, resource, world.apikey)      
+                    self.update_service_with_params("resource", world.service_name, value, world.srv_path, resource, world.apikey)
                     value = ProtocolTypes.get(value)
                     world.prot=value
             if attribute=='empty_json':
@@ -726,7 +735,7 @@ class Functions(object):
                                 {
                                 }
                                 ]
-                                }                                
+                                }
                 else:
                     json = {}
             else:
@@ -743,13 +752,13 @@ class Functions(object):
                         attribute: value
                         }
         else:
-            d = dict([value.split('#')]) 
+            d = dict([value.split('#')])
             name=str(d.items()[0][0])
             attrs=str(d.items()[0][1])
             if ':' in attrs:
                 d2 = dict([attrs.split(':')])
                 type1=str(d2.items()[0][0])
-                value=str(d2.items()[0][1])       
+                value=str(d2.items()[0][1])
             if (attribute=='srv_attr') | (attribute=='dev_attr'):
                 attributes=[
                     {
@@ -808,13 +817,13 @@ class Functions(object):
             if world.entity_type:
                 assert response['entity_type'] == world.entity_type, 'Expected Result: ' + world.entity_type + '\nObtained Result: ' + response['entity_type']
         if ('att' in attribute ) | (attribute=='cmd'):
-            d = dict([value.split('#')]) 
+            d = dict([value.split('#')])
             name=str(d.items()[0][0])
             attrs=str(d.items()[0][1])
             if ':' in attrs:
                 d2 = dict([attrs.split(':')])
                 type1=str(d2.items()[0][0])
-                value=str(d2.items()[0][1])       
+                value=str(d2.items()[0][1])
         if 'attr' in attribute:
             print 'Compruebo atributo {} con valor {} y tipo {}'.format(name,value,type1)
             if attribute == world.typ1:
@@ -878,7 +887,7 @@ class Functions(object):
             assert response['commands'][0]['type'] == "command", 'Expected Result: command \nObtained Result: ' + response['commands'][0]['type']
             assert response['commands'][0]['value'] == value, 'Expected Result: ' + value + '\nObtained Result: ' + response['commands'][0]['value']
         if ((not attribute) or ((not 'att' in attribute) and (not attribute=='cmd'))) and (world.typ1):
-            print 'Compruebo campo {} con valor {} y tipo {}'.format(world.name1,world.value1,world.type1)           
+            print 'Compruebo campo {} con valor {} y tipo {}'.format(world.name1,world.value1,world.type1)
             if 'attr' in world.typ1:
                 assert response['attributes'][0]['name'] == world.name1, 'Expected Result: ' + world.name1 + '\nObtained Result: ' + response['attributes'][0]['name']
                 assert response['attributes'][0]['type'] == world.type1, 'Expected Result: ' + world.type1 + '\nObtained Result: ' + response['attributes'][0]['type']
@@ -895,7 +904,7 @@ class Functions(object):
                 assert response['commands'][0]['value'] == world.value1, 'Expected Result: ' + world.value1 + '\nObtained Result: ' + response['commands'][0]['value']
                 commands+=1
         if world.typ2:
-            print 'Compruebo campo {} con valor {} y tipo {}'.format(world.name2,world.value2,world.type2)           
+            print 'Compruebo campo {} con valor {} y tipo {}'.format(world.name2,world.value2,world.type2)
             if 'attr' in world.typ2:
                 assert response['attributes'][attributes]['name'] == world.name2, 'Expected Result: ' + world.name2 + '\nObtained Result: ' + response['attributes'][attributes]['name']
                 assert response['attributes'][attributes]['type'] == world.type2, 'Expected Result: ' + world.type2 + '\nObtained Result: ' + response['attributes'][attributes]['type']
@@ -919,7 +928,7 @@ class Functions(object):
                                 for device in dirty[srv][path]['device']:
                                     req_device = iotagent.delete_device_with_params(device,srv,path)
                                     if req_device.status_code == 204:
-                                        print 'Se ha borrado el device:{} del servicio:{} y path:{}'.format(device,srv,path) 
+                                        print 'Se ha borrado el device:{} del servicio:{} y path:{}'.format(device,srv,path)
                                     else:
                                         print 'No se ha podido borrar el device:{} del servicio:{} y path:{}'.format(device,srv,path)
                     else:
