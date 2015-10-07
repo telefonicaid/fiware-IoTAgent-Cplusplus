@@ -2208,12 +2208,13 @@ void  AdminTest::testSpaceURI() {
 
   //POST the service
   std::cout << "@UT@POST Service" << std::endl;
-  code_res = http_test("/iot/services", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/services", "POST", service, "", "application/json",
                        POST_SERVICE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == 201);
 
   std::cout << "@UT@GET The device does not exist" << std::endl;
-  code_res = http_test("/iot/devices/noexists", "GET", service, "",
+  code_res = http_test("/TestAdmin/devices/noexists", "GET", service, "",
                        "application/json", "", headers, query_string, response);
   boost::algorithm::trim(response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
@@ -2223,20 +2224,20 @@ void  AdminTest::testSpaceURI() {
     == 0);
 
   std::cout << "@UT@POST device" << std::endl;
-  code_res = http_test("/iot/devices", "POST", service, "", "application/json",
+  code_res = http_test("/TestAdmin/devices", "POST", service, "", "application/json",
                        POST_DEVICE_SPACE, headers, "", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT(code_res == POST_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/devices", "GET", service, "", "application/json", "",
+  code_res = http_test("/TestAdmin/devices", "GET", service, "", "application/json", "",
                        headers, "entity=ent%201", response);
   std::cout << "@UT@RESPONSE: " <<  code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE("Search by entity name ", code_res = 200);
   IOTASSERT(response.find("device_id") != std::string::npos);
 
   std::cout << "@UT@DELETE" << std::endl;
-  code_res = http_test("/iot/devices/dev%201", "DELETE", service, "",
+  code_res = http_test("/TestAdmin/devices/dev%201", "DELETE", service, "",
                        "application/json", "",
                        headers, "", response);
   std::cout << "@UT@RESPONSEDELETE: " <<  code_res << " " << response <<
@@ -2244,7 +2245,7 @@ void  AdminTest::testSpaceURI() {
   IOTASSERT(code_res == DELETE_RESPONSE_CODE);
 
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/iot/devices/dev%201", "GET", service, "",
+  code_res = http_test("/TestAdmin/devices/dev%201", "GET", service, "",
                        "application/json", "",
                        headers, query_string, response);
   boost::algorithm::trim(response);
@@ -2252,7 +2253,7 @@ void  AdminTest::testSpaceURI() {
   IOTASSERT(code_res == GET_RESPONSE_CODE_NOT_FOUND);
 
   std::cout << "@UT@DELETE Service" << std::endl;
-  code_res = http_test("/iot/services/" + service, "DELETE", service, "",
+  code_res = http_test("/TestAdmin/services/" + service, "DELETE", service, "",
                        "application/json", "",
                        headers, "", response);
   IOTASSERT(code_res == 400);
