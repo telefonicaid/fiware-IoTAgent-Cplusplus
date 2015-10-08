@@ -22,66 +22,58 @@
 #include "QueryContextWrapper.h"
 #include <rest/riot_conf.h>
 
-
 iota::esp::tt::QueryContextWrapper::QueryContextWrapper(
-  boost::property_tree::ptree* propTree) : m_logger(
-      PION_GET_LOGGER(iota::Process::get_logger_name())) {
-
+    boost::property_tree::ptree* propTree)
+    : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   this->pt_cb = propTree;
 
-  std::string  cbroker = propTree->get<std::string>("cbroker", "");
+  std::string cbroker = propTree->get<std::string>("cbroker", "");
 
   if (!cbroker.empty()) {
     cb_url.assign(cbroker);
-    std::string  queryContext = propTree->get<std::string>("queryContext", "");
+    std::string queryContext = propTree->get<std::string>("queryContext", "");
     if (!queryContext.empty()) {
       cb_url.append(queryContext);
-    }
-    else {
-      const iota::JsonValue& ngsi_urls = iota::Configurator::instance()->get("ngsi_url");
+    } else {
+      const iota::JsonValue& ngsi_urls =
+          iota::Configurator::instance()->get("ngsi_url");
       if (ngsi_urls.HasMember("queryContext")) {
         cb_url.append(ngsi_urls["queryContext"].GetString());
-      }
-      else {
+      } else {
         std::ostringstream what;
         what << "Not Found ";
         what << "[updateContext]";
         throw std::runtime_error(what.str());
       }
-
     }
-
-
   }
-  IOTA_LOG_DEBUG(m_logger,"QueryContextWrapper: CB URL formed: ["<< cb_url<<"]");
-
+  IOTA_LOG_DEBUG(m_logger, "QueryContextWrapper: CB URL formed: [" << cb_url
+                                                                   << "]");
 }
 
 iota::esp::tt::QueryContextWrapper::~QueryContextWrapper() {
-  //dtor
+  // dtor
 }
 
 ::iota::ContextResponses iota::esp::tt::QueryContextWrapper::queryContext(
-  ::iota::QueryContext& qc) {
+    ::iota::QueryContext& qc) {
   return doQueryContext(qc);
 }
 
-
 ::iota::ContextResponses iota::esp::tt::QueryContextWrapper::doQueryContext(
-  ::iota::QueryContext& qc) {
-
-
-  IOTA_LOG_DEBUG(m_logger,
-                 "doQueryContext: SENDING to Context Broker... ["<<qc.get_string()<<"]");
+    ::iota::QueryContext& qc) {
+  IOTA_LOG_DEBUG(m_logger, "doQueryContext: SENDING to Context Broker... ["
+                               << qc.get_string() << "]");
   cb_response.assign(cb_communicator.send(cb_url, qc.get_string(), *pt_cb));
 
   std::istringstream iss(cb_response);
 
-  IOTA_LOG_DEBUG(m_logger,"doQueryContext: SENDING to Context Broker...  DONE");
   IOTA_LOG_DEBUG(m_logger,
-                 "doQueryContext: Formatting response: [ "<<cb_response<<" ]");
+                 "doQueryContext: SENDING to Context Broker...  DONE");
+  IOTA_LOG_DEBUG(m_logger, "doQueryContext: Formatting response: [ "
+                               << cb_response << " ]");
 
   ::iota::ContextResponses responses(iss);
-  IOTA_LOG_DEBUG(m_logger,"doQueryContext: Formatting response: ...  DONE");
+  IOTA_LOG_DEBUG(m_logger, "doQueryContext: Formatting response: ...  DONE");
   return responses;
 }

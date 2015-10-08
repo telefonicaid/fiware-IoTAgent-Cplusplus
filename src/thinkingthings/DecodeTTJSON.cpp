@@ -27,8 +27,7 @@
 #include <stdexcept>
 #include <sstream>
 
-iota::esp::tt::DecodeTTJSON::DecodeTTJSON() {
-}
+iota::esp::tt::DecodeTTJSON::DecodeTTJSON() {}
 
 void iota::esp::tt::DecodeTTJSON::parse(std::string& strJSON) {
   plainJSON.assign("");
@@ -45,7 +44,6 @@ void iota::esp::tt::DecodeTTJSON::parse(std::string& strJSON) {
     what << document.GetErrorOffset();
     what << "]";
     throw std::runtime_error(what.str());
-
   }
 
   if (document.HasMember("processed") == false) {
@@ -54,15 +52,13 @@ void iota::esp::tt::DecodeTTJSON::parse(std::string& strJSON) {
     what << "missing field [";
     what << "processed]";
     throw std::runtime_error(what.str());
-  }
-  else {
+  } else {
     if (document["processed"].IsObject()) {
       rapidjson::StringBuffer sb;
       rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
-      document[ "processed" ].Accept(writer);
+      document["processed"].Accept(writer);
       processedJSON.assign(sb.GetString());
     }
-
   }
   if (document.HasMember("plain") == false) {
     std::ostringstream what;
@@ -70,29 +66,22 @@ void iota::esp::tt::DecodeTTJSON::parse(std::string& strJSON) {
     what << "missing field [";
     what << "plain]";
     throw std::runtime_error(what.str());
-  }
-  else {
+  } else {
     if (document["plain"].IsObject()) {
       rapidjson::StringBuffer sb;
       rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
-      document[ "plain" ].Accept(writer);
+      document["plain"].Accept(writer);
       plainJSON.assign(sb.GetString());
     }
-
   }
-
-
 }
 
 iota::esp::tt::DecodeTTJSON::~DecodeTTJSON() {
-  //dtor
+  // dtor
 }
 
 std::string iota::esp::tt::DecodeTTJSON::getProcessedJSON() {
   return processedJSON;
 }
 
-std::string iota::esp::tt::DecodeTTJSON::getPlainJSON() {
-  return plainJSON;
-}
-
+std::string iota::esp::tt::DecodeTTJSON::getPlainJSON() { return plainJSON; }

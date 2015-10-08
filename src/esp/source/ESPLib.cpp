@@ -26,16 +26,14 @@
 
 ESPLib::ESPLib() {
   idsensor = 0;
-  pthread_mutex_init(&mutexSensors,NULL);
+  pthread_mutex_init(&mutexSensors, NULL);
 }
 
-ESPLib::~ESPLib() {
-  pthread_mutex_destroy(&mutexSensors);
-}
-
+ESPLib::~ESPLib() { pthread_mutex_destroy(&mutexSensors); }
 
 int ESPLib::createSensor(std::string xmlFile) {
-  CC_Logger::getSingleton()->logDebug("Loading sensor File: %s",xmlFile.c_str());
+  CC_Logger::getSingleton()->logDebug("Loading sensor File: %s",
+                                      xmlFile.c_str());
 
   ESP_Sensor* sensor = new ESP_Sensor();
   sensor->registerDataCallback(NULL, ESPLib::sensorDataCallback);
@@ -43,23 +41,23 @@ int ESPLib::createSensor(std::string xmlFile) {
   bool ok = sensor->loadFromFile(xmlFile);
 
   CC_Logger::getSingleton()->logDebug("Loaded sensor File: %s status=%d",
-                                      xmlFile.c_str(),ok);
+                                      xmlFile.c_str(), ok);
 
   if (ok) {
-    pthread_mutex_init(&sensor->mutexMapServer,NULL);
-    pthread_mutex_init(&sensor->mutexMapClient,NULL);
+    pthread_mutex_init(&sensor->mutexMapServer, NULL);
+    pthread_mutex_init(&sensor->mutexMapClient, NULL);
 
-    CC_Logger::getSingleton()->logDebug("Acquiring lock previous sensor was:  id %d, stored sensors: %d",
-                                      idsensor, sensors.size());
+    CC_Logger::getSingleton()->logDebug(
+        "Acquiring lock previous sensor was:  id %d, stored sensors: %d",
+        idsensor, sensors.size());
     pthread_mutex_lock(&mutexSensors);
     int id = ++idsensor;
     sensor->_id = id;
-    sensors.insert(std::pair<int, ESP_Sensor*>(id,sensor));
+    sensors.insert(std::pair<int, ESP_Sensor*>(id, sensor));
     pthread_mutex_unlock(&mutexSensors);
 
     return id;
-  }
-  else {
+  } else {
     return -1;
   }
 }
@@ -68,19 +66,21 @@ bool ESPLib::destroySensor(int id) {
   pthread_mutex_lock(&mutexSensors);
   std::map<int, ESP_Sensor*>::iterator it = sensors.find(id);
 
-  CC_Logger::getSingleton()->logDebug("Destroying sensor [%d]",id);
+  CC_Logger::getSingleton()->logDebug("Destroying sensor [%d]", id);
   if (it != sensors.end()) {
-    //DGF: modify this also..
+    // DGF: modify this also..
     // Wait for all runners to stop
-    /*while (it->second->clientRunners.size() > 0 || it->second->serverRunners.size() > 0)
+    /*while (it->second->clientRunners.size() > 0 ||
+    it->second->serverRunners.size() > 0)
     {
         SLEEP(15);
     }
     */
-    //DGF: how do I know that servers and runners have stopped?
-    //using bFinished is an option.
+    // DGF: how do I know that servers and runners have stopped?
+    // using bFinished is an option.
 
-    //DGF: 02022015: removing this because the destructor of the sensor will take care of this.
+    // DGF: 02022015: removing this because the destructor of the sensor will
+    // take care of this.
     /* if (it->second->clientRunners.size() >0) {
        it->second->clientRunners.clear();
      }
@@ -100,15 +100,13 @@ bool ESPLib::destroySensor(int id) {
   }
   pthread_mutex_unlock(&mutexSensors);
   return true;
-
 }
 
-bool ESPLib::setParams(int id, std::map<std::string,std::string> params) {
-
+bool ESPLib::setParams(int id, std::map<std::string, std::string> params) {
   return false;
 }
 
-bool ESPLib::setUserData(int id, std::map<std::string,void*> userData) {
+bool ESPLib::setUserData(int id, std::map<std::string, void*> userData) {
   pthread_mutex_lock(&mutexSensors);
   std::map<int, ESP_Sensor*>::iterator it = sensors.find(id);
   pthread_mutex_unlock(&mutexSensors);
@@ -125,7 +123,7 @@ bool ESPLib::startSensor(int id, std::string command) {
   pthread_mutex_unlock(&mutexSensors);
 
   if (it != sensors.end()) {
-    sensors[id]->run(command, std::map<std::string,std::string>());
+    sensors[id]->run(command, std::map<std::string, std::string>());
     return true;
   }
   return false;
@@ -143,7 +141,8 @@ bool ESPLib::stopSensor(int id) {
 }
 
 ESP_Result ESPLib::executeRunner(ESP_Sensor* sensor, std::string command,
-                                 std::map<std::string,std::string> params, ESP_Input_Base* input, int inputid) {
+                                 std::map<std::string, std::string> params,
+                                 ESP_Input_Base* input, int inputid) {
   ESP_Result result;
   ESP_Runner_Client* runner = new ESP_Runner_Client(sensor);
 
@@ -156,20 +155,22 @@ ESP_Result ESPLib::executeRunner(ESP_Sensor* sensor, std::string command,
     runner->runOnce = true;
     result = ESP_Runner_Client::runLoop(runner);
     /*
-    for (std::map<std::string, ESP_Attribute>::iterator it = mapResult.begin(); it != mapResult.end(); it++)
+    for (std::map<std::string, ESP_Attribute>::iterator it = mapResult.begin();
+    it != mapResult.end(); it++)
     {
         result.push_back(it->second);
     }
     */
   }
-  //DGF:
+  // DGF:
   delete runner;
 
   return result;
 }
 
-ESP_Result ESPLib::executeRunnerFromBuffer(int id, std::string command,
-    std::map<std::string,std::string> params, char* buffer, int length) {
+ESP_Result ESPLib::executeRunnerFromBuffer(
+    int id, std::string command, std::map<std::string, std::string> params,
+    char* buffer, int length) {
   ESP_Result result;
   pthread_mutex_lock(&mutexSensors);
   std::map<int, ESP_Sensor*>::iterator it = sensors.find(id);
@@ -178,7 +179,7 @@ ESP_Result ESPLib::executeRunnerFromBuffer(int id, std::string command,
   if (it != sensors.end()) {
     ESP_Input_Buffer* input = new ESP_Input_Buffer();
     int inputid = input->openClient();
-    input->createInputData(buffer,length);
+    input->createInputData(buffer, length);
     result = executeRunner(it->second, command, params, input, inputid);
     delete input;
   }
@@ -186,22 +187,25 @@ ESP_Result ESPLib::executeRunnerFromBuffer(int id, std::string command,
   return result;
 }
 
-ESP_Result ESPLib::executeRunnerFromInput(int id, std::string command,
-    std::map<std::string,std::string> params, ESP_Input_Base* baseinput) {
+ESP_Result ESPLib::executeRunnerFromInput(
+    int id, std::string command, std::map<std::string, std::string> params,
+    ESP_Input_Base* baseinput) {
   ESP_Result result;
   pthread_mutex_lock(&mutexSensors);
   std::map<int, ESP_Sensor*>::iterator it = sensors.find(id);
   pthread_mutex_unlock(&mutexSensors);
 
   if (it != sensors.end() && baseinput != NULL) {
-    result = executeRunner(it->second, command, params, baseinput, baseinput->_sid);
+    result =
+        executeRunner(it->second, command, params, baseinput, baseinput->_sid);
   }
 
   return result;
 }
 
-ESP_Result ESPLib::executeRunnerFromRunner(int id, std::string command,
-    std::map<std::string,std::string> params, ESP_Runner* baserunner) {
+ESP_Result ESPLib::executeRunnerFromRunner(
+    int id, std::string command, std::map<std::string, std::string> params,
+    ESP_Runner* baserunner) {
   ESP_Result result;
   pthread_mutex_lock(&mutexSensors);
   std::map<int, ESP_Sensor*>::iterator it = sensors.find(id);
@@ -210,7 +214,7 @@ ESP_Result ESPLib::executeRunnerFromRunner(int id, std::string command,
   if (it != sensors.end()) {
     ESP_Input_Base* input = baserunner->input;
     int inputid =
-      baserunner->_id; // Ignore id to open new connection (SHOULD BE -1)
+        baserunner->_id;  // Ignore id to open new connection (SHOULD BE -1)
     result = executeRunner(it->second, command, params, input, inputid);
   }
 
@@ -218,23 +222,24 @@ ESP_Result ESPLib::executeRunnerFromRunner(int id, std::string command,
 }
 
 void ESPLib::registerDataCallback(int id, void* userData,
-                                  void (*cb)(void* userData, const char* buffer, int nread)) {
-
+                                  void (*cb)(void* userData, const char* buffer,
+                                             int nread)) {
   pthread_mutex_lock(&mutexSensors);
   std::map<int, ESP_Sensor*>::iterator it = sensors.find(id);
   pthread_mutex_unlock(&mutexSensors);
 
   if (it != sensors.end()) {
-    it->second->registerDataCallback(userData,cb);
+    it->second->registerDataCallback(userData, cb);
   }
 }
 
 void ESPLib::registerResultCallback(int id, void* userData,
-                                    void (*cb)(void* userData, ESP_Runner* runner)) {
+                                    void (*cb)(void* userData,
+                                               ESP_Runner* runner)) {
   std::map<int, ESP_Sensor*>::iterator it = sensors.find(id);
 
   if (it != sensors.end()) {
-    it->second->registerResultCallback(userData,cb);
+    it->second->registerResultCallback(userData, cb);
   }
 }
 
@@ -244,11 +249,13 @@ void ESPLib::sensorDataCallback(void* userData, const char* buffer, int nread) {
 
 void ESPLib::sensorResultCallback(void* userData, ESP_Runner* runner) {
   // Printf
-  //system("cls");
+  // system("cls");
   for (std::vector<CC_AttributesType>::iterator it =
-         runner->context.results.begin(); it != runner->context.results.end(); it++)
-    for (CC_AttributesType::iterator it2 = it->begin(); it2 != it->end(); it2++) {
-      printf("Sensor Data: %s=%s\n",it2->second.getName().c_str(),
+           runner->context.results.begin();
+       it != runner->context.results.end(); it++)
+    for (CC_AttributesType::iterator it2 = it->begin(); it2 != it->end();
+         it2++) {
+      printf("Sensor Data: %s=%s\n", it2->second.getName().c_str(),
              it2->second.getValueAsString().c_str());
     }
 }

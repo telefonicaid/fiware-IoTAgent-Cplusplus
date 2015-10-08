@@ -23,15 +23,12 @@
 #include "ESP_XmlUtils.h"
 #include "CC_Logger.h"
 
-
 ESP_Plugin_Output_IoT* ESP_Plugin_Output_IoT::instance = NULL;
 
 /* ---------------------- */
 /* PLUGIN Output FILE      */
 /* ---------------------- */
-ESP_Plugin_Output_IoT::ESP_Plugin_Output_IoT() {
-  id = 0;
-}
+ESP_Plugin_Output_IoT::ESP_Plugin_Output_IoT() { id = 0; }
 
 ESP_Plugin_Output_Base* ESP_Plugin_Output_IoT::getSingleton() {
   if (ESP_Plugin_Output_IoT::instance == NULL) {
@@ -63,82 +60,81 @@ ESP_Output_Base* ESP_Plugin_Output_IoT::createOutput(TiXmlElement* element) {
   return result;
 }
 
-
 // --------------- //
 // OUTPUT FILE
 // --------------- //
 void ESP_Output_IoT::parseCustomElement(TiXmlElement* element) {
   this->_name = ESP_XmlUtils::queryStringValue(element, "name");
 
-  this->apikeyAttribute = ESP_XmlUtils::queryStringValue(element, IOT_APIKEY_REF);
-  this->idDeviceAttribute = ESP_XmlUtils::queryStringValue(element,
-                            IOT_DEVICE_REF);
-
+  this->apikeyAttribute =
+      ESP_XmlUtils::queryStringValue(element, IOT_APIKEY_REF);
+  this->idDeviceAttribute =
+      ESP_XmlUtils::queryStringValue(element, IOT_DEVICE_REF);
 
   this->typeAttribute = ESP_XmlUtils::queryStringValue(element, IOT_TYPE_REF);
 
-  CC_Logger::getSingleton()->logDebug("IoT Output Plugin, parsingCustomElement");
+  CC_Logger::getSingleton()->logDebug(
+      "IoT Output Plugin, parsingCustomElement");
 }
 
 #ifdef USE_MQTT
 bool ESP_Output_IoT::execute(CC_AttributesType* attributes,
-                             ESP_Postprocessor_Base* postprocessor, std::map<std::string, void*> userData) {
+                             ESP_Postprocessor_Base* postprocessor,
+                             std::map<std::string, void*> userData) {
   CC_Logger::getSingleton()->logDebug("IoT Output Plugin: Execute");
 
   std::string apikey;
   std::string payload;
   std::string idDevice;
   std::string type;
-  ESP_Attribute* apikeyattr = ESP_Attribute::searchAttributeRefByName(attributes,
-                              apikeyAttribute);
-  ESP_Attribute* idDeviceAttr = ESP_Attribute::searchAttributeRefByName(
-                                  attributes, idDeviceAttribute);
+  ESP_Attribute* apikeyattr =
+      ESP_Attribute::searchAttributeRefByName(attributes, apikeyAttribute);
+  ESP_Attribute* idDeviceAttr =
+      ESP_Attribute::searchAttributeRefByName(attributes, idDeviceAttribute);
 
-  ESP_Attribute* type_attr = ESP_Attribute::searchAttributeRefByName(attributes,
-                             typeAttribute);
-
+  ESP_Attribute* type_attr =
+      ESP_Attribute::searchAttributeRefByName(attributes, typeAttribute);
 
   if (apikeyattr != NULL) {
     apikey = apikeyattr->getValueAsString();
-  }
-  else {
-    CC_Logger::getSingleton()->logError("FATAL: apikey not found in received message.NO VALID OUTPUT WILL BE GENERATED. (Is the config file correct?) ");
+  } else {
+    CC_Logger::getSingleton()->logError(
+        "FATAL: apikey not found in received message.NO VALID OUTPUT WILL BE "
+        "GENERATED. (Is the config file correct?) ");
   }
   if (idDeviceAttr != NULL) {
     idDevice = idDeviceAttr->getValueAsString();
-  }
-  else {
-    CC_Logger::getSingleton()->logError("FATAL: sensorID not found in received message.NO VALID OUTPUT WILL BE GENERATED. (Is the config file correct?) ");
+  } else {
+    CC_Logger::getSingleton()->logError(
+        "FATAL: sensorID not found in received message.NO VALID OUTPUT WILL BE "
+        "GENERATED. (Is the config file correct?) ");
   }
 
   if (type_attr != NULL) {
     type = type_attr->getValueAsString();
   }
 
-
-  //Check if it's a command request from the device.
+  // Check if it's a command request from the device.
 
   std::map<std::string, void*>::iterator it =
-    userData.find("contextBrokerPublisher");
+      userData.find("contextBrokerPublisher");
 
   if (it != userData.end()) {
     CC_Logger::getSingleton()->logDebug("Output IoT: IotMqttService found");
 
-    //Now we can send data to it.
-    iota::esp::ngsi::IotaMqttService* iota_publisher = (iota::esp::ngsi::IotaMqttService*)
-        it->second;
+    // Now we can send data to it.
+    iota::esp::ngsi::IotaMqttService* iota_publisher =
+        (iota::esp::ngsi::IotaMqttService*)it->second;
 
     if (postprocessor->isResultValid()) {
       payload = std::string(postprocessor->getResultData());
-      CC_Logger::getSingleton()->logDebug("Output IoT: calling IotMqttService [%s] [%s] [%s] [%s]",
-                                        apikey.c_str(), idDevice.c_str(), type.c_str(), payload.c_str());
+      CC_Logger::getSingleton()->logDebug(
+          "Output IoT: calling IotMqttService [%s] [%s] [%s] [%s]",
+          apikey.c_str(), idDevice.c_str(), type.c_str(), payload.c_str());
       iota_publisher->handle_mqtt_message(apikey, idDevice, payload, type);
       return true;
     }
-
-
   }
   return false;
-
 }
 #endif

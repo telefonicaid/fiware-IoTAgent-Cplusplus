@@ -34,8 +34,8 @@ ESP_Plugin_Postprocessor_Text* ESP_Plugin_Postprocessor_Text::instance = NULL;
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 ESP_Postprocessor_Base* ESP_Plugin_Postprocessor_Text::createPostprocessor(
-  TiXmlElement* element) {
-  std::string type = ESP_XmlUtils::queryStringValue(element,"type");
+    TiXmlElement* element) {
+  std::string type = ESP_XmlUtils::queryStringValue(element, "type");
 
   if (type == "text") {
     return new ESP_Postprocessor_Text();
@@ -45,18 +45,15 @@ ESP_Postprocessor_Base* ESP_Plugin_Postprocessor_Text::createPostprocessor(
 
 ESP_Plugin_Postprocessor_Text* ESP_Plugin_Postprocessor_Text::getSingleton() {
   if (ESP_Plugin_Postprocessor_Text::instance == NULL) {
-    ESP_Plugin_Postprocessor_Text::instance = new ESP_Plugin_Postprocessor_Text();
+    ESP_Plugin_Postprocessor_Text::instance =
+        new ESP_Plugin_Postprocessor_Text();
   }
   return ESP_Plugin_Postprocessor_Text::instance;
 }
 
-ESP_Postprocessor_Text::ESP_Postprocessor_Text() {
+ESP_Postprocessor_Text::ESP_Postprocessor_Text() {}
 
-}
-
-bool ESP_Postprocessor_Text::initialize() {
-  return true;
-}
+bool ESP_Postprocessor_Text::initialize() { return true; }
 
 bool ESP_Postprocessor_Text::execute(CC_AttributesType* attributes) {
   result.clear();
@@ -70,27 +67,14 @@ bool ESP_Postprocessor_Text::execute(CC_AttributesType* attributes) {
   return true;
 }
 
-bool ESP_Postprocessor_Text::terminate() {
-  return true;
-}
+bool ESP_Postprocessor_Text::terminate() { return true; }
 
-void ESP_Postprocessor_Text::parseCustomElement(TiXmlElement* element) {
-}
+void ESP_Postprocessor_Text::parseCustomElement(TiXmlElement* element) {}
 
-const char* ESP_Postprocessor_Text::getResultData() {
-  return result.c_str();
-}
+const char* ESP_Postprocessor_Text::getResultData() { return result.c_str(); }
 
-int ESP_Postprocessor_Text::getResultSize() {
-  return result.length();
-}
+int ESP_Postprocessor_Text::getResultSize() { return result.length(); }
 
-bool ESP_Postprocessor_Text::isResultValid() {
+bool ESP_Postprocessor_Text::isResultValid() { return result.length() > 0; }
 
-  return result.length() > 0;
-}
-
-ESP_Postprocessor_Text::~ESP_Postprocessor_Text() {
-
-}
-
+ESP_Postprocessor_Text::~ESP_Postprocessor_Text() {}
