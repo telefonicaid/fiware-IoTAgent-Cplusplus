@@ -22,7 +22,6 @@
 #ifndef SRC_REST_OAUTH_FILTER_H_
 #define SRC_REST_OAUTH_FILTER_H_
 
-
 #include "http_filter.h"
 #include "util/oauth_comm.h"
 #include "util/access_control.h"
@@ -30,56 +29,55 @@
 
 namespace iota {
 
-class OAuthFilter: public virtual iota::HTTPFilter {
+class OAuthFilter : public virtual iota::HTTPFilter {
+ public:
+  OAuthFilter(boost::asio::io_service& io_service);
+  virtual ~OAuthFilter();
+  void set_configuration(std::map<std::string, std::string>& oauth_conf);
+  void set_pep_rules(std::multimap<std::string, iota::PepRule>& pep_rules);
+  virtual bool handle_request(pion::http::request_ptr& http_request_ptr,
+                              pion::tcp::connection_ptr& tcp_conn);
+  void set_authorization_validate(std::string validate_url);
+  void set_authorization_roles(std::string roles_url);
+  void set_authorization_projects(std::string projects_url);
+  void set_access_control_endpoint(std::string endpoint);
+  void set_filter_url_base(std::string filter_url_base);
+  void set_pep_user_information(std::string domain, std::string user,
+                                std::string password);
+  void authorize(pion::http::request_ptr& http_request_ptr,
+                 pion::tcp::connection_ptr& tcp_conn,
+                 boost::shared_ptr<iota::OAuth> oauth_comm);
+  void access_control(pion::http::request_ptr& http_request_ptr,
+                      pion::tcp::connection_ptr& tcp_conn,
+                      boost::shared_ptr<iota::AccessControl> ac,
+                      bool authorized);
+  std::string get_action(std::string verb, std::string uri);
 
-  public:
-    OAuthFilter(boost::asio::io_service& io_service);
-    virtual ~OAuthFilter();
-    void set_configuration(std::map<std::string, std::string>& oauth_conf);
-    void set_pep_rules(std::multimap<std::string, iota::PepRule>& pep_rules);
-    virtual bool handle_request(pion::http::request_ptr& http_request_ptr,
-                                pion::tcp::connection_ptr& tcp_conn);
-    void set_authorization_validate(std::string validate_url);
-    void set_authorization_roles(std::string roles_url);
-    void set_authorization_projects(std::string projects_url);
-    void set_access_control_endpoint(std::string endpoint);
-    void set_filter_url_base(std::string filter_url_base);
-    void set_pep_user_information(std::string domain, std::string user,
-                                  std::string password);
-    void authorize(pion::http::request_ptr& http_request_ptr,
-                   pion::tcp::connection_ptr& tcp_conn,
-                   boost::shared_ptr<iota::OAuth> oauth_comm);
-    void access_control(pion::http::request_ptr& http_request_ptr,
-                        pion::tcp::connection_ptr& tcp_conn,
-                        boost::shared_ptr<iota::AccessControl> ac,
-                        bool authorized);
-    std::string get_action(std::string verb, std::string uri);
-
-  protected:
-  private:
-    std::string _auth_endpoint_validate;
-    std::string _auth_endpoint_roles;
-    std::string _auth_endpoint_projects;
-    std::string _ac_endpoint;
-    std::string _user;
-    std::string _password;
-    std::string _domain;
-    int _timeout;
-    std::multimap<std::string, std::string> _pep_rules;
-    std::multimap<std::string, std::string> _uri_actions;
-    std::string _filter_url;
-    std::map<std::string, boost::shared_ptr<iota::OAuth> > _connections;
-    std::map<std::string, boost::shared_ptr<iota::AccessControl> > _connections_ac;
-    boost::mutex _m;
-    void add_connection(boost::shared_ptr<iota::OAuth> connection);
-    void remove_connection(boost::shared_ptr<iota::OAuth> connection);
-    void add_connection_ac(std::string id,
-                           boost::shared_ptr<iota::AccessControl> connection);
-    void remove_connection_ac(std::string id);
-    std::string get_resource(std::string service, std::string subservice,
-                             std::string path);
-    std::string get_relative_resource(std::string resource);
-
+ protected:
+ private:
+  std::string _auth_endpoint_validate;
+  std::string _auth_endpoint_roles;
+  std::string _auth_endpoint_projects;
+  std::string _ac_endpoint;
+  std::string _user;
+  std::string _password;
+  std::string _domain;
+  int _timeout;
+  std::multimap<std::string, std::string> _pep_rules;
+  std::multimap<std::string, std::string> _uri_actions;
+  std::string _filter_url;
+  std::map<std::string, boost::shared_ptr<iota::OAuth> > _connections;
+  std::map<std::string, boost::shared_ptr<iota::AccessControl> >
+      _connections_ac;
+  boost::mutex _m;
+  void add_connection(boost::shared_ptr<iota::OAuth> connection);
+  void remove_connection(boost::shared_ptr<iota::OAuth> connection);
+  void add_connection_ac(std::string id,
+                         boost::shared_ptr<iota::AccessControl> connection);
+  void remove_connection_ac(std::string id);
+  std::string get_resource(std::string service, std::string subservice,
+                           std::string path);
+  std::string get_relative_resource(std::string resource);
 };
 }
 #endif

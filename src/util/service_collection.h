@@ -31,39 +31,33 @@
 namespace iota {
 
 class ServiceCollection : public Collection {
-  public:
+ public:
+  ServiceCollection();
 
-    ServiceCollection();
+  ServiceCollection(ServiceCollection&);
 
-    ServiceCollection(ServiceCollection&);
+  ~ServiceCollection();
 
-    ~ServiceCollection();
+  int createTableAndIndex();
 
-    int createTableAndIndex();
+  static void addServicePath(const std::string& service_path,
+                             mongo::BSONObjBuilder& obj);
 
-    static void addServicePath(const std::string & service_path,
-                        mongo::BSONObjBuilder &obj );
+  virtual void getElementsFromBSON(mongo::BSONObj& obj,
+                                   std::vector<mongo::BSONObj>& result);
 
-    virtual void getElementsFromBSON(mongo::BSONObj &obj,
-                           std::vector<mongo::BSONObj>& result);
+  virtual int fill_all_resources(const std::string& service,
+                                 const std::string& service_path,
+                                 std::vector<std::string>& resources);
 
-    virtual int fill_all_resources(const std::string& service,
-                                   const std::string& service_path,
-                                   std::vector<std::string>& resources);
+  virtual const std::string& get_resource_name();
 
-    virtual const std::string & get_resource_name();
+ protected:
+  // TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
 
-  protected:
+ private:
+};  // end class ServiceCollection
 
-
-    //TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
-
-  private:
-
-}; // end class ServiceCollection
-
-}// end namespace  riot
+}  // end namespace  riot
 
 #endif
-
-

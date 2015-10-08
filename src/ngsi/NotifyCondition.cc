@@ -26,11 +26,11 @@
 #include <rapidjson/document.h>
 #include <stdexcept>
 
-iota::NotifyCondition::NotifyCondition(const std::istringstream&
-                                       str_condition) {
+iota::NotifyCondition::NotifyCondition(
+    const std::istringstream& str_condition) {
   rapidjson::Document document;
   char buffer[str_condition.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_condition.str().c_str());
   if (document.Parse<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -40,7 +40,6 @@ iota::NotifyCondition::NotifyCondition(const std::istringstream&
     what << document.GetErrorOffset();
     what << "]";
     throw std::runtime_error(what.str());
-
   }
   if (!document.HasMember(iota::ngsi::NGSI_TYPE.c_str()) ||
       !document[iota::ngsi::NGSI_TYPE.c_str()].IsString() ||
@@ -55,20 +54,17 @@ iota::NotifyCondition::NotifyCondition(const std::istringstream&
   }
   _type.assign(document[iota::ngsi::NGSI_TYPE.c_str()].GetString());
 
-  const rapidjson::Value& values = document[iota::ngsi::NGSI_CONDVALUES.c_str()];
+  const rapidjson::Value& values =
+      document[iota::ngsi::NGSI_CONDVALUES.c_str()];
 
   for (rapidjson::SizeType i = 0; i < values.Size(); i++) {
     std::string value(values[i].GetString());
     add_value(value);
   }
-
-
 }
 
 iota::NotifyCondition::NotifyCondition(const rapidjson::Value& ncond) {
-
-  if (!ncond.IsObject() ||
-      !ncond.HasMember(iota::ngsi::NGSI_TYPE.c_str()) ||
+  if (!ncond.IsObject() || !ncond.HasMember(iota::ngsi::NGSI_TYPE.c_str()) ||
       !ncond[iota::ngsi::NGSI_TYPE.c_str()].IsString() ||
       !ncond.HasMember(iota::ngsi::NGSI_CONDVALUES.c_str()) ||
       !ncond[iota::ngsi::NGSI_CONDVALUES.c_str()].IsArray()) {
@@ -87,8 +83,6 @@ iota::NotifyCondition::NotifyCondition(const rapidjson::Value& ncond) {
     std::string value(values[i].GetString());
     add_value(value);
   }
-
-
 };
 std::string iota::NotifyCondition::get_string() {
   rapidjson::StringBuffer buffer;
@@ -100,5 +94,3 @@ std::string iota::NotifyCondition::get_string() {
 void iota::NotifyCondition::add_value(const std::string& value) {
   _values.push_back(value);
 }
-
-

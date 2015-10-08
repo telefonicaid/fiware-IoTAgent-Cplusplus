@@ -51,5 +51,4 @@ const std::string ngsi::NGSI_SUBSCRIBERESPONSE("subscribeResponse");
 const std::string ngsi::NGSI_SUBSCRIPTIONID("subscriptionId");
 const std::string ngsi::NGSI_UPDATEACTION("updateAction");
 const std::string ngsi::NGSI_CONTEXTELEMENTS("contextElements");
-
 }

@@ -30,18 +30,16 @@
 #include "services/admin_service.h"
 #include "mongo/client/init.h"
 
-
 int main(int argc, char* argv[]) {
-
   mongo::client::initialize();
 
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(MongoTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
 
-  //mongo::client::terminate();
+  // mongo::client::terminate();
 
   return s ? 0 : 1;
 }

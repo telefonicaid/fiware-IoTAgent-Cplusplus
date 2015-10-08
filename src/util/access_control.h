@@ -28,53 +28,49 @@
 #include <boost/property_tree/ptree.hpp>
 #include <string>
 
-namespace iota  {
-class AccessControl: public boost::enable_shared_from_this<AccessControl> {
-  public:
-    typedef boost::function<void (boost::shared_ptr<AccessControl>, bool)>
-    app_callback_t;
-    AccessControl();
-    AccessControl(std::string endpoint, int timeout,
-                  boost::asio::io_service& io_service);
-    virtual ~AccessControl();
-    void set_timeout(int timeout);
-    int get_timeout();
-    void set_endpoint_ac(std::string endpoint_ac);
-    std::string get_endpoint_ac();
-    bool authorize(std::vector<std::string> roles, std::string resource,
-                   std::string action,
-                   boost::property_tree::ptree additional_info,
-                   app_callback_t callback = app_callback_t());
+namespace iota {
+class AccessControl : public boost::enable_shared_from_this<AccessControl> {
+ public:
+  typedef boost::function<void(boost::shared_ptr<AccessControl>, bool)>
+      app_callback_t;
+  AccessControl();
+  AccessControl(std::string endpoint, int timeout,
+                boost::asio::io_service& io_service);
+  virtual ~AccessControl();
+  void set_timeout(int timeout);
+  int get_timeout();
+  void set_endpoint_ac(std::string endpoint_ac);
+  std::string get_endpoint_ac();
+  bool authorize(std::vector<std::string> roles, std::string resource,
+                 std::string action,
+                 boost::property_tree::ptree additional_info,
+                 app_callback_t callback = app_callback_t());
 
-    void receive_event(
-      boost::shared_ptr<iota::HttpClient> connection,
-      pion::http::response_ptr response,
-      const boost::system::error_code& error);
+  void receive_event(boost::shared_ptr<iota::HttpClient> connection,
+                     pion::http::response_ptr response,
+                     const boost::system::error_code& error);
 
-    void set_identifier(std::string id) {
-      _id = id;
-    };
+  void set_identifier(std::string id) { _id = id; };
 
-    std::string get_identifier() {
-      return _id;
-    };
-  protected:
-  private:
-    std::string _endpoint_ac;
-    int _timeout;
-    pion::logger m_logger;
-    boost::mutex _m;
-    app_callback_t _application_callback;
-    boost::asio::io_service& _io_service;
-    std::string _id;
+  std::string get_identifier() { return _id; };
 
-    pion::http::request_ptr create_request(std::string server, std::string resource,
-                                           std::string content, std::string query,
-                                           boost::property_tree::ptree additional_info);
+ protected:
+ private:
+  std::string _endpoint_ac;
+  int _timeout;
+  pion::logger m_logger;
+  boost::mutex _m;
+  app_callback_t _application_callback;
+  boost::asio::io_service& _io_service;
+  std::string _id;
 
-    std::string create_xml_access_control(std::vector<std::string>& roles,
-                                          std::string& resource_id,
-                                          std::string& action);
+  pion::http::request_ptr create_request(
+      std::string server, std::string resource, std::string content,
+      std::string query, boost::property_tree::ptree additional_info);
+
+  std::string create_xml_access_control(std::vector<std::string>& roles,
+                                        std::string& resource_id,
+                                        std::string& action);
 };
 };
 #endif

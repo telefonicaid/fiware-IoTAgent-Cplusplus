@@ -26,49 +26,43 @@
 #include <stdlib.h>
 
 class ESP_Plugin_Postprocessor_UL20 : public ESP_Plugin_Postprocessor_Base {
+ private:
+  static ESP_Plugin_Postprocessor_UL20* instance;
+  ESP_Plugin_Postprocessor_UL20();
 
-  private:
-    static  ESP_Plugin_Postprocessor_UL20* instance;
-    ESP_Plugin_Postprocessor_UL20();
-  public:
+ public:
+  virtual ~ESP_Plugin_Postprocessor_UL20(){};
 
-    virtual ~ESP_Plugin_Postprocessor_UL20() {};
+  ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
 
-
-    ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
-
-    static ESP_Plugin_Postprocessor_UL20* getSingleton();
+  static ESP_Plugin_Postprocessor_UL20* getSingleton();
 };
-
-
 
 class ESP_Postprocessor_UL20 : public ESP_Postprocessor_Base {
-  public:
-    static std::string TYPE;
+ public:
+  static std::string TYPE;
 
-    std::string result;
-    std::string measure;
-    std::string alias;
-    bool resultValid;
-    bool bypass;
-    std::string topicRef;
-    std::string topicValue;
+  std::string result;
+  std::string measure;
+  std::string alias;
+  bool resultValid;
+  bool bypass;
+  std::string topicRef;
+  std::string topicValue;
 
-    ESP_Postprocessor_UL20();
-    virtual ~ESP_Postprocessor_UL20() {};
+  ESP_Postprocessor_UL20();
+  virtual ~ESP_Postprocessor_UL20(){};
 
-    // Methods
-    const char* getResultData();
-    int getResultSize();
-    bool isResultValid();
+  // Methods
+  const char* getResultData();
+  int getResultSize();
+  bool isResultValid();
 
-    bool initialize();
-    bool execute(CC_AttributesType* result);
-    bool terminate();
+  bool initialize();
+  bool execute(CC_AttributesType* result);
+  bool terminate();
 
-    void parseCustomElement(TiXmlElement* element);
-
-
+  void parseCustomElement(TiXmlElement* element);
 };
 
-#endif // ESP_PLUGIN_POSTPROCESSOR_UL20_H
+#endif  // ESP_PLUGIN_POSTPROCESSOR_UL20_H

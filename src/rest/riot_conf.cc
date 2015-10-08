@@ -37,12 +37,12 @@
 #include <rapidjson/filestream.h>
 #include <rapidjson/prettywriter.h>
 
+iota::Configurator* iota::Configurator::pinstance =
+    0;  // Inicializar el puntero
 
-iota::Configurator* iota::Configurator::pinstance = 0;// Inicializar el puntero
-
-iota::Configurator::Configurator():
-  m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
-  _error= "error, no config file was initializated";
+iota::Configurator::Configurator()
+    : m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
+  _error = "error, no config file was initializated";
   http_message = createMessagesMap();
 }
 
@@ -50,13 +50,9 @@ std::string iota::Configurator::getHttpMessage(const unsigned int resource) {
   return http_message[resource];
 }
 
-std::string iota::Configurator::getError() {
-  return _error;
-}
+std::string iota::Configurator::getError() { return _error; }
 
-bool iota::Configurator::hasError() {
-  return !_error.empty();
-}
+bool iota::Configurator::hasError() { return !_error.empty(); }
 
 void iota::Configurator::release() {
   if (pinstance != 0) {
@@ -65,27 +61,17 @@ void iota::Configurator::release() {
   }
 }
 
-int iota::Configurator::get_listen_port() {
-  return listen_port;
-}
+int iota::Configurator::get_listen_port() { return listen_port; }
 
-void iota::Configurator::set_listen_port(int p) {
-  listen_port = p;
-}
+void iota::Configurator::set_listen_port(int p) { listen_port = p; }
 
-std::string iota::Configurator::get_listen_ip() {
-  return listen_ip;
-}
+std::string iota::Configurator::get_listen_ip() { return listen_ip; }
 
-void iota::Configurator::set_listen_ip(std::string ip) {
-  listen_ip = ip;
-}
+void iota::Configurator::set_listen_ip(std::string ip) { listen_ip = ip; }
 
-std::string iota::Configurator::get_iotagent_name(){
-  return iotagent_name;
-}
+std::string iota::Configurator::get_iotagent_name() { return iotagent_name; }
 
-void iota::Configurator::set_iotagent_name(std::string name){
+void iota::Configurator::set_iotagent_name(std::string name) {
   iotagent_name = name;
 }
 
@@ -93,19 +79,19 @@ std::string iota::Configurator::get_iotagent_identifier() {
   if (iotagent_identifier.empty()) {
     try {
       const iota::JsonValue& iot_id = iota::Configurator::instance()->get(
-                                         iota::store::types::IOTAGENT_ID.c_str());
+          iota::store::types::IOTAGENT_ID.c_str());
       if (iot_id.IsString()) {
         iotagent_identifier.assign(iot_id.GetString());
       }
-    }
-    catch (std::exception& e) {
-      IOTA_LOG_ERROR(m_log, "error reading iotagent identifier in config.json " << e.what());
+    } catch (std::exception& e) {
+      IOTA_LOG_ERROR(m_log, "error reading iotagent identifier in config.json "
+                                << e.what());
     }
   }
   return iotagent_identifier;
 }
 
-void iota::Configurator::set_iotagent_identifier(std::string id){
+void iota::Configurator::set_iotagent_identifier(std::string id) {
   iotagent_identifier = id;
 }
 
@@ -126,8 +112,7 @@ std::string iota::Configurator::read_file(std::stringstream& _is) {
     what << tmp_doc.GetErrorOffset();
     what << "]";
     _error = what.str();
-  }
-  else {
+  } else {
     _error = check_configuration_json(tmp_doc);
     _document.SetNull();
     // Building document
@@ -141,47 +126,44 @@ std::string iota::Configurator::read_file(std::stringstream& _is) {
 }
 
 void iota::Configurator::reload() {
-  std::ifstream f;;
+  std::ifstream f;
+  ;
   f.open(_filename.c_str(), std::ios::binary);
   if (f.good()) {
     f.rdbuf();
     std::stringstream ss;
     ss << f.rdbuf();
     read_file(ss);
-  }
-  else {
+  } else {
     IOTA_LOG_ERROR(m_log, "does not exists " << _filename);
   }
   f.close();
 }
 
 std::string iota::Configurator::update_conf(std::stringstream& is) {
-
-  IOTA_LOG_INFO(m_log, "Updating configuration " << _filename << " " << is.str());
+  IOTA_LOG_INFO(m_log, "Updating configuration " << _filename << " "
+                                                 << is.str());
   boost::mutex::scoped_lock lock(m_mutex);
   std::string resp_read_file;
   try {
     resp_read_file = read_file(is);
     if (resp_read_file.empty()) {
       write();
-    }
-    else {
+    } else {
       reload();
     }
 
-  }
-  catch (std::exception& e) {
+  } catch (std::exception& e) {
     IOTA_LOG_ERROR(m_log, e.what());
-    std::ifstream f;;
+    std::ifstream f;
+    ;
     f.open(_filename.c_str(), std::ios::binary);
     if (f.good()) {
       f.rdbuf();
       std::stringstream ss;
       ss << f.rdbuf();
       read_file(ss);
-    }
-    else {
-
+    } else {
       IOTA_LOG_INFO(m_log, "File error " << _filename);
     }
     f.close();
@@ -196,12 +178,12 @@ iota::Configurator* iota::Configurator::instance() {
   return pinstance;
 }
 
-iota::Configurator* iota::Configurator::initialize(const std::string&
-    filename) {
-
+iota::Configurator* iota::Configurator::initialize(
+    const std::string& filename) {
   // Check if configuration file exists.
   if (!boost::filesystem::exists(filename)) {
-    //IOTA_LOG_ERROR(m_log, "Configuration file " +  filename + "does not exist");
+    // IOTA_LOG_ERROR(m_log, "Configuration file " +  filename + "does not
+    // exist");
     return NULL;
   }
   iota::Configurator* my_instance = instance();
@@ -219,8 +201,7 @@ void iota::Configurator::init() {
     std::stringstream ss;
     ss << f.rdbuf();
     read_file(ss);
-  }
-  else {
+  } else {
     _error = "File does not exists: ";
     _error.append(_filename.c_str());
     IOTA_LOG_ERROR(m_log, _error);
@@ -229,11 +210,11 @@ void iota::Configurator::init() {
 }
 
 const iota::JsonValue& iota::Configurator::getServicebyApiKey(
-  const std::string& resource,
-  const std::string& apiKey) {
+    const std::string& resource, const std::string& apiKey) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
-  std::map<std::string, boost::shared_ptr<iota::Configurator::Resource> >::iterator
-  it_r = _resources.begin();
+  std::map<std::string,
+           boost::shared_ptr<iota::Configurator::Resource> >::iterator it_r =
+      _resources.begin();
   it_r = _resources.find(resource);
 
   if (it_r != _resources.end()) {
@@ -247,17 +228,17 @@ const iota::JsonValue& iota::Configurator::getServicebyApiKey(
   text_error.append(",");
   text_error.append(apiKey);
   text_error.append("]");
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
-                            iota::types::RESPONSE_CODE_NO_SERVICE);
-
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                            text_error, iota::types::RESPONSE_CODE_NO_SERVICE);
 }
 
-const iota::JsonValue& iota::Configurator::getService(const std::string&
-    resource,
-    const std::string& service, const std::string& service_path) {
+const iota::JsonValue& iota::Configurator::getService(
+    const std::string& resource, const std::string& service,
+    const std::string& service_path) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
-  std::map<std::string, boost::shared_ptr<iota::Configurator::Resource> >::iterator
-  it_r = _resources.begin();
+  std::map<std::string,
+           boost::shared_ptr<iota::Configurator::Resource> >::iterator it_r =
+      _resources.begin();
   it_r = _resources.find(resource);
 
   if (it_r != _resources.end()) {
@@ -271,16 +252,17 @@ const iota::JsonValue& iota::Configurator::getService(const std::string&
   text_error.append(",");
   text_error.append(service);
   text_error.append("]");
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
-                            iota::types::RESPONSE_CODE_NO_SERVICE);
-
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                            text_error, iota::types::RESPONSE_CODE_NO_SERVICE);
 }
 
 void iota::Configurator::getAllServicePath(const std::string& resource,
-    const std::string& service, std::vector<std::string>& vsrvpath) {
+                                           const std::string& service,
+                                           std::vector<std::string>& vsrvpath) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
-  std::map<std::string, boost::shared_ptr<iota::Configurator::Resource> >::iterator
-  it_r = _resources.begin();
+  std::map<std::string,
+           boost::shared_ptr<iota::Configurator::Resource> >::iterator it_r =
+      _resources.begin();
   it_r = _resources.find(resource);
 
   if (it_r != _resources.end()) {
@@ -295,19 +277,16 @@ void iota::Configurator::getAllServicePath(const std::string& resource,
   what << ",";
   what << service;
   what << "]";
-  //throw std::runtime_error(what.str());
-  throw iota::IotaException(iota::types::CONF_FILE_SERVICE_PATH,
-                            what.str(), iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
-
-
+  // throw std::runtime_error(what.str());
+  throw iota::IotaException(iota::types::CONF_FILE_SERVICE_PATH, what.str(),
+                            iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
 }
 
-
 std::string iota::Configurator::getResource(const std::string& resource) {
-
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
-  std::map<std::string, boost::shared_ptr<iota::Configurator::Resource> >::iterator
-  it_r = _resources.begin();
+  std::map<std::string,
+           boost::shared_ptr<iota::Configurator::Resource> >::iterator it_r =
+      _resources.begin();
   it_r = _resources.find(resource);
 
   if (it_r != _resources.end()) {
@@ -319,18 +298,16 @@ std::string iota::Configurator::getResource(const std::string& resource) {
   text_error.append("[");
   text_error.append(resource);
   text_error.append("]");
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
-                            iota::types::RESPONSE_CODE_NO_SERVICE);
-
-
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                            text_error, iota::types::RESPONSE_CODE_NO_SERVICE);
 }
 
-const iota::JsonValue& iota::Configurator::getResourceObject(const std::string&
-    resource) {
-
+const iota::JsonValue& iota::Configurator::getResourceObject(
+    const std::string& resource) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
-  std::map<std::string, boost::shared_ptr<iota::Configurator::Resource> >::iterator
-  it_r = _resources.begin();
+  std::map<std::string,
+           boost::shared_ptr<iota::Configurator::Resource> >::iterator it_r =
+      _resources.begin();
   it_r = _resources.find(resource);
 
   if (it_r != _resources.end()) {
@@ -342,9 +319,8 @@ const iota::JsonValue& iota::Configurator::getResourceObject(const std::string&
   text_error.append("[");
   text_error.append(resource);
   text_error.append("]");
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
-                            iota::types::RESPONSE_CODE_NO_SERVICE);
-
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                            text_error, iota::types::RESPONSE_CODE_NO_SERVICE);
 }
 
 void iota::Configurator::add_resource(std::string resource_name,
@@ -359,11 +335,14 @@ void iota::Configurator::add_resource(std::string resource_name,
   }
   if (!(*d).HasMember(iota::types::CONF_FILE_RESOURCE.c_str())) {
     iota::JsonValue v;
-    v.SetString(resource_name.c_str(), resource_name.size(), (*d).GetAllocator());
-    (*d).AddMember(iota::types::CONF_FILE_RESOURCE.c_str(), v, (*d).GetAllocator());
+    v.SetString(resource_name.c_str(), resource_name.size(),
+                (*d).GetAllocator());
+    (*d).AddMember(iota::types::CONF_FILE_RESOURCE.c_str(), v,
+                   (*d).GetAllocator());
   }
 
-  boost::shared_ptr<iota::Configurator::Resource> res = check_resource(d, error);
+  boost::shared_ptr<iota::Configurator::Resource> res =
+      check_resource(d, error);
 
   if (error.empty() == true) {
     remove_resource(resource_name);
@@ -371,9 +350,7 @@ void iota::Configurator::add_resource(std::string resource_name,
     _document.SetNull();
     std::stringstream ss(getAll());
     update_conf(ss);
-
   }
-
 }
 
 void iota::Configurator::remove_resource(std::string resource_name) {
@@ -386,12 +363,11 @@ void iota::Configurator::add_resource(boost::shared_ptr<Resource> resource) {
   const iota::JsonValue& rn = resource->get(iota::types::CONF_FILE_RESOURCE);
   std::string resource_name(rn.GetString());
   _resources.insert(
-    std::pair<std::string, boost::shared_ptr<iota::Configurator::Resource> >
-    (resource_name, resource));
+      std::pair<std::string, boost::shared_ptr<iota::Configurator::Resource> >(
+          resource_name, resource));
 }
 
 std::string iota::Configurator::getAll() {
-
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
   if (!_document.IsNull()) {
     rapidjson::StringBuffer buffer_doc;
@@ -416,13 +392,13 @@ std::string iota::Configurator::getAll() {
       v.SetString(itr1->name.GetString(), itr1->name.GetStringLength(),
                   _document.GetAllocator());
       _document.AddMember(v, itr1->value, _document.GetAllocator());
-
     }
   }
   // Resources
   iota::JsonValue res_array(rapidjson::kArrayType);
-  std::map<std::string, boost::shared_ptr<iota::Configurator::Resource> >::iterator
-  it = _resources.begin();
+  std::map<std::string,
+           boost::shared_ptr<iota::Configurator::Resource> >::iterator it =
+      _resources.begin();
   while (it != _resources.end()) {
     JsonDocument dr;
     dr.SetObject();
@@ -431,41 +407,36 @@ std::string iota::Configurator::getAll() {
     object.SetObject();
     for (iota::JsonValue::MemberIterator itr2 = dr.MemberBegin();
          itr2 != dr.MemberEnd(); itr2++) {
-
       iota::JsonValue v(rapidjson::kObjectType);
       v.SetString(itr2->name.GetString(), itr2->name.GetStringLength(),
                   _document.GetAllocator());
       object.AddMember(v, itr2->value, _document.GetAllocator());
-
     }
 
     res_array.PushBack(object, _document.GetAllocator());
     ++it;
-
   }
 
   _document.AddMember(iota::types::CONF_FILE_RESOURCES.c_str(), res_array,
                       _document.GetAllocator());
 
-
   rapidjson::StringBuffer buffer;
   rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
   _document.Accept(writer);
   return buffer.GetString();
-
 }
 
 const iota::JsonValue& iota::Configurator::get(const std::string& field) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
 
-  if ((_root_fields.get() != NULL) && (*_root_fields).IsObject()
-      && (*_root_fields).HasMember(field.c_str())) {
+  if ((_root_fields.get() != NULL) && (*_root_fields).IsObject() &&
+      (*_root_fields).HasMember(field.c_str())) {
     return (*_root_fields)[field.c_str()];
   }
 
   // Resources
-  if ((field.compare(iota::types::CONF_FILE_RESOURCES) == 0)
-      && _document.HasMember(iota::types::CONF_FILE_RESOURCES.c_str())) {
+  if ((field.compare(iota::types::CONF_FILE_RESOURCES) == 0) &&
+      _document.HasMember(iota::types::CONF_FILE_RESOURCES.c_str())) {
     return _document[iota::types::CONF_FILE_RESOURCES.c_str()];
   }
 
@@ -481,8 +452,8 @@ void iota::Configurator::get(const std::string& field,
                              std::map<std::string, std::string>& to_map) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
 
-  if ((_root_fields.get() != NULL) && (*_root_fields).IsObject()
-      && (*_root_fields).HasMember(field.c_str())) {
+  if ((_root_fields.get() != NULL) && (*_root_fields).IsObject() &&
+      (*_root_fields).HasMember(field.c_str())) {
     return get_map_from_rapidjson((*_root_fields)[field.c_str()], to_map);
   }
 
@@ -505,16 +476,13 @@ void iota::Configurator::write() {
 }
 
 std::string iota::Configurator::check_configuration_json(
-  JsonDocument& config_doc) {
+    JsonDocument& config_doc) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
   std::string error;
 
   if (!config_doc.IsObject()) {
     error.assign(iota::types::CONF_FILE_ERROR + " [No JSON object]");
-  }
-  else {
-
-
+  } else {
     // First-level fields
     boost::shared_ptr<JsonDocument> first_level_fields_d(new JsonDocument());
     first_level_fields_d->SetObject();
@@ -525,47 +493,43 @@ std::string iota::Configurator::check_configuration_json(
         iota::JsonValue v;
         v.SetString(itr1->name.GetString(), itr1->name.GetStringLength(),
                     (*first_level_fields_d).GetAllocator());
-        (*first_level_fields_d).AddMember(v, itr1->value,
-                                          (*first_level_fields_d).GetAllocator());
+        (*first_level_fields_d)
+            .AddMember(v, itr1->value, (*first_level_fields_d).GetAllocator());
       }
     }
     _root_fields = first_level_fields_d;
 
     if (!config_doc.HasMember(iota::types::CONF_FILE_RESOURCES.c_str()) ||
         !config_doc[iota::types::CONF_FILE_RESOURCES.c_str()].IsArray()) {
-      error.assign(iota::types::CONF_FILE_ERROR + " [resources is not a JSON array]");
+      error.assign(iota::types::CONF_FILE_ERROR +
+                   " [resources is not a JSON array]");
       return error;
     }
 
     iota::JsonValue& resources =
-      config_doc[iota::types::CONF_FILE_RESOURCES.c_str()];
+        config_doc[iota::types::CONF_FILE_RESOURCES.c_str()];
     for (rapidjson::SizeType i = 0; i < resources.Size(); i++) {
-
       // Check resource field
       if (!resources[i].IsObject()) {
-
-        error.assign(iota::types::CONF_FILE_ERROR + " [resource is not a JSON object]");
-      }
-      else {
-
+        error.assign(iota::types::CONF_FILE_ERROR +
+                     " [resource is not a JSON object]");
+      } else {
         boost::shared_ptr<JsonDocument> resource_d(new JsonDocument());
         resource_d->SetObject();
         rapidjson::StringBuffer b_resource;
         rapidjson::PrettyWriter<rapidjson::StringBuffer> w_resource(b_resource);
         resources[i].Accept(w_resource);
         if ((*resource_d).Parse<0>(b_resource.GetString()).HasParseError()) {
-          error.assign(iota::types::CONF_FILE_ERROR + " [" + (*resource_d).GetParseError()
-                       + "]");
+          error.assign(iota::types::CONF_FILE_ERROR + " [" +
+                       (*resource_d).GetParseError() + "]");
 
-        }
-        else {
+        } else {
           std::string local_error;
-          boost::shared_ptr<iota::Configurator::Resource> res = check_resource(resource_d,
-              local_error);
+          boost::shared_ptr<iota::Configurator::Resource> res =
+              check_resource(resource_d, local_error);
           if (local_error.empty() == true) {
             add_resource(res);
-          }
-          else {
+          } else {
             error = local_error;
           }
         }
@@ -576,22 +540,31 @@ std::string iota::Configurator::check_configuration_json(
     if ((*_root_fields).HasMember(iota::types::CONF_FILE_PEP_RULES.c_str()) &&
         (*_root_fields)[iota::types::CONF_FILE_PEP_RULES.c_str()].IsArray()) {
       const iota::JsonValue& pep_rules =
-        (*_root_fields)[iota::types::CONF_FILE_PEP_RULES.c_str()];
+          (*_root_fields)[iota::types::CONF_FILE_PEP_RULES.c_str()];
       for (rapidjson::SizeType i = 0; i < pep_rules.Size(); i++) {
-        if (pep_rules[i].HasMember(iota::types::CONF_FILE_PEP_RULES_ACTION.c_str()) &&
-            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_ACTION.c_str()].IsString() &&
-            pep_rules[i].HasMember(iota::types::CONF_FILE_PEP_RULES_VERB.c_str()) &&
-            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_VERB.c_str()].IsString() &&
-            pep_rules[i].HasMember(iota::types::CONF_FILE_PEP_RULES_URI.c_str()) &&
-            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_URI.c_str()].IsString()) {
+        if (pep_rules[i].HasMember(
+                iota::types::CONF_FILE_PEP_RULES_ACTION.c_str()) &&
+            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_ACTION.c_str()]
+                .IsString() &&
+            pep_rules[i].HasMember(
+                iota::types::CONF_FILE_PEP_RULES_VERB.c_str()) &&
+            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_VERB.c_str()]
+                .IsString() &&
+            pep_rules[i].HasMember(
+                iota::types::CONF_FILE_PEP_RULES_URI.c_str()) &&
+            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_URI.c_str()]
+                .IsString()) {
           std::string action =
-            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_ACTION.c_str()].GetString();
+              pep_rules[i][iota::types::CONF_FILE_PEP_RULES_ACTION.c_str()]
+                  .GetString();
           iota::PepRule rule;
           rule.verb =
-            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_VERB.c_str()].GetString();
-          rule.uri =
-            pep_rules[i][iota::types::CONF_FILE_PEP_RULES_URI.c_str()].GetString();
-          _pep_rules.insert(std::pair<std::string, iota::PepRule>(action, rule));
+              pep_rules[i][iota::types::CONF_FILE_PEP_RULES_VERB.c_str()]
+                  .GetString();
+          rule.uri = pep_rules[i][iota::types::CONF_FILE_PEP_RULES_URI.c_str()]
+                         .GetString();
+          _pep_rules.insert(
+              std::pair<std::string, iota::PepRule>(action, rule));
           std::string r(rule.uri);
           r += rule.verb;
           r += action;
@@ -607,13 +580,11 @@ boost::shared_ptr<iota::Configurator::Resource>
 iota::Configurator::check_resource(boost::shared_ptr<JsonDocument> resource_obj,
                                    std::string& error) {
   boost::shared_ptr<iota::Configurator::Resource> resource(
-    new iota::Configurator::Resource());
+      new iota::Configurator::Resource());
 
   if (!(*resource_obj).HasMember(iota::types::CONF_FILE_RESOURCE.c_str())) {
     error.assign(iota::types::CONF_FILE_ERROR + " [resource field not found]");
-  }
-  else {
-
+  } else {
     // First-level fields
     boost::shared_ptr<JsonDocument> first_level_fields_d(new JsonDocument());
     first_level_fields_d->SetObject();
@@ -624,8 +595,8 @@ iota::Configurator::check_resource(boost::shared_ptr<JsonDocument> resource_obj,
         iota::JsonValue v(rapidjson::kObjectType);
         v.SetString(itr1->name.GetString(), itr1->name.GetStringLength(),
                     (*first_level_fields_d).GetAllocator());
-        (*first_level_fields_d).AddMember(v, itr1->value,
-                                          (*first_level_fields_d).GetAllocator());
+        (*first_level_fields_d)
+            .AddMember(v, itr1->value, (*first_level_fields_d).GetAllocator());
       }
     }
     resource->add_fields(first_level_fields_d);
@@ -634,28 +605,24 @@ iota::Configurator::check_resource(boost::shared_ptr<JsonDocument> resource_obj,
     if ((*resource_obj).HasMember(iota::types::CONF_FILE_SERVICES.c_str()) &&
         (*resource_obj)[iota::types::CONF_FILE_SERVICES.c_str()].IsArray()) {
       iota::JsonValue& services =
-        (*resource_obj)[iota::types::CONF_FILE_SERVICES.c_str()];
+          (*resource_obj)[iota::types::CONF_FILE_SERVICES.c_str()];
       for (rapidjson::SizeType i = 0; i < services.Size(); i++) {
-
         boost::shared_ptr<JsonDocument> service_d(new JsonDocument());
         service_d->SetObject();
         rapidjson::StringBuffer b_service;
         rapidjson::PrettyWriter<rapidjson::StringBuffer> w_service(b_service);
         services[i].Accept(w_service);
 
-
         if ((*service_d).Parse<0>(b_service.GetString()).HasParseError()) {
-          error.assign(iota::types::CONF_FILE_ERROR + " [" + (*service_d).GetParseError()
-                       + "]");
-        }
-        else {
+          error.assign(iota::types::CONF_FILE_ERROR + " [" +
+                       (*service_d).GetParseError() + "]");
+        } else {
           std::string local_error;
           check_service(service_d, local_error);
 
           if (local_error.empty() == true) {
             resource->add_service(service_d);
-          }
-          else {
+          } else {
             error = local_error;
           }
         }
@@ -665,14 +632,13 @@ iota::Configurator::check_resource(boost::shared_ptr<JsonDocument> resource_obj,
   return resource;
 }
 
-void iota::Configurator::check_service(boost::shared_ptr<JsonDocument>
-                                       service_obj, std::string& error) {
-
+void iota::Configurator::check_service(
+    boost::shared_ptr<JsonDocument> service_obj, std::string& error) {
   // Apikey defined (even "")
   if (!(*service_obj).HasMember(iota::types::CONF_FILE_APIKEY.c_str()) ||
       !(*service_obj)[iota::types::CONF_FILE_APIKEY.c_str()].IsString()) {
-    error.assign(iota::types::CONF_FILE_ERROR + " [" + iota::types::CONF_FILE_APIKEY
-                 + "]");
+    error.assign(iota::types::CONF_FILE_ERROR + " [" +
+                 iota::types::CONF_FILE_APIKEY + "]");
     return;
   }
   if (!(*service_obj).HasMember(iota::types::CONF_FILE_SERVICE.c_str()) ||
@@ -702,17 +668,16 @@ void iota::Configurator::check_service(boost::shared_ptr<JsonDocument>
   }
   if (!(*service_obj).HasMember(iota::types::CONF_FILE_TOKEN.c_str()) ||
       !(*service_obj)[iota::types::CONF_FILE_TOKEN.c_str()].IsString()) {
-    error.assign(iota::types::CONF_FILE_ERROR + " [" + iota::types::CONF_FILE_TOKEN
-                 + "]");
+    error.assign(iota::types::CONF_FILE_ERROR + " [" +
+                 iota::types::CONF_FILE_TOKEN + "]");
     return;
   }
-
 }
 
 const iota::JsonValue& iota::Configurator::Resource::get(
-  const std::string& field) {
-  if ((_root_fields.get() != NULL)
-      && (*_root_fields).HasMember(field.c_str())) {
+    const std::string& field) {
+  if ((_root_fields.get() != NULL) &&
+      (*_root_fields).HasMember(field.c_str())) {
     return (*_root_fields)[field.c_str()];
   }
   std::string text_error;
@@ -724,24 +689,22 @@ const iota::JsonValue& iota::Configurator::Resource::get(
                             text_error,
                             iota::types::RESPONSE_CODE_DATA_NOT_FOUND);
 }
-void iota::Configurator::Resource::add_service(boost::shared_ptr<JsonDocument>
-    service) {
-
-  std::string name((
-                     *service)[iota::types::CONF_FILE_SERVICE.c_str()].GetString());
+void iota::Configurator::Resource::add_service(
+    boost::shared_ptr<JsonDocument> service) {
+  std::string name(
+      (*service)[iota::types::CONF_FILE_SERVICE.c_str()].GetString());
   name.append(":");
-  name.append((
-                *service)[iota::types::CONF_FILE_SERVICE_PATH.c_str()].GetString());
+  name.append(
+      (*service)[iota::types::CONF_FILE_SERVICE_PATH.c_str()].GetString());
 
-  _services.insert(std::pair<std::string, boost::shared_ptr<JsonDocument> >(name,
-                   service));
+  _services.insert(
+      std::pair<std::string, boost::shared_ptr<JsonDocument> >(name, service));
 }
 
 const iota::JsonValue& iota::Configurator::Resource::get_service_by_apikey(
-  const std::string& apikey) {
-
+    const std::string& apikey) {
   std::map<std::string, boost::shared_ptr<JsonDocument> >::iterator it =
-    _services.begin();
+      _services.begin();
   while (it != _services.end()) {
     boost::shared_ptr<JsonDocument> d = it->second;
     if ((*d).HasMember(iota::types::CONF_FILE_APIKEY.c_str()) &&
@@ -759,29 +722,27 @@ const iota::JsonValue& iota::Configurator::Resource::get_service_by_apikey(
   text_error.append("[");
   text_error.append(apikey);
   text_error.append("]");
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
-                            iota::types::RESPONSE_CODE_NO_SERVICE);
-
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                            text_error, iota::types::RESPONSE_CODE_NO_SERVICE);
 }
 
 /** return all service paths fron service
   */
 void iota::Configurator::Resource::get_all_servicepath(
-  const std::string& service, std::vector<std::string>& vsrvpath) {
-
+    const std::string& service, std::vector<std::string>& vsrvpath) {
   std::map<std::string, boost::shared_ptr<JsonDocument> >::iterator iter;
 
   std::string key;
   std::string strCompa = service;
   strCompa.append(":");
-  std::string service_path ;
+  std::string service_path;
 
   for (iter = _services.begin(); iter != _services.end(); ++iter) {
     key = iter->first;
     if (boost::starts_with(key, strCompa)) {
-
       boost::shared_ptr<JsonDocument> my_srv = iter->second;
-      service_path = (*my_srv)[iota::store::types::SERVICE_PATH.c_str()].GetString();
+      service_path =
+          (*my_srv)[iota::store::types::SERVICE_PATH.c_str()].GetString();
       vsrvpath.push_back(service_path);
     }
   }
@@ -794,11 +755,10 @@ void iota::Configurator::Resource::get_all_servicepath(
   * if there is no, error
   */
 const iota::JsonValue& iota::Configurator::Resource::get_service(
-  const std::string& service) {
-
+    const std::string& service) {
   std::map<std::string, boost::shared_ptr<JsonDocument> >::iterator iter;
   std::map<std::string, boost::shared_ptr<JsonDocument> >::iterator found =
-    _services.end();
+      _services.end();
 
   std::string key;
   std::string strCompa = service;
@@ -807,22 +767,20 @@ const iota::JsonValue& iota::Configurator::Resource::get_service(
   for (iter = _services.begin(); iter != _services.end(); ++iter) {
     key = iter->first;
     if (boost::starts_with(key, strCompa)) {
-      if (found !=  _services.end()) {
+      if (found != _services.end()) {
         std::string text_error;
         text_error.append("Service : more than one");
         text_error.append(" ");
         text_error.append(service);
         text_error.append(" ");
-        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_MORE_ONE_SERVICE,
-                                  text_error,
-                                  iota::types::RESPONSE_CODE_MORE_ONE_SERVICE);
-      }
-      else {
+        throw iota::IotaException(
+            iota::types::RESPONSE_MESSAGE_MORE_ONE_SERVICE, text_error,
+            iota::types::RESPONSE_CODE_MORE_ONE_SERVICE);
+      } else {
         found = iter;
       }
     }
   }
-
 
   if (found != _services.end()) {
     return *(found->second);
@@ -834,16 +792,14 @@ const iota::JsonValue& iota::Configurator::Resource::get_service(
   text_error.append(" ");
   text_error.append("/#");
   text_error.append(" ");
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
-                            iota::types::RESPONSE_CODE_NO_SERVICE);
-
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                            text_error, iota::types::RESPONSE_CODE_NO_SERVICE);
 }
 
 const iota::JsonValue& iota::Configurator::Resource::get_service(
-  const std::string& service, const std::string& service_path) {
-
+    const std::string& service, const std::string& service_path) {
   if (service_path.empty()) {
-    return  get_service(service);
+    return get_service(service);
   }
 
   std::string name = service;
@@ -862,12 +818,11 @@ const iota::JsonValue& iota::Configurator::Resource::get_service(
   text_error.append(" service_path:");
   text_error.append(service_path);
   text_error.append("]");
-  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE, text_error,
-                            iota::types::RESPONSE_CODE_NO_SERVICE);
+  throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
+                            text_error, iota::types::RESPONSE_CODE_NO_SERVICE);
 }
 
 const iota::JsonValue& iota::Configurator::Resource::get_value() {
-
   // If already built
   if (!_doc.IsNull()) {
     return _doc;
@@ -894,7 +849,7 @@ const iota::JsonValue& iota::Configurator::Resource::get_value() {
 
   // Services
   std::map<std::string, boost::shared_ptr<JsonDocument> >::iterator it =
-    _services.begin();
+      _services.begin();
   iota::JsonValue va(rapidjson::kArrayType);
   while (it != _services.end()) {
     rapidjson::StringBuffer b_service;
@@ -922,8 +877,8 @@ const iota::JsonValue& iota::Configurator::Resource::get_value() {
   return _doc;
 }
 
-void iota::Configurator::Resource::add_fields(boost::shared_ptr<JsonDocument>
-    fl_fields) {
+void iota::Configurator::Resource::add_fields(
+    boost::shared_ptr<JsonDocument> fl_fields) {
   _root_fields = fl_fields;
 }
 
@@ -933,7 +888,6 @@ std::string iota::Configurator::Resource::get_string() {
   rapidjson::PrettyWriter<rapidjson::StringBuffer> w_resource(b_resource);
   v.Accept(w_resource);
   return b_resource.GetString();
-
 }
 
 std::multimap<std::string, iota::PepRule>& iota::Configurator::get_pep_rules() {
@@ -943,40 +897,33 @@ std::multimap<std::string, iota::PepRule>& iota::Configurator::get_pep_rules() {
 std::map<unsigned int, std::string> iota::Configurator::createMessagesMap() {
   std::map<unsigned int, std::string> messages;
   messages[pion::http::types::RESPONSE_CODE_OK] =
-    pion::http::types::RESPONSE_MESSAGE_OK;
+      pion::http::types::RESPONSE_MESSAGE_OK;
   messages[pion::http::types::RESPONSE_CODE_CREATED] =
-    pion::http::types::RESPONSE_MESSAGE_CREATED;
+      pion::http::types::RESPONSE_MESSAGE_CREATED;
   messages[pion::http::types::RESPONSE_CODE_ACCEPTED] =
-    pion::http::types::RESPONSE_MESSAGE_ACCEPTED;
+      pion::http::types::RESPONSE_MESSAGE_ACCEPTED;
   messages[pion::http::types::RESPONSE_CODE_NO_CONTENT] =
-    pion::http::types::RESPONSE_MESSAGE_NO_CONTENT;
+      pion::http::types::RESPONSE_MESSAGE_NO_CONTENT;
   messages[pion::http::types::RESPONSE_CODE_FOUND] =
-    pion::http::types::RESPONSE_MESSAGE_FOUND;
+      pion::http::types::RESPONSE_MESSAGE_FOUND;
   messages[pion::http::types::RESPONSE_CODE_UNAUTHORIZED] =
-    pion::http::types::RESPONSE_MESSAGE_UNAUTHORIZED;
+      pion::http::types::RESPONSE_MESSAGE_UNAUTHORIZED;
   messages[pion::http::types::RESPONSE_CODE_FORBIDDEN] =
-    pion::http::types::RESPONSE_MESSAGE_FORBIDDEN;
+      pion::http::types::RESPONSE_MESSAGE_FORBIDDEN;
   messages[pion::http::types::RESPONSE_CODE_NOT_FOUND] =
-    pion::http::types::RESPONSE_MESSAGE_NOT_FOUND;
+      pion::http::types::RESPONSE_MESSAGE_NOT_FOUND;
   messages[pion::http::types::RESPONSE_CODE_METHOD_NOT_ALLOWED] =
-    pion::http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED;
+      pion::http::types::RESPONSE_MESSAGE_METHOD_NOT_ALLOWED;
   messages[pion::http::types::RESPONSE_CODE_NOT_MODIFIED] =
-    pion::http::types::RESPONSE_MESSAGE_NOT_MODIFIED;
+      pion::http::types::RESPONSE_MESSAGE_NOT_MODIFIED;
   messages[pion::http::types::RESPONSE_CODE_BAD_REQUEST] =
-    pion::http::types::RESPONSE_MESSAGE_BAD_REQUEST;
+      pion::http::types::RESPONSE_MESSAGE_BAD_REQUEST;
   messages[pion::http::types::RESPONSE_CODE_SERVER_ERROR] =
-    pion::http::types::RESPONSE_MESSAGE_SERVER_ERROR;
+      pion::http::types::RESPONSE_MESSAGE_SERVER_ERROR;
   messages[pion::http::types::RESPONSE_CODE_NOT_IMPLEMENTED] =
-    pion::http::types::RESPONSE_MESSAGE_NOT_IMPLEMENTED;
+      pion::http::types::RESPONSE_MESSAGE_NOT_IMPLEMENTED;
   messages[pion::http::types::RESPONSE_CODE_CONTINUE] =
-    pion::http::types::RESPONSE_MESSAGE_CONTINUE;
+      pion::http::types::RESPONSE_MESSAGE_CONTINUE;
   messages[409] = "Conflict";
   return messages;
 }
-
-
-
-
-
-
-

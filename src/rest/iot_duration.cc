@@ -22,9 +22,7 @@
 #include "iot_duration.h"
 #include <sys/time.h>
 
-iota::Duration::Duration() {
-  gettimeofday(&_to, NULL);
-}
+iota::Duration::Duration() { gettimeofday(&_to, NULL); }
 
 iota::Duration::Duration(IoTStatistic::iot_accumulator_ptr acc) {
   gettimeofday(&_to, NULL);
@@ -44,8 +42,8 @@ void iota::Duration::add_acc(IoTStatistic::iot_accumulator_ptr acc) {
 long iota::Duration::get_duration() {
   struct timeval _tf;
   gettimeofday(&_tf, NULL);
-  long seconds  = _tf.tv_sec  - _to.tv_sec;
+  long seconds = _tf.tv_sec - _to.tv_sec;
   long useconds = _tf.tv_usec - _to.tv_usec;
-  long mtime = (seconds*1000 + useconds/1000.0) + 0.5;
+  long mtime = (seconds * 1000 + useconds / 1000.0) + 0.5;
   return mtime;
 }

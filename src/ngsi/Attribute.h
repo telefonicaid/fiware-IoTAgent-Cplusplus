@@ -29,86 +29,65 @@
 #include <sstream>
 namespace iota {
 class Attribute {
-  public:
-    Attribute(const std::string name, const std::string& type,
-              const std::string& value);
-    // Constructor without value for compound attributes
-    Attribute(const std::string name, const std::string& type);
-    Attribute(const std::istringstream& str_attribute);
-    Attribute(const rapidjson::Value& attribute);
-    Attribute() {};
-    ~Attribute() {};
-    std::string get_string();
-    std::string& get_name() {
-      return _name;
-    };
-    std::string& get_type() {
-      return _type;
-    };
-    std::string& get_value() {
-      return _value;
-    };
-    void set_value(std::string& value) {
-      _value = value;
-    };
-    void set_name(std::string& name) {
-      _name = name;
-    };
-    void set_type(std::string& type) {
-      _type = type;
-    };
-    std::vector<Attribute>& get_metadatas() {
-      return _metadata;
-    };
-    void add_metadata(const Attribute& metadata);
-    std::vector<Attribute>& get_value_compound() {
-      return _value_compound;
-    };
-    void add_value_compound(const Attribute& val);
+ public:
+  Attribute(const std::string name, const std::string& type,
+            const std::string& value);
+  // Constructor without value for compound attributes
+  Attribute(const std::string name, const std::string& type);
+  Attribute(const std::istringstream& str_attribute);
+  Attribute(const rapidjson::Value& attribute);
+  Attribute(){};
+  ~Attribute(){};
+  std::string get_string();
+  std::string& get_name() { return _name; };
+  std::string& get_type() { return _type; };
+  std::string& get_value() { return _value; };
+  void set_value(std::string& value) { _value = value; };
+  void set_name(std::string& name) { _name = name; };
+  void set_type(std::string& type) { _type = type; };
+  std::vector<Attribute>& get_metadatas() { return _metadata; };
+  void add_metadata(const Attribute& metadata);
+  std::vector<Attribute>& get_value_compound() { return _value_compound; };
+  void add_value_compound(const Attribute& val);
 
-    std::vector<Attribute>& get_compound_value() {
-      return _value_compound;
-    };
+  std::vector<Attribute>& get_compound_value() { return _value_compound; };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("name");
-      writer.String(_name.c_str(), (rapidjson::SizeType)_name.length());
-      writer.String("type");
-      writer.String(_type.c_str(), (rapidjson::SizeType)_type.length());
-      writer.String("value");
-      if (_type != "compound") {
-        writer.String(_value.c_str(), (rapidjson::SizeType)_value.length());
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("name");
+    writer.String(_name.c_str(), (rapidjson::SizeType)_name.length());
+    writer.String("type");
+    writer.String(_type.c_str(), (rapidjson::SizeType)_type.length());
+    writer.String("value");
+    if (_type != "compound") {
+      writer.String(_value.c_str(), (rapidjson::SizeType)_value.length());
+    } else {
+      writer.StartArray();
+      for (std::vector<Attribute>::const_iterator it = _value_compound.begin();
+           it != _value_compound.end(); ++it) {
+        it->Serialize(writer);
       }
-      else {
-        writer.StartArray();
-        for (std::vector<Attribute>::const_iterator it= _value_compound.begin();
-             it != _value_compound.end(); ++it) {
-          it->Serialize(writer);
-        }
-        writer.EndArray();
-      }
-      if (_metadata.size() != 0) {
-        writer.String("metadatas");
-        writer.StartArray();
-        for (std::vector<Attribute>::const_iterator it= _metadata.begin();
-             it != _metadata.end(); ++it) {
-          it->Serialize(writer);
-        }
-        writer.EndArray();
-      }
-      writer.EndObject();
+      writer.EndArray();
     }
+    if (_metadata.size() != 0) {
+      writer.String("metadatas");
+      writer.StartArray();
+      for (std::vector<Attribute>::const_iterator it = _metadata.begin();
+           it != _metadata.end(); ++it) {
+        it->Serialize(writer);
+      }
+      writer.EndArray();
+    }
+    writer.EndObject();
+  }
 
-  private:
-    std::string _name;
-    std::string _type;
-    std::string _value;
-    std::vector<Attribute> _metadata;
-    std::vector<Attribute> _value_compound;
-
+ private:
+  std::string _name;
+  std::string _type;
+  std::string _value;
+  std::vector<Attribute> _metadata;
+  std::vector<Attribute> _value_compound;
 };
-
 }
 #endif

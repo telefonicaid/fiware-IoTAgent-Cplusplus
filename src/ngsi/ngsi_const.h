@@ -25,7 +25,7 @@
 #include <string>
 namespace iota {
 struct ngsi {
-  virtual ~ngsi() {};
+  virtual ~ngsi(){};
   static const std::string NGSI_NAME;
   static const std::string NGSI_ID;
   static const std::string NGSI_VALUE;

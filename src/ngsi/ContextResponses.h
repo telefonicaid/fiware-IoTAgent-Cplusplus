@@ -28,35 +28,36 @@
 #include <string>
 namespace iota {
 class ContextResponses {
-  public:
-    ContextResponses(const std::istringstream& str_context_responses);
-    ContextResponses() {};
-    ContextResponses(const rapidjson::Value& context_responses);
-    ~ContextResponses() {};
+ public:
+  ContextResponses(const std::istringstream& str_context_responses);
+  ContextResponses(){};
+  ContextResponses(const rapidjson::Value& context_responses);
+  ~ContextResponses(){};
 
-    std::string get_string();
-    std::string get_message_response();
+  std::string get_string();
+  std::string get_message_response();
 
-    void add_context_response(const ContextResponse& context_response);
-    std::vector<ContextResponse> get_context_responses() {
-      return _context_responses;
-    };
+  void add_context_response(const ContextResponse& context_response);
+  std::vector<ContextResponse> get_context_responses() {
+    return _context_responses;
+  };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("contextResponses");
-      writer.StartArray();
-      for (std::vector<ContextResponse>::const_iterator it=
-             _context_responses.begin(); it != _context_responses.end(); ++it) {
-        it->Serialize(writer);
-      }
-      writer.EndArray();
-      writer.EndObject();
-    };
-  private:
-    std::vector<ContextResponse> _context_responses;
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("contextResponses");
+    writer.StartArray();
+    for (std::vector<ContextResponse>::const_iterator it =
+             _context_responses.begin();
+         it != _context_responses.end(); ++it) {
+      it->Serialize(writer);
+    }
+    writer.EndArray();
+    writer.EndObject();
+  };
+
+ private:
+  std::vector<ContextResponse> _context_responses;
 };
-
 }
 #endif

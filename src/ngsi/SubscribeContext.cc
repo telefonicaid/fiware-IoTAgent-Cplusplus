@@ -24,8 +24,8 @@
 #include <rapidjson/writer.h>
 #include <stdexcept>
 
-iota::SubscribeContext::SubscribeContext(const std::istringstream&
-    str_subscribe) {
+iota::SubscribeContext::SubscribeContext(
+    const std::istringstream& str_subscribe) {
   rapidjson::Document document;
   char buffer[str_subscribe.str().length()];
   strcpy(buffer, str_subscribe.str().c_str());
@@ -45,8 +45,7 @@ iota::SubscribeContext::SubscribeContext(const std::istringstream&
         iota::Entity entity(entities[i]);
         add_entity(entity);
       }
-    }
-    else {
+    } else {
       std::ostringstream what;
       what << "SubscribeContext: ";
       what << "[entities] ";
@@ -54,8 +53,7 @@ iota::SubscribeContext::SubscribeContext(const std::istringstream&
       throw std::runtime_error(what.str());
     }
 
-  }
-  else {
+  } else {
     std::ostringstream what;
     what << "SubscribeContext: ";
     what << "[entities] ";
@@ -71,7 +69,6 @@ iota::SubscribeContext::SubscribeContext(const std::istringstream&
       }
     }
   }
-
 
   if (document.HasMember("throttling")) {
     _throttling.assign(document["throttling"].GetString());
@@ -90,9 +87,7 @@ iota::SubscribeContext::SubscribeContext(const std::istringstream&
         add_condition(condition);
       }
     }
-
   }
-
 };
 
 iota::SubscribeContext::SubscribeContext(const rapidjson::Value& subs) {
@@ -173,8 +168,7 @@ void iota::SubscribeContext::add_throttling(const std::string& throttling) {
   _throttling.assign(throttling);
 };
 
-void iota::SubscribeContext::add_condition(const iota::NotifyCondition&
-    condition) {
+void iota::SubscribeContext::add_condition(
+    const iota::NotifyCondition& condition) {
   _conditions.push_back(condition);
 };
-

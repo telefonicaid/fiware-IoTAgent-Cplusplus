@@ -30,34 +30,33 @@
 /**< PLUGIN POSTPROCESSOR BASIC >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-class ESP_Plugin_Postprocessor_Text  : public ESP_Plugin_Postprocessor_Base {
-  private:
-    static ESP_Plugin_Postprocessor_Text* instance;
+class ESP_Plugin_Postprocessor_Text : public ESP_Plugin_Postprocessor_Base {
+ private:
+  static ESP_Plugin_Postprocessor_Text* instance;
 
-  public:
-    ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
-    static ESP_Plugin_Postprocessor_Text* getSingleton();
+ public:
+  ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
+  static ESP_Plugin_Postprocessor_Text* getSingleton();
 };
 
 class ESP_Postprocessor_Text : public ESP_Postprocessor_Base {
-  private:
+ private:
+ public:
+  std::string result;
 
-  public:
-    std::string result;
+  ESP_Postprocessor_Text();
+  ~ESP_Postprocessor_Text();
 
-    ESP_Postprocessor_Text();
-    ~ESP_Postprocessor_Text();
+  // Methods
+  const char* getResultData();
+  int getResultSize();
+  bool isResultValid();
 
-    // Methods
-    const char* getResultData();
-    int getResultSize();
-    bool isResultValid();
-
-    // Override
-    bool initialize();
-    bool execute(CC_AttributesType* result);
-    bool terminate();
-    void parseCustomElement(TiXmlElement* element);
+  // Override
+  bool initialize();
+  bool execute(CC_AttributesType* result);
+  bool terminate();
+  void parseCustomElement(TiXmlElement* element);
 };
 
 #endif

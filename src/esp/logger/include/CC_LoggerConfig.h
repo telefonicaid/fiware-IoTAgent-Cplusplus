@@ -28,12 +28,13 @@
 
 //#define NUM_CHANNELS 9
 //
-//enum logChannel { BASE64, BINARY_PARSER, DATA_CONSUMER, ENTITIES, GZIP, I18N, PARSERJSON, REMOTESERVER, TELEHEALTHDB };
-//enum logType    { ERROR, WARNING, INFO, DEBUG };
+// enum logChannel { BASE64, BINARY_PARSER, DATA_CONSUMER, ENTITIES, GZIP, I18N,
+// PARSERJSON, REMOTESERVER, TELEHEALTHDB };
+// enum logType    { ERROR, WARNING, INFO, DEBUG };
 //
-//enum logTypeConfError     { SHOW_ERRORS, DONT_SHOW_ERRORS };
-//enum logTypeConfWarning       { SHOW_WARNINGS, DONT_SHOW_WARNINGS };
-//enum logTypeConfInfo      { SHOW_INFO, DONT_SHOW_INFO };
-//enum logTypeConfDebug     { SHOW_DEBUG, DONT_SHOW_DEBUG };
+// enum logTypeConfError     { SHOW_ERRORS, DONT_SHOW_ERRORS };
+// enum logTypeConfWarning       { SHOW_WARNINGS, DONT_SHOW_WARNINGS };
+// enum logTypeConfInfo      { SHOW_INFO, DONT_SHOW_INFO };
+// enum logTypeConfDebug     { SHOW_DEBUG, DONT_SHOW_DEBUG };
 
 #endif

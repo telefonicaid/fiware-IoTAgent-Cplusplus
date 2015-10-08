@@ -27,41 +27,30 @@
 namespace iota {
 
 class CommandResponse {
-  public:
-    // Constructor
+ public:
+  // Constructor
 
-    CommandResponse() {}
+  CommandResponse() {}
 
-    // Destructor
-    ~CommandResponse() {}
+  // Destructor
+  ~CommandResponse() {}
 
-    // Command Identifier
-    void idCommand(std::string id) {
-      _id_command = id;
-    }
-    std::string idCommand() {
-      return _id_command;
-    }
+  // Command Identifier
+  void idCommand(std::string id) { _id_command = id; }
+  std::string idCommand() { return _id_command; }
 
-    // Response
-    std::string getCommandResponse() {
-      return _commandResponse;
-    }
-    void setCommandResponse(std::string response) {
-      _commandResponse = response;
-    }
+  // Response
+  std::string getCommandResponse() { return _commandResponse; }
+  void setCommandResponse(std::string response) { _commandResponse = response; }
 
-  protected:
-  private:
+ protected:
+ private:
+  // Response
+  std::string _commandResponse;
 
-    // Response
-    std::string _commandResponse;
-
-    // Command Identifier
-    std::string _id_command;
-
+  // Command Identifier
+  std::string _id_command;
 };
-
 }
 
 #endif

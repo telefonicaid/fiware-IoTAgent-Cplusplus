@@ -24,28 +24,25 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-
 class ModbusTest : public CPPUNIT_NS::TestFixture {
-    CPPUNIT_TEST_SUITE(ModbusTest);
-    CPPUNIT_TEST (testBuildFrame);
-    CPPUNIT_TEST (testDecodeFrame);
-    CPPUNIT_TEST (testProcessor);
-    CPPUNIT_TEST (testProcessorFile);
-    CPPUNIT_TEST (testCrc);
-    CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE(ModbusTest);
+  CPPUNIT_TEST(testBuildFrame);
+  CPPUNIT_TEST(testDecodeFrame);
+  CPPUNIT_TEST(testProcessor);
+  CPPUNIT_TEST(testProcessorFile);
+  CPPUNIT_TEST(testCrc);
+  CPPUNIT_TEST_SUITE_END();
 
-  public:
-    void setUp();
-    void tearDown();
-  protected:
-    void testBuildFrame();
-    void testDecodeFrame();
-    void testProcessor();
-    void testProcessorFile();
-    void testCrc();
+ public:
+  void setUp();
+  void tearDown();
+
+ protected:
+  void testBuildFrame();
+  void testDecodeFrame();
+  void testProcessor();
+  void testProcessorFile();
+  void testCrc();
 };
 
 #endif
-
-
-

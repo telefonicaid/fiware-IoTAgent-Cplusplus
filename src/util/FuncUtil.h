@@ -42,11 +42,13 @@
 
 namespace iota {
 
-//static boost::uuids::random_generator RandomGenerator;
-//static boost::mutex _mRandomGen;
+// static boost::uuids::random_generator RandomGenerator;
+// static boost::mutex _mRandomGen;
 
 // Namespace UUID
-const boost::uuids::uuid namespace_uuid = {{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}};
+const boost::uuids::uuid namespace_uuid = {{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad,
+                                            0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0,
+                                            0x4f, 0xd4, 0x30, 0xc8}};
 const int FIWARE_SERVICE_LENGTH = 50;
 
 std::vector<std::string> riot_tokenizer(std::string& str, std::string& sep);
@@ -61,15 +63,16 @@ std::string str_to_hex(boost::asio::mutable_buffer& fr);
 std::string str_to_hex(const std::vector<unsigned char>& fr);
 std::vector<unsigned char> hex_str_to_vector(std::string& str);
 std::string writeDictionaryTerm(pion::http::response& resp_http);
-std::string make_query_string(std::multimap<std::string, std::string>&
-                                    query_parameters);
+std::string make_query_string(
+    std::multimap<std::string, std::string>& query_parameters);
 void check_fiware_service_name(std::string& header_fiware_service);
 void check_fiware_service_path_name(std::string& header_fiware_service_path);
 bool check_forbidden_characters(std::string forbidden, std::string& str);
 bool check_forbidden_characters(mongo::BSONObjBuilder& in_bson_builder);
 std::string http2string(pion::http::request& req);
 std::string http2string(pion::http::response& req);
-void writeDictionaryTerm(std::ostringstream& os, const pion::ihash_multimap::value_type& val);
+void writeDictionaryTerm(std::ostringstream& os,
+                         const pion::ihash_multimap::value_type& val);
 };
 
 #endif

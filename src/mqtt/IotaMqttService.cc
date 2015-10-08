@@ -23,43 +23,42 @@
 #include "IotaMqttService.h"
 
 /**
-TODO: this service has some methods for handling  pull commands, but as a new feture of 1.2.0 version, mqtt will support
+TODO: this service has some methods for handling  pull commands, but as a new
+feture of 1.2.0 version, mqtt will support
 push commands only, so it would make sense to remove some of these commands.
 */
 
-
 #include "rest/process.h"
 
-iota::esp::ngsi::IotaMqttService::IotaMqttService() : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
-  //ctor
+iota::esp::ngsi::IotaMqttService::IotaMqttService()
+    : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
+  // ctor
 }
 
 iota::esp::ngsi::IotaMqttService::~IotaMqttService() {
-  //dtor
+  // dtor
 }
 
-std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(std::string& jsonMsg,
-    std::string& apikey,std::string& idDevice) {
-  return doPublishCB(apikey,idDevice,jsonMsg);
+std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(
+    std::string& jsonMsg, std::string& apikey, std::string& idDevice) {
+  return doPublishCB(apikey, idDevice, jsonMsg);
 }
 
-
-
-
-void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(std::string& apikey,std::string& idDevice,std::string& payload,std::string& type){
-
-
-  if (MQTT_COMMAND_RESPONSE == type){
-    return processCommandResponse(apikey,idDevice,payload);
+void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
+    std::string& apikey, std::string& idDevice, std::string& payload,
+    std::string& type) {
+  if (MQTT_COMMAND_RESPONSE == type) {
+    return processCommandResponse(apikey, idDevice, payload);
   }
 
-  if (MQTT_COMMAND_IGNORE == type){ //This is for when "cmd" is echoed back to us. This is nasty, but a limitation of MQTT broker.
+  if (MQTT_COMMAND_IGNORE == type) {  // This is for when "cmd" is echoed back
+                                      // to us. This is nasty, but a limitation
+                                      // of MQTT broker.
     return;
   }
 
-  if (payload != ""){
-  //when type is not either "cmdget" or "cmdexe", payload is an actual JSON
-    publishContextBroker(payload,apikey,idDevice);
+  if (payload != "") {
+    // when type is not either "cmdget" or "cmdexe", payload is an actual JSON
+    publishContextBroker(payload, apikey, idDevice);
   }
 }
-

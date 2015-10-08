@@ -30,26 +30,26 @@
 #define EMPTY_VALUE " "
 
 iota::Attribute::Attribute(const std::string name, const std::string& type,
-              const std::string& value){
-  if (name.empty()){
+                           const std::string& value) {
+  if (name.empty()) {
     _name = EMPTY_VALUE;
-  }else{
+  } else {
     _name = name;
   }
 
   _type = type;
 
-  if (value.empty()){
+  if (value.empty()) {
     _value = EMPTY_VALUE;
-  }else{
+  } else {
     _value = value;
   }
 }
 
-iota::Attribute::Attribute(const std::string name, const std::string& type){
-  if (name.empty()){
+iota::Attribute::Attribute(const std::string name, const std::string& type) {
+  if (name.empty()) {
     _name = EMPTY_VALUE;
-  }else{
+  } else {
     _name = name;
   }
 
@@ -59,7 +59,7 @@ iota::Attribute::Attribute(const std::string name, const std::string& type){
 iota::Attribute::Attribute(const std::istringstream& str_attribute) {
   rapidjson::Document document;
   char buffer[str_attribute.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_attribute.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -69,7 +69,6 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
     what << document.GetErrorOffset();
     what << "]";
     throw std::runtime_error(what.str());
-
   }
   if (document.HasMember("name") == false) {
     std::ostringstream what;
@@ -79,8 +78,8 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
     throw std::runtime_error(what.str());
   }
   _name.assign(document["name"].GetString());
-  if (_name.empty()){
-      _name = EMPTY_VALUE;
+  if (_name.empty()) {
+    _name = EMPTY_VALUE;
   }
 
   if (document.HasMember("type")) {
@@ -89,12 +88,11 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
   if (document.HasMember("value")) {
     if (_type != "compound") {
       _value.assign(document["value"].GetString());
-      if (_value.empty()){
+      if (_value.empty()) {
         // CB does not allow empty fields, so we add a space
         _value = EMPTY_VALUE;
       }
-    }
-    else {
+    } else {
       const rapidjson::Value& data = document["value"];
       if (data.IsArray()) {
         for (rapidjson::SizeType i = 0; i < data.Size(); i++) {
@@ -105,8 +103,8 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
         }
       }
     }
-  }else{
-      _value = EMPTY_VALUE;
+  } else {
+    _value = EMPTY_VALUE;
   }
 
   // Metadatas
@@ -119,8 +117,7 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
                              metadata[i]["value"].GetString());
         add_metadata(meta);
       }
-    }
-    else {
+    } else {
       std::ostringstream what;
       what << "Attribute: ";
       what << "invalid type field [";
@@ -131,7 +128,6 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
 };
 
 iota::Attribute::Attribute(const rapidjson::Value& attribute) {
-
   if (!attribute.IsObject()) {
     throw std::runtime_error("Invalid Object");
   }
@@ -150,11 +146,10 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
     if (_type != "compound") {
       const rapidjson::Value& data = attribute["value"];
       _value.assign(iota::get_str_value(data));
-      if (_value.empty()){
+      if (_value.empty()) {
         _value = EMPTY_VALUE;
       }
-    }
-    else {
+    } else {
       const rapidjson::Value& data = attribute["value"];
       if (data.IsArray()) {
         for (rapidjson::SizeType i = 0; i < data.Size(); i++) {
@@ -175,8 +170,7 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
                              metadata[i]["value"].GetString());
         add_metadata(meta);
       }
-    }
-    else {
+    } else {
       std::ostringstream what;
       what << "Attribute: ";
       what << "invalid type field [";
@@ -184,7 +178,6 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
       throw std::runtime_error(what.str());
     }
   }
-
 };
 std::string iota::Attribute::get_string() {
   rapidjson::StringBuffer buffer;
@@ -200,5 +193,3 @@ void iota::Attribute::add_metadata(const iota::Attribute& metadata) {
 void iota::Attribute::add_value_compound(const iota::Attribute& val) {
   _value_compound.push_back(val);
 };
-
-

@@ -38,37 +38,32 @@
 #define CONFIG_MQTT "mosquitto.conf"
 
 class PluginMqttTests : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(PluginMqttTests);
 
-    CPPUNIT_TEST_SUITE(PluginMqttTests);
+  CPPUNIT_TEST(testParseAllParameters);
+  CPPUNIT_TEST(testParseMinimumParameters);
+  CPPUNIT_TEST(testParseAllBroker);
 
-    CPPUNIT_TEST(testParseAllParameters);
-    CPPUNIT_TEST(testParseMinimumParameters);
-    CPPUNIT_TEST(testParseAllBroker);
+  CPPUNIT_TEST_SUITE_END();
 
+ public:
+  void setUp();
+  void tearDown();
 
-    CPPUNIT_TEST_SUITE_END();
+ protected:
+  void testParseAllParameters();
+  void testParseMinimumParameters();
 
-  public:
-    void setUp();
-    void tearDown();
+  void testParseAllBroker();
 
-  protected:
-    void testParseAllParameters();
-    void testParseMinimumParameters();
+  // void testBrokerOrServerMQTTLogic();
+  // void testLaunchAndStopMQTT();
 
-    void testParseAllBroker();
-
-
-
-    // void testBrokerOrServerMQTTLogic();
-    // void testLaunchAndStopMQTT();
-
-
-  private:
-    TiXmlElement* xmlTestBasic,*xmlTestFull;
-    ESP_Input_Mqtt pluginMqtt;
-    ESP_Input_MqttBroker pluginBroker;
-    ESP_MqttWrapper* mqttWrapper;
+ private:
+  TiXmlElement *xmlTestBasic, *xmlTestFull;
+  ESP_Input_Mqtt pluginMqtt;
+  ESP_Input_MqttBroker pluginBroker;
+  ESP_MqttWrapper* mqttWrapper;
 };
 
-#endif // PLUGINMQTTTESTS_H
+#endif  // PLUGINMQTTTESTS_H

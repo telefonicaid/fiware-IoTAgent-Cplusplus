@@ -29,7 +29,7 @@
 iota::Entity::Entity(const std::istringstream& str_entity) {
   rapidjson::Document document;
   char buffer[str_entity.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_entity.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -39,10 +39,9 @@ iota::Entity::Entity(const std::istringstream& str_entity) {
     what << document.GetErrorOffset();
     what << "]";
     throw std::runtime_error(what.str());
-
   }
-  if (!document.HasMember(iota::ngsi::NGSI_ID.c_str())
-      || !document[iota::ngsi::NGSI_ID.c_str()].IsString()) {
+  if (!document.HasMember(iota::ngsi::NGSI_ID.c_str()) ||
+      !document[iota::ngsi::NGSI_ID.c_str()].IsString()) {
     std::ostringstream what;
     what << "Entity: ";
     what << "missing field [";
@@ -51,20 +50,20 @@ iota::Entity::Entity(const std::istringstream& str_entity) {
     throw std::runtime_error(what.str());
   }
   _id.assign(document[iota::ngsi::NGSI_ID.c_str()].GetString());
-  if (document.HasMember(iota::ngsi::NGSI_TYPE.c_str())
-      && document[iota::ngsi::NGSI_TYPE.c_str()].IsString()) {
+  if (document.HasMember(iota::ngsi::NGSI_TYPE.c_str()) &&
+      document[iota::ngsi::NGSI_TYPE.c_str()].IsString()) {
     _type.assign(document[iota::ngsi::NGSI_TYPE.c_str()].GetString());
   }
-  if (document.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str())
-      && document[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString()) {
-    _is_pattern.assign(document[iota::ngsi::NGSI_ISPATTERN.c_str()].GetString());
+  if (document.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str()) &&
+      document[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString()) {
+    _is_pattern.assign(
+        document[iota::ngsi::NGSI_ISPATTERN.c_str()].GetString());
   }
 }
 
 iota::Entity::Entity(const rapidjson::Value& entity) {
-
-  if (!entity.IsObject() || !entity.HasMember(iota::ngsi::NGSI_ID.c_str())
-      || !entity[iota::ngsi::NGSI_ID.c_str()].IsString()) {
+  if (!entity.IsObject() || !entity.HasMember(iota::ngsi::NGSI_ID.c_str()) ||
+      !entity[iota::ngsi::NGSI_ID.c_str()].IsString()) {
     std::ostringstream what;
     what << "Entity: ";
     what << "missing field [";
@@ -73,12 +72,12 @@ iota::Entity::Entity(const rapidjson::Value& entity) {
     throw std::runtime_error(what.str());
   }
   _id.assign(entity[iota::ngsi::NGSI_ID.c_str()].GetString());
-  if (entity.HasMember(iota::ngsi::NGSI_TYPE.c_str())
-      && entity[iota::ngsi::NGSI_TYPE.c_str()].IsString()) {
+  if (entity.HasMember(iota::ngsi::NGSI_TYPE.c_str()) &&
+      entity[iota::ngsi::NGSI_TYPE.c_str()].IsString()) {
     _type.assign(entity[iota::ngsi::NGSI_TYPE.c_str()].GetString());
   }
-  if (entity.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str())
-      && entity[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString()) {
+  if (entity.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str()) &&
+      entity[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString()) {
     _is_pattern.assign(entity[iota::ngsi::NGSI_ISPATTERN.c_str()].GetString());
   }
 };
@@ -88,5 +87,3 @@ std::string iota::Entity::get_string() {
   Serialize(writer);
   return buffer.GetString();
 };
-
-

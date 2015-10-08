@@ -34,32 +34,31 @@
 namespace iota {
 
 class IoTUrl {
-  public:
-    IoTUrl(std::string url);
+ public:
+  IoTUrl(std::string url);
 
-    ~IoTUrl(void);
+  ~IoTUrl(void);
 
-    std::string getProtocol(void);
+  std::string getProtocol(void);
 
-    std::string getHost(void);
+  std::string getHost(void);
 
-    int getPort(void);
+  int getPort(void);
 
-    std::string getPath(void);
+  std::string getPath(void);
 
-    std::string getQuery(void);
+  std::string getQuery(void);
 
-    bool getSSL(void);
+  bool getSSL(void);
 
-  protected:
-
-  private:
-    std::string _url;
-    std::string _protocol;
-    std::string _host;
-    int         _port;
-    std::string _path;
-    std::string _query;
+ protected:
+ private:
+  std::string _url;
+  std::string _protocol;
+  std::string _host;
+  int _port;
+  std::string _path;
+  std::string _query;
 };
 };
 #endif

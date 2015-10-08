@@ -25,37 +25,33 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 class TDAParserTests : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(TDAParserTests);
 
-    CPPUNIT_TEST_SUITE(TDAParserTests);
+  CPPUNIT_TEST(testParseBinary);
+  CPPUNIT_TEST(testParseASCII);
+  CPPUNIT_TEST(testParseLoop);
+  CPPUNIT_TEST(testParseConditionClear);
+  CPPUNIT_TEST(testParseWrite);
+  CPPUNIT_TEST(testConditionDefault);
+  CPPUNIT_TEST(testSwitch);
 
-    CPPUNIT_TEST(testParseBinary);
-    CPPUNIT_TEST(testParseASCII);
-    CPPUNIT_TEST(testParseLoop);
-    CPPUNIT_TEST(testParseConditionClear);
-    CPPUNIT_TEST(testParseWrite);
-    CPPUNIT_TEST(testConditionDefault);
-    CPPUNIT_TEST(testSwitch);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE_END();
+ public:
+  void setUp();
+  void tearDown();
 
-  public:
+ protected:
+  void testParseBinary();
+  void testParseASCII();
+  void testParseLoop();
+  void testParseConditionClear();
+  void testParseWrite();
 
-    void setUp();
-    void tearDown();
+  void testConditionDefault();
+  void testSwitch();
 
-  protected:
-    void testParseBinary();
-    void testParseASCII();
-    void testParseLoop();
-    void testParseConditionClear();
-    void testParseWrite();
-
-    void testConditionDefault();
-    void testSwitch();
-
-
-  private:
-
+ private:
 };
 
-#endif // MQTTBUFFERTESTS_H
+#endif  // MQTTBUFFERTESTS_H

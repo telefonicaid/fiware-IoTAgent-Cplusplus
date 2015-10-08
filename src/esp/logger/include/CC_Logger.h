@@ -50,7 +50,6 @@ class Date {
                            int& minute, int& second, int& ms, int& dayOfWeek);
   static ccInt64 getDateMS(int year, int month, int day, int h, int m, int s,
                            int ms);
-
 };
 
 class CC_Logger {
@@ -58,7 +57,7 @@ class CC_Logger {
   static CC_Logger* instance;
 
   std::string dirPath;
-  //int maxLength;
+  // int maxLength;
   void log(int level, const char* fmt, va_list args);
   int level;
 
@@ -77,7 +76,7 @@ class CC_Logger {
   /// ////////////////////
   std::vector<FileDescriptor> files;
 
-  char actualFileName[256] ;
+  char actualFileName[256];
 
   /// ////////////////////
   /// get Singleton Instance
@@ -133,7 +132,6 @@ class CC_Logger {
       LOG_LEVEL_ALL
     };
   };
-
 };
 
 #endif

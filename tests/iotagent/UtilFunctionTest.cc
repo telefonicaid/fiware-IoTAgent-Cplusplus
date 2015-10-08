@@ -54,7 +54,6 @@ std::string logger("main");
 iota::AdminService* AdminService_ptr;
 
 void UtilFunctionTest::testFormatPattern() {
-
   std::string url;
   std::map<std::string, std::string> filters;
   std::string url_regex;
@@ -79,11 +78,9 @@ void UtilFunctionTest::testFormatPattern() {
   CPPUNIT_ASSERT(url_regex.compare(regex) == 0);
   CPPUNIT_ASSERT(url_args.size() == 1);
   CPPUNIT_ASSERT(url_args.at(0).compare("service") == 0);
-
 }
 
 void UtilFunctionTest::testRegexPattern() {
-
   std::string url("/adm/services/TestService/assets");
   std::map<std::string, std::string> filters;
   std::string url_regex;
@@ -96,16 +93,16 @@ void UtilFunctionTest::testRegexPattern() {
   // Para test
   url.insert(0, "POST ");
   // No
-  //regex.insert(0, "GET[[:space:]]+");
-  //Si
-  //regex.insert(0, "POST[[:space:]]+");
-  //regex.insert(0, "GET|POST[[:space:]]+");
-  //regex.insert(0, ".+[[:space:]]+");
+  // regex.insert(0, "GET[[:space:]]+");
+  // Si
+  // regex.insert(0, "POST[[:space:]]+");
+  // regex.insert(0, "GET|POST[[:space:]]+");
+  // regex.insert(0, ".+[[:space:]]+");
 
-  bool res = iota::restResourceParse(url_regex, url_args, url, url_placeholders);
+  bool res =
+      iota::restResourceParse(url_regex, url_args, url, url_placeholders);
   CPPUNIT_ASSERT(url_placeholders["service"].compare("TestService") == 0);
   CPPUNIT_ASSERT(res);
-
 
   url.assign("/adm/services/TestService/assets/TestAsset");
   url_pattern.assign("/adm/services/<service>/assets/<asset>");
@@ -134,7 +131,7 @@ void UtilFunctionTest::testRegexPattern() {
 
   url.assign("/adm/services/TestService/p1");
   url_pattern.assign("/adm/services/<protocol>/p1");
-  //regex.assign(".+[[:space:]]+/adm/services/TestService/assets/TestAsset");
+  // regex.assign(".+[[:space:]]+/adm/services/TestService/assets/TestAsset");
   regex.assign("POST[[:space:]]+/adm/services/([^/]+)/assets/TestAsset");
   url_args.clear();
   url_placeholders.clear();
@@ -202,9 +199,9 @@ void UtilFunctionTest::testStatistic() {
   delete v;
   CPPUNIT_ASSERT(boost::accumulators::count(*stat_1["stat1"]) == 1);
   CPPUNIT_ASSERT(boost::accumulators::max(*stat_1["stat1"]) == 10);
-  std::map<long, std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> >
-  a =
-    stat_1.get_counters();
+  std::map<long,
+           std::map<std::string, iota::IoTStatistic::iot_accumulator_ptr> > a =
+      stat_1.get_counters();
   CPPUNIT_ASSERT(a.size() == 1);
 
   stat_1.add("stat1", 2);
@@ -215,9 +212,7 @@ void UtilFunctionTest::testStatistic() {
   CPPUNIT_ASSERT(boost::accumulators::count(*stat_1["stat2"]) == 1);
 }
 
-void UtilFunctionTest::testFilter() {
-
-}
+void UtilFunctionTest::testFilter() {}
 
 void UtilFunctionTest::testUuid() {
   std::string uuid_1 = iota::riot_uuid("/iot");
@@ -233,25 +228,22 @@ void UtilFunctionTest::testHeaders() {
   }
   try {
     iota::check_fiware_service_name(more_length);
-  }
-  catch(iota::IotaException& e) {
+  } catch (iota::IotaException& e) {
     CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
   }
 
-  //Alfanum and _
+  // Alfanum and _
   std::string noalpha("no-valid");
   try {
     iota::check_fiware_service_name(noalpha);
-  }
-  catch(iota::IotaException& e) {
+  } catch (iota::IotaException& e) {
     CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
   }
 
-   std::string upper("Aa124");
+  std::string upper("Aa124");
   try {
     iota::check_fiware_service_name(upper);
-  }
-  catch(iota::IotaException& e) {
+  } catch (iota::IotaException& e) {
     CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
   }
   std::string f("_123abc_");
@@ -260,20 +252,18 @@ void UtilFunctionTest::testHeaders() {
   iota::check_fiware_service_name(good);
 
   // Fiware-ServicePath
-   try {
+  try {
     iota::check_fiware_service_path_name(good);
-  }
-  catch(iota::IotaException& e) {
+  } catch (iota::IotaException& e) {
     CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
   }
   std::string fsp_length("/");
   for (int i = 0; i < 51; i++) {
     fsp_length.append("a");
   }
-   try {
+  try {
     iota::check_fiware_service_path_name(fsp_length);
-  }
-  catch(iota::IotaException& e) {
+  } catch (iota::IotaException& e) {
     CPPUNIT_ASSERT_MESSAGE("Expected code 400", e.status());
   }
   std::string e;
@@ -292,36 +282,34 @@ boost::shared_ptr<iota::Device> get_f(boost::shared_ptr<iota::Device> item) {
   return m;
 }
 
-std::string now_str()
-{
-    // Get current time from the clock, using microseconds resolution
-    const boost::posix_time::ptime now =
-        boost::posix_time::microsec_clock::local_time();
+std::string now_str() {
+  // Get current time from the clock, using microseconds resolution
+  const boost::posix_time::ptime now =
+      boost::posix_time::microsec_clock::local_time();
 
-    // Get the time offset in current day
-    const boost::posix_time::time_duration td = now.time_of_day();
+  // Get the time offset in current day
+  const boost::posix_time::time_duration td = now.time_of_day();
 
-    const long hours        = td.hours();
-    const long minutes      = td.minutes();
-    const long seconds      = td.seconds();
-    const long milliseconds = td.total_milliseconds() -
-                              ((hours * 3600 + minutes * 60 + seconds) * 1000);
+  const long hours = td.hours();
+  const long minutes = td.minutes();
+  const long seconds = td.seconds();
+  const long milliseconds = td.total_milliseconds() -
+                            ((hours * 3600 + minutes * 60 + seconds) * 1000);
 
-    char buf[40];
-    sprintf(buf, "%02ld:%02ld:%02ld.%03ld",
-        hours, minutes, seconds, milliseconds);
+  char buf[40];
+  sprintf(buf, "%02ld:%02ld:%02ld.%03ld", hours, minutes, seconds,
+          milliseconds);
 
-    return buf;
+  return buf;
 }
 
-boost::shared_ptr<iota::Command> timeout_f(boost::shared_ptr<iota::Command> item) {
-
+boost::shared_ptr<iota::Command> timeout_f(
+    boost::shared_ptr<iota::Command> item) {
   std::cout << "timeout_f:" << now_str() << std::endl;
   return item;
 }
 
 void UtilFunctionTest::testLRU() {
-
   std::cout << "testLRU" << std::endl;
   iota::Cache mru_cache_1(3, true);
   boost::shared_ptr<iota::Device> item1(new iota::Device("Agus", "Gonzalez"));
@@ -367,11 +355,9 @@ void UtilFunctionTest::testLRU() {
   // Remove item
   mru_cache_1.remove(*item2);
   CPPUNIT_ASSERT(mru_cache_1.size() == 2);
-
 }
 
 void UtilFunctionTest::testMRU() {
-
   std::cout << "testMRU" << std::endl;
   iota::Cache mru_cache_1(3, false);
   boost::shared_ptr<iota::Device> item1(new iota::Device("Anna", "Gonzalez"));
@@ -417,12 +403,10 @@ void UtilFunctionTest::testMRU() {
   // Remove item
   mru_cache_1.remove(*item2);
   CPPUNIT_ASSERT(mru_cache_1.size() == 2);
-
 }
 
 // This test is based on timers.
 void UtilFunctionTest::testCacheClock() {
-
   std::cout << "testCacheClock" << std::endl;
   iota::Cache mru_cache_1(3, true, 2);
   boost::asio::io_service io;
@@ -439,7 +423,7 @@ void UtilFunctionTest::testCacheClock() {
   t.wait();
   CPPUNIT_ASSERT(mru_cache_1.size() == 0);
 
-  //Duplicated restart timer
+  // Duplicated restart timer
   mru_cache_1.insert(v);
   sleep(1);
   CPPUNIT_ASSERT(mru_cache_1.size() == 1);
@@ -479,7 +463,7 @@ void UtilFunctionTest::testByEntity() {
 
   // Complete device
   boost::shared_ptr<iota::Device> item2(new iota::Device("d1", "s1"));
-  item2->_entity_name ="e";
+  item2->_entity_name = "e";
   item2->_entity_type = "t";
   mru_cache_1.insert(item2);
   CPPUNIT_ASSERT(mru_cache_1.size() == 2);
@@ -497,13 +481,12 @@ void UtilFunctionTest::testByEntity() {
   boost::shared_ptr<iota::Device> item4(new iota::Device("e", "t", "s1"));
   vitem2 = mru_cache_1.get_by_entity(item4);
   CPPUNIT_ASSERT(vitem2.get() != NULL);
-
 }
 
 void UtilFunctionTest::testCommandTimeout() {
   std::cout << "START testCommandTimeout" << std::endl;
 
-  //OJO el timeout que se usa es el del device no el definido en la cola
+  // OJO el timeout que se usa es el del device no el definido en la cola
   iota::CommandCache command_cache_1(SHRT_MAX, true);
   std::cout << "insert:" << now_str() << std::endl;
   boost::asio::io_service io;
@@ -513,10 +496,9 @@ void UtilFunctionTest::testCommandTimeout() {
   command_cache_1.set_timeout_function(timeout_f);
   boost::property_tree::ptree pt;
   pt.put("body", "command");
-  boost::shared_ptr<iota::Command> item1(new iota::Command("id1", "id1",
-                                   "servico1", "/", "seq1",
-                                   "room1", "thing", "http://uri:888//ee", 1, "",
-                                   pt));
+  boost::shared_ptr<iota::Command> item1(
+      new iota::Command("id1", "id1", "servico1", "/", "seq1", "room1", "thing",
+                        "http://uri:888//ee", 1, "", pt));
 
   std::cout << "insert:" << now_str() << std::endl;
   command_cache_1.insert(item1);
@@ -528,9 +510,7 @@ void UtilFunctionTest::testCommandTimeout() {
   CPPUNIT_ASSERT(command_cache_1.size() == 0);
 
   std::cout << "END testCommandTimeout" << std::endl;
-
 }
-
 
 void UtilFunctionTest::testCommand() {
   std::cout << "START testCommand" << std::endl;
@@ -539,46 +519,44 @@ void UtilFunctionTest::testCommand() {
 
   iota::CommandCache command_cache_1(3, false);
 
-  boost::shared_ptr<iota::Command> item1(new iota::Command("id1",
-                                   "servico1", "/",  "seq1", "room1", "http://uri:888//ee",
-                                   command));
+  boost::shared_ptr<iota::Command> item1(new iota::Command(
+      "id1", "servico1", "/", "seq1", "room1", "http://uri:888//ee", command));
   item1->set_status(1);
   command_cache_1.insert(item1);
-  boost::shared_ptr<iota::Command> item2(new iota::Command("id2",
-                                   "servico1", "/", "seq2", "room1", "http://uri:888//ee",
-                                   command));
+  boost::shared_ptr<iota::Command> item2(new iota::Command(
+      "id2", "servico1", "/", "seq2", "room1", "http://uri:888//ee", command));
   item2->set_status(1);
   command_cache_1.insert(item2);
-  boost::shared_ptr<iota::Command> item3(new iota::Command("id3",
-                                   "servico1","/",  "seq3", "roomm3", "http://uri:888//ee",
-                                   command));
+  boost::shared_ptr<iota::Command> item3(new iota::Command(
+      "id3", "servico1", "/", "seq3", "roomm3", "http://uri:888//ee", command));
   item3->set_status(1);
   command_cache_1.insert(item3);
-  boost::shared_ptr<iota::Command> item4(new iota::Command("id4",
-                                   "servico1","/",  "seq4", "", "http://uri:888//ee",
-                                   command));
+  boost::shared_ptr<iota::Command> item4(new iota::Command(
+      "id4", "servico1", "/", "seq4", "", "http://uri:888//ee", command));
   item4->set_status(1);
   command_cache_1.insert(item4);
 
   std::cout << "get" << std::endl;
   const boost::shared_ptr<iota::Command> v1 = command_cache_1.get(item1);
 
-  //By Id
+  // By Id
   std::cout << "getById" << std::endl;
   iota::Command* cp = new iota::Command("", "servico1", "/");
   cp->set_id("id1");
   boost::shared_ptr<iota::Command> itemQid(cp);
   boost::shared_ptr<iota::Command> vitem = command_cache_1.get_by_id(itemQid);
   CPPUNIT_ASSERT(vitem.get() != NULL);
-  std::cout << "getById da " << vitem->get_id() << vitem->get_entity() <<
-            std::endl;
+  std::cout << "getById da " << vitem->get_id() << vitem->get_entity()
+            << std::endl;
 
   // By entity
   // empty entity fields
   std::cout << "getByEntity" << std::endl;
-  boost::shared_ptr<iota::Command> itemQ(new iota::Command("room1", "servico1", "/"));
+  boost::shared_ptr<iota::Command> itemQ(
+      new iota::Command("room1", "servico1", "/"));
   itemQ->set_status(1);
-  boost::shared_ptr<iota::Command> vitem2 = command_cache_1.get_by_entity(itemQ);
+  boost::shared_ptr<iota::Command> vitem2 =
+      command_cache_1.get_by_entity(itemQ);
   CPPUNIT_ASSERT(vitem2.get() != NULL);
   std::cout << "getByEntity da " << vitem2->get_id() << std::endl;
 
@@ -586,20 +564,20 @@ void UtilFunctionTest::testCommand() {
   std::cout << "getByEntity da " << commands.size() << std::endl;
   iota::CommandVect::const_iterator i;
   iota::CommandPtr ptr;
-  for (i=commands.begin(); i!=commands.end(); ++i) {
+  for (i = commands.begin(); i != commands.end(); ++i) {
     ptr = *i;
-    std::cout<<(ptr->get_id())<<",";
+    std::cout << (ptr->get_id()) << ",";
   }
   std::cout << std::endl;
 
-  //una vez que los hemos leido han cambiado de estado
+  // una vez que los hemos leido han cambiado de estado
   iota::CommandVect commands2 = command_cache_1.get_by_entityV(itemQ, 2);
   std::cout << "getByEntity da " << commands2.size() << std::endl;
   iota::CommandVect::const_iterator i2;
   iota::CommandPtr ptr2;
-  for (i2=commands2.begin(); i2!=commands2.end(); ++i) {
+  for (i2 = commands2.begin(); i2 != commands2.end(); ++i) {
     ptr2 = *i2;
-    std::cout<<(ptr2->get_id())<<",";
+    std::cout << (ptr2->get_id()) << ",";
   }
   std::cout << std::endl;
 
@@ -611,7 +589,7 @@ void UtilFunctionTest::testCommand() {
 ///////CsvTest
 void UtilFunctionTest::testCsv() {
   std::string csv_ok("item1,item2, item3\nvalue1, value2, value3");
-  std::vector< std::map<std::string, std::string> > data;
+  std::vector<std::map<std::string, std::string> > data;
   csv_reader(csv_ok, data);
   CPPUNIT_ASSERT(data.size() == 1);
   CPPUNIT_ASSERT(data[0]["item1"].compare("value1") == 0);
@@ -628,24 +606,17 @@ void UtilFunctionTest::testCsv() {
   CPPUNIT_ASSERT(data.size() == 0);
 }
 
-
 ///////  URL Test
 
 template <typename T>
-struct my_id_translator
-{
-    typedef T internal_type;
-    typedef T external_type;
+struct my_id_translator {
+  typedef T internal_type;
+  typedef T external_type;
 
-    boost::optional<T> get_value(const T &v) {
-      return  v.substr(1, v.size() - 2) ;
-    }
+  boost::optional<T> get_value(const T& v) { return v.substr(1, v.size() - 2); }
 
-    boost::optional<T> put_value(const T &v) {
-      return '"' + v +'"';
-    }
+  boost::optional<T> put_value(const T& v) { return '"' + v + '"'; }
 };
-
 
 void UtilFunctionTest::testUrl() {
   // Url ok
@@ -669,24 +640,20 @@ void UtilFunctionTest::testUrl() {
 }
 
 void UtilFunctionTest::testAlarm() {
-
-  iota::Alarm *palarm = iota::Alarm::instance();
-  CPPUNIT_ASSERT_MESSAGE("alarms clean ",palarm->size() == 0);
+  iota::Alarm* palarm = iota::Alarm::instance();
+  CPPUNIT_ASSERT_MESSAGE("alarms clean ", palarm->size() == 0);
   iota::Alarm::error(22, "endpoint", "status", "text");
 
-  CPPUNIT_ASSERT_MESSAGE("alarms one ",palarm->size() == 1);
+  CPPUNIT_ASSERT_MESSAGE("alarms one ", palarm->size() == 1);
 
   iota::Alarm::info(22, "endpoint", "status", "text");
 
-  CPPUNIT_ASSERT_MESSAGE("alarms clean ",palarm->size() == 0);
-
+  CPPUNIT_ASSERT_MESSAGE("alarms clean ", palarm->size() == 0);
 }
 
-
 void UtilFunctionTest::testPtree2String() {
-
   boost::property_tree::ptree ptin;
-  std::string escapess=  "breakline\n\r\tescapes";
+  std::string escapess = "breakline\n\r\tescapes";
 
   ptin.put("cbroker", "http://127.0.0.1:8888/iotagent/ngsi90");
   ptin.put("breakline", escapess);
@@ -704,19 +671,20 @@ void UtilFunctionTest::testPtree2String() {
   std::stringstream ss;
   iota::property_tree::json_parser::write_json(ss, ptin);
   std::string text = ss.str();
-  std::cout  << "json write:" << text << std::endl;
+  std::cout << "json write:" << text << std::endl;
 
-  CPPUNIT_ASSERT_MESSAGE( "cbroker bad" , text.find(
-        "http://127.0.0.1:8888/iotagent/ngsi90") != std::string::npos);
-  CPPUNIT_ASSERT_MESSAGE("breakline bad", text.find(
-          "breakline\\n\\r\\tescapes") != std::string::npos);
-  CPPUNIT_ASSERT_MESSAGE("eñes bad", text.find(
-        "õñoñoÿÐ") != std::string::npos);
-  CPPUNIT_ASSERT_MESSAGE("comillas bad", text.find(
-        "\"comillas\"") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE(
+      "cbroker bad",
+      text.find("http://127.0.0.1:8888/iotagent/ngsi90") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE(
+      "breakline bad",
+      text.find("breakline\\n\\r\\tescapes") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE("eñes bad", text.find("õñoñoÿÐ") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE("comillas bad",
+                         text.find("\"comillas\"") != std::string::npos);
 
   boost::property_tree::ptree ptout;
-  std::istringstream is (text);
+  std::istringstream is(text);
   boost::property_tree::read_json(is, ptout);
 
   std::string cbroker = ptout.get("cbroker", "");
@@ -729,29 +697,29 @@ void UtilFunctionTest::testPtree2String() {
   float vac = 0.0;
   float f = ptout.get("float", vac);
   float f2 = ptout.get("floatSTR", vac);
-  double va =0.0;
+  double va = 0.0;
   double dd = ptout.get("double", va);
   double dd2 = ptout.get("doubleSTR", va);
   bool active = ptout.get("active", true);
 
-  std::cout  << "read:" <<  cbroker << "|" << breakline
-             << "|" << comillas << "|" << enes
-             << "|" << timeout << "|" << timeoutSTR
-             << "|"<< dd << "|"<< dd2
-             << "|"<< f << "|"<< f2 << "|" << active << std::endl;
-  CPPUNIT_ASSERT_MESSAGE("cbroker bad ",cbroker.compare("http://127.0.0.1:8888/iotagent/ngsi90") == 0);
-  CPPUNIT_ASSERT_MESSAGE("breakline bad ",breakline.compare(escapess) == 0);
-  CPPUNIT_ASSERT_MESSAGE("eñes bad ",enes.compare("õñoñoÿÐ") == 0);
-  CPPUNIT_ASSERT_MESSAGE("comillas bad ",comillas.compare("\"comillas\"") == 0);
-  CPPUNIT_ASSERT_MESSAGE("timeout bad ",timeout == 10);
-  CPPUNIT_ASSERT_MESSAGE("timeoutSTR bad ",timeoutSTR.compare("10") == 0);
-  CPPUNIT_ASSERT_MESSAGE("double2 bad ",dd2 == 10.123456789);
-  CPPUNIT_ASSERT_MESSAGE("double bad ",dd == 10.123456789);
+  std::cout << "read:" << cbroker << "|" << breakline << "|" << comillas << "|"
+            << enes << "|" << timeout << "|" << timeoutSTR << "|" << dd << "|"
+            << dd2 << "|" << f << "|" << f2 << "|" << active << std::endl;
+  CPPUNIT_ASSERT_MESSAGE(
+      "cbroker bad ",
+      cbroker.compare("http://127.0.0.1:8888/iotagent/ngsi90") == 0);
+  CPPUNIT_ASSERT_MESSAGE("breakline bad ", breakline.compare(escapess) == 0);
+  CPPUNIT_ASSERT_MESSAGE("eñes bad ", enes.compare("õñoñoÿÐ") == 0);
+  CPPUNIT_ASSERT_MESSAGE("comillas bad ",
+                         comillas.compare("\"comillas\"") == 0);
+  CPPUNIT_ASSERT_MESSAGE("timeout bad ", timeout == 10);
+  CPPUNIT_ASSERT_MESSAGE("timeoutSTR bad ", timeoutSTR.compare("10") == 0);
+  CPPUNIT_ASSERT_MESSAGE("double2 bad ", dd2 == 10.123456789);
+  CPPUNIT_ASSERT_MESSAGE("double bad ", dd == 10.123456789);
   float comparaf = 10.123;
-  CPPUNIT_ASSERT_MESSAGE("float bad ",f == comparaf);
-  CPPUNIT_ASSERT_MESSAGE("float2 bad ",f2 == comparaf);
-  CPPUNIT_ASSERT_MESSAGE("alarms clean ",active == false);
-
+  CPPUNIT_ASSERT_MESSAGE("float bad ", f == comparaf);
+  CPPUNIT_ASSERT_MESSAGE("float2 bad ", f2 == comparaf);
+  CPPUNIT_ASSERT_MESSAGE("alarms clean ", active == false);
 }
 
 void UtilFunctionTest::testForbiddenCharacters() {
@@ -764,110 +732,173 @@ void UtilFunctionTest::testForbiddenCharacters() {
   std::string with_semicolon("one;two;three");
   std::string with_left_parenthesis("This string (for example");
   std::string with_right_parenthesis("This string for example)");
-  CPPUNIT_ASSERT_MESSAGE(no_forbidden, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden) == false);
-  CPPUNIT_ASSERT_MESSAGE(with_minor, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor) == true);
-  CPPUNIT_ASSERT_MESSAGE(with_minor, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor) == true);
-  CPPUNIT_ASSERT_MESSAGE(with_double_quotes, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_double_quotes) == true);
-  CPPUNIT_ASSERT_MESSAGE(with_single_quotes, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_single_quotes) == true);
-  CPPUNIT_ASSERT_MESSAGE(with_semicolon, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_semicolon) == true);
-  CPPUNIT_ASSERT_MESSAGE(with_left_parenthesis, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_left_parenthesis) == true);
-  CPPUNIT_ASSERT_MESSAGE(with_right_parenthesis, iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_right_parenthesis) == true);
+  CPPUNIT_ASSERT_MESSAGE(
+      no_forbidden,
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       no_forbidden) == false);
+  CPPUNIT_ASSERT_MESSAGE(with_minor, iota::check_forbidden_characters(
+                                         iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                         with_minor) == true);
+  CPPUNIT_ASSERT_MESSAGE(with_minor, iota::check_forbidden_characters(
+                                         iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                         with_minor) == true);
+  CPPUNIT_ASSERT_MESSAGE(
+      with_double_quotes,
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       with_double_quotes) == true);
+  CPPUNIT_ASSERT_MESSAGE(
+      with_single_quotes,
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       with_single_quotes) == true);
+  CPPUNIT_ASSERT_MESSAGE(
+      with_semicolon,
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       with_semicolon) == true);
+  CPPUNIT_ASSERT_MESSAGE(
+      with_left_parenthesis,
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       with_left_parenthesis) == true);
+  CPPUNIT_ASSERT_MESSAGE(
+      with_right_parenthesis,
+      iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS,
+                                       with_right_parenthesis) == true);
 
   // Checking operator
-  bool forbidden = iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
+  bool forbidden = iota::check_forbidden_characters(
+      iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
   CPPUNIT_ASSERT(forbidden == false);
-  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
+  forbidden =
+      forbidden || iota::check_forbidden_characters(
+                       iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
   CPPUNIT_ASSERT(forbidden == false);
-  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor);
+  forbidden =
+      forbidden || iota::check_forbidden_characters(
+                       iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor);
   CPPUNIT_ASSERT(forbidden == true);
-  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
+  forbidden =
+      forbidden || iota::check_forbidden_characters(
+                       iota::types::IOTA_FORBIDDEN_CHARACTERS, no_forbidden);
   CPPUNIT_ASSERT(forbidden == true);
-  forbidden = forbidden || iota::check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor);
+  forbidden =
+      forbidden || iota::check_forbidden_characters(
+                       iota::types::IOTA_FORBIDDEN_CHARACTERS, with_minor);
   CPPUNIT_ASSERT(forbidden == true);
-
 }
-
-
 
 void UtilFunctionTest::testCommandLine() {
   std::cout << "@UT@START testCommandLine" << std::endl;
   iota::Arguments arguments;
 
   std::cout << "@UT@Scenario: no parameters in command line" << std::endl;
-  int argc=1;
-  const char* argv1[] = { "iotagent" };
+  int argc = 1;
+  const char* argv1[] = {"iotagent"};
   std::string result = arguments.parser(argc, argv1);
   std::cout << "@UT@result1:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_CONFIG +
-      iota::types::HELP_MESSAGE_OPS) == 0);
+                                iota::types::HELP_MESSAGE_OPS) == 0);
 
   std::cout << "@UT@Scenario: not all necesary parameters" << std::endl;
-  const char* argv2[] = { "iotagent" "param0", "param1", "param2" };
+  const char* argv2[] = {
+      "iotagent"
+      "param0",
+      "param1", "param2"};
   result = arguments.parser(4, argv2);
   std::cout << "@UT@result2:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_PARAM +
-      iota::types::HELP_MESSAGE_OPS) == 0);
+                                iota::types::HELP_MESSAGE_OPS) == 0);
   std::cout << "service_name:" << arguments.get_service_name() << std::endl;
   std::cout << "component_name:" << arguments.get_component_name() << std::endl;
 
   std::cout << "@UT@Scenario: iotagent  -h " << std::endl;
-  const char* argv3[] = { "iotagent", "-h" };
+  const char* argv3[] = {"iotagent", "-h"};
   result = arguments.parser(2, argv3);
   std::cout << "@UT@result3:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_OPS +
-      iota::types::HELP_MESSAGE) == 0);
+                                iota::types::HELP_MESSAGE) == 0);
 
   std::cout << "@UT@Scenario: iotagent  --help " << std::endl;
-  const char* argv4[] = { "iotagent", "--help" };
+  const char* argv4[] = {"iotagent", "--help"};
   result = arguments.parser(2, argv4);
   std::cout << "@UT@result4:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_OPS +
-      iota::types::HELP_MESSAGE) == 0);
+                                iota::types::HELP_MESSAGE) == 0);
 
   std::cout << "@UT@Scenario: param not recognize " << std::endl;
-  const char* argv5[] = { "iotagent", "--bomb" };
+  const char* argv5[] = {"iotagent", "--bomb"};
   result = arguments.parser(2, argv5);
   std::cout << "@UT@result5:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
-      iota::types::HELP_MESSAGE_OPS) == 0);
-
+                                iota::types::HELP_MESSAGE_OPS) == 0);
 
   std::cout << "@UT@Scenario: iotagent ok " << std::endl;
-  const char* argv6[] = {"iotagent", "-v", "DEBUG", "-n", "dev", "-i", "127.0.0.1",
-        "-p", "8080", "-d", "/home/develop/GH/lib/Debug", "-c",
-        "/home/iotagent/config_iot.json"};
+  const char* argv6[] = {"iotagent",
+                         "-v",
+                         "DEBUG",
+                         "-n",
+                         "dev",
+                         "-i",
+                         "127.0.0.1",
+                         "-p",
+                         "8080",
+                         "-d",
+                         "/home/develop/GH/lib/Debug",
+                         "-c",
+                         "/home/iotagent/config_iot.json"};
   result = arguments.parser(13, argv6);
   std::cout << "@UT@result6:" << result << std::endl;
   CPPUNIT_ASSERT(result.empty());
   CPPUNIT_ASSERT(!arguments.get_manager());
 
   std::cout << "@UT@Scenario: iota manager ok " << std::endl;
-  const char* argv7[] = {"iotagent", "-m", "-6", "-v", "DEBUG", "-n", "manager",
-       "-i", "192.0.3.25", "-p", "8081", "-d",
-       "/home/develop/GH/lib/Debug", "-c",
-       "/home/iotagent/config.json"};
+  const char* argv7[] = {"iotagent",
+                         "-m",
+                         "-6",
+                         "-v",
+                         "DEBUG",
+                         "-n",
+                         "manager",
+                         "-i",
+                         "192.0.3.25",
+                         "-p",
+                         "8081",
+                         "-d",
+                         "/home/develop/GH/lib/Debug",
+                         "-c",
+                         "/home/iotagent/config.json"};
   result = arguments.parser(15, argv7);
   std::cout << "@UT@result7:" << result << std::endl;
   CPPUNIT_ASSERT(result.empty());
   CPPUNIT_ASSERT(arguments.get_manager());
 
   std::cout << "@UT@Scenario: iota manager large param ok " << std::endl;
-  const char* argv75[] = {"iotagent", "--manager", "--ipv6", "--verbose", "DEBUG", "--name", "manager",
-       "--ip", "192.0.3.25", "--port", "8081", "--plugins-dir",
-       "/home/develop/GH/lib/Debug", "--config_file",
-       "/home/iotagent/config.json"};
+  const char* argv75[] = {"iotagent",
+                          "--manager",
+                          "--ipv6",
+                          "--verbose",
+                          "DEBUG",
+                          "--name",
+                          "manager",
+                          "--ip",
+                          "192.0.3.25",
+                          "--port",
+                          "8081",
+                          "--plugins-dir",
+                          "/home/develop/GH/lib/Debug",
+                          "--config_file",
+                          "/home/iotagent/config.json"};
   result = arguments.parser(15, argv75);
   std::cout << "@UT@result75:" << result << std::endl;
   CPPUNIT_ASSERT(result.empty());
   CPPUNIT_ASSERT(arguments.get_manager());
-  CPPUNIT_ASSERT(arguments.get_plugin_directory().compare("/home/develop/GH/lib/Debug") ==0);
+  CPPUNIT_ASSERT(arguments.get_plugin_directory().compare(
+                     "/home/develop/GH/lib/Debug") == 0);
 
   std::cout << "@UT@Scenario: no core for few parameters " << std::endl;
   const char* argv8[] = {"iotagent", "-"};
   result = arguments.parser(2, argv6);
   std::cout << "@UT@result8:" << result << std::endl;
   CPPUNIT_ASSERT(result.compare(iota::types::HELP_MESSAGE_ERR_BAD_PARAM +
-      iota::types::HELP_MESSAGE_OPS) == 0);
+                                iota::types::HELP_MESSAGE_OPS) == 0);
 
   std::cout << "@UT@END testCommandLine" << std::endl;
 }

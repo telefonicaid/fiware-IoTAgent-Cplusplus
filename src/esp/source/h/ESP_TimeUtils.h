@@ -32,7 +32,8 @@ class ESP_TimeUtils {
   ESP_TimeUtils();
   virtual ~ESP_TimeUtils();
 
-  std::string formatUTCTimestamp(int day, int month,int year,int h,int m,int s);
+  std::string formatUTCTimestamp(int day, int month, int year, int h, int m,
+                                 int s);
   void getCurrentUTCTimestamp(int* day, int* month, int* year, int* h, int* m,
                               int* s, int* ms);
 
@@ -40,4 +41,4 @@ class ESP_TimeUtils {
  private:
 };
 
-#endif // ESP_TIMEUTILS_H
+#endif  // ESP_TIMEUTILS_H

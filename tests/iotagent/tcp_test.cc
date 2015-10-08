@@ -33,8 +33,8 @@ int main(int argc, char* argv[]) {
   PION_LOG_CONFIG_BASIC;
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(TcpTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
   return s ? 0 : 1;
 }

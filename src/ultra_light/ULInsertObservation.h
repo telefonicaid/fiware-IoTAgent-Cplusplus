@@ -39,51 +39,45 @@
 
 #define NUM_ELEMENTS_ULPROTOCOL 4
 
-#define  UL20_SEPARATOR                "|"
-#define  UL20_MEASURE_SEPARATOR        "#"
+#define UL20_SEPARATOR "|"
+#define UL20_MEASURE_SEPARATOR "#"
 
 namespace iota {
 
 class ULInsertObservation {
-  public:
+ public:
+  // Datos fijos de la cadena
+  typedef enum {
+    UL_UNIVERSAL_CONCENTRATOR = 0,
+    UL_ID_RESOURCE,
+    UL_SAMPLING_TIME,
+    UL_OBSERVED_PROPERTY
+  } ULProtocol;
+  // Constructor
+  ULInsertObservation();
+  // Destructor
+  ~ULInsertObservation(void);
 
-    // Datos fijos de la cadena
-    typedef enum {
-      UL_UNIVERSAL_CONCENTRATOR = 0,
-      UL_ID_RESOURCE,
-      UL_SAMPLING_TIME,
-      UL_OBSERVED_PROPERTY
-    } ULProtocol;
-    // Constructor
-    ULInsertObservation();
-    // Destructor
-    ~ULInsertObservation(void);
+  void translate(std::string str_io, const boost::shared_ptr<Device>& dev,
+                 const boost::property_tree::ptree& service_ptree,
+                 std::vector<KVP>& query,
+                 std::vector<iota::ContextElement>& cb_eltos,
+                 unsigned short protocol = 1);
 
+  const std::string send(const std::string& deviceIdStr,
+                         const std::string& entity_type,
+                         const std::string& timestampStr, const std::string& at,
+                         const std::string& value);
 
-    void translate(std::string str_io,
-                   const boost::shared_ptr<Device>& dev,
-                   const boost::property_tree::ptree& service_ptree,
-                   std::vector<KVP>& query,
-                   std::vector<iota::ContextElement>& cb_eltos,
-                   unsigned short protocol = 1);
+ protected:
+ private:
+  pion::logger m_logger;
 
-
-    const std::string send(const std::string& deviceIdStr,
-                           const std::string& entity_type,
-                           const std::string& timestampStr,
-                           const std::string& at, const std::string& value);
-
-  protected:
-  private:
-    pion::logger m_logger;
-
-    // Variante SBC o UL 2.0
-    std::string contentForSBCProtocol(std::string io,
-                                      const std::string& sampling_time, const std::string& a_res_query);
-
+  // Variante SBC o UL 2.0
+  std::string contentForSBCProtocol(std::string io,
+                                    const std::string& sampling_time,
+                                    const std::string& a_res_query);
 };
-
 }
 
-#endif  /* __PAIDULINSERTOBSERVATION_H__ */
-
+#endif /* __PAIDULINSERTOBSERVATION_H__ */

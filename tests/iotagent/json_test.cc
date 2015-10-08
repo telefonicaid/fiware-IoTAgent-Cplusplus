@@ -28,15 +28,15 @@
 #include "JsonTest.h"
 
 int main(int argc, char* argv[]) {
-  //CppUnit::TestResult controller;
-  //CppUnit::TestResultCollector result;
-  //controller.addListener( &result );
-  //CppUnit::TextTestProgressListener progress;
-  //controller.addListener( &progress );
+  // CppUnit::TestResult controller;
+  // CppUnit::TestResultCollector result;
+  // controller.addListener( &result );
+  // CppUnit::TextTestProgressListener progress;
+  // controller.addListener( &progress );
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(JsonTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
   return s ? 0 : 1;
 }

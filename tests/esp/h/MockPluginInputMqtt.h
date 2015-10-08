@@ -25,28 +25,24 @@
 #include "TDA.h"
 #include "gmock/gmock.h"
 
-
 class MockPluginInputMqtt : public ESP_Input_Base {
-  public:
+ public:
+  virtual ~MockPluginInputMqtt() {}
 
-    virtual ~MockPluginInputMqtt() {}
+  MOCK_METHOD0(openServer, int());  // Inits id
+  MOCK_METHOD0(acceptServer, int());
+  MOCK_METHOD0(stopServer, bool());   // Stops accept
+  MOCK_METHOD0(closeServer, bool());  // Free Resources
 
-    MOCK_METHOD0(openServer,int()); // Inits id
-    MOCK_METHOD0(acceptServer,int());
-    MOCK_METHOD0(stopServer,bool()); // Stops accept
-    MOCK_METHOD0(closeServer,bool()); // Free Resources
+  MOCK_METHOD0(openClient, int());          // Inits id
+  MOCK_METHOD1(stopClient, bool(int id));   // Stops client
+  MOCK_METHOD1(closeClient, bool(int id));  // Free Resources
+  MOCK_METHOD3(readClient, int(int id, char* buffer, int len));
+  MOCK_METHOD3(writeClient, int(int id, char* buffer, int len));
+  MOCK_METHOD1(parseCustomElement, void(TiXmlElement* element));
 
-    MOCK_METHOD0(openClient,int()); // Inits id
-    MOCK_METHOD1(stopClient,bool(int id)); // Stops client
-    MOCK_METHOD1(closeClient,bool(int id)); // Free Resources
-    MOCK_METHOD3(readClient,int(int id, char* buffer, int len));
-    MOCK_METHOD3(writeClient,int(int id, char* buffer, int len));
-    MOCK_METHOD1(parseCustomElement,void(TiXmlElement* element));
-
-
-  protected:
-  private:
-
+ protected:
+ private:
 };
 
-#endif // MOCKPLUGININPUTMQTT_H
+#endif  // MOCKPLUGININPUTMQTT_H

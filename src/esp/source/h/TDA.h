@@ -37,17 +37,17 @@
 // ---------------------------------
 // XML Definition
 // ---------------------------------
-#define XML_SECTION_ROOT            "espsensor"
-#define XML_SECTION_PLUGINS         "plugins"
-#define XML_SECTION_PREPROCESSORS   "preprocessors"
-#define XML_SECTION_POSTPROCESSORS   "postprocessors"
-#define XML_SECTION_INPUTS          "inputs"
-#define XML_SECTION_OUTPUTS         "outputs"
-#define XML_SECTION_COMMANDS        "commands"
+#define XML_SECTION_ROOT "espsensor"
+#define XML_SECTION_PLUGINS "plugins"
+#define XML_SECTION_PREPROCESSORS "preprocessors"
+#define XML_SECTION_POSTPROCESSORS "postprocessors"
+#define XML_SECTION_INPUTS "inputs"
+#define XML_SECTION_OUTPUTS "outputs"
+#define XML_SECTION_COMMANDS "commands"
 
-#define XML_TAG_HEADER              "header"
-#define XML_TAG_BODY                "body"
-#define XML_TAG_FOOTER              "footer"
+#define XML_TAG_HEADER "header"
+#define XML_TAG_BODY "body"
+#define XML_TAG_FOOTER "footer"
 
 // ---------------------------------
 // Types Definition
@@ -55,9 +55,11 @@
 #define uint64 unsigned long long
 #define ccInt64 long long
 
-#define mapContains(map,key) (map.find(key) != map.end())
-#define mapInsert(map,keyType,valueType,key,value) map.insert(std::pair<keyType,valueType>(key,value))
-#define getParam(map,key) map.find(key) != map.end() ? map[key] : std::string("")
+#define mapContains(map, key) (map.find(key) != map.end())
+#define mapInsert(map, keyType, valueType, key, value) \
+  map.insert(std::pair<keyType, valueType>(key, value))
+#define getParam(map, key) \
+  map.find(key) != map.end() ? map[key] : std::string("")
 typedef std::map<std::string, std::string> CC_ParamsType;
 typedef std::pair<std::string, std::string> CC_ParamsPair;
 
@@ -66,13 +68,12 @@ typedef std::pair<std::string, std::string> CC_ParamsPair;
 #else
 #include <unistd.h>
 #define SLEEP(X) usleep(X * 1000);
-#endif // WIN32
-
+#endif  // WIN32
 
 #define INT32_MAX_RANGE 2147483647
 #define INT64_MAX_RANGE 9223372036854775807ll
 
-#define RUNNER_MAX_BUFFER 1024*100 // 100KB
+#define RUNNER_MAX_BUFFER 1024 * 100  // 100KB
 
 /* --------------- */
 /* CONTEXT         */
@@ -87,13 +88,13 @@ class ESP_Context {
   char* output;
   int output_size;
 
-  int index_end_saved; // To save index
+  int index_end_saved;  // To save index
  public:
   ESP_Context();
   ~ESP_Context();
-  bool close; // Set to close Sensor
-  CC_AttributesType temp; // Temp Measures
-  std::vector<CC_AttributesType> results; // Final Measures
+  bool close;                              // Set to close Sensor
+  CC_AttributesType temp;                  // Temp Measures
+  std::vector<CC_AttributesType> results;  // Final Measures
 
   // Methods
   void clear();
@@ -107,18 +108,23 @@ class ESP_Context {
   int getAvailableOutputData();
   bool inputDataIsAvailable(int bytes);
   bool readPInputData(int bytes, const char*& result);
-  bool validateInputData(int offset=0); // Discard index_end - index_data bytes
-  bool addResultData(); // Copy Temp to new Result (will not clear temp)
-  int searchAttributeValue(ESP_Attribute*
-                           attribute); // Search if the value is present on the buffer, returning the index where it starts
-  int searchAttributeValueInRange(ESP_Attribute* attribute, int start, int size);
-  int getSizeFromIndex(int index); // Returns the size from index_end to index
+  bool validateInputData(
+      int offset = 0);   // Discard index_end - index_data bytes
+  bool addResultData();  // Copy Temp to new Result (will not clear temp)
+  int searchAttributeValue(ESP_Attribute* attribute);  // Search if the value is
+                                                       // present on the buffer,
+                                                       // returning the index
+                                                       // where it starts
+  int searchAttributeValueInRange(ESP_Attribute* attribute, int start,
+                                  int size);
+  int getSizeFromIndex(int index);  // Returns the size from index_end to index
 
   void saveIndex();
   void restoreIndex();
 
-  //Query
-  //ESP_Attribute *getAttributeRefByNameFromResults(std::string name); // get Attribute Ref from results
+  // Query
+  // ESP_Attribute *getAttributeRefByNameFromResults(std::string name); // get
+  // Attribute Ref from results
 
   // Output
   void addOutputData(const char* data, int len);
@@ -130,25 +136,25 @@ class ESP_Context {
 // ---------------------------------
 class ESP_Tag_Base {
  public:
-  int index; // subparser index
+  int index;  // subparser index
   ESP_Tag_Base* parent;
   std::vector<ESP_Tag_Base*> subtags;
   bool _parsed;
-  bool _repeat; // Set to true to run again on parsing
+  bool _repeat;  // Set to true to run again on parsing
 
   std::string _name;
   std::string _type;
-  int _byteoffset; // Offset in bytes
-  int _datasize; // Size in Bytes
-  int _datatype; // Type of stored data
-  int _datacode; // Type of encoding for input data
-  ESP_Attribute _value; // Base Value Common for most of the tags
-  bool _loop; // To loop tag automatically forever
+  int _byteoffset;       // Offset in bytes
+  int _datasize;         // Size in Bytes
+  int _datatype;         // Type of stored data
+  int _datacode;         // Type of encoding for input data
+  ESP_Attribute _value;  // Base Value Common for most of the tags
+  bool _loop;            // To loop tag automatically forever
   std::string _valueref;
 
   // Base Methods
   ESP_Tag_Base();
-  virtual void reset(); // Overwrittable
+  virtual void reset();  // Overwrittable
   int run(ESP_Context* context);
   ESP_Tag_Base* getNextTag();
   void setChildrenParsed(bool parent, bool status);
@@ -157,8 +163,8 @@ class ESP_Tag_Base {
   // Virtual or Overridable Methods
   void parseElement(TiXmlElement* element);
   virtual void parseCustomElement(TiXmlElement* element);
-  virtual int execute(ESP_Context* context) =
-    0; // -1 error parsing, 0 not enough nada, 1 ok parsing
+  virtual int execute(ESP_Context* context) = 0;  // -1 error parsing, 0 not
+                                                  // enough nada, 1 ok parsing
 
   // Utils
   static ESP_Tag_Base* searchParent(ESP_Tag_Base* node, std::string type);
@@ -168,7 +174,7 @@ class ESP_Tag_Base {
     EXECUTE_RESULT_ERROR,
     EXECUTE_RESULT_IDLE,
     EXECUTE_RESULT_OK,
-    EXECUTE_RESULT_OK_RETURN // Return Valid and Continue Later
+    EXECUTE_RESULT_OK_RETURN  // Return Valid and Continue Later
   };
 };
 
@@ -217,8 +223,8 @@ class ESP_Preprocessor_Base : public ESP_Base {
   virtual int getResultSize() = 0;
 
   void parseElement(TiXmlElement* element);
-  virtual void parseCustomElement(TiXmlElement* element) =
-    0; // To be implemented on subclasses
+  virtual void parseCustomElement(
+      TiXmlElement* element) = 0;  // To be implemented on subclasses
 };
 
 class ESP_Postprocessor_Base : public ESP_Base {
@@ -237,14 +243,14 @@ class ESP_Postprocessor_Base : public ESP_Base {
   virtual bool isResultValid() = 0;
 
   void parseElement(TiXmlElement* element);
-  virtual void parseCustomElement(TiXmlElement* element) =
-    0; // To be implemented on subclasses
+  virtual void parseCustomElement(
+      TiXmlElement* element) = 0;  // To be implemented on subclasses
   virtual std::string getType();
 };
 
 class ESP_Input_Base : public ESP_Base {
  public:
-  int _sid; //id of server if available
+  int _sid;  // id of server if available
   int _mode;
   std::string _type;
   std::string _name;
@@ -255,14 +261,14 @@ class ESP_Input_Base : public ESP_Base {
   virtual ~ESP_Input_Base();
   std::vector<ESP_Preprocessor_Base*> preprocessors;
 
-  virtual int openServer() = 0; // Inits id
+  virtual int openServer() = 0;  // Inits id
   virtual int acceptServer() = 0;
-  virtual bool stopServer() = 0; // Stops accept
-  virtual bool closeServer() = 0; // Free Resources
+  virtual bool stopServer() = 0;   // Stops accept
+  virtual bool closeServer() = 0;  // Free Resources
 
-  virtual int openClient() = 0; // Inits id
-  virtual bool stopClient(int id) = 0; // Stops client
-  virtual bool closeClient(int id) = 0; // Free Resources
+  virtual int openClient() = 0;          // Inits id
+  virtual bool stopClient(int id) = 0;   // Stops client
+  virtual bool closeClient(int id) = 0;  // Free Resources
   virtual int readClient(int id, char* buffer, int len) = 0;
   virtual int writeClient(int id, char* buffer, int len) = 0;
 
@@ -270,10 +276,7 @@ class ESP_Input_Base : public ESP_Base {
   virtual void parseCustomElement(TiXmlElement* element) = 0;
 
   struct InputMode {
-    enum InputModeEnum {
-      INPUT_MODE_CLIENT,
-      INPUT_MODE_SERVER
-    };
+    enum InputModeEnum { INPUT_MODE_CLIENT, INPUT_MODE_SERVER };
   };
 };
 
@@ -292,15 +295,13 @@ class ESP_Output_Base : public ESP_Base {
   void parseElement(TiXmlElement* element);
   virtual void parseCustomElement(TiXmlElement* element) = 0;
 
-  virtual ~ESP_Output_Base() {};
+  virtual ~ESP_Output_Base(){};
 };
 
 /* ----------------- */
 /* PLUGINS           */
 /* ----------------- */
-class ESP_Plugin_Base {
-
-};
+class ESP_Plugin_Base {};
 
 class ESP_Plugin_Preprocessor_Base : public ESP_Plugin_Base {
  public:
@@ -310,10 +311,10 @@ class ESP_Plugin_Preprocessor_Base : public ESP_Plugin_Base {
 
 class ESP_Plugin_Postprocessor_Base : public ESP_Plugin_Base {
  public:
-  virtual ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element) = 0;
+  virtual ESP_Postprocessor_Base* createPostprocessor(
+      TiXmlElement* element) = 0;
   static ESP_Plugin_Base* getSingleton();
-
- };
+};
 
 class ESP_Plugin_Input_Base : public ESP_Plugin_Base {
  public:
@@ -343,8 +344,8 @@ class ESP_Command {
   void clear();
 
   std::string name;
-  bool roe; // resetonempty
-  int index; // 0,1,2 (runner index on header,parser,footer)
+  bool roe;   // resetonempty
+  int index;  // 0,1,2 (runner index on header,parser,footer)
   ESP_Tag_Base* header;
   ESP_Tag_Base* body;
   ESP_Tag_Base* footer;
@@ -396,7 +397,7 @@ class ESP_Sensor {
   std::map<unsigned long long, ESP_Runner_Server*> serverRunners;
   std::map<unsigned long long, ESP_Runner_Client*> clientRunners;
 
-  std::map<std::string,  TiXmlElement*> commands; // List of elements from Xml
+  std::map<std::string, TiXmlElement*> commands;  // List of elements from Xml
 
   // UserData
   std::map<std::string, void*> userData;
@@ -406,10 +407,11 @@ class ESP_Sensor {
   void* resultCallbackUserData;
   void (*dataCallback)(void* userData, const char* buffer, int nread);
   void (*resultCallback)(void* userData, ESP_Runner* runner);
-  void registerDataCallback(void* userData, void (*cb)(void* userData,
-                            const char* buffer, int nread));
-  void registerResultCallback(void* userData, void (*cb)(void* userData,
-                              ESP_Runner* runner));
+  void registerDataCallback(void* userData,
+                            void (*cb)(void* userData, const char* buffer,
+                                       int nread));
+  void registerResultCallback(void* userData,
+                              void (*cb)(void* userData, ESP_Runner* runner));
 
   // Run Callbacks
   void runDataCallback(const char* buffer, int nread);
@@ -455,24 +457,22 @@ class ESP_Sensor {
   ESP_Postprocessor_Base* createPostprocessorFromPlugins(TiXmlElement* element);
 
   // Callbacks
-  //static void ResultCallback(ESP_Sensor *sensor, ESP_Context *context);
+  // static void ResultCallback(ESP_Sensor *sensor, ESP_Context *context);
 };
 
 /* --------------- */
 /* RESULTS         */
 /* --------------- */
 class ESP_Result {
-
  public:
   std::vector<CC_AttributesType> attresults;
   std::vector<ESP_Attribute> ppresults;
 
   std::string findInputAttributeAsString(std::string name);
-  std::string findInputAttributeAsString(std::string name,bool remove);
+  std::string findInputAttributeAsString(std::string name, bool remove);
   std::string getOutputResultAsString(int ind);
 
   int getOutputSize();
-
 };
 
 /* --------------- */
@@ -482,12 +482,12 @@ class ESP_PostProc_Result {
  private:
   char* data;
   int nlen;
- public:
 
-  ESP_PostProc_Result(char* data,int nlen);
+ public:
+  ESP_PostProc_Result(char* data, int nlen);
 
   ~ESP_PostProc_Result() {
-    free (data);
+    free(data);
     data = NULL;
   };
 };
@@ -509,15 +509,13 @@ class ESP_Runner {
   pthread_mutex_t mutexCond;
   pthread_cond_t condFinished;
 
-
-
   bool bFinished;
 
-  bool runOnce; // 1-Loop iteration max
-  int _id; // Id of input
+  bool runOnce;  // 1-Loop iteration max
+  int _id;       // Id of input
   ESP_Command* command;
 
-  //std::map <std::string, ESP_Attribute> mapResult;
+  // std::map <std::string, ESP_Attribute> mapResult;
 
   bool _keepRunning;
   ESP_Context context;
@@ -526,7 +524,6 @@ class ESP_Runner {
   virtual void run() = 0;
   void signalFinish();
   void stopRunner(unsigned int msecs);
-
 };
 
 class ESP_Runner_Server : public ESP_Runner {
@@ -544,10 +541,8 @@ class ESP_Runner_Client : public ESP_Runner {
   static ESP_Result runLoop(void* userData);
 
  public:
-
   ESP_Runner_Client(ESP_Sensor* sensor);
   void run();
 };
 
 #endif
-

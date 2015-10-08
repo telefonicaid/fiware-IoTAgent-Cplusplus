@@ -29,12 +29,11 @@
 
 class MockQueryContextWrapper : public iota::esp::tt::QueryContextWrapper {
  public:
+  virtual ~MockQueryContextWrapper(){};
 
-  virtual ~MockQueryContextWrapper() {};
-
-  MOCK_METHOD1(doQueryContext,::ngsi::ContextResponses(::ngsi::QueryContext&));
+  MOCK_METHOD1(doQueryContext, ::ngsi::ContextResponses(::ngsi::QueryContext&));
 
  private:
 };
 
-#endif // MOCKQUERYCONTEXTWRAPPER_H
+#endif  // MOCKQUERYCONTEXTWRAPPER_H

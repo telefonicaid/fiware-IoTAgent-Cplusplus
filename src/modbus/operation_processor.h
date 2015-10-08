@@ -30,18 +30,19 @@
 
 namespace iota {
 class ModbusOperationProcessor {
-  public:
-  ModbusOperationProcessor() {};
-    ModbusOperationProcessor(std::stringstream& json_operations);
-    virtual ~ModbusOperationProcessor() {};
-    void read_operations(std::string modbus_operation_file);
-    boost::property_tree::ptree& get_operation(std::string operation);
-    std::vector<std::string>& get_mapped_labels(std::string operation);
-  protected:
-  private:
-    std::map<std::string, boost::property_tree::ptree> _operations;
-    std::map<std::string, std::vector<std::string> > _position_map;
-    void read(std::stringstream& json_operations);
+ public:
+  ModbusOperationProcessor(){};
+  ModbusOperationProcessor(std::stringstream& json_operations);
+  virtual ~ModbusOperationProcessor(){};
+  void read_operations(std::string modbus_operation_file);
+  boost::property_tree::ptree& get_operation(std::string operation);
+  std::vector<std::string>& get_mapped_labels(std::string operation);
+
+ protected:
+ private:
+  std::map<std::string, boost::property_tree::ptree> _operations;
+  std::map<std::string, std::vector<std::string> > _position_map;
+  void read(std::stringstream& json_operations);
 };
 }
 

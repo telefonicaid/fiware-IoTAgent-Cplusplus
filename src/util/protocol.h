@@ -28,62 +28,45 @@
 
 namespace iota {
 
-class Protocol  {
+class Protocol {
+ public:
+  typedef struct {
+    std::string endpoint;
+    std::string resource;
+  } resource_endpoint;
 
-  public:
-    typedef struct {
-      std::string endpoint;
-      std::string resource;
-    } resource_endpoint;
+  typedef std::vector<resource_endpoint> resource_endpoint_vector;
 
-    typedef std::vector<resource_endpoint>   resource_endpoint_vector;
+  Protocol();
+  Protocol(const std::string& name);
 
-    Protocol();
-    Protocol(const std::string& name);
+  virtual ~Protocol();
 
-    virtual ~Protocol();
+  void add(resource_endpoint data);
 
-    void add(resource_endpoint data);
+  const resource_endpoint_vector& get_endpoints() const { return _endpoints; };
 
-    const resource_endpoint_vector & get_endpoints() const{
-      return _endpoints;
-    };
+  std::string get_description() const { return _description; };
 
-    std::string get_description() const {
-      return _description;
-    };
+  void set_description(const std::string& description) {
+    _description = description;
+  }
 
-    void set_description(const std::string& description) {
-      _description = description;
-    }
+  std::string get_name() const { return _name; };
 
-    std::string get_name() const {
-      return _name;
-    };
+  void set_name(const std::string& name) { _name = name; }
 
-    void set_name(const std::string& name) {
-      _name = name;
-    }
+  std::string get_id() const { return _id; };
 
-    std::string get_id() const {
-      return _id;
-    };
+  void set_id(const std::string& id) { _id = id; }
 
-    void set_id(const std::string& id) {
-      _id = id;
-    }
-
-  protected:
-  private:
-
-    std::string _id;
-    std::string _description;
-    std::string _name;
-    resource_endpoint_vector _endpoints;
-
+ protected:
+ private:
+  std::string _id;
+  std::string _description;
+  std::string _name;
+  resource_endpoint_vector _endpoints;
 };
 };
-
-
 
 #endif

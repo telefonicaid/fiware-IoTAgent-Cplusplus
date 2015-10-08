@@ -29,17 +29,18 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
-#endif // WIN32
+#endif  // WIN32
 
 class ESP_MQTT_Launcher {
-  public:
-    ESP_MQTT_Launcher();
-    int launchBroker();
-    int stopBroker();
-    virtual ~ESP_MQTT_Launcher();
-  protected:
-  private:
-    pid_t pidBroker;
+ public:
+  ESP_MQTT_Launcher();
+  int launchBroker();
+  int stopBroker();
+  virtual ~ESP_MQTT_Launcher();
+
+ protected:
+ private:
+  pid_t pidBroker;
 };
 
-#endif // ESP_MQTT_LAUNCHER_H
+#endif  // ESP_MQTT_LAUNCHER_H

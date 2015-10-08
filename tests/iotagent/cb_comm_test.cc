@@ -35,7 +35,8 @@ int main(int argc, char* argv[]) {
 
   // Http Server and admin service
   iota::Process& process = iota::Process::initialize("/TestCBCommunication", 3);
-  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+  iota::Configurator* conf =
+      iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
   pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
   iota::AdminService* adm = new iota::AdminService();
   process.set_admin_service(adm);
@@ -48,8 +49,8 @@ int main(int argc, char* argv[]) {
 
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(cbCommTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
   std::cout << "FIN" << std::endl;
   process.shutdown();

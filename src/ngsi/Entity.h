@@ -28,32 +28,21 @@
 #include <string>
 namespace iota {
 class Entity {
-  public:
-    Entity(const std::string& id, const std::string& type,
-           const std::string& is_pattern): _id(id), _type(type),
-      _is_pattern(is_pattern) {};
-    Entity(const std::istringstream& str_entity);
-    Entity(const rapidjson::Value& entity);
-    Entity() {};
-    ~Entity() {};
-    std::string get_string();
-    std::string& get_id() {
-      return _id;
-    };
-    std::string& get_type() {
-      return _type;
-    };
-    std::string& get_is_pattern() {
-      return _is_pattern;
-    };
+ public:
+  Entity(const std::string& id, const std::string& type,
+         const std::string& is_pattern)
+      : _id(id), _type(type), _is_pattern(is_pattern){};
+  Entity(const std::istringstream& str_entity);
+  Entity(const rapidjson::Value& entity);
+  Entity(){};
+  ~Entity(){};
+  std::string get_string();
+  std::string& get_id() { return _id; };
+  std::string& get_type() { return _type; };
+  std::string& get_is_pattern() { return _is_pattern; };
 
-  void set_id(const std::string& id) {
-    _id = id;
-  };
-  void set_type(const std::string& type) {
-    _type = type;
-  };
-
+  void set_id(const std::string& id) { _id = id; };
+  void set_type(const std::string& type) { _type = type; };
 
   template <typename Writer>
   void Serialize(Writer& writer) const {
@@ -63,14 +52,15 @@ class Entity {
     writer.String("type");
     writer.String(_type.c_str(), (rapidjson::SizeType)_type.length());
     writer.String("isPattern");
-    writer.String(_is_pattern.c_str(), (rapidjson::SizeType)_is_pattern.length());
+    writer.String(_is_pattern.c_str(),
+                  (rapidjson::SizeType)_is_pattern.length());
     writer.EndObject();
   };
+
  private:
   std::string _id;
   std::string _type;
   std::string _is_pattern;
 };
-
 }
 #endif

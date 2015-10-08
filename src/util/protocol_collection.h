@@ -28,51 +28,43 @@
 #include "collection.h"
 #include "protocol.h"
 
-
-
 namespace iota {
 
 class ProtocolCollection : public Collection {
-  public:
+ public:
+  ProtocolCollection();
 
-    ProtocolCollection();
+  ProtocolCollection(ProtocolCollection&);
 
-    ProtocolCollection(ProtocolCollection&);
+  ~ProtocolCollection();
 
-    ~ProtocolCollection();
+  int createTableAndIndex();
 
-    int createTableAndIndex();
+  int insert(const Protocol& obj);
+  int find(const Protocol& query);
+  Protocol next();
+  int remove(const Protocol& query);
+  int count(const Protocol& query);
 
-    int insert(const Protocol& obj) ;
-    int find(const Protocol& query) ;
-    Protocol next() ;
-    int remove(const Protocol& query) ;
-    int count(const Protocol& query) ;
+  int update(const Protocol& query, const Protocol& sett);
 
-    int update(const Protocol& query,
-               const Protocol& sett);
+  std::vector<iota::Protocol> get_all();
 
-    std::vector<iota::Protocol> get_all();
+  /**
+   *  in protocols fills with protocol name and protocol description
+   **/
+  void fillProtocols(std::map<std::string, std::string>& protocols);
 
-    /**
-     *  in protocols fills with protocol name and protocol description
-     **/
-    void fillProtocols(std::map<std::string,std::string> &protocols);
+  std::vector<iota::Protocol> get_endpoint_by_protocol(std::string protocol);
 
-    std::vector<iota::Protocol> get_endpoint_by_protocol(std::string protocol);
+ protected:
+  iota::Protocol BSON2Obj(const mongo::BSONObj& obj);
 
-  protected:
+  mongo::BSONObj Obj2BSON(const Protocol& protocol, bool withShardKey);
 
-    iota::Protocol BSON2Obj(const mongo::BSONObj& obj);
+ private:
+};  // end class ProtocolCollection
 
-    mongo::BSONObj Obj2BSON(const Protocol& protocol, bool withShardKey);
-
-  private:
-
-}; // end class ProtocolCollection
-
-}// end namespace  iota
+}  // end namespace  iota
 
 #endif
-
-

@@ -36,230 +36,169 @@
 
 namespace iota {
 
-class Command: public virtual Timer {
-  public:
+class Command : public virtual Timer {
+ public:
+  Command(const std::string& id_entity, const std::string& service,
+          const std::string& service_path);
 
-    Command(const std::string& id_entity,
-            const std::string& service,
-            const std::string& service_path);
+  Command(const std::string& id_cmd, const std::string& service,
+          const std::string& service_path, const std::string& sequence,
+          const std::string& id_entity, const std::string& responseURI,
+          const boost::property_tree::ptree& cmd);
 
-    Command(const std::string& id_cmd,
-            const std::string& service,
-            const std::string& service_path,
-            const std::string& sequence,
-            const std::string& id_entity,
-            const std::string& responseURI,
-            const boost::property_tree::ptree& cmd);
+  // Constructor para la recuperacion de comandos almacenados
+  Command(const std::string& id_cmd, const std::string& name,
+          const std::string& service, const std::string& service_path,
+          const std::string& sequence, const std::string& id_entity,
+          const std::string& entity_type, const std::string& responseURI,
+          const int timeout, const std::string& timestamp,
+          const boost::property_tree::ptree& cmd);
 
-    // Constructor para la recuperacion de comandos almacenados
-    Command(const std::string& id_cmd,
-            const std::string& name,
-            const std::string& service,
-            const std::string& service_path,
-            const std::string& sequence,
-            const std::string& id_entity,
-            const std::string& entity_type,
-            const std::string& responseURI,
-            const int timeout,
-            const std::string& timestamp,
-            const boost::property_tree::ptree& cmd);
+  ~Command(void);
 
-    ~Command(void);
-
-    bool operator==(const Command& a) const {
-      if ((_sequence.compare(a._sequence) == 0) &&
-          (_service.compare(a._service) == 0)) {
-        return true;
-      }
-      return false;
+  bool operator==(const Command& a) const {
+    if ((_sequence.compare(a._sequence) == 0) &&
+        (_service.compare(a._service) == 0)) {
+      return true;
     }
+    return false;
+  }
 
-    bool operator==(const boost::shared_ptr<Command>& a) const {
-      if ((_sequence.compare(a->_sequence) == 0) &&
-          (_service.compare(a->_service) == 0)) {
-        return true;
-      }
-      return false;
+  bool operator==(const boost::shared_ptr<Command>& a) const {
+    if ((_sequence.compare(a->_sequence) == 0) &&
+        (_service.compare(a->_service) == 0)) {
+      return true;
     }
+    return false;
+  }
 
-    bool operator()(const Command& one, const Command& two) const {
-      std::string one_full(one._sequence);
-      one_full.append(one._service);
-      std::string two_full(two._sequence);
-      two_full.append(two._service);
-      return (one_full < two_full);
-    }
+  bool operator()(const Command& one, const Command& two) const {
+    std::string one_full(one._sequence);
+    one_full.append(one._service);
+    std::string two_full(two._sequence);
+    two_full.append(two._service);
+    return (one_full < two_full);
+  }
 
-    bool operator()(const boost::shared_ptr<Command>& one,
-                    const boost::shared_ptr<Command>& two) const {
-      std::string one_full(one->_sequence);
-      one_full.append(one->_service);
-      std::string two_full(two->_sequence);
-      two_full.append(two->_service);
-      return (one_full < two_full);
-    }
+  bool operator()(const boost::shared_ptr<Command>& one,
+                  const boost::shared_ptr<Command>& two) const {
+    std::string one_full(one->_sequence);
+    one_full.append(one->_service);
+    std::string two_full(two->_sequence);
+    two_full.append(two->_service);
+    return (one_full < two_full);
+  }
 
+  friend std::size_t hash_value(boost::shared_ptr<Command> const& item) {
+    std::size_t seed = 0;
+    boost::hash_combine(seed, item->_sequence);
+    boost::hash_combine(seed, item->_service);
+    boost::hash_combine(seed, item->_service_path);
+    return seed;
+  }
 
-    friend std::size_t hash_value(boost::shared_ptr<Command> const& item) {
+  friend std::size_t hash_value(Command const& item) {
+    std::size_t seed = 0;
+    boost::hash_combine(seed, item._sequence);
+    boost::hash_combine(seed, item._service);
+    boost::hash_combine(seed, item._service_path);
+    return seed;
+  }
 
-      std::size_t seed = 0;
-      boost::hash_combine(seed, item->_sequence);
-      boost::hash_combine(seed, item->_service);
-      boost::hash_combine(seed, item->_service_path);
-      return seed;
-    }
+  std::string unique_entity() const {
+    return _service + ":" + _service_path + ":" + _entity + ":" +
+           boost::lexical_cast<std::string>(_status);
+  }
 
-    friend std::size_t hash_value(Command const& item) {
+  std::string unique_id() const {
+    return _service + ":" + _service_path + ":" + _id;
+  }
 
-      std::size_t seed = 0;
-      boost::hash_combine(seed, item._sequence);
-      boost::hash_combine(seed, item._service);
-      boost::hash_combine(seed, item._service_path);
-      return seed;
-    }
+  int get_timeout(void) const { return _timeout; };
 
-    std::string unique_entity() const {
-      return _service+":"+_service_path + ":" + _entity+":"+
-             boost::lexical_cast<std::string>(_status);
-    }
+  void set_timeout(int t_sec) { _timeout = t_sec; };
 
-    std::string unique_id() const {
-      return _service+":"+_service_path+ ":" + _id;
-    }
+  std::string get_sequence(void) const { return _sequence; };
 
+  void set_sequence(const std::string& sequence) { _sequence = sequence; };
 
-    int get_timeout(void) const {
-      return _timeout;
-    };
+  std::string get_entity(void) const { return _entity; };
 
-    void set_timeout(int t_sec) {
-      _timeout = t_sec;
-    };
+  void set_entity(const std::string& nodo) { _entity = nodo; };
 
-    std::string get_sequence(void) const {
-      return _sequence;
-    };
+  void set_id(const std::string& id) { _id = id; };
 
-    void set_sequence(const std::string& sequence) {
-      _sequence = sequence;
-    };
+  std::string get_id() const { return _id; };
 
-    std::string get_entity(void) const {
-      return _entity;
-    };
+  std::string get_uri_resp(void) const { return (_responseURI); };
+  void set_uri_resp(const std::string& uri) { _responseURI = uri; };
 
-    void set_entity(const std::string& nodo) {
-      _entity = nodo;
-    };
+  int get_expired(void) const { return (_expired); }
 
-    void set_id(const std::string& id) {
-      _id = id;
-    };
+  void set_expired(int data) { _expired = data; }
 
-    std::string get_id() const {
-      return _id;
-    };
+  boost::property_tree::ptree get_command() const { return _command; };
 
-    std::string get_uri_resp(void) const {
-      return (_responseURI);
-    };
-    void set_uri_resp(const std::string& uri) {
-      _responseURI= uri;
-    };
+  void set_command(const boost::property_tree::ptree& cmd) { _command = cmd; }
 
-    int get_expired(void) const {
-      return (_expired);
-    }
+  int get_status() const { return _status; };
 
-    void set_expired(int data) {
-      _expired = data;
-    }
+  void set_status(int status) { _status = status; }
 
-    boost::property_tree::ptree get_command() const {
-      return _command;
-    };
+  std::string get_service() const { return _service; };
 
-    void set_command(const boost::property_tree::ptree& cmd) {
-      _command = cmd;
-    }
+  void set_service(const std::string& service) { _service = service; }
 
-    int get_status() const {
-      return _status;
-    };
+  std::string get_service_path() const { return _service_path; };
 
-    void set_status(int status) {
-      _status = status;
-    }
+  void set_service_path(const std::string& service_path) {
+    _service_path = service_path;
+  }
 
-    std::string get_service()  const {
-      return _service;
-    };
+  std::string get_entity_type() const { return _entity_type; };
 
-    void set_service(const std::string& service) {
-      _service = service;
-    }
+  void set_entity_type(const std::string& entity_type) {
+    _entity_type = entity_type;
+  }
 
-    std::string get_service_path()  const {
-      return _service_path;
-    };
+  std::string get_name() const { return _name; };
 
-    void set_service_path(const std::string& service_path) {
-      _service_path = service_path;
-    }
+  void set_name(const std::string& name) { _name = name; }
 
-    std::string get_entity_type() const {
-      return _entity_type;
-    };
+ protected:
+ private:
+  // Timeout asociado al comando (segundos)
+  int _timeout;
 
-    void set_entity_type(const std::string& entity_type) {
-      _entity_type = entity_type;
-    }
+  // Nodo destino al comando
+  std::string _entity;
 
-    std::string get_name() const {
-      return _name;
-    };
+  std::string _entity_type;
 
-    void set_name(const std::string& name) {
-      _name = name;
-    }
+  // URI respuesta
+  std::string _responseURI;
 
-  protected:
-  private:
+  // Identificador de comando, deberia ser unico
+  std::string _id;
 
+  // Identificador de comando, deberia ser unico
+  std::string _name;
 
-    // Timeout asociado al comando (segundos)
-    int _timeout;
+  // Si esta expirado
+  int _expired;
 
-    // Nodo destino al comando
-    std::string _entity;
+  // Si el comando se recupera por polling, debe almacenarse
+  boost::property_tree::ptree _command;
 
-    std::string _entity_type;
+  // estado del comando
+  int _status;
 
-    // URI respuesta
-    std::string _responseURI;
+  // estado del comando
+  std::string _service;
+  std::string _service_path;
 
-    // Identificador de comando, deberia ser unico
-    std::string _id;
-
-    // Identificador de comando, deberia ser unico
-    std::string _name;
-
-    // Si esta expirado
-    int _expired;
-
-    // Si el comando se recupera por polling, debe almacenarse
-    boost::property_tree::ptree _command;
-
-    // estado del comando
-    int _status;
-
-    // estado del comando
-    std::string _service;
-    std::string _service_path;
-
-    // sequence, specific id between CB and IotAgent
-    std::string _sequence;
-
+  // sequence, specific id between CB and IotAgent
+  std::string _sequence;
 };
 
 struct entity_command_hash {
@@ -300,6 +239,5 @@ struct id_command_equal {
   }
 };
 };
-
 
 #endif

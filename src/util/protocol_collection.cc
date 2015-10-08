@@ -21,30 +21,22 @@
 */
 #include <iostream>
 
-
 #include <time.h>
 #include <algorithm>
 #include "store_const.h"
 #include "protocol_collection.h"
 
+iota::ProtocolCollection::ProtocolCollection()
+    : Collection(iota::store::types::PROTOCOL_TABLE){};
 
-iota::ProtocolCollection::ProtocolCollection():Collection(
-    iota::store::types::PROTOCOL_TABLE) {
-};
+iota::ProtocolCollection::ProtocolCollection(ProtocolCollection& dc)
+    : Collection(dc){};
 
-
-iota::ProtocolCollection::ProtocolCollection(ProtocolCollection& dc):Collection(
-    dc) {
-};
-
-iota::ProtocolCollection::~ProtocolCollection() {
-};
-
+iota::ProtocolCollection::~ProtocolCollection(){};
 
 int iota::ProtocolCollection::createTableAndIndex() {
-
   int res = 200;
-  //db.PROTOCOL.ensureIndex({protocol:1},{"unique":1})
+  // db.PROTOCOL.ensureIndex({protocol:1},{"unique":1})
   mongo::BSONObj indexUni = BSON(iota::store::types::PROTOCOL_NAME << 1);
 
   return createIndex(indexUni, true);
@@ -55,10 +47,8 @@ int iota::ProtocolCollection::insert(const Protocol& obj) {
 }
 
 int iota::ProtocolCollection::update(const Protocol& query,
-                                   const Protocol& sett) {
-  return iota::Collection::update(
-                Obj2BSON(query, true),
-                Obj2BSON(sett, true));
+                                     const Protocol& sett) {
+  return iota::Collection::update(Obj2BSON(query, true), Obj2BSON(sett, true));
 }
 
 int iota::ProtocolCollection::find(const Protocol& query) {
@@ -78,8 +68,8 @@ int iota::ProtocolCollection::count(const Protocol& query) {
   return iota::Collection::count(Obj2BSON(query, true));
 }
 
-mongo::BSONObj iota::ProtocolCollection::Obj2BSON( const Protocol& protocol,
-    bool withShardKey) {
+mongo::BSONObj iota::ProtocolCollection::Obj2BSON(const Protocol& protocol,
+                                                  bool withShardKey) {
   mongo::BSONObjBuilder obj;
   if (withShardKey) {
     if (!protocol.get_id().empty()) {
@@ -88,23 +78,28 @@ mongo::BSONObj iota::ProtocolCollection::Obj2BSON( const Protocol& protocol,
   }
 
   if (!protocol.get_name().empty()) {
-      obj.append(iota::store::types::PROTOCOL_NAME, protocol.get_name());
+    obj.append(iota::store::types::PROTOCOL_NAME, protocol.get_name());
   }
 
   if (!protocol.get_description().empty()) {
-      obj.append(iota::store::types::PROTOCOL_DESCRIPTION, protocol.get_description());
-    }
+    obj.append(iota::store::types::PROTOCOL_DESCRIPTION,
+               protocol.get_description());
+  }
 
-  const iota::Protocol::resource_endpoint_vector &endpoints =  protocol.get_endpoints();
+  const iota::Protocol::resource_endpoint_vector& endpoints =
+      protocol.get_endpoints();
   mongo::BSONArrayBuilder arr;
-  int count_endpoints=0;
-  for(std::vector<iota::Protocol::resource_endpoint>::const_iterator it = endpoints.begin(); it != endpoints.end(); ++it) {
-    arr.append(BSON(iota::store::types::ENDPOINT << it->endpoint <<
-                    iota::store::types::RESOURCE << it->resource));
+  int count_endpoints = 0;
+  for (std::vector<iota::Protocol::resource_endpoint>::const_iterator it =
+           endpoints.begin();
+       it != endpoints.end(); ++it) {
+    arr.append(BSON(iota::store::types::ENDPOINT << it->endpoint
+                                                 << iota::store::types::RESOURCE
+                                                 << it->resource));
     count_endpoints++;
   }
 
-  if (count_endpoints > 0){
+  if (count_endpoints > 0) {
     obj.append(iota::store::types::ENDPOINTS, arr.arr());
   }
 
@@ -112,21 +107,21 @@ mongo::BSONObj iota::ProtocolCollection::Obj2BSON( const Protocol& protocol,
 }
 
 iota::Protocol iota::ProtocolCollection::BSON2Obj(const mongo::BSONObj& obj) {
-
   mongo::BSONElement oi;
   obj.getObjectID(oi);
   mongo::OID o = oi.__oid();
   std::string id = o.toString();
   std::string name = obj.getStringField(iota::store::types::PROTOCOL_NAME);
-  std::string description = obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
+  std::string description =
+      obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);
 
   Protocol result(name);
   result.set_description(description);
 
-  mongo::BSONObj endpoints = obj.getObjectField (iota::store::types::ENDPOINTS);
+  mongo::BSONObj endpoints = obj.getObjectField(iota::store::types::ENDPOINTS);
 
   mongo::BSONObjIterator it(endpoints);
-  while ( it.more() ) {
+  while (it.more()) {
     mongo::BSONObj e = it.next().Obj();
     iota::Protocol::resource_endpoint endp;
 
@@ -137,8 +132,8 @@ iota::Protocol iota::ProtocolCollection::BSON2Obj(const mongo::BSONObj& obj) {
   return result;
 }
 
-std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
-  std::vector<iota::Protocol>  result;
+std::vector<iota::Protocol> iota::ProtocolCollection::get_all() {
+  std::vector<iota::Protocol> result;
 
   mongo::BSONObj query;
   mongo::BSONObjBuilder fieldsToReturn;
@@ -147,25 +142,24 @@ std::vector<iota::Protocol> iota::ProtocolCollection::get_all(){
 
   mongo::BSONObj fieldsSort = BSON(iota::store::types::PROTOCOL_NAME << 1);
 
-  iota::Collection::find(a_queryOptions, query,
-                           0, 0,
-                           fieldsSort,
-                           fieldsToReturn, 0);
+  iota::Collection::find(a_queryOptions, query, 0, 0, fieldsSort,
+                         fieldsToReturn, 0);
 
-  while(more()){
+  while (more()) {
     result.push_back(next());
   }
 
   return result;
 }
 
-std::vector<iota::Protocol> iota::ProtocolCollection::get_endpoint_by_protocol(std::string protocol) {
-  std::vector<iota::Protocol>  result;
+std::vector<iota::Protocol> iota::ProtocolCollection::get_endpoint_by_protocol(
+    std::string protocol) {
+  std::vector<iota::Protocol> result;
 
   mongo::BSONObj query = BSON(iota::store::types::PROTOCOL_NAME << protocol);
   iota::Collection::find(query);
 
-  while(more()){
+  while (more()) {
     result.push_back(next());
   }
 
@@ -173,8 +167,7 @@ std::vector<iota::Protocol> iota::ProtocolCollection::get_endpoint_by_protocol(s
 }
 
 void iota::ProtocolCollection::fillProtocols(
-           std::map<std::string,std::string> &protocols){
-
+    std::map<std::string, std::string>& protocols) {
   mongo::BSONObj query;
   mongo::BSONObjBuilder fieldsToReturn;
   fieldsToReturn.append(iota::store::types::PROTOCOL_NAME, 1);
@@ -182,15 +175,12 @@ void iota::ProtocolCollection::fillProtocols(
 
   mongo::BSONObj fieldsSort = BSON(iota::store::types::PROTOCOL_NAME << 1);
 
-  iota::Collection::find(a_queryOptions, query,
-                           0, 0,
-                           fieldsSort,
-                           fieldsToReturn, 0);
+  iota::Collection::find(a_queryOptions, query, 0, 0, fieldsSort,
+                         fieldsToReturn, 0);
 
-  while(more()){
+  while (more()) {
     Protocol p = next();
-    protocols.insert(std::pair<std::string,std::string>
-      (p.get_name(), p.get_description()));
+    protocols.insert(
+        std::pair<std::string, std::string>(p.get_name(), p.get_description()));
   }
-
 }

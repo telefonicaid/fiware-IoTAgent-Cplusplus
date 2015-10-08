@@ -24,48 +24,47 @@
 #include "rest/tcp_service.h"
 #include <cppunit/extensions/HelperMacros.h>
 class TestService {
-  public:
-    TestService() {};
-    virtual ~TestService() {};
-    void handle_data(pion::tcp::connection_ptr& conn,
-                     const std::vector<unsigned char>& r,
-                     std::vector<unsigned char>& b_read,
-                     const boost::system::error_code& e) {
+ public:
+  TestService(){};
+  virtual ~TestService(){};
+  void handle_data(pion::tcp::connection_ptr& conn,
+                   const std::vector<unsigned char>& r,
+                   std::vector<unsigned char>& b_read,
+                   const boost::system::error_code& e) {
+    if (b_read.size() != 0) {
+      std::cout << "HANDLE DATA with data" << std::endl;
+      std::string res("GOODBYE");
+      std::vector<unsigned char> v(res.begin(), res.end());
+      s_->send(conn, v);
+      std::cout << "Closing" << std::endl;
+      s_->close_connection(conn);
 
-      if (b_read.size() != 0) {
-        std::cout << "HANDLE DATA with data" << std::endl;
-        std::string res("GOODBYE");
-        std::vector<unsigned char> v(res.begin(), res.end());
-        s_->send(conn, v);
-        std::cout << "Closing" << std::endl;
-        s_->close_connection(conn);
-
-      }
-      else {
-        std::cout << "HANDLE DATA with no data" << std::endl;
-        std::string res("GOODBYE");
-        std::vector<unsigned char> v(res.begin(), res.end());
-        s_->send(conn, v);
-        std::cout << "Closing" << std::endl;
-        s_->close_connection(conn);
-        //s_->read(conn);
-      }
+    } else {
+      std::cout << "HANDLE DATA with no data" << std::endl;
+      std::string res("GOODBYE");
+      std::vector<unsigned char> v(res.begin(), res.end());
+      s_->send(conn, v);
+      std::cout << "Closing" << std::endl;
+      s_->close_connection(conn);
+      // s_->read(conn);
     }
-    void add_tcp_service(boost::shared_ptr<iota::TcpService> s) {s_ = s;};
-  protected:
-  private:
-    boost::shared_ptr<iota::TcpService> s_;
+  }
+  void add_tcp_service(boost::shared_ptr<iota::TcpService> s) { s_ = s; };
+
+ protected:
+ private:
+  boost::shared_ptr<iota::TcpService> s_;
 };
-class TcpTest: public CppUnit::TestFixture  {
+class TcpTest : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(TcpTest);
+  CPPUNIT_TEST(testConnection);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE(TcpTest);
-    CPPUNIT_TEST(testConnection);
-    CPPUNIT_TEST_SUITE_END();
-  public:
-    void setUp() {};
-    void tearDown() {};
-  protected:
-    void testConnection();
+ public:
+  void setUp(){};
+  void tearDown(){};
 
+ protected:
+  void testConnection();
 };
 #endif

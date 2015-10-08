@@ -24,77 +24,76 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class UtilFunctionTest: public CppUnit::TestFixture  {
+class UtilFunctionTest : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(UtilFunctionTest);
 
-    CPPUNIT_TEST_SUITE(UtilFunctionTest);
+  // rest
+  CPPUNIT_TEST(testFormatPattern);
+  CPPUNIT_TEST(testRegexPattern);
+  CPPUNIT_TEST(testStatistic);
+  CPPUNIT_TEST(testFilter);
+  CPPUNIT_TEST(testUuid);
+  CPPUNIT_TEST(testHeaders);
 
-    //rest
-    CPPUNIT_TEST(testFormatPattern);
-    CPPUNIT_TEST(testRegexPattern);
-    CPPUNIT_TEST(testStatistic);
-    CPPUNIT_TEST(testFilter);
-    CPPUNIT_TEST(testUuid);
-    CPPUNIT_TEST(testHeaders);
+  // cache
+  CPPUNIT_TEST(testLRU);
+  CPPUNIT_TEST(testMRU);
+  CPPUNIT_TEST(testCacheClock);
+  CPPUNIT_TEST(testByEntity);
+  CPPUNIT_TEST(testCommand);
+  CPPUNIT_TEST(testCommandTimeout);
 
-    // cache
-    CPPUNIT_TEST(testLRU);
-    CPPUNIT_TEST(testMRU);
-    CPPUNIT_TEST(testCacheClock);
-    CPPUNIT_TEST(testByEntity);
-    CPPUNIT_TEST(testCommand);
-    CPPUNIT_TEST(testCommandTimeout);
+  // csv
+  CPPUNIT_TEST(testCsv);
 
-    //csv
-    CPPUNIT_TEST(testCsv);
+  // url
+  CPPUNIT_TEST(testUrl);
+  CPPUNIT_TEST(testAlarm);
+  CPPUNIT_TEST(testPtree2String);
 
-    //url
-    CPPUNIT_TEST(testUrl);
-    CPPUNIT_TEST(testAlarm);
-    CPPUNIT_TEST(testPtree2String);
+  // forbidden characters
+  CPPUNIT_TEST(testForbiddenCharacters);
 
-    // forbidden characters
-    CPPUNIT_TEST(testForbiddenCharacters);
+  // command line
+  CPPUNIT_TEST(testCommandLine);
 
-    //command line
-    CPPUNIT_TEST(testCommandLine);
+  CPPUNIT_TEST_SUITE_END();
 
+ public:
+  void setUp(){};
+  void tearDown(){};
 
-    CPPUNIT_TEST_SUITE_END();
-  public:
-    void setUp() {};
-    void tearDown() {};
-  protected:
+ protected:
+  // util
+  void testFormatPattern();
+  void testRegexPattern();
+  void testStatistic();
+  void testFilter();
+  void testUuid();
+  void testHeaders();
 
-    //util
-    void testFormatPattern();
-    void testRegexPattern();
-    void testStatistic();
-    void testFilter();
-    void testUuid();
-    void testHeaders();
+  // cache
+  void testLRU();
+  void testMRU();
+  void testCacheClock();
+  void testByEntity();
+  void testCommand();
+  void testCommandTimeout();
 
-    //cache
-    void testLRU();
-    void testMRU();
-    void testCacheClock();
-    void testByEntity();
-    void testCommand();
-    void testCommandTimeout();
+  // csv
+  void testCsv();
 
-    //csv
-    void testCsv();
+  // url
+  void testUrl();
+  void testAlarm();
+  void testPtree2String();
 
-    //url
-    void testUrl();
-    void testAlarm();
-    void testPtree2String();
+  // Forbiden characters
+  void testForbiddenCharacters();
 
-    // Forbiden characters
-    void testForbiddenCharacters();
-
-    // command line
-    /**
-    Feature: command line parameter -h to show help for parameters
+  // command line
+  /**
+  Feature: command line parameter -h to show help for parameters
 options:
 
 [-m]                manager
@@ -107,17 +106,17 @@ options:
 [-d PLUGINS_DIR]    directory
 [-o OPTION=VALUE]   option
 [-v LOG_LEVEL]      verbose
- -id                identifier
+-id                identifier
 
 -h                  help
 
 
-    Scenario: no parameters in command line
+  Scenario: no parameters in command line
 
-    Scenario: not all necesary parametes
+  Scenario: not all necesary parametes
 
-    Scenario: iotagent  -h or iotagent --help
-    **/
-    void testCommandLine();
+  Scenario: iotagent  -h or iotagent --help
+  **/
+  void testCommandLine();
 };
 #endif

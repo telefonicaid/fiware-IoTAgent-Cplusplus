@@ -26,11 +26,11 @@
 #include <stdexcept>
 #include <iostream>
 
-iota::AttributeRegister::AttributeRegister(const std::istringstream&
-    str_attribute) {
+iota::AttributeRegister::AttributeRegister(
+    const std::istringstream& str_attribute) {
   rapidjson::Document document;
   char buffer[str_attribute.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_attribute.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -57,11 +57,9 @@ iota::AttributeRegister::AttributeRegister(const std::istringstream&
   if ((document.HasMember("isDomain")) && (document["isDomain"].IsString())) {
     _is_domain.assign(document["isDomain"].GetString());
   }
-
 };
 
 iota::AttributeRegister::AttributeRegister(const rapidjson::Value& attribute) {
-
   if (!attribute.IsObject()) {
     throw std::runtime_error("Invalid Object");
   }
@@ -87,6 +85,3 @@ std::string iota::AttributeRegister::get_string() {
   Serialize(writer);
   return buffer.GetString();
 };
-
-
-

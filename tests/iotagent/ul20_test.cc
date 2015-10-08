@@ -37,30 +37,30 @@ int main(int argc, char* argv[]) {
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
   iota::Process& process = iota::Process::initialize("/TestUL", 3);
-  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+  iota::Configurator* conf =
+      iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
   pion::http::plugin_server_ptr http_server = process.add_http_server("", "");
   iota::AdminService* adm = new iota::AdminService();
   process.set_admin_service(adm);
   MockService* mock = new MockService();
   process.add_service("/mock", mock);
   adm->add_service("/mock", mock);
-   // UL Service
+  // UL Service
   iota::UL20Service* ulService = new iota::UL20Service();
   http_server->add_service("/TestUL/d", ulService);
   adm->add_service("/TestUL/d", ulService);
 
-   // Load devices in file
+  // Load devices in file
   iota::DevicesFile::initialize("../../tests/iotagent/devices_ut.json");
 
   process.start();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(Ul20Test::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
   // This sleep wait for some threads should be finalize.
   sleep(3);
   process.shutdown();
   return s ? 0 : 1;
-
 }

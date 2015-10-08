@@ -20,11 +20,9 @@
 * please contact with iot_support at tid dot es
 */
 #ifndef SRC_TESTS_IOTAGENT_MQTTTEST_H_
-#define	SRC_TESTS_IOTAGENT_MQTTTEST_H_
+#define SRC_TESTS_IOTAGENT_MQTTTEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
-
-
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
@@ -44,109 +42,101 @@
 #include "../esp/h/MockPluginOutput.h"
 #include "../esp/h/MockPluginInputMqtt.h"
 
-
 class MqttTest : public CPPUNIT_NS::TestFixture {
-    CPPUNIT_TEST_SUITE(MqttTest);
+  CPPUNIT_TEST_SUITE(MqttTest);
 
+  CPPUNIT_TEST(testCBPublisher);
+  CPPUNIT_TEST(testCBPublisherMissingApikey);
+  CPPUNIT_TEST(testCBPublisherMissingIDdevice);
+  CPPUNIT_TEST(testReceivedMqtt);
+  CPPUNIT_TEST(testBadXMLConfigOutputIoT);
+  CPPUNIT_TEST(testLongAliasesNotWorking);
+  CPPUNIT_TEST(testBadEntityType);
+  CPPUNIT_TEST(testNotInitCBPublisher);
+  CPPUNIT_TEST(testMultipleMeasures);
 
-    CPPUNIT_TEST(testCBPublisher);
-    CPPUNIT_TEST(testCBPublisherMissingApikey);
-    CPPUNIT_TEST (testCBPublisherMissingIDdevice);
-    CPPUNIT_TEST (testReceivedMqtt);
-    CPPUNIT_TEST (testBadXMLConfigOutputIoT);
-    CPPUNIT_TEST (testLongAliasesNotWorking);
-    CPPUNIT_TEST (testBadEntityType);
-    CPPUNIT_TEST (testNotInitCBPublisher);
-    CPPUNIT_TEST (testMultipleMeasures);
+  CPPUNIT_TEST(testExtractingCmdId);
 
-    CPPUNIT_TEST (testExtractingCmdId);
+  CPPUNIT_TEST(testPushCommandExecution);
+  CPPUNIT_TEST(testPushCommandResponse);
+  CPPUNIT_TEST(testPostprocessorJSON_IoTOutput_cmd);
 
-    CPPUNIT_TEST (testPushCommandExecution);
-    CPPUNIT_TEST (testPushCommandResponse);
-    CPPUNIT_TEST (testPostprocessorJSON_IoTOutput_cmd);
+  CPPUNIT_TEST(testLocationContextBroker);
 
-    CPPUNIT_TEST (testLocationContextBroker);
+  CPPUNIT_TEST(testCommandsBody_BUG);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST (testCommandsBody_BUG);
-    CPPUNIT_TEST_SUITE_END();
+ public:
+  MqttTest();
+  virtual ~MqttTest();
+  void setUp();
+  void tearDown();
 
-public:
-    MqttTest();
-    virtual ~MqttTest();
-    void setUp();
-    void tearDown();
+ protected:
+  void testCBPublisher();
+  void testCBPublisherMissingApikey();
+  void testCBPublisherMissingIDdevice();
+  void testReceivedMqtt();
 
-protected:
+  void testLongAliasesNotWorking();
+  void testBadXMLConfigOutputIoT();
+  void testBadEntityType();
 
+  void testNotInitCBPublisher();
 
-    void testCBPublisher();
-    void testCBPublisherMissingApikey();
-    void testCBPublisherMissingIDdevice();
-    void testReceivedMqtt();
+  void testMultipleMeasures();
 
-    void testLongAliasesNotWorking();
-    void testBadXMLConfigOutputIoT();
-    void testBadEntityType();
+  void testExtractingCmdId();
 
-    void testNotInitCBPublisher();
+  void testPushCommandResponse();
+  void testPushCommandExecution();
 
-    void testMultipleMeasures();
+  void testPostprocessorJSON_IoTOutput_cmd();
 
+  void testLocationContextBroker();
 
+  void testCommandsBody_BUG();
 
-    void testExtractingCmdId();
+ private:
+  std::string mqtt_alias;
+  std::string mqtt_payload;
+  std::string mqtt_apikey;
+  std::string mqtt_device;
 
-    void testPushCommandResponse();
-    void testPushCommandExecution();
+  std::string marshalled_Mqtt;
 
-    void testPostprocessorJSON_IoTOutput_cmd();
+  iota::Configurator* conf;
+  iota::esp::ngsi::IotaMqttServiceImpl* cbPublish;
+  MockMosquitto* mockMosquitto;
+  MockMosquitto* mockMosquittoPub;
+  MockIotaMqttService* mockPublisher;
+  iota::esp::MqttService* mqttService;
 
-    void testLocationContextBroker();
+  void defineExpectationsMqttt();
 
-    void testCommandsBody_BUG();
+  void defineExpectationsMqttNoIncomingMsg();
 
-private:
+  struct mosquitto_message mqttMsg;
 
+  int stubLoopToOnMessage(int, int);
+  int stubReadClient(int, char*, int);
+  bool stubExecute(CC_AttributesType* attributes,
+                   ESP_Postprocessor_Base* postprocessor,
+                   std::map<std::string, void*> userData);
 
+  int stubConnect(const char* host, int port, int keepalive);
 
-    std::string mqtt_alias;
-    std::string mqtt_payload;
-    std::string mqtt_apikey;
-    std::string mqtt_device;
+  // void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,const std::string&
+  // type = "mongodb");
 
-    std::string marshalled_Mqtt;
-
-    iota::Configurator* conf;
-    iota::esp::ngsi::IotaMqttServiceImpl* cbPublish;
-    MockMosquitto* mockMosquitto;
-    MockMosquitto* mockMosquittoPub;
-    MockIotaMqttService* mockPublisher;
-    iota::esp::MqttService* mqttService;
-
-
-    void defineExpectationsMqttt();
-
-    void defineExpectationsMqttNoIncomingMsg();
-
-    struct mosquitto_message mqttMsg;
-
-
-    int stubLoopToOnMessage(int,int);
-    int stubReadClient(int, char* ,int);
-    bool stubExecute(CC_AttributesType *attributes, ESP_Postprocessor_Base *postprocessor, std::map<std::string, void*> userData);
-
-    int stubConnect(const char* host, int port, int keepalive);
-
-    //void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,const std::string& type = "mongodb");
-
-    void defineExpectationsMqttPublisher();
+  void defineExpectationsMqttPublisher();
 
   int stubConnectPub(const char* host, int port, int keepalive);
-  int stubPublish(int* mid,const char* topic,int payloadLen,const void* payload,int qos,bool retain);
+  int stubPublish(int* mid, const char* topic, int payloadLen,
+                  const void* payload, int qos, bool retain);
 
-  int stubPublishPush(int* mid,const char* topic,int payloadLen,const void* payload,int qos,bool retain);
-
+  int stubPublishPush(int* mid, const char* topic, int payloadLen,
+                      const void* payload, int qos, bool retain);
 };
 
-#endif	/* MQTTTEST_H */
-
+#endif /* MQTTTEST_H */

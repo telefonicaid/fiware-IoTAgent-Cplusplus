@@ -24,51 +24,43 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-
 class MongoTest : public CPPUNIT_NS::TestFixture {
-    CPPUNIT_TEST_SUITE(MongoTest);
+  CPPUNIT_TEST_SUITE(MongoTest);
 
-    CPPUNIT_TEST(testGenericCollection);
-    CPPUNIT_TEST(testCommandCollection);
-    CPPUNIT_TEST(testDeviceCollection);
+  CPPUNIT_TEST(testGenericCollection);
+  CPPUNIT_TEST(testCommandCollection);
+  CPPUNIT_TEST(testDeviceCollection);
 
-    // to test testReplica  you need a replicaSet in mongo
-    // and configure it in tests/iotagent/config_mongo_replica.json
-    CPPUNIT_TEST(testReplica);
-    CPPUNIT_TEST(testMongoAlone);
-    CPPUNIT_TEST(testException);
+  // to test testReplica  you need a replicaSet in mongo
+  // and configure it in tests/iotagent/config_mongo_replica.json
+  CPPUNIT_TEST(testReplica);
+  CPPUNIT_TEST(testMongoAlone);
+  CPPUNIT_TEST(testException);
 
-    CPPUNIT_TEST(testProtocolCollection);
-    CPPUNIT_TEST(testServiceMgmtCollection);
+  CPPUNIT_TEST(testProtocolCollection);
+  CPPUNIT_TEST(testServiceMgmtCollection);
 
-    CPPUNIT_TEST(testNoMongo);
+  CPPUNIT_TEST(testNoMongo);
 
-    CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
 
-  public:
+ public:
+  void tearDown();
+  void setUp();
 
-    void tearDown();
-    void setUp();
+ private:
+  void testGenericCollection();
+  void testCommandCollection();
+  void testDeviceCollection();
+  void testProtocolCollection();
+  void testServiceMgmtCollection();
 
-  private:
+  void testNoMongo();
+  void testReplica();
+  void testMongoAlone();
+  void testException();
 
-    void testGenericCollection();
-    void testCommandCollection();
-    void testDeviceCollection();
-    void testProtocolCollection();
-    void testServiceMgmtCollection();
-
-    void testNoMongo();
-    void testReplica();
-    void testMongoAlone();
-    void testException();
-
-    static void workerFunc();
-
-
+  static void workerFunc();
 };
 
-#endif  /* UL20TEST_H */
-
-
-
+#endif /* UL20TEST_H */

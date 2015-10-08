@@ -29,18 +29,18 @@
 #include "adminManagerTest.h"
 #include "../mocks/http_mock.h"
 
-
 int main(int argc, char* argv[]) {
-
   // Logger
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
 
   // Http server
-  iota::Process& process = iota::Process::initialize("/TestManager",12);
-  iota::Configurator* conf = iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
-  pion::http::plugin_server_ptr http_server = process.add_http_server("", "127.0.0.1:7070");
+  iota::Process& process = iota::Process::initialize("/TestManager", 12);
+  iota::Configurator* conf =
+      iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
+  pion::http::plugin_server_ptr http_server =
+      process.add_http_server("", "127.0.0.1:7070");
 
   // Manager is admin service
   iota::AdminManagerService* admMgm = new iota::AdminManagerService();
@@ -66,11 +66,10 @@ int main(int argc, char* argv[]) {
   testing::GTEST_FLAG(throw_on_failure) = true;
   testing::InitGoogleMock(&argc, argv);
 
-
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(AdminManagerTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
   std::cout << "Shutdown server" << std::endl;
   process.shutdown();

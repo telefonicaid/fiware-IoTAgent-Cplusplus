@@ -29,29 +29,26 @@ iota::Arguments::Arguments() {
   manager = false;
   ssl_flag = false;
   verbose_flag = false;
-  DEFAULT_PORT =8080;
+  DEFAULT_PORT = 8080;
   port = DEFAULT_PORT;
   ZERO_IP = "0.0.0.0";
   prov_ip = ZERO_IP;
-
 }
 
-bool iota::Arguments::check_parameter(const  char short_param,
+bool iota::Arguments::check_parameter(const char short_param,
                                       const std::string& large_param,
                                       int argnum, int argc, const char* argv[],
                                       bool has_parameter) {
-
   bool result = false;
   if (argv[argnum][0] == '-') {
     if (argv[argnum][1] == short_param && argv[argnum][2] == '\0') {
       result = true;
-    }
-    else if (argv[argnum][1] == '-') {
+    } else if (argv[argnum][1] == '-') {
       result = (large_param.compare(argv[argnum]) == 0);
     }
   }
 
-  if (has_parameter && argnum+1 >= argc) {
+  if (has_parameter && argnum + 1 >= argc) {
     result = false;
   }
 
@@ -59,7 +56,7 @@ bool iota::Arguments::check_parameter(const  char short_param,
 }
 
 std::string iota::Arguments::parser(int argc, const char* argv[]) {
-  for (int argnum=1; argnum < argc; ++argnum) {
+  for (int argnum = 1; argnum < argc; ++argnum) {
     if (check_parameter('p', "--port", argnum, argc, argv)) {
       // set port number
       ++argnum;
@@ -67,78 +64,59 @@ std::string iota::Arguments::parser(int argc, const char* argv[]) {
       if (port == 0) {
         port = DEFAULT_PORT;
       }
-    }
-    else if (check_parameter('i', "--ip", argnum, argc, argv)) {
+    } else if (check_parameter('i', "--ip", argnum, argc, argv)) {
       prov_ip = argv[++argnum];
-    }
-    else if (check_parameter('u', "--url", argnum, argc, argv)) {
+    } else if (check_parameter('u', "--url", argnum, argc, argv)) {
       url_base.assign(argv[++argnum]);
-    }
-    else if (check_parameter('f', "--file", argnum, argc, argv)) {
+    } else if (check_parameter('f', "--file", argnum, argc, argv)) {
       standalone_config_file.assign(argv[++argnum]);
-    }
-    else if (check_parameter('4', "--ipv4", argnum, argc, argv, false)) {
+    } else if (check_parameter('4', "--ipv4", argnum, argc, argv, false)) {
       // default ip
       ZERO_IP = "0.0.0.0";
-    }
-    else if (check_parameter('6', "--ipv6", argnum, argc, argv, false)) {
+    } else if (check_parameter('6', "--ipv6", argnum, argc, argv, false)) {
       ZERO_IP = "::";
-    }
-    else if (check_parameter('n', "--name", argnum, argc, argv)) {
+    } else if (check_parameter('n', "--name", argnum, argc, argv)) {
       iotagent_name.assign(argv[++argnum]);
-    }
-    else if (check_parameter('c', "--config_file", argnum, argc, argv)) {
+    } else if (check_parameter('c', "--config_file", argnum, argc, argv)) {
       service_config_file = argv[++argnum];
-    }
-    else if (check_parameter('d', "--plugins-dir", argnum, argc, argv)) {
+    } else if (check_parameter('d', "--plugins-dir", argnum, argc, argv)) {
       // add the service plug-ins directory to the search path
       plugin_directory = argv[++argnum];
-    }
-    else if (check_parameter('o' , "--option", argnum, argc, argv)) {
+    } else if (check_parameter('o', "--option", argnum, argc, argv)) {
       std::string option_name(argv[++argnum]);
       std::string::size_type pos = option_name.find('=');
       if (pos == std::string::npos) {
-        return iota::types::HELP_MESSAGE_ERR_PARAMO +
-               argument_error();
+        return iota::types::HELP_MESSAGE_ERR_PARAMO + argument_error();
       }
       std::string option_value(option_name, pos + 1);
       option_name.resize(pos);
       service_options.push_back(std::make_pair(option_name, option_value));
-    }
-    else if (check_parameter('s' , "--ssl", argnum, argc, argv)) {
+    } else if (check_parameter('s', "--ssl", argnum, argc, argv)) {
       ssl_flag = true;
       ssl_pem_file = argv[++argnum];
-    }
-    else if (check_parameter('v' , "--verbose", argnum, argc, argv)) {
+    } else if (check_parameter('v', "--verbose", argnum, argc, argv)) {
       verbose_flag = true;
-      if (argnum+1 < argc) {
+      if (argnum + 1 < argc) {
         log_level.assign(argv[++argnum]);
       }
-    }
-    else if (check_parameter('m', "--manager", argnum, argc, argv, false)) {
+    } else if (check_parameter('m', "--manager", argnum, argc, argv, false)) {
       // Start as IoTA Manager
       manager = true;
-    }
-    else if (check_parameter('h',  "--help", argnum, argc, argv, false)) {
+    } else if (check_parameter('h', "--help", argnum, argc, argv, false)) {
       // help
       return iota::types::HELP_MESSAGE_OPS + iota::types::HELP_MESSAGE;
-    }
-    else if (check_parameter('I',  "--identifier", argnum, argc, argv)) {
+    } else if (check_parameter('I', "--identifier", argnum, argc, argv)) {
       // help
       identifier.assign(argv[++argnum]);
-    }
-    else if (argv[argnum][0] == '-') {
-      return  iota::types::HELP_MESSAGE_ERR_BAD_PARAM + argument_error();
-    }
-    else if (argnum+2 == argc) {
+    } else if (argv[argnum][0] == '-') {
+      return iota::types::HELP_MESSAGE_ERR_BAD_PARAM + argument_error();
+    } else if (argnum + 2 == argc) {
       // second to last argument = RESOURCE
       resource_name = argv[argnum];
-    }
-    else if (argnum+1 == argc) {
+    } else if (argnum + 1 == argc) {
       // last argument = WEBSERVICE
       service_name = argv[argnum];
-    }
-    else {
+    } else {
       return iota::types::HELP_MESSAGE_ERR_PARAM + argument_error();
     }
   }
@@ -149,12 +127,11 @@ std::string iota::Arguments::parser(int argc, const char* argv[]) {
 
   // check minimun parametes
   if (service_config_file.empty() &&
-      (resource_name.empty()|| service_name.empty())) {
-    return iota::types::HELP_MESSAGE_ERR_CONFIG
-           + argument_error();
+      (resource_name.empty() || service_name.empty())) {
+    return iota::types::HELP_MESSAGE_ERR_CONFIG + argument_error();
   }
 
-  //debe existir el directorio para plugins de pion
+  // debe existir el directorio para plugins de pion
 
   return "";
 }
@@ -164,7 +141,7 @@ std::string iota::Arguments::argument_error(void) {
 }
 
 void iota::Arguments::set_service_options(
-  pion::http::plugin_server_ptr&  web_server) {
+    pion::http::plugin_server_ptr& web_server) {
   std::string url_complete(get_url_base());
   // load a single web service using the command line arguments
   // after url base
@@ -175,7 +152,7 @@ void iota::Arguments::set_service_options(
   // set web service options if any are defined
 
   for (std::vector<std::pair<std::string, std::string> >::iterator i =
-         service_options.begin();
+           service_options.begin();
        i != service_options.end(); ++i) {
     web_server->set_service_option(url_complete, i->first, i->second);
   }

@@ -26,21 +26,21 @@
 #include <tinyxml.h>
 
 class TimeZoneTests : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(TimeZoneTests);
+  CPPUNIT_TEST(testTimeStampInUTC);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE(TimeZoneTests);
-    CPPUNIT_TEST(testTimeStampInUTC);
-    CPPUNIT_TEST_SUITE_END();
+ public:
+  void setUp();
+  void tearDown();
 
-  public:
-    void setUp();
-    void tearDown();
+ protected:
+  void testTimeStampInUTC();
 
-  protected:
-    void testTimeStampInUTC();
-  private:
-    ESP_SML_Map* mapSML;
-    ESP_SML_SamplingTime* smlTime;
-    TiXmlElement* xmlElement;
+ private:
+  ESP_SML_Map* mapSML;
+  ESP_SML_SamplingTime* smlTime;
+  TiXmlElement* xmlElement;
 };
 
-#endif // TIMEZONETESTS_H
+#endif  // TIMEZONETESTS_H

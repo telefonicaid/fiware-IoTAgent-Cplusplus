@@ -42,7 +42,8 @@
 #define CB_DEFAULT_TYPE "string"
 
 /**
-This is the class that will actually implement the sending of entities to the ContextBroker
+This is the class that will actually implement the sending of entities to the
+ContextBroker
 */
 
 namespace iota {
@@ -50,32 +51,34 @@ namespace esp {
 namespace ngsi {
 class IotaMqttServiceImpl : public IotaMqttService {
  public:
-
   IotaMqttServiceImpl(std::string iotServiceName);
 
   virtual ~IotaMqttServiceImpl();
-  void set_resthandle (iota::RestHandle* service_ptr);
-  void set_command_service (iota::esp::ngsi::IotaMqttCommands* command_ptr);
+  void set_resthandle(iota::RestHandle* service_ptr);
+  void set_command_service(iota::esp::ngsi::IotaMqttCommands* command_ptr);
 
   /**
   @name extract_command_id
-  @brief it will return the payload without the command id, and the command id in a separate string.
-  This is used for processing command responses in mqtt, where the command id is mandatory to be included
-  in the payload using the format "cmdid|<command id>#". If not present, an exception will be thrown.
+  @brief it will return the payload without the command id, and the command id
+  in a separate string.
+  This is used for processing command responses in mqtt, where the command id is
+  mandatory to be included
+  in the payload using the format "cmdid|<command id>#". If not present, an
+  exception will be thrown.
 
-  @param [IN] in_payload: the mqtt response payload including "cmdid|<comand id>#" among other parameters
+  @param [IN] in_payload: the mqtt response payload including "cmdid|<comand
+  id>#" among other parameters
   @param [OUT] out_payload: the payload without the cmdid
   @param [OUT] out_id: the desired command id.
   @throw iota::IotaException when cmdid is missing.
   */
-  void extract_command_id(std::string in_payload, std::string& out_payload,std::string& out_id);
-
+  void extract_command_id(std::string in_payload, std::string& out_payload,
+                          std::string& out_id);
 
  protected:
  private:
   pion::logger m_logger;
   std::string iotService;
-
 
   iota::tt::TTCBPublisher* publisher_ptr;
 
@@ -83,19 +86,15 @@ class IotaMqttServiceImpl : public IotaMqttService {
 
   iota::esp::ngsi::IotaMqttCommands* mqtt_command_ptr_;
 
-  std::string doPublishCB(std::string& apikey,
-                          std::string& idDevice,std::string& json);
+  std::string doPublishCB(std::string& apikey, std::string& idDevice,
+                          std::string& json);
 
+  void processCommandResponse(std::string& apikey, std::string& idDevice,
+                              std::string& payload);
 
-
-  void processCommandResponse(std::string& apikey,std::string& idDevice, std::string& payload);
-
-  void add_info(boost::property_tree::ptree& pt,
-                            const std::string& apiKey);
-
-
+  void add_info(boost::property_tree::ptree& pt, const std::string& apiKey);
 };
 }
 }
 }
-#endif // IOTAMQTTSERVICEIMPL_H
+#endif  // IOTAMQTTSERVICEIMPL_H

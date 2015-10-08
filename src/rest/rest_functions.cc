@@ -43,7 +43,7 @@ bool iota::restResourceParse(std::string& regex,
         data = m[i];
         datad = pion::algorithm::url_decode(data);
         resources.insert(std::make_pair<std::string, std::string>(
-                        url_placeholders.at(i-1), datad));
+            url_placeholders.at(i - 1), datad));
       }
     }
   }
@@ -54,9 +54,8 @@ void iota::format_pattern(std::string& url,
                           std::map<std::string, std::string>& filters,
                           std::string& url_regex,
                           std::vector<std::string>& url_args) {
-
   // Regular expression to match placeholders
-  //boost::regex search_re("(POST|GET[[:space:]]+.+/)<([a-zA-Z0-9_-]+)>");
+  // boost::regex search_re("(POST|GET[[:space:]]+.+/)<([a-zA-Z0-9_-]+)>");
   boost::regex search_re("<([a-zA-Z0-9_-]+)>");
   boost::match_results<std::string::const_iterator> what;
   std::string::const_iterator start(url.begin());
@@ -74,20 +73,23 @@ void iota::format_pattern(std::string& url,
     try {
       if (tmp_placeholders[what.prefix()] != what.prefix().first) {
         url_regex.append(what.prefix());
-        tmp_placeholders.insert(std::make_pair<std::string,
-                                std::string::const_iterator>(what.prefix(), what.prefix().first));
+        tmp_placeholders.insert(
+            std::make_pair<std::string, std::string::const_iterator>(
+                what.prefix(), what.prefix().first));
       }
 
       if (tmp_placeholders[what.str(0)] != what[0].first) {
         url_regex.append("([^/]+)");
-        tmp_placeholders.insert(std::make_pair<std::string,
-                                std::string::const_iterator>(what.str(0), what[0].first));
+        tmp_placeholders.insert(
+            std::make_pair<std::string, std::string::const_iterator>(
+                what.str(0), what[0].first));
         url_args.push_back(what.str(1));
       }
 
       if (tmp_placeholders[what.suffix()] != what.suffix().first) {
-        tmp_placeholders.insert(std::make_pair<std::string,
-                                std::string::const_iterator>(what.suffix(), what.suffix().first));
+        tmp_placeholders.insert(
+            std::make_pair<std::string, std::string::const_iterator>(
+                what.suffix(), what.suffix().first));
         tmp_suffix = what.suffix();
       }
 
@@ -95,8 +97,7 @@ void iota::format_pattern(std::string& url,
       start = what[0].second;
       flags |= boost::match_prev_avail;
       flags |= boost::match_not_bob;
-    }
-    catch (std::exception& e) {
+    } catch (std::exception& e) {
       // TODO
     }
   }
@@ -113,8 +114,7 @@ void iota::format_pattern(std::string& url,
   url_regex.insert(0, "[[:space:]]+");
   if (filters["method"].empty() == true) {
     url_regex.insert(0, ".+");
-  }
-  else {
+  } else {
     url_regex.insert(0, filters["method"]);
   }
 }

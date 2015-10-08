@@ -22,25 +22,22 @@
 #ifndef SRC_REST_MEDIA_FILTER_H_
 #define SRC_REST_MEDIA_FILTER_H_
 
-
 #include "http_filter.h"
 #include <map>
 
 namespace iota {
 
-class MediaFilter: public virtual iota::HTTPFilter {
+class MediaFilter : public virtual iota::HTTPFilter {
+ public:
+  MediaFilter(boost::asio::io_service& io_service);
+  virtual ~MediaFilter();
+  virtual bool handle_request(pion::http::request_ptr& http_request_ptr,
+                              pion::tcp::connection_ptr& tcp_conn);
 
-  public:
-    MediaFilter(boost::asio::io_service& io_service);
-    virtual ~MediaFilter();
-    virtual bool handle_request(pion::http::request_ptr& http_request_ptr,
-                                pion::tcp::connection_ptr& tcp_conn);
-
-  protected:
-  private:
-    std::string _filter_url;
-    boost::mutex _m;
-
+ protected:
+ private:
+  std::string _filter_url;
+  boost::mutex _m;
 };
 }
 #endif

@@ -24,32 +24,33 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class OAuthTest: public CppUnit::TestFixture  {
+class OAuthTest : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(OAuthTest);
 
-    CPPUNIT_TEST_SUITE(OAuthTest);
+  CPPUNIT_TEST(testIdentity);
+  CPPUNIT_TEST(testGetTokenTrust);
+  CPPUNIT_TEST(testValidateToken);
+  CPPUNIT_TEST(testGetSubservice);
+  CPPUNIT_TEST(testGetUserRoles);
+  CPPUNIT_TEST(testAccessControl);
+  CPPUNIT_TEST(testValidateAsync);
+  CPPUNIT_TEST(testActions);
 
-    CPPUNIT_TEST(testIdentity);
-    CPPUNIT_TEST(testGetTokenTrust);
-    CPPUNIT_TEST(testValidateToken);
-    CPPUNIT_TEST(testGetSubservice);
-    CPPUNIT_TEST(testGetUserRoles);
-    CPPUNIT_TEST(testAccessControl);
-    CPPUNIT_TEST(testValidateAsync);
-    CPPUNIT_TEST(testActions);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE_END();
-  public:
-    OAuthTest();
-    void setUp();
-    void tearDown();
-  protected:
-    void testIdentity();
-    void testGetTokenTrust();
-    void testValidateToken();
-    void testGetSubservice();
-    void testGetUserRoles();
-    void testAccessControl();
-    void testValidateAsync();
-    void testActions();
+ public:
+  OAuthTest();
+  void setUp();
+  void tearDown();
+
+ protected:
+  void testIdentity();
+  void testGetTokenTrust();
+  void testValidateToken();
+  void testGetSubservice();
+  void testGetUserRoles();
+  void testAccessControl();
+  void testValidateAsync();
+  void testActions();
 };
 #endif

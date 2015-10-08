@@ -30,11 +30,11 @@
 #include <boost/foreach.hpp>
 #include <stdexcept>
 
-iota::ContextElement::ContextElement(const std::istringstream&
-                                     str_context_element) {
+iota::ContextElement::ContextElement(
+    const std::istringstream& str_context_element) {
   rapidjson::Document document;
   char buffer[str_context_element.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_context_element.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -44,7 +44,6 @@ iota::ContextElement::ContextElement(const std::istringstream&
     what << document.GetErrorOffset();
     what << "]";
     throw std::runtime_error(what.str());
-
   }
 
   if (document.HasMember(iota::ngsi::NGSI_ID.c_str()) == false) {
@@ -58,26 +57,26 @@ iota::ContextElement::ContextElement(const std::istringstream&
   if (document[iota::ngsi::NGSI_ID.c_str()].IsString()) {
     _id.assign(document[iota::ngsi::NGSI_ID.c_str()].GetString());
   }
-  if ((document.HasMember(iota::ngsi::NGSI_TYPE.c_str()))
-      && (document[iota::ngsi::NGSI_TYPE.c_str()].IsString())) {
+  if ((document.HasMember(iota::ngsi::NGSI_TYPE.c_str())) &&
+      (document[iota::ngsi::NGSI_TYPE.c_str()].IsString())) {
     _type.assign(document[iota::ngsi::NGSI_TYPE.c_str()].GetString());
   }
-  if ((document.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str()))
-      && (document[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString())) {
-    _is_pattern.assign(document[iota::ngsi::NGSI_ISPATTERN.c_str()].GetString());
+  if ((document.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str())) &&
+      (document[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString())) {
+    _is_pattern.assign(
+        document[iota::ngsi::NGSI_ISPATTERN.c_str()].GetString());
   }
 
-  if (document.HasMember(iota::ngsi::NGSI_ATTRIBUTES.c_str())
-      && document[iota::ngsi::NGSI_ATTRIBUTES.c_str()].IsArray()) {
+  if (document.HasMember(iota::ngsi::NGSI_ATTRIBUTES.c_str()) &&
+      document[iota::ngsi::NGSI_ATTRIBUTES.c_str()].IsArray()) {
     const rapidjson::Value& attributes =
-      document[iota::ngsi::NGSI_ATTRIBUTES.c_str()];
+        document[iota::ngsi::NGSI_ATTRIBUTES.c_str()];
     if (attributes.IsArray()) {
       for (rapidjson::SizeType i = 0; i < attributes.Size(); i++) {
         iota::Attribute attribute(attributes[i]);
         add_attribute(attribute);
       }
-    }
-    else {
+    } else {
       std::ostringstream what;
       what << "ContextElement: ";
       what << "invalid type field [";
@@ -88,7 +87,6 @@ iota::ContextElement::ContextElement(const std::istringstream&
 }
 
 iota::ContextElement::ContextElement(const rapidjson::Value& context_element) {
-
   if (!context_element.IsObject()) {
     throw std::runtime_error("Invalid Object");
   }
@@ -103,33 +101,30 @@ iota::ContextElement::ContextElement(const rapidjson::Value& context_element) {
   if (context_element[iota::ngsi::NGSI_ID.c_str()].IsString()) {
     _id.assign(context_element[iota::ngsi::NGSI_ID.c_str()].GetString());
   }
-  if ((context_element.HasMember(iota::ngsi::NGSI_TYPE.c_str()))
-      && (context_element[iota::ngsi::NGSI_TYPE.c_str()].IsString())) {
+  if ((context_element.HasMember(iota::ngsi::NGSI_TYPE.c_str())) &&
+      (context_element[iota::ngsi::NGSI_TYPE.c_str()].IsString())) {
     _type.assign(context_element[iota::ngsi::NGSI_TYPE.c_str()].GetString());
   }
-  if ((context_element.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str()))
-      && (context_element[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString())) {
+  if ((context_element.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str())) &&
+      (context_element[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString())) {
     _is_pattern.assign(
-      context_element[iota::ngsi::NGSI_ISPATTERN.c_str()].GetString());
+        context_element[iota::ngsi::NGSI_ISPATTERN.c_str()].GetString());
   }
 
-  if (context_element.HasMember(iota::ngsi::NGSI_ATTRIBUTES.c_str())
-      && context_element[iota::ngsi::NGSI_ATTRIBUTES.c_str()].IsArray()) {
+  if (context_element.HasMember(iota::ngsi::NGSI_ATTRIBUTES.c_str()) &&
+      context_element[iota::ngsi::NGSI_ATTRIBUTES.c_str()].IsArray()) {
     const rapidjson::Value& attributes =
-      context_element[iota::ngsi::NGSI_ATTRIBUTES.c_str()];
+        context_element[iota::ngsi::NGSI_ATTRIBUTES.c_str()];
     if (attributes.IsArray()) {
       for (rapidjson::SizeType i = 0; i < attributes.Size(); i++) {
         iota::Attribute attribute(attributes[i]);
         add_attribute(attribute);
       }
     }
-
   }
 };
 
-
 std::string iota::ContextElement::get_string() {
-
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   Serialize(writer);
@@ -144,10 +139,8 @@ void iota::ContextElement::format() const {
   // If device info has entity_type, this info is taken.
   // If device info has not entity_type, service entity_type is taken.
   // If _type is defined in constructor, does not follow default.
-  std::string service_entity_type = _service_info.get<std::string>
-                                    (iota::store::types::ENTITY + "_" +
-                                     iota::store::types::TYPE, "");
-
+  std::string service_entity_type = _service_info.get<std::string>(
+      iota::store::types::ENTITY + "_" + iota::store::types::TYPE, "");
 
   std::string entity_type("thing");
   std::string entity_id(_id);
@@ -155,14 +148,12 @@ void iota::ContextElement::format() const {
     if (!_device_info->_entity_type.empty() &&
         _device_info->_entity_type.compare(iota::store::types::DEFAULT) != 0) {
       entity_type.assign(_device_info->_entity_type);
-    }
-    else {
+    } else {
       // Device has not entity type, default is used if context is not created
       // with specific entity_type
       if (!_type.empty()) {
         entity_type = _type;
-      }
-      else if (!service_entity_type.empty()) {
+      } else if (!service_entity_type.empty()) {
         entity_type = service_entity_type;
       }
     }
@@ -170,8 +161,7 @@ void iota::ContextElement::format() const {
     if (!_device_info->_entity_name.empty() &&
         _device_info->_entity_name.compare(iota::store::types::DEFAULT) != 0) {
       entity_id.assign(_device_info->_entity_name);
-    }
-    else {
+    } else {
       // Device has not entity_name, default is used if _type is not defined
       // in constructor
       if (_type.empty()) {
@@ -179,13 +169,11 @@ void iota::ContextElement::format() const {
       }
     }
 
-  }
-  else {
+  } else {
     // No device info
     if (!_type.empty()) {
       entity_type = _type;
-    }
-    else if (!service_entity_type.empty()) {
+    } else if (!service_entity_type.empty()) {
       entity_type = service_entity_type;
     }
     if (_type.empty()) {
@@ -194,7 +182,6 @@ void iota::ContextElement::format() const {
   }
   _type.assign(entity_type);
   _id.assign(entity_id);
-
 };
 
 void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
@@ -210,11 +197,10 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
 
   if (attribute.get_type().compare("compound") == 0) {
     empty_value = attribute.get_compound_value().empty();
-  }
-  else {
+  } else {
     empty_value = attribute.get_value().empty();
   }
-  if (empty_value == false)  {
+  if (empty_value == false) {
     // Check if attribute has user mapping. This mapping could be in service
     // configuration
     std::string attr_mapping;
@@ -223,20 +209,21 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
     }
     if (attr_mapping.empty()) {
       try {
-        boost::property_tree::ptree::const_iterator it = _service_info.get_child(
-              iota::store::types::ATTRIBUTES).begin();
-        while (attr_mapping.empty()
-               && it != _service_info.get_child(iota::store::types::ATTRIBUTES).end()) {
-          if (it->second.get<std::string>(iota::store::types::ATTRIBUTE_ID,
-                                          "").compare(attribute.get_name()) == 0) {
+        boost::property_tree::ptree::const_iterator it =
+            _service_info.get_child(iota::store::types::ATTRIBUTES).begin();
+        while (
+            attr_mapping.empty() &&
+            it !=
+                _service_info.get_child(iota::store::types::ATTRIBUTES).end()) {
+          if (it->second.get<std::string>(iota::store::types::ATTRIBUTE_ID, "")
+                  .compare(attribute.get_name()) == 0) {
             std::stringstream os_json;
             iota::property_tree::json_parser::write_json(os_json, it->second);
             attr_mapping = os_json.str();
           }
           ++it;
         }
-      }
-      catch (boost::property_tree::ptree_bad_path& e) {
+      } catch (boost::property_tree::ptree_bad_path& e) {
         // Nothing
       }
     }
@@ -251,26 +238,25 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
           type = attribute.get_type();
         }
         if (type.empty()) {
-          //default value
+          // default value
           type = "string";
         }
 
         iota::Attribute mapped_attr(att.get_name(), type, "");
         if (type.compare("compound") == 0) {
-          std::vector<iota::Attribute> compound_value = attribute.get_compound_value();
+          std::vector<iota::Attribute> compound_value =
+              attribute.get_compound_value();
           for (int i = 0; i < compound_value.size(); i++) {
             mapped_attr.add_value_compound(compound_value[i]);
           }
-        }
-        else if (type.compare(iota::store::types::COORDS) == 0) {
+        } else if (type.compare(iota::store::types::COORDS) == 0) {
           std::string valueSTR = attribute.get_value();
           std::replace(valueSTR.begin(), valueSTR.end(), '/', ',');
           mapped_attr.set_value(valueSTR);
-          //add metadata
+          // add metadata
           iota::Attribute metadata_loc("location", "string", "WGS84");
           mapped_attr.add_metadata(metadata_loc);
-        }
-        else {
+        } else {
           mapped_attr.set_value(attribute.get_value());
         }
         std::vector<iota::Attribute> metadata = attribute.get_metadatas();
@@ -282,22 +268,19 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
           mapped_attr.add_metadata(att.get_metadatas()[i]);
         }
         add_attribute(mapped_attr);
-      }
-      else {
+      } else {
         // TODO Only log, exception, what??????
         // std::cout << "ERROR PARSE ATTR" << std::endl;
       }
-    }
-    else {
+    } else {
       _attributes.push_back(attribute);
     }
-
   }
 };
 
-void iota::ContextElement::set_env_info(boost::property_tree::ptree
-                                        service_info,
-                                        boost::shared_ptr<Device> device) {
+void iota::ContextElement::set_env_info(
+    boost::property_tree::ptree service_info,
+    boost::shared_ptr<Device> device) {
   _service_info = service_info;
   _device_info = device;
   // Format type and id
@@ -306,9 +289,10 @@ void iota::ContextElement::set_env_info(boost::property_tree::ptree
   std::string timestamp = mi_hora.toUTC().toString();
   // Static Attributes
   // Add static attributes. These attributes are either in device or in service
-  if (_device_info.get() != NULL && _device_info->_static_attributes.size() > 0) {
+  if (_device_info.get() != NULL &&
+      _device_info->_static_attributes.size() > 0) {
     std::map<std::string, std::string>::iterator it =
-      _device_info->_static_attributes.begin();
+        _device_info->_static_attributes.begin();
     while (it != _device_info->_static_attributes.end()) {
       rapidjson::Document d;
       if (!d.Parse<0>(it->second.c_str()).HasParseError()) {
@@ -322,14 +306,17 @@ void iota::ContextElement::set_env_info(boost::property_tree::ptree
   }
 
   try {
-    BOOST_FOREACH(boost::property_tree::ptree::value_type& v,
-                  _service_info.get_child(iota::store::types::STATIC_ATTRIBUTES)) {
+    BOOST_FOREACH (
+        boost::property_tree::ptree::value_type& v,
+        _service_info.get_child(iota::store::types::STATIC_ATTRIBUTES)) {
       std::string a_name = v.second.get<std::string>(iota::ngsi::NGSI_NAME, "");
       if (!a_name.empty() && !exists(a_name)) {
         // Add attribute.
 
-        std::string a_type = v.second.get<std::string>(iota::ngsi::NGSI_TYPE, "string");
-        std::string a_value = v.second.get<std::string>(iota::ngsi::NGSI_VALUE, "");
+        std::string a_type =
+            v.second.get<std::string>(iota::ngsi::NGSI_TYPE, "string");
+        std::string a_value =
+            v.second.get<std::string>(iota::ngsi::NGSI_VALUE, "");
         if (!a_value.empty()) {
           std::stringstream os_json;
           iota::property_tree::json_parser::write_json(os_json, v.second);
@@ -343,8 +330,7 @@ void iota::ContextElement::set_env_info(boost::property_tree::ptree
         }
       }
     }
-  }
-  catch (boost::property_tree::ptree_bad_path& e) {
+  } catch (boost::property_tree::ptree_bad_path& e) {
     // Nothing
   }
 }
@@ -361,4 +347,3 @@ bool iota::ContextElement::exists(std::string& name) {
   }
   return exists;
 }
-

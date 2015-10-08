@@ -24,42 +24,34 @@
 
 #include <string>
 
-
 #include "collection.h"
 #include "command.h"
-
 
 namespace iota {
 
 class CommandCollection : public Collection {
-  public:
+ public:
+  CommandCollection();
+  CommandCollection(CommandCollection&);
+  ~CommandCollection();
 
+  int insert(const Command& obj);
+  int find(const std::string& id);
+  int find(const Command& query);
+  Command next();
+  int remove(const Command& query);
+  int count(const Command& query);
 
-    CommandCollection();
-    CommandCollection(CommandCollection&);
-    ~CommandCollection();
+  int createTableAndIndex();
 
-    int insert(const Command& obj) ;
-    int find(const std::string& id) ;
-    int find(const Command& query) ;
-    Command next() ;
-    int remove(const Command& query) ;
-    int count(const Command& query) ;
+ protected:
+  Command BSON2Obj(const mongo::BSONObj& obj);
 
-    int createTableAndIndex();
+  mongo::BSONObj Obj2BSON(const Command& command, bool withShardKey);
 
-  protected:
+ private:
+};  // end class GenericCollection
 
-    Command BSON2Obj(const mongo::BSONObj& obj);
-
-    mongo::BSONObj Obj2BSON(const Command& command, bool withShardKey);
-
-  private:
-
-}; // end class GenericCollection
-
-}// end namespace  riot
+}  // end namespace  riot
 
 #endif
-
-

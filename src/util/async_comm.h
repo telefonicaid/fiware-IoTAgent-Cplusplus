@@ -28,65 +28,58 @@
 
 namespace iota {
 
-class CommonIOServicePool:
-  private boost::noncopyable {
-  public:
+class CommonIOServicePool : private boost::noncopyable {
+ public:
+  // Constructor para un pool de io_service.
+  explicit CommonIOServicePool(std::size_t pool_size);
 
-    // Constructor para un pool de io_service.
-    explicit CommonIOServicePool(std::size_t pool_size);
+  // Ejecuta los io_service.
+  void run();
 
-    // Ejecuta los io_service.
-    void run();
+  // para los io_service
+  void stop();
 
-    // para los io_service
-    void stop();
+  // Recupera el io_service a utilizar
+  boost::shared_ptr<boost::asio::io_service>& get_io_service();
 
-    // Recupera el io_service a utilizar
-    boost::shared_ptr<boost::asio::io_service>& get_io_service();
+ private:
+  // El pool de io_services
+  std::vector<boost::shared_ptr<boost::asio::io_service> > _pool_io_services;
+  std::vector<boost::shared_ptr<boost::asio::io_service::work> > _pool_work;
 
-  private:
+  // Vector con threads
+  std::vector<boost::shared_ptr<boost::thread> > threads;
 
-    // El pool de io_services
-    std::vector<boost::shared_ptr<boost::asio::io_service> > _pool_io_services;
-    std::vector<boost::shared_ptr<boost::asio::io_service::work> > _pool_work;
+  // io_service a utilizar
+  std::size_t _next_io_service;
 
-    // Vector con threads
-    std::vector<boost::shared_ptr<boost::thread> > threads;
-
-    // io_service a utilizar
-    std::size_t _next_io_service;
-
-    // Bloqueo
-    boost::mutex _m;
+  // Bloqueo
+  boost::mutex _m;
 };
-
 
 class CommonAsyncManager {
-  public:
-    explicit CommonAsyncManager(std::size_t num_threads);
-    virtual ~CommonAsyncManager() {
-      //std::cout << "DESTRUCTOR CommonAsyncManager" << std::endl;
-    };
+ public:
+  explicit CommonAsyncManager(std::size_t num_threads);
+  virtual ~CommonAsyncManager(){
+      // std::cout << "DESTRUCTOR CommonAsyncManager" << std::endl;
+  };
 
-    // Run el bucle de io_service
-    void run();
+  // Run el bucle de io_service
+  void run();
 
-    // Para
-    void stop();
+  // Para
+  void stop();
 
-    // Recupera io_service
-    inline boost::shared_ptr<boost::asio::io_service>& get_io_service(void) {
-      return (_pool.get_io_service());
-    };
-  protected:
+  // Recupera io_service
+  inline boost::shared_ptr<boost::asio::io_service>& get_io_service(void) {
+    return (_pool.get_io_service());
+  };
 
-  private:
-
-    // / io_service que realiza la oepraciones asincronas
-    CommonIOServicePool _pool;
+ protected:
+ private:
+  // / io_service que realiza la oepraciones asincronas
+  CommonIOServicePool _pool;
 };
 };
 
-#endif   /* COMMONASYNCMANAGER_H */
-
-
+#endif /* COMMONASYNCMANAGER_H */

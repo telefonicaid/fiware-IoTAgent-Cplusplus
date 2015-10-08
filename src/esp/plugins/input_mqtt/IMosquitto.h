@@ -26,24 +26,26 @@
 
 class IMosquitto {
  public:
-  IMosquitto() {};
-  virtual ~IMosquitto() {};
+  IMosquitto(){};
+  virtual ~IMosquitto(){};
 
   virtual void setCallBack(IMqttCallback* callback) = 0;
-  virtual int mqttConnect(const char* host, int port=1883, int keepalive=60) = 0;
-  virtual int mqttLoop(int timeout=-1, int max_packets=1) = 0;
-  virtual int mqttPublish(int* mid, const char* topic, int payloadlen=0,
-                          const void* payload=NULL, int qos=0, bool retain=false)= 0;
-  virtual int mqttSubscribe(int* mid, const char* sub, int qos=0)= 0;
+  virtual int mqttConnect(const char* host, int port = 1883,
+                          int keepalive = 60) = 0;
+  virtual int mqttLoop(int timeout = -1, int max_packets = 1) = 0;
+  virtual int mqttPublish(int* mid, const char* topic, int payloadlen = 0,
+                          const void* payload = NULL, int qos = 0,
+                          bool retain = false) = 0;
+  virtual int mqttSubscribe(int* mid, const char* sub, int qos = 0) = 0;
   virtual int mqttUnsubscribe(int* mid, const char* sub) = 0;
-  virtual int mqttDisconnect()= 0;
+  virtual int mqttDisconnect() = 0;
   virtual int mqttReconnect() = 0;
-  virtual int mqttSetPassword(const char* username, const char* password=NULL)= 0;
+  virtual int mqttSetPassword(const char* username,
+                              const char* password = NULL) = 0;
 
-  virtual int mqttGetVersion() { return 0;}
+  virtual int mqttGetVersion() { return 0; }
 
-  //more and more
-
+  // more and more
 };
 
-#endif // IMOSQUITTO_H
+#endif  // IMOSQUITTO_H

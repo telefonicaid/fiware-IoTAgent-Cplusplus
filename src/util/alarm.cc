@@ -22,11 +22,10 @@
 #include "alarm.h"
 #include <boost/lexical_cast.hpp>
 
-iota::Alarm* iota::Alarm::pinstance = 0;// Inicializar el puntero
+iota::Alarm* iota::Alarm::pinstance = 0;  // Inicializar el puntero
 
-iota::Alarm::Alarm():
-  m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {
-}
+iota::Alarm::Alarm()
+    : m_log(PION_GET_LOGGER(iota::Process::get_logger_name())) {}
 
 iota::Alarm* iota::Alarm::instance() {
   if (pinstance == 0) {
@@ -35,29 +34,22 @@ iota::Alarm* iota::Alarm::instance() {
   return pinstance;
 }
 
-void iota::Alarm::error(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text) {
-   instance()->put(code, endpoint, status, text);
+void iota::Alarm::error(int code, const std::string& endpoint,
+                        const std::string& status, const std::string& text) {
+  instance()->put(code, endpoint, status, text);
 }
 
-void iota::Alarm::info(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text) {
-   instance()->remove(code, endpoint, status, text);
+void iota::Alarm::info(int code, const std::string& endpoint,
+                       const std::string& status, const std::string& text) {
+  instance()->remove(code, endpoint, status, text);
 }
 
-
-std::string iota::Alarm::message(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text) {
-
+std::string iota::Alarm::message(int code, const std::string& endpoint,
+                                 const std::string& status,
+                                 const std::string& text) {
   std::string message;
   message.append(" code=");
-  message.append( boost::lexical_cast<std::string > (code) );
+  message.append(boost::lexical_cast<std::string>(code));
   message.append(" origin=");
   message.append(endpoint);
   message.append(" info=");
@@ -66,55 +58,39 @@ std::string iota::Alarm::message(int code,
   return message;
 }
 
+void iota::Alarm::put(int code, const std::string& endpoint,
+                      const std::string& status, const std::string& text) {
+  boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+  std::string errorSTR = " event=ALARM";
+  errorSTR.append(message(code, endpoint, status, text));
 
-void iota::Alarm::put(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text) {
-   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-   std::string errorSTR =" event=ALARM";
-   errorSTR.append(message(code, endpoint, status, text));
-
-   IOTA_LOG_ERROR(m_log, errorSTR);
-   _alarms.insert(std::pair<std::string,std::string>(
-                  get_key(code, endpoint, status),errorSTR) );
+  IOTA_LOG_ERROR(m_log, errorSTR);
+  _alarms.insert(std::pair<std::string, std::string>(
+      get_key(code, endpoint, status), errorSTR));
 }
 
-void iota::Alarm::remove(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text) {
-    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-    std::string errorSTR =" event=END-ALARM";
-    errorSTR.append(message(code, endpoint, status, text));
+void iota::Alarm::remove(int code, const std::string& endpoint,
+                         const std::string& status, const std::string& text) {
+  boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+  std::string errorSTR = " event=END-ALARM";
+  errorSTR.append(message(code, endpoint, status, text));
 
-    int num = _alarms.erase(get_key(code, endpoint, status));
-    if (num > 0){
-      IOTA_LOG_ERROR(m_log, errorSTR);
-    }else{
-      IOTA_LOG_DEBUG(m_log, errorSTR);
-    }
+  int num = _alarms.erase(get_key(code, endpoint, status));
+  if (num > 0) {
+    IOTA_LOG_ERROR(m_log, errorSTR);
+  } else {
+    IOTA_LOG_DEBUG(m_log, errorSTR);
+  }
 }
 
-std::string iota::Alarm::get_key(int code,
-             const std::string& endpoint,
-             const std::string& status) {
-   std::string key;
+std::string iota::Alarm::get_key(int code, const std::string& endpoint,
+                                 const std::string& status) {
+  std::string key;
 
-   key.append(boost::lexical_cast<std::string >(code));
-   key.append(endpoint);
+  key.append(boost::lexical_cast<std::string>(code));
+  key.append(endpoint);
 
-   return key;
-
+  return key;
 }
 
-int iota::Alarm::size() {
-    return _alarms.size();
-}
-
-
-
-
-
-
-
+int iota::Alarm::size() { return _alarms.size(); }

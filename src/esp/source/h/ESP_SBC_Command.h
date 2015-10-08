@@ -37,20 +37,19 @@ class ESP_SBC_Command {
   std::string getDestination();
   std::string getUL20output();
 
-  std::map<std::string,std::string> getParamMap();
+  std::map<std::string, std::string> getParamMap();
   bool isParseCorrect();
 
  protected:
  private:
-  bool parseCorrect ;
+  bool parseCorrect;
   TiXmlDocument doc;
   std::string outputUL20;
   std::string name;
   std::string dest;
   std::string cmd_id;
   void parseParams(TiXmlElement* element);
-  std::map<std::string,std::string> mapParams;
-
+  std::map<std::string, std::string> mapParams;
 };
 
-#endif // ESP_SBC_COMMAND_H
+#endif  // ESP_SBC_COMMAND_H

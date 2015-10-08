@@ -22,8 +22,6 @@
 #ifndef SRC_THINKINGTHINGS_DECODETTJSON_H_
 #define SRC_THINKINGTHINGS_DECODETTJSON_H_
 
-
-
 #include <string>
 
 namespace iota {
@@ -31,20 +29,20 @@ namespace esp {
 namespace tt {
 
 class DecodeTTJSON {
-  public:
-    DecodeTTJSON();
-    void parse(std::string& strJSON);
-    virtual ~DecodeTTJSON();
+ public:
+  DecodeTTJSON();
+  void parse(std::string& strJSON);
+  virtual ~DecodeTTJSON();
 
-    std::string getProcessedJSON();
-    std::string getPlainJSON();
+  std::string getProcessedJSON();
+  std::string getPlainJSON();
 
-  protected:
-  private:
-    std::string processedJSON;
-    std::string plainJSON;
+ protected:
+ private:
+  std::string processedJSON;
+  std::string plainJSON;
 };
 }
 }
 }
-#endif // DECODETTJSON_H
+#endif  // DECODETTJSON_H

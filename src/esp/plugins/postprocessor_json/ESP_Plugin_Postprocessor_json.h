@@ -32,56 +32,47 @@
 #define ATTRB_REF "ref"
 
 class ESP_Plugin_Postprocessor_json : public ESP_Plugin_Postprocessor_Base {
+ private:
+  static ESP_Plugin_Postprocessor_json* instance;
+  ESP_Plugin_Postprocessor_json();
 
-  private:
-    static  ESP_Plugin_Postprocessor_json* instance;
-    ESP_Plugin_Postprocessor_json();
-  public:
+ public:
+  virtual ~ESP_Plugin_Postprocessor_json(){};
 
-    virtual ~ESP_Plugin_Postprocessor_json() {};
+  ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
 
-
-    ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
-
-    static ESP_Plugin_Postprocessor_json* getSingleton();
+  static ESP_Plugin_Postprocessor_json* getSingleton();
 };
-
-
 
 class ESP_Postprocessor_json : public ESP_Postprocessor_Base {
+ private:
+  // enum JsonType {MQTT,TT};
 
-  private:
-    // enum JsonType {MQTT,TT};
+  std::string result;
+  bool resultValid;
 
-    std::string result;
-    bool resultValid;
+  std::string valueRef;
+  std::string aliasRef;
 
-    std::string valueRef;
-    std::string aliasRef;
+  std::string bypassRef;
+  std::string bypassCmdGet;
 
-    std::string bypassRef;
-    std::string bypassCmdGet;
+ public:
+  static std::string TYPE;
 
+  ESP_Postprocessor_json();
+  virtual ~ESP_Postprocessor_json(){};
 
-  public:
-    static std::string TYPE;
+  // Methods
+  const char* getResultData();
+  int getResultSize();
+  bool isResultValid();
 
+  bool initialize();
+  bool execute(CC_AttributesType* result);
+  bool terminate();
 
-    ESP_Postprocessor_json();
-    virtual ~ESP_Postprocessor_json() {};
-
-    // Methods
-    const char* getResultData();
-    int getResultSize();
-    bool isResultValid();
-
-    bool initialize();
-    bool execute(CC_AttributesType* result);
-    bool terminate();
-
-    void parseCustomElement(TiXmlElement* element);
-
-
+  void parseCustomElement(TiXmlElement* element);
 };
 
-#endif // ESP_PLUGIN_POSTPROCESSOR_json_H
+#endif  // ESP_PLUGIN_POSTPROCESSOR_json_H

@@ -28,38 +28,34 @@
 #include <sstream>
 namespace iota {
 class NotifyCondition {
-  public:
-    NotifyCondition(const std::string& type): _type(type) {};
-    NotifyCondition(const std::istringstream& str_cond);
-    NotifyCondition(const rapidjson::Value& cond);
-    NotifyCondition() {};
-    ~NotifyCondition() {};
-    std::string get_string();
-    std::string& get_type() {
-      return _type;
-    };
-    std::vector<std::string>& get_values() {
-      return _values;
-    };
-    void add_value(const std::string& value);
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("type");
-      writer.String(_type.c_str(), (rapidjson::SizeType)_type.length());
-      writer.String("condValues");
-      writer.StartArray();
-      for (std::vector<std::string>::const_iterator it= _values.begin();
-           it != _values.end(); ++it) {
-        writer.String((*it).c_str(), (rapidjson::SizeType)(*it).length());
-      }
-      writer.EndArray();
-      writer.EndObject();
-    };
-  private:
-    std::vector<std::string> _values;
-    std::string _type;
-};
+ public:
+  NotifyCondition(const std::string& type) : _type(type){};
+  NotifyCondition(const std::istringstream& str_cond);
+  NotifyCondition(const rapidjson::Value& cond);
+  NotifyCondition(){};
+  ~NotifyCondition(){};
+  std::string get_string();
+  std::string& get_type() { return _type; };
+  std::vector<std::string>& get_values() { return _values; };
+  void add_value(const std::string& value);
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("type");
+    writer.String(_type.c_str(), (rapidjson::SizeType)_type.length());
+    writer.String("condValues");
+    writer.StartArray();
+    for (std::vector<std::string>::const_iterator it = _values.begin();
+         it != _values.end(); ++it) {
+      writer.String((*it).c_str(), (rapidjson::SizeType)(*it).length());
+    }
+    writer.EndArray();
+    writer.EndObject();
+  };
 
+ private:
+  std::vector<std::string> _values;
+  std::string _type;
+};
 }
 #endif

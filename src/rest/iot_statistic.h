@@ -35,41 +35,41 @@
 namespace iota {
 
 class IoTStatistic {
-  public:
-    typedef boost::accumulators::accumulator_set<double,
-            boost::accumulators::stats<boost::accumulators::tag::count,
-            boost::accumulators::tag::sum,
-            boost::accumulators::tag::max,
-            boost::accumulators::tag::min,
-            boost::accumulators::tag::mean> > iot_accumulator;
+ public:
+  typedef boost::accumulators::accumulator_set<
+      double,
+      boost::accumulators::stats<
+          boost::accumulators::tag::count, boost::accumulators::tag::sum,
+          boost::accumulators::tag::max, boost::accumulators::tag::min,
+          boost::accumulators::tag::mean> > iot_accumulator;
 
-    typedef boost::shared_ptr< iot_accumulator > iot_accumulator_ptr;
+  typedef boost::shared_ptr<iot_accumulator> iot_accumulator_ptr;
 
-    IoTStatistic(const std::string& name);
-    IoTStatistic() {};
-    IoTStatistic(const IoTStatistic& stat);
-    ~IoTStatistic();
-    void set_enable(bool enabled);
-    const bool get_enable() const;
-    const std::string& get_name() const;
-    IoTStatistic& operator=(IoTStatistic& stat);
-    iot_accumulator_ptr operator[](const std::string& acc_name);
-    void add(const std::string& acc_name, double value);
-    const std::map<long, std::map<std::string, iot_accumulator_ptr> >&
-    get_counters() const;
+  IoTStatistic(const std::string& name);
+  IoTStatistic(){};
+  IoTStatistic(const IoTStatistic& stat);
+  ~IoTStatistic();
+  void set_enable(bool enabled);
+  const bool get_enable() const;
+  const std::string& get_name() const;
+  IoTStatistic& operator=(IoTStatistic& stat);
+  iot_accumulator_ptr operator[](const std::string& acc_name);
+  void add(const std::string& acc_name, double value);
+  const std::map<long, std::map<std::string, iot_accumulator_ptr> >&
+  get_counters() const;
 
-    /**
-     * Reset all accumulators to initial state
-     */
-    void reset(long timestamp);
+  /**
+   * Reset all accumulators to initial state
+   */
+  void reset(long timestamp);
 
-  protected:
-  private:
-    std::string _name;
-    bool _enabled;
-    //std::map<std::string, iot_accumulator_ptr > _accumulators;
-    std::map<long, std::map<std::string, iot_accumulator_ptr> > _accumulators_;
+ protected:
+ private:
+  std::string _name;
+  bool _enabled;
+  // std::map<std::string, iot_accumulator_ptr > _accumulators;
+  std::map<long, std::map<std::string, iot_accumulator_ptr> > _accumulators_;
 };
 };
 
-#endif // _IOTSTATISTIC_H_
+#endif  // _IOTSTATISTIC_H_

@@ -28,7 +28,7 @@
 iota::QueryContext::QueryContext(const std::istringstream& str_query) {
   rapidjson::Document document;
   char buffer[str_query.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_query.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -40,7 +40,6 @@ iota::QueryContext::QueryContext(const std::istringstream& str_query) {
     throw std::runtime_error(what.str());
   }
 
-
   if (!document.HasMember(iota::ngsi::NGSI_ENTITIES.c_str()) ||
       !document[iota::ngsi::NGSI_ENTITIES.c_str()].IsArray()) {
     std::ostringstream what;
@@ -50,7 +49,8 @@ iota::QueryContext::QueryContext(const std::istringstream& str_query) {
     what << "]";
     throw std::runtime_error(what.str());
   }
-  const rapidjson::Value& entities = document[iota::ngsi::NGSI_ENTITIES.c_str()];
+  const rapidjson::Value& entities =
+      document[iota::ngsi::NGSI_ENTITIES.c_str()];
   for (rapidjson::SizeType i = 0; i < entities.Size(); i++) {
     iota::Entity entitiy(entities[i]);
     add_entity(entitiy);
@@ -64,20 +64,15 @@ iota::QueryContext::QueryContext(const std::istringstream& str_query) {
     what << iota::ngsi::NGSI_ATTRIBUTES;
     what << "]";
     throw std::runtime_error(what.str());
-
   }
   const rapidjson::Value& attributes = document["attributes"];
 
   for (rapidjson::SizeType i = 0; i < attributes.Size(); i++) {
     add_attribute(attributes[i].GetString());
   }
-
-
-
 };
 
 iota::QueryContext::QueryContext(const rapidjson::Value& query) {
-
   if (!query.IsObject() ||
       !query.HasMember(iota::ngsi::NGSI_ENTITIES.c_str()) ||
       !query[iota::ngsi::NGSI_ENTITIES.c_str()].IsArray()) {
@@ -105,12 +100,11 @@ iota::QueryContext::QueryContext(const rapidjson::Value& query) {
   }
 
   const rapidjson::Value& attributes =
-    query[iota::ngsi::NGSI_ATTRIBUTES.c_str()];
+      query[iota::ngsi::NGSI_ATTRIBUTES.c_str()];
 
   for (rapidjson::SizeType i = 0; i < attributes.Size(); i++) {
     add_attribute(attributes[i].GetString());
   }
-
 };
 
 std::string iota::QueryContext::get_string() {
@@ -127,4 +121,3 @@ void iota::QueryContext::add_entity(const iota::Entity& entity) {
 void iota::QueryContext::add_attribute(const std::string& attribute) {
   _attributes.push_back(attribute);
 };
-

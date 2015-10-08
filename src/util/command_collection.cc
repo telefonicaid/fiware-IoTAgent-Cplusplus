@@ -26,17 +26,13 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include "util/iota_logger.h"
 
+iota::CommandCollection::CommandCollection()
+    : Collection(iota::store::types::COMMAND_TABLE){};
 
-iota::CommandCollection::CommandCollection():Collection(
-    iota::store::types::COMMAND_TABLE) {
-};
+iota::CommandCollection::CommandCollection(CommandCollection& dc)
+    : Collection(dc){};
 
-iota::CommandCollection::CommandCollection(CommandCollection& dc):Collection(
-    dc) {
-};
-
-iota::CommandCollection::~CommandCollection() {
-};
+iota::CommandCollection::~CommandCollection(){};
 
 int iota::CommandCollection::insert(const Command& obj) {
   return iota::Collection::insert(Obj2BSON(obj, true));
@@ -62,7 +58,8 @@ int iota::CommandCollection::count(const iota::Command& query) {
 iota::Command iota::CommandCollection::BSON2Obj(const mongo::BSONObj& obj) {
   std::string nodo = obj.getStringField(iota::store::types::DEVICE);
   std::string service = obj.getStringField(iota::store::types::SERVICE);
-  std::string service_path = obj.getStringField(iota::store::types::SERVICE_PATH);
+  std::string service_path =
+      obj.getStringField(iota::store::types::SERVICE_PATH);
 
   iota::Command result(nodo, service, service_path);
   // Timeout asociado al comando (segundos)
@@ -80,7 +77,7 @@ iota::Command iota::CommandCollection::BSON2Obj(const mongo::BSONObj& obj) {
   result.set_name(obj.getStringField(iota::store::types::NAME));
 
   // Si esta expirado
-  //TODO bool _expired;
+  // TODO bool _expired;
 
   // Si el comando se recupera por polling, debe almacenarse
   std::string body = obj.getStringField(iota::store::types::COMMAND);
@@ -100,29 +97,26 @@ iota::Command iota::CommandCollection::BSON2Obj(const mongo::BSONObj& obj) {
   return result;
 };
 
-
 mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
-    bool withShardKey) {
-
+                                                 bool withShardKey) {
   mongo::BSONObjBuilder obj;
   if (withShardKey) {
-      if (!command.get_id().empty()) {
-          obj.append(iota::store::types::COMMAND_ID, command.get_id());
-      }
+    if (!command.get_id().empty()) {
+      obj.append(iota::store::types::COMMAND_ID, command.get_id());
+    }
   }
 
-    if (!command.get_name().empty()) {
-      obj.append(iota::store::types::NAME, command.get_name());
-    }
+  if (!command.get_name().empty()) {
+    obj.append(iota::store::types::NAME, command.get_name());
+  }
 
-    if (!command.get_service().empty()) {
-      obj.append(iota::store::types::SERVICE, command.get_service());
-    }
+  if (!command.get_service().empty()) {
+    obj.append(iota::store::types::SERVICE, command.get_service());
+  }
 
-
-    if (!command.get_service_path().empty()) {
-      obj.append(iota::store::types::SERVICE_PATH, command.get_service_path());
-    }
+  if (!command.get_service_path().empty()) {
+    obj.append(iota::store::types::SERVICE_PATH, command.get_service_path());
+  }
 
   if (!command.get_entity().empty()) {
     obj.append(iota::store::types::DEVICE, command.get_entity());
@@ -138,7 +132,7 @@ mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
   if (!command.get_sequence().empty()) {
     obj.append(iota::store::types::SEQUENCE, command.get_sequence());
   }
-  if (command.get_status()!= INT_MIN) {
+  if (command.get_status() != INT_MIN) {
     obj.append(iota::store::types::STATUS, command.get_status());
   }
   if (command.get_timeout() != INT_MIN) {
@@ -152,12 +146,12 @@ mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
 };
 
 int iota::CommandCollection::createTableAndIndex() {
-
   int res = 200;
-  // db.COMMAND.ensureIndex( { "id":1 , "service" :1, "service_path":1}, { unique: true } )
-  mongo::BSONObj indexUni =BSON(iota::store::types::COMMAND_ID << 1 <<
-                   iota::store::types::SERVICE << 1 <<
-                   iota::store::types::SERVICE_PATH << 1);
+  // db.COMMAND.ensureIndex( { "id":1 , "service" :1, "service_path":1}, {
+  // unique: true } )
+  mongo::BSONObj indexUni = BSON(iota::store::types::COMMAND_ID
+                                 << 1 << iota::store::types::SERVICE << 1
+                                 << iota::store::types::SERVICE_PATH << 1);
 
   return createIndex(indexUni, true);
   return 0;

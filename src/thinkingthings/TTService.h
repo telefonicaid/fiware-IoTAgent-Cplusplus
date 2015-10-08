@@ -22,7 +22,6 @@
 #ifndef SRC_THINKINGTHINGS_TTSERVICE_H_
 #define SRC_THINKINGTHINGS_TTSERVICE_H_
 
-
 #include <pion/http/plugin_service.hpp>
 #include <rest/rest_handle.h>
 #include <boost/property_tree/ptree.hpp>
@@ -38,44 +37,39 @@ namespace iota {
 namespace esp {
 
 class TTService : public iota::RestHandle {
-  public:
-    int idsensor;
-    static TTService* instance;
-    static ESPLib* getESPLib();
+ public:
+  int idsensor;
+  static TTService* instance;
+  static ESPLib* getESPLib();
 
+  TTService();
+  TTService(boost::shared_ptr<iota::tt::TTCBPublisher> ttPublisher_ptr);
 
-    TTService();
-    TTService(boost::shared_ptr<iota::tt::TTCBPublisher> ttPublisher_ptr);
+  virtual ~TTService();
+  void start();
+  void service(pion::http::request_ptr& http_request_ptr,
+               std::map<std::string, std::string>& url_args,
+               std::multimap<std::string, std::string>& query_parameters,
+               pion::http::response& http_response, std::string& response);
+  virtual void set_option(const std::string& name, const std::string& value);
 
-    virtual ~TTService();
-    void start();
-    void service(pion::http::request_ptr& http_request_ptr,
-                 std::map<std::string, std::string>& url_args,
-                 std::multimap<std::string, std::string>& query_parameters,
-                 pion::http::response& http_response,
-                 std::string& response);
-    virtual void set_option(const std::string& name, const std::string& value);
+  int initESPLib(std::string& pathToLog, std::string& sensorFile);
+  void add_info(boost::property_tree::ptree& pt, const std::string& iotService,
+                const std::string& apiKey);  // Can be taken to another class
 
-    int initESPLib(std::string& pathToLog, std::string& sensorFile);
-    void add_info(boost::property_tree::ptree& pt,
-                  const std::string& iotService,
-                  const std::string& apiKey);//Can be taken to another class
+ protected:
+  pion::logger m_logger;
 
+ private:
+  boost::shared_ptr<iota::tt::TTCBPublisher> contextBrokerPub;
 
-  protected:
-    pion::logger m_logger;
-  private:
-    boost::shared_ptr<iota::tt::TTCBPublisher> contextBrokerPub;
+  static ESPLib* esplib_instance;
+  int idSensor;
+  std::string resource;
+  boost::property_tree::ptree _service_configuration;
 
-    static ESPLib* esplib_instance;
-    int idSensor;
-    std::string resource;
-    boost::property_tree::ptree _service_configuration;
-
-    ESP_Postprocessor_TT* tt_post_ptr_;
-
+  ESP_Postprocessor_TT* tt_post_ptr_;
 };
-
 }
 }
-#endif // TTSERVICE_H
+#endif  // TTSERVICE_H

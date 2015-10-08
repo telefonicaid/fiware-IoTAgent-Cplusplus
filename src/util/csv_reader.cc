@@ -26,12 +26,10 @@
 #include <sstream>
 
 void csv_reader(std::string csv_data,
-                std::vector< std::map<std::string, std::string> >& data) {
-
-
+                std::vector<std::map<std::string, std::string> >& data) {
   std::istringstream in(csv_data.c_str());
 
-  typedef boost::tokenizer< boost::escaped_list_separator<char> > Tokenizer;
+  typedef boost::tokenizer<boost::escaped_list_separator<char> > Tokenizer;
   std::vector<std::string> items;
   std::vector<std::pair<std::string, std::string> > values;
   std::string line;
@@ -39,16 +37,14 @@ void csv_reader(std::string csv_data,
   // First line contains items to read
   int line_count = 0;
   int num_items = 0;
-  while (getline(in,line)) {
+  while (getline(in, line)) {
     values.clear();
     Tokenizer tok(line);
     if (line_count == 0) {
       line_count++;
-      items.assign(tok.begin(),tok.end());
+      items.assign(tok.begin(), tok.end());
       num_items = items.size();
-    }
-    else {
-
+    } else {
       Tokenizer::iterator it_tokens = tok.begin();
       int i = 0;
       int n_tokens = 0;
@@ -57,13 +53,11 @@ void csv_reader(std::string csv_data,
           boost::trim(items.at(i));
           std::string token(*it_tokens);
           boost::trim(token);
-          values.push_back(std::make_pair(items.at(i),
-                                          token));
+          values.push_back(std::make_pair(items.at(i), token));
           ++it_tokens;
           ++i;
           ++n_tokens;
-        }
-        catch (std::exception& e) {
+        } catch (std::exception& e) {
           data.clear();
           return;
         }
@@ -73,7 +67,7 @@ void csv_reader(std::string csv_data,
         return;
       }
       std::map<std::string, std::string> items_and_values(values.begin(),
-          values.end());
+                                                          values.end());
       data.push_back(items_and_values);
     }
   }

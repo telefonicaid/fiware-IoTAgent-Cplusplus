@@ -27,7 +27,6 @@
 #include "tinyxml.h"
 
 class ESP_XmlUtils {
-
  public:
   static int queryIntValue(TiXmlElement* element, const char* attribute);
   static float queryFloatValue(TiXmlElement* element, const char* attribute);
@@ -92,13 +91,12 @@ class ESP_XmlUtils {
 
   struct ESP_TagModeFlags {
     enum ESP_TagModeFlags_Enum {
-      TAGMODE_FLAGS_UNKNOWN=0,
-      TAGMODE_FLAGS_PARSER=1,
-      TAGMODE_FLAGS_CALIB=2,
-      TAGMODE_FLAGS_PARSER_CALIB=3
+      TAGMODE_FLAGS_UNKNOWN = 0,
+      TAGMODE_FLAGS_PARSER = 1,
+      TAGMODE_FLAGS_CALIB = 2,
+      TAGMODE_FLAGS_PARSER_CALIB = 3
     };
   };
 };
-
 
 #endif

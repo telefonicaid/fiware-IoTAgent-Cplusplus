@@ -26,34 +26,34 @@
 #include <pion/http/plugin_server.hpp>
 #include <boost/thread/mutex.hpp>
 
-class MockService: public iota::RestHandle {
-  public:
-    MockService() {};
-    ~MockService() {
-    }
-    void operator()(pion::http::request_ptr& http_request_ptr,
-                    pion::tcp::connection_ptr& tcp_conn);
+class MockService : public iota::RestHandle {
+ public:
+  MockService(){};
+  ~MockService() {}
+  void operator()(pion::http::request_ptr& http_request_ptr,
+                  pion::tcp::connection_ptr& tcp_conn);
 
-    std::map<std::string, int> _sc;
-    std::map<std::string, std::vector<std::string> > _content;
-    std::map<std::string, std::vector<std::string> > _received_content;
-    std::map<std::string, std::map<std::string, std::string> > _headers;
-    std::map<std::string, bool> _extended_echo;
-    std::string get_last(std::string test_name);
-    void set_response(std::string test_function, int status_code, std::string content,
-                      std::map<std::string, std::string> headers =
+  std::map<std::string, int> _sc;
+  std::map<std::string, std::vector<std::string> > _content;
+  std::map<std::string, std::vector<std::string> > _received_content;
+  std::map<std::string, std::map<std::string, std::string> > _headers;
+  std::map<std::string, bool> _extended_echo;
+  std::string get_last(std::string test_name);
+  void set_response(std::string test_function, int status_code,
+                    std::string content,
+                    std::map<std::string, std::string> headers =
                         std::map<std::string, std::string>());
-    void set_extended_echo(std::string test_function) {
-      _extended_echo[test_function] = true;
-    };
+  void set_extended_echo(std::string test_function) {
+    _extended_echo[test_function] = true;
+  };
 
-    void reset(std::string test_function);
-    int size(std::string test_function);
-    int r_size(std::string test_function) {
-      return _content[test_function].size();
-    };
+  void reset(std::string test_function);
+  int size(std::string test_function);
+  int r_size(std::string test_function) {
+    return _content[test_function].size();
+  };
 
-  private:
+ private:
 };
 
 #endif

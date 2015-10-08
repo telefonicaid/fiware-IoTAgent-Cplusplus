@@ -36,8 +36,6 @@
 #include <boost/uuid/uuid.hpp>
 #include <vector>
 
-
-
 namespace iota {
 
 // Operaciones
@@ -50,11 +48,13 @@ namespace iota {
 // UniversalIdentifierOfLogicalHub
 #define QUERY_PARAM_UC "UC"
 
-
 // Namespace UUID
-const boost::uuids::uuid namespace_uuid = {{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8}};
+const boost::uuids::uuid namespace_uuid = {{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad,
+                                            0x11, 0xd1, 0x80, 0xb4, 0x00, 0xc0,
+                                            0x4f, 0xd4, 0x30, 0xc8}};
 
-// Limite superior (en numero de mensajes) que puede alcanzar la cola de envio hacia
+// Limite superior (en numero de mensajes) que puede alcanzar la cola de envio
+// hacia
 // el destino.
 const int NUM_MAX_PENDING_MESSAGES = 20000;
 
@@ -75,16 +75,14 @@ struct RiotServerData {
   int port;
   int port_sip;
   std::string ssl_pem_file;
-  //int ssl_port;
+  // int ssl_port;
 };
 
 struct RiotResponseInformation {
-
   std::string id_operacion;
   std::string id_message;
   int code;
   std::string txt;
 };
-
 };
 #endif

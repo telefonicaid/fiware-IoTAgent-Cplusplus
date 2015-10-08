@@ -28,5 +28,4 @@
  */
 
 #include "KVP.h"
-iota::KVP::KVP(std::string k, std::string v): key(k), value(v) {
-};
+iota::KVP::KVP(std::string k, std::string v) : key(k), value(v){};

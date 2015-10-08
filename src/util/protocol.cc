@@ -22,27 +22,17 @@
 #include "protocol.h"
 
 iota::Protocol::Protocol() {
-
   _description = "";
   _name = "";
   _id = "";
-
 }
 
-
 iota::Protocol::Protocol(const std::string& name) {
-
   _description = "";
   _name = name;
   _id = "";
-
 }
 
+iota::Protocol::~Protocol(void) {}
 
-iota::Protocol::~Protocol(void) {
-}
-
-void iota::Protocol::add(resource_endpoint data) {
-   _endpoints.push_back (data);
-}
-
+void iota::Protocol::add(resource_endpoint data) { _endpoints.push_back(data); }

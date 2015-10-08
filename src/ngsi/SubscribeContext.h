@@ -29,84 +29,72 @@
 #include <string>
 namespace iota {
 class SubscribeContext {
-  public:
-    SubscribeContext(const std::istringstream& str_register);
-    SubscribeContext() {};
-    SubscribeContext(const rapidjson::Value& reg);
-    ~SubscribeContext() {};
-    void add_entity(const Entity& entity);
-    void add_attribute(const std::string& attribute);
-    void add_reference(const std::string& reference);
-    void add_duration(const std::string& duration);
-    void add_throttling(const std::string& throttling);
-    void add_condition(const NotifyCondition& condition);
-    std::string get_string();
-    std::vector<Entity>& get_entities() {
-      return _entities;
-    };
+ public:
+  SubscribeContext(const std::istringstream& str_register);
+  SubscribeContext(){};
+  SubscribeContext(const rapidjson::Value& reg);
+  ~SubscribeContext(){};
+  void add_entity(const Entity& entity);
+  void add_attribute(const std::string& attribute);
+  void add_reference(const std::string& reference);
+  void add_duration(const std::string& duration);
+  void add_throttling(const std::string& throttling);
+  void add_condition(const NotifyCondition& condition);
+  std::string get_string();
+  std::vector<Entity>& get_entities() { return _entities; };
 
-    std::vector<std::string>& get_attributes() {
-      return _attributes;
-    };
+  std::vector<std::string>& get_attributes() { return _attributes; };
 
-    std::string& get_reference() {
-      return _reference;
-    };
+  std::string& get_reference() { return _reference; };
 
-    std::string& get_duration() {
-      return _duration;
-    };
+  std::string& get_duration() { return _duration; };
 
-    std::string& get_throttling() {
-      return _throttling;
-    };
+  std::string& get_throttling() { return _throttling; };
 
-    std::vector<NotifyCondition>& get_conditions() {
-      return _conditions;
-    };
+  std::vector<NotifyCondition>& get_conditions() { return _conditions; };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("entities");
-      writer.StartArray();
-      for (std::vector<Entity>::const_iterator it= _entities.begin();
-           it != _entities.end(); ++it) {
-        it->Serialize(writer);
-      }
-      writer.EndArray();
-      writer.String("attributes");
-      writer.StartArray();
-      for (std::vector<std::string>::const_iterator it= _attributes.begin();
-           it != _attributes.end(); ++it) {
-        writer.String((*it).c_str(), (rapidjson::SizeType)(*it).length());
-      }
-      writer.EndArray();
-      writer.String("reference");
-      writer.String(_reference.c_str(), (rapidjson::SizeType)_reference.length());
-      writer.String("duration");
-      writer.String(_duration.c_str(), (rapidjson::SizeType)_duration.length());
-      writer.String("throttling");
-      writer.String(_throttling.c_str(), (rapidjson::SizeType)_throttling.length());
-      writer.String("notifyConditions");
-      writer.StartArray();
-      for (std::vector<NotifyCondition>::const_iterator it= _conditions.begin();
-           it != _conditions.end(); ++it) {
-        it->Serialize(writer);
-      }
-      writer.EndArray();
-      writer.EndObject();
-    };
-  private:
-    std::vector<Entity> _entities;
-    std::vector<std::string> _attributes;
-    std::string _reference;
-    std::string _duration;
-    std::string _throttling;
-    std::vector<NotifyCondition> _conditions;
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("entities");
+    writer.StartArray();
+    for (std::vector<Entity>::const_iterator it = _entities.begin();
+         it != _entities.end(); ++it) {
+      it->Serialize(writer);
+    }
+    writer.EndArray();
+    writer.String("attributes");
+    writer.StartArray();
+    for (std::vector<std::string>::const_iterator it = _attributes.begin();
+         it != _attributes.end(); ++it) {
+      writer.String((*it).c_str(), (rapidjson::SizeType)(*it).length());
+    }
+    writer.EndArray();
+    writer.String("reference");
+    writer.String(_reference.c_str(), (rapidjson::SizeType)_reference.length());
+    writer.String("duration");
+    writer.String(_duration.c_str(), (rapidjson::SizeType)_duration.length());
+    writer.String("throttling");
+    writer.String(_throttling.c_str(),
+                  (rapidjson::SizeType)_throttling.length());
+    writer.String("notifyConditions");
+    writer.StartArray();
+    for (std::vector<NotifyCondition>::const_iterator it = _conditions.begin();
+         it != _conditions.end(); ++it) {
+      it->Serialize(writer);
+    }
+    writer.EndArray();
+    writer.EndObject();
+  };
+
+ private:
+  std::vector<Entity> _entities;
+  std::vector<std::string> _attributes;
+  std::string _reference;
+  std::string _duration;
+  std::string _throttling;
+  std::vector<NotifyCondition> _conditions;
 };
-
 }
-
 
 #endif

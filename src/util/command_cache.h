@@ -46,279 +46,273 @@ typedef std::vector<CommandPtr> CommandVect;
 // MRU: if cache is full, don't push any element. It is recommended
 // to use mru with cache clock
 
-
 class CommandCache {
-
-    typedef boost::multi_index_container<
-    boost::shared_ptr<Command>,
-          boost::multi_index::indexed_by<
+  typedef boost::multi_index_container<
+      boost::shared_ptr<Command>,
+      boost::multi_index::indexed_by<
           boost::multi_index::sequenced<>,
-          boost::multi_index::hashed_unique<boost::multi_index::identity<Command> >,
-          boost::multi_index::hashed_non_unique<boost::multi_index::const_mem_fun<Command, std::string, &Command::unique_entity> >,
-          boost::multi_index::hashed_non_unique<boost::multi_index::const_mem_fun<Command, std::string, &Command::unique_id> >
-          >
-          > item_list;
+          boost::multi_index::hashed_unique<
+              boost::multi_index::identity<Command> >,
+          boost::multi_index::hashed_non_unique<
+              boost::multi_index::const_mem_fun<Command, std::string,
+                                                &Command::unique_entity> >,
+          boost::multi_index::hashed_non_unique<
+              boost::multi_index::const_mem_fun<
+                  Command, std::string, &Command::unique_id> > > > item_list;
 
-  public:
-    typedef item_list::iterator iterator;
-    typedef boost::multi_index::nth_index<item_list, 1>::type::iterator
-    item_iterator;
-    typedef boost::multi_index::nth_index<item_list, 2>::type::iterator
-    item_iterator_entity;
-    typedef boost::multi_index::nth_index<item_list, 3>::type::iterator
-    item_iterator_id;
+ public:
+  typedef item_list::iterator iterator;
+  typedef boost::multi_index::nth_index<item_list, 1>::type::iterator
+      item_iterator;
+  typedef boost::multi_index::nth_index<item_list, 2>::type::iterator
+      item_iterator_entity;
+  typedef boost::multi_index::nth_index<item_list, 3>::type::iterator
+      item_iterator_id;
 
-    // Function to get an element out of cache
-    typedef boost::function<boost::shared_ptr<Command> (
+  // Function to get an element out of cache
+  typedef boost::function<boost::shared_ptr<Command>(
       boost::shared_ptr<Command>&)> GetFunction_t;
 
+  CommandCache(std::size_t capacity, bool lru)
+      : _max_num_items(capacity),
+        _lru(lru),
+        _get_function(NULL),
+        _timeout_function(NULL) {
+    _async_manager.reset(new iota::CommonAsyncManager(1));
+    _async_manager->run();
+  };
 
-    CommandCache(std::size_t capacity, bool lru):
-      _max_num_items(capacity), _lru(lru), _get_function(NULL),
-      _timeout_function(NULL) {
-      _async_manager.reset(new iota::CommonAsyncManager(1));
-      _async_manager->run();
-    };
+  ~CommandCache() {
+    if (_async_manager.get() != NULL) {
+      _async_manager->stop();
+    }
+  };
 
-    ~CommandCache() {
-      if (_async_manager.get() != NULL) {
-        _async_manager->stop();
+  void set_max_num_items(std::size_t capacity) { _max_num_items = capacity; }
+
+  void set_function(GetFunction_t get_function) {
+    _get_function = get_function;
+  }
+
+  void set_timeout_function(GetFunction_t timeout_function) {
+    _timeout_function = timeout_function;
+  }
+
+  void set_entity_function(GetFunction_t get_function) {
+    _get_entity_function = get_function;
+  }
+
+  void set_id_function(GetFunction_t get_function) {
+    _get_id_function = get_function;
+  }
+
+  void insert(const boost::shared_ptr<Command>& item) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    std::pair<iterator, bool> p;
+    if (_lru) {
+      p = _list.push_front(item);
+      if (item->get_timeout() > 0) {
+        // timeout is in seconds  for this *1000
+        boost::shared_ptr<boost::asio::deadline_timer> t = item->start(
+            *(_async_manager->get_io_service()), item->get_timeout());
+        t->async_wait(boost::bind(&CommandCache::item_timeout, this, item,
+                                  boost::asio::placeholders::error));
       }
-    };
+      if (!p.second) {  // Duplicated
+        _list.relocate(_list.begin(), p.first);
+      } else if (_list.size() > _max_num_items) {
+        _list.back()->cancel();
+        _list.pop_back();
+      }
 
-    void set_max_num_items (std::size_t capacity){
-        _max_num_items = capacity;
-    }
-
-    void set_function(GetFunction_t get_function) {
-      _get_function = get_function;
-    }
-
-    void set_timeout_function(GetFunction_t timeout_function) {
-      _timeout_function = timeout_function;
-    }
-
-    void set_entity_function(GetFunction_t get_function) {
-      _get_entity_function = get_function;
-    }
-
-    void set_id_function(GetFunction_t get_function) {
-      _get_id_function = get_function;
-    }
-
-    void insert(const boost::shared_ptr<Command>& item) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      std::pair<iterator, bool> p;
-      if (_lru) {
-        p = _list.push_front(item);
+    } else {
+      if (_list.size() < _max_num_items) {
+        p = _list.push_back(item);
+        if (!p.second) {
+          _list.relocate(_list.end(), p.first);
+        }
         if (item->get_timeout() > 0) {
-          // timeout is in seconds  for this *1000
-          boost::shared_ptr<boost::asio::deadline_timer> t = item->start(*
-              (_async_manager->get_io_service()), item->get_timeout());
-          t->async_wait(boost::bind(&CommandCache::item_timeout,
-                                    this, item, boost::asio::placeholders::error));
-        }
-        if (!p.second) {   // Duplicated
-          _list.relocate(_list.begin(), p.first);
-        }
-        else if (_list.size() > _max_num_items) {
-          _list.back()->cancel();
-          _list.pop_back();
-        }
-
-      }
-      else {
-        if (_list.size() < _max_num_items) {
-          p = _list.push_back(item);
-          if (!p.second) {
-            _list.relocate(_list.end(), p.first);
-          }
-          if (item->get_timeout() > 0) {
-            boost::shared_ptr<boost::asio::deadline_timer> t = item->start(*
-                (_async_manager->get_io_service()), item->get_timeout());
-            t->async_wait(boost::bind(&CommandCache::item_timeout, this, item,
-                                      boost::asio::placeholders::error));
-          }
+          boost::shared_ptr<boost::asio::deadline_timer> t = item->start(
+              *(_async_manager->get_io_service()), item->get_timeout());
+          t->async_wait(boost::bind(&CommandCache::item_timeout, this, item,
+                                    boost::asio::placeholders::error));
         }
       }
     }
+  }
 
-    boost::shared_ptr<Command> get(boost::shared_ptr<Command> key) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Command> item;
-      item_iterator i = boost::multi_index::get<1>(_list).begin();
-      i = boost::multi_index::get<1>(_list).find(*key);
-      if (i != boost::multi_index::get<1>(_list).end()) {
-        insert(*i);
-        item = *i;
-        return item;
-      }
-      else {
-        if (_get_function != NULL) {
-          const boost::shared_ptr<Command> new_item = _get_function(key);
-          if (new_item.get() != NULL) {
-            insert(new_item);
-          }
-          return new_item;
-        }
-      }
+  boost::shared_ptr<Command> get(boost::shared_ptr<Command> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Command> item;
+    item_iterator i = boost::multi_index::get<1>(_list).begin();
+    i = boost::multi_index::get<1>(_list).find(*key);
+    if (i != boost::multi_index::get<1>(_list).end()) {
+      insert(*i);
+      item = *i;
       return item;
-    }
-
-    boost::shared_ptr<Command> get_by_entity(boost::shared_ptr<Command> key) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Command> item;
-      item_iterator_entity i = boost::multi_index::get<2>(_list).begin();
-      i = boost::multi_index::get<2>(_list).find(*key, entity_command_hash(),
-          entity_command_equal());
-      if (i != boost::multi_index::get<2>(_list).end()) {
-        insert(*i);
-        item = *i;
-        return item;
-      }
-      else {
-        if (_get_function != NULL) {
-          const boost::shared_ptr<Command> new_item = _get_entity_function(key);
-          if (new_item.get() != NULL) {
-            insert(new_item);
-          }
-          return new_item;
+    } else {
+      if (_get_function != NULL) {
+        const boost::shared_ptr<Command> new_item = _get_function(key);
+        if (new_item.get() != NULL) {
+          insert(new_item);
         }
+        return new_item;
       }
+    }
+    return item;
+  }
+
+  boost::shared_ptr<Command> get_by_entity(boost::shared_ptr<Command> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Command> item;
+    item_iterator_entity i = boost::multi_index::get<2>(_list).begin();
+    i = boost::multi_index::get<2>(_list)
+            .find(*key, entity_command_hash(), entity_command_equal());
+    if (i != boost::multi_index::get<2>(_list).end()) {
+      insert(*i);
+      item = *i;
       return item;
-    }
-
-    CommandVect get_by_entityV(boost::shared_ptr<Command> key, int new_status) {
-      CommandVect result;
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Command> item;
-      item_iterator_entity i = boost::multi_index::get<2>(_list).begin();
-      i = boost::multi_index::get<2>(_list).find(*key, entity_command_hash(),
-          entity_command_equal());
-      if (i != boost::multi_index::get<2>(_list).end()) {
-        while (i != boost::multi_index::get<2>(_list).end()) {
-          boost::shared_ptr<Command> item;
-          (*i)->set_status(new_status);
-          insert(*i);
-          item = *i;
-          i++;
-          result.push_back(item);
+    } else {
+      if (_get_function != NULL) {
+        const boost::shared_ptr<Command> new_item = _get_entity_function(key);
+        if (new_item.get() != NULL) {
+          insert(new_item);
         }
-      }else{
-        if (_get_function != NULL) {
-            //TODO la funcion _get_entity_function solo devuelve uno
-          const boost::shared_ptr<Command> new_item = _get_entity_function(key);
-          if (new_item.get() != NULL) {
-            insert(new_item);
-            result.push_back(new_item);
-          }
-
-        }
+        return new_item;
       }
-
-      return result;
     }
+    return item;
+  }
 
-    boost::shared_ptr<Command> get_by_id(boost::shared_ptr<Command> key) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Command> item;
-      item_iterator_id i = boost::multi_index::get<3>(_list).begin();
-      i = boost::multi_index::get<3>(_list).find(*key, id_command_hash(),
-          id_command_equal());
-      if (i != boost::multi_index::get<3>(_list).end()) {
-        insert(*i);
-        item = *i;
-        return item;
-      }
-      else {
-        if (_get_function != NULL) {
-          const boost::shared_ptr<Command> new_item = _get_id_function(key);
-          if (new_item.get() != NULL) {
-            insert(new_item);
-          }
-          return new_item;
-        }
-      }
-      return item;
-    }
-
-    CommandVect get_by_idV(boost::shared_ptr<Command> key) {
-      CommandVect result;
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Command> item;
-      item_iterator_id i = boost::multi_index::get<3>(_list).begin();
-      i = boost::multi_index::get<3>(_list).find(*key, id_command_hash(),
-          id_command_equal());
-      while (i != boost::multi_index::get<3>(_list).end()) {
+  CommandVect get_by_entityV(boost::shared_ptr<Command> key, int new_status) {
+    CommandVect result;
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Command> item;
+    item_iterator_entity i = boost::multi_index::get<2>(_list).begin();
+    i = boost::multi_index::get<2>(_list)
+            .find(*key, entity_command_hash(), entity_command_equal());
+    if (i != boost::multi_index::get<2>(_list).end()) {
+      while (i != boost::multi_index::get<2>(_list).end()) {
         boost::shared_ptr<Command> item;
+        (*i)->set_status(new_status);
         insert(*i);
         item = *i;
         i++;
         result.push_back(item);
       }
-
-      return result;
-    }
-
-    std::size_t size() {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      return _list.size();
-    }
-
-    void remove(boost::shared_ptr<Command> key) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      item_iterator_id i = boost::multi_index::get<3>(_list).begin();
-      i = boost::multi_index::get<3>(_list).find(*key, id_command_hash(),
-          id_command_equal());
-      if (i != boost::multi_index::get<3>(_list).end()) {
-        boost::shared_ptr<Command> item;
-        item = *i;
-        item->cancel();
-        boost::multi_index::get<3>(_list).erase(i);
+    } else {
+      if (_get_function != NULL) {
+        // TODO la funcion _get_entity_function solo devuelve uno
+        const boost::shared_ptr<Command> new_item = _get_entity_function(key);
+        if (new_item.get() != NULL) {
+          insert(new_item);
+          result.push_back(new_item);
+        }
       }
     }
 
-    void remove_all() {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      item_iterator_id i = boost::multi_index::get<3>(_list).begin();
-      if (i != boost::multi_index::get<3>(_list).end()) {
-        boost::multi_index::get<3>(_list).erase(i);
+    return result;
+  }
+
+  boost::shared_ptr<Command> get_by_id(boost::shared_ptr<Command> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Command> item;
+    item_iterator_id i = boost::multi_index::get<3>(_list).begin();
+    i = boost::multi_index::get<3>(_list)
+            .find(*key, id_command_hash(), id_command_equal());
+    if (i != boost::multi_index::get<3>(_list).end()) {
+      insert(*i);
+      item = *i;
+      return item;
+    } else {
+      if (_get_function != NULL) {
+        const boost::shared_ptr<Command> new_item = _get_id_function(key);
+        if (new_item.get() != NULL) {
+          insert(new_item);
+        }
+        return new_item;
       }
     }
+    return item;
+  }
 
-    void item_timeout(boost::shared_ptr<Timer> timer,
-                      const boost::system::error_code& ec) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Command> item_tmp = boost::dynamic_pointer_cast<Command>
-                                            (timer);
-
-      if (ec == boost::asio::error::operation_aborted) {
-        return;
-      }
-      boost::shared_ptr<Command> item = boost::dynamic_pointer_cast<Command>(timer);
-
-      if (_timeout_function != NULL) {
-        _timeout_function(item);
-      }
-      remove(item);
+  CommandVect get_by_idV(boost::shared_ptr<Command> key) {
+    CommandVect result;
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Command> item;
+    item_iterator_id i = boost::multi_index::get<3>(_list).begin();
+    i = boost::multi_index::get<3>(_list)
+            .find(*key, id_command_hash(), id_command_equal());
+    while (i != boost::multi_index::get<3>(_list).end()) {
+      boost::shared_ptr<Command> item;
+      insert(*i);
+      item = *i;
+      i++;
+      result.push_back(item);
     }
 
-    boost::shared_ptr<boost::asio::io_service> get_io_service() {
-      return _async_manager->get_io_service();
+    return result;
+  }
+
+  std::size_t size() {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    return _list.size();
+  }
+
+  void remove(boost::shared_ptr<Command> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    item_iterator_id i = boost::multi_index::get<3>(_list).begin();
+    i = boost::multi_index::get<3>(_list)
+            .find(*key, id_command_hash(), id_command_equal());
+    if (i != boost::multi_index::get<3>(_list).end()) {
+      boost::shared_ptr<Command> item;
+      item = *i;
+      item->cancel();
+      boost::multi_index::get<3>(_list).erase(i);
     }
+  }
 
-  private:
-    std::size_t _max_num_items;
-    item_list _list;
-    bool _lru;
-    boost::shared_ptr<iota::CommonAsyncManager> _async_manager;
-    GetFunction_t _get_function;
-    GetFunction_t _get_entity_function;
-    GetFunction_t _get_id_function;
-    GetFunction_t _timeout_function;
+  void remove_all() {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    item_iterator_id i = boost::multi_index::get<3>(_list).begin();
+    if (i != boost::multi_index::get<3>(_list).end()) {
+      boost::multi_index::get<3>(_list).erase(i);
+    }
+  }
 
-    boost::recursive_mutex m_mutex;
+  void item_timeout(boost::shared_ptr<Timer> timer,
+                    const boost::system::error_code& ec) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Command> item_tmp =
+        boost::dynamic_pointer_cast<Command>(timer);
 
+    if (ec == boost::asio::error::operation_aborted) {
+      return;
+    }
+    boost::shared_ptr<Command> item =
+        boost::dynamic_pointer_cast<Command>(timer);
+
+    if (_timeout_function != NULL) {
+      _timeout_function(item);
+    }
+    remove(item);
+  }
+
+  boost::shared_ptr<boost::asio::io_service> get_io_service() {
+    return _async_manager->get_io_service();
+  }
+
+ private:
+  std::size_t _max_num_items;
+  item_list _list;
+  bool _lru;
+  boost::shared_ptr<iota::CommonAsyncManager> _async_manager;
+  GetFunction_t _get_function;
+  GetFunction_t _get_entity_function;
+  GetFunction_t _get_id_function;
+  GetFunction_t _timeout_function;
+
+  boost::recursive_mutex m_mutex;
 };
 };
 #endif

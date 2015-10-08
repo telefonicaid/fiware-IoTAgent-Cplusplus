@@ -24,41 +24,41 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-class JsonTest: public CppUnit::TestFixture  {
+class JsonTest : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(JsonTest);
 
-    CPPUNIT_TEST_SUITE(JsonTest);
+  CPPUNIT_TEST(testConversionUpdateContext);
+  CPPUNIT_TEST(testContextElement);
+  CPPUNIT_TEST(testContext);
+  CPPUNIT_TEST(testResponse);
+  CPPUNIT_TEST(testQueryContext);
+  CPPUNIT_TEST(testRegisterContext);
+  CPPUNIT_TEST(testAttributeRegister);
+  CPPUNIT_TEST(testEntity);
+  CPPUNIT_TEST(testSubscribeContext);
+  CPPUNIT_TEST(testSubscribeResponse);
+  CPPUNIT_TEST(testErrors);
+  CPPUNIT_TEST(testAttrCompound);
+  CPPUNIT_TEST(testConversion);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST(testConversionUpdateContext);
-    CPPUNIT_TEST(testContextElement);
-    CPPUNIT_TEST(testContext);
-    CPPUNIT_TEST(testResponse);
-    CPPUNIT_TEST(testQueryContext);
-    CPPUNIT_TEST(testRegisterContext);
-    CPPUNIT_TEST(testAttributeRegister);
-    CPPUNIT_TEST(testEntity);
-    CPPUNIT_TEST(testSubscribeContext);
-    CPPUNIT_TEST(testSubscribeResponse);
-    CPPUNIT_TEST(testErrors);
-    CPPUNIT_TEST(testAttrCompound);
-    CPPUNIT_TEST(testConversion);
-    CPPUNIT_TEST_SUITE_END();
-  public:
-    void setUp() {};
-    void tearDown() {};
-  protected:
+ public:
+  void setUp(){};
+  void tearDown(){};
 
-    void testConversionUpdateContext();
-    void testContextElement();
-    void testContext();
-    void testResponse();
-    void testQueryContext();
-    void testRegisterContext();
-    void testAttributeRegister();
-    void testEntity();
-    void testSubscribeContext();
-    void testSubscribeResponse();
-    void testErrors();
-    void testAttrCompound();
-    void testConversion();
+ protected:
+  void testConversionUpdateContext();
+  void testContextElement();
+  void testContext();
+  void testResponse();
+  void testQueryContext();
+  void testRegisterContext();
+  void testAttributeRegister();
+  void testEntity();
+  void testSubscribeContext();
+  void testSubscribeResponse();
+  void testErrors();
+  void testAttrCompound();
+  void testConversion();
 };
 #endif

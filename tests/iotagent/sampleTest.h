@@ -29,53 +29,48 @@
 #include "../mocks/http_mock.h"
 
 class SampleTest : public CPPUNIT_NS::TestFixture {
-    CPPUNIT_TEST_SUITE(SampleTest);
+  CPPUNIT_TEST_SUITE(SampleTest);
 
-    CPPUNIT_TEST(testNormalPOST);
-    CPPUNIT_TEST(testCommandNormalPOST);
-    CPPUNIT_TEST(testPUSHCommand);
-    CPPUNIT_TEST(testPollingCommand);
+  CPPUNIT_TEST(testNormalPOST);
+  CPPUNIT_TEST(testCommandNormalPOST);
+  CPPUNIT_TEST(testPUSHCommand);
+  CPPUNIT_TEST(testPollingCommand);
 
-    //SimplePlugingTest
-    CPPUNIT_TEST(testFilter);
-    CPPUNIT_TEST(testGetDevice);
+  // SimplePlugingTest
+  CPPUNIT_TEST(testFilter);
+  CPPUNIT_TEST(testGetDevice);
 
-    CPPUNIT_TEST(testRegisterIoTA);
+  CPPUNIT_TEST(testRegisterIoTA);
 
-    CPPUNIT_TEST_SUITE_END();
+  CPPUNIT_TEST_SUITE_END();
 
-  public:
-    void setUp();
-    void tearDown();
-    SampleTest();
-    ~SampleTest();
+ public:
+  void setUp();
+  void tearDown();
+  SampleTest();
+  ~SampleTest();
 
-  private:
+ private:
+  /** function toi fill data to cb_mock, it is not a test */
+  /*
+  void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
+                    const std::string& type = "file");
+                    */
 
-    /** function toi fill data to cb_mock, it is not a test */
-    /*
-    void start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
-                      const std::string& type = "file");
-                      */
+  void testNormalPOST();
 
-    void testNormalPOST();
+  void testCommandNormalPOST();
+  void testPUSHCommand();
+  void testPollingCommand();
 
-    void testCommandNormalPOST();
-    void testPUSHCommand();
-    void testPollingCommand();
-
-    void testFilter();
-    void testGetDevice();
-    void testRegisterIoTA();
-/*
-    pion::http::plugin_server_ptr wserver;
-    pion::one_to_one_scheduler scheduler;
-    iota::TestService* spserv_auth;
-    */
-
+  void testFilter();
+  void testGetDevice();
+  void testRegisterIoTA();
+  /*
+      pion::http::plugin_server_ptr wserver;
+      pion::one_to_one_scheduler scheduler;
+      iota::TestService* spserv_auth;
+      */
 };
 
-#endif  /* SAMPLETEST_H */
-
-
-
+#endif /* SAMPLETEST_H */

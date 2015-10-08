@@ -28,43 +28,36 @@
 
 namespace iota {
 
-class TestService :
-  public iota::RestHandle {
-  public:
-    TestService();
-    virtual ~TestService();
+class TestService : public iota::RestHandle {
+ public:
+  TestService();
+  virtual ~TestService();
 
-    // Function called when plugin is started
-    void start();
+  // Function called when plugin is started
+  void start();
 
-    // Callback function to NGSI interface
-    void op_ngsi(pion::http::request_ptr& http_request_ptr,
-                 std::map<std::string, std::string>& url_args,
-                 std::multimap<std::string, std::string>& query_parameters,
-                 pion::http::response& http_response, std::string& response);
+  // Callback function to NGSI interface
+  void op_ngsi(pion::http::request_ptr& http_request_ptr,
+               std::map<std::string, std::string>& url_args,
+               std::multimap<std::string, std::string>& query_parameters,
+               pion::http::response& http_response, std::string& response);
 
-    // Callback function to SouthBound interface
-    void service(pion::http::request_ptr& http_request_ptr,
-                 std::map<std::string, std::string>& url_args,
-                 std::multimap<std::string, std::string>& query_parameters,
-                 pion::http::response& http_response,
-                 std::string& response);
+  // Callback function to SouthBound interface
+  void service(pion::http::request_ptr& http_request_ptr,
+               std::map<std::string, std::string>& url_args,
+               std::multimap<std::string, std::string>& query_parameters,
+               pion::http::response& http_response, std::string& response);
 
-    // Function to send a NGSI updateContext to contextBroker
-    int send_update_context(const std::string& dev,
-                            const std::string& apikey,
-                            const std::string& content,
-                            std::string& cb_response);
+  // Function to send a NGSI updateContext to contextBroker
+  int send_update_context(const std::string& dev, const std::string& apikey,
+                          const std::string& content, std::string& cb_response);
 
-    virtual iota::ProtocolData get_protocol_data();
+  virtual iota::ProtocolData get_protocol_data();
 
-  private:
-
-    pion::logger m_logger;
+ private:
+  pion::logger m_logger;
 };
 
-
-}   // end namespace example
+}  // end namespace example
 
 #endif
-

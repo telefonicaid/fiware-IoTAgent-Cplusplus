@@ -28,60 +28,50 @@
 #include "collection.h"
 #include "device.h"
 
-
-
 namespace iota {
 
 class DeviceCollection : public Collection {
-  public:
+ public:
+  DeviceCollection();
 
-    DeviceCollection();
+  DeviceCollection(DeviceCollection&);
 
-    DeviceCollection(DeviceCollection&);
+  ~DeviceCollection();
 
-    ~DeviceCollection();
+  int insertd(const Device& obj);
+  int findd(const Device& query);
+  Device nextd();
+  int removed(const Device& query);
+  int countd(const Device& query);
 
-    int insertd(const Device& obj) ;
-    int findd(const Device& query) ;
-    Device nextd() ;
-    int removed(const Device& query) ;
-    int countd(const Device& query) ;
+  int updated(const Device& query, const Device& sett, bool upsert = false);
 
-    int updated(const Device& query,
-               const Device& sett,
-               bool upsert = false);
+  int createTableAndIndex();
 
-    int createTableAndIndex();
+ protected:
+  Device BSON2Obj(mongo::BSONObj& obj);
 
-  protected:
+  mongo::BSONObj Obj2BSON(const Device& query, bool withShardKey);
 
-    Device BSON2Obj(mongo::BSONObj& obj);
+  void BSON2Map(mongo::BSONObj& obj, const std::string& id,
+                std::map<std::string, std::string>& datamap);
+  void BSON2MapAttribute(mongo::BSONObj& obj, const std::string& id,
+                         std::map<std::string, std::string>& datamap,
+                         std::string key_map);
 
-    mongo::BSONObj Obj2BSON(const Device& query,
-                            bool withShardKey);
+  void Map2BSON(mongo::BSONObjBuilder& obj, const std::string& fieldName,
+                const std::map<std::string, std::string>& datamap);
 
-    void BSON2Map(mongo::BSONObj& obj, const std::string& id,
-                  std::map<std::string, std::string>& datamap);
-    void BSON2MapAttribute(mongo::BSONObj& obj,
-                           const std::string& id,
-                           std::map<std::string, std::string>& datamap,
-                           std::string key_map);
+  void Map2BSONAttribute(mongo::BSONObjBuilder& obj,
+                         const std::string& fieldName,
+                         const std::map<std::string, std::string>& datamap,
+                         std::string key_map);
 
-    void Map2BSON(mongo::BSONObjBuilder& obj, const std::string& fieldName,
-                  const std::map<std::string, std::string>& datamap);
+  // TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
 
-    void Map2BSONAttribute(mongo::BSONObjBuilder& obj, const std::string& fieldName,
-                           const std::map<std::string, std::string>& datamap,
-                           std::string key_map);
+ private:
+};  // end class DeviceCollection
 
-    //TODO comprobar con shard void fillSharKey(BSONObjBuilder &obj);
-
-
-  private:
-}; // end class DeviceCollection
-
-}// end namespace  riot
+}  // end namespace  riot
 
 #endif
-
-

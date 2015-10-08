@@ -32,27 +32,27 @@
 namespace iota {
 
 struct Device : public virtual Timer {
-
-  explicit Device(std::string name, std::string service): Timer(),
-    _name(name), _service(service) {
+  explicit Device(std::string name, std::string service)
+      : Timer(), _name(name), _service(service) {
     _active = INT_MIN;
     _duration_cb = LONG_MIN;
-    _protocol="";
+    _protocol = "";
     _timestamp_data = -1;
   };
 
   explicit Device(std::string entity_name, std::string entity_type,
-                  std::string service):
-    Timer(), _entity_name(entity_name), _entity_type(entity_type),
-    _service(service) {
+                  std::string service)
+      : Timer(),
+        _entity_name(entity_name),
+        _entity_type(entity_type),
+        _service(service) {
     _active = INT_MIN;
     _duration_cb = LONG_MIN;
-    _protocol="";
+    _protocol = "";
     _timestamp_data = -1;
   };
 
-  Device(const Device& dev):
-    Timer() {
+  Device(const Device& dev) : Timer() {
     if (!dev._name.empty()) {
       _name = dev._name;
     }
@@ -87,48 +87,44 @@ struct Device : public virtual Timer {
 
     if (dev._duration_cb != LONG_MIN) {
       _duration_cb = dev._duration_cb;
-    }
-    else {
+    } else {
       _duration_cb = LONG_MIN;
     }
 
     // Timestamp for registering last communication
     if (dev._timestamp_data != -1) {
       _timestamp_data = dev._timestamp_data;
-    }
-    else {
+    } else {
       _timestamp_data = -1;
     }
 
     std::map<std::string, std::string>::const_iterator iter;
-    for (iter = dev._attributes.begin(); iter != dev._attributes.end(); ++iter) {
-      _attributes.insert(std::pair<std::string, std::string>(iter->first,
-                         iter->second));
+    for (iter = dev._attributes.begin(); iter != dev._attributes.end();
+         ++iter) {
+      _attributes.insert(
+          std::pair<std::string, std::string>(iter->first, iter->second));
     }
     for (iter = dev._commands.begin(); iter != dev._commands.end(); ++iter) {
-      _commands.insert(std::pair<std::string, std::string>(iter->first,
-                       iter->second));
+      _commands.insert(
+          std::pair<std::string, std::string>(iter->first, iter->second));
     }
     for (iter = dev._static_attributes.begin();
          iter != dev._static_attributes.end(); ++iter) {
-      _static_attributes.insert(std::pair<std::string, std::string>(iter->first,
-                                iter->second));
+      _static_attributes.insert(
+          std::pair<std::string, std::string>(iter->first, iter->second));
     }
 
     if (dev._active != INT_MIN) {
       _active = dev._active;
-    }
-    else {
+    } else {
       _active = INT_MIN;
     }
   };
 
-
-  virtual ~Device() {};
+  virtual ~Device(){};
 
   bool operator==(const Device& a) const {
-    if ((_name.compare(a._name) == 0) &&
-        (_service.compare(a._service) == 0)) {
+    if ((_name.compare(a._name) == 0) && (_service.compare(a._service) == 0)) {
       return true;
     }
     return false;
@@ -159,9 +155,7 @@ struct Device : public virtual Timer {
     return (one_full < two_full);
   }
 
-
   friend std::size_t hash_value(boost::shared_ptr<Device> const& item) {
-
     std::size_t seed = 0;
     boost::hash_combine(seed, item->_name);
     boost::hash_combine(seed, item->_service);
@@ -170,7 +164,6 @@ struct Device : public virtual Timer {
   }
 
   friend std::size_t hash_value(Device const& item) {
-
     std::size_t seed = 0;
     boost::hash_combine(seed, item._name);
     boost::hash_combine(seed, item._service);
@@ -179,28 +172,24 @@ struct Device : public virtual Timer {
   }
 
   std::string unique_entity() const {
-    return _service+":"+_service_path + ":"+
-           _entity_name+":"+_entity_type;
+    return _service + ":" + _service_path + ":" + _entity_name + ":" +
+           _entity_type;
   }
 
-  std::string unique_name() const {
-    return _name;
-  }
+  std::string unique_name() const { return _name; }
 
-  std::string get_real_name(const boost::property_tree::ptree& service_ptree)
-  const {
-
+  std::string get_real_name(
+      const boost::property_tree::ptree& service_ptree) const {
     std::string entity_type("thing");
     std::string entity_id(_name);
-    std::string service_entity_type = service_ptree.get<std::string>
-                        (iota::store::types::ENTITY_TYPE, "");
+    std::string service_entity_type =
+        service_ptree.get<std::string>(iota::store::types::ENTITY_TYPE, "");
 
     if (!_entity_type.empty() &&
         _entity_type.compare(iota::store::types::DEFAULT) != 0) {
       //  used entity_type defined in device
       entity_type.assign(_entity_type);
-    }
-    else if (!service_entity_type.empty()) {
+    } else if (!service_entity_type.empty()) {
       entity_type = service_entity_type;
     }
     // Entity name (default is entity_type:device_id)
@@ -208,14 +197,12 @@ struct Device : public virtual Timer {
         _entity_name.compare(iota::store::types::DEFAULT) != 0) {
       //  used entity_type defined in device
       entity_id.assign(_entity_name);
-    }
-    else {
+    } else {
       entity_id.assign(entity_type + ":" + _name);
     }
 
     return entity_id;
   }
-
 
   std::string get_attribute(std::string object_id) {
     return _attributes[object_id];
@@ -237,7 +224,7 @@ struct Device : public virtual Timer {
   int _active;
   std::string _registration_id;
   long long _duration_cb;
-	long long _timestamp_data;
+  long long _timestamp_data;
 };
 
 struct entity_hash {

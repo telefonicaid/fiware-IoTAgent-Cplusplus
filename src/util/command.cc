@@ -22,14 +22,11 @@
 #include "command.h"
 #include "RiotISO8601.h"
 
-iota::Command::Command(const std::string& id_entity,
-                 const std::string& service,
-                 const std::string& service_path) {
-
+iota::Command::Command(const std::string& id_entity, const std::string& service,
+                       const std::string& service_path) {
   _service = service;
   _service_path = service_path;
   _entity = id_entity;
-
 
   _id = "";
   _expired = INT_MIN;
@@ -37,14 +34,12 @@ iota::Command::Command(const std::string& id_entity,
   _status = INT_MIN;
 }
 
-iota::Command::Command(const std::string& id_cmd,
-                 const std::string& service,
-                 const std::string& service_path,
-                 const std::string& sequence,
-                 const std::string& id_entity,
-                 const std::string& responseURI,
-                 const boost::property_tree::ptree& cmd) {
-
+iota::Command::Command(const std::string& id_cmd, const std::string& service,
+                       const std::string& service_path,
+                       const std::string& sequence,
+                       const std::string& id_entity,
+                       const std::string& responseURI,
+                       const boost::property_tree::ptree& cmd) {
   _id = id_cmd;
   _service = service;
   _service_path = service_path;
@@ -53,24 +48,21 @@ iota::Command::Command(const std::string& id_cmd,
   _responseURI = responseURI;
   _command = cmd;
 
-
   _expired = INT_MIN;
   _timeout = INT_MIN;
   _status = INT_MIN;
 }
 
 // Constructor para la recuperacion de comandos almacenados
-iota::Command::Command(const std::string& id_cmd,
-                 const std::string& name,
-                 const std::string& service,
-                 const std::string& service_path,
-                 const std::string& sequence,
-                 const std::string& id_entity,
-                 const std::string& entity_type,
-                 const std::string& responseURI,
-                 const int timeout,
-                 const std::string& timestamp,
-                 const boost::property_tree::ptree& cmd) {
+iota::Command::Command(const std::string& id_cmd, const std::string& name,
+                       const std::string& service,
+                       const std::string& service_path,
+                       const std::string& sequence,
+                       const std::string& id_entity,
+                       const std::string& entity_type,
+                       const std::string& responseURI, const int timeout,
+                       const std::string& timestamp,
+                       const boost::property_tree::ptree& cmd) {
   _id = id_cmd;
   _name = name;
   _service = service;
@@ -82,8 +74,7 @@ iota::Command::Command(const std::string& id_cmd,
   _command = cmd;
   if (timeout < 0) {
     _timeout = INT_MIN;
-  }
-  else {
+  } else {
     _timeout = timeout;
   }
 
@@ -91,20 +82,18 @@ iota::Command::Command(const std::string& id_cmd,
   if (!timestamp.empty()) {
     iota::RiotISO8601 tstamp(timestamp);
     iota::RiotISO8601 ahora;
-    boost::posix_time::time_duration diff = ahora.getPosixTime() -
-                                            tstamp.getPosixTime();
+    boost::posix_time::time_duration diff =
+        ahora.getPosixTime() - tstamp.getPosixTime();
 
     if (diff.total_milliseconds() >= boost::lexical_cast<double>(_timeout)) {
       _expired = 1;
-    }
-    else {
+    } else {
       // Actualizacion timeout
-      _timeout = boost::lexical_cast<int>(boost::lexical_cast<double>
-                                          (_timeout) - diff.total_seconds());
+      _timeout = boost::lexical_cast<int>(
+          boost::lexical_cast<double>(_timeout) - diff.total_seconds());
       _expired = 0;
     }
-  }
-  else {
+  } else {
     _expired = 0;
   }
 
@@ -112,8 +101,4 @@ iota::Command::Command(const std::string& id_cmd,
   _status = INT_MIN;
 }
 
-iota::Command::~Command(void) {
-  cancel();
-}
-
-
+iota::Command::~Command(void) { cancel(); }

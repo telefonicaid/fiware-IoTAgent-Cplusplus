@@ -20,7 +20,6 @@
 * please contact with iot_support at tid dot es
 */
 
-
 #include "modbusTest.h"
 #include <modbus/modbus.h>
 #include <modbus/operation_processor.h>
@@ -28,33 +27,33 @@
 
 CPPUNIT_TEST_SUITE_REGISTRATION(ModbusTest);
 
-void ModbusTest::setUp() {
+void ModbusTest::setUp() {}
 
-}
-
-void ModbusTest::tearDown() {
-
-}
+void ModbusTest::tearDown() {}
 
 void ModbusTest::testBuildFrame() {
   std::string expected_fc03 = "01 03 02 E7 00 06 74 47";
-  iota::Modbus frame_fc03(0x01, iota::Modbus::READ_HOLDING_REGISTERS, 743, 6, "AppOperation");
+  iota::Modbus frame_fc03(0x01, iota::Modbus::READ_HOLDING_REGISTERS, 743, 6,
+                          "AppOperation");
   std::string str_frame_fc03 = iota::str_to_hex(frame_fc03.get_modbus_frame());
   CPPUNIT_ASSERT_MESSAGE(expected_fc03,
                          expected_fc03.compare(str_frame_fc03) == 0);
-  CPPUNIT_ASSERT_MESSAGE("AppOperation", frame_fc03.get_operation().compare("AppOperation") == 0);
+  CPPUNIT_ASSERT_MESSAGE(
+      "AppOperation", frame_fc03.get_operation().compare("AppOperation") == 0);
 
   std::string expected_fc06 = "01 06 02 DF 00 01 78 48";
-  iota::Modbus frame_fc06(0x01, iota::Modbus::PRESET_SINGLE_REGISTER, 735, 1, "AppOperation");
+  iota::Modbus frame_fc06(0x01, iota::Modbus::PRESET_SINGLE_REGISTER, 735, 1,
+                          "AppOperation");
   std::string str_frame_fc06 = iota::str_to_hex(frame_fc06.get_modbus_frame());
   CPPUNIT_ASSERT_MESSAGE(expected_fc06,
                          expected_fc06.compare(str_frame_fc06) == 0);
-  CPPUNIT_ASSERT_MESSAGE("AppOperation", frame_fc06.get_operation().compare("AppOperation") == 0);
+  CPPUNIT_ASSERT_MESSAGE(
+      "AppOperation", frame_fc06.get_operation().compare("AppOperation") == 0);
 }
 
 void ModbusTest::testDecodeFrame() {
-
-  iota::Modbus frame_fc06(0x01, iota::Modbus::PRESET_SINGLE_REGISTER, 735, 1, "AppOperation");
+  iota::Modbus frame_fc06(0x01, iota::Modbus::PRESET_SINGLE_REGISTER, 735, 1,
+                          "AppOperation");
   std::string received_fc06 = "01 06 02 DF 00 01 78 48";
   boost::erase_all(received_fc06, " ");
   std::vector<unsigned char> data = iota::hex_str_to_vector(received_fc06);
@@ -65,12 +64,13 @@ void ModbusTest::testDecodeFrame() {
 
   // Read holding registers
   std::string expected_fc03 = "01 03 09 C4 00 19 C6 61";
-  iota::Modbus frame_fc03(0x01, iota::Modbus::READ_HOLDING_REGISTERS, 2500, 25, "AppOperation");
+  iota::Modbus frame_fc03(0x01, iota::Modbus::READ_HOLDING_REGISTERS, 2500, 25,
+                          "AppOperation");
   std::string str_frame_fc03 = iota::str_to_hex(frame_fc03.get_modbus_frame());
   CPPUNIT_ASSERT_MESSAGE(expected_fc03,
                          expected_fc03.compare(str_frame_fc03) == 0);
   std::string received_fc03 =
-    "01 03 32 00 01 30 11 09 11 34 47 45 52 52 4F 52 20 20 20 20 20 31 10 08 10 10 38 33 30 38 20 20 20 20 20 20 20 00 00 00 00 00 \
+      "01 03 32 00 01 30 11 09 11 34 47 45 52 52 4F 52 20 20 20 20 20 31 10 08 10 10 38 33 30 38 20 20 20 20 20 20 20 00 00 00 00 00 \
 00 00 00 00 00 00 00 00 00 00 00 60 AF";
   std::vector<unsigned char> data_fc03 = iota::hex_str_to_vector(received_fc03);
   CPPUNIT_ASSERT_MESSAGE("Checking received frame ",
@@ -103,36 +103,44 @@ void ModbusTest::testProcessor() {
   os << "\"modbusNumberOfRegisters\": 1}";
   os << "]}";
   iota::ModbusOperationProcessor processor(os);
-  boost::property_tree::ptree op_1 = processor.get_operation("operation_name_1");
+  boost::property_tree::ptree op_1 =
+      processor.get_operation("operation_name_1");
   CPPUNIT_ASSERT_MESSAGE("Value modbusOperation 3",
                          op_1.get<unsigned short>("modbusOperation") == 3);
   CPPUNIT_ASSERT_MESSAGE("Value modbusAddress 200",
                          op_1.get<unsigned short>("modbusAddress") == 200);
-  CPPUNIT_ASSERT_MESSAGE("Labels ",
-                         processor.get_mapped_labels("operation_name").size() == 3);
-  CPPUNIT_ASSERT_MESSAGE("Label label_1 ",
-                         processor.get_mapped_labels("operation_name")[2].compare("label_3") == 0);
+  CPPUNIT_ASSERT_MESSAGE(
+      "Labels ", processor.get_mapped_labels("operation_name").size() == 3);
+  CPPUNIT_ASSERT_MESSAGE(
+      "Label label_1 ",
+      processor.get_mapped_labels("operation_name")[2].compare("label_3") == 0);
 
   // Frame
   boost::property_tree::ptree op = processor.get_operation("operation_name");
-  iota::Modbus frame_to_map(0x01, (iota::Modbus::FunctionCode)op.get<unsigned short>("modbusOperation"),
-                            op.get<unsigned short>("modbusAddress"),
-                            op.get<unsigned short>("modbusNumberOfPositions"), "AppOperation");
+  iota::Modbus frame_to_map(
+      0x01,
+      (iota::Modbus::FunctionCode)op.get<unsigned short>("modbusOperation"),
+      op.get<unsigned short>("modbusAddress"),
+      op.get<unsigned short>("modbusNumberOfPositions"), "AppOperation");
   std::string received_fc03 = "01 03 06 00 01 30 11 09 11 85 EC";
-  //std::vector<unsigned char> data_fc03 = iota::hex_str_to_vector(received_fc03);
-  //std::cout << frame_to_map.crc(data_fc03) << std::endl;
+  // std::vector<unsigned char> data_fc03 =
+  // iota::hex_str_to_vector(received_fc03);
+  // std::cout << frame_to_map.crc(data_fc03) << std::endl;
   std::vector<unsigned char> data_fc03 = iota::hex_str_to_vector(received_fc03);
-  CPPUNIT_ASSERT_MESSAGE("Checking received frame with labels ", frame_to_map.receive_modbus_frame(data_fc03));
-  std::map<std::string, unsigned short> mapped_values = frame_to_map.get_mapped_values(processor.get_mapped_labels("operation_name"));
-  CPPUNIT_ASSERT_MESSAGE("Checking number of mapped values ", mapped_values.size() == 2);
+  CPPUNIT_ASSERT_MESSAGE("Checking received frame with labels ",
+                         frame_to_map.receive_modbus_frame(data_fc03));
+  std::map<std::string, unsigned short> mapped_values =
+      frame_to_map.get_mapped_values(
+          processor.get_mapped_labels("operation_name"));
+  CPPUNIT_ASSERT_MESSAGE("Checking number of mapped values ",
+                         mapped_values.size() == 2);
   std::map<std::string, unsigned short>::iterator i = mapped_values.begin();
   CPPUNIT_ASSERT_MESSAGE("Checking label 1", mapped_values["label_1"] == 1);
-  //CPPUNIT_ASSERT_MESSAGE("Checking label 2", mapped_values["102"] == 12305);
+  // CPPUNIT_ASSERT_MESSAGE("Checking label 2", mapped_values["102"] == 12305);
   CPPUNIT_ASSERT_MESSAGE("Checking label 3", mapped_values["label_3"] == 2321);
 }
 
 void ModbusTest::testProcessorFile() {
-
   iota::ModbusOperationProcessor processor;
   processor.read_operations("../../tests/iotagent/modbus_config.json");
   boost::property_tree::ptree op_1 = processor.get_operation("GetSAPCode");
@@ -146,7 +154,7 @@ void ModbusTest::testCrc() {
   iota::Modbus modbus;
   std::cout << modbus.crc(o) << std::endl;
   CPPUNIT_ASSERT_MESSAGE("34284", modbus.crc(o) == 34284);
-  std::string t ="01 03 08 AA AA BB BB CC CC DD DD";
+  std::string t = "01 03 08 AA AA BB BB CC CC DD DD";
   std::vector<unsigned char> o1 = iota::hex_str_to_vector(t);
   std::cout << modbus.crc(o1) << std::endl;
 }

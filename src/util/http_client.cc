@@ -29,13 +29,14 @@
 #include <boost/uuid/uuid_io.hpp>
 #include <pion/http/request_writer.hpp>
 
-iota::HttpClient::HttpClient(std::string server,
-                             unsigned int port,
-                             std::string id):
-  _local_io(new boost::asio::io_service),
-  _remote_ip(server), _remote_port(port), _port(port), _proxy(false),
-  _id(id) {
-
+iota::HttpClient::HttpClient(std::string server, unsigned int port,
+                             std::string id)
+    : _local_io(new boost::asio::io_service),
+      _remote_ip(server),
+      _remote_port(port),
+      _port(port),
+      _proxy(false),
+      _id(id) {
   _connection.reset(new pion::tcp::connection(*_local_io));
   _connection->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   _strand.reset(new boost::asio::io_service::strand(*_local_io));
@@ -43,16 +44,18 @@ iota::HttpClient::HttpClient(std::string server,
   _timer.reset(new boost::asio::deadline_timer(*_local_io));
   resolve(_remote_ip, boost::lexical_cast<std::string>(_remote_port));
 
-  _ec   = boost::system::errc::make_error_code(boost::system::errc::success);
+  _ec = boost::system::errc::make_error_code(boost::system::errc::success);
 
   generate_identifier();
 }
 
-iota::HttpClient::HttpClient(boost::asio::io_service& io,
-                             std::string server,
-                             unsigned int port,
-                             std::string id):
-  _remote_ip(server), _remote_port(port), _id(id), _port(port), _proxy(false) {
+iota::HttpClient::HttpClient(boost::asio::io_service& io, std::string server,
+                             unsigned int port, std::string id)
+    : _remote_ip(server),
+      _remote_port(port),
+      _id(id),
+      _port(port),
+      _proxy(false) {
   _connection.reset(new pion::tcp::connection(io));
   _connection->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   _strand.reset(new boost::asio::io_service::strand(io));
@@ -60,20 +63,18 @@ iota::HttpClient::HttpClient(boost::asio::io_service& io,
   _timer.reset(new boost::asio::deadline_timer(io));
   resolve(_remote_ip, boost::lexical_cast<std::string>(_remote_port));
 
-  _ec   = boost::system::errc::make_error_code(boost::system::errc::success);
+  _ec = boost::system::errc::make_error_code(boost::system::errc::success);
 
   generate_identifier();
 }
 
-iota::HttpClient::~HttpClient() {
-}
+iota::HttpClient::~HttpClient() {}
 
-pion::http::response_ptr iota::HttpClient::send(pion::http::request_ptr request,
-    unsigned int timeout,
-    std::string proxy,
+pion::http::response_ptr iota::HttpClient::send(
+    pion::http::request_ptr request, unsigned int timeout, std::string proxy,
     application_callback_t callback) {
   // Si proxy, entonces hay que modificar los datos a usar para la conexion
-  //set_error(boost::asio::error::would_block);
+  // set_error(boost::asio::error::would_block);
   set_error(boost::system::errc::make_error_code(boost::system::errc::success));
 
   _callback = callback;
@@ -86,10 +87,9 @@ pion::http::response_ptr iota::HttpClient::send(pion::http::request_ptr request,
 
   pion::http::response_ptr response_ptr;
   _timer->expires_from_now(boost::posix_time::seconds(timeout));
-  _timer->async_wait(
-    _strand->wrap(boost::bind(&HttpClient::timeout_connection,
-                              shared_from_this(),
-                              boost::asio::placeholders::error)));
+  _timer->async_wait(_strand->wrap(
+      boost::bind(&HttpClient::timeout_connection, shared_from_this(),
+                  boost::asio::placeholders::error)));
 
   connect();
   if (_local_io.get() != NULL) {
@@ -99,12 +99,10 @@ pion::http::response_ptr iota::HttpClient::send(pion::http::request_ptr request,
 }
 
 void iota::HttpClient::async_send(pion::http::request_ptr request,
-                                  unsigned int timeout,
-                                  std::string proxy,
+                                  unsigned int timeout, std::string proxy,
                                   application_callback_t callback) {
-
   // Si proxy, entonces hay que modificar los datos a usar para la conexion
-  //set_error(boost::asio::error::would_block);
+  // set_error(boost::asio::error::would_block);
   set_error(boost::system::errc::make_error_code(boost::system::errc::success));
   _callback = callback;
   _response.reset();
@@ -114,17 +112,15 @@ void iota::HttpClient::async_send(pion::http::request_ptr request,
 
   set_proxy(proxy);
   _timer->expires_from_now(boost::posix_time::seconds(timeout));
-  _timer->async_wait(
-    _strand->wrap(boost::bind(&HttpClient::timeout_connection,
-                              shared_from_this(),
-                              boost::asio::placeholders::error)));
+  _timer->async_wait(_strand->wrap(
+      boost::bind(&HttpClient::timeout_connection, shared_from_this(),
+                  boost::asio::placeholders::error)));
   connect();
 
   return;
 }
 
 void iota::HttpClient::set_proxy(std::string proxy) {
-
   try {
     if (proxy.empty() == false) {
       std::string proxy_server(proxy);
@@ -140,9 +136,8 @@ void iota::HttpClient::set_proxy(std::string proxy) {
       resolve(proxy_server, boost::lexical_cast<std::string>(_port));
       _proxy = true;
     }
-  }
-  catch (std::exception& e) {
-    //set_error(boost::asio::error::address_not_available);
+  } catch (std::exception& e) {
+    // set_error(boost::asio::error::address_not_available);
   }
   std::string host_header(_remote_ip);
   host_header.append(":");
@@ -150,23 +145,20 @@ void iota::HttpClient::set_proxy(std::string proxy) {
   _request->change_header(pion::http::types::HEADER_HOST, host_header);
 }
 
-std::string iota::HttpClient::get_identifier() {
-  return _id;
-}
+std::string iota::HttpClient::get_identifier() { return _id; }
 
 pion::http::response_ptr iota::HttpClient::get_response() {
   pion::http::response_ptr response_ptr = _response;
   return response_ptr;
 }
 
-pion::http::request_ptr iota::HttpClient::get_request() {
-  return _request;
-}
+pion::http::request_ptr iota::HttpClient::get_request() { return _request; }
 
 void iota::HttpClient::connect() {
   _connection->async_connect(
-    _ip, _port, _strand->wrap(boost::bind(&HttpClient::connectHandle,
-                                          shared_from_this(), boost::asio::placeholders::error)));
+      _ip, _port,
+      _strand->wrap(boost::bind(&HttpClient::connectHandle, shared_from_this(),
+                                boost::asio::placeholders::error)));
   if (_local_io.get() != NULL) {
     _local_io->run_one();
   }
@@ -174,11 +166,11 @@ void iota::HttpClient::connect() {
 
 void iota::HttpClient::write() {
   pion::http::request_writer_ptr request_writer_ptr(
-    pion::http::request_writer::create(_connection, _request,
-                                       _strand->wrap(boost::bind(&HttpClient::readResponse,
-                                           shared_from_this(),
-                                           boost::asio::placeholders::error))));
-
+      pion::http::request_writer::create(
+          _connection, _request,
+          _strand->wrap(boost::bind(&HttpClient::readResponse,
+                                    shared_from_this(),
+                                    boost::asio::placeholders::error))));
 
   request_writer_ptr->send();
   if (_local_io.get() != NULL) {
@@ -188,19 +180,17 @@ void iota::HttpClient::write() {
 
 void iota::HttpClient::read() {
   pion::http::response_reader_ptr reader_ptr(
-    pion::http::response_reader::create(_connection, *_request,
-                                        _strand->wrap(boost::bind(&HttpClient::checkResponse,
-                                            shared_from_this(), _1, _2, _3))));
+      pion::http::response_reader::create(
+          _connection, *_request,
+          _strand->wrap(boost::bind(&HttpClient::checkResponse,
+                                    shared_from_this(), _1, _2, _3))));
   reader_ptr->receive();
 
   if (_local_io.get() != NULL) {
-
     while (_response.get() == NULL && check_connection()) {
       _local_io->run_one();
     }
   }
-
-
 }
 
 void iota::HttpClient::connectHandle(const boost::system::error_code& ec) {
@@ -210,26 +200,26 @@ void iota::HttpClient::connectHandle(const boost::system::error_code& ec) {
 
     if (_proxy) {
       std::stringstream request_CONNECT;
-      request_CONNECT << "CONNECT " << _remote_ip << ":" << _remote_port <<
-                      " HTTP/1.1\r\n";
-      std::string h_outgoing = _request->get_header(
-                                 iota::types::HEADER_OUTGOING_ROUTE);
+      request_CONNECT << "CONNECT " << _remote_ip << ":" << _remote_port
+                      << " HTTP/1.1\r\n";
+      std::string h_outgoing =
+          _request->get_header(iota::types::HEADER_OUTGOING_ROUTE);
       if (!h_outgoing.empty()) {
-        request_CONNECT << iota::types::HEADER_OUTGOING_ROUTE << ": " << h_outgoing <<
-                        "\r\n";
+        request_CONNECT << iota::types::HEADER_OUTGOING_ROUTE << ": "
+                        << h_outgoing << "\r\n";
       }
       request_CONNECT << "\r\n";
       boost::system::error_code error_code;
-      _connection->write(boost::asio::buffer(request_CONNECT.str()), error_code);
+      _connection->write(boost::asio::buffer(request_CONNECT.str()),
+                         error_code);
       _connection->async_read_some(_strand->wrap(
-                                     boost::bind(&HttpClient::endConnectProxy, shared_from_this(),
-                                         boost::asio::placeholders::error,
-                                         boost::asio::placeholders::bytes_transferred)));
+          boost::bind(&HttpClient::endConnectProxy, shared_from_this(),
+                      boost::asio::placeholders::error,
+                      boost::asio::placeholders::bytes_transferred)));
       if (_local_io.get() != NULL) {
         _local_io->run_one();
       }
-    }
-    else {
+    } else {
       write();
     }
   }
@@ -240,9 +230,9 @@ void iota::HttpClient::endWriteProxy(const boost::system::error_code& ec,
   set_error(ec);
   if (check_connection()) {
     _connection->async_read_some(_strand->wrap(
-                                   boost::bind(&HttpClient::endConnectProxy, shared_from_this(),
-                                       boost::asio::placeholders::error,
-                                       boost::asio::placeholders::bytes_transferred)));
+        boost::bind(&HttpClient::endConnectProxy, shared_from_this(),
+                    boost::asio::placeholders::error,
+                    boost::asio::placeholders::bytes_transferred)));
     if (_local_io.get() != NULL) {
       _local_io->run_one();
     }
@@ -251,7 +241,6 @@ void iota::HttpClient::endWriteProxy(const boost::system::error_code& ec,
 
 void iota::HttpClient::endConnectProxy(const boost::system::error_code& ec,
                                        std::size_t bytes_read) {
-
   std::string resp_proxy(_connection->get_read_buffer().data());
   boost::system::error_code ec_proxy = ec;
   size_t pos_OK = resp_proxy.find(" 200 ");
@@ -265,7 +254,7 @@ void iota::HttpClient::endConnectProxy(const boost::system::error_code& ec,
 }
 
 void iota::HttpClient::readResponse(const boost::system::error_code& ec) {
-  //std::size_t bytes_written) {
+  // std::size_t bytes_written) {
   set_error(ec);
   if (check_connection()) {
     read();
@@ -273,9 +262,9 @@ void iota::HttpClient::readResponse(const boost::system::error_code& ec) {
 }
 
 void iota::HttpClient::checkResponse(
-  const pion::http::response_ptr& http_response_ptr,
-  const pion::tcp::connection_ptr& conn_ptr,
-  const boost::system::error_code& ec) {
+    const pion::http::response_ptr& http_response_ptr,
+    const pion::tcp::connection_ptr& conn_ptr,
+    const boost::system::error_code& ec) {
   _response = http_response_ptr;
   if (_timer) {
     _timer->cancel();
@@ -289,7 +278,6 @@ void iota::HttpClient::checkResponse(
 }
 
 void iota::HttpClient::timeout_connection(const boost::system::error_code& ec) {
-
   if ((!ec) || (ec != boost::asio::error::operation_aborted)) {
     set_error(boost::asio::error::timed_out);
     check_connection();
@@ -297,23 +285,20 @@ void iota::HttpClient::timeout_connection(const boost::system::error_code& ec) {
 }
 
 void iota::HttpClient::set_error(boost::system::error_code ec) {
-
   boost::mutex::scoped_lock l(_m);
   _ec = ec;
 }
 
 boost::system::error_code iota::HttpClient::get_error() {
-
   boost::mutex::scoped_lock l(_m);
   return _ec;
 }
 
 bool iota::HttpClient::check_connection() {
-
   bool success = true;
   boost::system::error_code ec = get_error();
-  if ((ec && ec != boost::asio::error::would_block)
-      || (!_connection->is_open())) {
+  if ((ec && ec != boost::asio::error::would_block) ||
+      (!_connection->is_open())) {
     success = false;
     if (_callback) {
       _callback(shared_from_this(), _response, ec);
@@ -325,7 +310,6 @@ bool iota::HttpClient::check_connection() {
 }
 
 void iota::HttpClient::generate_identifier() {
-
   if (_id.empty() == true) {
     _id = iota::riot_uuid();
   }
@@ -355,20 +339,17 @@ void iota::HttpClient::resolve(std::string address, std::string port) {
   try {
     boost::asio::ip::tcp::resolver resolver(_timer->get_io_service());
     boost::asio::ip::tcp::resolver::query query(address, port);
-    boost::asio::ip::tcp::resolver::iterator iterator =
-      resolver.resolve(query);
+    boost::asio::ip::tcp::resolver::iterator iterator = resolver.resolve(query);
     boost::asio::ip::tcp::endpoint e = (*iterator);
     _ip = e.address();
-  }
-  catch (std::exception& e) {
+  } catch (std::exception& e) {
     std::string msg_exception("Invalid endpoint ");
     msg_exception.append(address);
     msg_exception.append(":");
     msg_exception.append(port);
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER + " "
-                              + "[" + address +"]",
-                              e.what(),
-                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER +
+                                  " " + "[" + address + "]",
+                              e.what(), iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 }
 
@@ -378,4 +359,3 @@ void iota::HttpClient::stop() {
     _connection->close();
   }
 }
-

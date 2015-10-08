@@ -26,37 +26,32 @@
 #include "input_mqtt/IMqttCallback.h"
 #include "gmock/gmock.h"
 
-
-
 class MockMosquitto : public IMosquitto {
-  public:
+ public:
+  IMqttCallback* callBack;
 
-    IMqttCallback* callBack;
+  virtual ~MockMosquitto() {}
 
-    virtual ~MockMosquitto() {}
+  // Not sure if needed here like this or just mocked up but never use
 
-    //Not sure if needed here like this or just mocked up but never use
+  void setCallBack(IMqttCallback* callback) { this->callBack = callback; };
+  MOCK_METHOD3(mqttConnect, int(const char* host, int port, int keepalive));
 
-    void setCallBack(IMqttCallback* callback) {
-      this->callBack = callback;
-    };
-    MOCK_METHOD3(mqttConnect,int(const char* host, int port, int keepalive));
+  MOCK_METHOD2(mqttLoop, int(int timeout, int max_packets));
 
-    MOCK_METHOD2(mqttLoop,int(int timeout, int max_packets));
+  MOCK_METHOD6(mqttPublish, int(int* mid, const char* topic, int payloadlen,
+                                const void* payload, int qos, bool retain));
 
-    MOCK_METHOD6(mqttPublish,int(int* mid, const char* topic, int payloadlen,
-                                 const void* payload, int qos, bool retain));
+  MOCK_METHOD3(mqttSubscribe, int(int* mid, const char* sub, int qos));
 
-    MOCK_METHOD3(mqttSubscribe,int(int* mid, const char* sub, int qos));
+  MOCK_METHOD2(mqttUnsubscribe, int(int* mid, const char* sub));
+  MOCK_METHOD0(mqttDisconnect, int());
+  MOCK_METHOD0(mqttReconnect, int());
+  MOCK_METHOD2(mqttSetPassword,
+               int(const char* username, const char* password));
 
-    MOCK_METHOD2(mqttUnsubscribe,int(int* mid, const char* sub));
-    MOCK_METHOD0(mqttDisconnect,int());
-    MOCK_METHOD0(mqttReconnect,int());
-    MOCK_METHOD2(mqttSetPassword,int(const char* username, const char* password));
-
-  protected:
-  private:
-
+ protected:
+ private:
 };
 
-#endif // MOCKMOSQUITTO_H
+#endif  // MOCKMOSQUITTO_H
