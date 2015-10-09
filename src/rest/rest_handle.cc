@@ -430,14 +430,12 @@ void iota::RestHandle::execute_filters(
       int n_filter = num_filter;
       _pre_filters.at(num_filter)
           ->set_async_filter(
-              // TODO _connectionManager->get_io_service(),
               http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
               boost::bind(&iota::RestHandle::execute_filters, this,
                           http_request_ptr, tcp_conn, ++n_filter, _1));
     } else {
       _pre_filters.at(num_filter)
           ->set_async_filter(
-              // TODO _connectionManager->get_io_service(),
               http_request_ptr->get_header(iota::types::HEADER_TRACE_MESSAGES),
               boost::bind(&iota::RestHandle::handle_end_filters, this,
                           http_request_ptr, tcp_conn, num_filter, _1));

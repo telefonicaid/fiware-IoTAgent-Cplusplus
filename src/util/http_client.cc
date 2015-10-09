@@ -31,17 +31,17 @@
 
 iota::HttpClient::HttpClient(std::string server, unsigned int port,
                              std::string id)
-    : _local_io(new boost::asio::io_service),
+    : _synch_http_client(true),
       _remote_ip(server),
       _remote_port(port),
       _port(port),
       _proxy(false),
       _id(id) {
-  _connection.reset(new pion::tcp::connection(*_local_io));
+  _connection.reset(new pion::tcp::connection(_local_io));
   _connection->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
-  _strand.reset(new boost::asio::io_service::strand(*_local_io));
+  _strand.reset(new boost::asio::io_service::strand(_local_io));
 
-  _timer.reset(new boost::asio::deadline_timer(*_local_io));
+  _timer.reset(new boost::asio::deadline_timer(_local_io));
   resolve(_remote_ip, boost::lexical_cast<std::string>(_remote_port));
 
   _ec = boost::system::errc::make_error_code(boost::system::errc::success);
@@ -51,7 +51,8 @@ iota::HttpClient::HttpClient(std::string server, unsigned int port,
 
 iota::HttpClient::HttpClient(boost::asio::io_service& io, std::string server,
                              unsigned int port, std::string id)
-    : _remote_ip(server),
+    : _synch_http_client(false),
+      _remote_ip(server),
       _remote_port(port),
       _id(id),
       _port(port),
@@ -86,13 +87,15 @@ pion::http::response_ptr iota::HttpClient::send(
   set_proxy(proxy);
 
   pion::http::response_ptr response_ptr;
+
   _timer->expires_from_now(boost::posix_time::seconds(timeout));
   _timer->async_wait(_strand->wrap(
       boost::bind(&HttpClient::timeout_connection, shared_from_this(),
                   boost::asio::placeholders::error)));
 
   connect();
-  if (_local_io.get() != NULL) {
+  if (_synch_http_client) {
+    // End io_service
     _local_io.reset();
   }
   return _response;
@@ -159,8 +162,8 @@ void iota::HttpClient::connect() {
       _ip, _port,
       _strand->wrap(boost::bind(&HttpClient::connectHandle, shared_from_this(),
                                 boost::asio::placeholders::error)));
-  if (_local_io.get() != NULL) {
-    _local_io->run_one();
+  if (_synch_http_client) {
+    _local_io.run_one();
   }
 }
 
@@ -173,8 +176,8 @@ void iota::HttpClient::write() {
                                     boost::asio::placeholders::error))));
 
   request_writer_ptr->send();
-  if (_local_io.get() != NULL) {
-    _local_io->run_one();
+  if (_synch_http_client) {
+    _local_io.run_one();
   }
 }
 
@@ -186,9 +189,9 @@ void iota::HttpClient::read() {
                                     shared_from_this(), _1, _2, _3))));
   reader_ptr->receive();
 
-  if (_local_io.get() != NULL) {
+  if (_synch_http_client != NULL) {
     while (_response.get() == NULL && check_connection()) {
-      _local_io->run_one();
+      _local_io.run_one();
     }
   }
 }
@@ -216,8 +219,8 @@ void iota::HttpClient::connectHandle(const boost::system::error_code& ec) {
           boost::bind(&HttpClient::endConnectProxy, shared_from_this(),
                       boost::asio::placeholders::error,
                       boost::asio::placeholders::bytes_transferred)));
-      if (_local_io.get() != NULL) {
-        _local_io->run_one();
+      if (_synch_http_client) {
+        _local_io.run_one();
       }
     } else {
       write();
@@ -233,8 +236,8 @@ void iota::HttpClient::endWriteProxy(const boost::system::error_code& ec,
         boost::bind(&HttpClient::endConnectProxy, shared_from_this(),
                     boost::asio::placeholders::error,
                     boost::asio::placeholders::bytes_transferred)));
-    if (_local_io.get() != NULL) {
-      _local_io->run_one();
+    if (_synch_http_client) {
+      _local_io.run_one();
     }
   }
 }
