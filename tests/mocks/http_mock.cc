@@ -27,15 +27,11 @@
 #include <pion/process.hpp>
 #include <pion/http/plugin_server.hpp>
 
-
-
-
 void writeDictionaryTerm(pion::http::response_writer_ptr& writer,
                          const pion::ihash_multimap::value_type& val) {
   // text is copied into writer text cache
   writer << val.first << pion::http::types::HEADER_NAME_VALUE_DELIMITER
-         << val.second
-         << pion::http::types::STRING_CRLF;
+         << val.second << pion::http::types::STRING_CRLF;
 }
 
 void MockService::operator()(pion::http::request_ptr& http_request_ptr,
@@ -59,8 +55,10 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
    test_function = resource.substr(pos+1);
   }
   */
-  std::cout << "Executing test " << test_function << " " << http_request_ptr->get_method() << std::endl;
-  std::cout << "RECIBIDO " << _content[test_function].size() << " " << _sc[test_function] << std::endl;
+  std::cout << "Executing test " << test_function << " "
+            << http_request_ptr->get_method() << std::endl;
+  std::cout << "RECIBIDO " << _content[test_function].size() << " "
+            << _sc[test_function] << std::endl;
   std::string content;
   // save body received to chech it in unit test
   _received_content[test_function].push_back(http_request_ptr->get_content());
@@ -68,13 +66,14 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
   if (_content[test_function].size() > 0) {
     content.assign(_content[test_function].back());
     _content[test_function].pop_back();
-    std::cout << "CONTENT TO SEND " << content << " " << _sc[test_function] << std::endl;
+    std::cout << "CONTENT TO SEND " << content << " " << _sc[test_function]
+              << std::endl;
     if (_sc[test_function] == 204) {
       content.clear();
     }
-    for (std::map<std::string, std::string>::iterator it = _headers[test_function].begin();
+    for (std::map<std::string, std::string>::iterator it =
+             _headers[test_function].begin();
          it != _headers[test_function].end(); ++it) {
-
       writer->get_response().add_header(it->first, it->second);
     }
     writer->get_response().set_status_code(_sc[test_function]);
@@ -82,40 +81,32 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
     writer->write_no_copy(pion::http::types::STRING_CRLF);
     writer->write_no_copy(pion::http::types::STRING_CRLF);
     std::cout << "SENT " << content << std::endl;
-  }
-  else {
+  } else {
     if (!_extended_echo[test_function]) {
       content = http_request_ptr->get_content();
       writer->write_no_copy(content);
       writer->write_no_copy(pion::http::types::STRING_CRLF);
       writer->write_no_copy(pion::http::types::STRING_CRLF);
       std::cout << "SENT " << content << std::endl;
-    }
-    else {
+    } else {
       writer->write_no_copy(REQUEST_ECHO_TEXT);
       writer->write_no_copy(pion::http::types::STRING_CRLF);
       writer->write_no_copy(pion::http::types::STRING_CRLF);
-      writer
-          << "Request method: "
-          << http_request_ptr->get_method()
-          << pion::http::types::STRING_CRLF
-          << "Resource originally requested: "
-          << http_request_ptr->get_original_resource()
-          << pion::http::types::STRING_CRLF
-          << "Resource delivered: "
-          << http_request_ptr->get_resource()
-          << pion::http::types::STRING_CRLF
-          << "Query string: "
-          << http_request_ptr->get_query_string()
-          << pion::http::types::STRING_CRLF
-          << "HTTP version: "
-          << http_request_ptr->get_version_major() << '.' <<
-          http_request_ptr->get_version_minor()
-          << pion::http::types::STRING_CRLF
-          << "Content length: "
-          << (unsigned long)http_request_ptr->get_content_length()
-          << pion::http::types::STRING_CRLF
-          << pion::http::types::STRING_CRLF;
+      writer << "Request method: " << http_request_ptr->get_method()
+             << pion::http::types::STRING_CRLF
+             << "Resource originally requested: "
+             << http_request_ptr->get_original_resource()
+             << pion::http::types::STRING_CRLF
+             << "Resource delivered: " << http_request_ptr->get_resource()
+             << pion::http::types::STRING_CRLF
+             << "Query string: " << http_request_ptr->get_query_string()
+             << pion::http::types::STRING_CRLF
+             << "HTTP version: " << http_request_ptr->get_version_major() << '.'
+             << http_request_ptr->get_version_minor()
+             << pion::http::types::STRING_CRLF << "Content length: "
+             << (unsigned long)http_request_ptr->get_content_length()
+             << pion::http::types::STRING_CRLF
+             << pion::http::types::STRING_CRLF;
 
       // write request headers
       writer->write_no_copy(REQUEST_HEADERS_TEXT);
@@ -153,46 +144,45 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
         writer->write_no_copy(pion::http::types::STRING_CRLF);
         writer->write_no_copy(pion::http::types::STRING_CRLF);
       }
-
     }
   }
 
   writer->send();
-
-
 }
 
-void MockService::set_response(std::string test_function, int status_code, std::string content,
-                            std::map<std::string, std::string> headers) {
-  std::cout << "Setting response for " << test_function << " " << status_code << std::endl;
-  std::map<std::string, int >::iterator i_sc = _sc.begin();
+void MockService::set_response(std::string test_function, int status_code,
+                               std::string content,
+                               std::map<std::string, std::string> headers) {
+  std::cout << "Setting response for " << test_function << " " << status_code
+            << std::endl;
+  std::map<std::string, int>::iterator i_sc = _sc.begin();
   i_sc = _sc.find(test_function);
   if (i_sc != _sc.end()) {
     _sc[test_function] = status_code;
-  }
-  else {
+  } else {
     _sc.insert(std::pair<std::string, int>(test_function, status_code));
   }
-  std::map<std::string, std::vector<std::string> >::iterator i = _content.begin();
+  std::map<std::string, std::vector<std::string> >::iterator i =
+      _content.begin();
   i = _content.find(test_function);
   if (i != _content.end()) {
     _content[test_function].insert(_content[test_function].begin(), content);
-  }
-  else {
+  } else {
     std::vector<std::string> test_content;
     test_content.push_back(content);
-    _content.insert(std::pair<std::string, std::vector<std::string> >(test_function, test_content));
+    _content.insert(std::pair<std::string, std::vector<std::string> >(
+        test_function, test_content));
     _content[test_function] = test_content;
   }
   if (headers.size() > 0) {
-    _headers.insert(std::pair<std::string, std::map<std::string, std::string> >(test_function, headers));
+    _headers.insert(std::pair<std::string, std::map<std::string, std::string> >(
+        test_function, headers));
   }
   std::cout << "SET RESPONSE " << _content[test_function].size() << std::endl;
 }
 
-
 std::string MockService::get_last(std::string test_function) {
-    std::string result;
+  std::string result;
 
   if (_received_content[test_function].size() > 0) {
     result.assign(_received_content[test_function].back());
@@ -215,6 +205,4 @@ void MockService::reset(std::string test_function) {
 
 int MockService::size(std::string test_function) {
   return _received_content[test_function].size();
-
 }
-

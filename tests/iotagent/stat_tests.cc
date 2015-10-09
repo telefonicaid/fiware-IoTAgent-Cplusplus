@@ -32,15 +32,15 @@ std::string URL_BASE = "/iot";
 std::string logger("main");
 riot::AdminService* AdminService_ptr;
 int main(int argc, char* argv[]) {
-  //CppUnit::TestResult controller;
-  //CppUnit::TestResultCollector result;
-  //controller.addListener( &result );
-  //CppUnit::TextTestProgressListener progress;
-  //controller.addListener( &progress );
+  // CppUnit::TestResult controller;
+  // CppUnit::TestResultCollector result;
+  // controller.addListener( &result );
+  // CppUnit::TextTestProgressListener progress;
+  // controller.addListener( &progress );
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(RestFunctionTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cout));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cout));
   bool s = runner.run();
   return s ? 0 : 1;
 }

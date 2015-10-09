@@ -38,61 +38,50 @@ namespace iota {
 
 template <typename ReturnType>
 ReturnType get_value_from_rapidjson(const JsonValue& value) {
-
-
   if (value.IsBool() || value.IsTrue() || value.IsFalse()) {
     return boost::lexical_cast<ReturnType>(value.GetBool());
-  }
-  else if (value.IsInt() || value.IsUint() || value.IsInt64()
-           || value.IsUint64()) {
+  } else if (value.IsInt() || value.IsUint() || value.IsInt64() ||
+             value.IsUint64()) {
     return boost::lexical_cast<ReturnType>(value.GetInt64());
-  }
-  else if (value.IsString()) {
+  } else if (value.IsString()) {
     return boost::lexical_cast<ReturnType>(value.GetString());
-  }
-  else if (value.IsDouble()) {
+  } else if (value.IsDouble()) {
     std::ostringstream os;
     os << value.GetDouble();
     return boost::lexical_cast<ReturnType>(os.str());
+  } else {
+    throw iota::IotaException(
+        iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
+        "Value " + boost::lexical_cast<std::string>(value.GetType()) +
+            " unknown for conversion [boolean, number, string] are valid types",
+        iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
-  else {
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
-                              "Value " + boost::lexical_cast<std::string>(value.GetType()) +
-                              " unknown for conversion [boolean, number, string] are valid types",
-                              iota::types::RESPONSE_CODE_BAD_REQUEST);
-  }
-
 };
 
 template <typename ReturnType>
 ReturnType get_value_from_rapidjson(const rapidjson::Value& value) {
-
-
   if (value.IsBool() || value.IsTrue() || value.IsFalse()) {
     return boost::lexical_cast<ReturnType>(value.GetBool());
-  }
-  else if (value.IsInt() || value.IsUint() || value.IsInt64()
-           || value.IsUint64()) {
+  } else if (value.IsInt() || value.IsUint() || value.IsInt64() ||
+             value.IsUint64()) {
     return boost::lexical_cast<ReturnType>(value.GetInt64());
-  }
-  else if (value.IsString()) {
+  } else if (value.IsString()) {
     return boost::lexical_cast<ReturnType>(value.GetString());
-  }
-  else if (value.IsDouble()) {
+  } else if (value.IsDouble()) {
     std::ostringstream os;
     os << value.GetDouble();
     return boost::lexical_cast<ReturnType>(os.str());
+  } else {
+    throw iota::IotaException(
+        iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
+        "Value " + boost::lexical_cast<std::string>(value.GetType()) +
+            " unknown for conversion [boolean, number, string] are valid types",
+        iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
-  else {
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
-                              "Value " + boost::lexical_cast<std::string>(value.GetType()) +
-                              " unknown for conversion [boolean, number, string] are valid types",
-                              iota::types::RESPONSE_CODE_BAD_REQUEST);
-  }
-
 };
 /**
- * Convert object Json (with simple fields) into std::string map. A field can be get by map["field"].
+ * Convert object Json (with simple fields) into std::string map. A field can be
+ * get by map["field"].
  * @param value from rapidjson with simple fields (string, boolean, number).
  * @param map<std::string, std::string> where result will be stored.
  */
@@ -104,7 +93,8 @@ void get_map_from_rapidjson(const JsonValue& value,
  * @param bson is a mongo::BSONObj.
  * @param p_tree is a boost::property_tree::ptree where result will be stored
  */
-void bson_to_ptree(const mongo::BSONObj& bson, boost::property_tree::ptree& p_tree);
+void bson_to_ptree(const mongo::BSONObj& bson,
+                   boost::property_tree::ptree& p_tree);
 
 /**
  * Convert a rapidjson::Value to string
@@ -112,7 +102,6 @@ void bson_to_ptree(const mongo::BSONObj& bson, boost::property_tree::ptree& p_tr
  * @param p_tree is a boost::property_tree::ptree where result will be stored
  */
 std::string get_str_value(const rapidjson::Value& attribute);
-
 };
 
 #endif

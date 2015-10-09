@@ -23,27 +23,23 @@
 #define SRC_UTIL_IOTA_EXCEPTION_H_
 #include <stdexcept>
 namespace iota {
-class IotaException:
-  public std::runtime_error {
-  public:
-    IotaException(const std::string& reason,
-                  const std::string& details,
-                  unsigned int status_code):
-      std::runtime_error(details.c_str()), _reason(reason), _status(status_code)
-    {};
-    virtual ~IotaException() throw() {};
-    std::string reason() {
-      return _reason;
-    };
-    unsigned int status() {
-      return _status;
-    };
-    virtual const char* what() const throw() {
-      return std::runtime_error::what();
-    };
-  private:
-    std::string _reason;
-    unsigned int _status;
+class IotaException : public std::runtime_error {
+ public:
+  IotaException(const std::string& reason, const std::string& details,
+                unsigned int status_code)
+      : std::runtime_error(details.c_str()),
+        _reason(reason),
+        _status(status_code){};
+  virtual ~IotaException() throw(){};
+  std::string reason() { return _reason; };
+  unsigned int status() { return _status; };
+  virtual const char* what() const throw() {
+    return std::runtime_error::what();
+  };
+
+ private:
+  std::string _reason;
+  unsigned int _status;
 };
 }
 #endif

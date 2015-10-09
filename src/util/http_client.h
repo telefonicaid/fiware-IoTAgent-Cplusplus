@@ -33,98 +33,90 @@
 
 namespace iota {
 
-class HttpClient:
-  public boost::enable_shared_from_this<HttpClient> {
-  public:
-    typedef boost::function3 < void, boost::shared_ptr<HttpClient>,
-            pion::http::response_ptr,
-            const boost::system::error_code& > application_callback_t;
+class HttpClient : public boost::enable_shared_from_this<HttpClient> {
+ public:
+  typedef boost::function3<
+      void, boost::shared_ptr<HttpClient>, pion::http::response_ptr,
+      const boost::system::error_code&> application_callback_t;
 
-    HttpClient(std::string server,
-               unsigned int port,
-               std::string id = std::string());
+  HttpClient(std::string server, unsigned int port,
+             std::string id = std::string());
 
-    HttpClient(boost::asio::io_service& io,
-               std::string server,
-               unsigned int port,
-               std::string id = std::string());
+  HttpClient(boost::asio::io_service& io, std::string server, unsigned int port,
+             std::string id = std::string());
 
-    virtual ~HttpClient();
+  virtual ~HttpClient();
 
-    pion::http::response_ptr send(pion::http::request_ptr request,
-                                  unsigned int timeout,
-                                  std::string proxy,
-                                  application_callback_t callback = application_callback_t());
-    void async_send(pion::http::request_ptr request,
-                    unsigned int timeout,
-                    std::string proxy,
-                    application_callback_t callback);
+  pion::http::response_ptr send(
+      pion::http::request_ptr request, unsigned int timeout, std::string proxy,
+      application_callback_t callback = application_callback_t());
+  void async_send(pion::http::request_ptr request, unsigned int timeout,
+                  std::string proxy, application_callback_t callback);
 
-    pion::http::request_ptr get_request();
+  pion::http::request_ptr get_request();
 
-    std::string get_identifier();
+  std::string get_identifier();
 
-    pion::http::response_ptr get_response();
+  pion::http::response_ptr get_response();
 
-    boost::system::error_code get_error();
+  boost::system::error_code get_error();
 
-    std::string getRemoteEndpoint();
+  std::string getRemoteEndpoint();
 
-    void stop();
+  void stop();
 
-  protected:
+ protected:
+ private:
+  boost::shared_ptr<boost::asio::io_service> _local_io;
 
-  private:
-    boost::shared_ptr<boost::asio::io_service>         _local_io;
+  // Remote endpoint (may be different to connection data, if proxy is used)
+  std::string _remote_ip;
+  unsigned int _remote_port;
 
-    // Remote endpoint (may be different to connection data, if proxy is used)
-    std::string                                        _remote_ip;
-    unsigned int                                       _remote_port;
+  // Connection
+  bool _proxy;
+  boost::asio::ip::address _ip;
+  unsigned int _port;
+  std::string _id;
+  pion::tcp::connection_ptr _connection;
+  boost::shared_ptr<boost::asio::deadline_timer> _timer;
+  boost::shared_ptr<boost::asio::io_service::strand> _strand;
+  boost::system::error_code _ec;
+  boost::mutex _m;
+  pion::http::response_ptr _response;
+  pion::http::request_ptr _request;
+  application_callback_t _callback;
 
-    // Connection
-    bool                                               _proxy;
-    boost::asio::ip::address                           _ip;
-    unsigned int                                       _port;
-    std::string                                        _id;
-    pion::tcp::connection_ptr                          _connection;
-    boost::shared_ptr<boost::asio::deadline_timer>     _timer;
-    boost::shared_ptr<boost::asio::io_service::strand> _strand;
-    boost::system::error_code                          _ec;
-    boost::mutex                                       _m;
-    pion::http::response_ptr                           _response;
-    pion::http::request_ptr                            _request;
-    application_callback_t                             _callback;
+  void generate_identifier();
 
-    void generate_identifier();
+  void connect();
 
-    void connect();
+  void write();
 
-    void write();
+  void read();
 
-    void read();
+  void connectHandle(const boost::system::error_code& ec);
 
-    void connectHandle(const boost::system::error_code& ec);
+  void readResponse(const boost::system::error_code& ec);
+  // std::size_t bytes_written);
 
-    void readResponse(const boost::system::error_code& ec);
-    //std::size_t bytes_written);
+  void checkResponse(const pion::http::response_ptr& http_response_ptr,
+                     const pion::tcp::connection_ptr& conn_ptr,
+                     const boost::system::error_code& ec);
+  void endWriteProxy(const boost::system::error_code& ec,
+                     std::size_t bytes_writen);
+  void endConnectProxy(const boost::system::error_code& ec,
+                       std::size_t bytes_read);
 
-    void checkResponse(const pion::http::response_ptr& http_response_ptr,
-                       const pion::tcp::connection_ptr& conn_ptr,
-                       const boost::system::error_code& ec);
-    void endWriteProxy(const boost::system::error_code& ec,
-                       std::size_t bytes_writen);
-    void endConnectProxy(const boost::system::error_code& ec,
-                         std::size_t bytes_read);
+  void timeout_connection(const boost::system::error_code& ec);
 
-    void timeout_connection(const boost::system::error_code& ec);
+  void set_error(boost::system::error_code ec);
 
-    void set_error(boost::system::error_code ec);
+  bool check_connection();
 
-    bool check_connection();
+  void resolve(std::string address, std::string port);
 
-    void resolve(std::string address, std::string port);
-
-    void set_proxy(std::string proxy);
+  void set_proxy(std::string proxy);
 };
 };
 #endif

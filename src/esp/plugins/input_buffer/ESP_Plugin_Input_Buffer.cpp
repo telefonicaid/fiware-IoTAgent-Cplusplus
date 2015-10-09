@@ -27,9 +27,7 @@ ESP_Plugin_Input_Buffer* ESP_Plugin_Input_Buffer::instance = NULL;
 /* ---------------------- */
 /* PLUGIN INPUT BUFFER      */
 /* ---------------------- */
-ESP_Plugin_Input_Buffer::ESP_Plugin_Input_Buffer() {
-  id = 1;
-}
+ESP_Plugin_Input_Buffer::ESP_Plugin_Input_Buffer() { id = 1; }
 
 ESP_Plugin_Input_Base* ESP_Plugin_Input_Buffer::getSingleton() {
   if (ESP_Plugin_Input_Buffer::instance == NULL) {
@@ -43,8 +41,8 @@ ESP_Plugin_Input_Buffer* ESP_Plugin_Input_Buffer::getInstance() {
 }
 
 ESP_Input_Base* ESP_Plugin_Input_Buffer::createInput(TiXmlElement* element) {
-  std::string type = ESP_XmlUtils::queryStringValue(element,"type");
-  std::string name = ESP_XmlUtils::queryStringValue(element,"name");
+  std::string type = ESP_XmlUtils::queryStringValue(element, "type");
+  std::string name = ESP_XmlUtils::queryStringValue(element, "name");
 
   ESP_Input_Base* result = NULL;
   if (type == "buffer") {
@@ -60,66 +58,51 @@ ESP_Input_Base* ESP_Plugin_Input_Buffer::createInput(TiXmlElement* element) {
   return result;
 }
 
-int ESP_Plugin_Input_Buffer::getID() {
-  return id++;
-}
+int ESP_Plugin_Input_Buffer::getID() { return id++; }
 
 /* ---------------------- */
 /* INPUT BUFFER           */
 /* ---------------------- */
 
-ESP_Input_Buffer::ESP_Input_Buffer() {
-
-}
+ESP_Input_Buffer::ESP_Input_Buffer() {}
 
 void ESP_Input_Buffer::parseCustomElement(TiXmlElement* element) {
   this->_name = ESP_XmlUtils::queryStringValue(element, "name");
 }
 
-int ESP_Input_Buffer::openServer() {
-  return -1;
-}
+int ESP_Input_Buffer::openServer() { return -1; }
 
-int ESP_Input_Buffer::acceptServer() {
-  return -1;
-}
+int ESP_Input_Buffer::acceptServer() { return -1; }
 
-bool ESP_Input_Buffer::stopServer() {
-  return false;
-}
+bool ESP_Input_Buffer::stopServer() { return false; }
 
-bool ESP_Input_Buffer::closeServer() {
-  return false;
-}
+bool ESP_Input_Buffer::closeServer() { return false; }
 
 int ESP_Input_Buffer::openClient() {
   return ESP_Plugin_Input_Buffer::getInstance()->getID();
 }
 
-bool ESP_Input_Buffer::stopClient(int id) {
-  return true;
-}
+bool ESP_Input_Buffer::stopClient(int id) { return true; }
 
-bool ESP_Input_Buffer::closeClient(int id) {
-  return true;
-}
+bool ESP_Input_Buffer::closeClient(int id) { return true; }
 
 int ESP_Input_Buffer::readClient(int id, char* buffer, int len) {
   const char* result = NULL;
-  int readsize = len > context.getAvailableInputData() ?
-                 context.getAvailableInputData() : len;
+  int readsize = len > context.getAvailableInputData()
+                     ? context.getAvailableInputData()
+                     : len;
 
   if (context.readPInputData(readsize, result)) {
-    memcpy(buffer,result,readsize);
+    memcpy(buffer, result, readsize);
   }
   return readsize;
 }
 
 int ESP_Input_Buffer::writeClient(int id, char* buffer, int len) {
-  context.addOutputData(buffer,len);
+  context.addOutputData(buffer, len);
   return len;
 }
 
 void ESP_Input_Buffer::createInputData(char* buffer, int len) {
-  context.addInputData(buffer,len);
+  context.addInputData(buffer, len);
 }

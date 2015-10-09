@@ -28,5 +28,5 @@
 
 // Allow items with same name
 void csv_reader(std::string csv_data,
-                std::vector< std::map<std::string, std::string> >& data);
+                std::vector<std::map<std::string, std::string> >& data);
 #endif

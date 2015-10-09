@@ -36,24 +36,28 @@ namespace iota {
 
 namespace tt {
 class TTCBPublisher {
-  public:
-    TTCBPublisher();
-    std::string publishContextBroker(iota::ContextElement& cElement,
-                                     std::vector<std::string>& vJsons,
-                                     boost::property_tree::ptree&,iota::RiotISO8601& time);
+ public:
+  TTCBPublisher();
+  std::string publishContextBroker(iota::ContextElement& cElement,
+                                   std::vector<std::string>& vJsons,
+                                   boost::property_tree::ptree&,
+                                   iota::RiotISO8601& time);
 
-    virtual ~TTCBPublisher();
-  protected:
-  private:
-    pion::logger m_logger;
-    virtual std::string doPublishContextBroker(iota::ContextElement& cElement,
-        std::vector<std::string>& vJsons,std::string& url,boost::property_tree::ptree&,
-        iota::RiotISO8601& time);
-    virtual bool checkTimeInstantPresent(
-      std::vector<std::string>&); //For future use, in case a device already sends its timestamp.
-    virtual std::string buildcbURL(const boost::property_tree::ptree& pt);
+  virtual ~TTCBPublisher();
+
+ protected:
+ private:
+  pion::logger m_logger;
+  virtual std::string doPublishContextBroker(iota::ContextElement& cElement,
+                                             std::vector<std::string>& vJsons,
+                                             std::string& url,
+                                             boost::property_tree::ptree&,
+                                             iota::RiotISO8601& time);
+  virtual bool checkTimeInstantPresent(
+      std::vector<std::string>&);  // For future use, in case a device already
+                                   // sends its timestamp.
+  virtual std::string buildcbURL(const boost::property_tree::ptree& pt);
 };
 }
-
 }
-#endif // TTCBPUBLISHER_H
+#endif  // TTCBPUBLISHER_H

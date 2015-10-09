@@ -30,42 +30,37 @@
 #include <sstream>
 namespace iota {
 class RegisterResponse {
-  public:
-    RegisterResponse(const std::istringstream& str_reg_response);
-    RegisterResponse() {};
-    RegisterResponse(const rapidjson::Value& reg_response);
-    ~RegisterResponse() {};
-    std::string get_string();
-    void add_registration_id(const std::string& reg_id);
-    std::string& get_registration_id() {
-      return _registrationId;
-    };
+ public:
+  RegisterResponse(const std::istringstream& str_reg_response);
+  RegisterResponse(){};
+  RegisterResponse(const rapidjson::Value& reg_response);
+  ~RegisterResponse(){};
+  std::string get_string();
+  void add_registration_id(const std::string& reg_id);
+  std::string& get_registration_id() { return _registrationId; };
 
-    void add_duration(const std::string& data);
-    std::string& get_duration() {
-      return _duration;
-    };
+  void add_duration(const std::string& data);
+  std::string& get_duration() { return _duration; };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("registerResponse");
-      writer.StartObject();
-      writer.String("registrationId");
-      writer.String(_registrationId.c_str(),
-                    (rapidjson::SizeType)_registrationId.length());
-      writer.EndObject();
-      writer.StartObject();
-      writer.String("duration");
-      writer.String(_duration.c_str(), (rapidjson::SizeType)_duration.length());
-      writer.EndObject();
-      writer.EndObject();
-    };
-  private:
-    std::string _registrationId;
-    std::string _duration;
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("registerResponse");
+    writer.StartObject();
+    writer.String("registrationId");
+    writer.String(_registrationId.c_str(),
+                  (rapidjson::SizeType)_registrationId.length());
+    writer.EndObject();
+    writer.StartObject();
+    writer.String("duration");
+    writer.String(_duration.c_str(), (rapidjson::SizeType)_duration.length());
+    writer.EndObject();
+    writer.EndObject();
+  };
 
+ private:
+  std::string _registrationId;
+  std::string _duration;
 };
-
 }
 #endif

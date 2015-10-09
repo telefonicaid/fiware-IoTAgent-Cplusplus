@@ -31,49 +31,44 @@ using testing::Invoke;
 using testing::_;
 
 class MqttWrapperTests : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(MqttWrapperTests);
 
-    CPPUNIT_TEST_SUITE(MqttWrapperTests);
+  CPPUNIT_TEST(testConnect);
+  CPPUNIT_TEST(testReceiveMsg);
+  CPPUNIT_TEST(testPublishMsg);
+  CPPUNIT_TEST(testConnectAndReconnect);
 
-    CPPUNIT_TEST(testConnect);
-    CPPUNIT_TEST(testReceiveMsg);
-    CPPUNIT_TEST(testPublishMsg);
-    CPPUNIT_TEST(testConnectAndReconnect);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE_END();
+ public:
+  void setUp();
+  void tearDown();
 
+ protected:
+  void testConnect();
+  void testReceiveMsg();
+  void testPublishMsg();
+  void testConnectAndReconnect();
 
-  public:
+ private:
+  // In order to use Invoke I need to provide a method with same signature as
+  // mocked called method.
+  int stubConnect(const char* host, int port, int keepalive);
 
-    void setUp();
-    void tearDown();
+  // This will trigger a call to on_message.
+  int stubLoopToOnMessage(int, int);
 
-  protected:
-    void testConnect();
-    void testReceiveMsg();
-    void testPublishMsg();
-    void testConnectAndReconnect();
+  // This will store the mqtt message into the structure so it's available for
+  // later checking.
+  int stubPublish(int* mid, const char* topic, int payloadlen,
+                  const void* payload, int qos, bool retain);
 
-  private:
+  int stubToReConnect();
 
+  MockMosquitto* mosquitto;
+  ESP_MqttWrapper* mqttWrapper;
 
-    //In order to use Invoke I need to provide a method with same signature as mocked called method.
-    int stubConnect(const char* host, int port, int keepalive);
-
-    //This will trigger a call to on_message.
-    int stubLoopToOnMessage(int,int);
-
-    //This will store the mqtt message into the structure so it's available for later checking.
-    int stubPublish(int* mid, const char* topic, int payloadlen,
-                    const void* payload, int qos, bool retain);
-
-    int stubToReConnect();
-
-    MockMosquitto* mosquitto;
-    ESP_MqttWrapper* mqttWrapper;
-
-    struct mosquitto_message mqttMsg;
-
-
+  struct mosquitto_message mqttMsg;
 };
 
-#endif // MQTTWRAPPERTESTS_H
+#endif  // MQTTWRAPPERTESTS_H

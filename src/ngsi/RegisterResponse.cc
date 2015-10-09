@@ -25,11 +25,11 @@
 #include <rapidjson/document.h>
 #include <stdexcept>
 
-iota::RegisterResponse::RegisterResponse(const std::istringstream&
-    str_reg_response) {
+iota::RegisterResponse::RegisterResponse(
+    const std::istringstream& str_reg_response) {
   rapidjson::Document document;
   char buffer[str_reg_response.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_reg_response.str().c_str());
   if (document.Parse<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -39,32 +39,27 @@ iota::RegisterResponse::RegisterResponse(const std::istringstream&
     what << document.GetErrorOffset();
     what << "]";
     throw std::runtime_error(what.str());
-
   }
 
   // ContextBroker, can response with out
   // { "duration" : "PT24H", "registrationId" : "xxxxxxxxxxx" }
   //
   if (document.HasMember("registerResponse")) {
-
     if ((document["registerResponse"].HasMember("registrationId")) &&
         (document["registerResponse"]["registrationId"].IsString())) {
       _registrationId.assign(
-        document["registerResponse"]["registrationId"].GetString());
+          document["registerResponse"]["registrationId"].GetString());
     }
     if ((document["registerResponse"].HasMember("duration")) &&
         (document["registerResponse"]["duration"].IsString())) {
       _duration.assign(document["registerResponse"]["duration"].GetString());
     }
-  }
-  else {
-
+  } else {
     if ((document.HasMember("registrationId")) &&
         (document["registrationId"].IsString())) {
       _registrationId.assign(document["registrationId"].GetString());
     }
-    if ((document.HasMember("duration")) &&
-        (document["duration"].IsString())) {
+    if ((document.HasMember("duration")) && (document["duration"].IsString())) {
       _duration.assign(document["duration"].GetString());
     }
   }
@@ -86,10 +81,9 @@ iota::RegisterResponse::RegisterResponse(const std::istringstream&
 }
 
 iota::RegisterResponse::RegisterResponse(const rapidjson::Value& reg_response) {
-
   if (reg_response["registerResponse"].HasMember("registrationId")) {
     _registrationId.assign(
-      reg_response["registerResponse"]["registrationId"].GetString());
+        reg_response["registerResponse"]["registrationId"].GetString());
   }
   if (reg_response["registerResponse"].HasMember("duration")) {
     _duration.assign(reg_response["registerResponse"]["duration"].GetString());
@@ -110,4 +104,3 @@ void iota::RegisterResponse::add_registration_id(const std::string& reg_id) {
 void iota::RegisterResponse::add_duration(const std::string& data) {
   _duration = data;
 };
-

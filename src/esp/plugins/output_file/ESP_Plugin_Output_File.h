@@ -27,29 +27,29 @@
 /* PLUGIN OUTPUT FILE   */
 /* //////////////////  */
 class ESP_Plugin_Output_File : public ESP_Plugin_Output_Base {
+ private:
+  static ESP_Plugin_Output_File* instance;
+  int id;
+  std::map<int, FILE*> files;
+  ESP_Plugin_Output_File();
 
-  private:
-    static ESP_Plugin_Output_File* instance;
-    int id;
-    std::map<int, FILE*> files;
-    ESP_Plugin_Output_File();
+ public:
+  static ESP_Plugin_Output_Base* getSingleton();
+  static ESP_Plugin_Output_File* getInstance();
+  ESP_Output_Base* createOutput(TiXmlElement* element);
 
-  public:
-    static ESP_Plugin_Output_Base* getSingleton();
-    static ESP_Plugin_Output_File* getInstance();
-    ESP_Output_Base* createOutput(TiXmlElement* element);
-
-    // Methods
-    bool writeToFile(std::string filename, std::string result);
+  // Methods
+  bool writeToFile(std::string filename, std::string result);
 };
 
 class ESP_Output_File : public ESP_Output_Base {
-  public:
-    std::string _name;
+ public:
+  std::string _name;
 
-    bool execute(CC_AttributesType* attributes,
-                 ESP_Postprocessor_Base* postprocessor, std::map<std::string, void*> userData);
-    void parseCustomElement(TiXmlElement* element);
+  bool execute(CC_AttributesType* attributes,
+               ESP_Postprocessor_Base* postprocessor,
+               std::map<std::string, void*> userData);
+  void parseCustomElement(TiXmlElement* element);
 };
 
 #endif

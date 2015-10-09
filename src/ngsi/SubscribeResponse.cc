@@ -25,11 +25,11 @@
 #include <rapidjson/document.h>
 #include <stdexcept>
 
-iota::SubscribeResponse::SubscribeResponse(const std::istringstream&
-    str_subs_response) {
+iota::SubscribeResponse::SubscribeResponse(
+    const std::istringstream& str_subs_response) {
   rapidjson::Document document;
   char buffer[str_subs_response.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_subs_response.str().c_str());
   if (document.Parse<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -39,15 +39,13 @@ iota::SubscribeResponse::SubscribeResponse(const std::istringstream&
     what << document.GetErrorOffset();
     what << "]";
     throw std::runtime_error(what.str());
-
   }
 
   if (document.HasMember("subscribeResponse")) {
-
     if ((document["subscribeResponse"].HasMember("subscriptionId")) &&
         (document["subscribeResponse"]["subscriptionId"].IsString())) {
       _subscriptionId.assign(
-        document["subscribeResponse"]["subscriptionId"].GetString());
+          document["subscribeResponse"]["subscriptionId"].GetString());
     }
   }
   if (_subscriptionId.empty()) {
@@ -59,14 +57,12 @@ iota::SubscribeResponse::SubscribeResponse(const std::istringstream&
   }
 }
 
-iota::SubscribeResponse::SubscribeResponse(const rapidjson::Value&
-    subs_response) {
-
+iota::SubscribeResponse::SubscribeResponse(
+    const rapidjson::Value& subs_response) {
   if (subs_response["subscribeResponse"].HasMember("subscriptionId")) {
     _subscriptionId.assign(
-      subs_response["subscribeResponse"]["subscriptionId"].GetString());
+        subs_response["subscribeResponse"]["subscriptionId"].GetString());
   }
-
 };
 std::string iota::SubscribeResponse::get_string() {
   rapidjson::StringBuffer buffer;

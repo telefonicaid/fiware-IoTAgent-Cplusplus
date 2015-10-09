@@ -31,26 +31,26 @@
 
 #include "collection.h"
 
-#define MAX_RETRY  1
+#define MAX_RETRY 1
 #define SLEEP_TIME 250
 #define ERROR_MONGO 500
 
-iota::Collection::Collection(const std::string& collection_name) : m_logger(
-    PION_GET_LOGGER(iota::Process::get_logger_name())) {
+iota::Collection::Collection(const std::string& collection_name)
+    : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   a_queryOptions = Options::Primary;
   setBBDD(collection_name);
   _m_conn = MongoConnection::instance()->conn();
 };
 
-iota::Collection::Collection(Collection& c) : m_logger(
-    PION_GET_LOGGER(iota::Process::get_logger_name())) {
+iota::Collection::Collection(Collection& c)
+    : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   a_bbdd = c.a_bbdd;
   _m_conn = MongoConnection::instance()->conn();
 }
 
 iota::Collection::~Collection() {
   if (a_cursor.get() != NULL) {
-      a_cursor->decouple();
+    a_cursor->decouple();
   }
 
   MongoConnection::instance()->done(_m_conn);
@@ -59,11 +59,10 @@ iota::Collection::~Collection() {
 const std::string iota::Collection::_EMPTY;
 
 mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
-    const mongo::BSONObj& query,
-    const mongo::BSONObj& set,
-    bool upsert /* = 1 */,
-    int retry) {
-
+                                               const mongo::BSONObj& query,
+                                               const mongo::BSONObj& set,
+                                               bool upsert /* = 1 */,
+                                               int retry) {
   mongo::BSONObjBuilder obj;
   mongo::BSONObj res, r;
 
@@ -80,27 +79,26 @@ mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
   std::string param_request("Collection:findAndModify bbdd=" + bbdd + " data=" +
                             r.toString());
   IOTA_LOG_DEBUG(m_logger, param_request);
-  //int errCode = 0;
-  //mongo::BSONObj errObj;
+  // int errCode = 0;
+  // mongo::BSONObj errObj;
   try {
     _m_conn->runCommand(bbdd, r, res);
-    //obtenemos el id y ok
-    //errObj = conn->getLastErrorDetailed();
-    //errCode = errObj["code"].numberInt();
-  }
-  catch (mongo::DBException& exc) {
+    // obtenemos el id y ok
+    // errObj = conn->getLastErrorDetailed();
+    // errCode = errObj["code"].numberInt();
+  } catch (mongo::DBException& exc) {
     // try again
     std::string original_exc(exc.what());
     try {
       _m_conn->runCommand(bbdd, r, res);
-      //errObj = conn->getLastErrorDetailed();
-      //errCode = errObj["code"].numberInt();
-    }
-    catch (std::exception& e) {
+      // errObj = conn->getLastErrorDetailed();
+      // errCode = errObj["code"].numberInt();
+    } catch (std::exception& e) {
       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, e.what());
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                original_exc, iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+                         types::ERROR, e.what());
+      throw iota::IotaException(
+          iota::types::RESPONSE_MESSAGE_DATABASE_ERROR, original_exc,
+          iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
     }
   }
 
@@ -109,13 +107,10 @@ mongo::BSONObj iota::Collection::findAndModify(const std::string& table,
   IOTA_LOG_DEBUG(m_logger, "Find and notify result:" << res.toString());
 
   return res;
-
 }
 
 mongo::BSONObj iota::Collection::aggregate(
-    const std::vector<mongo::BSONObj> &pipeline,
-    int retry) {
-
+    const std::vector<mongo::BSONObj>& pipeline, int retry) {
   std::string bbdd = getDatabaseName();
   mongo::BSONObj res, r;
   mongo::BSONObjBuilder obj;
@@ -128,27 +123,26 @@ mongo::BSONObj iota::Collection::aggregate(
   std::string param_request("Collection:aggregate bbdd=" + bbdd + " data=" +
                             r.toString());
   IOTA_LOG_DEBUG(m_logger, param_request);
-  //int errCode = 0;
-  //mongo::BSONObj errObj;
+  // int errCode = 0;
+  // mongo::BSONObj errObj;
   try {
     _m_conn->runCommand(bbdd, r, res);
-    //obtenemos el id y ok
-    //errObj = conn->getLastErrorDetailed();
-    //errCode = errObj["code"].numberInt();
-  }
-  catch (mongo::DBException& exc) {
+    // obtenemos el id y ok
+    // errObj = conn->getLastErrorDetailed();
+    // errCode = errObj["code"].numberInt();
+  } catch (mongo::DBException& exc) {
     // try again
     std::string original_exc(exc.what());
     try {
       _m_conn->runCommand(bbdd, r, res);
-      //errObj = conn->getLastErrorDetailed();
-      //errCode = errObj["code"].numberInt();
-    }
-    catch (std::exception& e) {
+      // errObj = conn->getLastErrorDetailed();
+      // errCode = errObj["code"].numberInt();
+    } catch (std::exception& e) {
       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, e.what());
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                original_exc, iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+                         types::ERROR, e.what());
+      throw iota::IotaException(
+          iota::types::RESPONSE_MESSAGE_DATABASE_ERROR, original_exc,
+          iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
     }
   }
 
@@ -157,14 +151,11 @@ mongo::BSONObj iota::Collection::aggregate(
   IOTA_LOG_DEBUG(m_logger, "aggregate result:" << res.toString());
 
   return res;
-
 }
 
-mongo::BSONObj iota::Collection::distinct(
-    const std::string &field,
-    const mongo::BSONObj &query,
-    int retry) {
-
+mongo::BSONObj iota::Collection::distinct(const std::string& field,
+                                          const mongo::BSONObj& query,
+                                          int retry) {
   std::string bbdd = getDatabaseName();
   mongo::BSONObj res, r;
   mongo::BSONObjBuilder obj;
@@ -178,27 +169,26 @@ mongo::BSONObj iota::Collection::distinct(
   std::string param_request("Collection:distinct bbdd=" + bbdd + " data=" +
                             r.toString());
   IOTA_LOG_DEBUG(m_logger, param_request);
-  //int errCode = 0;
-  //mongo::BSONObj errObj;
+  // int errCode = 0;
+  // mongo::BSONObj errObj;
   try {
     _m_conn->runCommand(bbdd, r, res);
-    //obtenemos el id y ok
-    //errObj = conn->getLastErrorDetailed();
-    //errCode = errObj["code"].numberInt();
-  }
-  catch (mongo::DBException& exc) {
+    // obtenemos el id y ok
+    // errObj = conn->getLastErrorDetailed();
+    // errCode = errObj["code"].numberInt();
+  } catch (mongo::DBException& exc) {
     // try again
     std::string original_exc(exc.what());
     try {
       _m_conn->runCommand(bbdd, r, res);
-      //errObj = conn->getLastErrorDetailed();
-      //errCode = errObj["code"].numberInt();
-    }
-    catch (std::exception& e) {
+      // errObj = conn->getLastErrorDetailed();
+      // errCode = errObj["code"].numberInt();
+    } catch (std::exception& e) {
       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, e.what());
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                original_exc, iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+                         types::ERROR, e.what());
+      throw iota::IotaException(
+          iota::types::RESPONSE_MESSAGE_DATABASE_ERROR, original_exc,
+          iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
     }
   }
 
@@ -207,15 +197,13 @@ mongo::BSONObj iota::Collection::distinct(
   IOTA_LOG_DEBUG(m_logger, "distinct result:" << res.toString());
 
   return res;
-
 }
 
 int iota::Collection::getLastError(const std::string& bbdd,
-                                   const mongo::BSONObj &obj) {
-
+                                   const mongo::BSONObj& obj) {
   mongo::BSONObj errObj = _m_conn->getLastErrorDetailed();
-  iota::Alarm::info(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errObj.jsonString());
+  iota::Alarm::info(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                    errObj.jsonString());
   int errCode = errObj["code"].numberInt();
   int n = errObj.getIntField("n");
   if (errCode == 0) {
@@ -229,40 +217,34 @@ int iota::Collection::getLastError(const std::string& bbdd,
       IOTA_LOG_ERROR(m_logger, errorSTR);
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, 500);
-    }
-    else {
+    } else {
       IOTA_LOG_DEBUG(m_logger, "Mongo operation ok");
     }
-  }
-  else if (errCode == 11000 || errCode == 11001) {
+  } else if (errCode == 11000 || errCode == 11001) {
     // duplicate key
     std::ostringstream stream;
-    stream << bbdd << obj << " error:" << errCode << ":" <<
-           errObj.getStringField("err");
-    std::string errorSTR = std::string("duplicate key ") ;
+    stream << bbdd << obj << " error:" << errCode << ":"
+           << errObj.getStringField("err");
+    std::string errorSTR = std::string("duplicate key ");
     std::string staux = stream.str();
     IOTA_LOG_ERROR(m_logger, staux << errObj.getStringField("err"));
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
                               errorSTR, 409);
 
-  }
-  else if (errCode != 0) {
+  } else if (errCode != 0) {
     std::ostringstream stream;
-    stream << bbdd << obj << " error:" << errCode << ":" <<
-           errObj.getStringField("err");
+    stream << bbdd << obj << " error:" << errCode << ":"
+           << errObj.getStringField("err");
     std::string errorSTR = stream.str();
     IOTA_LOG_ERROR(m_logger, errorSTR);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                               errorSTR, 500);
   }
 
-
   return n;
 }
 
-int iota::Collection::insert(const mongo::BSONObj& data,
-                             int retry) {
-
+int iota::Collection::insert(const mongo::BSONObj& data, int retry) {
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
@@ -273,50 +255,45 @@ int iota::Collection::insert(const mongo::BSONObj& data,
 
   try {
     _m_conn->insert(bbdd, data);
-    iota::Alarm::info(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, "insert OK");
-  }
-  catch (mongo::SocketException& e) {
+    iota::Alarm::info(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                      "insert OK");
+  } catch (mongo::SocketException& e) {
     std::string errorSTR = "SocketException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::ConnectException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::ConnectException& e) {
     std::string errorSTR = "ConnectException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::UserException& e) {
-    IOTA_LOG_ERROR(m_logger,"UserException " << e.what());
-    if (retry < MAX_RETRY){
-       insert(data, retry +1);
-    }else{
-       std::string errorSTR = "problem with dabaseUSerConnection";
-       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
-       IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::UserException& e) {
+    IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
+    if (retry < MAX_RETRY) {
+      insert(data, retry + 1);
+    } else {
+      std::string errorSTR = "problem with dabaseUSerConnection";
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                         types::ERROR, errorSTR);
+      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::AssertionException& e) {
+  } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::OperationException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    IOTA_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
+    IOTA_LOG_ERROR(m_logger, "OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -326,102 +303,91 @@ int iota::Collection::insert(const mongo::BSONObj& data,
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DUPLICATED_DATA,
                                 errorSTR, 409);
 
-    }else{
+    } else {
       std::ostringstream stream;
       stream << bbdd << " " << data;
       std::string errorSTR = stream.str();
       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+                         types::ERROR, errorSTR);
       IOTA_LOG_ERROR(m_logger, errorSTR << errObj.getStringField("err"));
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::DBException& e) {
+  } catch (mongo::DBException& e) {
     std::string errorSTR = "DBException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
+                              errorSTR, ERROR_MONGO);
   }
-
 };
 
-int iota::Collection::update(
-  const std::string& id, const mongo::BSONObj& setData, bool upsert) {
+int iota::Collection::update(const std::string& id,
+                             const mongo::BSONObj& setData, bool upsert) {
   mongo::BSONObj query = BSON("_id" << mongo::OID(id));
-  return update(query,setData,upsert);
+  return update(query, setData, upsert);
 }
 
-int iota::Collection::update(
-  const mongo::BSONObj& query , const mongo::BSONObj& setData, bool upsert,
-  int retry) {
-    mongo::BSONObj setObj = BSON("$set" << setData);
-    return update_r(query, setObj, upsert, 0);
+int iota::Collection::update(const mongo::BSONObj& query,
+                             const mongo::BSONObj& setData, bool upsert,
+                             int retry) {
+  mongo::BSONObj setObj = BSON("$set" << setData);
+  return update_r(query, setObj, upsert, 0);
 }
 
-int iota::Collection::update_r(
-  const mongo::BSONObj& query , const mongo::BSONObj& setData,
-  bool upsert,  int retry) {
-
-  int n=0;
+int iota::Collection::update_r(const mongo::BSONObj& query,
+                               const mongo::BSONObj& setData, bool upsert,
+                               int retry) {
+  int n = 0;
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:update bbdd="
-                            + bbdd + "query=" + query.toString() +
-                            " data=" +
-                            setData.toString());
+  std::string param_request("Collection:update bbdd=" + bbdd + "query=" +
+                            query.toString() + " data=" + setData.toString());
   IOTA_LOG_DEBUG(m_logger, param_request);
-
 
   try {
     _m_conn->update(bbdd, query, setData, upsert);
     n = getLastError(bbdd, setData);
-  }
-  catch (mongo::SocketException& e) {
+  } catch (mongo::SocketException& e) {
     std::string errorSTR = "SocketException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::ConnectException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::ConnectException& e) {
     std::string errorSTR = "ConnectException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::UserException& e) {
-    IOTA_LOG_ERROR(m_logger,"UserException " << e.what());
-    if (retry < MAX_RETRY){
-        update(query , setData, upsert, retry + 1);
-    }else{
-       std::string errorSTR = "problem with database UserConnection";
-       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
-       IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::UserException& e) {
+    IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
+    if (retry < MAX_RETRY) {
+      update(query, setData, upsert, retry + 1);
+    } else {
+      std::string errorSTR = "problem with database UserConnection";
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                         types::ERROR, errorSTR);
+      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::AssertionException& e) {
+  } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::OperationException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    IOTA_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
+    IOTA_LOG_ERROR(m_logger, "OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -431,87 +397,79 @@ int iota::Collection::update_r(
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DUPLICATED_DATA,
                                 errorSTR, 409);
 
-    }else{
+    } else {
       std::ostringstream stream;
       stream << bbdd << " " << query;
       std::string errorSTR = stream.str();
       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+                         types::ERROR, errorSTR);
       IOTA_LOG_ERROR(m_logger, errorSTR << errObj.getStringField("err"));
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::DBException& e) {
+  } catch (mongo::DBException& e) {
     std::string errorSTR = "DBException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
+                              errorSTR, ERROR_MONGO);
   }
 
   return n;
 };
 
-int iota::Collection::remove(const mongo::BSONObj& query,
-  int retry) {
-
+int iota::Collection::remove(const mongo::BSONObj& query, int retry) {
   mongo::BSONObjBuilder obj;
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
   int n = 0;
 
-  std::string param_request("Collection:remove bbdd="
-                            + bbdd + " query=" + query.toString());
+  std::string param_request("Collection:remove bbdd=" + bbdd + " query=" +
+                            query.toString());
   IOTA_LOG_DEBUG(m_logger, param_request);
 
   try {
     _m_conn->remove(bbdd, query);
     n = getLastError(bbdd, query);
-  }
-  catch (mongo::SocketException& e) {
+  } catch (mongo::SocketException& e) {
     std::string errorSTR = "SocketException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::ConnectException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::ConnectException& e) {
     std::string errorSTR = "ConnectException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::UserException& e) {
-    IOTA_LOG_ERROR(m_logger,"UserException " << e.what());
-    if (retry < MAX_RETRY){
-        remove(query , retry + 1);
-    }else{
-       std::string errorSTR = "problem with database UserConnection";
-       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
-       IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::UserException& e) {
+    IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
+    if (retry < MAX_RETRY) {
+      remove(query, retry + 1);
+    } else {
+      std::string errorSTR = "problem with database UserConnection";
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                         types::ERROR, errorSTR);
+      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::AssertionException& e) {
+  } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::OperationException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    IOTA_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
+    IOTA_LOG_ERROR(m_logger, "OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -521,42 +479,40 @@ int iota::Collection::remove(const mongo::BSONObj& query,
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DUPLICATED_DATA,
                                 errorSTR, 409);
 
-    }else{
+    } else {
       std::ostringstream stream;
       stream << bbdd << " " << query;
       std::string errorSTR = stream.str();
       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+                         types::ERROR, errorSTR);
       IOTA_LOG_ERROR(m_logger, errorSTR << errObj.getStringField("err"));
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::DBException& e) {
+  } catch (mongo::DBException& e) {
     std::string errorSTR = "DBException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
+                              errorSTR, ERROR_MONGO);
   }
 
   return n;
 };
 
-void iota::Collection::instantiateID(const std::string& id)  {
+void iota::Collection::instantiateID(const std::string& id) {
   find(BSON("_id" << mongo::OID(id)));
 }
 
 std::string iota::Collection::newID() {
-    mongo::OID oid;
-    oid.init();
-    return oid.toString();
+  mongo::OID oid;
+  oid.init();
+  return oid.toString();
 }
 
 int iota::Collection::find(const mongo::BSONObj& query,
                            mongo::BSONObjBuilder& builderfieldsToReturn) {
-
   return find(a_queryOptions, query, builderfieldsToReturn);
 };
 
@@ -565,78 +521,67 @@ int iota::Collection::find(const mongo::BSONObj& query) {
   return find(a_queryOptions, query, fieldsToReturn);
 }
 
-int iota::Collection::find(int queryOptions,
-                           const mongo::BSONObj& query,
+int iota::Collection::find(int queryOptions, const mongo::BSONObj& query,
                            mongo::BSONObjBuilder& fieldsToReturn) {
   mongo::BSONObj emptyBSON;
   return find(queryOptions, query, 0, 0, emptyBSON, fieldsToReturn);
 }
 
-
-
-int iota::Collection::ensureIndex(
-  const std::string& name_index,
-  const mongo::BSONObj& index,
-  bool is_unique) {
-
+int iota::Collection::ensureIndex(const std::string& name_index,
+                                  const mongo::BSONObj& index, bool is_unique) {
   int result = -1;
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:ensureIndex bbdd=" + bbdd +
-         " key:" );
-  IOTA_LOG_DEBUG(m_logger, param_request <<  index);
+  std::string param_request("Collection:ensureIndex bbdd=" + bbdd + " key:");
+  IOTA_LOG_DEBUG(m_logger, param_request << index);
 
   try {
-
     mongo::StringData bbddStringdata(bbdd);
     mongo::IndexSpec indexSpec;
     indexSpec.addKeys(index);
     indexSpec.unique(is_unique);
     indexSpec.dropDuplicatesDeprecated(is_unique);
 
-    IOTA_LOG_DEBUG(m_logger, "before query" );
+    IOTA_LOG_DEBUG(m_logger, "before query");
     _m_conn->createIndex(bbddStringdata, indexSpec);
     result = 0;
-  }catch (mongo::DBException& e) {
+  } catch (mongo::DBException& e) {
     std::string errorSTR = "DBException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
+                              errorSTR, ERROR_MONGO);
   }
 
   return result;
-
 }
 
 int iota::Collection::dropIndexes() {
-
   int result = -1;
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:dropIndex bbdd=" + bbdd );
-  IOTA_LOG_DEBUG(m_logger, param_request );
+  std::string param_request("Collection:dropIndex bbdd=" + bbdd);
+  IOTA_LOG_DEBUG(m_logger, param_request);
 
   try {
-
-    IOTA_LOG_DEBUG(m_logger, "before query" );
+    IOTA_LOG_DEBUG(m_logger, "before query");
     _m_conn->dropIndexes(bbdd);
     result = 0;
-  }catch (mongo::DBException& e) {
+  } catch (mongo::DBException& e) {
     std::string errorSTR = "DBException in  dropIndexes";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
 
-  }catch (std::exception& e) {
+  } catch (std::exception& e) {
     std::string errorSTR = "Exception in  dropIndexes";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, e.what());
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       e.what());
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
   }
 
@@ -644,8 +589,7 @@ int iota::Collection::dropIndexes() {
 }
 
 int iota::Collection::createIndex(const mongo::BSONObj& index,
-                                                 bool uniqueIndex) {
-
+                                  bool uniqueIndex) {
   int res = 200;
 
   std::string bbdd = getDatabaseName();
@@ -658,19 +602,18 @@ int iota::Collection::createIndex(const mongo::BSONObj& index,
   IOTA_LOG_DEBUG(m_logger, bbdd << " checkIndex");
   if (num_index == 2) {
     // check if the index exists
-    if (uniqueIndex){
-      dropIndex == (indexCol.count(BSON("ns" << bbdd <<
-              "key" << index << "unique" << true)) !=1);
-    }else{
-      dropIndex == (indexCol.count(BSON("ns" << bbdd <<
-              "key" << index)) !=1);
+    if (uniqueIndex) {
+      dropIndex == (indexCol.count(BSON("ns" << bbdd << "key" << index
+                                             << "unique" << true)) != 1);
+    } else {
+      dropIndex == (indexCol.count(BSON("ns" << bbdd << "key" << index)) != 1);
     }
-  }else{
+  } else {
     // no correct numbner of index
     dropIndex = true;
   }
 
-  if (dropIndex){
+  if (dropIndex) {
     IOTA_LOG_DEBUG(m_logger, bbdd << " dropIndex an create " << index);
     dropIndexes();
 
@@ -680,108 +623,96 @@ int iota::Collection::createIndex(const mongo::BSONObj& index,
   return res;
 }
 
-
-int iota::Collection::find(int queryOptions,
-                           const mongo::BSONObj& queryObj,
-                           int limit,
-                           int skip,
-                           const mongo::BSONObj& order,
-                           mongo::BSONObjBuilder& fieldsToReturn,
-                           int retry) {
-
+int iota::Collection::find(int queryOptions, const mongo::BSONObj& queryObj,
+                           int limit, int skip, const mongo::BSONObj& order,
+                           mongo::BSONObjBuilder& fieldsToReturn, int retry) {
   int result = -1;
   std::string bbdd = getDatabaseName();
   bbdd.append(".");
   bbdd.append(a_bbdd);
 
-  std::string param_request("Collection:find bbdd=" + bbdd +
-                              " query=" + queryObj.toString());
-  IOTA_LOG_DEBUG(m_logger, param_request << " limit=" << limit << " offset=" <<skip<<
-                     " options=" <<  queryOptions);
+  std::string param_request("Collection:find bbdd=" + bbdd + " query=" +
+                            queryObj.toString());
+  IOTA_LOG_DEBUG(m_logger, param_request << " limit=" << limit
+                                         << " offset=" << skip
+                                         << " options=" << queryOptions);
 
   mongo::BSONObj fields_to_return;
   mongo::Query query(queryObj);
 
   try {
-
-    if (order.nFields()> 0){
+    if (order.nFields() > 0) {
       query.sort(order);
     }
 
     // Remove _id
     fieldsToReturn.append("_id", 0);
     fields_to_return = fieldsToReturn.obj();
-    IOTA_LOG_DEBUG(m_logger, "before getConnection" );
+    IOTA_LOG_DEBUG(m_logger, "before getConnection");
 
     if (queryOptions == INT_MIN) {
       queryOptions = a_queryOptions;
     }
-    IOTA_LOG_DEBUG(m_logger, "before query" );
+    IOTA_LOG_DEBUG(m_logger, "before query");
     a_cursor = _m_conn->query(bbdd, query, limit, skip, &fields_to_return,
-                           queryOptions);
-    //a_cursor = conn->query(bbdd, query);
+                              queryOptions);
+    // a_cursor = conn->query(bbdd, query);
 
     if (a_cursor.get() == NULL) {
       std::string err = "query returns null";
       IOTA_LOG_ERROR(m_logger, err);
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 err, 500);
-    }
-    else if (a_cursor->more()) {
+    } else if (a_cursor->more()) {
       result = 0;
-    }
-    else {
+    } else {
       //  NO_DATA
       std::ostringstream stream;
       stream << "error: NO DATA  " << bbdd << ": " << query;
       std::string obj = stream.str();
 
-      IOTA_LOG_INFO(m_logger,obj);
+      IOTA_LOG_INFO(m_logger, obj);
       result = ERROR_NO_DATA;
     }
 
-  }
-  catch (mongo::SocketException& e) {
+  } catch (mongo::SocketException& e) {
     std::string errorSTR = "SocketException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::ConnectException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::ConnectException& e) {
     std::string errorSTR = "ConnectException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::UserException& e) {
-    IOTA_LOG_ERROR(m_logger,"UserException " << e.what());
-    if (retry < MAX_RETRY){
-        return find(queryOptions, queryObj, limit, skip, order, fieldsToReturn, retry +1);
-    }else{
-       std::string errorSTR = "problem with database UserConnection";
-       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
-       IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::UserException& e) {
+    IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
+    if (retry < MAX_RETRY) {
+      return find(queryOptions, queryObj, limit, skip, order, fieldsToReturn,
+                  retry + 1);
+    } else {
+      std::string errorSTR = "problem with database UserConnection";
+      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+                         types::ERROR, errorSTR);
+      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::AssertionException& e) {
+  } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
-  }
-  catch (mongo::OperationException& e) {
+                              errorSTR, ERROR_MONGO);
+  } catch (mongo::OperationException& e) {
     mongo::BSONObj errObj = e.obj();
     int errCode = errObj["code"].numberInt();
-    IOTA_LOG_ERROR(m_logger,"OperationException " << errCode << " " << errObj);
+    IOTA_LOG_ERROR(m_logger, "OperationException " << errCode << " " << errObj);
     if (errCode == 11000 || errCode == 11001) {
       // duplicate key
       std::ostringstream stream;
@@ -791,35 +722,31 @@ int iota::Collection::find(int queryOptions,
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DUPLICATED_DATA,
                                 errorSTR, 409);
 
-    }else{
+    } else {
       std::ostringstream stream;
       stream << bbdd << " " << query;
       std::string errorSTR = stream.str();
       iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+                         types::ERROR, errorSTR);
       IOTA_LOG_ERROR(m_logger, errorSTR << errObj.getStringField("err"));
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
-  }
-  catch (mongo::DBException& e) {
+  } catch (mongo::DBException& e) {
     std::string errorSTR = "DBException ";
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                                errorSTR, ERROR_MONGO);
+                              errorSTR, ERROR_MONGO);
   }
 
   return result;
 };
 
-int iota::Collection::count(const mongo::BSONObj& query,
-  int retry) {
-
-  int result=-1;
+int iota::Collection::count(const mongo::BSONObj& query, int retry) {
+  int result = -1;
   try {
-
     std::string bbdd = getDatabaseName();
     bbdd.append(".");
     bbdd.append(a_bbdd);
@@ -830,19 +757,18 @@ int iota::Collection::count(const mongo::BSONObj& query,
 
     result = _m_conn->count(bbdd, query);
 
-  }
-  catch (mongo::DBException& e) {
-    IOTA_LOG_ERROR(m_logger,"Capturada mongo::DBException en find");
+  } catch (mongo::DBException& e) {
+    IOTA_LOG_ERROR(m_logger, "Capturada mongo::DBException en find");
     std::string staux = query.toString();
-    IOTA_LOG_ERROR(m_logger,staux);
-    IOTA_LOG_ERROR(m_logger,e.what());
+    IOTA_LOG_ERROR(m_logger, staux);
+    IOTA_LOG_ERROR(m_logger, e.what());
     std::ostringstream stream;
     stream << "error: " << a_bbdd << ": " << query << " what=" << e.what();
     std::string obj = stream.str();
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, obj);
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                              obj, 500);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       obj);
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR, obj,
+                              500);
   }
 
   return result;
@@ -851,75 +777,64 @@ int iota::Collection::count(const mongo::BSONObj& query,
 bool iota::Collection::more() {
   try {
     return (a_cursor.get() != NULL) && (a_cursor->more());
-  }
-  catch (mongo::SocketException& e) {
-    IOTA_LOG_ERROR(m_logger,"SocketException " << e.what());
-  }
-  catch (mongo::ConnectException& e) {
-    IOTA_LOG_ERROR(m_logger,"ConnectException " << e.what());
-  }
-  catch (mongo::UserException& e) {
-    IOTA_LOG_ERROR(m_logger,"UserException " << e.what());
-    boost::this_thread::sleep( boost::posix_time::milliseconds(500) );
+  } catch (mongo::SocketException& e) {
+    IOTA_LOG_ERROR(m_logger, "SocketException " << e.what());
+  } catch (mongo::ConnectException& e) {
+    IOTA_LOG_ERROR(m_logger, "ConnectException " << e.what());
+  } catch (mongo::UserException& e) {
+    IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
+    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
     return (a_cursor.get() != NULL) && (a_cursor->more());
-    IOTA_LOG_ERROR(m_logger,"after UserException " << e.what());
-  }
-  catch (mongo::AssertionException& e) {
-    IOTA_LOG_ERROR(m_logger,"AssertionException " << e.what());
-  }
-  catch (mongo::OperationException& e) {
-    IOTA_LOG_ERROR(m_logger,"OperationException " << e.what());
+    IOTA_LOG_ERROR(m_logger, "after UserException " << e.what());
+  } catch (mongo::AssertionException& e) {
+    IOTA_LOG_ERROR(m_logger, "AssertionException " << e.what());
+  } catch (mongo::OperationException& e) {
+    IOTA_LOG_ERROR(m_logger, "OperationException " << e.what());
     mongo::BSONObj errObj = e.obj();
-    iota::Alarm::info(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errObj.jsonString());
+    iota::Alarm::info(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                      errObj.jsonString());
     int errCode = errObj["code"].numberInt();
     std::ostringstream stream;
-    stream << " more error:" << errCode << ":" <<
-           errObj.getStringField("err");
+    stream << " more error:" << errCode << ":" << errObj.getStringField("err");
     std::string errorSTR = stream.str();
     IOTA_LOG_ERROR(m_logger, errorSTR);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                               errorSTR, 500);
 
-  }
-  catch (mongo::DBException& e) {
+  } catch (mongo::DBException& e) {
     IOTA_LOG_ERROR(m_logger, "mongo::DBException " << e.what());
-
   }
 };
-
 
 mongo::BSONObj iota::Collection::next() {
   try {
     if ((a_cursor.get() != NULL) && (a_cursor->more())) {
       // there are more data
       return a_cursor->next();
+    } else {
+      std::string err("no more data");
+      ;
+      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
+                                err, iota::types::RESPONSE_CODE_BAD_REQUEST);
     }
-    else {
-      std::string err("no more data");;
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER, err,
-                              iota::types::RESPONSE_CODE_BAD_REQUEST);
-    }
-  }
-  catch (mongo::UserException& e) {
+  } catch (mongo::UserException& e) {
     std::string errorSTR =
-      "Capturada mongo::UserException salimos de next, excepcion: ";
+        "Capturada mongo::UserException salimos de next, excepcion: ";
     errorSTR += e.what();
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, errorSTR);
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
-                              e.what(), iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
-  }
-  catch (mongo::DBException& e) {
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
+    throw iota::IotaException(
+        iota::types::RESPONSE_MESSAGE_DATABASE_ERROR, e.what(),
+        iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+  } catch (mongo::DBException& e) {
     std::string msg = "fetch";
     msg += "  Error: ";
     msg += e.what();
-    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
-                       types::ERROR, msg);
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       msg);
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                               e.what(), 500);
   }
-
 };
 
 std::string iota::Collection::getDatabaseName() {
@@ -944,7 +859,9 @@ void iota::Collection::ensureIndex(
   bbddINDEX.append(".");
   bbddINDEX.append("system.indexes");
 
-  ///{ "v" : 1, "unique" : true, "key" : { "device_id" : 1, "service" : 1, "service_path" : 1 }, "name" : "device_id_1_service_1_service_path_1", "ns" : "iot.DEVICE" }
+  ///{ "v" : 1, "unique" : true, "key" : { "device_id" : 1, "service" : 1,
+"service_path" : 1 }, "name" : "device_id_1_service_1_service_path_1", "ns" :
+"iot.DEVICE" }
 
   obj.append("ns", bbdd);
   obj.append("name", name_index);
@@ -958,7 +875,8 @@ void iota::Collection::ensureIndex(
   try {
     mongo::BSONObj data = obj.obj();
 
-    std::string param_request("Collection:ensureIndex|bbdd=" + bbdd + "|index=" +
+    std::string param_request("Collection:ensureIndex|bbdd=" + bbdd + "|index="
++
                               data.toString());
     IOTA_LOG_DEBUG(m_logger, param_request);
 
@@ -969,17 +887,16 @@ void iota::Collection::ensureIndex(
   catch (mongo::DBException& e) {
     iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
                        types::ERROR, e.what());
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR + "[" +
-                              bbdd + "]", e.what(), iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR + "["
++
+                              bbdd + "]", e.what(),
+iota::types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR);
   }
 
 }*/
 
-
-std::string iota::Collection::get_endpoint(){
-     return MongoConnection::instance()->get_endpoint();
+std::string iota::Collection::get_endpoint() {
+  return MongoConnection::instance()->get_endpoint();
 }
 
-void iota::Collection::reconnect(){
-  MongoConnection::instance()->reconnect();
-}
+void iota::Collection::reconnect() { MongoConnection::instance()->reconnect(); }

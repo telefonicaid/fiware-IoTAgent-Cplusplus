@@ -27,9 +27,7 @@ ESP_Plugin_Output_File* ESP_Plugin_Output_File::instance = NULL;
 /* ---------------------- */
 /* PLUGIN Output FILE      */
 /* ---------------------- */
-ESP_Plugin_Output_File::ESP_Plugin_Output_File() {
-  id = 0;
-}
+ESP_Plugin_Output_File::ESP_Plugin_Output_File() { id = 0; }
 
 ESP_Plugin_Output_Base* ESP_Plugin_Output_File::getSingleton() {
   if (ESP_Plugin_Output_File::instance == NULL) {
@@ -43,8 +41,8 @@ ESP_Plugin_Output_File* ESP_Plugin_Output_File::getInstance() {
 }
 
 ESP_Output_Base* ESP_Plugin_Output_File::createOutput(TiXmlElement* element) {
-  std::string type = ESP_XmlUtils::queryStringValue(element,"type");
-  std::string name = ESP_XmlUtils::queryStringValue(element,"name");
+  std::string type = ESP_XmlUtils::queryStringValue(element, "type");
+  std::string name = ESP_XmlUtils::queryStringValue(element, "name");
 
   ESP_Output_Base* result = NULL;
   if (type == "file") {
@@ -61,9 +59,9 @@ ESP_Output_Base* ESP_Plugin_Output_File::createOutput(TiXmlElement* element) {
 }
 
 bool ESP_Plugin_Output_File::writeToFile(std::string filename,
-    std::string result) {
+                                         std::string result) {
   FILE* f = fopen(filename.c_str(), "a+");
-  fprintf(f,"%s\n",result.c_str());
+  fprintf(f, "%s\n", result.c_str());
   fclose(f);
   return true;
 }
@@ -76,10 +74,12 @@ void ESP_Output_File::parseCustomElement(TiXmlElement* element) {
 }
 
 bool ESP_Output_File::execute(CC_AttributesType* attributes,
-                              ESP_Postprocessor_Base* postprocessor, std::map<std::string, void*> userData) {
+                              ESP_Postprocessor_Base* postprocessor,
+                              std::map<std::string, void*> userData) {
   if (postprocessor->isResultValid()) {
-    ESP_Plugin_Output_File::getInstance()->writeToFile(this->_name,
-        std::string(postprocessor->getResultData(), postprocessor->getResultSize()));
+    ESP_Plugin_Output_File::getInstance()->writeToFile(
+        this->_name, std::string(postprocessor->getResultData(),
+                                 postprocessor->getResultSize()));
     return true;
   }
   return false;

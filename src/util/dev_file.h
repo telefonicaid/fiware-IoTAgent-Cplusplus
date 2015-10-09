@@ -31,35 +31,32 @@
 #include "util/cache.h"
 #include "util/common.h"
 
-
 namespace iota {
 
 class DevicesFile {
-  public:
+ public:
+  static DevicesFile* instance();
+  static DevicesFile* initialize(const std::string& filename);
+  static void release();
 
-    static DevicesFile* instance();
-    static DevicesFile* initialize(const std::string& filename);
-    static void release();
+  std::string read_file(std::stringstream& is);
 
-    std::string read_file(std::stringstream& is);
+  void parse_to_cache(Cache* pcache);
 
-    void parse_to_cache(Cache* pcache);
+  const JsonValue& getDevicesObject();
 
-    const JsonValue& getDevicesObject();
+ protected:
+ private:
+  DevicesFile();
+  void set_filename(std::string filename);
+  void init();
 
-  protected:
-  private:
-
-    DevicesFile();
-    void set_filename(std::string filename);
-    void init();
-
-    boost::recursive_mutex m_mutex_document;
-    pion::logger m_log;
-    std::string _filename;
-    std::string _error;
-    static DevicesFile* pinstance;
-    JsonDocument _document;
+  boost::recursive_mutex m_mutex_document;
+  pion::logger m_log;
+  std::string _filename;
+  std::string _error;
+  static DevicesFile* pinstance;
+  JsonDocument _document;
 };
 };
 #endif

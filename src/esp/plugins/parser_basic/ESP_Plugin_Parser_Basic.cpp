@@ -26,51 +26,39 @@
 
 ESP_Plugin_Parser_Basic* ESP_Plugin_Parser_Basic::instance = NULL;
 
-
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 /**< PLUGIN PARSER BASIC >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 ESP_Tag_Base* ESP_Plugin_Parser_Basic::createParser(TiXmlElement* element) {
-  std::string type = ESP_XmlUtils::queryStringValue(element,"type");
-  std::string name = ESP_XmlUtils::queryStringValue(element,"name");
+  std::string type = ESP_XmlUtils::queryStringValue(element, "type");
+  std::string name = ESP_XmlUtils::queryStringValue(element, "name");
   ESP_Tag_Base* result = NULL;
 
   if (type == "read") {
     result = new ESP_Tag_Read();
-  }
-  else if (type == "write") {
+  } else if (type == "write") {
     result = new ESP_Tag_Write();
-  }
-  else if (type == "value") {
+  } else if (type == "value") {
     result = new ESP_Tag_Value();
-  }
-  else if (type == "constraint") {
+  } else if (type == "constraint") {
     result = new ESP_Tag_Constraint();
-  }
-  else if (type == "close") {
+  } else if (type == "close") {
     result = new ESP_Tag_Close();
-  }
-  else if (type == "condition") {
+  } else if (type == "condition") {
     result = new ESP_Tag_Condition();
-  }
-  else if (type == "loop") {
+  } else if (type == "loop") {
     result = new ESP_Tag_Loop();
-  }
-  else if (type == "clear") {
+  } else if (type == "clear") {
     result = new ESP_Tag_Clear();
-  }
-  else if (type == "result") {
+  } else if (type == "result") {
     result = new ESP_Tag_Result();
-  }
-  else if (type == "switch") {
+  } else if (type == "switch") {
     result = new ESP_Tag_Switch();
-  }
-  else if (type == "option") {
+  } else if (type == "option") {
     result = new ESP_Tag_Option();
-  }
-  else if (type == "break") {
+  } else if (type == "break") {
     result = new ESP_Tag_Break();
   }
 
@@ -95,19 +83,16 @@ ESP_Plugin_Parser_Base* ESP_Plugin_Parser_Basic::getSingleton() {
 /**< READ >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Read::ESP_Tag_Read() {
-}
+ESP_Tag_Read::ESP_Tag_Read() {}
 
-void ESP_Tag_Read::parseCustomElement(TiXmlElement* element) {
-}
+void ESP_Tag_Read::parseCustomElement(TiXmlElement* element) {}
 
 int ESP_Tag_Read::execute(ESP_Context* context) {
   const char* result = NULL;
 
   if (context->readPInputData(this->_datasize, result)) {
     return ESP_Tag_Base::EXECUTE_RESULT_OK;
-  }
-  else {
+  } else {
     return ESP_Tag_Base::EXECUTE_RESULT_IDLE;
   }
 
@@ -119,26 +104,23 @@ int ESP_Tag_Read::execute(ESP_Context* context) {
 /**< WRITE >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Write::ESP_Tag_Write() {
+ESP_Tag_Write::ESP_Tag_Write() {}
 
-}
-
-void ESP_Tag_Write::parseCustomElement(TiXmlElement* element) {
-
-}
+void ESP_Tag_Write::parseCustomElement(TiXmlElement* element) {}
 
 int ESP_Tag_Write::execute(ESP_Context* context) {
   // Update Ref
   if (!_valueref.empty()) {
-    ESP_Attribute* attrtemp = ESP_Attribute::searchAttributeRefByName(
-                                &context->temp,_valueref);
+    ESP_Attribute* attrtemp =
+        ESP_Attribute::searchAttributeRefByName(&context->temp, _valueref);
     if (attrtemp != NULL) {
       this->_value = *attrtemp;
     }
   }
 
   // Generate Output
-  context->addOutputData((const char*)this->_value._value,this->_value._datasize);
+  context->addOutputData((const char*)this->_value._value,
+                         this->_value._datasize);
   return ESP_Tag_Base::EXECUTE_RESULT_OK;
 }
 
@@ -147,18 +129,16 @@ int ESP_Tag_Write::execute(ESP_Context* context) {
 /**< CLOSE >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Close::ESP_Tag_Close() {
+ESP_Tag_Close::ESP_Tag_Close() {}
 
-}
-
-void ESP_Tag_Close::parseCustomElement(TiXmlElement* element) {
-}
+void ESP_Tag_Close::parseCustomElement(TiXmlElement* element) {}
 
 int ESP_Tag_Close::execute(ESP_Context* context) {
   /*
   ESP_Attribute closeAttribute;
   int value = 1;
-  closeAttribute.setValue("close",(const char *)&value,sizeof(value),ESP_DataType::ESP_DataType_INT,0);
+  closeAttribute.setValue("close",(const char
+  *)&value,sizeof(value),ESP_DataType::ESP_DataType_INT,0);
   */
   context->close = true;
   return ESP_Tag_Base::EXECUTE_RESULT_OK;
@@ -169,18 +149,16 @@ int ESP_Tag_Close::execute(ESP_Context* context) {
 /**< CONSTRAINT >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Constraint::ESP_Tag_Constraint() {
-
-}
+ESP_Tag_Constraint::ESP_Tag_Constraint() {}
 
 void ESP_Tag_Constraint::parseCustomElement(TiXmlElement* element) {
-  //printf("Parsing Tag Constraint\n");
+  // printf("Parsing Tag Constraint\n");
 }
 
 int ESP_Tag_Constraint::execute(ESP_Context* context) {
   const char* result = NULL;
   if (context->readPInputData(this->_datasize, result)) {
-    //printf("Executing Tag Constraint\n");
+    // printf("Executing Tag Constraint\n");
 
     ESP_Attribute atri_result;
     atri_result.setValue(_name, result, this->_datasize, this->_datatype,
@@ -188,12 +166,10 @@ int ESP_Tag_Constraint::execute(ESP_Context* context) {
 
     if (ESP_Attribute::compareValue(&this->_value, &atri_result) == 0) {
       return ESP_Tag_Base::EXECUTE_RESULT_OK;
-    }
-    else {
+    } else {
       return ESP_Tag_Base::EXECUTE_RESULT_ERROR;
     }
-  }
-  else {
+  } else {
     return ESP_Tag_Base::EXECUTE_RESULT_IDLE;
   }
 
@@ -205,12 +181,10 @@ int ESP_Tag_Constraint::execute(ESP_Context* context) {
 /**< VALUE >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Value::ESP_Tag_Value() {
-  _resetend = false;
-}
+ESP_Tag_Value::ESP_Tag_Value() { _resetend = false; }
 
 void ESP_Tag_Value::parseCustomElement(TiXmlElement* element) {
-  //printf("Parsing Tag Value\n");
+  // printf("Parsing Tag Value\n");
   this->_nameref = ESP_XmlUtils::queryStringValue(element, "nameref");
   this->_valueref = ESP_XmlUtils::queryStringValue(element, "valueref");
   this->_resetend = ESP_XmlUtils::queryBoolValue(element, "resetend");
@@ -228,14 +202,14 @@ int ESP_Tag_Value::execute(ESP_Context* context) {
   if (!_valueref.empty()) {
     // NameRef
     if (!_nameref.empty()) {
-      ESP_Attribute* nameref = ESP_Attribute::searchAttributeRefByName(&context->temp,
-                               _nameref);
+      ESP_Attribute* nameref =
+          ESP_Attribute::searchAttributeRefByName(&context->temp, _nameref);
       _name = nameref->getValueAsString();
     }
 
     // ValueRef
-    ESP_Attribute* valueref = ESP_Attribute::searchAttributeRefByName(
-                                &context->temp,_valueref);
+    ESP_Attribute* valueref =
+        ESP_Attribute::searchAttributeRefByName(&context->temp, _valueref);
     if (!_name.empty() && valueref != NULL) {
       result = (char*)valueref->_value;
       finalsize = dataread = valueref->_datasize;
@@ -266,7 +240,8 @@ int ESP_Tag_Value::execute(ESP_Context* context) {
       const char* delim = NULL;
       context->readPInputData(this->_value._datasize, delim);
     }
-    // Get All Remaining Buffer (TODO: CHECK THIS, CAN BE A WRONG DECISION IF STREAMING DATA)
+    // Get All Remaining Buffer (TODO: CHECK THIS, CAN BE A WRONG DECISION IF
+    // STREAMING DATA)
     else {
       finalsize = context->getAvailableInputData();
       dataread = context->readPInputData(finalsize, result);
@@ -285,15 +260,16 @@ int ESP_Tag_Value::execute(ESP_Context* context) {
 
   // Read Value
   if (dataread >= 0) {
-    //printf("Executing Tag Value\n");
+    // printf("Executing Tag Value\n");
     std::string finalname = _name;
 
     // Loop Name if $
     if (finalname.find("$") != std::string::npos) {
-      ESP_Tag_Base* parentloop = ESP_Tag_Base::searchParent(this,"loop");
+      ESP_Tag_Base* parentloop = ESP_Tag_Base::searchParent(this, "loop");
       if (parentloop != NULL) {
-        finalname = ESP_StringUtils::replaceString(finalname,"$",
-                    ESP_StringUtils::intToString(((ESP_Tag_Loop*)parentloop)->niter));
+        finalname = ESP_StringUtils::replaceString(
+            finalname, "$",
+            ESP_StringUtils::intToString(((ESP_Tag_Loop*)parentloop)->niter));
       }
     }
 
@@ -301,10 +277,9 @@ int ESP_Tag_Value::execute(ESP_Context* context) {
     atri_result.setValue(finalname, result, finalsize, this->_datatype,
                          this->_datacode);
 
-    context->temp[finalname] = atri_result; // Overwrite
+    context->temp[finalname] = atri_result;  // Overwrite
     return ESP_Tag_Base::EXECUTE_RESULT_OK;
-  }
-  else {
+  } else {
     return ESP_Tag_Base::EXECUTE_RESULT_IDLE;
   }
 
@@ -316,9 +291,7 @@ int ESP_Tag_Value::execute(ESP_Context* context) {
 /**< CONDITION >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Condition::ESP_Tag_Condition() {
-
-}
+ESP_Tag_Condition::ESP_Tag_Condition() {}
 
 void ESP_Tag_Condition::parseCustomElement(TiXmlElement* element) {
   this->_operation = ESP_XmlUtils::queryStringValue(element, "operation");
@@ -326,43 +299,39 @@ void ESP_Tag_Condition::parseCustomElement(TiXmlElement* element) {
 
 int ESP_Tag_Condition::execute(ESP_Context* context) {
   // Get Reference from Context
-  ESP_Attribute* valueref = ESP_Attribute::searchAttributeRefByName(
-                              &context->temp,_valueref);
+  ESP_Attribute* valueref =
+      ESP_Attribute::searchAttributeRefByName(&context->temp, _valueref);
 
   // Reference
   if (valueref != NULL) {
-    int compare = ESP_Attribute::compareValue(valueref,&_value);
+    int compare = ESP_Attribute::compareValue(valueref, &_value);
     if ((_operation == "" || _operation == "equal") && compare == 0) {
       // OK
-    }
-    else if (_operation == "notequal" && compare != 0) {
+    } else if (_operation == "notequal" && compare != 0) {
       // OK
-    }
-    else if (_operation == "notcontains" &&
-             valueref->getValueAsString().find(_value.getValueAsString()) ==
-             std::string::npos) {
+    } else if (_operation == "notcontains" &&
+               valueref->getValueAsString().find(_value.getValueAsString()) ==
+                   std::string::npos) {
       // OK
-    }
-    else if (_operation == "contains" &&
-             valueref->getValueAsString().find(_value.getValueAsString()) !=
-             std::string::npos) {
+    } else if (_operation == "contains" &&
+               valueref->getValueAsString().find(_value.getValueAsString()) !=
+                   std::string::npos) {
       // OK
-    }
-    else if (_operation =="default") {
-      //it will just return OK no matter what value is (in fact, there should be no value).
-    }
-    else {
+    } else if (_operation == "default") {
+      // it will just return OK no matter what value is (in fact, there should
+      // be no value).
+    } else {
       // Cancel Children
-      setChildrenParsed(true,true);
+      setChildrenParsed(true, true);
     }
   }
   // From Buffer
   else {
-    int index = context->searchAttributeValueInRange(&this->_value,_byteoffset,
-                this->_datasize);
+    int index = context->searchAttributeValueInRange(&this->_value, _byteoffset,
+                                                     this->_datasize);
     if (index < 0) {
       // Cancel Children
-      setChildrenParsed(true,true);
+      setChildrenParsed(true, true);
     }
   }
 
@@ -374,9 +343,7 @@ int ESP_Tag_Condition::execute(ESP_Context* context) {
 /**< SWITCH >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Switch::ESP_Tag_Switch() {
-
-}
+ESP_Tag_Switch::ESP_Tag_Switch() {}
 
 void ESP_Tag_Switch::parseCustomElement(TiXmlElement* element) {
   _evaluated = false;
@@ -385,8 +352,8 @@ void ESP_Tag_Switch::parseCustomElement(TiXmlElement* element) {
 int ESP_Tag_Switch::execute(ESP_Context* context) {
   // Update Ref
   if (!_valueref.empty()) {
-    ESP_Attribute* attrtemp = ESP_Attribute::searchAttributeRefByName(
-                                &context->temp,_valueref);
+    ESP_Attribute* attrtemp =
+        ESP_Attribute::searchAttributeRefByName(&context->temp, _valueref);
     if (attrtemp != NULL) {
       this->_value = *attrtemp;
     }
@@ -405,30 +372,24 @@ void ESP_Tag_Switch::reset() {
 /**< OPTION >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Option::ESP_Tag_Option() {
+ESP_Tag_Option::ESP_Tag_Option() {}
 
-}
-
-void ESP_Tag_Option::parseCustomElement(TiXmlElement* element) {
-
-}
+void ESP_Tag_Option::parseCustomElement(TiXmlElement* element) {}
 
 int ESP_Tag_Option::execute(ESP_Context* context) {
   if (parent != NULL && parent->_type == "switch") {
     ESP_Tag_Switch* switchtag = (ESP_Tag_Switch*)parent;
-    ESP_Attribute* ref = ESP_Attribute::searchAttributeRefByName(&context->temp,
-                         switchtag->_valueref);
-    int compare = ESP_Attribute::compareValue(ref,&_value);
+    ESP_Attribute* ref = ESP_Attribute::searchAttributeRefByName(
+        &context->temp, switchtag->_valueref);
+    int compare = ESP_Attribute::compareValue(ref, &_value);
     if ((compare == 0 || _value._datasize == 0) && !switchtag->_evaluated) {
       switchtag->_evaluated = true;
-    }
-    else {
-      setChildrenParsed(true,true);
+    } else {
+      setChildrenParsed(true, true);
     }
 
     return ESP_Tag_Base::EXECUTE_RESULT_OK;
-  }
-  else {
+  } else {
     return ESP_Tag_Base::EXECUTE_RESULT_ERROR;
   }
 }
@@ -467,13 +428,12 @@ int ESP_Tag_Loop::execute(ESP_Context* context) {
     niter++;
 
     return ESP_Tag_Base::EXECUTE_RESULT_OK;
-  }
-  else {
+  } else {
     _repeat = false;
-    iter = 0; // Redundant
+    iter = 0;  // Redundant
 
     // Cancel Children
-    setChildrenParsed(true,true);
+    setChildrenParsed(true, true);
 
     return ESP_Tag_Base::EXECUTE_RESULT_OK;
   }
@@ -490,20 +450,16 @@ void ESP_Tag_Loop::reset() {
 /**< BREAK >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Break::ESP_Tag_Break() {
+ESP_Tag_Break::ESP_Tag_Break() {}
 
-}
-
-void ESP_Tag_Break::parseCustomElement(TiXmlElement* element) {
-
-}
+void ESP_Tag_Break::parseCustomElement(TiXmlElement* element) {}
 
 int ESP_Tag_Break::execute(ESP_Context* context) {
   // Search first breakable parent
   bool found = false;
-  ESP_Tag_Base* parentloop = ESP_Tag_Base::searchParent(this,"loop");
+  ESP_Tag_Base* parentloop = ESP_Tag_Base::searchParent(this, "loop");
   if (parentloop != NULL) {
-    ((ESP_Tag_Loop*)parentloop)->iter = 0; // No more iterations
+    ((ESP_Tag_Loop*)parentloop)->iter = 0;  // No more iterations
   }
 
   return ESP_Tag_Base::EXECUTE_RESULT_OK;
@@ -514,13 +470,9 @@ int ESP_Tag_Break::execute(ESP_Context* context) {
 /**< COMPOUNDVALUE >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_CompoundValue::ESP_Tag_CompoundValue() {
+ESP_Tag_CompoundValue::ESP_Tag_CompoundValue() {}
 
-}
-
-void ESP_Tag_CompoundValue::parseCustomElement(TiXmlElement* element) {
-
-}
+void ESP_Tag_CompoundValue::parseCustomElement(TiXmlElement* element) {}
 
 int ESP_Tag_CompoundValue::execute(ESP_Context* context) {
   return ESP_Tag_Base::EXECUTE_RESULT_OK;
@@ -531,13 +483,9 @@ int ESP_Tag_CompoundValue::execute(ESP_Context* context) {
 /**< CLEAR >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Clear::ESP_Tag_Clear() {
+ESP_Tag_Clear::ESP_Tag_Clear() {}
 
-}
-
-void ESP_Tag_Clear::parseCustomElement(TiXmlElement* element) {
-
-}
+void ESP_Tag_Clear::parseCustomElement(TiXmlElement* element) {}
 
 int ESP_Tag_Clear::execute(ESP_Context* context) {
   context->temp.clear();
@@ -549,17 +497,15 @@ int ESP_Tag_Clear::execute(ESP_Context* context) {
 /**< RETURN >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-ESP_Tag_Result::ESP_Tag_Result() {
-  _nodata = false;
-}
+ESP_Tag_Result::ESP_Tag_Result() { _nodata = false; }
 
 void ESP_Tag_Result::parseCustomElement(TiXmlElement* element) {
   this->_nodata = ESP_XmlUtils::queryBoolValue(element, "nodata");
 }
 
 int ESP_Tag_Result::execute(ESP_Context* context) {
-  if (_nodata == false || (_nodata == true &&
-                           context->getAvailableInputData() == 0)) {
+  if (_nodata == false ||
+      (_nodata == true && context->getAvailableInputData() == 0)) {
     context->addResultData();
   }
   return ESP_Tag_Base::EXECUTE_RESULT_OK;

@@ -27,38 +27,37 @@
 namespace iota {
 
 class Timer {
+ public:
+  Timer(){};
 
-  public:
-    Timer() {};
+  virtual ~Timer(){};
 
-    virtual ~Timer() {};
-
-
-    boost::shared_ptr<boost::asio::deadline_timer> start(boost::asio::io_service&
-        io_service, unsigned short timeout) {
-      if (_timer.get() != NULL) {
-        _timer->cancel();
-      }
-      _timer.reset(new boost::asio::deadline_timer(io_service,
-                   boost::posix_time::seconds(timeout)));
-      return _timer;
+  boost::shared_ptr<boost::asio::deadline_timer> start(
+      boost::asio::io_service& io_service, unsigned short timeout) {
+    if (_timer.get() != NULL) {
+      _timer->cancel();
     }
-    void cancel() {
-      if (_timer.get() != NULL) {
-        _timer->cancel();
-      }
+    _timer.reset(new boost::asio::deadline_timer(
+        io_service, boost::posix_time::seconds(timeout)));
+    return _timer;
+  }
+  void cancel() {
+    if (_timer.get() != NULL) {
+      _timer->cancel();
     }
+  }
 
-    long time_to_expire() {
-      long ms = 0;
-      if (_timer.get() != NULL) {
-        ms = _timer->expires_from_now().total_milliseconds();
-      }
-      return ms;
+  long time_to_expire() {
+    long ms = 0;
+    if (_timer.get() != NULL) {
+      ms = _timer->expires_from_now().total_milliseconds();
     }
-  protected:
-  private:
-    boost::shared_ptr<boost::asio::deadline_timer> _timer;
+    return ms;
+  }
+
+ protected:
+ private:
+  boost::shared_ptr<boost::asio::deadline_timer> _timer;
 };
 };
 

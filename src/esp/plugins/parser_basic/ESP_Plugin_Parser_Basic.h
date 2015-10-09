@@ -31,18 +31,18 @@
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
 class ESP_Plugin_Parser_Basic : public ESP_Plugin_Parser_Base {
-  private:
-    static ESP_Plugin_Parser_Basic* instance;
+ private:
+  static ESP_Plugin_Parser_Basic* instance;
 
-  public:
-    static ESP_Plugin_Parser_Base* getSingleton();
+ public:
+  static ESP_Plugin_Parser_Base* getSingleton();
 
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Base* createParser(TiXmlElement* element);
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Base* createParser(TiXmlElement* element);
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 /* ------------------------------------------------------------------------ */
@@ -55,197 +55,196 @@ class ESP_Plugin_Parser_Basic : public ESP_Plugin_Parser_Base {
 // [ESP_Tag_Switch]
 // -------------------------------------------------------------------------
 class ESP_Tag_Switch : public ESP_Tag_Base {
-  public:
+ public:
+  // -------------------------------------------------------------------------
+  // [public-attributes]
+  // -------------------------------------------------------------------------
+  bool _evaluated;
 
-    // -------------------------------------------------------------------------
-    // [public-attributes]
-    // -------------------------------------------------------------------------
-    bool _evaluated;
-
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Switch();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
-    void reset();
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Switch();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
+  void reset();
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Option]
 // -------------------------------------------------------------------------
 class ESP_Tag_Option : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Option();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+ public:
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Option();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Reference]
 // -------------------------------------------------------------------------
 class ESP_Tag_Reference : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Reference();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+ public:
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Reference();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Constraint]
 // -------------------------------------------------------------------------
 class ESP_Tag_Constraint : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Constraint();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+ public:
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Constraint();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Value]
 // -------------------------------------------------------------------------
 class ESP_Tag_Value : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-attributes]
-    // -------------------------------------------------------------------------
-    std::string _nameref;
-    std::string _valueref;
-    bool _resetend; // Back to original pointer to buffer end after reading the value
+ public:
+  // -------------------------------------------------------------------------
+  // [public-attributes]
+  // -------------------------------------------------------------------------
+  std::string _nameref;
+  std::string _valueref;
+  bool _resetend;  // Back to original pointer to buffer end after reading the
+                   // value
 
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Value();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Value();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Read]
 // -------------------------------------------------------------------------
 class ESP_Tag_Read : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Read();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+ public:
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Read();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Write]
 // -------------------------------------------------------------------------
 class ESP_Tag_Write : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Write();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+ public:
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Write();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Close]
 // -------------------------------------------------------------------------
 class ESP_Tag_Close : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Close();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+ public:
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Close();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Condition]
 // -------------------------------------------------------------------------
 class ESP_Tag_Condition : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-attributes]
-    // -------------------------------------------------------------------------
-    std::string _operation;
+ public:
+  // -------------------------------------------------------------------------
+  // [public-attributes]
+  // -------------------------------------------------------------------------
+  std::string _operation;
 
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Condition();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Condition();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Loop]
 // -------------------------------------------------------------------------
 class ESP_Tag_Loop : public ESP_Tag_Base {
-  private:
-    bool _breakonempty;
-    int _iterations;
+ private:
+  bool _breakonempty;
+  int _iterations;
 
-  public:
-    // -------------------------------------------------------------------------
-    // [public-attributes]
-    // -------------------------------------------------------------------------
-    int iter;
-    int niter;
+ public:
+  // -------------------------------------------------------------------------
+  // [public-attributes]
+  // -------------------------------------------------------------------------
+  int iter;
+  int niter;
 
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Loop();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
-    void reset();
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Loop();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
+  void reset();
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_Break]
 // -------------------------------------------------------------------------
 class ESP_Tag_Break : public ESP_Tag_Base {
-  private:
+ private:
+ public:
+  // -------------------------------------------------------------------------
+  // [public-attributes]
+  // -------------------------------------------------------------------------
+  int iter;
 
-  public:
-    // -------------------------------------------------------------------------
-    // [public-attributes]
-    // -------------------------------------------------------------------------
-    int iter;
-
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Break();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Break();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
 // [ESP_Tag_CompoundValue]
 // -------------------------------------------------------------------------
 class ESP_Tag_CompoundValue : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-attributes]
-    // -------------------------------------------------------------------------
+ public:
+  // -------------------------------------------------------------------------
+  // [public-attributes]
+  // -------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_CompoundValue();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_CompoundValue();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
@@ -253,13 +252,13 @@ class ESP_Tag_CompoundValue : public ESP_Tag_Base {
 // Clear context
 // -------------------------------------------------------------------------
 class ESP_Tag_Clear : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Clear();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+ public:
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Clear();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 // -------------------------------------------------------------------------
@@ -267,18 +266,18 @@ class ESP_Tag_Clear : public ESP_Tag_Base {
 // Returns a valid data
 // -------------------------------------------------------------------------
 class ESP_Tag_Result : public ESP_Tag_Base {
-  public:
-    // -------------------------------------------------------------------------
-    // [public-attributes]
-    // -------------------------------------------------------------------------
-    bool _nodata;
+ public:
+  // -------------------------------------------------------------------------
+  // [public-attributes]
+  // -------------------------------------------------------------------------
+  bool _nodata;
 
-    // -------------------------------------------------------------------------
-    // [public-methods]
-    // -------------------------------------------------------------------------
-    ESP_Tag_Result();
-    void parseCustomElement(TiXmlElement* element);
-    int execute(ESP_Context* context);
+  // -------------------------------------------------------------------------
+  // [public-methods]
+  // -------------------------------------------------------------------------
+  ESP_Tag_Result();
+  void parseCustomElement(TiXmlElement* element);
+  int execute(ESP_Context* context);
 };
 
 #endif

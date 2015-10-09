@@ -29,41 +29,33 @@
 #include <sstream>
 namespace iota {
 class AttributeRegister {
-  public:
-    AttributeRegister(const std::string name, const std::string& type,
-                      const std::string& is_domain): _name(name), _type(type),
-      _is_domain(is_domain) {};
-    AttributeRegister(const std::istringstream& str_attribute);
-    AttributeRegister(const rapidjson::Value& attribute);
-    ~AttributeRegister() {};
-    std::string get_string();
-    std::string& get_name() {
-      return _name;
-    };
-    std::string& get_type() {
-      return _type;
-    };
-    std::string& get_is_domain() {
-      return _is_domain;
-    };
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("name");
-      writer.String(_name.c_str(), (rapidjson::SizeType)_name.length());
-      writer.String("type");
-      writer.String(_type.c_str(), (rapidjson::SizeType)_type.length());
-      writer.String("isDomain");
-      writer.String(_is_domain.c_str(), (rapidjson::SizeType)_is_domain.length());
-      writer.EndObject();
-    }
+ public:
+  AttributeRegister(const std::string name, const std::string& type,
+                    const std::string& is_domain)
+      : _name(name), _type(type), _is_domain(is_domain){};
+  AttributeRegister(const std::istringstream& str_attribute);
+  AttributeRegister(const rapidjson::Value& attribute);
+  ~AttributeRegister(){};
+  std::string get_string();
+  std::string& get_name() { return _name; };
+  std::string& get_type() { return _type; };
+  std::string& get_is_domain() { return _is_domain; };
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("name");
+    writer.String(_name.c_str(), (rapidjson::SizeType)_name.length());
+    writer.String("type");
+    writer.String(_type.c_str(), (rapidjson::SizeType)_type.length());
+    writer.String("isDomain");
+    writer.String(_is_domain.c_str(), (rapidjson::SizeType)_is_domain.length());
+    writer.EndObject();
+  }
 
-  private:
-    std::string _name;
-    std::string _type;
-    std::string _is_domain;
-
+ private:
+  std::string _name;
+  std::string _type;
+  std::string _is_domain;
 };
-
 }
 #endif

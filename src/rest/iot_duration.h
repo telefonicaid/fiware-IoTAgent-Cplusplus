@@ -27,17 +27,18 @@
 namespace iota {
 
 class Duration {
-  public:
-    Duration();
-    Duration(IoTStatistic::iot_accumulator_ptr acc);
-    ~Duration();
-    void add_acc(IoTStatistic::iot_accumulator_ptr acc);
-    long get_duration();
-  protected:
-  private:
-    struct timeval _to;
-    IoTStatistic::iot_accumulator_ptr _acc;
+ public:
+  Duration();
+  Duration(IoTStatistic::iot_accumulator_ptr acc);
+  ~Duration();
+  void add_acc(IoTStatistic::iot_accumulator_ptr acc);
+  long get_duration();
+
+ protected:
+ private:
+  struct timeval _to;
+  IoTStatistic::iot_accumulator_ptr _acc;
 };
 };
 
-#endif // DURATION_H
+#endif  // DURATION_H

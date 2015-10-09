@@ -27,12 +27,9 @@
 namespace iota {
 
 typedef rapidjson::GenericValue<rapidjson::UTF8<>, rapidjson::CrtAllocator>
-JsonValue;
+    JsonValue;
 typedef rapidjson::GenericDocument<rapidjson::UTF8<>, rapidjson::CrtAllocator>
-JsonDocument;
-
+    JsonDocument;
 };
 
 #endif
-
-

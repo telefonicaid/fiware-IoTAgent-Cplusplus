@@ -31,71 +31,57 @@
 
 namespace iota {
 
-
 class MongoConnection {
+ public:
+  static MongoConnection* instance();
+  static void release();
 
-  public:
+  virtual ~MongoConnection();
 
-    static MongoConnection* instance();
-    static void release();
+  void reconnect();
+  mongo::DBClientBase* createConnection();
 
-    virtual ~MongoConnection();
+  mongo::DBClientBase* conn();
+  void done(mongo::DBClientBase*);
 
-    void reconnect();
-    mongo::DBClientBase * createConnection();
+  std::string get_host() { return _host; }
 
-    mongo::DBClientBase* conn();
-    void done(mongo::DBClientBase*);
+  std::string get_database() { return _database; }
+  std::string get_usuario() { return _usuario; }
+  std::string get_replica() { return _replica; }
 
-    std::string get_host() {
-      return _host;
-    }
+  std::string get_endpoint();
 
-    std::string get_database() {
-      return _database;
-    }
-    std::string get_usuario() {
-      return _usuario;
-    }
-    std::string get_replica() {
-      return _replica;
-    }
+ private:
+  static MongoConnection* pinstance;
 
-    std::string get_endpoint() ;
+  MongoConnection();
 
-  private:
+  boost::mutex _m;
 
-    static MongoConnection* pinstance;
+  pion::logger m_logger;
 
-    MongoConnection();
+  /**  host to connect (if replica is host1:port1,host2:port2
+       default 127.0.0.1 **/
+  std::string _host;
 
-    boost::mutex _m;
+  /**  name of the replica set **/
+  std::string _replica;
 
-    pion::logger m_logger;
+  /**  database name for the application **/
+  std::string _database;
+  /**  if exists indicates that auth is it necessary,
+       name of the user **/
+  std::string _usuario;
+  /**  password for database **/
+  std::string _password;
 
-    /**  host to connect (if replica is host1:port1,host2:port2
-         default 127.0.0.1 **/
-    std::string _host;
+  /**  socket Timeout in seconds, default 0 **/
+  double _timeout;
 
-    /**  name of the replica set **/
-    std::string _replica;
-
-    /**  database name for the application **/
-    std::string _database;
-    /**  if exists indicates that auth is it necessary,
-         name of the user **/
-    std::string _usuario;
-    /**  password for database **/
-    std::string _password;
-
-    /**  socket Timeout in seconds, default 0 **/
-    double _timeout;
-
-    boost::lockfree::queue<mongo::DBClientBase*> _conex_pool;
+  boost::lockfree::queue<mongo::DBClientBase*> _conex_pool;
 };
 
-
-} // Fin namespace iota
-
+}  // Fin namespace iota
 
 #endif

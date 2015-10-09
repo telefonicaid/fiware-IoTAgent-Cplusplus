@@ -24,12 +24,8 @@
 
 #include <cppunit/extensions/HelperMacros.h>
 
-
-
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-
-
 
 #include <boost/property_tree/ptree.hpp>
 #include "util/iota_logger.h"
@@ -40,164 +36,156 @@
 #include "ultra_light/ul20_service.h"
 #include "baseTest.h"
 
-
 class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
-    CPPUNIT_TEST_SUITE(AdminManagerTest);
+  CPPUNIT_TEST_SUITE(AdminManagerTest);
 
-    CPPUNIT_TEST(testDeviceToBeAdded);
-    CPPUNIT_TEST(testGetEndpointsFromDevices);
-    CPPUNIT_TEST(testAddDevicesToEndpoints);
-    CPPUNIT_TEST(testGetDevices);
-    CPPUNIT_TEST(testMultiplePostsWithResponse);
-    CPPUNIT_TEST(testProtocol);
-    CPPUNIT_TEST(testErrorsManager);
-    CPPUNIT_TEST(testServiceManagement);
-    CPPUNIT_TEST(testBADServiceManagement);
-    CPPUNIT_TEST(testPostJSONDevices);
-    CPPUNIT_TEST(testPutJSONDevice);
-    CPPUNIT_TEST(testPutJSONDevice_Wrong);
-    CPPUNIT_TEST(testPutProtocolDevice);
-    CPPUNIT_TEST(testPostJSONDeviceErrorHandling);
-    CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
-    CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
+  CPPUNIT_TEST(testDeviceToBeAdded);
+  CPPUNIT_TEST(testGetEndpointsFromDevices);
+  CPPUNIT_TEST(testAddDevicesToEndpoints);
+  CPPUNIT_TEST(testGetDevices);
+  CPPUNIT_TEST(testMultiplePostsWithResponse);
+  CPPUNIT_TEST(testProtocol);
+  CPPUNIT_TEST(testErrorsManager);
+  CPPUNIT_TEST(testServiceManagement);
+  CPPUNIT_TEST(testBADServiceManagement);
+  CPPUNIT_TEST(testPostJSONDevices);
+  CPPUNIT_TEST(testPutJSONDevice);
+  CPPUNIT_TEST(testPutJSONDevice_Wrong);
+  CPPUNIT_TEST(testPutProtocolDevice);
+  CPPUNIT_TEST(testPostJSONDeviceErrorHandling);
+  CPPUNIT_TEST(testNoEndpoints_Bug_IDAS20444);
+  CPPUNIT_TEST(testNoDeviceError_Bug_IDAS20463);
 
-    CPPUNIT_TEST(testReregistration_diff_protocol_description);
+  CPPUNIT_TEST(testReregistration_diff_protocol_description);
 
-    CPPUNIT_TEST(testReregistration_changing_ip);
-    CPPUNIT_TEST(testReregistration_changing_identifier);
+  CPPUNIT_TEST(testReregistration_changing_ip);
+  CPPUNIT_TEST(testReregistration_changing_identifier);
 
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE_END();
+ public:
+  AdminManagerTest();
+  virtual ~AdminManagerTest();
+  void setUp();
+  void tearDown();
 
-  public:
-    AdminManagerTest();
-    virtual ~AdminManagerTest();
-    void setUp();
-    void tearDown();
+  static const int POST_RESPONSE_CODE;
+  static const std::string HOST;
+  static const std::string CONTENT_JSON;
 
-    static const int POST_RESPONSE_CODE;
-    static const std::string HOST;
-    static const std::string CONTENT_JSON;
+  // GET ALL empty
+  static const std::string GET_EMPTY_RESPONSE_DEVICES;
+  static const int GET_RESPONSE_CODE;
+  static const int DELETE_RESPONSE_CODE;
+  static const int GET_RESPONSE_CODE_NOT_FOUND;
 
-    //GET ALL empty
-    static const std::string GET_EMPTY_RESPONSE_DEVICES;
-    static const int GET_RESPONSE_CODE;
-    static const int DELETE_RESPONSE_CODE;
-    static const int GET_RESPONSE_CODE_NOT_FOUND;
+  // PROTOCOL
+  static const std::string URI_PROTOCOLS;
+  static const std::string POST_PROTOCOLS2;
+  static const std::string POST_PROTOCOLS3;
+  static const std::string POST_PROTOCOLS4;
+  static const std::string POST_PROTOCOLS2_RERE;
+  static const std::string POST_PROTOCOLS2_RERERE;
+  static const std::string POST_PROTOCOLS2_RERERE_EMPTY;
+  static const std::string GET_PROTOCOLS_RESPONSE;
+  static const std::string POST_PROTOCOLS_NO_AGENT;
 
-    //PROTOCOL
-    static const std::string URI_PROTOCOLS;
-    static const std::string POST_PROTOCOLS2;
-    static const std::string POST_PROTOCOLS3;
-    static const std::string POST_PROTOCOLS4;
-    static const std::string POST_PROTOCOLS2_RERE;
-    static const std::string POST_PROTOCOLS2_RERERE;
-    static const std::string POST_PROTOCOLS2_RERERE_EMPTY;
-    static const std::string GET_PROTOCOLS_RESPONSE;
-    static const std::string POST_PROTOCOLS_NO_AGENT;
+  // SERVICE_MANAGEMENT
+  static const std::string URI_SERVICES_MANAGEMET;
+  static const std::string POST_SERVICE_MANAGEMENT1;
+  static const std::string PUT_SERVICE_MANAGEMENT1;
+  static const std::string POST_SERVICE_MANAGEMENT2;
+  static const std::string POST_SERVICE_MANAGEMENT3;
+  static const std::string POST_BAD_SERVICE_MANAGEMENT1;
+  static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
 
-    // SERVICE_MANAGEMENT
-    static const std::string URI_SERVICES_MANAGEMET;
-    static const std::string POST_SERVICE_MANAGEMENT1;
-    static const std::string PUT_SERVICE_MANAGEMENT1;
-    static const std::string POST_SERVICE_MANAGEMENT2;
-    static const std::string POST_SERVICE_MANAGEMENT3;
-    static const std::string POST_BAD_SERVICE_MANAGEMENT1;
-    static const std::string GET_SERVICE_MANAGEMENT_RESPONSE;
+  // DEVICE_MANAGEMENT
+  static const std::string URI_DEVICES_MANAGEMEMT;
+  static const std::string POST_DEVICE_MANAGEMENT1;
+  static const std::string GET_DEVICE_MANAGEMENT_RESPONSE;
+  static const std::string POST_DEVICE;
+  static const std::string POST_DEVICE_NO_PROTOCOL;
+  static const std::string PUT_DEVICE;
+  static const std::string PUT_DEVICE2;
 
+ protected:
+  int http_test(const std::string& uri, const std::string& method,
+                const std::string& service, const std::string& service_path,
+                const std::string& content_type, const std::string& body,
+                const std::map<std::string, std::string>& headers,
+                const std::string& query_string, std::string& response);
 
-    //DEVICE_MANAGEMENT
-    static const std::string URI_DEVICES_MANAGEMEMT;
-    static const std::string POST_DEVICE_MANAGEMENT1;
-    static const std::string GET_DEVICE_MANAGEMENT_RESPONSE;
-    static const std::string POST_DEVICE;
-    static const std::string POST_DEVICE_NO_PROTOCOL;
-    static const std::string PUT_DEVICE;
-    static const std::string PUT_DEVICE2;
+  void testDeviceToBeAdded();
+  void testGetEndpointsFromDevices();
+  void testAddDevicesToEndpoints();
+  void testGetDevices();
+  void testMultiplePostsWithResponse();
+  void testPostJSONDevices();
 
-  protected:
+  void testPutJSONDevice_Wrong();
+  void testPutJSONDevice();
 
-    int http_test(const std::string& uri,
-                                const std::string& method,
-                                const std::string& service,
-                                const std::string& service_path,
-                                const std::string& content_type,
-                                const std::string& body,
-                                const std::map<std::string, std::string>& headers,
-                                const std::string& query_string,
-                                std::string& response) ;
+  void testPutProtocolDevice();
 
-    void testDeviceToBeAdded();
-    void testGetEndpointsFromDevices();
-    void testAddDevicesToEndpoints();
-    void testGetDevices();
-    void testMultiplePostsWithResponse();
-    void testPostJSONDevices();
+  void testPostJSONDeviceErrorHandling();
+  void testNoEndpoints_Bug_IDAS20444();
+  void testNoDeviceError_Bug_IDAS20463();
 
-    void testPutJSONDevice_Wrong();
-    void testPutJSONDevice();
+  /**
+  @IDAS-20553
+  Scenario: changing protocol description
+     an iotagent send a registration with a description of protocol
+     then you update a new version of iotagent with a new description
+     old versions has an error and it produces duplication key error
 
-    void testPutProtocolDevice();
+  Given a iota::AdminManagerService
+  When iot manager receive a post protocol with the information of iotagent
+    Then a service is created in SRV_MGM table
+  when iot manager receive a post protocol from the same iotagent
+    the same information instead protocol description
+    Then the protocol description is update in SRV_MGM
+    **/
+  void testReregistration_diff_protocol_description();
 
-    void testPostJSONDeviceErrorHandling();
-    void testNoEndpoints_Bug_IDAS20444();
-    void testNoDeviceError_Bug_IDAS20463();
+  /**
+  @IDAS-20521
+  Scenario: changing ip in iotagent registration to manager
+     an iotagent send a registration with a different ip but same identifier
 
-    /**
-    @IDAS-20553
-    Scenario: changing protocol description
-       an iotagent send a registration with a description of protocol
-       then you update a new version of iotagent with a new description
-       old versions has an error and it produces duplication key error
+  Given a iota::AdminManagerService
+  When iotamanager receives a post_protocol with id and identifier
+    Then a protocol is added to PROTOCOL table
+  when iotamanager receives post_protocol from the same iotagent
+    the same identifier but different ip
+    Then the protocol ip is update in PROTOCOL table, no new iotagent inserted
+    **/
+  void testReregistration_changing_ip();
 
-    Given a iota::AdminManagerService
-    When iot manager receive a post protocol with the information of iotagent
-      Then a service is created in SRV_MGM table
-    when iot manager receive a post protocol from the same iotagent
-      the same information instead protocol description
-      Then the protocol description is update in SRV_MGM
-      **/
-    void testReregistration_diff_protocol_description();
+  /**
+  @IDAS-20521
+  Scenario: changing identifier in iotagent registration to manager
+     an iotagent send a registration with a different identifier but same
+  endpoint
 
-    /**
-    @IDAS-20521
-    Scenario: changing ip in iotagent registration to manager
-       an iotagent send a registration with a different ip but same identifier
+  Given a iota::AdminManagerService
+  When iotamanager receives a post_protocol with id and identifier
+    Then a protocol is added to PROTOCOL table
+  when iotamanager receives post_protocol from the same iotagent
+    the same ip but different identifier
+    Then the protocol identifier is update in PROTOCOL table, no new iotagent
+  inserted
+    **/
+  void testReregistration_changing_identifier();
 
-    Given a iota::AdminManagerService
-    When iotamanager receives a post_protocol with id and identifier
-      Then a protocol is added to PROTOCOL table
-    when iotamanager receives post_protocol from the same iotagent
-      the same identifier but different ip
-      Then the protocol ip is update in PROTOCOL table, no new iotagent inserted
-      **/
-    void testReregistration_changing_ip();
+ private:
+  void cleanDB();
 
-    /**
-    @IDAS-20521
-    Scenario: changing identifier in iotagent registration to manager
-       an iotagent send a registration with a different identifier but same endpoint
+  void testProtocol();
+  void testErrorsManager();
+  void testServiceManagement();
+  void testBADServiceManagement();
 
-    Given a iota::AdminManagerService
-    When iotamanager receives a post_protocol with id and identifier
-      Then a protocol is added to PROTOCOL table
-    when iotamanager receives post_protocol from the same iotagent
-      the same ip but different identifier
-      Then the protocol identifier is update in PROTOCOL table, no new iotagent inserted
-      **/
-    void testReregistration_changing_identifier();
-
-  private:
-    void cleanDB();
-
-    void testProtocol();
-    void testErrorsManager();
-    void testServiceManagement();
-    void testBADServiceManagement();
-
-    iota::AdminService* adm;
-
+  iota::AdminService* adm;
 };
 
-#endif  /* _H */
-
+#endif /* _H */

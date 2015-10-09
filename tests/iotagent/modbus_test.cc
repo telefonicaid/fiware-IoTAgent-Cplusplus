@@ -35,16 +35,14 @@ std::string logger("main");
 }
 
 int main(int argc, char* argv[]) {
-
   pion::logger pion_logger(PION_GET_LOGGER("main"));
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
 
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(ModbusTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
   return s ? 0 : 1;
-
 }

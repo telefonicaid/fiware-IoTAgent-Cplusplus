@@ -33,56 +33,51 @@
 /**< PLUGIN POSTPROCESSOR BASIC >*/
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */
-class ESP_Plugin_Postprocessor_Sensorml  : public
-    ESP_Plugin_Postprocessor_Base {
-  private:
-    static ESP_Plugin_Postprocessor_Sensorml* instance;
+class ESP_Plugin_Postprocessor_Sensorml : public ESP_Plugin_Postprocessor_Base {
+ private:
+  static ESP_Plugin_Postprocessor_Sensorml* instance;
 
+ public:
+  ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
 
-  public:
-
-    ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
-
-    static ESP_Plugin_Postprocessor_Sensorml* getSingleton();
+  static ESP_Plugin_Postprocessor_Sensorml* getSingleton();
 };
 
 class ESP_Postprocessor_Sensorml : public ESP_Postprocessor_Base {
-  private:
-    ESP_SML_Keyword smlKeyword;
-    ESP_SML_Map mapTrans;
-    pthread_mutex_t mutexPost;
+ private:
+  ESP_SML_Keyword smlKeyword;
+  ESP_SML_Map mapTrans;
+  pthread_mutex_t mutexPost;
 
-    int subType;
+  int subType;
 
+ public:
+  std::string result;
 
-  public:
-    std::string result;
+  ESP_SML_Base* smlObject;
+  TiXmlDocument doc;
 
+  ESP_Postprocessor_Sensorml(std::string name, int subType = SML_MEASURE);
+  ~ESP_Postprocessor_Sensorml();
 
-    ESP_SML_Base* smlObject;
-    TiXmlDocument doc;
+  TiXmlPrinter* printer;
+  TiXmlElement* xmlRes;
+  TiXmlDeclaration* decl;
+  // Methods
+  const char* getResultData();
+  int getResultSize();
 
-    ESP_Postprocessor_Sensorml(std::string name,int subType = SML_MEASURE);
-    ~ESP_Postprocessor_Sensorml();
+  bool isResultValid();
+  void preProcessAttributes(CC_AttributesType* attributes);  // Get Attributes
+                                                             // and create new
+                                                             // ones if needed
 
-    TiXmlPrinter* printer;
-    TiXmlElement* xmlRes;
-    TiXmlDeclaration* decl;
-    // Methods
-    const char* getResultData();
-    int getResultSize();
+  // Override
+  bool initialize();
+  bool execute(CC_AttributesType* result);
+  bool terminate();
 
-    bool isResultValid();
-    void preProcessAttributes(CC_AttributesType*
-                              attributes); // Get Attributes and create new ones if needed
-
-    // Override
-    bool initialize();
-    bool execute(CC_AttributesType* result);
-    bool terminate();
-
-    void parseCustomElement(TiXmlElement* element);
+  void parseCustomElement(TiXmlElement* element);
 };
-
 
 #endif

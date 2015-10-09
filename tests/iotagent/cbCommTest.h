@@ -26,28 +26,28 @@
 #include "services/admin_service.h"
 #include "../mocks/http_mock.h"
 
+class cbCommTest : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(cbCommTest);
 
-class cbCommTest: public CppUnit::TestFixture  {
+  CPPUNIT_TEST(testSend);
+  CPPUNIT_TEST(testAsyncSend);
+  CPPUNIT_TEST(testSynchSendTimeout);
+  CPPUNIT_TEST(testAlarm);
+  CPPUNIT_TEST(testAsynchSendTimeout);
 
-    CPPUNIT_TEST_SUITE(cbCommTest);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST(testSend);
-    CPPUNIT_TEST(testAsyncSend);
-    CPPUNIT_TEST(testSynchSendTimeout);
-    CPPUNIT_TEST(testAlarm);
-    CPPUNIT_TEST(testAsynchSendTimeout);
+ public:
+  void setUp(){};
+  void tearDown(){};
 
-    CPPUNIT_TEST_SUITE_END();
-  public:
-    void setUp() {};
-    void tearDown() {};
-  protected:
-    void testSend();
-    void testAsyncSend();
-    void testSynchSendTimeout();
-    void testAsynchSendTimeout();
-    void testAlarm();
-  private:
+ protected:
+  void testSend();
+  void testAsyncSend();
+  void testSynchSendTimeout();
+  void testAsynchSendTimeout();
+  void testAlarm();
 
+ private:
 };
 #endif

@@ -26,21 +26,16 @@
 
 class IMqttCallback {
  public:
-
   virtual ~IMqttCallback() {}
-
 
   virtual void on_connect(int rc) = 0;
   virtual void on_disconnect(int rc) = 0;
   virtual void on_publish(int mid) = 0;
-  virtual void on_message(const struct mosquitto_message* message)= 0;
-  virtual void on_subscribe(int mid, int qos_count, const int* granted_qos)= 0;
-  virtual void on_unsubscribe(int mid)= 0;
-  virtual void on_log(int level, const char* str)= 0;
-  virtual void on_error()= 0;
-
-
-
+  virtual void on_message(const struct mosquitto_message* message) = 0;
+  virtual void on_subscribe(int mid, int qos_count, const int* granted_qos) = 0;
+  virtual void on_unsubscribe(int mid) = 0;
+  virtual void on_log(int level, const char* str) = 0;
+  virtual void on_error() = 0;
 };
 
-#endif // IMQTTCALLBACK_H
+#endif  // IMQTTCALLBACK_H

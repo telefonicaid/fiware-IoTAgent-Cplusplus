@@ -32,65 +32,53 @@
 #define ATTRB_KEYWORD "keyword"
 #define ATTRB_REF "ref"
 
-
-
 #define TT_PROCESSED "processed"
 #define TT_PLAIN "plain"
 
 class ESP_Plugin_Postprocessor_TT : public ESP_Plugin_Postprocessor_Base {
+ private:
+  static ESP_Plugin_Postprocessor_TT* instance;
+  ESP_Plugin_Postprocessor_TT();
 
-  private:
-    static  ESP_Plugin_Postprocessor_TT* instance;
-    ESP_Plugin_Postprocessor_TT();
-  public:
+ public:
+  virtual ~ESP_Plugin_Postprocessor_TT(){};
 
-    virtual ~ESP_Plugin_Postprocessor_TT() {};
+  ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
 
-
-    ESP_Postprocessor_Base* createPostprocessor(TiXmlElement* element);
-
-    static ESP_Plugin_Postprocessor_TT* getSingleton();
+  static ESP_Plugin_Postprocessor_TT* getSingleton();
 };
-
-
 
 class ESP_Postprocessor_TT : public ESP_Postprocessor_Base {
+ private:
+  std::map<std::string, TTModules*> modulesMap;
 
-  private:
+  std::string result;
+  bool resultValid;
 
-    std::map<std::string,TTModules*> modulesMap;
+  std::string valueRef;
+  std::string ttOpenKeyword_GM;
+  std::string ttOpenKeyword_GC;
 
-    std::string result;
-    bool resultValid;
+ public:
+  static std::string TYPE;
 
-    std::string valueRef;
-    std::string ttOpenKeyword_GM;
-    std::string ttOpenKeyword_GC;
+  ESP_Postprocessor_TT();
+  virtual ~ESP_Postprocessor_TT();
 
+  // Methods
+  const char* getResultData();
+  int getResultSize();
+  bool isResultValid();
 
+  bool initialize();
+  bool execute(CC_AttributesType* result);
+  bool terminate();
 
-  public:
-    static std::string TYPE;
+  void parseCustomElement(TiXmlElement* element);
 
+  bool checkParams();
 
-    ESP_Postprocessor_TT();
-    virtual ~ESP_Postprocessor_TT() ;
-
-    // Methods
-    const char* getResultData();
-    int getResultSize();
-    bool isResultValid();
-
-    bool initialize();
-    bool execute(CC_AttributesType* result);
-    bool terminate();
-
-    void parseCustomElement(TiXmlElement* element);
-
-    bool checkParams();
-
-    void load_default_TTModules();
-
+  void load_default_TTModules();
 };
 
-#endif // ESP_PLUGIN_POSTPROCESSOR_TT_H
+#endif  // ESP_PLUGIN_POSTPROCESSOR_TT_H

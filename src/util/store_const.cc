@@ -21,13 +21,12 @@
 */
 #include "store_const.h"
 
-namespace iota   {
+namespace iota {
 
-namespace store  {
+namespace store {
 
 const std::string types::IOTAGENT_ID("identifier");
 const std::string types::IOTAGENT_NAME("name");
-
 
 /// DEVICE_TABLE
 const std::string types::DEVICE_TABLE("DEVICE");
@@ -107,8 +106,7 @@ const std::string types::USER("user");
 const std::string types::PWD("pwd");
 const std::string types::DBNAME("dbname");
 const std::string types::MONGODB("mongodb");
-//TODO añadir propiedades configurables de mongo
-
+// TODO añadir propiedades configurables de mongo
 
 const std::string types::INACTIVE("inactive");
 const std::string types::ACTIVE("active");
@@ -125,6 +123,5 @@ const std::string types::DETAILED("detailed");
 const std::string types::DEVICE_PAR("device");
 
 const std::string types::COORDS("coords");
-
 }
 }

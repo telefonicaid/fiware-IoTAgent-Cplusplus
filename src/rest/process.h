@@ -34,47 +34,49 @@ namespace iota {
 class AdminService;
 class RestHandle;
 
-class Process: private boost::noncopyable {
+class Process : private boost::noncopyable {
+ public:
+  ~Process(){};
+  static iota::Process& initialize(std::string url_base,
+                                   unsigned int num_main_threads = 1);
+  void shutdown();
+  static void wait_for_shutdown();
+  pion::scheduler& get_scheduler();
+  boost::asio::io_service& get_io_service();
+  static std::string& get_logger_name();
+  static std::string& get_url_base();
+  pion::tcp::server_ptr add_tcp_server(std::string server_name,
+                                       std::string endpoint);
+  pion::http::plugin_server_ptr add_http_server(std::string server_name,
+                                                std::string endpoint);
+  void set_admin_service(iota::AdminService* admin_service);
+  iota::AdminService* get_admin_service();
+  void start();
+  void stop();
+  static iota::Process& get_process();
+  unsigned int get_http_port();
+  pion::http::plugin_service* get_service(std::string http_resource);
+  void add_service(std::string http_resource, iota::RestHandle* http_service);
+  pion::http::plugin_service* add_tcp_service(std::string http_resource,
+                                              std::string file_name);
+  boost::shared_ptr<iota::TcpService> get_tcp_service(std::string tcp_server);
 
-  public:
-
-    ~Process() {};
-    static iota::Process& initialize(std::string url_base,
-                                     unsigned int num_main_threads = 1);
-    void shutdown();
-    static void wait_for_shutdown();
-		pion::scheduler& get_scheduler();
-    boost::asio::io_service& get_io_service();
-    static std::string& get_logger_name();
-    static std::string& get_url_base();
-    pion::tcp::server_ptr add_tcp_server(std::string server_name, std::string endpoint);
-    pion::http::plugin_server_ptr add_http_server(std::string server_name, std::string endpoint);
-    void set_admin_service(iota::AdminService* admin_service);
-    iota::AdminService* get_admin_service();
-    void start();
-    void stop();
-    static iota::Process& get_process();
-    unsigned int get_http_port();
-    pion::http::plugin_service* get_service(std::string http_resource);
-    void add_service(std::string http_resource, iota::RestHandle* http_service);
-    pion::http::plugin_service* add_tcp_service(std::string http_resource, std::string file_name);
-    boost::shared_ptr<iota::TcpService> get_tcp_service(std::string tcp_server);
-  protected:
-  private:
-    Process(unsigned int n_threads);
-		Process(Process const&) {};
-		void operator=(Process const&) {};
-    pion::one_to_one_scheduler _scheduler;
-    pion::one_to_one_scheduler _server_scheduler;
-    static std::string _logger_name;
-    static std::string _url_base;
-    std::map<std::string, boost::shared_ptr<iota::TcpService> > _tcp_servers;
-    std::map<std::string, pion::http::plugin_server_ptr> _http_servers;
-    pion::plugin_manager<pion::http::plugin_service> _tcp_plugin_manager;
-    static iota::Process* _process;
-    iota::AdminService* _admin_service;
-    boost::asio::ip::tcp::endpoint get_endpoint(std::string endpoint);
-    boost::mutex _m_mutex;
+ protected:
+ private:
+  Process(unsigned int n_threads);
+  Process(Process const&){};
+  void operator=(Process const&){};
+  pion::one_to_one_scheduler _scheduler;
+  pion::one_to_one_scheduler _server_scheduler;
+  static std::string _logger_name;
+  static std::string _url_base;
+  std::map<std::string, boost::shared_ptr<iota::TcpService> > _tcp_servers;
+  std::map<std::string, pion::http::plugin_server_ptr> _http_servers;
+  pion::plugin_manager<pion::http::plugin_service> _tcp_plugin_manager;
+  static iota::Process* _process;
+  iota::AdminService* _admin_service;
+  boost::asio::ip::tcp::endpoint get_endpoint(std::string endpoint);
+  boost::mutex _m_mutex;
 };
 };
 #endif

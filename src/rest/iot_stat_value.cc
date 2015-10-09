@@ -22,12 +22,10 @@
 #include "iot_stat_value.h"
 #include <sys/time.h>
 
-iota::IoTValue::IoTValue(): _value(0) {
-  gettimeofday(&_to, NULL);
-}
+iota::IoTValue::IoTValue() : _value(0) { gettimeofday(&_to, NULL); }
 
-iota::IoTValue::IoTValue(IoTStatistic::iot_accumulator_ptr acc,
-                   double value): _value(value) {
+iota::IoTValue::IoTValue(IoTStatistic::iot_accumulator_ptr acc, double value)
+    : _value(value) {
   gettimeofday(&_to, NULL);
   _acc = acc;
 }
@@ -42,12 +40,6 @@ void iota::IoTValue::add_acc(IoTStatistic::iot_accumulator_ptr acc) {
   _acc = acc;
 }
 
-double iota::IoTValue::get_value() {
-  return _value;
-}
+double iota::IoTValue::get_value() { return _value; }
 
-void iota::IoTValue::add_value(double value) {
-  _value = value;
-}
-
-
+void iota::IoTValue::add_value(double value) { _value = value; }

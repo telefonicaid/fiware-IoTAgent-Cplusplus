@@ -35,98 +35,82 @@
 
 namespace iota {
 
-class ContextBrokerCommunicator: public
-    boost::enable_shared_from_this<ContextBrokerCommunicator> {
-  public:
-    typedef boost::function<void (std::string, int)> app_callback_t;
-    ContextBrokerCommunicator();
-    ContextBrokerCommunicator(boost::asio::io_service& io_service);
-    virtual ~ContextBrokerCommunicator();
-    // TODO void start();
-    void receive_event(std::string url, std::string content,
-                       boost::property_tree::ptree additional_info,
-                       boost::shared_ptr<iota::HttpClient> connection,
-                       pion::http::response_ptr response_ptr,
-                       const boost::system::error_code& error);
-    bool async_send(std::string url,
-                    std::string content,
-                    boost::property_tree::ptree additional_info,
-                    app_callback_t callback = app_callback_t(),
-                    int status_code = pion::http::types::RESPONSE_CODE_OK);
-    std::string send(std::string url,
-                     std::string content,
+class ContextBrokerCommunicator
+    : public boost::enable_shared_from_this<ContextBrokerCommunicator> {
+ public:
+  typedef boost::function<void(std::string, int)> app_callback_t;
+  ContextBrokerCommunicator();
+  ContextBrokerCommunicator(boost::asio::io_service& io_service);
+  virtual ~ContextBrokerCommunicator();
+  // TODO void start();
+  void receive_event(std::string url, std::string content,
                      boost::property_tree::ptree additional_info,
-                     int status_code = pion::http::types::RESPONSE_CODE_OK);
+                     boost::shared_ptr<iota::HttpClient> connection,
+                     pion::http::response_ptr response_ptr,
+                     const boost::system::error_code& error);
+  bool async_send(std::string url, std::string content,
+                  boost::property_tree::ptree additional_info,
+                  app_callback_t callback = app_callback_t(),
+                  int status_code = pion::http::types::RESPONSE_CODE_OK);
+  std::string send(std::string url, std::string content,
+                   boost::property_tree::ptree additional_info,
+                   int status_code = pion::http::types::RESPONSE_CODE_OK);
 
+  int send_updateContext(const std::string& command_name,
+                         const std::string& command_att,
+                         const std::string& type, const std::string& value,
+                         const boost::shared_ptr<iota::Device>& item_dev,
+                         const boost::property_tree::ptree& service,
+                         const std::string& opSTR);
 
-    int send_updateContext(
-      const std::string& command_name,
-      const std::string& command_att,
-      const std::string& type,
-      const std::string& value,
-      const boost::shared_ptr<iota::Device>& item_dev,
-      const boost::property_tree::ptree& service,
-      const std::string& opSTR);
+  static void add_updateContext(const std::string& command_name,
+                                const std::string& command_att,
+                                const std::string& type,
+                                const std::string& value,
+                                const boost::shared_ptr<iota::Device>& item_dev,
+                                const boost::property_tree::ptree& service,
+                                iota::ContextElement& ngsi_context_element);
 
-    static void add_updateContext(
-      const std::string& command_name,
-      const std::string& command_att,
-      const std::string& type,
-      const std::string& value,
-      const boost::shared_ptr<iota::Device>& item_dev,
-      const boost::property_tree::ptree& service,
-      iota::ContextElement &ngsi_context_element);
+  int send(iota::ContextElement ngsi_context_element, const std::string& opSTR,
+           const boost::property_tree::ptree& service,
+           std::string& cb_response);
 
-    int send(
-      iota::ContextElement ngsi_context_element,
-      const std::string& opSTR,
-      const boost::property_tree::ptree& service,
-      std::string& cb_response);
+  std::string get_ngsi_operation(const std::string& operation);
 
-    std::string get_ngsi_operation(const std::string& operation);
+ protected:
+ private:
+  //
+  boost::mutex _m;
 
+  pion::logger m_logger;
 
-  protected:
+  // Connection
+  std::map<std::string, boost::shared_ptr<iota::HttpClient> > _connections;
 
-  private:
+  // Connection Manager
+  // TODO boost::shared_ptr<iota::CommonAsyncManager> _connectionManager;
 
-    //
-    boost::mutex _m;
+  // io_service when external event loop is used
+  boost::asio::io_service& _io_service;
 
-    pion::logger m_logger;
-
-    // Connection
-    std::map<std::string, boost::shared_ptr<iota::HttpClient> > _connections;
-
-    // Connection Manager
-    // TODO boost::shared_ptr<iota::CommonAsyncManager> _connectionManager;
-
-    // io_service when external event loop is used
-    boost::asio::io_service& _io_service;
-
-    boost::shared_ptr<HttpClient> get_connection(
+  boost::shared_ptr<HttpClient> get_connection(
       const std::string& id_connection);
 
-    void add_connection(boost::shared_ptr<iota::HttpClient> connection);
+  void add_connection(boost::shared_ptr<iota::HttpClient> connection);
 
-    void remove_connection(boost::shared_ptr<iota::HttpClient> connection);
+  void remove_connection(boost::shared_ptr<iota::HttpClient> connection);
 
-    pion::http::request_ptr create_request(std::string& server,
-                                           std::string& resource,
-                                           std::string& content,
-                                           std::string& query,
-                                           boost::property_tree::ptree& additional_info);
+  pion::http::request_ptr create_request(
+      std::string& server, std::string& resource, std::string& content,
+      std::string& query, boost::property_tree::ptree& additional_info);
 
-    std::string  process_response(const std::string &url,
-                                  boost::shared_ptr<iota::HttpClient> connection,
-                                  pion::http::response_ptr resp,
-                                  const boost::system::error_code& error);
-    app_callback_t _callback;
+  std::string process_response(const std::string& url,
+                               boost::shared_ptr<iota::HttpClient> connection,
+                               pion::http::response_ptr resp,
+                               const boost::system::error_code& error);
+  app_callback_t _callback;
 
-    static const std::string NUMBER_OF_TRIES;
+  static const std::string NUMBER_OF_TRIES;
 };
 };
 #endif
-
-
-

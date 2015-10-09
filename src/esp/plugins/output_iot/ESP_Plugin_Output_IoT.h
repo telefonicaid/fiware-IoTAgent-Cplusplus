@@ -22,47 +22,43 @@
 #ifndef __ESP_PLUGIN_OUTPUT_IoT_H__
 #define __ESP_PLUGIN_OUTPUT_IoT_H__
 
-
 #include <TDA.h>
 #include "mqtt/IotaMqttService.h"
 
-#define IOT_APIKEY_REF "apikeyref" //xml attribute
+#define IOT_APIKEY_REF "apikeyref"  // xml attribute
 #define IOT_DEVICE_REF "sensoridref"
-#define IOT_TYPE_REF  "typeref" //from the config file,
-//ESP attribute that will contain the type of request, used for commands.
+#define IOT_TYPE_REF "typeref"  // from the config file,
+// ESP attribute that will contain the type of request, used for commands.
 
 /* //////////////////  */
 /* PLUGIN OUTPUT FILE   */
 /* //////////////////  */
 class ESP_Plugin_Output_IoT : public ESP_Plugin_Output_Base {
+ private:
+  static ESP_Plugin_Output_IoT* instance;
+  int id;
+  std::map<int, FILE*> files;
+  ESP_Plugin_Output_IoT();
 
-  private:
-    static ESP_Plugin_Output_IoT* instance;
-    int id;
-    std::map<int, FILE*> files;
-    ESP_Plugin_Output_IoT();
-
-  public:
-    static ESP_Plugin_Output_Base* getSingleton();
-    static ESP_Plugin_Output_IoT* getInstance();
-    ESP_Output_Base* createOutput(TiXmlElement* element);
-
-
+ public:
+  static ESP_Plugin_Output_Base* getSingleton();
+  static ESP_Plugin_Output_IoT* getInstance();
+  ESP_Output_Base* createOutput(TiXmlElement* element);
 };
 
 class ESP_Output_IoT : public ESP_Output_Base {
-  public:
-    std::string _name;
-    //where to find apikey, iddevice, etc... in output ESP Attributes.
-    std::string apikeyAttribute;
-    std::string idDeviceAttribute;
-    std::string typeAttribute;
+ public:
+  std::string _name;
+  // where to find apikey, iddevice, etc... in output ESP Attributes.
+  std::string apikeyAttribute;
+  std::string idDeviceAttribute;
+  std::string typeAttribute;
 #ifdef USE_MQTT
-    bool execute(CC_AttributesType* attributes,
-                 ESP_Postprocessor_Base* postprocessor, std::map<std::string, void*> userData);
+  bool execute(CC_AttributesType* attributes,
+               ESP_Postprocessor_Base* postprocessor,
+               std::map<std::string, void*> userData);
 #endif
-    void parseCustomElement(TiXmlElement* element);
-
+  void parseCustomElement(TiXmlElement* element);
 };
 
 #endif

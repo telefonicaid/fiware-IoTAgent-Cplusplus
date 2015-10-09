@@ -27,7 +27,7 @@
 iota::UpdateContext::UpdateContext(const std::istringstream& str_operation) {
   rapidjson::Document document;
   char buffer[str_operation.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_operation.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -54,8 +54,7 @@ iota::UpdateContext::UpdateContext(const std::istringstream& str_operation) {
         iota::ContextElement context_element(context_elements[i]);
         add_context_element(context_element);
       }
-    }
-    else {
+    } else {
       std::ostringstream what;
       what << "UpdateContext: ";
       what << "invalid type field [";
@@ -63,20 +62,17 @@ iota::UpdateContext::UpdateContext(const std::istringstream& str_operation) {
       throw std::runtime_error(what.str());
     }
 
-  }
-  else {
+  } else {
     std::ostringstream what;
     what << "UpdateContext: ";
     what << "missing field [";
     what << "contextElements]";
     throw std::runtime_error(what.str());
   }
-
 };
 
 iota::UpdateContext::UpdateContext(const rapidjson::Value& operation) {
-
-  if (! operation.IsObject()) {
+  if (!operation.IsObject()) {
     throw std::runtime_error("Invalid object");
   }
 
@@ -95,16 +91,14 @@ iota::UpdateContext::UpdateContext(const rapidjson::Value& operation) {
         iota::ContextElement context_element(context_elements[i]);
         add_context_element(context_element);
       }
-    }
-    else {
+    } else {
       std::ostringstream what;
       what << "UpdateContext: ";
       what << "invalid type field [";
       what << "contextElements]";
       throw std::runtime_error(what.str());
     }
-  }
-  else {
+  } else {
     std::ostringstream what;
     what << "UpdateContext: ";
     what << "missing field [";
@@ -120,8 +114,7 @@ std::string iota::UpdateContext::get_string() {
   return buffer.GetString();
 };
 
-void iota::UpdateContext::add_context_element(const iota::ContextElement&
-    context_element) {
+void iota::UpdateContext::add_context_element(
+    const iota::ContextElement& context_element) {
   _context_elements.push_back(context_element);
 };
-

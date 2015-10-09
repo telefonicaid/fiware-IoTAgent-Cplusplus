@@ -26,27 +26,23 @@
 #include <pion/http/plugin_server.hpp>
 #include <rest/rest_handle.h>
 
+namespace iota {  // begin namespace iota
 
-namespace iota {        // begin namespace iota
+class NgsiService : public iota::RestHandle {
+ public:
+  NgsiService();
+  virtual ~NgsiService();
+  virtual void start();
+  void ngsi_operation(pion::http::request_ptr& http_request_ptr,
+                      std::map<std::string, std::string>& url_args,
+                      std::multimap<std::string, std::string>& query_parameters,
+                      pion::http::response& http_response,
+                      std::string& response);
 
-class NgsiService :
-  public iota::RestHandle {
-  public:
-    NgsiService();
-    virtual ~NgsiService();
-    virtual void start();
-    void ngsi_operation(pion::http::request_ptr& http_request_ptr,
-                        std::map<std::string, std::string>& url_args,
-                        std::multimap<std::string, std::string>& query_parameters,
-                        pion::http::response& http_response,
-                        std::string& response);
-
-  private:
-
-    pion::logger m_log;
+ private:
+  pion::logger m_log;
 };
 
-}   // end namespace iota
+}  // end namespace iota
 
 #endif
-

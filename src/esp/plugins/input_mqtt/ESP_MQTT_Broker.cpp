@@ -25,20 +25,19 @@
 #include <errno.h>
 
 ESP_MQTT_Broker::ESP_MQTT_Broker() {
-  //ctor
+  // ctor
   pidBroker = -1;
 }
 
 ESP_MQTT_Broker::~ESP_MQTT_Broker() {
-  //dtor
+  // dtor
 }
-
 
 int ESP_MQTT_Broker::launchBroker(const char* executable,
                                   const char* pathToConfig) {
-
 #ifdef WIN32
-  CC_Logger::getSingleton()->logError("Broker can't be launched as a process in Windows");
+  CC_Logger::getSingleton()->logError(
+      "Broker can't be launched as a process in Windows");
   return 0;
 #else
   pidBroker = fork();
@@ -46,30 +45,27 @@ int ESP_MQTT_Broker::launchBroker(const char* executable,
   if (pidBroker < 0) {
     CC_Logger::getSingleton()->logError("FORK Failed");
     return -1;
-  }
-  else if (pidBroker == 0) {
+  } else if (pidBroker == 0) {
     char buffer[256] = {0};
-    getcwd(buffer,256);
+    getcwd(buffer, 256);
     std::string arguments1 = "-c";
-
-
 
     /* child args */
     char* arg[4];
 
-    arg[0] = (char*)malloc(strlen(executable)+1);
-    strcpy(arg[0],executable);
-    arg[1] = (char*)malloc(arguments1.length()+1);
-    strcpy(arg[1],arguments1.c_str());
+    arg[0] = (char*)malloc(strlen(executable) + 1);
+    strcpy(arg[0], executable);
+    arg[1] = (char*)malloc(arguments1.length() + 1);
+    strcpy(arg[1], arguments1.c_str());
 
-    arg[2] = (char*)malloc(strlen(pathToConfig)+1);
-    strcpy(arg[2],pathToConfig);
+    arg[2] = (char*)malloc(strlen(pathToConfig) + 1);
+    strcpy(arg[2], pathToConfig);
 
     arg[3] = 0;
 
     /* this is the child */
     prctl(PR_SET_PDEATHSIG, SIGTERM);
-    execv(executable,arg);
+    execv(executable, arg);
 
     free(arg[0]);
     free(arg[1]);
@@ -77,39 +73,36 @@ int ESP_MQTT_Broker::launchBroker(const char* executable,
     CC_Logger::getSingleton()->logError("FATAL Error: broker couldn't start");
     std::cerr << "ERROR: broker could not start, child exiting\n";
     exit(-1);
-
   }
 
-  CC_Logger::getSingleton()->logDebug("Child process : %d",pidBroker);
-  //parent process
-  return 1;//all good
-#endif // WIN32
-
+  CC_Logger::getSingleton()->logDebug("Child process : %d", pidBroker);
+  // parent process
+  return 1;  // all good
+#endif  // WIN32
 }
 
 void ESP_MQTT_Broker::waitForBroker() {
 #ifndef WIN32
   int res;
-  if (pidBroker<0) {
+  if (pidBroker < 0) {
     return;
   }
   CC_Logger::getSingleton()->logDebug("WAITING FOR BROKER TO TERMINATE");
   wait(&res);
   CC_Logger::getSingleton()->logDebug("BROKER TERMINATED");
-#endif // WIN32
-
+#endif  // WIN32
 }
 
 int ESP_MQTT_Broker::stopBroker() {
 #ifdef WIN32
   return 0;
 #else
-  if (pidBroker>0) {
+  if (pidBroker > 0) {
     CC_Logger::getSingleton()->logDebug("Stopping child process");
     kill(pidBroker, SIGTERM);
 
     return 1;
   }
   return 0;
-#endif // WIN32
+#endif  // WIN32
 }

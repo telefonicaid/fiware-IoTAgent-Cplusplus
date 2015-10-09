@@ -48,33 +48,36 @@ class ESPLib {
   // Sensor
   int createSensor(std::string xmlFile);
   bool destroySensor(int id);
-  bool setParams(int id, std::map<std::string,std::string> params);
-  bool setUserData(int id, std::map<std::string,void*> userData);
+  bool setParams(int id, std::map<std::string, std::string> params);
+  bool setUserData(int id, std::map<std::string, void*> userData);
   bool startSensor(int id, std::string command);
   bool stopSensor(int id);
   void setLoggerPath(std::string path);
 
   // RunOnce
   ESP_Result executeRunner(ESP_Sensor* sensor, std::string command,
-                           std::map<std::string,std::string> params, ESP_Input_Base* input, int inputid);
+                           std::map<std::string, std::string> params,
+                           ESP_Input_Base* input, int inputid);
   ESP_Result executeRunnerFromBuffer(int id, std::string command,
-                                     std::map<std::string,std::string> params, char* buffer, int length);
+                                     std::map<std::string, std::string> params,
+                                     char* buffer, int length);
   ESP_Result executeRunnerFromRunner(int id, std::string command,
-                                     std::map<std::string,std::string> params, ESP_Runner* baserunner);
+                                     std::map<std::string, std::string> params,
+                                     ESP_Runner* baserunner);
   ESP_Result executeRunnerFromInput(int id, std::string command,
-                                    std::map<std::string,std::string> params, ESP_Input_Base* baseinput);
+                                    std::map<std::string, std::string> params,
+                                    ESP_Input_Base* baseinput);
 
   // Callbacks
-  void registerDataCallback(int id, void* userData, void (*cb)(void* userData,
-                            const char* buffer, int nread));
-  void registerResultCallback(int id, void* userData, void (*cb)(void* userData,
-                              ESP_Runner* runner));
+  void registerDataCallback(int id, void* userData,
+                            void (*cb)(void* userData, const char* buffer,
+                                       int nread));
+  void registerResultCallback(int id, void* userData,
+                              void (*cb)(void* userData, ESP_Runner* runner));
 
   // Default Callbacks
   static void sensorDataCallback(void* userData, const char* buffer, int nread);
   static void sensorResultCallback(void* userData, ESP_Runner* runner);
 };
 
-
 #endif
-

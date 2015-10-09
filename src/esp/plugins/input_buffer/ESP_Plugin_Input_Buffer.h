@@ -27,42 +27,41 @@
 /* PLUGIN INPUT BUFFER   */
 /* //////////////////  */
 class ESP_Plugin_Input_Buffer : public ESP_Plugin_Input_Base {
+ private:
+  static ESP_Plugin_Input_Buffer* instance;
+  int id;
+  std::map<int, FILE*> files;
+  ESP_Plugin_Input_Buffer();
 
-  private:
-    static ESP_Plugin_Input_Buffer* instance;
-    int id;
-    std::map<int, FILE*> files;
-    ESP_Plugin_Input_Buffer();
+ public:
+  static ESP_Plugin_Input_Base* getSingleton();
+  static ESP_Plugin_Input_Buffer* getInstance();
+  ESP_Input_Base* createInput(TiXmlElement* element);
 
-  public:
-    static ESP_Plugin_Input_Base* getSingleton();
-    static ESP_Plugin_Input_Buffer* getInstance();
-    ESP_Input_Base* createInput(TiXmlElement* element);
-
-    // Methods
-    int getID();
+  // Methods
+  int getID();
 };
 
 class ESP_Input_Buffer : public ESP_Input_Base {
-  public:
-    std::string _name;
-    ESP_Context context;
+ public:
+  std::string _name;
+  ESP_Context context;
 
-    ESP_Input_Buffer();
-    int openServer();
-    int acceptServer();
-    bool stopServer();
-    bool closeServer();
+  ESP_Input_Buffer();
+  int openServer();
+  int acceptServer();
+  bool stopServer();
+  bool closeServer();
 
-    int openClient();
-    bool stopClient(int id);
-    bool closeClient(int id);
-    int readClient(int id, char* buffer, int len);
-    int writeClient(int id, char* buffer, int len);
-    void parseCustomElement(TiXmlElement* element);
+  int openClient();
+  bool stopClient(int id);
+  bool closeClient(int id);
+  int readClient(int id, char* buffer, int len);
+  int writeClient(int id, char* buffer, int len);
+  void parseCustomElement(TiXmlElement* element);
 
-    // Custom
-    void createInputData(char* buffer, int len);
+  // Custom
+  void createInputData(char* buffer, int len);
 };
 
 #endif

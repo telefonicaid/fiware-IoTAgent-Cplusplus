@@ -33,15 +33,14 @@
 #include <boost/date_time/local_time/local_time.hpp>
 #include <boost/format.hpp>
 
-iota::RiotISO8601::RiotISO8601(void):
-  _ptime(boost::posix_time::microsec_clock::local_time()) {
+iota::RiotISO8601::RiotISO8601(void)
+    : _ptime(boost::posix_time::microsec_clock::local_time()) {
   _local = true;
   tm TM;
   time_t r = time(NULL);
   localtime_r(&r, &TM);
-  _dUTC = boost::posix_time::hours(TM.tm_gmtoff/3600) +
-          boost::posix_time::minutes(TM.tm_gmtoff%3600 / 60);
-
+  _dUTC = boost::posix_time::hours(TM.tm_gmtoff / 3600) +
+          boost::posix_time::minutes(TM.tm_gmtoff % 3600 / 60);
 }
 
 iota::RiotISO8601::RiotISO8601(const iota::RiotISO8601& iso8601) {
@@ -54,26 +53,23 @@ iota::RiotISO8601::RiotISO8601(std::string iso) {
   // Puede tratarse de UTC, local o relativa
   _local = true;
   int iso_length_v = 0;
-  if (iso[iso.length()-1] == 'Z') {
+  if (iso[iso.length() - 1] == 'Z') {
     // Se trata de hora UTC
     _dUTC = boost::posix_time::hours(0) + boost::posix_time::minutes(0);
-    iso_length_v = iso.length()-1;
+    iso_length_v = iso.length() - 1;
     _local = false;
-  }
-  else {
+  } else {
     // Si no es UTC, puede ser relativa a UTC
-    if (iso[iso.length()-6] == '+') {
+    if (iso[iso.length() - 6] == '+') {
       // Relativa UTC +
-      std::string dif = iso.substr(iso.length()-6);
+      std::string dif = iso.substr(iso.length() - 6);
       _dUTC = boost::posix_time::duration_from_string(dif);
-      iso_length_v = iso.length()-6;
-    }
-    else if (iso[iso.length()-6] == '-') {
-      std::string dif = iso.substr(iso.length()-6);
+      iso_length_v = iso.length() - 6;
+    } else if (iso[iso.length() - 6] == '-') {
+      std::string dif = iso.substr(iso.length() - 6);
       _dUTC = boost::posix_time::duration_from_string(dif);
-      iso_length_v = iso.length()-6;
-    }
-    else {
+      iso_length_v = iso.length() - 6;
+    } else {
       // Se trata de hora local
       iso_length_v = iso.length();
     }
@@ -83,25 +79,20 @@ iota::RiotISO8601::RiotISO8601(std::string iso) {
   int i = 0;
   for (i = 0; i < iso_length_v; i++) {
     if ((iso[i] != ':') && (iso[i] != '-')) {
-      iso_nx.append(1,iso[i]);
+      iso_nx.append(1, iso[i]);
     }
   }
   try {
     _ptime = boost::posix_time::from_iso_string(iso_nx);
-  }
-  catch (std::exception& e) {
-    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER + " ["
-                              + iso + "]",
-                              e.what(), iota::types::RESPONSE_CODE_BAD_REQUEST);
+  } catch (std::exception& e) {
+    throw iota::IotaException(
+        iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER + " [" + iso + "]",
+        e.what(), iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 }
 
-iota::RiotISO8601::RiotISO8601(std::string a,
-                               std::string m,
-                               std::string d,
-                               std::string hh,
-                               std::string mm,
-                               std::string ss) {
+iota::RiotISO8601::RiotISO8601(std::string a, std::string m, std::string d,
+                               std::string hh, std::string mm, std::string ss) {
   std::string iso(a);
   iso.append(m);
   iso.append(d);
@@ -114,7 +105,7 @@ iota::RiotISO8601::RiotISO8601(std::string a,
 };
 
 iota::RiotISO8601::RiotISO8601(long t_epoch) {
-  //boost::posix_time::ptime ptime_epoch(boost::gregorian::date(1970,1,1));
+  // boost::posix_time::ptime ptime_epoch(boost::gregorian::date(1970,1,1));
   std::time_t epoch_t(t_epoch);
   _ptime = boost::posix_time::from_time_t(epoch_t);
   _local = false;
@@ -127,15 +118,13 @@ std::string iota::RiotISO8601::toString(void) {
   if ((_dUTC.hours() == 0) && (_local == false)) {
     // UTC
     oid << "Z";
-  }
-  else if (_local == true) {
+  } else if (_local == true) {
     if (_dUTC.hours() != 0) {
       // Se trata de hora local relativa a UTC
       if (_dUTC.hours() > 0) {
         oid << "+";
         oid << boost::format("%02d") % _dUTC.hours();
-      }
-      else {
+      } else {
         oid << boost::format("%03d") % _dUTC.hours();
       }
       oid << ":";
@@ -150,20 +139,11 @@ std::string iota::RiotISO8601::toSimpleISOString(void) {
   return boost::posix_time::to_iso_string(_ptime);
 };
 
+long iota::RiotISO8601::get_year(void) { return _ptime.date().year(); }
+long iota::RiotISO8601::get_month(void) { return _ptime.date().month(); }
+long iota::RiotISO8601::get_day(void) { return _ptime.date().day(); }
 
-long iota::RiotISO8601::get_year(void) {
-  return _ptime.date().year();
-}
-long iota::RiotISO8601::get_month(void) {
-  return _ptime.date().month();
-}
-long iota::RiotISO8601::get_day(void) {
-  return _ptime.date().day();
-}
-
-long iota::RiotISO8601::get_hours(void) {
-  return _ptime.time_of_day().hours();
-}
+long iota::RiotISO8601::get_hours(void) { return _ptime.time_of_day().hours(); }
 long iota::RiotISO8601::get_minutes(void) {
   return _ptime.time_of_day().minutes();
 }
@@ -171,10 +151,9 @@ long iota::RiotISO8601::get_seconds(void) {
   return _ptime.time_of_day().seconds();
 }
 long iota::RiotISO8601::get_microseconds(void) {
-  long s = _ptime.time_of_day().hours()*3600 +
-           _ptime.time_of_day().minutes()*60 +
-           _ptime.time_of_day().seconds();
-  return _ptime.time_of_day().total_microseconds() - s*1000000;
+  long s = _ptime.time_of_day().hours() * 3600 +
+           _ptime.time_of_day().minutes() * 60 + _ptime.time_of_day().seconds();
+  return _ptime.time_of_day().total_microseconds() - s * 1000000;
 }
 
 std::string iota::RiotISO8601::toIdString() {
@@ -203,27 +182,26 @@ std::string iota::RiotISO8601::toIdString() {
 iota::RiotISO8601 iota::RiotISO8601::toUTC(void) {
   if ((_local == false) || ((_local == true) && (_dUTC.hours() != 0))) {
     std::ostringstream oid;
-    oid << boost::posix_time::to_iso_extended_string(_ptime-_dUTC);
+    oid << boost::posix_time::to_iso_extended_string(_ptime - _dUTC);
     oid << "Z";
     iota::RiotISO8601 mi_utc(oid.str());
     return mi_utc;
-  }
-  else {
+  } else {
     return *this;
   }
 };
 
-bool iota::RiotISO8601::operator< (iota::RiotISO8601& iso) {
+bool iota::RiotISO8601::operator<(iota::RiotISO8601& iso) {
   // Comprobamos en UTC
 
-  iota::RiotISO8601 obj=toUTC();
+  iota::RiotISO8601 obj = toUTC();
   iota::RiotISO8601 obj_iso = iso.toUTC();
   if (obj_iso.getPosixTime() < obj.getPosixTime()) {
     return true;
   }
   return false;
 };
-bool iota::RiotISO8601::operator> (iota::RiotISO8601& iso) {
+bool iota::RiotISO8601::operator>(iota::RiotISO8601& iso) {
   // Comprobamos en UTC
 
   iota::RiotISO8601 obj(toUTC());
@@ -233,7 +211,7 @@ bool iota::RiotISO8601::operator> (iota::RiotISO8601& iso) {
   }
   return false;
 };
-bool iota::RiotISO8601::operator== (iota::RiotISO8601& iso) {
+bool iota::RiotISO8601::operator==(iota::RiotISO8601& iso) {
   // Comprobamos en UTC
 
   iota::RiotISO8601 obj(toUTC());
@@ -243,16 +221,15 @@ bool iota::RiotISO8601::operator== (iota::RiotISO8601& iso) {
   }
   return false;
 };
-bool iota::RiotISO8601::operator!= (iota::RiotISO8601& iso) {
-  return  !(*this == iso);
+bool iota::RiotISO8601::operator!=(iota::RiotISO8601& iso) {
+  return !(*this == iso);
 };
 
-iota::RiotISO8601& iota::RiotISO8601::operator= (const iota::RiotISO8601& iso) {
+iota::RiotISO8601& iota::RiotISO8601::operator=(const iota::RiotISO8601& iso) {
   if (this != &iso) {
     _ptime = iso.getPosixTime();
     _dUTC = iso.getDiffUTC();
     _local = iso.isLocal();
   }
   return *this;
-
 };

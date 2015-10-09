@@ -27,19 +27,20 @@
 namespace iota {
 
 class IoTValue {
-  public:
-    IoTValue();
-    IoTValue(IoTStatistic::iot_accumulator_ptr acc, double value);
-    ~IoTValue();
-    void add_acc(IoTStatistic::iot_accumulator_ptr acc);
-    double get_value();
-    void add_value(double value);
-  protected:
-  private:
-    struct timeval _to;
-    double _value;
-    IoTStatistic::iot_accumulator_ptr _acc;
+ public:
+  IoTValue();
+  IoTValue(IoTStatistic::iot_accumulator_ptr acc, double value);
+  ~IoTValue();
+  void add_acc(IoTStatistic::iot_accumulator_ptr acc);
+  double get_value();
+  void add_value(double value);
+
+ protected:
+ private:
+  struct timeval _to;
+  double _value;
+  IoTStatistic::iot_accumulator_ptr _acc;
 };
 };
 
-#endif // DURATION_H
+#endif  // DURATION_H

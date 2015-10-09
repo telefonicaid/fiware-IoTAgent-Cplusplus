@@ -32,67 +32,53 @@
 
 namespace iota {
 class ContextResponse {
-  public:
-    ContextResponse();
-    ContextResponse(const std::istringstream& str_operation);
-    ContextResponse(const std::string& status_code,
-                    const std::string& reason_phrase): _code(status_code),
-      _reason(reason_phrase) {};
-    ContextResponse(const rapidjson::Value& context_response);
-    ~ContextResponse() {};
-    std::string get_string();
-    void add_context_element(const ContextElement& context_response);
-    std::string& get_code() {
-      return _code;
-    };
-    void set_code(const std::string& code) {
-      _code = code;
-    };
-    void set_code(const int icode) {
-      _code = boost::lexical_cast<std::string>(icode);
-    };
+ public:
+  ContextResponse();
+  ContextResponse(const std::istringstream& str_operation);
+  ContextResponse(const std::string& status_code,
+                  const std::string& reason_phrase)
+      : _code(status_code), _reason(reason_phrase){};
+  ContextResponse(const rapidjson::Value& context_response);
+  ~ContextResponse(){};
+  std::string get_string();
+  void add_context_element(const ContextElement& context_response);
+  std::string& get_code() { return _code; };
+  void set_code(const std::string& code) { _code = code; };
+  void set_code(const int icode) {
+    _code = boost::lexical_cast<std::string>(icode);
+  };
 
-    std::string& get_reason() {
-      return _reason;
-    };
-    void set_reason(const std::string& reason) {
-      _reason = reason;
-    };
+  std::string& get_reason() { return _reason; };
+  void set_reason(const std::string& reason) { _reason = reason; };
 
-    std::string& get__details() {
-      return _details;
-    };
-    void set_details(const std::string& details) {
-      _details = details;
-    };
+  std::string& get__details() { return _details; };
+  void set_details(const std::string& details) { _details = details; };
 
-    ContextElement& get_context_element() {
-      return _context_element;
-    };
+  ContextElement& get_context_element() { return _context_element; };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("statusCode");
-      writer.StartObject();
-      writer.String("code");
-      writer.String(_code.c_str(), (rapidjson::SizeType)_code.length());
-      writer.String("reasonPhrase");
-      writer.String(_reason.c_str(), (rapidjson::SizeType)_reason.length());
-      writer.String("details");
-      writer.String(_details.c_str(), (rapidjson::SizeType)_details.length());
-      writer.EndObject();
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("statusCode");
+    writer.StartObject();
+    writer.String("code");
+    writer.String(_code.c_str(), (rapidjson::SizeType)_code.length());
+    writer.String("reasonPhrase");
+    writer.String(_reason.c_str(), (rapidjson::SizeType)_reason.length());
+    writer.String("details");
+    writer.String(_details.c_str(), (rapidjson::SizeType)_details.length());
+    writer.EndObject();
 
-      writer.String("contextElement");
-      _context_element.Serialize(writer);
-      writer.EndObject();
-    };
-  private:
-    std::string _code;
-    std::string _reason;
-    std::string _details;
-    ContextElement _context_element;
+    writer.String("contextElement");
+    _context_element.Serialize(writer);
+    writer.EndObject();
+  };
+
+ private:
+  std::string _code;
+  std::string _reason;
+  std::string _details;
+  ContextElement _context_element;
 };
-
 }
 #endif

@@ -25,27 +25,21 @@
 #include "TDA.h"
 #include "gmock/gmock.h"
 
-
 class MockPluginOutput : public ESP_Output_Base {
-  public:
+ public:
+  MockPluginOutput() { _name.assign("mockOutput"); };
 
-    MockPluginOutput() {
-      _name.assign("mockOutput");
-    };
+  virtual ~MockPluginOutput() {
+    std::cout << "Delete mockPluginOutput" << std::endl;
+  };
 
-    virtual ~MockPluginOutput() {
-      std::cout << "Delete mockPluginOutput" << std::endl;
-    };
+  MOCK_METHOD1(parseCustomElement, void(TiXmlElement* element));
+  MOCK_METHOD3(execute, bool(CC_AttributesType* attributes,
+                             ESP_Postprocessor_Base* postprocessor,
+                             std::map<std::string, void*> userData));
 
-
-    MOCK_METHOD1(parseCustomElement,void(TiXmlElement* element));
-    MOCK_METHOD3(execute,bool(CC_AttributesType* attributes,
-                              ESP_Postprocessor_Base* postprocessor, std::map<std::string, void*> userData));
-
-  protected:
-  private:
-
-
+ protected:
+ private:
 };
 
-#endif // MOCKPLUGINOUTPUT_H
+#endif  // MOCKPLUGINOUTPUT_H

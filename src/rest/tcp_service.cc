@@ -25,27 +25,27 @@
 #include "util/FuncUtil.h"
 #include <iomanip>
 
-iota::TcpService::TcpService(const boost::asio::ip::tcp::endpoint& endpoint):
-  pion::tcp::server(endpoint), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
-}
+iota::TcpService::TcpService(const boost::asio::ip::tcp::endpoint& endpoint)
+    : pion::tcp::server(endpoint),
+      m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {}
 iota::TcpService::TcpService(pion::scheduler& scheduler,
-                             const boost::asio::ip::tcp::endpoint& endpoint):
-  pion::tcp::server(scheduler, endpoint), m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
-}
+                             const boost::asio::ip::tcp::endpoint& endpoint)
+    : pion::tcp::server(scheduler, endpoint),
+      m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {}
 
 iota::TcpService::~TcpService() {}
 
 boost::shared_ptr<iota::TcpService> iota::TcpService::register_handler(
-  std::string client_name,
-  iota::TcpService::IotaRequestHandler client_handler) {
+    std::string client_name,
+    iota::TcpService::IotaRequestHandler client_handler) {
   boost::shared_ptr<iota::TcpService> your_tcp_service;
-	IOTA_LOG_DEBUG(m_logger, "Registering tcp " + client_name);
+  IOTA_LOG_DEBUG(m_logger, "Registering tcp " + client_name);
   try {
-    c_handlers.insert(std::pair<std::string, iota::TcpService::IotaRequestHandler>
-                      (client_name, client_handler));
+    c_handlers.insert(
+        std::pair<std::string, iota::TcpService::IotaRequestHandler>(
+            client_name, client_handler));
     your_tcp_service = shared_from_this();
-  }
-  catch (std::exception& e) {
+  } catch (std::exception& e) {
     IOTA_LOG_ERROR(m_logger, e.what());
   }
   return your_tcp_service;
@@ -60,58 +60,50 @@ void iota::TcpService::handle_connection(pion::tcp::connection_ptr& tcp_conn) {
 }
 
 void iota::TcpService::read(pion::tcp::connection_ptr& tcp_conn) {
-  tcp_conn->async_read_some(boost::bind(
-                              &iota::TcpService::handle_read,
-                              this, tcp_conn,
-                              boost::asio::placeholders::error,
-                              boost::asio::placeholders::bytes_transferred));
+  tcp_conn->async_read_some(
+      boost::bind(&iota::TcpService::handle_read, this, tcp_conn,
+                  boost::asio::placeholders::error,
+                  boost::asio::placeholders::bytes_transferred));
 }
 
 void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
                                    const boost::system::error_code& read_error,
                                    std::size_t bytes_read) {
-  IOTA_LOG_DEBUG(m_logger,
-                 " read_error=" << read_error << " bytes_read=" << bytes_read);
+  IOTA_LOG_DEBUG(m_logger, " read_error=" << read_error
+                                          << " bytes_read=" << bytes_read);
   if (!read_error) {
     const std::vector<unsigned char> reading_buffer(
-      tcp_conn->get_read_buffer().begin(),
-      tcp_conn->get_read_buffer().begin() + bytes_read);
+        tcp_conn->get_read_buffer().begin(),
+        tcp_conn->get_read_buffer().begin() + bytes_read);
     call_client(tcp_conn, reading_buffer, read_error);
-  }
-  else {
+  } else {
     finish(tcp_conn);
   }
-
 };
 
 void iota::TcpService::send(pion::tcp::connection_ptr& tcp_conn,
                             std::vector<unsigned char>& buffer_response,
                             bool wait_data) {
-
-  //print_buffer(buffer_response, buffer_response.size());
+  // print_buffer(buffer_response, buffer_response.size());
   std::ostringstream os;
   os << tcp_conn->get_remote_endpoint();
   std::string endpoint(os.str());
   if (tcp_conn->is_open()) {
-    IOTA_LOG_DEBUG(m_logger,
-                   "Sending to " + endpoint + " " + iota::str_to_hex(buffer_response));
+    IOTA_LOG_DEBUG(m_logger, "Sending to " + endpoint + " " +
+                                 iota::str_to_hex(buffer_response));
     if (!wait_data) {
-      tcp_conn->async_write(boost::asio::buffer(buffer_response.data(),
-                            buffer_response.size()),
-                            boost::bind(&iota::TcpService::finish_write, this, tcp_conn));
+      tcp_conn->async_write(
+          boost::asio::buffer(buffer_response.data(), buffer_response.size()),
+          boost::bind(&iota::TcpService::finish_write, this, tcp_conn));
+    } else {
+      tcp_conn->async_write(
+          boost::asio::buffer(buffer_response.data(), buffer_response.size()),
+          boost::bind(&iota::TcpService::read, this, tcp_conn));
     }
-    else {
-      tcp_conn->async_write(boost::asio::buffer(buffer_response.data(),
-                            buffer_response.size()),
-                            boost::bind(&iota::TcpService::read, this, tcp_conn));
-    }
-  }
-  else {
+  } else {
     IOTA_LOG_ERROR(m_logger, endpoint + " connection is closed");
   }
-
 }
-
 
 void iota::TcpService::print_buffer(std::vector<unsigned char>& buffer,
                                     int bytes_read) {
@@ -125,15 +117,13 @@ void iota::TcpService::print_buffer(std::vector<unsigned char>& buffer,
   IOTA_LOG_DEBUG(m_logger, iota::str_to_hex(buffer));
 }
 void iota::TcpService::finish_write(pion::tcp::connection_ptr& tcp_conn) {
-  //clear_buffer(tcp_conn);
+  // clear_buffer(tcp_conn);
 }
 void iota::TcpService::finish(pion::tcp::connection_ptr& tcp_conn) {
-
   tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   tcp_conn->finish();
   clear_buffer(tcp_conn);
   IOTA_LOG_DEBUG(m_logger, "finish connection " << tcp_conn.use_count());
-
 }
 
 void iota::TcpService::close_connection(pion::tcp::connection_ptr& tcp_conn) {
@@ -146,19 +136,19 @@ void iota::TcpService::clear_buffer(pion::tcp::connection_ptr& conn) {
 }
 
 std::vector<unsigned char>& iota::TcpService::create_buffer(
-  pion::tcp::connection_ptr& conn) {
+    pion::tcp::connection_ptr& conn) {
   boost::mutex::scoped_lock lock(m_mutex);
   std::vector<unsigned char> buffer;
   _async_buffers[conn] = buffer;
   return _async_buffers[conn];
 }
 
-void iota::TcpService::call_client(pion::tcp::connection_ptr& tcp_conn,
-                                   const std::vector<unsigned char>& buffer_read,
-                                   const boost::system::error_code& error) {
-
+void iota::TcpService::call_client(
+    pion::tcp::connection_ptr& tcp_conn,
+    const std::vector<unsigned char>& buffer_read,
+    const boost::system::error_code& error) {
   std::map<std::string, iota::TcpService::IotaRequestHandler>::iterator it =
-    c_handlers.begin();
+      c_handlers.begin();
   while (it != c_handlers.end()) {
     iota::TcpService::IotaRequestHandler h = it->second;
     if (h) {
@@ -168,9 +158,3 @@ void iota::TcpService::call_client(pion::tcp::connection_ptr& tcp_conn,
     ++it;
   }
 }
-
-
-
-
-
-

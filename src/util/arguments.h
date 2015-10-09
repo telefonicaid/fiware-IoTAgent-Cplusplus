@@ -26,161 +26,123 @@
 #include "util/iota_logger.h"
 #include <pion/http/plugin_server.hpp>
 
-
 namespace iota {
 
 /**
 * A Arguments class. Parser for command line arguments for iota program.
 */
 class Arguments {
-  public:
+ public:
+  Arguments();
 
-    Arguments();
+  /**
+   * @name    parser
+   * @brief   read all parameter from argv
+   *          puts default value if parameter does not exists
+   *
+   * @param [in] argc,   number of parameter
+   * @param [in] argv,  command line value from main
+   * @return  error text or empty if everything is ok
+   *
+   */
+  std::string parser(int argc, const char* argv[]);
 
-    /**
-     * @name    parser
-     * @brief   read all parameter from argv
-     *          puts default value if parameter does not exists
-     *
-     * @param [in] argc,   number of parameter
-     * @param [in] argv,  command line value from main
-     * @return  error text or empty if everything is ok
-     *
-     */
-    std::string parser(int argc, const char* argv[]);
+  /**
+   * @name    argument_error
+   * @brief   displays an error message if the arguments are invalid
+   *
+   * @return  error text or empty if everything is ok
+   *
+   */
+  std::string argument_error();
 
-    /**
-     * @name    argument_error
-     * @brief   displays an error message if the arguments are invalid
-     *
-     * @return  error text or empty if everything is ok
-     *
-     */
-    std::string argument_error();
+  std::string get_service_config_file() const { return service_config_file; }
 
-    std::string get_service_config_file() const {
-      return service_config_file;
-    }
+  std::string get_resource_name() const { return resource_name; }
 
-    std::string get_resource_name() const {
-      return resource_name;
-    }
+  std::string get_service_name() const { return service_name; }
 
-    std::string get_service_name() const {
-      return service_name;
-    }
+  std::string get_ssl_pem_file() const { return ssl_pem_file; }
 
-    std::string get_ssl_pem_file() const {
-      return ssl_pem_file;
-    }
+  std::string get_url_base() const { return url_base; }
 
-    std::string get_url_base() const {
-      return url_base;
-    }
+  std::string get_iotagent_name() const { return iotagent_name; }
 
-    std::string get_iotagent_name() const {
-      return iotagent_name;
-    }
+  std::string get_log_level() const { return log_level; }
 
-    std::string get_log_level() const {
-      return log_level;
-    }
+  std::string get_standalone_config_file() const {
+    return standalone_config_file;
+  }
 
-    std::string get_standalone_config_file() const {
-      return standalone_config_file;
-    }
+  std::string get_component_name() const { return component_name; }
 
-    std::string get_component_name()const {
-      return component_name;
-    }
+  bool get_manager() { return manager; }
 
-    bool get_manager() {
-      return manager;
-    }
+  bool get_ssl_flag() { return ssl_flag; }
 
-    bool get_ssl_flag() {
-      return ssl_flag;
-    }
+  bool get_verbose_flag() { return verbose_flag; }
 
-    bool get_verbose_flag() {
-      return verbose_flag;
-    }
+  int get_port() { return port; }
 
-    int  get_port() {
-      return port;
-    }
+  std::string get_plugin_directory() const { return plugin_directory; }
 
-    std::string  get_plugin_directory() const {
-      return plugin_directory;
-    }
+  std::string get_ZERO_IP() const { return ZERO_IP; }
 
-    std::string  get_ZERO_IP()const {
-      return ZERO_IP;
-    }
+  std::string get_iotagent_identifier() const { return identifier; }
 
-    std::string  get_iotagent_identifier()const {
-      return identifier;
-    }
+  unsigned int get_DEFAULT_PORT() { return DEFAULT_PORT; }
 
-    unsigned int get_DEFAULT_PORT() {
-      return DEFAULT_PORT;
-    }
+  std::vector<std::pair<std::string, std::string> > get_service_options()
+      const {
+    return service_options;
+  }
 
-    std::vector<std::pair<std::string, std::string> > get_service_options() const {
-      return service_options;
-    }
+  void set_service_options(pion::http::plugin_server_ptr& web_server);
 
-    void set_service_options(pion::http::plugin_server_ptr& web_server);
+  std::string get_log_file();
 
-    std::string get_log_file();
+  std::string get_prov_ip() const { return prov_ip; }
 
-    std::string get_prov_ip() const {
-      return prov_ip;
-    }
+ protected:
+  bool check_parameter(const char short_param, const std::string& large_param,
+                       int argnum, int argc, const char* argv[],
+                       bool has_parameter = true);
 
-  protected:
+ private:
+  std::string service_config_file;
+  std::string resource_name;
+  std::string service_name;
+  /** file for ssl */
+  std::string ssl_pem_file;
+  /** url to start web server where receive orders */
+  std::string url_base;
+  /** name for iota component */
+  std::string iotagent_name;
+  /** level for logs, FATAL,ERROR, INFO, WARNING, DEBUG */
+  std::string log_level;
+  /** directory to look for pion plugins */
+  std::string plugin_directory;
 
-    bool check_parameter(const  char short_param,
-                         const std::string& large_param,
-                         int argnum, int argc, const char* argv[],
-                         bool has_parameter=true);
+  /** */ std::string component_name;
+  /** true if the program is an iota manager, false if it is an iota agent */
+  bool manager;
+  /** if iota must have a port with ssl */
+  bool ssl_flag;
+  /** level for logs, FATAL,ERROR, INFO, WARNING, DEBUG */
+  bool verbose_flag;
+  /** port where is started the server */
+  int port;
+  /** public ip fot send to Context Broker */
+  std::string prov_ip;
+  /** identifier for iota manager */
+  std::string identifier;
 
-  private:
+  std::string ZERO_IP;
 
-    std::string service_config_file;
-    std::string resource_name;
-    std::string service_name;
-    /** file for ssl */
-    std::string ssl_pem_file;
-    /** url to start web server where receive orders */
-    std::string url_base;
-    /** name for iota component */
-    std::string iotagent_name;
-    /** level for logs, FATAL,ERROR, INFO, WARNING, DEBUG */
-    std::string log_level;
-    /** directory to look for pion plugins */
-    std::string plugin_directory;
+  unsigned int DEFAULT_PORT;
+  std::string standalone_config_file;
 
-    /** */std::string component_name;
-    /** true if the program is an iota manager, false if it is an iota agent */
-    bool manager;
-    /** if iota must have a port with ssl */
-    bool ssl_flag;
-    /** level for logs, FATAL,ERROR, INFO, WARNING, DEBUG */
-    bool verbose_flag;
-    /** port where is started the server */
-    int  port;
-    /** public ip fot send to Context Broker */
-    std::string prov_ip;
-    /** identifier for iota manager */
-    std::string identifier;
-
-    std::string  ZERO_IP;
-
-    unsigned int DEFAULT_PORT;
-    std::string standalone_config_file;
-
-    std::vector<std::pair<std::string, std::string> > service_options;
+  std::vector<std::pair<std::string, std::string> > service_options;
 };
 };
 

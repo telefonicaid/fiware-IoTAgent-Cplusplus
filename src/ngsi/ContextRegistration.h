@@ -33,45 +33,39 @@
 namespace iota {
 
 class ContextRegistration {
-  public:
-    ContextRegistration(const std::istringstream& str_register);
-    ContextRegistration() {};
-    ContextRegistration(const rapidjson::Value& reg);
-    ~ContextRegistration() {};
-    void add_entity(const Entity& entity);
-    void add_attribute(const AttributeRegister& attribute);
-    void add_provider(const std::string& provider);
-    std::string get_string();
-    std::vector<Entity>& get_entities() {
-      return _entities;
-    };
+ public:
+  ContextRegistration(const std::istringstream& str_register);
+  ContextRegistration(){};
+  ContextRegistration(const rapidjson::Value& reg);
+  ~ContextRegistration(){};
+  void add_entity(const Entity& entity);
+  void add_attribute(const AttributeRegister& attribute);
+  void add_provider(const std::string& provider);
+  std::string get_string();
+  std::vector<Entity>& get_entities() { return _entities; };
 
-    std::vector<AttributeRegister>& get_attributes() {
-      return _attributes;
-    };
+  std::vector<AttributeRegister>& get_attributes() { return _attributes; };
 
-  std::string& get_provider() {
-    return _provider;
-  };
+  std::string& get_provider() { return _provider; };
 
   void set_env_info(boost::property_tree::ptree service_info,
-                      boost::shared_ptr<Device> device);
-
+                    boost::shared_ptr<Device> device);
 
   template <typename Writer>
   void Serialize(Writer& writer) const {
     writer.StartObject();
     writer.String("entities");
     writer.StartArray();
-    for ( std::vector<Entity>::const_iterator it= _entities.begin();
-          it != _entities.end(); ++it) {
+    for (std::vector<Entity>::const_iterator it = _entities.begin();
+         it != _entities.end(); ++it) {
       it->Serialize(writer);
     }
     writer.EndArray();
     writer.String("attributes");
     writer.StartArray();
-    for ( std::vector<AttributeRegister>::const_iterator it= _attributes.begin();
-          it != _attributes.end(); ++it) {
+    for (std::vector<AttributeRegister>::const_iterator it =
+             _attributes.begin();
+         it != _attributes.end(); ++it) {
       it->Serialize(writer);
     }
     writer.EndArray();
@@ -79,6 +73,7 @@ class ContextRegistration {
     writer.String(_provider.c_str(), (rapidjson::SizeType)_provider.length());
     writer.EndObject();
   };
+
  private:
   std::vector<Entity> _entities;
   std::vector<AttributeRegister> _attributes;
@@ -86,8 +81,6 @@ class ContextRegistration {
   boost::property_tree::ptree _service_info;
   boost::shared_ptr<Device> _device_info;
 };
-
 }
-
 
 #endif

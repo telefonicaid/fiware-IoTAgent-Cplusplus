@@ -42,19 +42,16 @@ must not be misrepresented as being the original software.
 distribution.
 */
 
-
 #ifndef TIXML_USE_STL
 
 #include "tinystr.h"
 
 // Error value for find primitive
 const TiXmlString::size_type TiXmlString::npos =
-  static_cast< TiXmlString::size_type >(-1);
-
+    static_cast<TiXmlString::size_type>(-1);
 
 // Null rep.
-TiXmlString::Rep TiXmlString::nullrep_ = { 0, 0, { '\0' } };
-
+TiXmlString::Rep TiXmlString::nullrep_ = {0, 0, {'\0'}};
 
 void TiXmlString::reserve(size_type cap) {
   if (cap > capacity()) {
@@ -65,22 +62,19 @@ void TiXmlString::reserve(size_type cap) {
   }
 }
 
-
 TiXmlString& TiXmlString::assign(const char* str, size_type len) {
   size_type cap = capacity();
-  if (len > cap || cap > 3*(len + 8)) {
+  if (len > cap || cap > 3 * (len + 8)) {
     TiXmlString tmp;
     tmp.init(len);
     memcpy(tmp.start(), str, len);
     swap(tmp);
-  }
-  else {
+  } else {
     memmove(start(), str, len);
     set_size(len);
   }
   return *this;
 }
-
 
 TiXmlString& TiXmlString::append(const char* str, size_type len) {
   size_type newsize = length() + len;
@@ -92,8 +86,7 @@ TiXmlString& TiXmlString::append(const char* str, size_type len) {
   return *this;
 }
 
-
-TiXmlString operator + (const TiXmlString& a, const TiXmlString& b) {
+TiXmlString operator+(const TiXmlString& a, const TiXmlString& b) {
   TiXmlString tmp;
   tmp.reserve(a.length() + b.length());
   tmp += a;
@@ -101,7 +94,7 @@ TiXmlString operator + (const TiXmlString& a, const TiXmlString& b) {
   return tmp;
 }
 
-TiXmlString operator + (const TiXmlString& a, const char* b) {
+TiXmlString operator+(const TiXmlString& a, const char* b) {
   TiXmlString tmp;
   TiXmlString::size_type b_len = static_cast<TiXmlString::size_type>(strlen(b));
   tmp.reserve(a.length() + b_len);
@@ -110,7 +103,7 @@ TiXmlString operator + (const TiXmlString& a, const char* b) {
   return tmp;
 }
 
-TiXmlString operator + (const char* a, const TiXmlString& b) {
+TiXmlString operator+(const char* a, const TiXmlString& b) {
   TiXmlString tmp;
   TiXmlString::size_type a_len = static_cast<TiXmlString::size_type>(strlen(a));
   tmp.reserve(a_len + b.length());
@@ -118,6 +111,5 @@ TiXmlString operator + (const char* a, const TiXmlString& b) {
   tmp += b;
   return tmp;
 }
-
 
 #endif  // TIXML_USE_STL

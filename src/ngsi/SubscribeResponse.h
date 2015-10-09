@@ -30,32 +30,29 @@
 #include <sstream>
 namespace iota {
 class SubscribeResponse {
-  public:
-    SubscribeResponse(const std::istringstream& str_subs_response);
-    SubscribeResponse() {};
-    SubscribeResponse(const rapidjson::Value& subs_response);
-    ~SubscribeResponse() {};
-    std::string get_string();
-    void add_subscription_id(const std::string& subs_id);
-    std::string& get_subscription_id() {
-      return _subscriptionId;
-    };
+ public:
+  SubscribeResponse(const std::istringstream& str_subs_response);
+  SubscribeResponse(){};
+  SubscribeResponse(const rapidjson::Value& subs_response);
+  ~SubscribeResponse(){};
+  std::string get_string();
+  void add_subscription_id(const std::string& subs_id);
+  std::string& get_subscription_id() { return _subscriptionId; };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("subscribeResponse");
-      writer.StartObject();
-      writer.String("subscriptionId");
-      writer.String(_subscriptionId.c_str(),
-                    (rapidjson::SizeType)_subscriptionId.length());
-      writer.EndObject();
-      writer.EndObject();
-    };
-  private:
-    std::string _subscriptionId;
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("subscribeResponse");
+    writer.StartObject();
+    writer.String("subscriptionId");
+    writer.String(_subscriptionId.c_str(),
+                  (rapidjson::SizeType)_subscriptionId.length());
+    writer.EndObject();
+    writer.EndObject();
+  };
 
+ private:
+  std::string _subscriptionId;
 };
-
 }
 #endif

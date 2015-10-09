@@ -28,47 +28,43 @@
 #include <string>
 namespace iota {
 class QueryContext {
-  public:
-    QueryContext(const std::istringstream& str_query);
-    QueryContext() {};
-    QueryContext(const rapidjson::Value& query);
-    ~QueryContext() {};
-    std::string get_string();
-    void add_entity(const Entity& entity);
-    void add_attribute(const std::string& attribute);
-    std::vector<Entity>& get_entities() {
-      return _entities;
-    };
+ public:
+  QueryContext(const std::istringstream& str_query);
+  QueryContext(){};
+  QueryContext(const rapidjson::Value& query);
+  ~QueryContext(){};
+  std::string get_string();
+  void add_entity(const Entity& entity);
+  void add_attribute(const std::string& attribute);
+  std::vector<Entity>& get_entities() { return _entities; };
 
-    std::vector<std::string>& get_attributes() {
-      return _attributes;
-    };
+  std::vector<std::string>& get_attributes() { return _attributes; };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("entities");
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("entities");
+    writer.StartArray();
+    for (std::vector<Entity>::const_iterator it = _entities.begin();
+         it != _entities.end(); ++it) {
+      it->Serialize(writer);
+    }
+    writer.EndArray();
+    if (_attributes.size() > 0) {
+      writer.String("attributes");
       writer.StartArray();
-      for (std::vector<Entity>::const_iterator it= _entities.begin();
-           it != _entities.end(); ++it) {
-        it->Serialize(writer);
+      for (std::vector<std::string>::const_iterator it = _attributes.begin();
+           it != _attributes.end(); ++it) {
+        writer.String((*it).c_str(), (rapidjson::SizeType)(*it).length());
       }
       writer.EndArray();
-      if (_attributes.size() > 0) {
-        writer.String("attributes");
-        writer.StartArray();
-        for (std::vector<std::string>::const_iterator it= _attributes.begin();
-             it != _attributes.end(); ++it) {
-          writer.String((*it).c_str(), (rapidjson::SizeType)(*it).length());
-        }
-        writer.EndArray();
-      }
-      writer.EndObject();
-    };
-  private:
-    std::vector<Entity> _entities;
-    std::vector<std::string> _attributes;
-};
+    }
+    writer.EndObject();
+  };
 
+ private:
+  std::vector<Entity> _entities;
+  std::vector<std::string> _attributes;
+};
 }
 #endif

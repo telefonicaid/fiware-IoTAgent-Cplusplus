@@ -34,7 +34,6 @@
 #include <boost/asio.hpp>
 #include <stdexcept>
 
-
 // Cache algorithm is based on discards.
 // LRU: discards oldest
 // MRU: discards most recently (fetch and discard)
@@ -44,200 +43,196 @@
 namespace iota {
 
 class Cache {
-
-    typedef boost::multi_index_container<
-    boost::shared_ptr<Device>,
-          boost::multi_index::indexed_by<
+  typedef boost::multi_index_container<
+      boost::shared_ptr<Device>,
+      boost::multi_index::indexed_by<
           boost::multi_index::sequenced<>,
-          boost::multi_index::hashed_unique<boost::multi_index::identity<Device> >,
-          boost::multi_index::hashed_non_unique<boost::multi_index::const_mem_fun<Device, std::string, &Device::unique_entity> >,
-          boost::multi_index::hashed_non_unique<boost::multi_index::const_mem_fun<Device, std::string, &Device::unique_name> >
-          >
-          > item_list;
+          boost::multi_index::hashed_unique<
+              boost::multi_index::identity<Device> >,
+          boost::multi_index::hashed_non_unique<
+              boost::multi_index::const_mem_fun<Device, std::string,
+                                                &Device::unique_entity> >,
+          boost::multi_index::hashed_non_unique<
+              boost::multi_index::const_mem_fun<
+                  Device, std::string, &Device::unique_name> > > > item_list;
 
-  public:
-    typedef item_list::iterator iterator;
-    typedef boost::multi_index::nth_index<item_list, 1>::type::iterator
-    item_iterator;
-    typedef boost::multi_index::nth_index<item_list, 2>::type::iterator
-    item_iterator_entity;
-    typedef boost::multi_index::nth_index<item_list, 3>::type::iterator
-    item_iterator_name;
+ public:
+  typedef item_list::iterator iterator;
+  typedef boost::multi_index::nth_index<item_list, 1>::type::iterator
+      item_iterator;
+  typedef boost::multi_index::nth_index<item_list, 2>::type::iterator
+      item_iterator_entity;
+  typedef boost::multi_index::nth_index<item_list, 3>::type::iterator
+      item_iterator_name;
 
-    // Function to get an element out of cache
-    typedef boost::function<boost::shared_ptr<Device> (
-      boost::shared_ptr<Device>&)> GetFunction_t;
+  // Function to get an element out of cache
+  typedef boost::function<boost::shared_ptr<Device>(boost::shared_ptr<Device>&)>
+      GetFunction_t;
 
-
-    Cache(std::size_t capacity, bool lru, unsigned short time_life = 0):
-      _max_num_items(capacity), _lru(lru), _time_life(time_life),
-      _get_function(NULL) {
-      if (_time_life > 0) {
-        _async_manager.reset(new iota::CommonAsyncManager(1));
-        _async_manager->run();
-      }
-    };
-
-    ~Cache() {
-      if (_async_manager.get() != NULL) {
-        _async_manager->stop();
-      }
-    };
-
-    void set_function(GetFunction_t get_function) {
-      _get_function = get_function;
-    }
-
-    void set_entity_function(GetFunction_t get_function) {
-      _get_entity_function = get_function;
-    }
-
-
-    void insert(const boost::shared_ptr<Device>& item) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      std::pair<iterator, bool> p;
-      if (_lru) {
-        p = _list.push_front(item);
-        if (_time_life > 0) {
-          boost::shared_ptr<boost::asio::deadline_timer> t = item->start(*
-              (_async_manager->get_io_service()), _time_life);
-          t->async_wait(boost::bind(&Cache::item_timeout,
-                                    this, item, boost::asio::placeholders::error));
-        }
-        if (!p.second) {   // Duplicated
-          _list.relocate(_list.begin(), p.first);
-        }
-        else if (_list.size() > _max_num_items) {
-          if (_time_life > 0) {
-            _list.back()->cancel();
-          }
-          _list.pop_back();
-        }
-
-      }
-      else {
-        if (_list.size() < _max_num_items) {
-          p = _list.push_back(item);
-          if (!p.second) {
-            _list.relocate(_list.end(), p.first);
-          }
-          if (_time_life > 0) {
-            boost::shared_ptr<boost::asio::deadline_timer> t = item->start(*
-                (_async_manager->get_io_service()), _time_life);
-            t->async_wait(boost::bind(&Cache::item_timeout, this, item,
-                                      boost::asio::placeholders::error));
-          }
-        }
-      }
-    }
-
-    boost::shared_ptr<Device> get(boost::shared_ptr<Device> key) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Device> item;
-      item_iterator i = boost::multi_index::get<1>(_list).begin();
-      i = boost::multi_index::get<1>(_list).find(*key);
-      if (i != boost::multi_index::get<1>(_list).end()) {
-        insert(*i);
-        item = *i;
-        return item;
-      }
-      else {
-        if (_get_function != NULL) {
-          const boost::shared_ptr<Device> new_item = _get_function(key);
-          if (new_item.get() != NULL) {
-            insert(new_item);
-          }
-          return new_item;
-        }
-      }
-      return item;
-    }
-
-    boost::shared_ptr<Device> get_by_entity(boost::shared_ptr<Device> key) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Device> item;
-      item_iterator_entity i = boost::multi_index::get<2>(_list).begin();
-      i = boost::multi_index::get<2>(_list).find(*key, entity_hash(), entity_equal());
-      if (i != boost::multi_index::get<2>(_list).end()) {
-        insert(*i);
-        item = *i;
-        return item;
-      }
-      else {
-        if (_get_function != NULL) {
-          const boost::shared_ptr<Device> new_item = _get_entity_function(key);
-          if (new_item.get() != NULL) {
-            insert(new_item);
-          }
-          return new_item;
-        }
-      }
-      return item;
-    }
-
-    boost::shared_ptr<Device> get_by_name(boost::shared_ptr<Device> key) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Device> item;
-      item_iterator_name i = boost::multi_index::get<3>(_list).begin();
-      i = boost::multi_index::get<3>(_list).find(*key, name_hash(), name_equal());
-      if (i != boost::multi_index::get<3>(_list).end()) {
-        insert(*i);
-        item = *i;
-        return item;
-      }
-      else {
-        if (_get_function != NULL) {
-          const boost::shared_ptr<Device> new_item = _get_entity_function(key);
-          if (new_item.get() != NULL) {
-            insert(new_item);
-          }
-          return new_item;
-        }
-      }
-      return item;
-    }
-
-    std::size_t size() {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      return _list.size();
-    }
-
-    void remove(Device item) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      item_iterator i = boost::multi_index::get<1>(_list).begin();
-      i = boost::multi_index::get<1>(_list).find(item);
-      if (i != boost::multi_index::get<1>(_list).end()) {
-        boost::multi_index::get<1>(_list).erase(i);
-      }
-    }
-
-    void item_timeout(boost::shared_ptr<Timer> timer,
-                      const boost::system::error_code& ec) {
-      boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-      boost::shared_ptr<Device> item_tmp = boost::dynamic_pointer_cast<Device>(timer);
-      if (ec == boost::asio::error::operation_aborted) {
-        return;
-      }
-      boost::shared_ptr<Device> item = boost::dynamic_pointer_cast<Device>(timer);
-      remove(*item);
-    }
-
-    boost::shared_ptr<boost::asio::io_service> get_io_service() {
-      return _async_manager->get_io_service();
-    }
-
-  void set_time_to_life(unsigned short time_life) {
-
-    if (time_life == 0)
-       return;
-
-    if ( _time_life == 0 ) {
-      _time_life = time_life;
+  Cache(std::size_t capacity, bool lru, unsigned short time_life = 0)
+      : _max_num_items(capacity),
+        _lru(lru),
+        _time_life(time_life),
+        _get_function(NULL) {
+    if (_time_life > 0) {
       _async_manager.reset(new iota::CommonAsyncManager(1));
       _async_manager->run();
     }
   };
 
+  ~Cache() {
+    if (_async_manager.get() != NULL) {
+      _async_manager->stop();
+    }
+  };
+
+  void set_function(GetFunction_t get_function) {
+    _get_function = get_function;
+  }
+
+  void set_entity_function(GetFunction_t get_function) {
+    _get_entity_function = get_function;
+  }
+
+  void insert(const boost::shared_ptr<Device>& item) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    std::pair<iterator, bool> p;
+    if (_lru) {
+      p = _list.push_front(item);
+      if (_time_life > 0) {
+        boost::shared_ptr<boost::asio::deadline_timer> t =
+            item->start(*(_async_manager->get_io_service()), _time_life);
+        t->async_wait(boost::bind(&Cache::item_timeout, this, item,
+                                  boost::asio::placeholders::error));
+      }
+      if (!p.second) {  // Duplicated
+        _list.relocate(_list.begin(), p.first);
+      } else if (_list.size() > _max_num_items) {
+        if (_time_life > 0) {
+          _list.back()->cancel();
+        }
+        _list.pop_back();
+      }
+
+    } else {
+      if (_list.size() < _max_num_items) {
+        p = _list.push_back(item);
+        if (!p.second) {
+          _list.relocate(_list.end(), p.first);
+        }
+        if (_time_life > 0) {
+          boost::shared_ptr<boost::asio::deadline_timer> t =
+              item->start(*(_async_manager->get_io_service()), _time_life);
+          t->async_wait(boost::bind(&Cache::item_timeout, this, item,
+                                    boost::asio::placeholders::error));
+        }
+      }
+    }
+  }
+
+  boost::shared_ptr<Device> get(boost::shared_ptr<Device> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Device> item;
+    item_iterator i = boost::multi_index::get<1>(_list).begin();
+    i = boost::multi_index::get<1>(_list).find(*key);
+    if (i != boost::multi_index::get<1>(_list).end()) {
+      insert(*i);
+      item = *i;
+      return item;
+    } else {
+      if (_get_function != NULL) {
+        const boost::shared_ptr<Device> new_item = _get_function(key);
+        if (new_item.get() != NULL) {
+          insert(new_item);
+        }
+        return new_item;
+      }
+    }
+    return item;
+  }
+
+  boost::shared_ptr<Device> get_by_entity(boost::shared_ptr<Device> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Device> item;
+    item_iterator_entity i = boost::multi_index::get<2>(_list).begin();
+    i = boost::multi_index::get<2>(_list)
+            .find(*key, entity_hash(), entity_equal());
+    if (i != boost::multi_index::get<2>(_list).end()) {
+      insert(*i);
+      item = *i;
+      return item;
+    } else {
+      if (_get_function != NULL) {
+        const boost::shared_ptr<Device> new_item = _get_entity_function(key);
+        if (new_item.get() != NULL) {
+          insert(new_item);
+        }
+        return new_item;
+      }
+    }
+    return item;
+  }
+
+  boost::shared_ptr<Device> get_by_name(boost::shared_ptr<Device> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Device> item;
+    item_iterator_name i = boost::multi_index::get<3>(_list).begin();
+    i = boost::multi_index::get<3>(_list).find(*key, name_hash(), name_equal());
+    if (i != boost::multi_index::get<3>(_list).end()) {
+      insert(*i);
+      item = *i;
+      return item;
+    } else {
+      if (_get_function != NULL) {
+        const boost::shared_ptr<Device> new_item = _get_entity_function(key);
+        if (new_item.get() != NULL) {
+          insert(new_item);
+        }
+        return new_item;
+      }
+    }
+    return item;
+  }
+
+  std::size_t size() {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    return _list.size();
+  }
+
+  void remove(Device item) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    item_iterator i = boost::multi_index::get<1>(_list).begin();
+    i = boost::multi_index::get<1>(_list).find(item);
+    if (i != boost::multi_index::get<1>(_list).end()) {
+      boost::multi_index::get<1>(_list).erase(i);
+    }
+  }
+
+  void item_timeout(boost::shared_ptr<Timer> timer,
+                    const boost::system::error_code& ec) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Device> item_tmp =
+        boost::dynamic_pointer_cast<Device>(timer);
+    if (ec == boost::asio::error::operation_aborted) {
+      return;
+    }
+    boost::shared_ptr<Device> item = boost::dynamic_pointer_cast<Device>(timer);
+    remove(*item);
+  }
+
+  boost::shared_ptr<boost::asio::io_service> get_io_service() {
+    return _async_manager->get_io_service();
+  }
+
+  void set_time_to_life(unsigned short time_life) {
+    if (time_life == 0) return;
+
+    if (_time_life == 0) {
+      _time_life = time_life;
+      _async_manager.reset(new iota::CommonAsyncManager(1));
+      _async_manager->run();
+    }
+  };
 
  private:
   std::size_t _max_num_items;

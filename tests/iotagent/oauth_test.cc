@@ -36,8 +36,8 @@ int main(int argc, char* argv[]) {
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
 
-   // Url base
-  iota::Process& process = iota::Process::initialize("/TestAuth",5);
+  // Url base
+  iota::Process& process = iota::Process::initialize("/TestAuth", 5);
   iota::Configurator::initialize("../../tests/iotagent/config_mongo.json");
 
   // Http Server and Admin Service
@@ -54,8 +54,8 @@ int main(int argc, char* argv[]) {
 
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(OAuthTest::suite());
-  runner.setOutputter(new CppUnit::CompilerOutputter(&runner.result(),
-                      std::cerr));
+  runner.setOutputter(
+      new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
   process.shutdown();
   return s ? 0 : 1;

@@ -31,77 +31,60 @@
 
 #define ESP_MQTT_DELIM_START '$'
 #define ESP_MQTT_DELIM_END "//"
-//static const char MQTT_TOPIC_START = ESP_MQTT_DELIM_START;
-//static std::string MQTT_TOPIC_END = ESP_MQTT_DELIM_END;
+// static const char MQTT_TOPIC_START = ESP_MQTT_DELIM_START;
+// static std::string MQTT_TOPIC_END = ESP_MQTT_DELIM_END;
 
 class ESP_MqttMsg {
-  public:
-    ESP_MqttMsg(const struct mosquitto_message* mqttMsg);
-    virtual ~ESP_MqttMsg();
+ public:
+  ESP_MqttMsg(const struct mosquitto_message* mqttMsg);
+  virtual ~ESP_MqttMsg();
 
-    int getTotalLength();
-    int getRemainingLength();
+  int getTotalLength();
+  int getRemainingLength();
 
-    void moveOffset(int nbytes);
-    char* getBufferToBeCopied(int* len);
+  void moveOffset(int nbytes);
+  char* getBufferToBeCopied(int* len);
 
-  protected:
-  private:
-    //Optionally, I could store the original Mqtt message structure.
-    int readOffset;  //marker to indicate where read operation will  copy
-    //bytes from. Required in case of subsequent partial reads.
+ protected:
+ private:
+  // Optionally, I could store the original Mqtt message structure.
+  int readOffset;  // marker to indicate where read operation will  copy
+  // bytes from. Required in case of subsequent partial reads.
 
-    char* buffSerialized;  //buffer to be read with serialized message
-    int length; //length of this buffer
+  char* buffSerialized;  // buffer to be read with serialized message
+  int length;            // length of this buffer
 };
 
 class ESP_MqttBuffer {
+ public:
+  ESP_MqttBuffer() { unreadBytes = 0; };
+  virtual ~ESP_MqttBuffer();
 
-  public:
-    ESP_MqttBuffer() {
-      unreadBytes = 0;
-    };
-    virtual ~ESP_MqttBuffer();
+  // it returns number of bytes read.
+  int getSerialized(char* buffOut, int lenRead);
 
-    //it returns number of bytes read.
-    int getSerialized(char* buffOut,int lenRead);
+  char* getFirstMqttMessage(int* length);
+  void deleteFirstMessage();
 
-    char* getFirstMqttMessage(int* length);
-    void deleteFirstMessage();
+  void addMsg(ESP_MqttMsg* newMsg);
 
-    void addMsg(ESP_MqttMsg* newMsg);
+  void removeMsg();
 
-    void removeMsg();
+  void decreaseUnreadBytes(int bytes) { unreadBytes -= bytes; };
 
-    void decreaseUnreadBytes(int bytes) {
-      unreadBytes -= bytes;
-    };
+  int getUnreadBytes() { return unreadBytes; };
+  bool isQueueEmpty() { return qMqttMsg.empty(); };
 
+ protected:
+ private:
+  std::queue<ESP_MqttMsg*> qMqttMsg;
 
-    int getUnreadBytes() {
-      return unreadBytes;
-    };
-    bool isQueueEmpty() {
-      return qMqttMsg.empty();
-    };
-
-
-  protected:
-  private:
-
-    std::queue<ESP_MqttMsg*> qMqttMsg;
-
-    int unreadBytes;//this will have number of bytes can be read in one go
-    //it doesn't necessarily mean that read operation has to
-    //meet this number, but in case it tries to exceed it,
-    //this will be the actual length of bytes returned.
-    //Until first read action, this is just the length of a
-    //"virtual" byte array of topics and payload all serialized.
-
-
-
+  int unreadBytes;  // this will have number of bytes can be read in one go
+  // it doesn't necessarily mean that read operation has to
+  // meet this number, but in case it tries to exceed it,
+  // this will be the actual length of bytes returned.
+  // Until first read action, this is just the length of a
+  //"virtual" byte array of topics and payload all serialized.
 };
 
-
-
-#endif // ESP_MQTTBUFFER_H
+#endif  // ESP_MQTTBUFFER_H

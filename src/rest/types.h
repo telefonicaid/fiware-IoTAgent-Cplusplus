@@ -28,8 +28,7 @@ namespace iota {
 const int DEFAULT_TIMEOUT = 5;
 
 struct types {
-  virtual ~types() {};
-
+  virtual ~types(){};
 
   // Constants for configuration file
   static const std::string CONF_FILE_RESOURCES;
@@ -52,7 +51,6 @@ struct types {
   static const std::string CONF_FILE_TIMEZONES;
   static const std::string CONF_FILE_TCP_SERVERS;
   static const std::string CONF_FILE_IOTA_MANAGER;
-
 
   // Storage
   static const std::string CONF_FILE_DEVICES_STORE;
@@ -85,8 +83,7 @@ struct types {
   // Error response
   static const std::string MULTIPART_ERROR;
 
-
-  //https://github.com/telefonicaid/fiware-orion/blob/develop/src/lib/rest/HttpStatusCode.h
+  // https://github.com/telefonicaid/fiware-orion/blob/develop/src/lib/rest/HttpStatusCode.h
   // http response for ngsi operations
 
   static const std::string RESPONSE_MESSAGE_NONE;
@@ -173,11 +170,10 @@ struct types {
   static const unsigned int RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR;
   static const unsigned int RESPONSE_CODE_FORBIDDEN_CHARACTERS;
 
-  ///ALARMS
+  /// ALARMS
   static const unsigned int ALARM_CODE_NO_MONGO;
   static const unsigned int ALARM_CODE_NO_CB;
   static const unsigned int ALARM_CODE_NO_IOTA;
-
 
   static const std::string ALARM_MESSAGE_NO_MONGO;
   static const std::string ALARM_MESSAGE_NO_CB;
@@ -194,7 +190,7 @@ struct types {
   static const std::string STAT_TRAFFIC_OUT;
   static const std::string STAT_TRAFFIC_DURATION;
 
-  //header Fiware
+  // header Fiware
   static const std::string FIWARE_SERVICE;
   static const std::string FIWARE_SERVICEPATH;
   static const std::string FIWARE_SERVICEPATH_DEFAULT;
@@ -212,11 +208,11 @@ struct types {
   static const int LIMIT_DEFAULT;
   static const int LIMIT_MAX;
 
-  //CACHE SIZES
+  // CACHE SIZES
   static const int MAX_SIZE_CACHE;
   static const int MAX_SIZE_COMMAND_CACHE;
 
-  //COMMANDS
+  // COMMANDS
   static const std::string STATUS;
   static const std::string STATUS_TYPE;
   static const std::string STATUS_OP;
@@ -230,10 +226,7 @@ struct types {
   static const std::string ERROR;
   static const std::string RAW;
 
-
-
-
-  //STATUS COMMANDS
+  // STATUS COMMANDS
 
   static const int READY_FOR_READ;
   static const std::string READY_FOR_READ_MESSAGE;
@@ -248,8 +241,7 @@ struct types {
   static const int NOT_DELIVERED;
   static const std::string NOT_DELIVERED_MESSAGE;
 
-
-  //ERROR MESSAGE
+  // ERROR MESSAGE
   static const std::string FORMATERROR_DELIMITER;
   static const std::string FORMATERROR_INTERNAL_ERROR;
   static const std::string FORMATERROR_ATTRIBUTE_NO_COMMAND;
@@ -267,7 +259,6 @@ struct types {
   static const std::string HELP_MESSAGE_ERR_PARAMO;
 
   static const char* ERROR_MESSAGE[];
-
 };
 
 typedef struct ProtocolData {

@@ -28,39 +28,40 @@
 #include "parser_basic/ESP_Plugin_Parser_Basic.h"
 #ifdef USE_INPUTFILE
 #include "input_file/ESP_Plugin_Input_File.h"
-#endif // USE_INPUTFILE
+#endif  // USE_INPUTFILE
 #ifdef USE_INPUTIP
 #include "input_ip/ESP_Plugin_Input_IP.h"
-#endif // USE_INPUTIP
+#endif  // USE_INPUTIP
 
 #ifdef USE_MQTT
 #include "input_mqtt/ESP_Plugin_Input_Mqtt.h"
-#endif // USE_MQTT
+#endif  // USE_MQTT
 
 #include "input_buffer/ESP_Plugin_Input_Buffer.h"
 #include "output_file/ESP_Plugin_Output_File.h"
 
 #ifdef USE_IDAS
 #include "output_sbc/ESP_Plugin_Output_SBC.h"
-#endif // USE_IDAS
+#endif  // USE_IDAS
 #ifdef USE_LUA
 #include "preprocessor_lua/ESP_Plugin_Preprocessor_Lua.h"
-#endif // USE_LUA
+#endif  // USE_LUA
 #include "postprocessor_sensorml/ESP_Plugin_Postprocessor_Sensorml.h"
 #include "postprocessor_ul20/ESP_Plugin_Postprocessor_UL20.h"
 #include "postprocessor_text/ESP_Plugin_Postprocessor_Text.h"
 
-#ifdef USE_IOT //not using IDAS means enabling JSON and IOT but JSON postprocessor could be used outside IOT (in theory)
+#ifdef USE_IOT  // not using IDAS means enabling JSON and IOT but JSON
+                // postprocessor could be used outside IOT (in theory)
 #include "output_iot/ESP_Plugin_Output_IoT.h"
-#endif // USE_IOT
+#endif  // USE_IOT
 
 #ifdef USE_JSON
 #include "postprocessor_json/ESP_Plugin_Postprocessor_json.h"
-#endif // USE_JSON
+#endif  // USE_JSON
 
 #ifdef USE_TTOPEN
 #include "postprocessor_tt/ESP_Plugin_Postprocessor_TT.h"
-#endif // USE_TTOPEN
+#endif  // USE_TTOPEN
 
 // ------------------------
 // CONTEXT
@@ -72,9 +73,7 @@ ESP_Context::ESP_Context() {
   clear();
 }
 
-ESP_Context::~ESP_Context() {
-  clear();
-}
+ESP_Context::~ESP_Context() { clear(); }
 
 void ESP_Context::clear() {
   if (input != NULL) {
@@ -95,49 +94,36 @@ void ESP_Context::addParams(CC_ParamsType params) {
   for (CC_ParamsType::iterator it = params.begin(); it != params.end(); it++) {
     ESP_Attribute attribute;
     attribute.setValue(it->first, it->second.c_str(), it->second.length(),
-                       ESP_DataType::ESP_DataType_STRING,ESP_DataCode::ESP_DataCode_STRING);
-    this->temp.insert(CC_AttributesPair(it->first,attribute));
+                       ESP_DataType::ESP_DataType_STRING,
+                       ESP_DataCode::ESP_DataCode_STRING);
+    this->temp.insert(CC_AttributesPair(it->first, attribute));
   }
 }
 
-int ESP_Context::getInputSize() {
-  return input_size;
-}
+int ESP_Context::getInputSize() { return input_size; }
 
-int ESP_Context::getOutputSize() {
-  return output_size;
-}
+int ESP_Context::getOutputSize() { return output_size; }
 
+char* ESP_Context::getInputData() { return input; }
 
-char* ESP_Context::getInputData() {
-  return input;
-}
-
-char* ESP_Context::getOutputData() {
-  return output;
-}
+char* ESP_Context::getOutputData() { return output; }
 
 void ESP_Context::addInputData(const char* data, int len) {
   if (len > 0) {
-    input_size+=len;
-    input = (char*)realloc(input,input_size);
-    memcpy(input+input_size-len,data,len);
+    input_size += len;
+    input = (char*)realloc(input, input_size);
+    memcpy(input + input_size - len, data, len);
   }
 }
 
-int ESP_Context::getAvailableInputData() {
-  return input_size - index_end;
-}
+int ESP_Context::getAvailableInputData() { return input_size - index_end; }
 
-int ESP_Context::getAvailableOutputData() {
-  return output_size;
-}
+int ESP_Context::getAvailableOutputData() { return output_size; }
 
 bool ESP_Context::inputDataIsAvailable(int bytes) {
   if (getAvailableInputData() >= bytes) {
     return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
@@ -147,8 +133,7 @@ bool ESP_Context::readPInputData(int bytes, const char*& result) {
     result = &this->input[index_end];
     index_end += bytes;
     return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
@@ -161,8 +146,8 @@ bool ESP_Context::validateInputData(int offset) {
 
   // Move and Copy
   input_size -= index_end;
-  memcpy(input,input+index_end,input_size);
-  input = (char*)realloc(input,input_size);
+  memcpy(input, input + index_end, input_size);
+  input = (char*)realloc(input, input_size);
   index_end = index_start;
   return true;
 }
@@ -174,39 +159,34 @@ bool ESP_Context::addResultData()
 {
   CC_AttributesType finalValues;
   for (CC_AttributesType::iterator it = temp.begin(); it != temp.end(); it++) {
-    if (!ESP_StringUtils::startsWith(it->second.getName(),"_")) {
-      finalValues.insert(CC_AttributesPair(it->first,it->second));
+    if (!ESP_StringUtils::startsWith(it->second.getName(), "_")) {
+      finalValues.insert(CC_AttributesPair(it->first, it->second));
     }
   }
   if (finalValues.size() > 0) {
     results.push_back(finalValues);
     return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
 
-void ESP_Context::saveIndex() {
-  this->index_end_saved = this->index_end;
-}
+void ESP_Context::saveIndex() { this->index_end_saved = this->index_end; }
 
-void ESP_Context::restoreIndex() {
-  this->index_end = this->index_end_saved;
-}
+void ESP_Context::restoreIndex() { this->index_end = this->index_end_saved; }
 
 // TODO
 int ESP_Context::searchAttributeValue(ESP_Attribute* attribute) {
-  return searchAttributeValueInRange(attribute,0,input_size-index_end);
+  return searchAttributeValueInRange(attribute, 0, input_size - index_end);
 }
 
 int ESP_Context::searchAttributeValueInRange(ESP_Attribute* attribute,
-    int offset, int size) {
+                                             int offset, int size) {
   int datasize = attribute->_datasize;
 
-  for (int i = index_end + offset; i < index_end+size; i++) {
-    if (i >= 0 && input_size-i >= datasize) {
-      if (memcmp(input+i,attribute->_value,datasize) == 0) {
+  for (int i = index_end + offset; i < index_end + size; i++) {
+    if (i >= 0 && input_size - i >= datasize) {
+      if (memcmp(input + i, attribute->_value, datasize) == 0) {
         return i;
       }
     }
@@ -214,28 +194,24 @@ int ESP_Context::searchAttributeValueInRange(ESP_Attribute* attribute,
   return -1;
 }
 
-int ESP_Context::getSizeFromIndex(int index) {
-  return index - index_end;
-}
+int ESP_Context::getSizeFromIndex(int index) { return index - index_end; }
 
 void ESP_Context::addOutputData(const char* data, int len) {
-  output = (char*)realloc(output,output_size+len);
-  memcpy(output+output_size,data,len);
+  output = (char*)realloc(output, output_size + len);
+  memcpy(output + output_size, data, len);
   output_size = output_size + len;
 }
 
 void ESP_Context::removeOutputData(int nbytes) {
-  memmove(output,output+nbytes,output_size-nbytes);
-  output = (char*)realloc(output,output_size-nbytes);
+  memmove(output, output + nbytes, output_size - nbytes);
+  output = (char*)realloc(output, output_size - nbytes);
   output_size = output_size - nbytes;
 }
 
 // ------------------------
 // BASE
 // ------------------------
-bool ESP_Base::checkParams() {
-  return true;
-}
+bool ESP_Base::checkParams() { return true; }
 
 // ------------------------
 // COMMAND
@@ -247,9 +223,7 @@ ESP_Command::ESP_Command() {
   clear();
 }
 
-ESP_Command::~ESP_Command() {
-  clear();
-}
+ESP_Command::~ESP_Command() { clear(); }
 
 void ESP_Command::clear() {
   index = 0;
@@ -279,38 +253,37 @@ int ESP_Command::run(ESP_Context* context) {
 
   switch (index) {
     case ESP_Command::ESP_COMMAND_INDEX::HEADER: {
-        result = header->run(context);
-        break;
-      }
+      result = header->run(context);
+      break;
+    }
     case ESP_Command::ESP_COMMAND_INDEX::BODY: {
-        result = body->run(context);
+      result = body->run(context);
 
-        // New Data
-        if (result == ESP_Tag_Base::EXECUTE_RESULT_OK) {
-          // Streaming
-          if (body->_loop) {
-            index = ESP_Command::ESP_COMMAND_INDEX::BODY; // Go Body
-            body->reset();
-          }
-          else {
-            index++; // Go Next
-          }
-
-          context->validateInputData();
-          context->addResultData();
-          context->temp.clear();
-          return result; // Return after every new result
+      // New Data
+      if (result == ESP_Tag_Base::EXECUTE_RESULT_OK) {
+        // Streaming
+        if (body->_loop) {
+          index = ESP_Command::ESP_COMMAND_INDEX::BODY;  // Go Body
+          body->reset();
+        } else {
+          index++;  // Go Next
         }
-        break;
+
+        context->validateInputData();
+        context->addResultData();
+        context->temp.clear();
+        return result;  // Return after every new result
       }
+      break;
+    }
     case ESP_Command::ESP_COMMAND_INDEX::FOOTER: {
-        result = footer->run(context);
-        break;
-      }
-    case 3: { // Finished
-        result = ESP_Tag_Base::EXECUTE_RESULT_IDLE;
-        break;
-      }
+      result = footer->run(context);
+      break;
+    }
+    case 3: {  // Finished
+      result = ESP_Tag_Base::EXECUTE_RESULT_IDLE;
+      break;
+    }
   }
 
   // In Progress
@@ -322,7 +295,7 @@ int ESP_Command::run(ESP_Context* context) {
       break;
 
     case ESP_Tag_Base::EXECUTE_RESULT_ERROR:
-      context->validateInputData(1); // Advance 1 byte
+      context->validateInputData(1);  // Advance 1 byte
       context->temp.clear();
       this->reset();
 
@@ -348,14 +321,14 @@ ESP_Tag_Base::ESP_Tag_Base() {
   this->_datatype = 0;
   this->_datacode = 0;
   parent = NULL;
-  _loop  = false;
+  _loop = false;
 }
 
 ESP_Tag_Base::~ESP_Tag_Base() {
   // Delete children
   for (std::vector<ESP_Tag_Base*>::iterator it = subtags.begin();
        it != subtags.end(); it++) {
-    delete(*it);
+    delete (*it);
   }
 }
 
@@ -370,14 +343,14 @@ void ESP_Tag_Base::reset() {
 }
 
 void ESP_Tag_Base::parseElement(TiXmlElement* element) {
-  //printf("Parsing Base Element\n");
+  // printf("Parsing Base Element\n");
   this->_name = ESP_XmlUtils::queryStringValue(element, "name");
   this->_byteoffset = ESP_XmlUtils::queryIntValue(element, "byteoffset");
   this->_datasize = ESP_XmlUtils::queryIntValue(element, "datasize");
   this->_datatype = ESP_Attribute::getDataTypeFromString(
-                      ESP_XmlUtils::queryStringValue(element, "datatype"));
+      ESP_XmlUtils::queryStringValue(element, "datatype"));
   this->_datacode = ESP_Attribute::getDataCodeFromString(
-                      ESP_XmlUtils::queryStringValue(element, "datacode"));
+      ESP_XmlUtils::queryStringValue(element, "datacode"));
   this->_loop = ESP_XmlUtils::queryBoolValue(element, "loop");
   this->_valueref = ESP_XmlUtils::queryStringValue(element, "valueref");
 
@@ -393,31 +366,30 @@ void ESP_Tag_Base::parseElement(TiXmlElement* element) {
   const char* valuehex = element->Attribute("valuehex");
   if (valueint != NULL) {
     this->_value.setValue(_name, valueint, sizeof(int),
-                          ESP_DataType::ESP_DataType_INT,ESP_DataCode::ESP_DataCode_STRING);
+                          ESP_DataType::ESP_DataType_INT,
+                          ESP_DataCode::ESP_DataCode_STRING);
     this->_datasize = this->_value._datasize;
-  }
-  else if (valuefloat != NULL) {
-    this->_value.setValue(_name, valuefloat,sizeof(float),
-                          ESP_DataType::ESP_DataType_FLOAT,ESP_DataCode::ESP_DataCode_STRING);
+  } else if (valuefloat != NULL) {
+    this->_value.setValue(_name, valuefloat, sizeof(float),
+                          ESP_DataType::ESP_DataType_FLOAT,
+                          ESP_DataCode::ESP_DataCode_STRING);
     this->_datasize = this->_value._datasize;
-  }
-  else if (valuestring != NULL) {
-    this->_value.setValue(_name, valuestring,strlen(valuestring),
-                          ESP_DataType::ESP_DataType_STRING,ESP_DataCode::ESP_DataCode_STRING);
+  } else if (valuestring != NULL) {
+    this->_value.setValue(_name, valuestring, strlen(valuestring),
+                          ESP_DataType::ESP_DataType_STRING,
+                          ESP_DataCode::ESP_DataCode_STRING);
     this->_datasize = this->_value._datasize;
-  }
-  else if (valuehex != NULL) {
-    this->_value.setValue(_name, valuestring,strlen(valuestring),
-                          ESP_DataType::ESP_DataType_STRING,ESP_DataCode::ESP_DataCode_STRING);
+  } else if (valuehex != NULL) {
+    this->_value.setValue(_name, valuestring, strlen(valuestring),
+                          ESP_DataType::ESP_DataType_STRING,
+                          ESP_DataCode::ESP_DataCode_STRING);
     this->_datasize = this->_value._datasize;
   }
 
   parseCustomElement(element);
 }
 
-void ESP_Tag_Base::parseCustomElement(TiXmlElement* element) {
-
-}
+void ESP_Tag_Base::parseCustomElement(TiXmlElement* element) {}
 
 ESP_Tag_Base* ESP_Tag_Base::searchParent(ESP_Tag_Base* node, std::string type) {
   while (node->parent != NULL) {
@@ -469,12 +441,11 @@ int ESP_Tag_Base::run(ESP_Context* context) {
 
       // Repeat Tag After evaluating Children
       if (_repeat) {
-        setChildrenParsed(true,false);
+        setChildrenParsed(true, false);
       }
     }
     return result;
-  }
-  else {
+  } else {
     // Parse Next's
     int result = ESP_Tag_Base::EXECUTE_RESULT_OK;
     ESP_Tag_Base* next = getNextTag();
@@ -487,29 +458,29 @@ int ESP_Tag_Base::run(ESP_Context* context) {
 }
 
 void ESP_Tag_Header::parseCustomElement(TiXmlElement* element) {
-  //printf("Parsing Header Element\n");
+  // printf("Parsing Header Element\n");
 }
 
 int ESP_Tag_Header::execute(ESP_Context* context) {
-  //printf("Executing Header Element\n");
+  // printf("Executing Header Element\n");
   return EXECUTE_RESULT_OK;
 }
 
 void ESP_Tag_Body::parseCustomElement(TiXmlElement* element) {
-  //printf("Parsing Body Element\n");
+  // printf("Parsing Body Element\n");
 }
 
 int ESP_Tag_Body::execute(ESP_Context* context) {
-  //printf("Executing Body Element\n");
+  // printf("Executing Body Element\n");
   return EXECUTE_RESULT_OK;
 }
 
 void ESP_Tag_Footer::parseCustomElement(TiXmlElement* element) {
-  //printf("Parsing Footer Element\n");
+  // printf("Parsing Footer Element\n");
 }
 
 int ESP_Tag_Footer::execute(ESP_Context* context) {
-  //printf("Executing Footer Element\n");
+  // printf("Executing Footer Element\n");
   return EXECUTE_RESULT_OK;
 }
 
@@ -527,9 +498,6 @@ ESP_Sensor::ESP_Sensor() {
   resultCallbackUserData = NULL;
   dataCallback = NULL;
   resultCallback = NULL;
-
-
-
 }
 
 /*
@@ -537,30 +505,28 @@ ESP_Sensor::ESP_Sensor() {
 */
 ESP_Sensor::~ESP_Sensor() {
   // Destroy Elements
-  for (unsigned int i=0; i<inputs.size(); i++) {
+  for (unsigned int i = 0; i < inputs.size(); i++) {
     delete inputs[i];
   }
-  for (unsigned int i=0; i<outputs.size(); i++) {
-    CC_Logger::getSingleton()->logDebug("DELETE Sensor: outputs[%d] : %s",i,
+  for (unsigned int i = 0; i < outputs.size(); i++) {
+    CC_Logger::getSingleton()->logDebug("DELETE Sensor: outputs[%d] : %s", i,
                                         outputs[i]->_name.c_str());
     delete outputs[i];
   }
-  for (unsigned int i=0; i<preprocessors.size(); i++) {
+  for (unsigned int i = 0; i < preprocessors.size(); i++) {
     delete preprocessors[i];
   }
-  for (unsigned int i=0; i<postprocessors.size(); i++) {
+  for (unsigned int i = 0; i < postprocessors.size(); i++) {
     delete postprocessors[i];
   }
-  for (unsigned int i=0; i<serverRunners.size(); i++) {
+  for (unsigned int i = 0; i < serverRunners.size(); i++) {
     delete serverRunners[i];
   }
-  for (unsigned int i=0; i<clientRunners.size(); i++) {
+  for (unsigned int i = 0; i < clientRunners.size(); i++) {
     delete clientRunners[i];
   }
 
   commands.clear();
-
-
 
   pthread_mutex_destroy(&mutexMapClient);
   pthread_mutex_destroy(&mutexMapServer);
@@ -570,27 +536,28 @@ ESP_Sensor::~ESP_Sensor() {
 /*
     Register Callback
 */
-void ESP_Sensor::registerDataCallback(void* userData, void (*cb)(void* userData,
-                                      const char* buffer, int nread)) {
+void ESP_Sensor::registerDataCallback(
+    void* userData, void (*cb)(void* userData, const char* buffer, int nread)) {
   this->dataCallbackUserData = userData;
   this->dataCallback = cb;
 }
 
 void ESP_Sensor::registerResultCallback(void* userData,
-                                        void (*cb)(void* userData, ESP_Runner* runner)) {
+                                        void (*cb)(void* userData,
+                                                   ESP_Runner* runner)) {
   this->resultCallbackUserData = userData;
   this->resultCallback = cb;
 }
 
 void ESP_Sensor::runDataCallback(const char* buffer, int nread) {
   if (this->dataCallback != NULL) {
-    this->dataCallback(dataCallbackUserData,buffer,nread);
+    this->dataCallback(dataCallbackUserData, buffer, nread);
   }
 }
 
 void ESP_Sensor::runResultCallback(ESP_Runner* runner) {
   if (this->resultCallback != NULL) {
-    this->resultCallback(resultCallbackUserData,runner);
+    this->resultCallback(resultCallbackUserData, runner);
   }
 }
 
@@ -608,9 +575,9 @@ bool ESP_Sensor::loadFromFile(std::string fileName) {
     // Parse
     ok = parseRootElement(doc.RootElement());
     readyToRun = true;
-  }
-  else {
-    CC_Logger::getSingleton()->logError("Error parsing Xml: %s\n",doc.ErrorDesc());
+  } else {
+    CC_Logger::getSingleton()->logError("Error parsing Xml: %s\n",
+                                        doc.ErrorDesc());
     readyToRun = false;
   }
 
@@ -648,7 +615,8 @@ bool ESP_Sensor::updateInputPreprocessors() {
        it != inputs.end(); it++) {
     for (std::vector<std::string>::iterator it2 = (*it)->_preprocessors.begin();
          it2 != (*it)->_preprocessors.end(); it2++) {
-      for (std::vector<ESP_Preprocessor_Base*>::iterator it3 = preprocessors.begin();
+      for (std::vector<ESP_Preprocessor_Base*>::iterator it3 =
+               preprocessors.begin();
            it3 != preprocessors.end(); it3++) {
         if (it2->compare((*it3)->_name) == 0) {
           (*it)->preprocessors.push_back(*it3);
@@ -665,10 +633,12 @@ bool ESP_Sensor::updateInputPreprocessors() {
 bool ESP_Sensor::updateOutputPostprocessors() {
   for (std::vector<ESP_Output_Base*>::iterator it = outputs.begin();
        it != outputs.end(); it++) {
-    for (std::vector<std::string>::iterator it2 = (*it)->_postprocessors.begin();
+    for (std::vector<std::string>::iterator it2 =
+             (*it)->_postprocessors.begin();
          it2 != (*it)->_postprocessors.end(); it2++) {
       for (std::vector<ESP_Postprocessor_Base*>::iterator it3 =
-             postprocessors.begin(); it3 != postprocessors.end(); it3++) {
+               postprocessors.begin();
+           it3 != postprocessors.end(); it3++) {
         if (it2->compare((*it3)->_name) == 0) {
           (*it)->postprocessors.push_back(*it3);
         }
@@ -683,92 +653,90 @@ bool ESP_Sensor::updateOutputPostprocessors() {
 */
 bool ESP_Sensor::parsePlugins(TiXmlElement* element) {
   if (element != NULL) {
-    TiXmlElement* pluginsElement = element->FirstChildElement(XML_SECTION_PLUGINS);
+    TiXmlElement* pluginsElement =
+        element->FirstChildElement(XML_SECTION_PLUGINS);
     if (pluginsElement) {
-      for (TiXmlElement* ele=pluginsElement->FirstChildElement(); ele!=NULL;
-           ele=ele->NextSiblingElement()) {
+      for (TiXmlElement* ele = pluginsElement->FirstChildElement(); ele != NULL;
+           ele = ele->NextSiblingElement()) {
         const char* value = ele->Value();
         const char* name = ele->Attribute("name");
 
         // Add Parser Plugins
-        if (strcmp(value,"pluginparser")==0) {
-          if (strcmp(name,"binaryparser")==0) {
+        if (strcmp(value, "pluginparser") == 0) {
+          if (strcmp(name, "binaryparser") == 0) {
             addParserPlugin(ESP_Plugin_Parser_Basic::getSingleton());
           }
         }
         // Add Input Plugins
-        else if (strcmp(value,"plugininput")==0) {
+        else if (strcmp(value, "plugininput") == 0) {
 #ifdef USE_INPUTFILE
-          if (strcmp(name,"file")==0) {
+          if (strcmp(name, "file") == 0) {
             addInputPlugin(ESP_Plugin_Input_File::getSingleton());
-          }
-          else
-#endif // USE_INPUTFILE
+          } else
+#endif  // USE_INPUTFILE
 #ifdef USE_INPUTIP
-            if (strcmp(name,"ip")==0) {
-              addInputPlugin(ESP_Plugin_Input_IP::getSingleton());
-            }
-            else
-#endif // USE_INPUTIP
+              if (strcmp(name, "ip") == 0) {
+            addInputPlugin(ESP_Plugin_Input_IP::getSingleton());
+          } else
+#endif  // USE_INPUTIP
 #ifdef USE_MQTT
-              if (strcmp(name,"mqtt") == 0) {
-                addInputPlugin(ESP_Plugin_Input_Mqtt::getSingleton());
-              }
-              else
-#endif // USE_MQTT
-              if (strcmp(name,"buffer") == 0) {
-                addInputPlugin(ESP_Plugin_Input_Buffer::getSingleton());
-              }
+              if (strcmp(name, "mqtt") == 0) {
+            addInputPlugin(ESP_Plugin_Input_Mqtt::getSingleton());
+          } else
+#endif  // USE_MQTT
+              if (strcmp(name, "buffer") == 0) {
+            addInputPlugin(ESP_Plugin_Input_Buffer::getSingleton());
+          }
         }
         // Add Output Plugins
-        else if (strcmp(value,"pluginoutput")==0) {
-          if (strcmp(name,"file")==0) {
+        else if (strcmp(value, "pluginoutput") == 0) {
+          if (strcmp(name, "file") == 0) {
             addOutputPlugin(ESP_Plugin_Output_File::getSingleton());
           }
-
 #ifdef USE_IDAS
-          else if (strcmp(name,"sbc")==0) {
+          else if (strcmp(name, "sbc") == 0) {
             addOutputPlugin(ESP_Plugin_Output_SBC::getSingleton());
           }
-#endif // USE_IDAS
+#endif  // USE_IDAS
 
 #ifdef USE_IOT
-          if (strcmp(name,"iot")==0) {
+          if (strcmp(name, "iot") == 0) {
             addOutputPlugin(ESP_Plugin_Output_IoT::getSingleton());
           }
-#endif // USE_IOT
+#endif  // USE_IOT
         }
         // Add Preprocessor Plugins
-        else if (strcmp(value,"pluginpreprocessor")==0) {
+        else if (strcmp(value, "pluginpreprocessor") == 0) {
 #ifdef USE_LUA
-          if (strcmp(name,"lua")==0) {
+          if (strcmp(name, "lua") == 0) {
             addPreprocessorPlugin(ESP_Plugin_Preprocessor_Lua::getSingleton());
           }
-#endif // USE_LUA
+#endif  // USE_LUA
         }
         // Add Postprocessor Plugins
-        else if (strcmp(value,"pluginpostprocessor")==0) {
-          if (strcmp(name,"sensorml")==0) {
-            addPostprocessorPlugin(ESP_Plugin_Postprocessor_Sensorml::getSingleton());
-          }
-          else if (strcmp(name,"text")==0) {
-            addPostprocessorPlugin(ESP_Plugin_Postprocessor_Text::getSingleton());
-          }
-          else if (strcmp(name,"ul20")==0) {
-            addPostprocessorPlugin(ESP_Plugin_Postprocessor_UL20::getSingleton());
+        else if (strcmp(value, "pluginpostprocessor") == 0) {
+          if (strcmp(name, "sensorml") == 0) {
+            addPostprocessorPlugin(
+                ESP_Plugin_Postprocessor_Sensorml::getSingleton());
+          } else if (strcmp(name, "text") == 0) {
+            addPostprocessorPlugin(
+                ESP_Plugin_Postprocessor_Text::getSingleton());
+          } else if (strcmp(name, "ul20") == 0) {
+            addPostprocessorPlugin(
+                ESP_Plugin_Postprocessor_UL20::getSingleton());
           }
 #ifdef USE_JSON
-          else if (strcmp(name,"json")==0) {
-            addPostprocessorPlugin(ESP_Plugin_Postprocessor_json::getSingleton());
+          else if (strcmp(name, "json") == 0) {
+            addPostprocessorPlugin(
+                ESP_Plugin_Postprocessor_json::getSingleton());
           }
-#endif // USE_JSON
+#endif  // USE_JSON
 
 #ifdef USE_TTOPEN
-          else if (strcmp(name,"ttopen")==0) {
+          else if (strcmp(name, "ttopen") == 0) {
             addPostprocessorPlugin(ESP_Plugin_Postprocessor_TT::getSingleton());
           }
-#endif //USE_TTOPEN
-
+#endif  // USE_TTOPEN
         }
       }
     }
@@ -779,10 +747,11 @@ bool ESP_Sensor::parsePlugins(TiXmlElement* element) {
 
 bool ESP_Sensor::parseInputs(TiXmlElement* element) {
   if (element != NULL) {
-    TiXmlElement* pluginsElement = element->FirstChildElement(XML_SECTION_INPUTS);
+    TiXmlElement* pluginsElement =
+        element->FirstChildElement(XML_SECTION_INPUTS);
     if (pluginsElement) {
-      for (TiXmlElement* ele=pluginsElement->FirstChildElement(); ele!=NULL;
-           ele=ele->NextSiblingElement()) {
+      for (TiXmlElement* ele = pluginsElement->FirstChildElement(); ele != NULL;
+           ele = ele->NextSiblingElement()) {
         ESP_Input_Base* input = createInputFromPlugins(ele);
 
         if (input != NULL) {
@@ -799,10 +768,11 @@ bool ESP_Sensor::parseInputs(TiXmlElement* element) {
 
 bool ESP_Sensor::parseOutputs(TiXmlElement* element) {
   if (element != NULL) {
-    TiXmlElement* pluginsElement = element->FirstChildElement(XML_SECTION_OUTPUTS);
+    TiXmlElement* pluginsElement =
+        element->FirstChildElement(XML_SECTION_OUTPUTS);
     if (pluginsElement) {
-      for (TiXmlElement* ele=pluginsElement->FirstChildElement(); ele!=NULL;
-           ele=ele->NextSiblingElement()) {
+      for (TiXmlElement* ele = pluginsElement->FirstChildElement(); ele != NULL;
+           ele = ele->NextSiblingElement()) {
         ESP_Output_Base* output = createOutputFromPlugins(ele);
 
         if (output != NULL) {
@@ -819,12 +789,13 @@ bool ESP_Sensor::parseOutputs(TiXmlElement* element) {
 
 bool ESP_Sensor::parsePreprocessors(TiXmlElement* element) {
   if (element != NULL) {
-    TiXmlElement* pluginsElement = element->FirstChildElement(
-                                     XML_SECTION_PREPROCESSORS);
+    TiXmlElement* pluginsElement =
+        element->FirstChildElement(XML_SECTION_PREPROCESSORS);
     if (pluginsElement) {
-      for (TiXmlElement* ele=pluginsElement->FirstChildElement(); ele!=NULL;
-           ele=ele->NextSiblingElement()) {
-        ESP_Preprocessor_Base* preprocessor = createPreprocessorFromPlugins(ele);
+      for (TiXmlElement* ele = pluginsElement->FirstChildElement(); ele != NULL;
+           ele = ele->NextSiblingElement()) {
+        ESP_Preprocessor_Base* preprocessor =
+            createPreprocessorFromPlugins(ele);
 
         if (preprocessor != NULL) {
           preprocessor->parseElement(ele);
@@ -840,12 +811,13 @@ bool ESP_Sensor::parsePreprocessors(TiXmlElement* element) {
 
 bool ESP_Sensor::parsePostprocessors(TiXmlElement* element) {
   if (element != NULL) {
-    TiXmlElement* pluginsElement = element->FirstChildElement(
-                                     XML_SECTION_POSTPROCESSORS);
+    TiXmlElement* pluginsElement =
+        element->FirstChildElement(XML_SECTION_POSTPROCESSORS);
     if (pluginsElement) {
-      for (TiXmlElement* ele=pluginsElement->FirstChildElement(); ele!=NULL;
-           ele=ele->NextSiblingElement()) {
-        ESP_Postprocessor_Base* postprocessor = createPostprocessorFromPlugins(ele);
+      for (TiXmlElement* ele = pluginsElement->FirstChildElement(); ele != NULL;
+           ele = ele->NextSiblingElement()) {
+        ESP_Postprocessor_Base* postprocessor =
+            createPostprocessorFromPlugins(ele);
 
         if (postprocessor != NULL) {
           postprocessor->parseElement(ele);
@@ -864,13 +836,13 @@ bool ESP_Sensor::parsePostprocessors(TiXmlElement* element) {
 */
 bool ESP_Sensor::parseCommands(TiXmlElement* element) {
   if (element != NULL) {
-    TiXmlElement* commandsElement = element->FirstChildElement(
-                                      XML_SECTION_COMMANDS);
+    TiXmlElement* commandsElement =
+        element->FirstChildElement(XML_SECTION_COMMANDS);
     if (commandsElement != NULL) {
-      for (TiXmlElement* i=commandsElement->FirstChildElement(); i!=NULL;
-           i=i->NextSiblingElement()) {
-        std::string name = ESP_XmlUtils::queryStringValue(i,"name");
-        commands.insert(std::pair<std::string, TiXmlElement*>(name,i));
+      for (TiXmlElement* i = commandsElement->FirstChildElement(); i != NULL;
+           i = i->NextSiblingElement()) {
+        std::string name = ESP_XmlUtils::queryStringValue(i, "name");
+        commands.insert(std::pair<std::string, TiXmlElement*>(name, i));
       }
     }
   }
@@ -883,19 +855,20 @@ ESP_Command* ESP_Sensor::createCommand(std::string name) {
   std::map<std::string, TiXmlElement*>::iterator it = commands.find(name);
   if (it != commands.end()) {
     result = new ESP_Command();
-    result->name = ESP_XmlUtils::queryStringValue(it->second,"name");
-    result->roe = ESP_XmlUtils::queryBoolValue(it->second,"roe");
+    result->name = ESP_XmlUtils::queryStringValue(it->second, "name");
+    result->roe = ESP_XmlUtils::queryBoolValue(it->second, "roe");
 
     // DefaultParams
     TiXmlElement* defaultparams = it->second->FirstChildElement("params");
     if (defaultparams != NULL) {
-      for (TiXmlElement* i=defaultparams->FirstChildElement(); i!=NULL;
-           i=i->NextSiblingElement()) {
-        std::string pname = ESP_XmlUtils::queryStringValue(i,"name");
-        std::string pvalue = ESP_XmlUtils::queryStringValue(i,"value");
+      for (TiXmlElement* i = defaultparams->FirstChildElement(); i != NULL;
+           i = i->NextSiblingElement()) {
+        std::string pname = ESP_XmlUtils::queryStringValue(i, "name");
+        std::string pvalue = ESP_XmlUtils::queryStringValue(i, "value");
         // Do not Overwrite
         if (result->params.find(pname) == result->params.end()) {
-          result->params.insert(std::pair<std::string,std::string>(pname,pvalue));
+          result->params.insert(
+              std::pair<std::string, std::string>(pname, pvalue));
         }
       }
     }
@@ -906,17 +879,17 @@ ESP_Command* ESP_Sensor::createCommand(std::string name) {
     result->footer = new ESP_Tag_Footer();
     TiXmlElement* parser = it->second->FirstChildElement("parser");
     if (parser != NULL) {
-      for (TiXmlElement* i=parser->FirstChildElement(); i!=NULL;
-           i=i->NextSiblingElement()) {
-        std::string type = ESP_XmlUtils::queryStringValue(i,"type");
+      for (TiXmlElement* i = parser->FirstChildElement(); i != NULL;
+           i = i->NextSiblingElement()) {
+        std::string type = ESP_XmlUtils::queryStringValue(i, "type");
         if (type == "header") {
-          createCommandDetails(result->header,i);
+          createCommandDetails(result->header, i);
         }
         if (type == "body") {
-          createCommandDetails(result->body,i);
+          createCommandDetails(result->body, i);
         }
         if (type == "footer") {
-          createCommandDetails(result->footer,i);
+          createCommandDetails(result->footer, i);
         }
       }
     }
@@ -934,13 +907,13 @@ bool ESP_Sensor::createCommandDetails(ESP_Tag_Base* commandtag,
     commandtag->parseElement(element);
 
     // Parse Children
-    for (TiXmlElement* i=element->FirstChildElement(); i!=NULL;
-         i=i->NextSiblingElement()) {
+    for (TiXmlElement* i = element->FirstChildElement(); i != NULL;
+         i = i->NextSiblingElement()) {
       ESP_Tag_Base* commandsubparser = createParserFromPlugins(i);
       if (commandsubparser != NULL) {
         commandsubparser->parent = commandtag;
         commandtag->subtags.push_back(commandsubparser);
-        createCommandDetails(commandsubparser,i);
+        createCommandDetails(commandsubparser, i);
       }
     }
   }
@@ -953,7 +926,7 @@ bool ESP_Sensor::createCommandDetails(ESP_Tag_Base* commandtag,
 */
 std::vector<std::string> ESP_Sensor::getCommands() {
   std::vector<std::string> result;
-  for (std::map<std::string,  TiXmlElement*>::iterator it = commands.begin();
+  for (std::map<std::string, TiXmlElement*>::iterator it = commands.begin();
        it != commands.end(); it++) {
     result.push_back(it->first);
   }
@@ -999,7 +972,7 @@ void ESP_Sensor::addParserPlugin(ESP_Plugin_Parser_Base* plugin) {
 
 ESP_Tag_Base* ESP_Sensor::createParserFromPlugins(TiXmlElement* element) {
   ESP_Tag_Base* result = NULL;
-  for (unsigned int i=0; i<parser_plugins.size(); i++) {
+  for (unsigned int i = 0; i < parser_plugins.size(); i++) {
     result = parser_plugins[i]->createParser(element);
     if (result != NULL) {
       return result;
@@ -1011,7 +984,7 @@ ESP_Tag_Base* ESP_Sensor::createParserFromPlugins(TiXmlElement* element) {
 
 ESP_Input_Base* ESP_Sensor::createInputFromPlugins(TiXmlElement* element) {
   ESP_Input_Base* result = NULL;
-  for (unsigned int i=0; i<input_plugins.size(); i++) {
+  for (unsigned int i = 0; i < input_plugins.size(); i++) {
     result = input_plugins[i]->createInput(element);
     if (result != NULL) {
       return result;
@@ -1023,7 +996,7 @@ ESP_Input_Base* ESP_Sensor::createInputFromPlugins(TiXmlElement* element) {
 
 ESP_Output_Base* ESP_Sensor::createOutputFromPlugins(TiXmlElement* element) {
   ESP_Output_Base* result = NULL;
-  for (unsigned int i=0; i<output_plugins.size(); i++) {
+  for (unsigned int i = 0; i < output_plugins.size(); i++) {
     result = output_plugins[i]->createOutput(element);
     if (result != NULL) {
       return result;
@@ -1036,47 +1009,45 @@ ESP_Output_Base* ESP_Sensor::createOutputFromPlugins(TiXmlElement* element) {
 ESP_Input_Base::ESP_Input_Base() {
   _sid = -1;
   _mode = 0;
-  pthread_mutex_init(&mutex,NULL);
+  pthread_mutex_init(&mutex, NULL);
 }
 
-ESP_Input_Base::~ESP_Input_Base() {
-  pthread_mutex_destroy(&mutex);
-}
+ESP_Input_Base::~ESP_Input_Base() { pthread_mutex_destroy(&mutex); }
 
 void ESP_Input_Base::parseElement(TiXmlElement* element) {
   std::string mode = ESP_XmlUtils::queryStringValue(element, "mode");
-  _mode = mode.compare("server") == 0 ?
-          ESP_Input_Base::InputMode::INPUT_MODE_SERVER :
-          ESP_Input_Base::InputMode::INPUT_MODE_CLIENT;
+  _mode = mode.compare("server") == 0
+              ? ESP_Input_Base::InputMode::INPUT_MODE_SERVER
+              : ESP_Input_Base::InputMode::INPUT_MODE_CLIENT;
   _name = ESP_XmlUtils::queryStringValue(element, "name");
-  std::string prepros = ESP_XmlUtils::queryStringValue(element, "preprocessors");
+  std::string prepros =
+      ESP_XmlUtils::queryStringValue(element, "preprocessors");
 
-  CC_StringTokenizer ST(prepros,",");
-  for (int i=0; i<ST.countElements(); i++) {
+  CC_StringTokenizer ST(prepros, ",");
+  for (int i = 0; i < ST.countElements(); i++) {
     _preprocessors.push_back(ST.elementAt(i));
   }
 
   parseCustomElement(element);
 }
 
-ESP_Output_Base::ESP_Output_Base() {
-}
+ESP_Output_Base::ESP_Output_Base() {}
 
 void ESP_Output_Base::parseElement(TiXmlElement* element) {
-  std::string postpros = ESP_XmlUtils::queryStringValue(element,
-                         "postprocessors");
+  std::string postpros =
+      ESP_XmlUtils::queryStringValue(element, "postprocessors");
 
-  CC_StringTokenizer ST(postpros,",");
-  for (int i=0; i<ST.countElements(); i++) {
+  CC_StringTokenizer ST(postpros, ",");
+  for (int i = 0; i < ST.countElements(); i++) {
     _postprocessors.push_back(ST.elementAt(i));
   }
   parseCustomElement(element);
 }
 
 ESP_Preprocessor_Base* ESP_Sensor::createPreprocessorFromPlugins(
-  TiXmlElement* element) {
+    TiXmlElement* element) {
   ESP_Preprocessor_Base* result = NULL;
-  for (unsigned int i=0; i<preprocessor_plugins.size(); i++) {
+  for (unsigned int i = 0; i < preprocessor_plugins.size(); i++) {
     result = preprocessor_plugins[i]->createPreprocessor(element);
     if (result != NULL) {
       return result;
@@ -1087,9 +1058,9 @@ ESP_Preprocessor_Base* ESP_Sensor::createPreprocessorFromPlugins(
 }
 
 ESP_Postprocessor_Base* ESP_Sensor::createPostprocessorFromPlugins(
-  TiXmlElement* element) {
+    TiXmlElement* element) {
   ESP_Postprocessor_Base* result = NULL;
-  for (unsigned int i=0; i<postprocessor_plugins.size(); i++) {
+  for (unsigned int i = 0; i < postprocessor_plugins.size(); i++) {
     result = postprocessor_plugins[i]->createPostprocessor(element);
     if (result != NULL) {
       return result;
@@ -1110,14 +1081,12 @@ void ESP_Postprocessor_Base::parseElement(TiXmlElement* element) {
   parseCustomElement(element);
 }
 
-std::string ESP_Postprocessor_Base::getType() {
-  return _type;
-}
+std::string ESP_Postprocessor_Base::getType() { return _type; }
 
 void ESP_Sensor::run(std::string name, CC_ParamsType params) {
   if (readyToRun) {
     // Get Inputs and create Runners
-    for (unsigned int i=0; i < inputs.size(); i++) {
+    for (unsigned int i = 0; i < inputs.size(); i++) {
       if (inputs[i]->_mode == ESP_Input_Base::InputMode::INPUT_MODE_CLIENT) {
         ESP_Runner_Client* runner = NULL;
         runner = new ESP_Runner_Client(this);
@@ -1126,10 +1095,10 @@ void ESP_Sensor::run(std::string name, CC_ParamsType params) {
         runner->context.addParams(runner->command->params);
         runner->context.addParams(params);
         runner->run();
-        clientRunners.insert(std::pair<unsigned long long, ESP_Runner_Client*>((
-                               unsigned long long)runner,runner));
-      }
-      else if (inputs[i]->_mode == ESP_Input_Base::InputMode::INPUT_MODE_SERVER) {
+        clientRunners.insert(std::pair<unsigned long long, ESP_Runner_Client*>(
+            (unsigned long long)runner, runner));
+      } else if (inputs[i]->_mode ==
+                 ESP_Input_Base::InputMode::INPUT_MODE_SERVER) {
         ESP_Runner_Server* runner = NULL;
         runner = new ESP_Runner_Server(this);
         runner->input = inputs[i];
@@ -1137,8 +1106,8 @@ void ESP_Sensor::run(std::string name, CC_ParamsType params) {
         runner->context.addParams(runner->command->params);
         runner->context.addParams(params);
         runner->run();
-        serverRunners.insert(std::pair<unsigned long long, ESP_Runner_Server*>((
-                               unsigned long long)runner,runner));
+        serverRunners.insert(std::pair<unsigned long long, ESP_Runner_Server*>(
+            (unsigned long long)runner, runner));
       }
     }
   }
@@ -1153,46 +1122,40 @@ void ESP_Sensor::stop() {
 
   while (deleteServers) {
     pthread_mutex_lock(&mutexMapServer);
-    if (serverRunners.size()>0) {
+    if (serverRunners.size() > 0) {
       std::map<unsigned long long, ESP_Runner_Server*>::iterator it =
-        serverRunners.begin();
+          serverRunners.begin();
       if (it != serverRunners.end()) {
-        runnerTemp = (ESP_Runner_Server*) it->second;
+        runnerTemp = (ESP_Runner_Server*)it->second;
       }
-    }
-    else {
+    } else {
       pthread_mutex_unlock(&mutexMapServer);
       break;
     }
 
     pthread_mutex_unlock(&mutexMapServer);
-    for (unsigned int j=0; j< runnerTemp->sensor->inputs.size(); j++) {
-
+    for (unsigned int j = 0; j < runnerTemp->sensor->inputs.size(); j++) {
       runnerTemp->sensor->inputs[j]->stopServer();
     }
     runnerTemp->stopRunner(100);
-
   }
 
   while (true) {
     pthread_mutex_lock(&mutexMapClient);
-    if (clientRunners.size()>0) {
-
+    if (clientRunners.size() > 0) {
       std::map<unsigned long long, ESP_Runner_Client*>::iterator it =
-        clientRunners.begin();
+          clientRunners.begin();
       if (it != clientRunners.end()) {
-        runnerClient = (ESP_Runner_Client*) it->second;
+        runnerClient = (ESP_Runner_Client*)it->second;
       }
 
-    }
-    else {
+    } else {
       pthread_mutex_unlock(&mutexMapClient);
       break;
     }
     pthread_mutex_unlock(&mutexMapClient);
     runnerClient->stopRunner(100);
   }
-
 }
 
 /* --------------- */
@@ -1211,69 +1174,62 @@ ESP_Runner::ESP_Runner(ESP_Sensor* sensor) {
 ESP_Runner::~ESP_Runner() {
   pthread_mutex_destroy(&mutexCond);
   pthread_cond_destroy(&condFinished);
-
 }
 
 void ESP_Runner::initConditions() {
-  //Setting up condition for notifications.
-  pthread_mutex_init(&mutexCond,NULL);
-  pthread_cond_init(&condFinished,NULL);
+  // Setting up condition for notifications.
+  pthread_mutex_init(&mutexCond, NULL);
+  pthread_cond_init(&condFinished, NULL);
   bFinished = false;
 
-  CC_Logger::getSingleton()->logDebug("InitConditions ...[%d] DONE",_id);
+  CC_Logger::getSingleton()->logDebug("InitConditions ...[%d] DONE", _id);
 }
 
-
 void ESP_Runner::signalFinish() {
-
   pthread_mutex_lock(&mutexCond);
   bFinished = true;
   pthread_cond_signal(&condFinished);
   pthread_mutex_unlock(&mutexCond);
-  CC_Logger::getSingleton()->logDebug("SIGNALING Finished! Runner[%d]",_id);
-
+  CC_Logger::getSingleton()->logDebug("SIGNALING Finished! Runner[%d]", _id);
 }
 
 void ESP_Runner::stopRunner(unsigned int msecs) {
-
-  this->_keepRunning = false; //
+  this->_keepRunning = false;  //
 
   struct timespec timeToWait;
   struct timeval now;
 
-  CC_Logger::getSingleton()->logDebug("Stopping Runner [%d] msecs [%d]",_id,
+  CC_Logger::getSingleton()->logDebug("Stopping Runner [%d] msecs [%d]", _id,
                                       msecs);
-  gettimeofday(&now,NULL);
-  timeToWait.tv_sec = now.tv_sec+5;
-  timeToWait.tv_nsec = (now.tv_usec+1000UL*msecs)*1000UL;
+  gettimeofday(&now, NULL);
+  timeToWait.tv_sec = now.tv_sec + 5;
+  timeToWait.tv_nsec = (now.tv_usec + 1000UL * msecs) * 1000UL;
 
   while (!bFinished) {
-    //CC_Logger::getSingleton()->logDebug("Waiting for signal on Runner [%d] ",_id);
-    pthread_cond_timedwait(&condFinished, &mutexCond,&timeToWait);
+    // CC_Logger::getSingleton()->logDebug("Waiting for signal on Runner [%d]
+    // ",_id);
+    pthread_cond_timedwait(&condFinished, &mutexCond, &timeToWait);
   }
-  CC_Logger::getSingleton()->logDebug("Stopping Runner [%d], signal? %s DONE",_id,
-                                      bFinished?"yes":"no");
-  //std::cout << "Thread : ["<< name << "] has finally stopped  count: " << count <<  std::endl;
-
+  CC_Logger::getSingleton()->logDebug("Stopping Runner [%d], signal? %s DONE",
+                                      _id, bFinished ? "yes" : "no");
+  // std::cout << "Thread : ["<< name << "] has finally stopped  count: " <<
+  // count <<  std::endl;
 }
 
-
-ESP_Runner_Server::ESP_Runner_Server(ESP_Sensor* sensor):ESP_Runner(sensor) {
-
-}
+ESP_Runner_Server::ESP_Runner_Server(ESP_Sensor* sensor) : ESP_Runner(sensor) {}
 
 void ESP_Runner_Server::run() {
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  pthread_create(&thread,&attr,ESP_Runner_Server::runThread,this);
+  pthread_create(&thread, &attr, ESP_Runner_Server::runThread, this);
   // initConditions();
 }
 
 void* ESP_Runner_Server::runThread(void* userData) {
   ESP_Runner* runner = (ESP_Runner*)userData;
   ESP_Sensor* sensorRef = runner->sensor;
-  CC_Logger::getSingleton()->logDebug("Run Server Thread %d",sensorRef->_id);
+  CC_Logger::getSingleton()->logDebug("Run Server Thread %d", sensorRef->_id);
 
   // Get Input
   ESP_Input_Base* input = runner->input;
@@ -1289,14 +1245,15 @@ void* ESP_Runner_Server::runThread(void* userData) {
         if (id > 0) {
           // TODO: Add to clients
           ESP_Runner_Client* client = new ESP_Runner_Client(runner->sensor);
-          client->_id = id; // id is pre-assigned
+          client->_id = id;  // id is pre-assigned
           client->input = input;
-          client->command = runner->sensor->createCommand(runner->command->name);
+          client->command =
+              runner->sensor->createCommand(runner->command->name);
 
           pthread_mutex_lock(&sensorRef->mutexMapClient);
           runner->sensor->clientRunners.insert(
-            std::pair<unsigned long long, ESP_Runner_Client*>((unsigned long long)client,
-                client));
+              std::pair<unsigned long long, ESP_Runner_Client*>(
+                  (unsigned long long)client, client));
           pthread_mutex_unlock(&sensorRef->mutexMapClient);
 
           client->run();
@@ -1304,7 +1261,6 @@ void* ESP_Runner_Server::runThread(void* userData) {
         // Error
         else if (id < 0) {
           runner->_keepRunning = false;
-
         }
 
         sched_yield();
@@ -1318,19 +1274,16 @@ void* ESP_Runner_Server::runThread(void* userData) {
     }
   }
 
-
-
   // Clear
 
   pthread_mutex_lock(
-    &runner->sensor->mutexMapServer); //This lock is acquired at ESP_Sensor::stop()
-
+      &runner->sensor
+           ->mutexMapServer);  // This lock is acquired at ESP_Sensor::stop()
 
   runner->signalFinish();
 
-
   std::map<unsigned long long, ESP_Runner_Server*>::iterator it =
-    runner->sensor->serverRunners.find((unsigned long long)runner);
+      runner->sensor->serverRunners.find((unsigned long long)runner);
   if (it != sensorRef->serverRunners.end()) {
     runner->sensor->serverRunners.erase(it);
     delete runner;
@@ -1341,20 +1294,14 @@ void* ESP_Runner_Server::runThread(void* userData) {
   return NULL;
 }
 
-ESP_Runner_Client::ESP_Runner_Client(ESP_Sensor* sensor):ESP_Runner(sensor) {
-
-}
+ESP_Runner_Client::ESP_Runner_Client(ESP_Sensor* sensor) : ESP_Runner(sensor) {}
 
 void ESP_Runner_Client::run() {
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
-  pthread_create(&thread,&attr,ESP_Runner_Client::runThread,this);
-
-
+  pthread_create(&thread, &attr, ESP_Runner_Client::runThread, this);
 }
-
-
 
 void* ESP_Runner_Client::runThread(void* userData) {
   ESP_Runner_Client::runLoop(userData);
@@ -1363,11 +1310,10 @@ void* ESP_Runner_Client::runThread(void* userData) {
 
 ESP_Result ESP_Runner_Client::runLoop(void* userData) {
   char* buffer = new char[RUNNER_MAX_BUFFER];
-  ESP_Result result; // Return data
+  ESP_Result result;  // Return data
   ESP_Runner* runner = (ESP_Runner*)userData;
   ESP_Sensor* sensorRef = runner->sensor;
   CC_Logger::getSingleton()->logDebug("Run Client Thread Start");
-
 
   // Check Command
   if (runner->command == NULL) {
@@ -1380,34 +1326,34 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
     runner->_id = runner->input->openClient();
   }
 
-  CC_Logger::getSingleton()->logDebug("Runner Input ID: %d",runner->_id);
-
+  CC_Logger::getSingleton()->logDebug("Runner Input ID: %d", runner->_id);
 
   // Read
   int status = ESP_Tag_Base::EXECUTE_RESULT_OK;
   while (runner->_keepRunning && runner->_id >= 0) {
     // TODO: Read until no more data
-    memset(buffer,0,RUNNER_MAX_BUFFER);
-    int nread = runner->input->readClient(runner->_id, buffer, RUNNER_MAX_BUFFER);
+    memset(buffer, 0, RUNNER_MAX_BUFFER);
+    int nread =
+        runner->input->readClient(runner->_id, buffer, RUNNER_MAX_BUFFER);
     int nwrite = runner->context.getAvailableOutputData();
-
 
     // Add to Context
     if (nread > 0 || nwrite > 0 || status == ESP_Tag_Base::EXECUTE_RESULT_OK) {
       // Preprocess,Log,Callback
       if (nread > 0) {
         // Log
-        // for (int i=0;i<nread;i++) CC_Logger::getSingleton()->logDebug("Read Byte = %d",buffer[i]);
+        // for (int i=0;i<nread;i++) CC_Logger::getSingleton()->logDebug("Read
+        // Byte = %d",buffer[i]);
 
         // Preprocessors
         for (std::vector<ESP_Preprocessor_Base*>::iterator it =
-               runner->input->preprocessors.begin(); it != runner->input->preprocessors.end();
-             it++) {
+                 runner->input->preprocessors.begin();
+             it != runner->input->preprocessors.end(); it++) {
           // start
           (*it)->initialize();
           if ((*it)->execute(&runner->context)) {
             // Update buffer
-            memcpy(buffer,(*it)->getResultData(), (*it)->getResultSize());
+            memcpy(buffer, (*it)->getResultData(), (*it)->getResultSize());
             nread = (*it)->getResultSize();
           }
 
@@ -1419,7 +1365,7 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
         runner->sensor->runDataCallback(buffer, nread);
 
         // Add Data
-        runner->context.addInputData(buffer,nread);
+        runner->context.addInputData(buffer, nread);
       }
 
       // Execute Command
@@ -1434,17 +1380,19 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
 
       // Write
       if (runner->context.getAvailableOutputData() > 0) {
-        nwrite = runner->input->writeClient(runner->_id,
-                                            (char*)runner->context.getOutputData(), runner->context.getOutputSize());
+        nwrite = runner->input->writeClient(
+            runner->_id, (char*)runner->context.getOutputData(),
+            runner->context.getOutputSize());
         if (nwrite >= 0) {
           runner->context.removeOutputData(nwrite);
           if (nwrite > 0) {
-            CC_Logger::getSingleton()->logDebug("Writing output data: %d",nwrite);
+            CC_Logger::getSingleton()->logDebug("Writing output data: %d",
+                                                nwrite);
           }
-        }
-        else {
+        } else {
           runner->_keepRunning = false;
-          CC_Logger::getSingleton()->logError("Error writing output data: %d",nwrite);
+          CC_Logger::getSingleton()->logError("Error writing output data: %d",
+                                              nwrite);
         }
       }
 
@@ -1453,7 +1401,8 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
         // Add to Results
         if (runner->runOnce) {
           result.attresults.insert(result.attresults.begin(),
-                                   runner->context.results.begin(), runner->context.results.end());
+                                   runner->context.results.begin(),
+                                   runner->context.results.end());
         }
 
         // Callback
@@ -1461,7 +1410,8 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
 
         // Iterate through results
         for (std::vector<CC_AttributesType>::iterator it =
-               runner->context.results.begin(); it != runner->context.results.end(); it++) {
+                 runner->context.results.begin();
+             it != runner->context.results.end(); it++) {
           CC_AttributesType* newattr = &(*it);
           CC_Logger::getSingleton()->logDebug("New Measure with Attributes: %d",
                                               newattr->size());
@@ -1471,19 +1421,22 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
 
           // Postprocessors Update
           for (std::vector<ESP_Postprocessor_Base*>::iterator it2 =
-                 runner->sensor->postprocessors.begin();
+                   runner->sensor->postprocessors.begin();
                it2 != runner->sensor->postprocessors.end(); it2++) {
-            //CC_Logger::getSingleton()->logDebug("Executing postprocessor: %s", (*it)->_name.c_str());
+            // CC_Logger::getSingleton()->logDebug("Executing postprocessor:
+            // %s", (*it)->_name.c_str());
             (*it2)->initialize();
             (*it2)->execute(newattr);
-            //Now copy formatted message into vResult vector.
+            // Now copy formatted message into vResult vector.
             if ((*it2)->isResultValid()) {
-              CC_Logger::getSingleton()->logDebug("Result is valid at %s postprocessor",
-                                                  (*it2)->_name.c_str());
+              CC_Logger::getSingleton()->logDebug(
+                  "Result is valid at %s postprocessor", (*it2)->_name.c_str());
               ESP_Attribute attr;
-              attr.setValue("",(char*)(*it2)->getResultData(),(*it2)->getResultSize(),
-                            ESP_DataType::ESP_DataType_STRING,ESP_DataCode::ESP_DataCode_STRING);
-              ppResult.insert(CC_AttributesPair((*it2)->_name,attr));
+              attr.setValue("", (char*)(*it2)->getResultData(),
+                            (*it2)->getResultSize(),
+                            ESP_DataType::ESP_DataType_STRING,
+                            ESP_DataCode::ESP_DataCode_STRING);
+              ppResult.insert(CC_AttributesPair((*it2)->_name, attr));
               if (runner->runOnce) {
                 result.ppresults.push_back(attr);
               }
@@ -1492,14 +1445,17 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
           }
 
           // Outputs
-          CC_Logger::getSingleton()->logDebug("About to checkt outputs, there are %d",
-                                              runner->sensor->outputs.size());
+          CC_Logger::getSingleton()->logDebug(
+              "About to checkt outputs, there are %d",
+              runner->sensor->outputs.size());
           for (std::vector<ESP_Output_Base*>::iterator it2 =
-                 runner->sensor->outputs.begin(); it2 != runner->sensor->outputs.end(); it2++) {
+                   runner->sensor->outputs.begin();
+               it2 != runner->sensor->outputs.end(); it2++) {
             CC_Logger::getSingleton()->logDebug("Checking outputs: ");
             for (std::vector<ESP_Postprocessor_Base*>::iterator it3 =
-                   (*it2)->postprocessors.begin(); it3 != (*it2)->postprocessors.end(); it3++) {
-              //CC_Logger::getSingleton()->logDebug("Executing output ");
+                     (*it2)->postprocessors.begin();
+                 it3 != (*it2)->postprocessors.end(); it3++) {
+              // CC_Logger::getSingleton()->logDebug("Executing output ");
               (*it2)->execute(newattr, *it3, runner->sensor->userData);
             }
           }
@@ -1518,7 +1474,8 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
       if (nread < 0) {
         if (status == ESP_Tag_Base::EXECUTE_RESULT_IDLE) {
           // No more steps
-          if (runner->command->index == ESP_Command::ESP_COMMAND_INDEX::FINISHED) {
+          if (runner->command->index ==
+              ESP_Command::ESP_COMMAND_INDEX::FINISHED) {
             runner->_keepRunning = false;
 
           }
@@ -1545,22 +1502,17 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
   // Close
   runner->input->closeClient(runner->_id);
 
-
-
   // Clear
-  delete [] buffer;
+  delete[] buffer;
   delete runner->command;
 
+  pthread_mutex_lock(&sensorRef->mutexMapClient);  // This lock is also acquired
+                                                   // at ESP_Sensor::stop()
 
-
-  pthread_mutex_lock(
-    &sensorRef->mutexMapClient);//This lock is also acquired at ESP_Sensor::stop()
-
-
-  runner->signalFinish();//DGF
+  runner->signalFinish();  // DGF
 
   std::map<unsigned long long, ESP_Runner_Client*>::iterator it =
-    runner->sensor->clientRunners.find((unsigned long long)runner);
+      runner->sensor->clientRunners.find((unsigned long long)runner);
   if (it != sensorRef->clientRunners.end()) {
     runner->sensor->clientRunners.erase(it);
 
@@ -1573,22 +1525,21 @@ ESP_Result ESP_Runner_Client::runLoop(void* userData) {
 }
 
 ESP_PostProc_Result::ESP_PostProc_Result(char* dataIn, int nlenIn) {
-  data = (char*) malloc(nlen);
+  data = (char*)malloc(nlen);
   nlen = nlenIn;
 
-  memcpy(data,dataIn,nlenIn);
+  memcpy(data, dataIn, nlenIn);
 }
 
 std::string ESP_Result::findInputAttributeAsString(std::string name) {
-  return findInputAttributeAsString(name,false);
+  return findInputAttributeAsString(name, false);
 }
 
 std::string ESP_Result::findInputAttributeAsString(std::string name,
-    bool remove) {
+                                                   bool remove) {
   std::string result("");
 
   for (int i = 0; i < attresults.size(); i++) {
-
     CC_AttributesType::iterator itAttribute = attresults[i].find(name);
     if (itAttribute != attresults[i].end()) {
       result.assign(itAttribute->second.getValueAsString());
@@ -1603,14 +1554,11 @@ std::string ESP_Result::findInputAttributeAsString(std::string name,
   return result;
 }
 
-int ESP_Result::getOutputSize() {
-  return ppresults.size();
-}
+int ESP_Result::getOutputSize() { return ppresults.size(); }
 
 std::string ESP_Result::getOutputResultAsString(int index) {
   if (index < ppresults.size()) {
     return ppresults[index].getValueAsString();
   }
   return "";
-
 }

@@ -27,7 +27,7 @@
  *
  */
 
-//TODO#include <RiotSOSDef.h>
+// TODO#include <RiotSOSDef.h>
 #include "FuncUtil.h"
 #include "RiotISO8601.h"
 #include "rest/types.h"
@@ -50,8 +50,7 @@ boost::uuids::basic_random_generator<boost::mt19937> gen(&ran);
 }
 
 std::vector<std::string> iota::riot_tokenizer(std::string& str,
-    std::string& sep) {
-
+                                              std::string& sep) {
   // Aplica el tokenizer boost
   typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
   boost::char_separator<char> separator(sep.c_str(), "",
@@ -71,7 +70,6 @@ std::string iota::riot_uuid(std::string str_key) {
   return str_key + "-" + riot_uuid();
 };
 
-
 std::string iota::riot_id(std::string& str_key) {
   iota::RiotISO8601 marca_tiempo;
   std::string id("IDAS");
@@ -79,7 +77,6 @@ std::string iota::riot_id(std::string& str_key) {
   id.append("-");
   id.append(str_key);
   return (id);
-
 };
 
 std::string iota::riot_uuid(void) {
@@ -111,10 +108,11 @@ bool iota::riot_getQueryParams(std::string q_str,
 
   std::string m_query = pion::algorithm::url_decode(q_str);
   enum QueryParseState {
-    QUERY_PARSE_NAME, QUERY_PARSE_VALUE
+    QUERY_PARSE_NAME,
+    QUERY_PARSE_VALUE
   } parse_state = QUERY_PARSE_NAME;
-  const boost::uint32_t            QUERY_NAME_MAX = 1024;
-  const boost::uint32_t            QUERY_VALUE_MAX = 1024*1024;
+  const boost::uint32_t QUERY_NAME_MAX = 1024;
+  const boost::uint32_t QUERY_VALUE_MAX = 1024 * 1024;
 
   const char* ptr = m_query.c_str();
   const size_t len = m_query.length();
@@ -125,7 +123,6 @@ bool iota::riot_getQueryParams(std::string q_str,
   // iterate through each encoded character
   while (ptr < end) {
     switch (parse_state) {
-
       case QUERY_PARSE_NAME:
         // parsing query name
         if (*ptr == '=') {
@@ -134,24 +131,21 @@ bool iota::riot_getQueryParams(std::string q_str,
             return false;
           }
           parse_state = QUERY_PARSE_VALUE;
-        }
-        else if (*ptr == '&') {
+        } else if (*ptr == '&') {
           // if query name is empty, just skip it (i.e. "&&")
-          if (! query_name.empty()) {
+          if (!query_name.empty()) {
             // assume that "=" is missing -- it's OK if the value is empty
             iota::KVP kvp(query_name, query_value);
             q_param.push_back(kvp);
             query_name.erase();
           }
-        }
-        else if (*ptr == '\r' || *ptr == '\n') {
-          // ignore linefeeds and carriage returns (normally within POST content)
-        }
-        else if (isControl(*ptr) || query_name.size() >= QUERY_NAME_MAX) {
+        } else if (*ptr == '\r' || *ptr == '\n') {
+          // ignore linefeeds and carriage returns (normally within POST
+          // content)
+        } else if (isControl(*ptr) || query_name.size() >= QUERY_NAME_MAX) {
           // control character detected, or max sized exceeded
           return false;
-        }
-        else {
+        } else {
           // character is part of the name
           query_name.push_back(*ptr);
         }
@@ -160,21 +154,19 @@ bool iota::riot_getQueryParams(std::string q_str,
         // parsing query value
         if (*ptr == '&') {
           // end of value found (OK if empty)
-          //q_param.insert( std::make_pair(query_name, query_value) );
+          // q_param.insert( std::make_pair(query_name, query_value) );
           iota::KVP kvp(query_name, query_value);
           q_param.push_back(kvp);
           query_name.erase();
           query_value.erase();
           parse_state = QUERY_PARSE_NAME;
-        }
-        else if (*ptr == '\r' || *ptr == '\n') {
-          // ignore linefeeds and carriage returns (normally within POST content)
-        }
-        else if (isControl(*ptr) || query_value.size() >= QUERY_VALUE_MAX) {
+        } else if (*ptr == '\r' || *ptr == '\n') {
+          // ignore linefeeds and carriage returns (normally within POST
+          // content)
+        } else if (isControl(*ptr) || query_value.size() >= QUERY_VALUE_MAX) {
           // control character detected, or max sized exceeded
           return false;
-        }
-        else {
+        } else {
           // character is part of the value
           query_value.push_back(*ptr);
         }
@@ -185,18 +177,16 @@ bool iota::riot_getQueryParams(std::string q_str,
   }
 
   // handle last pair in string
-  if (! query_name.empty()) {
+  if (!query_name.empty()) {
     iota::KVP kvp(query_name, query_value);
     q_param.push_back(kvp);
-    //q_param.insert( std::make_pair(query_name, query_value) );
+    // q_param.insert( std::make_pair(query_name, query_value) );
   }
 
   return true;
 };
 
-bool iota::isControl(int c) {
-  return ((c >= 0 && c <= 31) || c == 127);
-};
+bool iota::isControl(int c) { return ((c >= 0 && c <= 31) || c == 127); };
 
 bool iota::isEqualString(bool case_sensitive, std::string str1,
                          std::string str2) {
@@ -205,8 +195,7 @@ bool iota::isEqualString(bool case_sensitive, std::string str1,
       if (str1.compare(str2) == 0) {
         return true;
       }
-    }
-    else {
+    } else {
       std::string str1_m = boost::to_lower_copy(str1);
       std::string str2_m = boost::to_lower_copy(str2);
       if (str1_m.compare(str2_m) == 0) {
@@ -220,8 +209,9 @@ bool iota::isEqualString(bool case_sensitive, std::string str1,
 std::string iota::str_to_hex(std::string& fr) {
   std::string trama_hex;
   for (int i = 0; i < fr.size(); i++) {
-    trama_hex.append(boost::str(boost::format("%02X ") %
-                                static_cast<unsigned short>((unsigned char)(fr.at(i)))));
+    trama_hex.append(
+        boost::str(boost::format("%02X ") %
+                   static_cast<unsigned short>((unsigned char)(fr.at(i)))));
   }
   boost::trim(trama_hex);
   return (trama_hex);
@@ -232,20 +222,21 @@ std::string str_to_hex(boost::asio::mutable_buffer& fr) {
   char* p = boost::asio::buffer_cast<char*>(fr);
   int b_size = boost::asio::buffer_size(fr);
   for (int i = 0; i < b_size; i++) {
-    trama_hex.append(boost::str(boost::format("%02X ") %
-                                static_cast<unsigned short>((unsigned char)(p[i]))));
+    trama_hex.append(
+        boost::str(boost::format("%02X ") %
+                   static_cast<unsigned short>((unsigned char)(p[i]))));
   }
 
   return (trama_hex);
 };
 
-
 std::string iota::str_to_hex(const std::vector<unsigned char>& fr) {
   std::string trama_hex;
   int b_size = fr.size();
   for (int i = 0; i < b_size; i++) {
-    trama_hex.append(boost::str(boost::format("%02X ") %
-                                static_cast<unsigned short>((unsigned char)(fr[i]))));
+    trama_hex.append(
+        boost::str(boost::format("%02X ") %
+                   static_cast<unsigned short>((unsigned char)(fr[i]))));
   }
   boost::trim(trama_hex);
   return (trama_hex);
@@ -257,9 +248,9 @@ std::vector<unsigned char> iota::hex_str_to_vector(std::string& str) {
   boost::erase_all(str_wit_no_whitspaces, " ");
   std::size_t l = str_wit_no_whitspaces.size();
   for (int i = 0; i < l; i += 2) {
-    std::istringstream ss(str_wit_no_whitspaces.substr(i,2));
+    std::istringstream ss(str_wit_no_whitspaces.substr(i, 2));
     unsigned short x;
-    if ( !(ss >> std::hex >> x) ) {
+    if (!(ss >> std::hex >> x)) {
       // Conversion error.
       v.clear();
       break;
@@ -272,15 +263,15 @@ std::vector<unsigned char> iota::hex_str_to_vector(std::string& str) {
 std::string iota::writeDictionaryTerm(pion::http::response& resp_http) {
   pion::ihash_multimap h = resp_http.get_headers();
   std::string echo;
-  for (pion::ihash_multimap::const_iterator val = h.begin();
-       val != h.end(); ++val) {
+  for (pion::ihash_multimap::const_iterator val = h.begin(); val != h.end();
+       ++val) {
     echo.append(val->first + ":" + val->second + "\n");
   }
   return echo;
 }
 
-std::string iota::make_query_string(std::multimap<std::string, std::string>&
-                                    query_parameters) {
+std::string iota::make_query_string(
+    std::multimap<std::string, std::string>& query_parameters) {
   std::string query_string;
   std::map<std::string, std::string>::iterator it = query_parameters.begin();
   int i = 0;
@@ -300,20 +291,19 @@ std::string iota::make_query_string(std::multimap<std::string, std::string>&
 }
 
 void iota::check_fiware_service_name(std::string& header_fiware_service) {
-
   // Length
   bool error = false;
   std::string reason = iota::types::REASON_MALFORMED_HEADER;
   std::string details = iota::types::DETAILS_HEADER_FIWARE_SERVICE;
   int code = iota::types::RESPONSE_CODE_FIWARE_SERVICE_ERROR;
-  if (header_fiware_service.empty()
-      || header_fiware_service.size() > iota::FIWARE_SERVICE_LENGTH) {
+  if (header_fiware_service.empty() ||
+      header_fiware_service.size() > iota::FIWARE_SERVICE_LENGTH) {
     error = true;
   }
 
   // aphanum and '_' and lowercase
   int i = 0;
-  for (i = 0; (i< header_fiware_service.size() && !error); i++) {
+  for (i = 0; (i < header_fiware_service.size() && !error); i++) {
     int c = header_fiware_service[i];
     if ((!isalnum(c) && c != '_') || (isalpha(c) && !islower(c))) {
       error = true;
@@ -324,9 +314,8 @@ void iota::check_fiware_service_name(std::string& header_fiware_service) {
     throw iota::IotaException(reason, details, code);
   }
 };
-void iota::check_fiware_service_path_name(std::string&
-    header_fiware_service_path) {
-
+void iota::check_fiware_service_path_name(
+    std::string& header_fiware_service_path) {
   if (header_fiware_service_path.empty() == true) {
     return;
   }
@@ -351,11 +340,11 @@ void iota::check_fiware_service_path_name(std::string&
   }
 
   // Length
-  if (header_fiware_service_path.size() > iota::FIWARE_SERVICE_LENGTH +1) {
+  if (header_fiware_service_path.size() > iota::FIWARE_SERVICE_LENGTH + 1) {
     error = true;
   }
 
-  for (i = start; (i< header_fiware_service_path.size() && !error); i++) {
+  for (i = start; (i < header_fiware_service_path.size() && !error); i++) {
     int c = header_fiware_service_path[i];
     if (!isalnum(c) && c != '_') {
       error = true;
@@ -376,76 +365,69 @@ bool iota::check_forbidden_characters(std::string forbidden, std::string& str) {
 };
 
 bool iota::check_forbidden_characters(mongo::BSONObjBuilder& in_bson_builder) {
- bool has_forbidden = false;
- mongo::BSONObj in_copy_bson = in_bson_builder.asTempObj();
- for (mongo::BSONObjIterator i_obj = in_copy_bson.begin(); i_obj.more();) {
-   mongo::BSONElement e_obj = i_obj.next();
-   std::string value_str = e_obj.valuestrsafe();
-   if (e_obj.type() != mongo::EOO && e_obj.type() != mongo::Object &&
-       e_obj.type() != mongo::Array) {
-       has_forbidden = has_forbidden || check_forbidden_characters(iota::types::IOTA_FORBIDDEN_CHARACTERS, value_str);
-   }
-   else if (e_obj.type() != mongo::EOO && e_obj.type() == mongo::Object) {
-     mongo::BSONObj obj_obj = e_obj.Obj();
-     mongo::BSONObjBuilder bb;
-     bb.appendElements(obj_obj);
-     has_forbidden = has_forbidden || check_forbidden_characters(bb);
-   }
-   else if (e_obj.type() != mongo::EOO && e_obj.type() == mongo::Array) {
-     std::vector<mongo::BSONElement> array_obj = e_obj.Array();
-     for (int i = 0; i< array_obj.size(); i++) {
-       mongo::BSONObj obj_obj = array_obj[i].Obj();
-       mongo::BSONObjBuilder bb;
-       bb.appendElements(obj_obj);
-       has_forbidden = has_forbidden || check_forbidden_characters(bb);
-     }
-   }
- }
- return has_forbidden;
+  bool has_forbidden = false;
+  mongo::BSONObj in_copy_bson = in_bson_builder.asTempObj();
+  for (mongo::BSONObjIterator i_obj = in_copy_bson.begin(); i_obj.more();) {
+    mongo::BSONElement e_obj = i_obj.next();
+    std::string value_str = e_obj.valuestrsafe();
+    if (e_obj.type() != mongo::EOO && e_obj.type() != mongo::Object &&
+        e_obj.type() != mongo::Array) {
+      has_forbidden = has_forbidden ||
+                      check_forbidden_characters(
+                          iota::types::IOTA_FORBIDDEN_CHARACTERS, value_str);
+    } else if (e_obj.type() != mongo::EOO && e_obj.type() == mongo::Object) {
+      mongo::BSONObj obj_obj = e_obj.Obj();
+      mongo::BSONObjBuilder bb;
+      bb.appendElements(obj_obj);
+      has_forbidden = has_forbidden || check_forbidden_characters(bb);
+    } else if (e_obj.type() != mongo::EOO && e_obj.type() == mongo::Array) {
+      std::vector<mongo::BSONElement> array_obj = e_obj.Array();
+      for (int i = 0; i < array_obj.size(); i++) {
+        mongo::BSONObj obj_obj = array_obj[i].Obj();
+        mongo::BSONObjBuilder bb;
+        bb.appendElements(obj_obj);
+        has_forbidden = has_forbidden || check_forbidden_characters(bb);
+      }
+    }
+  }
+  return has_forbidden;
 }
 
-void iota::writeDictionaryTerm(std::ostringstream& os, const pion::ihash_multimap::value_type& val) {
-	os << val.first << ": " << val.second
-		 << pion::http::types::STRING_CRLF;
+void iota::writeDictionaryTerm(std::ostringstream& os,
+                               const pion::ihash_multimap::value_type& val) {
+  os << val.first << ": " << val.second << pion::http::types::STRING_CRLF;
 }
 
 std::string iota::http2string(pion::http::request& req) {
-	std::ostringstream os;
-	os << "Method: " << req.get_method()
-		 << pion::http::types::STRING_CRLF
-	   << "HTTP Version:  " << req.get_version_major() << "." << req.get_version_minor()
-		 << pion::http::types::STRING_CRLF
-		 << "Resource requested: "
-	   << req.get_original_resource()
-		 << pion::http::types::STRING_CRLF
-		 << "Resource delivered: "
-		 << req.get_resource()
-		 << pion::http::types::STRING_CRLF
-		 << "Query string "
-		 << req.get_query_string()
-		 << pion::http::types::STRING_CRLF
-	   << "Content length: "
-		 << (unsigned long)req.get_content_length()
-		 << pion::http::types::STRING_CRLF
-		 << "Headers: ";
-	std::for_each(req.get_headers().begin(), req.get_headers().end(), boost::bind(&iota::writeDictionaryTerm, boost::ref(os), _1));
-	if (req.get_content_length() != 0) {
-		os << req.get_content();
-	}
+  std::ostringstream os;
+  os << "Method: " << req.get_method() << pion::http::types::STRING_CRLF
+     << "HTTP Version:  " << req.get_version_major() << "."
+     << req.get_version_minor() << pion::http::types::STRING_CRLF
+     << "Resource requested: " << req.get_original_resource()
+     << pion::http::types::STRING_CRLF
+     << "Resource delivered: " << req.get_resource()
+     << pion::http::types::STRING_CRLF << "Query string "
+     << req.get_query_string() << pion::http::types::STRING_CRLF
+     << "Content length: " << (unsigned long)req.get_content_length()
+     << pion::http::types::STRING_CRLF << "Headers: ";
+  std::for_each(req.get_headers().begin(), req.get_headers().end(),
+                boost::bind(&iota::writeDictionaryTerm, boost::ref(os), _1));
+  if (req.get_content_length() != 0) {
+    os << req.get_content();
+  }
   return os.str();
 }
 
 std::string iota::http2string(pion::http::response& req) {
-	std::ostringstream os;
+  std::ostringstream os;
 
-	os << "Content length: "
-		 << (unsigned long)req.get_content_length()
-		 << pion::http::types::STRING_CRLF
-		 << "Headers: ";
+  os << "Content length: " << (unsigned long)req.get_content_length()
+     << pion::http::types::STRING_CRLF << "Headers: ";
 
-	std::for_each(req.get_headers().begin(), req.get_headers().end(), boost::bind(&iota::writeDictionaryTerm, boost::ref(os), _1));
-	if (req.get_content_length() != 0) {
-		os << req.get_content();
-	}
+  std::for_each(req.get_headers().begin(), req.get_headers().end(),
+                boost::bind(&iota::writeDictionaryTerm, boost::ref(os), _1));
+  if (req.get_content_length() != 0) {
+    os << req.get_content();
+  }
   return os.str();
 }

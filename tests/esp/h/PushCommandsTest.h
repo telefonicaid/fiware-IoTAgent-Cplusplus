@@ -22,43 +22,37 @@
 #ifndef PUSHCOMMANDSTEST_H
 #define PUSHCOMMANDSTEST_H
 
-
 #include "MockMosquitto.h"
 #include "input_mqtt/ESP_Plugin_Input_Mqtt.h"
 #include <cppunit/extensions/HelperMacros.h>
 
-
-
 class PushCommandsTest : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(PushCommandsTest);
+  CPPUNIT_TEST(testSendPushCommand);
 
-    CPPUNIT_TEST_SUITE(PushCommandsTest);
-    CPPUNIT_TEST(testSendPushCommand);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE_END();
+ public:
+  void setUp();
+  void tearDown();
 
-  public:
-    void setUp();
-    void tearDown();
-  protected:
-    void testSendPushCommand();
-  private:
+ protected:
+  void testSendPushCommand();
 
+ private:
+  // Stubs:
+  int stubPublish(int* mid, const char* topic, int payloadlen,
+                  const void* payload, int qos, bool retain);
 
-    //Stubs:
-    int stubPublish(int* mid, const char* topic, int payloadlen,
-                    const void* payload, int qos, bool retain);
+  int stubSubscribeSilent(int* mid, const char* sub, int qos);
 
-    int stubSubscribeSilent(int* mid, const char* sub, int qos);
+  int stubConnectPub(const char* host, int port, int keepalive);
+  int stubConnectSub(const char* host, int port, int keepalive);
 
-    int stubConnectPub(const char* host, int port, int keepalive);
-    int stubConnectSub(const char* host, int port, int keepalive);
+  MockMosquitto* mosquittoPub;
+  MockMosquitto* mosquittoSub;
 
-
-    MockMosquitto* mosquittoPub;
-    MockMosquitto* mosquittoSub;
-
-    struct mosquitto_message mqttMsg;
-
+  struct mosquitto_message mqttMsg;
 };
 
-#endif // PUSHCOMMANDSTEST_H
+#endif  // PUSHCOMMANDSTEST_H

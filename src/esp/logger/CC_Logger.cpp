@@ -40,7 +40,7 @@ CC_Logger* CC_Logger::instance = NULL;
 pthread_mutex_t CC_Logger::mutex;
 
 bool compareFiles(FileDescriptor a, FileDescriptor b) {
-  //Compare by date (order descend)
+  // Compare by date (order descend)
   return a.dateModified > b.dateModified;
 }
 
@@ -48,7 +48,7 @@ bool compareFiles(FileDescriptor a, FileDescriptor b) {
 CC_Logger::CC_Logger() {
   fout = NULL;
   dirPath = "";
-  //maxLength = 1024 * 1024; // 1MB
+  // maxLength = 1024 * 1024; // 1MB
   setDirPath(".");
   level = LogLevel::LOG_LEVEL_ALL;
   pthread_mutex_init(&mutex, NULL);
@@ -60,24 +60,18 @@ CC_Logger::~CC_Logger() {
   pthread_mutex_destroy(&mutex);
 }
 
-void CC_Logger::setLevel(int level) {
-  this->level = level;
-}
+void CC_Logger::setLevel(int level) { this->level = level; }
 
 void CC_Logger::setLevel(std::string level) {
   if (ESP_StringUtils::strToLower(level).compare("default") == 0) {
     setLevel(LogLevel::LOG_LEVEL_DEFAULT);
-  }
-  else if (ESP_StringUtils::strToLower(level).compare("info") == 0) {
+  } else if (ESP_StringUtils::strToLower(level).compare("info") == 0) {
     setLevel(LogLevel::LOG_LEVEL_INFO);
-  }
-  else if (ESP_StringUtils::strToLower(level).compare("debug") == 0) {
+  } else if (ESP_StringUtils::strToLower(level).compare("debug") == 0) {
     setLevel(LogLevel::LOG_LEVEL_DEBUG);
-  }
-  else if (ESP_StringUtils::strToLower(level).compare("error") == 0) {
+  } else if (ESP_StringUtils::strToLower(level).compare("error") == 0) {
     setLevel(LogLevel::LOG_LEVEL_ERROR);
-  }
-  else if (ESP_StringUtils::strToLower(level).compare("all") == 0) {
+  } else if (ESP_StringUtils::strToLower(level).compare("all") == 0) {
     setLevel(LogLevel::LOG_LEVEL_ALL);
   }
 }
@@ -113,8 +107,7 @@ bool CC_Logger::destroySingleton() {
     delete CC_Logger::instance;
     CC_Logger::instance = NULL;
     return true;
-  }
-  else {
+  } else {
     return false;
   }
 }
@@ -130,19 +123,20 @@ void CC_Logger::setDirPath(std::string path) {
   if (dirPath.length() == 0) {
     dirPath = ".";
   }
-  if (dirPath.at(dirPath.length()-1) != '/') {
+  if (dirPath.at(dirPath.length() - 1) != '/') {
     dirPath = dirPath + "/";
   }
-  //dirPath = dirPath + "logs/";
+  // dirPath = dirPath + "logs/";
 
   // MKDIR
   int result = 0;
 #if defined(_WIN32_WINNT)
   result = mkdir(dirPath.c_str());
 #else
-  result = mkdir(dirPath.c_str(), 0777); // notice that 777 is different than 0777
+  result =
+      mkdir(dirPath.c_str(), 0777);  // notice that 777 is different than 0777
 #endif
-  if (result == -1 &&  errno != EEXIST) {
+  if (result == -1 && errno != EEXIST) {
     // Ok
   }
 
@@ -156,10 +150,10 @@ void CC_Logger::log(int level, const char* fmt, va_list args) {
   pthread_mutex_lock(&mutex);
 
   // Get New Log File
-  int year,month,day,h,m,s,ms,dayOfWeek;
-  Date::getLocalDate(year,month,day,h,m,s,ms,dayOfWeek);
-  memset(actualFileName,0x0,sizeof(char)*256) ;
-  sprintf(actualFileName,"log_%d_%d_%d",day,month,year);
+  int year, month, day, h, m, s, ms, dayOfWeek;
+  Date::getLocalDate(year, month, day, h, m, s, ms, dayOfWeek);
+  memset(actualFileName, 0x0, sizeof(char) * 256);
+  sprintf(actualFileName, "log_%d_%d_%d", day, month, year);
 
   FileDescriptor fs;
   fs.name = std::string(actualFileName);
@@ -179,10 +173,11 @@ void CC_Logger::log(int level, const char* fmt, va_list args) {
   // Not Found, create new
   if (!found) {
     close();
-    sprintf(actualFileName,"log_%d_%d_%d_%d_%d_%d.txt",day,month,year,h,m,s);
+    sprintf(actualFileName, "log_%d_%d_%d_%d_%d_%d.txt", day, month, year, h, m,
+            s);
     fs.size = 0;
     fs.name = std::string(actualFileName);
-    files.insert(files.begin(),fs);
+    files.insert(files.begin(), fs);
     removeMaxFiles();
   }
 
@@ -194,41 +189,40 @@ void CC_Logger::log(int level, const char* fmt, va_list args) {
 
   // Date and Time
   char bufferDateTime[64];
-  Date::getLocalDate(year,month,day,h,m,s,ms,dayOfWeek);
-  sprintf(bufferDateTime,"%02d-%02d-%4d %02d:%02d:%02d", day, month, year, h, m,
-          s);
+  Date::getLocalDate(year, month, day, h, m, s, ms, dayOfWeek);
+  sprintf(bufferDateTime, "%02d-%02d-%4d %02d:%02d:%02d", day, month, year, h,
+          m, s);
 
   // Level Name
   std::string level_name = "Default";
   if (level == CC_Logger::LogLevel::LOG_LEVEL_DEBUG) {
     level_name = "DEBUG";
-  }
-  else if (level == CC_Logger::LogLevel::LOG_LEVEL_ERROR) {
+  } else if (level == CC_Logger::LogLevel::LOG_LEVEL_ERROR) {
     level_name = "ERROR";
-  }
-  else if (level == CC_Logger::LogLevel::LOG_LEVEL_INFO) {
+  } else if (level == CC_Logger::LogLevel::LOG_LEVEL_INFO) {
     level_name = "INFO";
   }
 
   // Compose Message
   std::string fullMsg = bufferDateTime + std::string(" [") + level_name +
-                        std::string("] : ") + std::string(fmt) + std::string("\n");
+                        std::string("] : ") + std::string(fmt) +
+                        std::string("\n");
 
   // Printf
-  va_copy(copy,args);
-  int n = vprintf(fullMsg.c_str(),copy);
+  va_copy(copy, args);
+  int n = vprintf(fullMsg.c_str(), copy);
   if (n > 0) {
-    fs.size += n;    // add size
+    fs.size += n;  // add size
   }
   va_end(copy);
 
   // Write
   if (fout) {
-    va_copy(copy,args);
-    vfprintf(fout,fullMsg.c_str(), copy);
+    va_copy(copy, args);
+    vfprintf(fout, fullMsg.c_str(), copy);
     va_end(copy);
     //*fout << fullMsg;
-    //fout->flush();
+    // fout->flush();
     fflush(fout);
   }
 
@@ -241,11 +235,10 @@ void CC_Logger::logInfo(const char* fmt, ...) {
   }
 
   va_list args;
-  va_start(args,fmt);
-  log(CC_Logger::LogLevel::LOG_LEVEL_INFO,fmt, args);
+  va_start(args, fmt);
+  log(CC_Logger::LogLevel::LOG_LEVEL_INFO, fmt, args);
   va_end(args);
 }
-
 
 void CC_Logger::logDebug(const char* fmt, ...) {
   if (this->level < LogLevel::LOG_LEVEL_DEBUG) {
@@ -253,8 +246,8 @@ void CC_Logger::logDebug(const char* fmt, ...) {
   }
 
   va_list args;
-  va_start(args,fmt);
-  log(CC_Logger::LogLevel::LOG_LEVEL_DEBUG,fmt, args);
+  va_start(args, fmt);
+  log(CC_Logger::LogLevel::LOG_LEVEL_DEBUG, fmt, args);
   va_end(args);
 }
 
@@ -264,13 +257,13 @@ void CC_Logger::logError(const char* fmt, ...) {
   }
 
   va_list args;
-  va_start(args,fmt);
-  log(CC_Logger::LogLevel::LOG_LEVEL_ERROR,fmt, args);
+  va_start(args, fmt);
+  log(CC_Logger::LogLevel::LOG_LEVEL_ERROR, fmt, args);
   va_end(args);
 }
 
 void CC_Logger::readFiles() {
-  files = FileDescriptor::enumerateDir(dirPath,0);
+  files = FileDescriptor::enumerateDir(dirPath, 0);
 
   // Order by date (descend)
   std::sort(files.begin(), files.end(), compareFiles);
@@ -282,25 +275,23 @@ void CC_Logger::readFiles() {
 void CC_Logger::removeMaxFiles() {
   // Delete old ones if more than MAX_FILES
   while (files.size() > LOGGER_MAX_FILES) {
-    FileDescriptor fs = files.at(files.size()-1);
+    FileDescriptor fs = files.at(files.size() - 1);
     files.pop_back();
     remove((dirPath + fs.name).c_str());
   }
 }
 
 // Get Path for Files
-std::string CC_Logger::getDirPath() {
-  return dirPath;
-}
+std::string CC_Logger::getDirPath() { return dirPath; }
 
 // Parse Date from Log Name
 ccInt64 CC_Logger::parseDateFromLogFileName(char* fileName) {
   ccInt64 date = 0;
 
   // Remove LOG_
-  CC_StringTokenizer s1(std::string(fileName),".");
+  CC_StringTokenizer s1(std::string(fileName), ".");
   if (s1.countElements() == 2) {
-    CC_StringTokenizer s2(s1.elementAt(0),"_");
+    CC_StringTokenizer s2(s1.elementAt(0), "_");
     if (s2.countElements() == 7) {
       int day = atoi(s2.elementAt(1).c_str());
       int month = atoi(s2.elementAt(2).c_str());
@@ -308,7 +299,7 @@ ccInt64 CC_Logger::parseDateFromLogFileName(char* fileName) {
       int hour = atoi(s2.elementAt(4).c_str());
       int minute = atoi(s2.elementAt(5).c_str());
       int second = atoi(s2.elementAt(6).c_str());
-      date = Date::getDateMS(year,month,day,hour,minute,second,0);
+      date = Date::getDateMS(year, month, day, hour, minute, second, 0);
     }
   }
 
@@ -316,7 +307,7 @@ ccInt64 CC_Logger::parseDateFromLogFileName(char* fileName) {
 }
 
 std::vector<FileDescriptor> FileDescriptor::enumerateDir(std::string path,
-    int flags) {
+                                                         int flags) {
   std::vector<FileDescriptor> result;
   DIR* dir = NULL;
   struct dirent* ent = NULL;
@@ -342,10 +333,10 @@ void Date::getLocalDate(int& year, int& month, int& day, int& hour, int& minute,
   time_t localsec = 0;
   time(&localsec);
   struct tm* timeInfoLocal = localtime(&localsec);
-  //time_t localSec = mktime(timeInfoLocal);
+  // time_t localSec = mktime(timeInfoLocal);
 
   year = timeInfoLocal->tm_year + 1900;
-  month = timeInfoLocal->tm_mon + 1 ;//month 0-11.
+  month = timeInfoLocal->tm_mon + 1;  // month 0-11.
   day = timeInfoLocal->tm_mday;
   hour = timeInfoLocal->tm_hour;
   minute = timeInfoLocal->tm_min;

@@ -27,18 +27,20 @@
 
 class MockIotaMqttService : public iota::esp::ngsi::IotaMqttService {
  public:
+  virtual ~MockIotaMqttService(){};
 
-  virtual ~MockIotaMqttService() {};
+  MOCK_METHOD3(doPublishCB,
+               std::string(std::string& apikey, std::string& device,
+                           std::string& json));
 
-  MOCK_METHOD3(doPublishCB,std::string(std::string& apikey ,
-                                       std::string& device , std::string& json ));
+  MOCK_METHOD2(doRequestCommands,
+               void(std::string& apikey, std::string& device));
 
-
-  MOCK_METHOD2(doRequestCommands,void(std::string& apikey,std::string& device));
-
-  MOCK_METHOD3(processCommandResponse,void(std::string& apikey,std::string& idDevice, std::string& payload));
+  MOCK_METHOD3(processCommandResponse,
+               void(std::string& apikey, std::string& idDevice,
+                    std::string& payload));
 
  private:
 };
 
-#endif // MOCKCBPUBLISHER_H
+#endif  // MOCKCBPUBLISHER_H

@@ -30,22 +30,22 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include <sys/time.h>
 
-#define  DOC_MESSAGE  "##"
+#define DOC_MESSAGE "##"
 
-#define  IOTASSERT_MESSAGE(x,y) \
-         std::cout << "@" << __LINE__ << "@" << x << std::endl; \
-         CPPUNIT_ASSERT_MESSAGE(x,y)
+#define IOTASSERT_MESSAGE(x, y)                          \
+  std::cout << "@" << __LINE__ << "@" << x << std::endl; \
+  CPPUNIT_ASSERT_MESSAGE(x, y)
 
-#define  IOTASSERT(y) \
-         std::cout << "@" << __LINE__ << "@" << std::endl; \
-         CPPUNIT_ASSERT(y)
+#define IOTASSERT(y)                                \
+  std::cout << "@" << __LINE__ << "@" << std::endl; \
+  CPPUNIT_ASSERT(y)
 
 const std::string BaseTest::HOST("127.0.0.1");
 const std::string BaseTest::CONTENT_JSON("application/json");
 
 BaseTest::BaseTest() {}
 
-std::string BaseTest::create_random_service(const std::string& sem){
+std::string BaseTest::create_random_service(const std::string& sem) {
   std::string result(sem);
 
   // get miliseconds from now
@@ -57,80 +57,68 @@ std::string BaseTest::create_random_service(const std::string& sem){
   return result;
 }
 
-
-int BaseTest::delete_mongo(const std::string& table,
-                 const std::string& service,
-                 const std::string& service_path){
-
+int BaseTest::delete_mongo(const std::string& table, const std::string& service,
+                           const std::string& service_path) {
   try {
     iota::Collection table1(table);
 
     mongo::BSONObj p;
 
-    if (!service.empty() && !service_path.empty()){
-      p = BSON(iota::store::types::SERVICE << service <<
-                            iota::store::types::SERVICE_PATH << service_path);
+    if (!service.empty() && !service_path.empty()) {
+      p = BSON(iota::store::types::SERVICE
+               << service << iota::store::types::SERVICE_PATH << service_path);
     }
 
     return table1.remove(p);
-  }
-  catch (std::exception e) {
+  } catch (std::exception e) {
     std::cout << "throw exception:" << e.what() << std::endl;
     return -1;
   }
-
 }
 
-int BaseTest::check_mongo(const std::string& table,
-                                  const std::string& service, const std::string& service_path,
-                                  const std::string& field_name, const std::string& value) {
-
+int BaseTest::check_mongo(const std::string& table, const std::string& service,
+                          const std::string& service_path,
+                          const std::string& field_name,
+                          const std::string& value) {
   try {
     iota::Collection table1(table);
 
-    mongo::BSONObj p = BSON(iota::store::types::SERVICE << service <<
-                            iota::store::types::SERVICE_PATH << service_path <<
-                            field_name << value);
+    mongo::BSONObj p = BSON(iota::store::types::SERVICE
+                            << service << iota::store::types::SERVICE_PATH
+                            << service_path << field_name << value);
 
     return table1.count(p);
-  }
-  catch (std::exception e) {
+  } catch (std::exception e) {
     std::cout << "throw exception:" << e.what() << std::endl;
     return -1;
   }
-
 }
 
-int BaseTest::check_mongo(const std::string& table,
-                          const std::string& json) {
-
+int BaseTest::check_mongo(const std::string& table, const std::string& json) {
   try {
     iota::Collection table1(table);
 
-    mongo::BSONObj p =  mongo::fromjson(json);
+    mongo::BSONObj p = mongo::fromjson(json);
 
     return table1.count(p);
-  }
-  catch (std::exception e) {
+  } catch (std::exception e) {
     std::cout << "throw exception:" << e.what() << std::endl;
     return -1;
   }
-
 }
 
-int BaseTest::http_test(const std::string& uri,
-                                const std::string& method,
-                                const std::string& service,
-                                const std::string& service_path,
-                                const std::string& content_type,
-                                const std::string& body,
-                                const std::map<std::string, std::string>& headers,
-                                const std::string& query_string,
-                                std::string& response) {
+int BaseTest::http_test(const std::string& uri, const std::string& method,
+                        const std::string& service,
+                        const std::string& service_path,
+                        const std::string& content_type,
+                        const std::string& body,
+                        const std::map<std::string, std::string>& headers,
+                        const std::string& query_string,
+                        std::string& response) {
   pion::tcp::connection tcp_conn(scheduler.get_io_service());
   boost::system::error_code error_code;
-  error_code = tcp_conn.connect(
-                 boost::asio::ip::address::from_string(HOST), wserver->get_port());
+  error_code = tcp_conn.connect(boost::asio::ip::address::from_string(HOST),
+                                wserver->get_port());
 
   pion::http::request http_request(uri);
   http_request.set_method(method);
@@ -142,7 +130,7 @@ int BaseTest::http_test(const std::string& uri,
     http_request.add_header(iota::types::FIWARE_SERVICEPATH, service_path);
   }
 
-  //http_request.add_header("Accept", "application/json");
+  // http_request.add_header("Accept", "application/json");
 
   if (!query_string.empty()) {
     http_request.set_query_string(query_string);
@@ -165,37 +153,30 @@ int BaseTest::http_test(const std::string& uri,
   response.assign(http_response.get_content());
 
   return code_res;
-
 }
 
-
-void BaseTest::feature(const std::string& name,
-          const std::string& idas,
-          const std::string& description){
-
-  if (!idas.empty()){
+void BaseTest::feature(const std::string& name, const std::string& idas,
+                       const std::string& description) {
+  if (!idas.empty()) {
     std::cout << DOC_MESSAGE << "@" << idas << std::endl;
   }
 
   std::cout << DOC_MESSAGE << "Feature:" << name << std::endl;
-  if (!description.empty()){
+  if (!description.empty()) {
     std::cout << description << std::endl;
   }
   std::cout << DOC_MESSAGE << std::endl;
 }
 
-
-void BaseTest::scenario(const std::string& name,
-          const std::string& idas,
-          const std::string& description){
-
-  if (!idas.empty()){
+void BaseTest::scenario(const std::string& name, const std::string& idas,
+                        const std::string& description) {
+  if (!idas.empty()) {
     std::cout << DOC_MESSAGE << "@" << idas << std::endl;
   }
 
   std::cout << DOC_MESSAGE << "Scenario:" << name << std::endl;
-  if (!description.empty()){
-    std::cout <<  description << std::endl;
+  if (!description.empty()) {
+    std::cout << description << std::endl;
   }
   std::cout << DOC_MESSAGE << std::endl;
 }

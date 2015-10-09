@@ -25,7 +25,7 @@
 #include <string>
 #include <map>
 
-#define ESP_PARSER_MAX_VALUE_SIZE 102400 // TODO, DYNAMIC SIZE
+#define ESP_PARSER_MAX_VALUE_SIZE 102400  // TODO, DYNAMIC SIZE
 
 class ESP_Attribute;
 typedef std::map<std::string, ESP_Attribute> CC_AttributesType;
@@ -54,58 +54,56 @@ struct ESP_DataCode {
     ESP_DataCode_MSB = 1,
     ESP_DataCode_LSB = 2,
     ESP_DataCode_STRING = 3,
-    ESP_DataCode_STRINGDELIM=4
+    ESP_DataCode_STRINGDELIM = 4
 
-                             /*
-                             // SubTypes
-                             ESP_DataType_INTLSB = 11,
-                             ESP_DataType_INTMSB = 12,
-                             //ESP_DataType_INTSTRING = 13,
-                             ESP_DataType_INTPRINTABLEHEX = 14,
-                             ESP_DataType_INTBCD = 15,
-                             ESP_DataType_INTBIT = 16,
-                             ESP_DataType_INTASCII = 17,
-                             ESP_DataType_FLOATLSB = 21,
-                             ESP_DataType_FLOATMSB = 22,
-                             //ESP_DataType_FLOATSTRING = 23,
-                             ESP_DataType_FLOATASCII = 27,
-                             ESP_DataType_LONGLSB = 31,
-                             ESP_DataType_LONGMSB = 32,
-                             //ESP_DataType_LONGSTRING = 33,
-                             ESP_DataType_LONGASCII = 37,
-                             ESP_DataType_DOUBLELSB = 41,
-                             ESP_DataType_DOUBLEMSB = 42,
-                             //ESP_DataType_DOUBLESTRING = 43,
-                             ESP_DataType_DOUBLEASCII = 47,
-                             ESP_DataType_STRINGINT = 51,
-                             ESP_DataType_STRINGFLOAT = 52,
-                             ESP_DataType_STRINGLONG = 53,
-                             ESP_DataType_STRINGDOUBLE = 54,
-                             ESP_DataType_STRINGASCII = 57,
-                             ESP_DataType_STRINGBCD = 58,
-                             ESP_DataType_INTSTRINGTOKEN = 61,
-                             ESP_DataType_FLOATSTRINGTOKEN = 63,
-                             ESP_DataType_JPEGIMAGE = 81
-                             */
+    /*
+    // SubTypes
+    ESP_DataType_INTLSB = 11,
+    ESP_DataType_INTMSB = 12,
+    //ESP_DataType_INTSTRING = 13,
+    ESP_DataType_INTPRINTABLEHEX = 14,
+    ESP_DataType_INTBCD = 15,
+    ESP_DataType_INTBIT = 16,
+    ESP_DataType_INTASCII = 17,
+    ESP_DataType_FLOATLSB = 21,
+    ESP_DataType_FLOATMSB = 22,
+    //ESP_DataType_FLOATSTRING = 23,
+    ESP_DataType_FLOATASCII = 27,
+    ESP_DataType_LONGLSB = 31,
+    ESP_DataType_LONGMSB = 32,
+    //ESP_DataType_LONGSTRING = 33,
+    ESP_DataType_LONGASCII = 37,
+    ESP_DataType_DOUBLELSB = 41,
+    ESP_DataType_DOUBLEMSB = 42,
+    //ESP_DataType_DOUBLESTRING = 43,
+    ESP_DataType_DOUBLEASCII = 47,
+    ESP_DataType_STRINGINT = 51,
+    ESP_DataType_STRINGFLOAT = 52,
+    ESP_DataType_STRINGLONG = 53,
+    ESP_DataType_STRINGDOUBLE = 54,
+    ESP_DataType_STRINGASCII = 57,
+    ESP_DataType_STRINGBCD = 58,
+    ESP_DataType_INTSTRINGTOKEN = 61,
+    ESP_DataType_FLOATSTRINGTOKEN = 63,
+    ESP_DataType_JPEGIMAGE = 81
+    */
   };
 };
-
 
 /**
  * @brief Attributes of Frame
  */
 class ESP_Attribute {
  public:
-
   // -------------------------------------------------------------------------
   // [public-attributes]
   // -------------------------------------------------------------------------
   std::string _name;
   void* _value;
-  int _datasize; // size
-  int _datatype; // basic type
-  int _datacode; // codification of type
-  std::string tempStr; // To return string values
+  int _datasize;        // size
+  int _datatype;        // basic type
+  int _datacode;        // codification of type
+  std::string tempStr;  // To return string values
 
   // -------------------------------------------------------------------------
   // [public-methods]
@@ -124,7 +122,8 @@ class ESP_Attribute {
   // Set Values
   void setValue(std::string name, const char* value, int datasize, int datatype,
                 int datacode);
-  //void setValue(std::string name, void *value, int datasize, int datatype, int source, int dest);
+  // void setValue(std::string name, void *value, int datasize, int datatype,
+  // int source, int dest);
 
   /**
    *  @brief Binary set Bit N
@@ -148,8 +147,7 @@ class ESP_Attribute {
   static int getDataTypeFromString(std::string type);
   static int getDataCodeFromString(std::string type);
   static ESP_Attribute* searchAttributeRefByName(CC_AttributesType* attributes,
-      std::string name);
+                                                 std::string name);
 };
-
 
 #endif

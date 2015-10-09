@@ -21,19 +21,16 @@
 */
 #include "ESP_MQTT_Launcher.h"
 
-
 ESP_MQTT_Launcher::ESP_MQTT_Launcher() {
-  //ctor
+  // ctor
   pidBroker = -1;
 }
 
 ESP_MQTT_Launcher::~ESP_MQTT_Launcher() {
-  //dtor
+  // dtor
 }
 
-
 int ESP_MQTT_Launcher::launchBroker() {
-
 #ifdef WIN32
   return 0;
 #else
@@ -41,28 +38,26 @@ int ESP_MQTT_Launcher::launchBroker() {
 
   if (pidBroker < 0) {
     return -1;
-  }
-  else if (pidBroker == 0) {
+  } else if (pidBroker == 0) {
     /* this is the child */
     prctl(PR_SET_PDEATHSIG, SIGTERM);
-    execv("mosquitto",NULL);
+    execv("mosquitto", NULL);
     return -2;
   }
-  //parent process
-  return 1;//all good
-#endif // WIN32
-
+  // parent process
+  return 1;  // all good
+#endif  // WIN32
 }
 
 int ESP_MQTT_Launcher::stopBroker() {
 #ifdef WIN32
   return 0;
 #else
-  if (pidBroker>0) {
+  if (pidBroker > 0) {
     kill(pidBroker, SIGTERM);
 
     return 1;
   }
   return 0;
-#endif // WIN32
+#endif  // WIN32
 }

@@ -26,41 +26,36 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 class MqttBufferTests : public CppUnit::TestFixture {
+  CPPUNIT_TEST_SUITE(MqttBufferTests);
 
-    CPPUNIT_TEST_SUITE(MqttBufferTests);
+  CPPUNIT_TEST(testGettingFirstMessage);
+  CPPUNIT_TEST(testEmptyMqttBuffer);
+  CPPUNIT_TEST(testRetrieveSmallerThanBuffer);
+  CPPUNIT_TEST(testRetrieveGreaterThanBuffer);
+  CPPUNIT_TEST(testRetrieveZeroBytes);
+  // CPPUNIT_TEST (testRotate);
 
-    CPPUNIT_TEST(testGettingFirstMessage);
-    CPPUNIT_TEST(testEmptyMqttBuffer);
-    CPPUNIT_TEST(testRetrieveSmallerThanBuffer);
-    CPPUNIT_TEST(testRetrieveGreaterThanBuffer);
-    CPPUNIT_TEST(testRetrieveZeroBytes);
-    // CPPUNIT_TEST (testRotate);
+  CPPUNIT_TEST_SUITE_END();
 
-    CPPUNIT_TEST_SUITE_END();
+ public:
+  void setUp();
+  void tearDown();
 
+ protected:
+  void testGettingFirstMessage();
+  void testEmptyMqttBuffer();
+  void testRetrieveSmallerThanBuffer();
+  void testRetrieveGreaterThanBuffer();
+  void testRetrieveZeroBytes();
 
-  public:
+ private:
+  ESP_MqttBuffer myBuf;
 
-    void setUp();
-    void tearDown();
+  bool compareBuffers(const char* src, int srclen, const char* dst, int dstlen);
+  void initTestData(ESP_MqttBuffer& myBuf, int numMsgs);
 
-
-  protected:
-    void testGettingFirstMessage();
-    void testEmptyMqttBuffer();
-    void testRetrieveSmallerThanBuffer();
-    void testRetrieveGreaterThanBuffer();
-    void testRetrieveZeroBytes();
-
-  private:
-    ESP_MqttBuffer myBuf;
-
-    bool compareBuffers(const char* src, int srclen,const char* dst,int dstlen);
-    void initTestData(ESP_MqttBuffer& myBuf,int numMsgs);
-
-    ESP_MqttMsg* createMqttMsg(const char* topic,const char* payload,
-                               int payloadLen);
-
+  ESP_MqttMsg* createMqttMsg(const char* topic, const char* payload,
+                             int payloadLen);
 };
 
-#endif // MQTTBUFFERTESTS_H
+#endif  // MQTTBUFFERTESTS_H

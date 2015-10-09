@@ -30,8 +30,7 @@
 #define MQTT_COMMAND_RESPONSE "cmdexe"
 #define MQTT_COMMAND_IGNORE "cmd"
 
-//This is the interface known to Output_IoT
-
+// This is the interface known to Output_IoT
 
 namespace iota {
 namespace esp {
@@ -39,40 +38,44 @@ namespace ngsi {
 
 /**
  @name IotaMqttService
- @brief This interface abstracts the service for interacting with the ContextBroker in the MQTT realm.
- In other words, this is all what MQTT protocol needs when interacting with CB, like publishing MQTT measures
- or receiving requests  or responses to commands. Some of those functions aren't offered by this service directly
+ @brief This interface abstracts the service for interacting with the
+ ContextBroker in the MQTT realm.
+ In other words, this is all what MQTT protocol needs when interacting with CB,
+ like publishing MQTT measures
+ or receiving requests  or responses to commands. Some of those functions aren't
+ offered by this service directly
  but by others referenced here.
- This class can do some basic operations with the information coming from the caller @see handle_mqtt_message,
- like checking if the mqtt message is a measure, a command request,or a response to a command.
+ This class can do some basic operations with the information coming from the
+ caller @see handle_mqtt_message,
+ like checking if the mqtt message is a measure, a command request,or a response
+ to a command.
  Based on that, it will call one of its virtual methods.
 
 */
 class IotaMqttService {
-  public:
-    IotaMqttService();
+ public:
+  IotaMqttService();
 
+  std::string publishContextBroker(std::string& jsonMsg, std::string& apikey,
+                                   std::string& idDevice);
 
-    std::string publishContextBroker(std::string& jsonMsg,std::string& apikey,
-                                     std::string& idDevice);
+  void handle_mqtt_message(std::string& apikey, std::string& idDevice,
+                           std::string& payload, std::string& type);
 
+  virtual ~IotaMqttService();
 
-    void handle_mqtt_message(std::string& apikey, std::string& idDevice, std::string& payload,std::string& type);
+ protected:
+  virtual std::string doPublishCB(std::string& jsonMsg, std::string& apikey,
+                                  std::string& idDevice) = 0;
 
-    virtual ~IotaMqttService();
+  virtual void processCommandResponse(std::string& apikey,
+                                      std::string& idDevice,
+                                      std::string& payload) = 0;
 
-  protected:
-    virtual std::string doPublishCB(std::string& jsonMsg,std::string& apikey,
-                                    std::string& idDevice) = 0;
-
-
-
-    virtual void processCommandResponse(std::string& apikey,std::string& idDevice, std::string& payload) = 0;
-
-  private:
-    pion::logger m_logger;
+ private:
+  pion::logger m_logger;
 };
 }
 }
 }
-#endif // IOTAMQTTSERVICE_H
+#endif  // IOTAMQTTSERVICE_H

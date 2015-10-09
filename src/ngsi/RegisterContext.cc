@@ -29,7 +29,7 @@
 iota::RegisterContext::RegisterContext(const std::istringstream& reg_ctx) {
   rapidjson::Document document;
   char buffer[reg_ctx.str().length()];
-  //memcpy(buffer, str_attribute.c_str(), str_attribute.length());
+  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, reg_ctx.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -51,30 +51,26 @@ iota::RegisterContext::RegisterContext(const std::istringstream& reg_ctx) {
     throw std::runtime_error(what.str());
   }
   const rapidjson::Value& context_registrations =
-    document[iota::ngsi::NGSI_CONTEXTREGISTRATIONS.c_str()];
+      document[iota::ngsi::NGSI_CONTEXTREGISTRATIONS.c_str()];
 
   for (rapidjson::SizeType i = 0; i < context_registrations.Size(); i++) {
     iota::ContextRegistration context_registration(context_registrations[i]);
     add_context_registration(context_registration);
   }
 
-
-
-  if (document.HasMember(iota::ngsi::NGSI_DURATION.c_str())
-      && document[iota::ngsi::NGSI_DURATION.c_str()].IsString()) {
+  if (document.HasMember(iota::ngsi::NGSI_DURATION.c_str()) &&
+      document[iota::ngsi::NGSI_DURATION.c_str()].IsString()) {
     add_duration(document[iota::ngsi::NGSI_DURATION.c_str()].GetString());
   }
 
-  if (document.HasMember(iota::ngsi::NGSI_REGISTRATIONID.c_str())
-      && document[iota::ngsi::NGSI_REGISTRATIONID.c_str()].IsString()) {
+  if (document.HasMember(iota::ngsi::NGSI_REGISTRATIONID.c_str()) &&
+      document[iota::ngsi::NGSI_REGISTRATIONID.c_str()].IsString()) {
     add_registrationId(
-      document[iota::ngsi::NGSI_REGISTRATIONID.c_str()].GetString());
+        document[iota::ngsi::NGSI_REGISTRATIONID.c_str()].GetString());
   }
-
 };
 
 iota::RegisterContext::RegisterContext(const rapidjson::Value& reg_ctx) {
-
   if (!reg_ctx.IsObject() ||
       !reg_ctx.HasMember(iota::ngsi::NGSI_CONTEXTREGISTRATIONS.c_str()) ||
       !reg_ctx[iota::ngsi::NGSI_CONTEXTREGISTRATIONS.c_str()].IsArray()) {
@@ -86,25 +82,23 @@ iota::RegisterContext::RegisterContext(const rapidjson::Value& reg_ctx) {
     throw std::runtime_error(what.str());
   }
   const rapidjson::Value& context_registrations =
-    reg_ctx[iota::ngsi::NGSI_CONTEXTREGISTRATIONS.c_str()];
+      reg_ctx[iota::ngsi::NGSI_CONTEXTREGISTRATIONS.c_str()];
 
   for (rapidjson::SizeType i = 0; i < context_registrations.Size(); i++) {
     iota::ContextRegistration context_registration(context_registrations[i]);
     add_context_registration(context_registration);
   }
 
-
-  if (reg_ctx.HasMember(iota::ngsi::NGSI_DURATION.c_str())
-      && reg_ctx[iota::ngsi::NGSI_DURATION.c_str()].IsString()) {
+  if (reg_ctx.HasMember(iota::ngsi::NGSI_DURATION.c_str()) &&
+      reg_ctx[iota::ngsi::NGSI_DURATION.c_str()].IsString()) {
     add_duration(reg_ctx[iota::ngsi::NGSI_DURATION.c_str()].GetString());
   }
 
-  if (reg_ctx.HasMember(iota::ngsi::NGSI_REGISTRATIONID.c_str())
-      && reg_ctx[iota::ngsi::NGSI_REGISTRATIONID.c_str()].IsString()) {
+  if (reg_ctx.HasMember(iota::ngsi::NGSI_REGISTRATIONID.c_str()) &&
+      reg_ctx[iota::ngsi::NGSI_REGISTRATIONID.c_str()].IsString()) {
     add_registrationId(
-      reg_ctx[iota::ngsi::NGSI_REGISTRATIONID.c_str()].GetString());
+        reg_ctx[iota::ngsi::NGSI_REGISTRATIONID.c_str()].GetString());
   }
-
 };
 
 std::string iota::RegisterContext::get_string() {
@@ -114,8 +108,8 @@ std::string iota::RegisterContext::get_string() {
   return buffer.GetString();
 };
 
-void iota::RegisterContext::add_context_registration(const
-    iota::ContextRegistration& context_registration) {
+void iota::RegisterContext::add_context_registration(
+    const iota::ContextRegistration& context_registration) {
   _context_registrations.push_back(context_registration);
 };
 
@@ -123,12 +117,10 @@ void iota::RegisterContext::add_duration(const std::string& duration) {
   _duration = duration;
 }
 
-std::string iota::RegisterContext::get_duration() {
-  return _duration;
-}
+std::string iota::RegisterContext::get_duration() { return _duration; }
 
-void iota::RegisterContext::add_registrationId(const std::string&
-    registrationId) {
+void iota::RegisterContext::add_registrationId(
+    const std::string& registrationId) {
   _registrationId = registrationId;
 }
 

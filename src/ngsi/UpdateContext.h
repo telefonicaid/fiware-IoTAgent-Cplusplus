@@ -28,38 +28,37 @@
 #include <string>
 namespace iota {
 class UpdateContext {
-  public:
-    UpdateContext(const std::istringstream& str_UpdateContext);
-    UpdateContext(const std::string& action): _action(action) {};
-    UpdateContext(const rapidjson::Value& UpdateContext);
-    ~UpdateContext() {};
-    std::string get_string();
-    void add_context_element(const ContextElement& attribute);
-    std::string& get_action() {
-      return _action;
-    };
-    std::vector<ContextElement> get_context_elements() {
-      return _context_elements;
-    };
+ public:
+  UpdateContext(const std::istringstream& str_UpdateContext);
+  UpdateContext(const std::string& action) : _action(action){};
+  UpdateContext(const rapidjson::Value& UpdateContext);
+  ~UpdateContext(){};
+  std::string get_string();
+  void add_context_element(const ContextElement& attribute);
+  std::string& get_action() { return _action; };
+  std::vector<ContextElement> get_context_elements() {
+    return _context_elements;
+  };
 
-    template <typename Writer>
-    void Serialize(Writer& writer) const {
-      writer.StartObject();
-      writer.String("updateAction");
-      writer.String(_action.c_str(), (rapidjson::SizeType)_action.length());
-      writer.String("contextElements");
-      writer.StartArray();
-      for (std::vector<ContextElement>::const_iterator it= _context_elements.begin();
-           it != _context_elements.end(); ++it) {
-        it->Serialize(writer);
-      }
-      writer.EndArray();
-      writer.EndObject();
-    };
-  private:
-    std::string _action;
-    std::vector<ContextElement> _context_elements;
+  template <typename Writer>
+  void Serialize(Writer& writer) const {
+    writer.StartObject();
+    writer.String("updateAction");
+    writer.String(_action.c_str(), (rapidjson::SizeType)_action.length());
+    writer.String("contextElements");
+    writer.StartArray();
+    for (std::vector<ContextElement>::const_iterator it =
+             _context_elements.begin();
+         it != _context_elements.end(); ++it) {
+      it->Serialize(writer);
+    }
+    writer.EndArray();
+    writer.EndObject();
+  };
+
+ private:
+  std::string _action;
+  std::vector<ContextElement> _context_elements;
 };
-
 }
 #endif

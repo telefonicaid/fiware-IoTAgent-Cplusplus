@@ -24,8 +24,8 @@
 #include <rapidjson/writer.h>
 #include <stdexcept>
 
-iota::ContextResponses::ContextResponses(const std::istringstream&
-    str_context_responses) {
+iota::ContextResponses::ContextResponses(
+    const std::istringstream& str_context_responses) {
   rapidjson::Document document;
   char buffer[str_context_responses.str().length()];
   strcpy(buffer, str_context_responses.str().c_str());
@@ -45,23 +45,20 @@ iota::ContextResponses::ContextResponses(const std::istringstream&
         iota::ContextResponse context_response(context_responses[i]);
         add_context_response(context_response);
       }
-    }
-    else {
+    } else {
       // TODO
     }
 
-  }
-  else {
+  } else {
     // TODO
   }
-
 };
 
-iota::ContextResponses::ContextResponses(const rapidjson::Value&
-    context_responses) {
+iota::ContextResponses::ContextResponses(
+    const rapidjson::Value& context_responses) {
   if (context_responses.HasMember("contextResponses")) {
     const rapidjson::Value& context_responses =
-      context_responses["contextResponses"];
+        context_responses["contextResponses"];
     if (context_responses.IsArray()) {
       for (rapidjson::SizeType i = 0; i < context_responses.Size(); i++) {
         iota::ContextResponse context_response(context_responses[i]);
@@ -72,35 +69,31 @@ iota::ContextResponses::ContextResponses(const rapidjson::Value&
 };
 
 std::string iota::ContextResponses::get_string() {
-
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
   Serialize(writer);
   return buffer.GetString();
 };
 
-void iota::ContextResponses::add_context_response(const iota::ContextResponse&
-    context_response) {
+void iota::ContextResponses::add_context_response(
+    const iota::ContextResponse& context_response) {
   _context_responses.push_back(context_response);
 };
 
 std::string iota::ContextResponses::get_message_response() {
-
   std::string res;
 
-  if (_context_responses.size() == 1){
-      res.append( _context_responses.at(0).get_reason());
-  }else{
-      for (int i=0; i < _context_responses.size(); i++){
-          if ( i > 0) {
-              // remove | because of splac
-              res.append( " " );
-          }
-          res.append( _context_responses.at(i).get_reason());
+  if (_context_responses.size() == 1) {
+    res.append(_context_responses.at(0).get_reason());
+  } else {
+    for (int i = 0; i < _context_responses.size(); i++) {
+      if (i > 0) {
+        // remove | because of splac
+        res.append(" ");
       }
-
+      res.append(_context_responses.at(i).get_reason());
+    }
   }
 
   return res;
 };
-

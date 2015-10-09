@@ -35,25 +35,18 @@
 namespace iota {
 
 class KVP {
-  public:
-    KVP(std::string k, std::string v);
-    ~KVP(void) {};
-    std::string getKey(void) {
-      return key;
-    };
-    std::string getValue(void) {
-      return value;
-    };
-    std::string setKey(std::string k) {
-      key = k;
-    };
-    std::string setValue(std::string v) {
-      value = v;
-    };
-  protected:
-  private:
-    std::string key;
-    std::string value;
+ public:
+  KVP(std::string k, std::string v);
+  ~KVP(void){};
+  std::string getKey(void) { return key; };
+  std::string getValue(void) { return value; };
+  std::string setKey(std::string k) { key = k; };
+  std::string setValue(std::string v) { value = v; };
+
+ protected:
+ private:
+  std::string key;
+  std::string value;
 };
 };
 

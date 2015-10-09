@@ -31,55 +31,39 @@
 namespace iota {
 
 class Alarm {
-  public:
+ public:
+  static Alarm* instance();
 
+  static void error(int code, const std::string& endpoint,
+                    const std::string& status, const std::string& text);
 
-    static Alarm* instance();
+  static void info(int code, const std::string& endpoint,
+                   const std::string& status, const std::string& text);
 
-    static void error(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text);
+  void put(int code, const std::string& endpoint, const std::string& status,
+           const std::string& text);
 
-    static void info(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text);
+  void remove(int code, const std::string& endpoint, const std::string& status,
+              const std::string& text);
 
-    void put(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text);
+  std::string message(int code, const std::string& endpoint,
+                      const std::string& status, const std::string& text);
 
-    void remove(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text);
+  int size();
 
-    std::string message(int code,
-             const std::string& endpoint,
-             const std::string& status,
-             const std::string& text);
+ protected:
+  std::string get_key(int code, const std::string& endpoint,
+                      const std::string& status);
 
-    int size();
+ private:
+  static Alarm* pinstance;
+  pion::logger m_log;
 
-  protected:
+  boost::recursive_mutex m_mutex;
 
-    std::string get_key(int code,
-             const std::string& endpoint,
-             const std::string& status);
+  Alarm();
 
-  private:
-
-    static Alarm* pinstance;
-    pion::logger m_log;
-
-    boost::recursive_mutex m_mutex;
-
-    Alarm();
-
-    std::map<std::string,std::string> _alarms;
-
+  std::map<std::string, std::string> _alarms;
 };
 };
 

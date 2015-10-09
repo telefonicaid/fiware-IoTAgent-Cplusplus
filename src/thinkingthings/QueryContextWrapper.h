@@ -35,29 +35,27 @@ namespace iota {
 namespace esp {
 namespace tt {
 class QueryContextWrapper {
-  public:
+ public:
+  QueryContextWrapper(boost::property_tree::ptree*);
 
-    QueryContextWrapper(boost::property_tree::ptree*);
+  ::iota::ContextResponses queryContext(
+      ::iota::QueryContext& qContext);  // maybe something else is needed.
 
-    ::iota::ContextResponses queryContext(::iota::QueryContext&
-                                          qContext); //maybe something else is needed.
+  virtual ~QueryContextWrapper();
 
-    virtual ~QueryContextWrapper();
-  protected:
-  private:
-    pion::logger m_logger;
-    std::string cb_url;
-    std::string cb_response;
-    boost::property_tree::ptree* pt_cb;
+ protected:
+ private:
+  pion::logger m_logger;
+  std::string cb_url;
+  std::string cb_response;
+  boost::property_tree::ptree* pt_cb;
 
-    iota::ContextBrokerCommunicator cb_communicator;
+  iota::ContextBrokerCommunicator cb_communicator;
 
-
-    virtual ::iota::ContextResponses doQueryContext(::iota::QueryContext& qContext);
-
-
+  virtual ::iota::ContextResponses doQueryContext(
+      ::iota::QueryContext& qContext);
 };
 }
 }
 }
-#endif // QUERYCONTEXTWRAPPER_H
+#endif  // QUERYCONTEXTWRAPPER_H
