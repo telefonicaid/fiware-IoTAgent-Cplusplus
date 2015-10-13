@@ -189,7 +189,7 @@ void iota::HttpClient::read() {
                                     shared_from_this(), _1, _2, _3))));
   reader_ptr->receive();
 
-  if (_synch_http_client != NULL) {
+  if (_synch_http_client) {
     while (_response.get() == NULL && check_connection()) {
       _local_io.run_one();
     }
