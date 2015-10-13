@@ -960,6 +960,46 @@ int iota::RestHandle::get_service_by_apiKey_bbdd(
   return ERROR_SERVICE_OK;
 }
 
+int iota::RestHandle::get_service_by_apiKey_bbdd_inverse(
+    boost::property_tree::ptree& pt, const std::string& apiKey) {
+  std::string resource = get_resource();
+  std::string default_context_broker = get_default_context_broker();
+  int default_timeout = get_default_timeout();
+  std::string http_proxy = get_http_proxy();
+
+  IOTA_LOG_DEBUG(m_logger, "get_service_by_apiKey_bbdd " << apiKey);
+
+  iota::Collection q1(iota::store::types::SERVICE_TABLE);
+  mongo::BSONObjBuilder p2;
+  // { $and: [ { apikey: { $ne: "" } }, { apikey: { $exists: true } } ] }
+  p2.append("$and", BSON_ARRAY(
+    BSON(iota::store::types::APIKEY << BSON( "$ne" << apiKey)) <<
+    BSON(iota::store::types::APIKEY << BSON( "$exists" << true)) )
+      );
+
+  if (!resource.empty()) {
+    p2.append(iota::store::types::RESOURCE, resource);
+  }
+  int code_res = q1.find(p2.obj());
+  if (q1.more()) {
+    mongo::BSONObj r1 = q1.next();
+    fill_service_with_bson(r1, pt);
+  } else {
+    IOTA_LOG_ERROR(m_logger, "get_service_by_apiKey_bbdd no service for apike"
+                                 << apiKey);
+    return ERROR_NO_SERVICE;
+  }
+
+  if (q1.more()) {
+    IOTA_LOG_ERROR(m_logger,
+                   "get_service_by_apiKey_bbdd there are more than one"
+                       << apiKey);
+    return ERROR_MORE_THAN_ONE;
+  }
+
+  return ERROR_SERVICE_OK;
+}
+
 const iota::JsonValue& iota::RestHandle::get_service_by_name_file(
     boost::property_tree::ptree& pt, const std::string& item_name,
     const std::string& service_path) {

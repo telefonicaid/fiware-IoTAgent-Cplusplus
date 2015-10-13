@@ -217,6 +217,13 @@ class RestHandle : public pion::http::plugin_service,
   void fill_service_with_bson(const mongo::BSONObj& bson,
                               boost::property_tree::ptree& pt);
 
+  /**
+    * search the service in database using apiKey
+    * if there is more than one throw excepciton
+    **/
+  int get_service_by_apiKey_bbdd_inverse(boost::property_tree::ptree& pt_cb,
+                                 const std::string& apiKey);
+
  protected:
   std::string remove_url_base(std::string url);
   void register_plugin();
