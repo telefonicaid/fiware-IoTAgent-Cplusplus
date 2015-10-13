@@ -67,7 +67,10 @@ class HttpClient : public boost::enable_shared_from_this<HttpClient> {
 
  protected:
  private:
-  boost::shared_ptr<boost::asio::io_service> _local_io;
+
+  // If synchronous use a local io_service
+  boost::asio::io_service _local_io;
+  bool _synch_http_client;
 
   // Remote endpoint (may be different to connection data, if proxy is used)
   std::string _remote_ip;

@@ -41,14 +41,6 @@ iota::ContextBrokerCommunicator::ContextBrokerCommunicator(
 
 iota::ContextBrokerCommunicator::~ContextBrokerCommunicator(){};
 
-// TODO
-/*
-void iota::ContextBrokerCommunicator::start() {
-  if (_connectionManager.get() != NULL) {
-    _connectionManager->run();
-  }
-}
-*/
 
 void iota::ContextBrokerCommunicator::receive_event(
     std::string url, std::string content,

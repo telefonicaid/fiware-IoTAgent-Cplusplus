@@ -87,9 +87,6 @@ class ContextBrokerCommunicator
   // Connection
   std::map<std::string, boost::shared_ptr<iota::HttpClient> > _connections;
 
-  // Connection Manager
-  // TODO boost::shared_ptr<iota::CommonAsyncManager> _connectionManager;
-
   // io_service when external event loop is used
   boost::asio::io_service& _io_service;
 
