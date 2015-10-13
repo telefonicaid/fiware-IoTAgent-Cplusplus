@@ -118,6 +118,7 @@ The general procedure to start an IoT Agent needs needs that libraries generated
 deployed can be loaded by executable (LD_LIBRARY_PATH environment variable). The executable is named _iotagent_.
 
 To get information about parameter uses
+```
 $iotagent -h
 usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE
          iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE
@@ -137,6 +138,7 @@ options explication:
 -v/--verbose <LOG_LEVEL> log level (DEBUG, INFO, WARNING, ERROR, FATAL).
 -s/--ssl <ssl_pem_file> start ssl interface.
 -I/--identifier <UNIQUE_IDENTIFIER> identifier used with iota manager.
+```
 
 You can start an iotagent by following procedure:
 
