@@ -3785,7 +3785,7 @@ void Ul20Test::test_register_iota_manager12() {
     ul20serv.set_resource("/iot/d");
     scenario("register with identifier in config.json");
 
-    ul20serv.start();
+    ul20serv.make_registrations();
 
     // TODO check_last_contains(cb_mock, "\"identifier\" :
     // \"myIotaIdentifier:80\"",
@@ -3800,7 +3800,7 @@ void Ul20Test::test_register_iota_manager12() {
     iota::Configurator::instance()->set_iotagent_identifier(
         "iotagent_identifier2");
 
-    ul20serv2.start();
+    ul20serv2.make_registrations();
 
     // TODOcheck_last_contains(cb_mock, "\"identifier\" :
     // \"iotagent_identifier2:80\"",
@@ -3835,7 +3835,7 @@ void Ul20Test::test_register_iota_manager34() {
     iota::Configurator::instance()->set_iotagent_identifier("");
 
     // when
-    ul20serv3.start();
+    ul20serv3.make_registrations();
 
     ASYNC_TIME_WAIT
     /*
@@ -3852,7 +3852,7 @@ void Ul20Test::test_register_iota_manager34() {
     iota::Configurator::instance()->set_iotagent_name("iotagent_name3");
     iota::Configurator::instance()->set_iotagent_identifier("");
 
-    ul20serv4.start();
+    ul20serv4.make_registrations();
     /*
         check_last_contains(cb_mock,
                            "\"identifier\" : \"iotagent_name3:80\"",
