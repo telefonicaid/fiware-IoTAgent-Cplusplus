@@ -59,8 +59,7 @@ int main(int argc, char* argv[]) {
   runner.setOutputter(
       new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
-  // This sleep wait for some threads should be finalize.
-  sleep(3);
+
   process.shutdown();
   return s ? 0 : 1;
 }
