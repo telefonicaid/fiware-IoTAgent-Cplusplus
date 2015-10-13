@@ -55,6 +55,12 @@ int main(int argc, const char* argv[]) {
   iota::Process& process =
       iota::Process::initialize(arguments.get_url_base(), 8);
 
+  try {
+    pion::plugin::add_plugin_directory(arguments.get_plugin_directory());
+  } catch(pion::error::directory_not_found& e) {
+    std::cerr << "Plugin directory does not exist " << arguments.get_plugin_directory() << std::endl;
+    return 1;
+  }
   // Initialization Configurator
   if (!arguments.get_standalone_config_file().empty()) {
     conf_iotagent =
