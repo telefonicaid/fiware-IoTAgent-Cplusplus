@@ -849,6 +849,7 @@ void MqttTest::testPostprocessorJSON_IoTOutput_cmd() {
   std::cout << "Sensor Stopping... " << std::endl;
 
   CPPUNIT_ASSERT(idsensor > 0);
+  delete mockPublisher;
   std::cout << "TEST: testPostprocessorJSON_IoTOutput_cmd DONE " << std::endl;
 }
 
@@ -1046,10 +1047,7 @@ void MqttTest::testCommandsWithJSONFormat() {
   // Expect call for publishing the command.
 
   EXPECT_CALL(*mockMosquittoPub, mqttPublish(_, _, _, _, _, _))
-      .WillOnce(
-          Invoke(this,
-                 &MqttTest::stubPublishPayloadFormat));  // ASSERT is within
-                                                         // stubPublishPub.
+      .WillOnce(Invoke(this, &MqttTest::stubPublishPayloadFormat));
 
   EXPECT_CALL(*mockMosquittoPub, mqttDisconnect()).WillOnce(Return(0));
 
@@ -1071,6 +1069,11 @@ void MqttTest::testCommandsWithJSONFormat() {
 
   int idsensor = mqttService->idsensor;
   SLEEP(1000);
+
+  std::string expected("param1=value1|param2=value2");
+
+  CPPUNIT_ASSERT(input_payload.find(expected) != std::string::npos);
+
   std::cout << "TEST: testCommandsWithJSONFormat Stopping sensor...  "
             << std::endl;
 
@@ -1246,11 +1249,7 @@ int MqttTest::stubPublishPayloadFormat(int* mid, const char* topic,
   memcpy(char_payload, payload, payloadLen);
   char_payload[payloadLen] = 0x0;
 
-  std::string strPayload(char_payload);
-
-  std::cout << "RESULT FOR PAYLOAD: " << strPayload << std::endl;
-
-  // CPPUNIT_ASSERT_EQUAL(expected, strPayload);
+  input_payload.assign(char_payload);
 
   return 0;
 }

@@ -45,7 +45,7 @@
 class MqttTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(MqttTest);
 
-  /* CPPUNIT_TEST(testCBPublisher);
+  CPPUNIT_TEST(testCBPublisher);
    CPPUNIT_TEST(testCBPublisherMissingApikey);
    CPPUNIT_TEST(testCBPublisherMissingIDdevice);
    CPPUNIT_TEST(testReceivedMqtt);
@@ -63,7 +63,7 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
    CPPUNIT_TEST(testLocationContextBroker);
 
-   CPPUNIT_TEST(testCommandsBody_BUG);*/
+   CPPUNIT_TEST(testCommandsBody_BUG);
   CPPUNIT_TEST(testCommandsWithJSONFormat);
   CPPUNIT_TEST_SUITE_END();
 
@@ -105,6 +105,8 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
   std::string mqtt_payload;
   std::string mqtt_apikey;
   std::string mqtt_device;
+
+  std::string input_payload;
 
   std::string marshalled_Mqtt;
 
