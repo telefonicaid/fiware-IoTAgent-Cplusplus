@@ -40,6 +40,7 @@ class JsonTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(testErrors);
   CPPUNIT_TEST(testAttrCompound);
   CPPUNIT_TEST(testConversion);
+  CPPUNIT_TEST(testAttributeJSONCommand);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -60,5 +61,6 @@ class JsonTest : public CppUnit::TestFixture {
   void testErrors();
   void testAttrCompound();
   void testConversion();
+  void testAttributeJSONCommand();
 };
 #endif

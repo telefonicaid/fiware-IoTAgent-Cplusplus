@@ -736,6 +736,7 @@ int iota::CommandHandle::updateContext(
           iota::Attribute att = *j;
           if (att.get_type().compare(iota::types::COMMAND_TYPE) == 0) {
             try {
+              IOTA_LOG_DEBUG(m_logger, "Command VALUE:  " << att.get_value());
               updateCommand(att.get_name(), att.get_value(), item_dev,
                             entity_type, sequence, service_ptree);
             } catch (iota::IotaException& e) {

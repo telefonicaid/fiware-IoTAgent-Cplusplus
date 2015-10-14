@@ -86,13 +86,7 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
     _type.assign(document["type"].GetString());
   }
   if (document.HasMember("value")) {
-    if (_type != "compound") {
-      _value.assign(document["value"].GetString());
-      if (_value.empty()) {
-        // CB does not allow empty fields, so we add a space
-        _value = EMPTY_VALUE;
-      }
-    } else {
+    if (_type == "compound") {
       const rapidjson::Value& data = document["value"];
       if (data.IsArray()) {
         for (rapidjson::SizeType i = 0; i < data.Size(); i++) {
@@ -101,6 +95,19 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
                               data[i]["value"].GetString());
           add_value_compound(val);
         }
+      }
+
+    } else if (_type == "command" && document["value"].IsObject()) {
+      rapidjson::StringBuffer sb;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+      document["value"].Accept(writer);
+      _value = sb.GetString();
+
+    } else {
+      _value.assign(document["value"].GetString());
+      if (_value.empty()) {
+        // CB does not allow empty fields, so we add a space
+        _value = EMPTY_VALUE;
       }
     }
   } else {
@@ -143,13 +150,7 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
     _type.assign(attribute["type"].GetString());
   }
   if (attribute.HasMember("value")) {
-    if (_type != "compound") {
-      const rapidjson::Value& data = attribute["value"];
-      _value.assign(iota::get_str_value(data));
-      if (_value.empty()) {
-        _value = EMPTY_VALUE;
-      }
-    } else {
+    if (_type == "compound") {
       const rapidjson::Value& data = attribute["value"];
       if (data.IsArray()) {
         for (rapidjson::SizeType i = 0; i < data.Size(); i++) {
@@ -158,6 +159,19 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
                               data[i]["value"].GetString());
           add_value_compound(val);
         }
+      }
+    } else if (_type == "command" && attribute["value"].IsObject()) {
+      rapidjson::StringBuffer sb;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+      attribute["value"].Accept(writer);
+
+      _value = sb.GetString();
+
+    } else {
+      const rapidjson::Value& data = attribute["value"];
+      _value.assign(iota::get_str_value(data));
+      if (_value.empty()) {
+        _value = EMPTY_VALUE;
       }
     }
   }

@@ -5,6 +5,12 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 # util Test:  general test about  cache, csv, url
 add_executable(util_tests util_tests.cc UtilFunctionTest.cc UtilFunctionTest.h)
 target_link_libraries(util_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
+
+#json Test: JSON tests of parsing NGSI messages
+add_executable(json_tests JsonTest.cc json_test.cc)
+target_link_libraries(json_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
+
+
 # ngsi Test: tests about ngsi operation
 add_executable(ngsi_tests json_test.cc JsonTest.cc)
 target_link_libraries(ngsi_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})

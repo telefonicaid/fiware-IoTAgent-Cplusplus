@@ -844,7 +844,7 @@ void MqttTest::testPostprocessorJSON_IoTOutput_cmd() {
   int idsensor = mqttService->idsensor;
 
   // Finishing
-  SLEEP(100);
+  SLEEP(1000);
 
   std::cout << "Sensor Stopping... " << std::endl;
 
@@ -937,7 +937,7 @@ void MqttTest::testCommandsBody_BUG() {
                                    updateContext_data, sequence_id, item_dev,
                                    ptreeservice, id, pt);
     res1 = pt.get("body", "");
-    std::cout << "@UT@res:" << res1 << std::endl;
+    std::cout << "@MQTT@res:" << res1 << std::endl;
     IOTASSERT(res1.compare("dev_mqtt_push@PING") == 0);
   }
 
@@ -982,6 +982,103 @@ void MqttTest::testCommandsBody_BUG() {
   }
 
   std::cout << "TEST: testCommandsBody_BUG DONE  " << std::endl;
+}
+
+void MqttTest::testCommandsWithJSONFormat() {
+  std::cout << "START testCommandsWithJSONFormat " << std::endl;
+
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestMqtt/mqtt");
+  test_setup.set_apikey(__FUNCTION__);
+  test_setup.add_device("dev_mqtt_push",
+                        mqttService->get_protocol_data().protocol, true);
+
+  // Command to get processed.
+  std::string querySTR = "";
+  std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
+  bodySTR.append(
+      "\"contextElements\":[{\"id\":\"dev_mqtt_push\",\"type\":\"type2\","
+      "\"isPattern\":\"false\",");
+
+  bodySTR.append(
+      "\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":{");
+  bodySTR.append("\"param1\":\"value1\",\"param2\":\"value2\"");
+  bodySTR.append("},");
+  bodySTR.append(
+      "\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":"
+      "\"2014-11-23T17:33:36.341305Z\"}]}");
+  bodySTR.append("]} ]}");
+
+  pion::http::request_ptr http_request(
+      new pion::http::request("/iot/ngsi/mqtt/updateContext"));
+  http_request->set_method("POST");
+  http_request->add_header(iota::types::FIWARE_SERVICE,
+                           test_setup.get_service());
+  http_request->add_header(iota::types::FIWARE_SERVICEPATH,
+                           test_setup.get_service_path());
+  http_request->set_query_string(querySTR);
+  http_request->set_content(bodySTR);
+
+  std::map<std::string, std::string> url_args;
+  std::multimap<std::string, std::string> query_parameters;
+  pion::http::response http_response;
+  std::string response;
+
+  std::string sensorfile("../../tests/iotagent/sensormqtt-mqttwriter.xml");
+  std::string logPath("./");
+
+  std::cout << "TEST: testCommandsWithJSONFormat loading ESP...  " << std::endl;
+  mqttService->initESPLib(logPath, sensorfile);
+
+  mockMosquitto = new MockMosquitto();
+
+  // Simulates that a mqtt message comes with fields defined above.
+  // In this scenario, NO MQTT message is coming.
+  defineExpectationsMqttNoIncomingMsg();
+
+  // Definition of expectations for Mqtt publisher mock
+  mockMosquittoPub = new MockMosquitto();
+  defineExpectationsMqttPublisher();
+
+  // Expect call for publishing the command.
+
+  EXPECT_CALL(*mockMosquittoPub, mqttPublish(_, _, _, _, _, _))
+      .WillOnce(
+          Invoke(this,
+                 &MqttTest::stubPublishPayloadFormat));  // ASSERT is within
+                                                         // stubPublishPub.
+
+  EXPECT_CALL(*mockMosquittoPub, mqttDisconnect()).WillOnce(Return(0));
+
+  std::cout << "TEST: testCommandsWithJSONFormat ESP Loaded  " << std::endl;
+  mqttService->setIotaMqttService(cbPublish);
+
+  mqttService->startESP();
+  std::cout << "TEST: testCommandsWithJSONFormat Sensor started  " << std::endl;
+
+  std::cout
+      << "TEST: testCommandsWithJSONFormat Inserting command into Iotagent "
+         "MqttService...  "
+      << std::endl;
+  // Command insertion
+  mqttService->op_ngsi(http_request, url_args, query_parameters, http_response,
+                       response);
+
+  // TODO: check command published en ContextBroker
+
+  int idsensor = mqttService->idsensor;
+  SLEEP(1000);
+  std::cout << "TEST: testCommandsWithJSONFormat Stopping sensor...  "
+            << std::endl;
+
+  std::cout << "Sensor Stopping... " << std::endl;
+
+  CPPUNIT_ASSERT(idsensor > 0);
+
+  std::cout << "TEST: testCommandsWithJSONFormat DONE  " << std::endl;
 }
 
 int MqttTest::stubReadClient(int id, char* buffer, int len) {
@@ -1138,6 +1235,22 @@ int MqttTest::stubPublishPush(int* mid, const char* topic, int payloadLen,
   std::string expected("testpushcommandexecution/dev_mqtt_push/cmd/PING");
 
   CPPUNIT_ASSERT_EQUAL(expected, strTopic);
+
+  return 0;
+}
+
+int MqttTest::stubPublishPayloadFormat(int* mid, const char* topic,
+                                       int payloadLen, const void* payload,
+                                       int qos, bool retain) {
+  char* char_payload = (char*)malloc(payloadLen + 1);
+  memcpy(char_payload, payload, payloadLen);
+  char_payload[payloadLen] = 0x0;
+
+  std::string strPayload(char_payload);
+
+  std::cout << "RESULT FOR PAYLOAD: " << strPayload << std::endl;
+
+  // CPPUNIT_ASSERT_EQUAL(expected, strPayload);
 
   return 0;
 }
