@@ -736,6 +736,7 @@ int iota::CommandHandle::updateContext(
           iota::Attribute att = *j;
           if (att.get_type().compare(iota::types::COMMAND_TYPE) == 0) {
             try {
+              IOTA_LOG_DEBUG(m_logger, "Command VALUE:  " << att.get_value());
               updateCommand(att.get_name(), att.get_value(), item_dev,
                             entity_type, sequence, service_ptree);
             } catch (iota::IotaException& e) {
@@ -1844,4 +1845,30 @@ void iota::CommandHandle::populate_command_attributes(
     iota::Attribute attribute(it->first, "command", value);
     entity_context_element.add_attribute(attribute);
   }
+}
+
+std::string iota::CommandHandle::json_value_to_ul(
+    const std::string& json_value) {
+  std::string new_value("");
+  if (json_value != "") {
+    rapidjson::Document document;
+    char buffer[json_value.length()];
+
+    strcpy(buffer, json_value.c_str());
+    if (document.ParseInsitu<0>(buffer).HasParseError()) {
+      // bypass json_value if it wasn't a proper json
+      new_value.assign(json_value);
+    } else {
+      for (rapidjson::Value::ConstMemberIterator itr = document.MemberBegin();
+           itr != document.MemberEnd(); ++itr) {
+        new_value.append(itr->name.GetString());
+        new_value.append("=");
+        new_value.append(itr->value.GetString());
+        if (itr + 1 != document.MemberEnd()) {
+          new_value.append("|");  // TODO: replace with constants.
+        }
+      }
+    }
+  }
+  return new_value;
 }

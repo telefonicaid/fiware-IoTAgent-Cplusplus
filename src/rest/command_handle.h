@@ -400,6 +400,8 @@ class CommandHandle : public iota::RestHandle {
   void process_command_response(CommandData& cmd_data, int& res_code,
                                 std::string& resp_cmd);
 
+  std::string json_value_to_ul(const std::string& json_value);
+
   std::string _myProvidingApp;
 
   int _reg_timeout;
