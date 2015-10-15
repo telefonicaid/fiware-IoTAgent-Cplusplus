@@ -174,34 +174,86 @@ Replace  x.x.x.x  with  VM IP address. By default  iotagent listen in port 8080
 
 #### Identify an IoTAgent in Manager
 
-If you have several iotagents, you will use an iot manager, and it is very usefull to identify iotagent with an special name.
+If you have several iotagents, you will use an iot manager, and it is very usefull to identify iotagent with an special name, and avoid problems if your host hasn't got a fixed ip.
 
-  
-In command line exists a paramater -n or --name  to set a name for iotagent, this name is used to set the file name for logs (it will be IoTAgent-<name>.log)
+This is new in release 1.2.1, in older version if you ask for protocols
 
+curl -X GET http://localhost:8081/iot/protocols -i -H "Content-Type: application/json"
 
-In config file there is another way to define the identifier for iotagent.
 ```
-{ 
+{
+  "count": 1,
+  "protocols": [
+    {
+      "protocol": "PDI-IoTA-UltraLight",
+      "description": "UL2",
+      "endpoints": [
+        {
+          "endpoint": "http://192.0.3.25:8080/iot",
+          "resource": "/iot/d"
+        }
+      ]
+    }
+  ]
+}
+```
+
+If you update to release1.2.1  the response is
+
+```
+{
+  "count": 1,
+  "protocols": [
+    {
+      "protocol": "PDI-IoTA-UltraLight",
+      "description": "UL2",
+      "endpoints": [
+        {
+          "endpoint": "http://192.0.3.25:8080/iot",
+          "resource": "/iot/d",
+          "identifier": "IoTPlatform:8080"
+        }
+      ]
+    }
+  ]
+}
+```
+
+There is a new parameter identifier, with the name and port of the iotagent, unique identifier for this iotagent, and unique identifier for this endpoint.
+
+How can you set this identifier:
+
+1- In command line exists another parameter to define the iota identifier
+-I or --identifier set the identifier. Pay attention, you cannot put the same name in two iotagents with the same port and protocol.
+
+2- In config file there is another way to define the identifier for iotagent.
+```
+{
   "identifier":"id1",
 ....
 ```
-
 This name is only used to talk with iota manager.
 
-Because of the name of iotagent is associated with log file name. In command line exists another parameter to define the iota identifier
--I or --identifier set the identifier and it is more priority than any identifier in config file.
+3- In command line exists a paramater -n or --name  to set a name for iotagent.
+ This name is used to set the file name for logs (it will be IoTAgent-<name>.log) this is the reason to create before parameter to define the iota identifier different for log files.
+
+4- If you do not use any of the above options, idenfifier will be ip with port.
+
+if you choose several ways to set the identifier, the more priority it is first, second, ...
+
 
 To see the identifier for an iotagent execute
 
 ```
 curl -X GET http://localhost:8080/iot/about
+```
 
-``` 
 then you can see the identifier
+
 ```
 Welcome to IoTAgents  identifier:idcl1:8080  1.2.1 commit 55.g7fd08a6 in Sep 30 2015
 ```
+
 When you ask to iot manager for iotagents and protocols, you can see identifiers
 [API REFERENCE MANAGER](API_REFERENCE_MANAGER.md)
 

@@ -46,24 +46,25 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(MqttTest);
 
   CPPUNIT_TEST(testCBPublisher);
-  CPPUNIT_TEST(testCBPublisherMissingApikey);
-  CPPUNIT_TEST(testCBPublisherMissingIDdevice);
-  CPPUNIT_TEST(testReceivedMqtt);
-  CPPUNIT_TEST(testBadXMLConfigOutputIoT);
-  CPPUNIT_TEST(testLongAliasesNotWorking);
-  CPPUNIT_TEST(testBadEntityType);
-  CPPUNIT_TEST(testNotInitCBPublisher);
-  CPPUNIT_TEST(testMultipleMeasures);
+   CPPUNIT_TEST(testCBPublisherMissingApikey);
+   CPPUNIT_TEST(testCBPublisherMissingIDdevice);
+   CPPUNIT_TEST(testReceivedMqtt);
+   CPPUNIT_TEST(testBadXMLConfigOutputIoT);
+   CPPUNIT_TEST(testLongAliasesNotWorking);
+   CPPUNIT_TEST(testBadEntityType);
+   CPPUNIT_TEST(testNotInitCBPublisher);
+   CPPUNIT_TEST(testMultipleMeasures);
 
-  CPPUNIT_TEST(testExtractingCmdId);
+   CPPUNIT_TEST(testExtractingCmdId);
 
-  CPPUNIT_TEST(testPushCommandExecution);
-  CPPUNIT_TEST(testPushCommandResponse);
-  CPPUNIT_TEST(testPostprocessorJSON_IoTOutput_cmd);
+   CPPUNIT_TEST(testPushCommandExecution);
+   CPPUNIT_TEST(testPushCommandResponse);
+   CPPUNIT_TEST(testPostprocessorJSON_IoTOutput_cmd);
 
-  CPPUNIT_TEST(testLocationContextBroker);
+   CPPUNIT_TEST(testLocationContextBroker);
 
-  CPPUNIT_TEST(testCommandsBody_BUG);
+   CPPUNIT_TEST(testCommandsBody_BUG);
+  CPPUNIT_TEST(testCommandsWithJSONFormat);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -97,11 +98,15 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   void testCommandsBody_BUG();
 
+  void testCommandsWithJSONFormat();
+
  private:
   std::string mqtt_alias;
   std::string mqtt_payload;
   std::string mqtt_apikey;
   std::string mqtt_device;
+
+  std::string input_payload;
 
   std::string marshalled_Mqtt;
 
@@ -137,6 +142,9 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   int stubPublishPush(int* mid, const char* topic, int payloadLen,
                       const void* payload, int qos, bool retain);
+
+  int stubPublishPayloadFormat(int* mid, const char* topic, int payloadLen,
+                               const void* payload, int qos, bool retain);
 };
 
 #endif /* MQTTTEST_H */

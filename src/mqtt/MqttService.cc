@@ -318,6 +318,15 @@ void iota::esp::MqttService::transform_command(
   std::string updateCommand_value(a_updateCommand_value);
   boost::trim(command_value);
   boost::trim(updateCommand_value);
+  IOTA_LOG_DEBUG(m_logger, "MqttService::transform_command: value ["
+                               << command_value << "]");
+  IOTA_LOG_DEBUG(m_logger,
+                 "MqttService::transform_command: updateCommand Value ["
+                     << updateCommand_value << "]");
+
+  updateCommand_value.assign(json_value_to_ul(updateCommand_value));
+  IOTA_LOG_DEBUG(m_logger, "MqttService::transform_command: processed: "
+                               << updateCommand_value);
 
   command_line.put(iota::store::types::NAME, command_name);
   std::string result;
@@ -344,7 +353,8 @@ void iota::esp::MqttService::transform_command(
     command_id.assign(sequence_id);
   }
   command_line.put(iota::store::types::BODY, result);
-  IOTA_LOG_DEBUG(m_logger, "MqttService::transform_command " << result);
+  IOTA_LOG_DEBUG(m_logger, "MqttService::transform_command result: [" << result
+                                                                      << "]");
 }
 
 std::string iota::esp::MqttService::serializeMqttCommand(std::string apikey,

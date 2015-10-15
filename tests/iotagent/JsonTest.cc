@@ -933,6 +933,27 @@ void JsonTest::testConversionUpdateContext() {
   std::cout << "@END@ testConversionUpdateContext" << std::endl;
 }
 
+void JsonTest::testAttributeJSONCommand() {
+  std::string ATTRIBUTE(
+      "{\"name\":\"PING\",\"type\":\"command\",\"value\":"
+      "{\"param1\":\"value1\",\"param2\":\"value2\"}"
+      "}");
+
+  std::cout << "@START@ testAttributeJSONCommand" << std::endl;
+  std::istringstream ss(ATTRIBUTE);
+  iota::Attribute att(ss);
+
+  std::string name = att.get_name();
+  std::string type = att.get_type();
+  std::string value = att.get_value();
+  std::cout << "attribute:" << name << " " << type << " " << value << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("name", name.compare("PING") == 0);
+  CPPUNIT_ASSERT_MESSAGE("type", type.compare("command") == 0);
+  CPPUNIT_ASSERT_MESSAGE(
+      "value",
+      value.compare("{\"param1\":\"value1\",\"param2\":\"value2\"}") == 0);
+}
+
 void JsonTest::testConversion() {
   rapidjson::Value vi(10);
   CPPUNIT_ASSERT_MESSAGE(
