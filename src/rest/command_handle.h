@@ -400,6 +400,19 @@ class CommandHandle : public iota::RestHandle {
   void process_command_response(CommandData& cmd_data, int& res_code,
                                 std::string& resp_cmd);
 
+  /**
+  * @name json_value_to_ul
+  * @brief for commands that have parameters formatted in JSON, this function
+  *will convert that JSON string into
+  * UltraLight-type sequence of params (param-name=value|param-name2=value...).
+  *This is used at least by MQTTService and UL20Service
+  * @param [in] json_value, std::string. This is the JSON object with commands
+  *"{ "param1" : "value1" , ...}"
+  * @return std::string, the formatted sequence: "param1=value|param2=value..."
+  *IF input value is JSON, otherwise it will just bypass whatever comes
+  * as input.
+  *
+  **/
   std::string json_value_to_ul(const std::string& json_value);
 
   std::string _myProvidingApp;
