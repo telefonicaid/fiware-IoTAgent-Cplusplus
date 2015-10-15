@@ -982,6 +982,35 @@ void MqttTest::testCommandsBody_BUG() {
     IOTASSERT(res1.compare(provisioned_data) == 0);
   }
 
+  {
+    std::cout << "@MQTT@format command with JSON one param" << std::endl;
+    std::string provisioned_data = "dev_mqtt_push@PING";
+    std::string updateContext_data = "{\"param1\":\"value1\"}";
+    boost::property_tree::ptree pt;
+    std::string parameters1;
+    mqttService->transform_command(command_name, provisioned_data,
+                                   updateContext_data, sequence_id, item_dev,
+                                   ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@MQTT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare("dev_mqtt_push@PING|param1=value1") == 0);
+  }
+
+  {
+    std::cout << "@MQTT@normal command with JSON two parameters " << std::endl;
+    std::string provisioned_data = "";
+    std::string updateContext_data =
+        "{\"param1\":\"value1\",\"param2\":\"value2\"}";
+    boost::property_tree::ptree pt;
+    mqttService->transform_command(command_name, provisioned_data,
+                                   updateContext_data, sequence_id, item_dev,
+                                   ptreeservice, id, pt);
+    res1 = pt.get("body", "");
+    std::cout << "@UT@res:" << res1 << std::endl;
+    IOTASSERT(res1.compare("dev_mqtt_push@PING|param1=value1|param2=value2") ==
+              0);
+  }
+
   std::cout << "TEST: testCommandsBody_BUG DONE  " << std::endl;
 }
 

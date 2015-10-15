@@ -234,6 +234,16 @@ const std::string Ul20Test::UPDATE_CONTEXT_sin_param(
     "\"2014-11-23T17:33:36.341305Z\"}]}"
     "]} ]}");
 
+const std::string Ul20Test::UPDATE_CONTEXT_json_param(
+    "{\"updateAction\":\"UPDATE\","
+    "\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\","
+    "\"isPattern\":\"false\","
+    "\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":{"
+    "\"param1\":\"value1\",\"param2\":\"value2\"},"
+    "\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":"
+    "\"2014-11-23T17:33:36.341305Z\"}]}"
+    "]} ]}");
+
 const int Ul20Test::RESPONSE_CODE_NGSI = 200;
 
 const std::string Ul20Test::RESPONSE_MESSAGE_NGSI_OK(
@@ -2806,6 +2816,7 @@ void Ul20Test::testPUSHCommand_MONGO() {
   // device command response
   cb_mock->set_response("/mock/unitTest_dev2_endpoint", 200, mock_response, h);
   cb_mock->set_response("/mock/unitTest_dev2_endpoint", 200, mock_response, h);
+  cb_mock->set_response("/mock/unitTest_dev2_endpoint", 200, mock_response, h);
 
   std::string response;
   int code_res;
@@ -2914,6 +2925,64 @@ void Ul20Test::testPUSHCommand_MONGO() {
     cb_last = cb_mock->get_last("/mock/unitTest_dev2_endpoint");
     std::cout << "@UT@comando que llega al simulador " << cb_last << std::endl;
     IOTASSERT(cb_last.find("unitTest_dev2_endpoint@PING") != std::string::npos);
+
+    cb_last = cb_mock->get_last("/mock/" + test_setup.get_service() +
+                                "/NGSI10/updateContext");
+  }
+
+  std::cout << "@UT@upadteContext@" << UPDATE_CONTEXT_json_param << std::endl;
+  // updateContext with JSON as params.
+  querySTR = "";
+  bodySTR = UPDATE_CONTEXT_json_param;
+  {
+    pion::http::request_ptr http_request(
+        new pion::http::request("/TestUL/ngsi/d/updateContext"));
+    http_request->set_method("POST");
+    http_request->add_header(iota::types::FIWARE_SERVICE,
+                             test_setup.get_service());
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH,
+                             test_setup.get_service_path());
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR);
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    pion::http::response http_response;
+    std::string response;
+    ul20serv->op_ngsi(http_request, url_args, query_parameters, http_response,
+                      response);
+
+    ASYNC_TIME_WAIT
+    // respuesta al update de contextBroker
+    std::cout << "@UT@RESPONSE" << http_response.get_status_code() << " "
+              << response << std::endl;
+    IOTASSERT(response.find(RESPONSE_MESSAGE_NGSI_OK) != std::string::npos);
+    IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
+
+    std::string cb_last = cb_mock->get_last(
+        "/mock/" + test_setup.get_service() + "/NGSI10/updateContext");
+    // info
+    std::cout << "@UT@INFO" << cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+              std::string::npos);
+    IOTASSERT(cb_last.find("{\"name\":\"PING_info\",\"type\":\"string\","
+                           "\"value\":\"device_id@PING|Ping OK\"") !=
+              std::string::npos);
+
+    // OK
+    std::cout << "@UT@OK" << cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+              std::string::npos);
+    IOTASSERT(
+        cb_last.find(
+            "{\"name\":\"PING_status\",\"type\":\"string\",\"value\":\"OK\"") !=
+        std::string::npos);
+
+    cb_last = cb_mock->get_last("/mock/unitTest_dev2_endpoint");
+    std::cout << "@UT@comando que llega al simulador " << cb_last << std::endl;
+    IOTASSERT(cb_last.find(
+                  "unitTest_dev2_endpoint@PING|param1=value1|param2=value2") !=
+              std::string::npos);
 
     cb_last = cb_mock->get_last("/mock/" + test_setup.get_service() +
                                 "/NGSI10/updateContext");

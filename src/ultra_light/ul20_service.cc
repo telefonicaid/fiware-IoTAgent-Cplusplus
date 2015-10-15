@@ -643,6 +643,8 @@ void iota::UL20Service::transform_command(
   boost::trim(command_value);
   boost::trim(updateCommand_value);
 
+  updateCommand_value = json_value_to_ul(updateCommand_value);
+
   IOTA_LOG_DEBUG(m_logger, "transform_command:: " << command_value
                                                   << " updateCommand_value:"
                                                   << updateCommand_value);
