@@ -325,7 +325,7 @@ class RestHandle : public pion::http::plugin_service,
   std::string _storage_type;
 
   // cache with registered devices
-  Cache registeredDevices;
+  iota::Cache registeredDevices;
 
   // Protocol data
   iota::ProtocolData _protocol_data;

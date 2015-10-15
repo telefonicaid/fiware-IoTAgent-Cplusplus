@@ -23,7 +23,6 @@
 #define SRC_UTIL_COMMAND_CACHE_H_
 
 #include "command.h"
-#include "async_comm.h"
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/identity.hpp>
@@ -73,20 +72,9 @@ class CommandCache {
   typedef boost::function<boost::shared_ptr<Command>(
       boost::shared_ptr<Command>&)> GetFunction_t;
 
-  CommandCache(std::size_t capacity, bool lru)
-      : _max_num_items(capacity),
-        _lru(lru),
-        _get_function(NULL),
-        _timeout_function(NULL) {
-    _async_manager.reset(new iota::CommonAsyncManager(1));
-    _async_manager->run();
-  };
+  CommandCache(std::size_t capacity, bool lru);
 
-  ~CommandCache() {
-    if (_async_manager.get() != NULL) {
-      _async_manager->stop();
-    }
-  };
+  ~CommandCache() {};
 
   void set_max_num_items(std::size_t capacity) { _max_num_items = capacity; }
 
@@ -106,40 +94,7 @@ class CommandCache {
     _get_id_function = get_function;
   }
 
-  void insert(const boost::shared_ptr<Command>& item) {
-    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-    std::pair<iterator, bool> p;
-    if (_lru) {
-      p = _list.push_front(item);
-      if (item->get_timeout() > 0) {
-        // timeout is in seconds  for this *1000
-        boost::shared_ptr<boost::asio::deadline_timer> t = item->start(
-            *(_async_manager->get_io_service()), item->get_timeout());
-        t->async_wait(boost::bind(&CommandCache::item_timeout, this, item,
-                                  boost::asio::placeholders::error));
-      }
-      if (!p.second) {  // Duplicated
-        _list.relocate(_list.begin(), p.first);
-      } else if (_list.size() > _max_num_items) {
-        _list.back()->cancel();
-        _list.pop_back();
-      }
-
-    } else {
-      if (_list.size() < _max_num_items) {
-        p = _list.push_back(item);
-        if (!p.second) {
-          _list.relocate(_list.end(), p.first);
-        }
-        if (item->get_timeout() > 0) {
-          boost::shared_ptr<boost::asio::deadline_timer> t = item->start(
-              *(_async_manager->get_io_service()), item->get_timeout());
-          t->async_wait(boost::bind(&CommandCache::item_timeout, this, item,
-                                    boost::asio::placeholders::error));
-        }
-      }
-    }
-  }
+  void insert(const boost::shared_ptr<Command>& item);
 
   boost::shared_ptr<Command> get(boost::shared_ptr<Command> key) {
     boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
@@ -311,7 +266,7 @@ class CommandCache {
   GetFunction_t _get_entity_function;
   GetFunction_t _get_id_function;
   GetFunction_t _timeout_function;
-
+  pion::logger m_logger;
   boost::recursive_mutex m_mutex;
 };
 };

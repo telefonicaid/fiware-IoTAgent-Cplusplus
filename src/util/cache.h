@@ -23,7 +23,7 @@
 #define SRC_UTIL_CACHE_H_
 
 #include "device.h"
-#include "async_comm.h"
+#include "rest/process.h"
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/hashed_index.hpp>
 #include <boost/multi_index/identity.hpp>
@@ -69,21 +69,9 @@ class Cache {
   typedef boost::function<boost::shared_ptr<Device>(boost::shared_ptr<Device>&)>
       GetFunction_t;
 
-  Cache(std::size_t capacity, bool lru, unsigned short time_life = 0)
-      : _max_num_items(capacity),
-        _lru(lru),
-        _time_life(time_life),
-        _get_function(NULL) {
-    if (_time_life > 0) {
-      _async_manager.reset(new iota::CommonAsyncManager(1));
-      _async_manager->run();
-    }
-  };
+  Cache(std::size_t capacity, bool lru, unsigned short time_life = 0);
 
   ~Cache() {
-    if (_async_manager.get() != NULL) {
-      _async_manager->stop();
-    }
   };
 
   void set_function(GetFunction_t get_function) {
@@ -94,41 +82,7 @@ class Cache {
     _get_entity_function = get_function;
   }
 
-  void insert(const boost::shared_ptr<Device>& item) {
-    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
-    std::pair<iterator, bool> p;
-    if (_lru) {
-      p = _list.push_front(item);
-      if (_time_life > 0) {
-        boost::shared_ptr<boost::asio::deadline_timer> t =
-            item->start(*(_async_manager->get_io_service()), _time_life);
-        t->async_wait(boost::bind(&Cache::item_timeout, this, item,
-                                  boost::asio::placeholders::error));
-      }
-      if (!p.second) {  // Duplicated
-        _list.relocate(_list.begin(), p.first);
-      } else if (_list.size() > _max_num_items) {
-        if (_time_life > 0) {
-          _list.back()->cancel();
-        }
-        _list.pop_back();
-      }
-
-    } else {
-      if (_list.size() < _max_num_items) {
-        p = _list.push_back(item);
-        if (!p.second) {
-          _list.relocate(_list.end(), p.first);
-        }
-        if (_time_life > 0) {
-          boost::shared_ptr<boost::asio::deadline_timer> t =
-              item->start(*(_async_manager->get_io_service()), _time_life);
-          t->async_wait(boost::bind(&Cache::item_timeout, this, item,
-                                    boost::asio::placeholders::error));
-        }
-      }
-    }
-  }
+  void insert(const boost::shared_ptr<Device>& item);
 
   boost::shared_ptr<Device> get(boost::shared_ptr<Device> key) {
     boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
@@ -204,6 +158,8 @@ class Cache {
     item_iterator i = boost::multi_index::get<1>(_list).begin();
     i = boost::multi_index::get<1>(_list).find(item);
     if (i != boost::multi_index::get<1>(_list).end()) {
+      boost::shared_ptr<Device> item = *i;
+      item->cancel();
       boost::multi_index::get<1>(_list).erase(i);
     }
   }
@@ -211,6 +167,7 @@ class Cache {
   void item_timeout(boost::shared_ptr<Timer> timer,
                     const boost::system::error_code& ec) {
     boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+
     boost::shared_ptr<Device> item_tmp =
         boost::dynamic_pointer_cast<Device>(timer);
     if (ec == boost::asio::error::operation_aborted) {
@@ -220,17 +177,11 @@ class Cache {
     remove(*item);
   }
 
-  boost::shared_ptr<boost::asio::io_service> get_io_service() {
-    return _async_manager->get_io_service();
-  }
-
   void set_time_to_life(unsigned short time_life) {
     if (time_life == 0) return;
 
     if (_time_life == 0) {
       _time_life = time_life;
-      _async_manager.reset(new iota::CommonAsyncManager(1));
-      _async_manager->run();
     }
   };
 
@@ -239,10 +190,10 @@ class Cache {
   item_list _list;
   bool _lru;
   unsigned short _time_life;
-  boost::shared_ptr<iota::CommonAsyncManager> _async_manager;
   GetFunction_t _get_function;
   GetFunction_t _get_entity_function;
   boost::recursive_mutex m_mutex;
+  pion::logger m_logger;
 };
-};
+}
 #endif

@@ -23,11 +23,9 @@
 #define SRC_REST_PROCESS_H_
 
 #include "rest/tcp_service.h"
-#include "rest_handle.h"
 #include "util/iota_logger.h"
 #include <boost/noncopyable.hpp>
 #include <pion/scheduler.hpp>
-#include "rest_handle.h"
 #include <pion/http/plugin_server.hpp>
 
 namespace iota {

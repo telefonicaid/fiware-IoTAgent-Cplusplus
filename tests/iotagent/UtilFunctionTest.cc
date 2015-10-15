@@ -432,7 +432,7 @@ void UtilFunctionTest::testCacheClock() {
   t.wait();
   CPPUNIT_ASSERT(mru_cache_1.size() == 0);
   iota::Cache mru_cache_2(1, true, 2);
-  boost::shared_ptr<boost::asio::io_service> io2 = mru_cache_2.get_io_service();
+  //boost::shared_ptr<boost::asio::io_service> io2 = mru_cache_2.get_io_service();
   boost::shared_ptr<iota::Device> item3(new iota::Device("Cancel", "Gonzalez"));
   boost::shared_ptr<iota::Device> item4(new iota::Device("Test3", "Gonzalez"));
   mru_cache_2.insert(item3);

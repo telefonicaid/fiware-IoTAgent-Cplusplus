@@ -26,17 +26,19 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TextTestProgressListener.h>
 #include "UtilFunctionTest.h"
+#include "rest/process.h"
 
 int main(int argc, char* argv[]) {
-  // CppUnit::TestResult controller;
-  // CppUnit::TestResultCollector result;
-  // controller.addListener( &result );
-  // CppUnit::TextTestProgressListener progress;
-  // controller.addListener( &progress );
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Process& process = iota::Process::initialize("/", 2);
+  process.start();
   CppUnit::TextUi::TestRunner runner;
   runner.addTest(UtilFunctionTest::suite());
   runner.setOutputter(
       new CppUnit::CompilerOutputter(&runner.result(), std::cerr));
   bool s = runner.run();
+  process.shutdown();
   return s ? 0 : 1;
 }
