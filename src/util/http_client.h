@@ -89,6 +89,7 @@ class HttpClient : public boost::enable_shared_from_this<HttpClient> {
   pion::http::response_ptr _response;
   pion::http::request_ptr _request;
   application_callback_t _callback;
+  pion::logger m_logger;
 
   void generate_identifier();
 

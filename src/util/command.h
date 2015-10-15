@@ -116,7 +116,7 @@ class Command : public virtual Timer {
 
   int get_timeout(void) const { return _timeout; };
 
-  void set_timeout(int t_sec) { _timeout = t_sec; };
+ void set_timeout(int t_sec) { _timeout = t_sec; };
 
   std::string get_sequence(void) const { return _sequence; };
 

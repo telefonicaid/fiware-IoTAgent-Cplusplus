@@ -22,6 +22,7 @@
 #include "http_client.h"
 #include "iota_exception.h"
 #include "rest/types.h"
+#include "rest/process.h"
 #include "FuncUtil.h"
 #include <boost/bind.hpp>
 #include <boost/uuid/uuid.hpp>
@@ -36,7 +37,8 @@ iota::HttpClient::HttpClient(std::string server, unsigned int port,
       _remote_port(port),
       _port(port),
       _proxy(false),
-      _id(id) {
+      _id(id),
+      m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   _connection.reset(new pion::tcp::connection(_local_io));
   _connection->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   _strand.reset(new boost::asio::io_service::strand(_local_io));
@@ -56,7 +58,9 @@ iota::HttpClient::HttpClient(boost::asio::io_service& io, std::string server,
       _remote_port(port),
       _id(id),
       _port(port),
-      _proxy(false) {
+      _proxy(false),
+      m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
+
   _connection.reset(new pion::tcp::connection(io));
   _connection->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   _strand.reset(new boost::asio::io_service::strand(io));
@@ -69,7 +73,10 @@ iota::HttpClient::HttpClient(boost::asio::io_service& io, std::string server,
   generate_identifier();
 }
 
-iota::HttpClient::~HttpClient() {}
+iota::HttpClient::~HttpClient() {
+  // TODO Remove
+  IOTA_LOG_DEBUG(m_logger, "Destructor " + get_identifier());
+}
 
 pion::http::response_ptr iota::HttpClient::send(
     pion::http::request_ptr request, unsigned int timeout, std::string proxy,
@@ -197,6 +204,8 @@ void iota::HttpClient::read() {
 }
 
 void iota::HttpClient::connectHandle(const boost::system::error_code& ec) {
+
+  IOTA_LOG_DEBUG(m_logger, get_identifier());
   set_error(ec);
   if (check_connection()) {
     // Si se esta utilizando proxy
@@ -258,6 +267,7 @@ void iota::HttpClient::endConnectProxy(const boost::system::error_code& ec,
 
 void iota::HttpClient::readResponse(const boost::system::error_code& ec) {
   // std::size_t bytes_written) {
+  IOTA_LOG_DEBUG(m_logger, get_identifier());
   set_error(ec);
   if (check_connection()) {
     read();
@@ -268,6 +278,7 @@ void iota::HttpClient::checkResponse(
     const pion::http::response_ptr& http_response_ptr,
     const pion::tcp::connection_ptr& conn_ptr,
     const boost::system::error_code& ec) {
+  IOTA_LOG_DEBUG(m_logger, get_identifier());
   _response = http_response_ptr;
   if (_timer) {
     _timer->cancel();
@@ -281,6 +292,7 @@ void iota::HttpClient::checkResponse(
 }
 
 void iota::HttpClient::timeout_connection(const boost::system::error_code& ec) {
+  IOTA_LOG_DEBUG(m_logger, get_identifier());
   if ((!ec) || (ec != boost::asio::error::operation_aborted)) {
     set_error(boost::asio::error::timed_out);
     check_connection();
@@ -357,6 +369,7 @@ void iota::HttpClient::resolve(std::string address, std::string port) {
 }
 
 void iota::HttpClient::stop() {
+  IOTA_LOG_DEBUG(m_logger, get_identifier());
   _timer.reset();
   if (_connection) {
     _connection->close();
