@@ -1459,20 +1459,6 @@ int iota::AdminService::post_device_json(const std::string& service,
       IOTA_LOG_DEBUG(m_log, "device:  " << device_to_post);
 
       mongo::BSONObj insertObj = builder.obj();
-      std::string entity_name =
-          insertObj.getStringField(store::types::ENTITY_NAME);
-      if (!entity_name.empty()) {
-        // "entity_name" : 1, "service" : 1, "service_path" : 1
-        devTable->find(BSON(store::types::ENTITY_NAME
-                            << entity_name << store::types::SERVICE << service
-                            << store::types::SERVICE_PATH << service_path));
-        if (devTable->more()) {
-          throw iota::IotaException(
-              iota::types::RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS,
-              " [ entity_name: " + entity_name + "]",
-              iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
-        }
-      }
 
       std::string protocol_name =
           insertObj.getStringField(store::types::PROTOCOL_NAME);
@@ -1541,18 +1527,7 @@ int iota::AdminService::put_device_json(
 
       // Protocol cannot be modified. Remove this field.
       setbo.removeField(iota::store::types::PROTOCOL);
-      if (!entity_name.empty()) {
-        // "entity_name" : 1, "service" : 1, "service_path" : 1
-        devTable->find(BSON(store::types::ENTITY_NAME
-                            << entity_name << store::types::SERVICE << service
-                            << store::types::SERVICE_PATH << service_path));
-        if (devTable->more()) {
-          throw iota::IotaException(
-              iota::types::RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS,
-              " [ entity_name: " + entity_name + "]",
-              iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
-        }
-      }
+
       mongo::BSONObjBuilder put_builder;
       put_builder.appendElements(setbo);
       // put_builder.append(iota::store::types::REGISTRATION_ID, "");
