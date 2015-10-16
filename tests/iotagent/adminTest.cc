@@ -1386,9 +1386,8 @@ void AdminTest::testBADPostDevice() {
   std::cout << "@UT@6RESPONSEPOST: " << code_res << " " << response
             << std::endl;
   IOTASSERT(code_res == 409);
-  IOTASSERT(response.find("{\"reason\":\"There are conflicts, entity already "
-                          "exists\",\"details\":\" [ entity_name: "
-                          "entity_name]\"}") != std::string::npos);
+  IOTASSERT(response.find("{\"reason\":\"There are conflicts, object already exists")
+             != std::string::npos);
 
   // GET bad parameter limit
   std::cout << "@UT@6BAD Limit" << std::endl;
