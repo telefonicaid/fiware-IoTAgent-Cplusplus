@@ -74,7 +74,7 @@ Feature: Manager API Device Create
 			|srv_devm_post3	|/path_srv_devm_post3	|/path_srv_devm_post4	|devm_post		|IoTUL2		|			|			|			|		|400		|The request is not well formed														|
 			|srv_devm_post2	|/path_srv_devm_post2	|/path_srv_devm_post2	|devm_post		|IoTUL2		|			|			|			|		|500		|duplicate key: iot.DEVICE															|
 			|srv_devm_post	|void					|void					|devm_post		|IoTUL2		|			|			|			|		|500		|duplicate key: iot.DEVICE															|
-			|srv_devm_post1	|/path_srv_devm_post1	|/path_srv_devm_post1	|devm_post2		|IoTUL2		|ent_name	|room_post1	|			|		|500		|entity already exists																|
+#			|srv_devm_post1	|/path_srv_devm_post1	|/path_srv_devm_post1	|devm_post2		|IoTUL2		|ent_name	|room_post1	|			|		|500		|entity already exists																|
 			|srv_devm_post3	|/path_srv_devm_post3	|/path_srv_devm_post3	|devm_post		|IoTUL2		|protocol	|null		|			|		|400		|there aren't iotagents for this operation											|
 			|srv_devm_post3	|/path_srv_devm_post3	|/path_srv_devm_post3	|devm_post		|IoTUL2		|protocol	|void		|			|		|500		|String is too short (0 chars), minimum 1 [/devices[0]/protocol]					|
 			|srv_devm_post3	|/path_srv_devm_post3	|/path_srv_devm_post3	|devm_post		|IoTUL2		|protocol	|IoTTT		|			|		|400		|The request is not well formed														|

@@ -36,7 +36,7 @@ Feature: API Device Update
 			|srv_dev_put	|path_srv_dev_put	|dev_put1	|entity_name	|room_put1	|400			|Fiware-ServicePath not accepted				|
 			|srv_dev_put	|/path_srv_dev_put1	|dev_put1	|entity_name	|room_put1	|404			|The device does not exist						|
 			|srv_dev_put	|/path_srv_dev_put	|dev_put3	|entity_name	|room_put3	|404			|The device does not exist						|
-			|srv_dev_put	|/path_srv_dev_put	|dev_put1	|entity_name	|room_put2	|409			|entity already exists							|
+#			|srv_dev_put	|/path_srv_dev_put	|dev_put1	|entity_name	|room_put2	|409			|entity already exists							|
 			|srv_dev_put	|/path_srv_dev_put	|			|entity_name	|room_put1	|404			|												|
 			|srv_dev_put	|/path_srv_dev_put	|dev_put1	|				|			|400			|Additional properties not allowed. [/]			|
 			|srv_dev_put	|/path_srv_dev_put	|dev_put1	|empty_json		|			|400			|empty body										|
