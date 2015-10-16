@@ -253,15 +253,10 @@ class CommandCache {
     remove(item);
   }
 
-  boost::shared_ptr<boost::asio::io_service> get_io_service() {
-    return _async_manager->get_io_service();
-  }
-
  private:
   std::size_t _max_num_items;
   item_list _list;
   bool _lru;
-  boost::shared_ptr<iota::CommonAsyncManager> _async_manager;
   GetFunction_t _get_function;
   GetFunction_t _get_entity_function;
   GetFunction_t _get_id_function;

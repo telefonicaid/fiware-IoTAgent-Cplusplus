@@ -132,7 +132,6 @@ bool iota::OAuthFilter::handle_request(
       oauth_comm->set_oauth_validate(_auth_endpoint_validate);
       oauth_comm->set_oauth_roles(_auth_endpoint_roles);
       oauth_comm->set_oauth_projects(_auth_endpoint_projects);
-      // TODO oauth_comm->set_async_service(_io_service);
       oauth_comm->set_identity(_domain, _user, _password);
       oauth_comm->set_domain(fiware_service);
       oauth_comm->set_project(fiware_servicepath);

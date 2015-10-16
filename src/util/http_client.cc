@@ -103,7 +103,8 @@ pion::http::response_ptr iota::HttpClient::send(
   connect();
   if (_synch_http_client) {
     // End io_service
-    _local_io.reset();
+    while (_local_io.run() > 0);
+    _local_io.stop();
   }
   return _response;
 }
@@ -292,8 +293,9 @@ void iota::HttpClient::checkResponse(
 }
 
 void iota::HttpClient::timeout_connection(const boost::system::error_code& ec) {
-  IOTA_LOG_DEBUG(m_logger, get_identifier());
+
   if ((!ec) || (ec != boost::asio::error::operation_aborted)) {
+    IOTA_LOG_DEBUG(m_logger, get_identifier());
     set_error(boost::asio::error::timed_out);
     check_connection();
   }
@@ -341,12 +343,6 @@ std::string iota::HttpClient::getRemoteEndpoint() {
     ss << " ";
     ss << _request->get_query_string();
   }
-  /*
-  ss << " by proxy ";
-  ss << _ip;
-  ss << ":";
-  ss << _port;
-  */
   return ss.str();
 }
 
