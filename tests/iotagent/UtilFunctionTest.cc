@@ -496,12 +496,19 @@ void UtilFunctionTest::testByEntity() {
 
   // Find entity
   boost::shared_ptr<iota::Device> item3(new iota::Device("e1", "t1", "s1"));
+  item3->_protocol = "ul20";
   vitem2 = mru_cache_1.get_by_entity(item3);
   CPPUNIT_ASSERT(vitem2.get() == NULL);
 
   boost::shared_ptr<iota::Device> item4(new iota::Device("e", "t", "s1"));
+  item4->_protocol = "ul20";
   vitem2 = mru_cache_1.get_by_entity(item4);
   CPPUNIT_ASSERT(vitem2.get() != NULL);
+
+  boost::shared_ptr<iota::Device> item5(new iota::Device("e", "t", "s1"));
+  // if you forget to put protocol, no device
+  vitem5 = mru_cache_1.get_by_entity(item5);
+  CPPUNIT_ASSERT(vitem5.get() == NULL);
 }
 
 void UtilFunctionTest::testCommandTimeout() {
