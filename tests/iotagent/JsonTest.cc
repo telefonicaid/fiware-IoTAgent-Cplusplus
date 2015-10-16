@@ -934,6 +934,7 @@ void JsonTest::testConversionUpdateContext() {
 }
 
 void JsonTest::testAttributeJSONCommand() {
+  {
   std::string ATTRIBUTE(
       "{\"name\":\"PING\",\"type\":\"command\",\"value\":"
       "{\"param1\":\"value1\",\"param2\":\"value2\"}"
@@ -952,6 +953,7 @@ void JsonTest::testAttributeJSONCommand() {
   CPPUNIT_ASSERT_MESSAGE(
       "value",
       value.compare("{\"param1\":\"value1\",\"param2\":\"value2\"}") == 0);
+  }
 }
 
 void JsonTest::testConversion() {

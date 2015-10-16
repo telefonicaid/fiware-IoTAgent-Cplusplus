@@ -103,6 +103,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
   static const int POST_RESPONSE_CODE;
   static const std::string UPDATE_CONTEXT;
   static const std::string UPDATE_CONTEXT_sin_param;
+  static const std::string UPDATE_CONTEXT_json_param;
   static const std::string POST_DEVICE_SIN;
   static const std::string POST_DEVICE_SIN_ENTITY_NAME;
   static const std::string POST_DEVICE_SIN_ENTITY_TYPE;
