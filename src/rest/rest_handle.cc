@@ -777,6 +777,12 @@ const boost::shared_ptr<iota::Device> iota::RestHandle::get_device_by_entity(
     itemQ->_service_path = service_path;
   }
 
+  // use protocol
+  iota::ProtocolData protocol_data = get_protocol_data();
+  if (!protocol_data.protocol.empty()) {
+    itemQ->_protocol = protocol_data.protocol;
+  }
+
   boost::shared_ptr<iota::Device> result =
       registeredDevices.get_by_entity(itemQ);
   if (result.get() == NULL) {

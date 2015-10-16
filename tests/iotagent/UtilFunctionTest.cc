@@ -465,13 +465,34 @@ void UtilFunctionTest::testByEntity() {
   boost::shared_ptr<iota::Device> item2(new iota::Device("d1", "s1"));
   item2->_entity_name = "e";
   item2->_entity_type = "t";
+  item2->_protocol = "ul20";
   mru_cache_1.insert(item2);
   CPPUNIT_ASSERT(mru_cache_1.size() == 2);
 
+  // different device, same entity, different protocol
+  boost::shared_ptr<iota::Device> item2_1(new iota::Device("d1_1", "s1"));
+  item2_1->_entity_name = "e";
+  item2_1->_entity_type = "t";
+  item2_1->_protocol = "mqtt";
+  mru_cache_1.insert(item2_1);
+  CPPUNIT_ASSERT(mru_cache_1.size() == 3);
+
   // Find
-  boost::shared_ptr<iota::Device> vitem2 = mru_cache_1.get_by_entity(item2);
+  boost::shared_ptr<iota::Device> q2(new iota::Device("", "s1"));
+  q2->_entity_name = "e";
+  q2->_entity_type = "t";
+  q2->_protocol = "ul20";
+  boost::shared_ptr<iota::Device> vitem2 = mru_cache_1.get_by_entity(q2);
   CPPUNIT_ASSERT(vitem2->_entity_name == "e");
   CPPUNIT_ASSERT(vitem2->_name == "d1");
+
+  boost::shared_ptr<iota::Device> q2_1(new iota::Device("", "s1"));
+  q2_1->_entity_name = "e";
+  q2_1->_entity_type = "t";
+  q2_1->_protocol = "mqtt";
+  boost::shared_ptr<iota::Device> vitem2_1 = mru_cache_1.get_by_entity(q2_1);
+  CPPUNIT_ASSERT(vitem2_1->_entity_name == "e");
+  CPPUNIT_ASSERT(vitem2_1->_name == "d1_1");
 
   // Find entity
   boost::shared_ptr<iota::Device> item3(new iota::Device("e1", "t1", "s1"));
