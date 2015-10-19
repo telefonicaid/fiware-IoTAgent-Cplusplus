@@ -173,6 +173,9 @@ const std::string types::RESPONSE_MESSAGE_DATABASE_ERROR("Database error");
 const std::string types::RESPONSE_MESSAGE_ENTITY_ALREADY_EXISTS(
     "There are conflicts, entity already exists");
 
+const std::string types::RESPONSE_MESSAGE_ENTITY_COMMANDS_ALREADY_EXISTS(
+    "There are conflicts, entity with this command, already exists");
+
 const std::string types::IOTA_FORBIDDEN_CHARACTERS("<>\"'=;()");
 
 const unsigned int types::RESPONSE_CODE_NONE = 0;
