@@ -109,6 +109,11 @@ iota::AdminService::~AdminService() {
   if (_timer.get() != NULL) {
     _timer->cancel();
   }
+
+  if (_timer_register.get() != NULL) {
+    _timer_register->cancel();
+  }
+
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   _service_manager.clear();
   lock.unlock();
@@ -2183,6 +2188,36 @@ bool iota::AdminService::check_device_protocol(
 
   IOTA_LOG_DEBUG(m_log, "no exists plugin:" << protocol_name);
   return false;
+}
+
+void iota::AdminService::timeout_register_iota_manager(
+    const boost::system::error_code& ec) {
+  if (!ec || ec != boost::asio::error::operation_aborted) {
+    register_iota_manager();
+  }
+}
+
+void iota::AdminService::set_register_retries(bool enable) {
+  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  if (enable) {
+    if (retries_set) {
+      return;
+    } else {
+      retries_set = true;
+      _timer_register.reset(new boost::asio::deadline_timer(
+          (iota::Process::get_process().get_io_service())));
+      _timer_register->expires_from_now(
+          boost::posix_time::seconds(5));  // random figure
+      _timer_register->async_wait(
+          boost::bind(&iota::AdminService::timeout_register_iota_manager, this,
+                      boost::asio::placeholders::error));
+    }
+  } else {
+    if (retries_set) {
+      retries_set = false;
+      _timer_register->cancel();
+    }
+  }
 }
 
 std::string iota::AdminService::get_class_name() { return _class_name; }

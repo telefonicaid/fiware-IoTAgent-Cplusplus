@@ -382,6 +382,8 @@ class AdminService : public iota::RestHandle {
 
   void set_log_file(std::string& log_file);
 
+  void set_register_retries(bool enable);
+
  protected:
   virtual std::string get_class_name();
   virtual std::string get_role() { return ""; };
@@ -457,6 +459,10 @@ class AdminService : public iota::RestHandle {
   std::string _log_file;
 
   std::string _class_name;
+
+  bool retries_set;
+  boost::shared_ptr<boost::asio::deadline_timer> _timer_register;
+  void timeout_register_iota_manager(const boost::system::error_code& ec);
 };
 
 }  // end namespace iota
