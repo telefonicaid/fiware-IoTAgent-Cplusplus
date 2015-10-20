@@ -29,6 +29,7 @@
 #include <rapidjson/document.h>
 #include <boost/date_time/local_time/local_time.hpp>
 #include "util/service_collection.h"
+#include "util/device_collection.h"
 
 namespace iota {  // begin namespace iota
 

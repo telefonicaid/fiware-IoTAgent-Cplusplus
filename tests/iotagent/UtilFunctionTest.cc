@@ -507,7 +507,7 @@ void UtilFunctionTest::testByEntity() {
 
   boost::shared_ptr<iota::Device> item5(new iota::Device("e", "t", "s1"));
   // if you forget to put protocol, no device
-  vitem5 = mru_cache_1.get_by_entity(item5);
+  boost::shared_ptr<iota::Device> vitem5 = mru_cache_1.get_by_entity(item5);
   CPPUNIT_ASSERT(vitem5.get() == NULL);
 }
 
