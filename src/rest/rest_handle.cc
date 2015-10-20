@@ -352,6 +352,17 @@ void iota::RestHandle::receive_event_from_manager(
     IOTA_LOG_ERROR(m_logger, " resource=" + get_resource() + " code=" +
                                  boost::lexical_cast<std::string>(code) +
                                  " error=" + error.message());
+    // if communication error active
+    if (error.compare("Connection refused") == 0) {
+      IOTA_LOG_ERROR(m_logger, "set_register_retries for Connection refused");
+      std::string iota_manager_endpoint = get_iota_manager_endpoint();
+      set_register_retries(true);
+      iota::Alarm::error(iota::types::ALARM_CODE_NO_IOTA_MANAGER,
+                         iota_manager_endpoint, iota::types::ERROR, error);
+    } else {
+      iota::Alarm::info(iota::types::ALARM_CODE_NO_IOTA_MANAGER,
+                        iota_manager_endpoint, iota::types::ERROR, error);
+    }
   }
 }
 
