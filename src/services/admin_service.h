@@ -29,6 +29,7 @@
 #include <rapidjson/document.h>
 #include <boost/date_time/local_time/local_time.hpp>
 #include "util/service_collection.h"
+#include "util/device_collection.h"
 
 namespace iota {  // begin namespace iota
 
@@ -252,6 +253,27 @@ class AdminService : public iota::RestHandle {
       const std::string& protocol_name, const std::string& service_name,
       const std::string& service_path,
       const boost::shared_ptr<iota::ServiceCollection>& table);
+
+  /**
+     * @name    check_device_commands_duplicate
+     * @brief   check if exists another device with same
+     *             service, subservice, protocol, entity_name
+     *             and a command with same name
+     *
+     * Example Request:
+     * @code
+     *    check_device_commands_duplicate("PDI-SMS-REPSOL", "s1", "/s1",
+   * insertObj, devTable);
+     * @endcode
+     *
+     * <h2>Return values</h2>
+     * @return true if there is not a device.
+     *
+     */
+  bool check_device_commands_duplicate(
+      const std::string& protocol_name, const std::string& service_name,
+      const std::string& service_path, const mongo::BSONObj& insertObj,
+      const boost::shared_ptr<iota::DeviceCollection>& table);
 
   /**
        * @name    get_all_json

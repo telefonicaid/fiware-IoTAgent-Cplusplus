@@ -84,7 +84,7 @@ std::string iota::Configurator::get_iotagent_identifier() {
         iotagent_identifier.assign(iot_id.GetString());
       }
     } catch (std::exception& e) {
-      IOTA_LOG_ERROR(m_log, "error reading iotagent identifier in config.json "
+      IOTA_LOG_DEBUG(m_log, "iotagent identifier does not exist in config.json "
                                 << e.what());
     }
   }

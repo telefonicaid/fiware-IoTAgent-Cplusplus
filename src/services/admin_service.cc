@@ -1468,6 +1468,14 @@ int iota::AdminService::post_device_json(const std::string& service,
                                   iota::types::RESPONSE_CODE_BAD_REQUEST);
       }
 
+      if (!check_device_commands_duplicate(protocol_name, service, service_path,
+                                           insertObj, devTable)) {
+        throw iota::IotaException(
+            iota::types::RESPONSE_MESSAGE_ENTITY_COMMANDS_ALREADY_EXISTS,
+            " [ " + body + "]",
+            iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
+      }
+
       devTable->insert(insertObj);
 
       // If commands or internal attributes, register
@@ -1527,6 +1535,13 @@ int iota::AdminService::put_device_json(
 
       // Protocol cannot be modified. Remove this field.
       setbo.removeField(iota::store::types::PROTOCOL);
+      if (!check_device_commands_duplicate(protocol, service, service_path,
+                                           setbo, devTable)) {
+        throw iota::IotaException(
+            iota::types::RESPONSE_MESSAGE_ENTITY_COMMANDS_ALREADY_EXISTS,
+            " [ entity_name: " + entity_name + "]",
+            iota::types::RESPONSE_CODE_ENTITY_ALREADY_EXISTS);
+      }
 
       mongo::BSONObjBuilder put_builder;
       put_builder.appendElements(setbo);
@@ -2147,6 +2162,71 @@ void iota::AdminService::check_logs() {
 
 void iota::AdminService::set_log_file(std::string& log_file) {
   _log_file = log_file;
+}
+
+/** check if exists a device for same service, service_path, protocol,
+  *entity_name,
+  * and with the same commands
+  **/
+bool iota::AdminService::check_device_commands_duplicate(
+    const std::string& protocol_name, const std::string& service_name,
+    const std::string& service_path, const mongo::BSONObj& bsonobj,
+    const boost::shared_ptr<iota::DeviceCollection>& devTable) {
+  // check if exists entity_name
+  std::string entity_name = bsonobj.getStringField(store::types::ENTITY_NAME);
+  IOTA_LOG_DEBUG(m_log, "check_device_commands_duplicate: " + entity_name);
+  if (entity_name.empty()) {
+    return true;
+  }
+
+  // check if bsonobj has commands
+  std::list<std::string> aListCommands;
+  mongo::BSONObj objCommands =
+      bsonobj.getObjectField(iota::store::types::COMMANDS);
+  if (objCommands.isValid()) {
+    mongo::BSONObjIterator array_eltos(objCommands);
+    mongo::BSONElement elto;
+    std::string name;
+    while (array_eltos.more()) {
+      elto = array_eltos.next();
+      if (elto.isABSONObj()) {
+        mongo::BSONObj eltoBSON = elto.Obj();
+        // leemos name  y commands o attributes
+        name = eltoBSON.getStringField(iota::store::types::NAME);
+        if (!name.empty()) {
+          IOTA_LOG_DEBUG(m_log, "arrayCommands.append: " + name);
+          aListCommands.push_back(name);
+        }
+      }
+    }  // while
+  }
+
+  if (aListCommands.size() > 0) {
+    mongo::BSONObjBuilder query;
+    query.append(store::types::ENTITY_NAME, entity_name);
+    query.append(store::types::SERVICE, service_name);
+    query.append(store::types::SERVICE_PATH, service_path);
+    query.append(store::types::PROTOCOL, protocol_name);
+    if (aListCommands.size() == 1) {
+      query.append("commands.name", aListCommands.front());
+    } else {
+      mongo::BSONArrayBuilder arrBuilder;
+      arrBuilder.append(aListCommands);
+      query.append("commands.name", BSON("$in" << arrBuilder.arr()));
+    }
+    devTable->find(query.obj());
+    if (devTable->more()) {
+      IOTA_LOG_INFO(m_log, "exists another device with same commands in: "
+                               << store::types::ENTITY_NAME << ":"
+                               << entity_name << store::types::SERVICE << ":"
+                               << service_name << store::types::SERVICE_PATH
+                               << ":" << service_path << store::types::PROTOCOL
+                               << ":" << protocol_name);
+      return false;
+    }
+  }
+
+  return true;
 }
 
 bool iota::AdminService::check_device_protocol(

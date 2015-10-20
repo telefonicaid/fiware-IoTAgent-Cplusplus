@@ -74,7 +74,7 @@ Feature: API Device Create
 			|srv_dev_post3	|/path_srv_dev_post3	|/path_srv_dev_post4	|dev_post		|IoTUL2		|			|			|			|		|404		|The service does not exist															|
 			|srv_dev_post2	|/path_srv_dev_post2	|/path_srv_dev_post2	|dev_post		|IoTUL2		|			|			|			|		|409		|duplicate key: iot.DEVICE															|
 			|srv_dev_post	|void					|void					|dev_post		|IoTUL2		|			|			|			|		|409		|duplicate key: iot.DEVICE															|
-			|srv_dev_post1	|/path_srv_dev_post1	|/path_srv_dev_post1	|dev_post2		|IoTUL2		|ent_name	|room_post1	|			|		|409		|entity already exists																|
+#			|srv_dev_post1	|/path_srv_dev_post1	|/path_srv_dev_post1	|dev_post2		|IoTUL2		|ent_name	|room_post1	|			|		|409		|entity already exists																|
 			|srv_dev_post3	|/path_srv_dev_post3	|/path_srv_dev_post3	|dev_post		|IoTUL2		|protocol	|null		|			|		|400		|Missing required property: protocol												|
 			|srv_dev_post3	|/path_srv_dev_post3	|/path_srv_dev_post3	|dev_post		|IoTUL2		|protocol	|void		|			|		|400		|String is too short (0 chars), minimum 1 [/devices[0]/protocol]					|
 			|srv_dev_post3	|/path_srv_dev_post3	|/path_srv_dev_post3	|dev_post		|IoTUL2		|protocol	|IoTTT		|			|		|400		|There are conflicts, protocol is not correct										|
