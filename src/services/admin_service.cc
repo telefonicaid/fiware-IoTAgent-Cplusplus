@@ -2207,7 +2207,7 @@ void iota::AdminService::set_register_retries(bool enable) {
       _timer_register.reset(new boost::asio::deadline_timer(
           (iota::Process::get_process().get_io_service())));
       _timer_register->expires_from_now(
-          boost::posix_time::seconds(5));  // random figure
+          boost::posix_time::seconds(1));  // random figure
       _timer_register->async_wait(
           boost::bind(&iota::AdminService::timeout_register_iota_manager, this,
                       boost::asio::placeholders::error));

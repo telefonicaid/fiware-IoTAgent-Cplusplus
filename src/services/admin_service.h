@@ -398,6 +398,8 @@ class AdminService : public iota::RestHandle {
   static std::string _PUT_SERVICE_SCHEMA;
   static std::string _POST_SERVICE_SCHEMA;
 
+  void timeout_register_iota_manager(const boost::system::error_code& ec);
+
  private:
   virtual void check_required_put_parameters(
       std::multimap<std::string, std::string>& query_parameters){};
@@ -462,7 +464,6 @@ class AdminService : public iota::RestHandle {
 
   bool retries_set;
   boost::shared_ptr<boost::asio::deadline_timer> _timer_register;
-  void timeout_register_iota_manager(const boost::system::error_code& ec);
 };
 
 }  // end namespace iota
