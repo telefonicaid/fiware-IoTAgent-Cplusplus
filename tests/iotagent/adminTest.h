@@ -42,7 +42,7 @@ class TestPlugin : public iota::RestHandle {
 
 class AdminTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(AdminTest);
-  /* CPPUNIT_TEST(testGetConf);
+  CPPUNIT_TEST(testGetConf);
    CPPUNIT_TEST(testGetAgents);
    CPPUNIT_TEST(testTimezones);
    // CPPUNIT_TEST(testCsvProvision);
@@ -73,7 +73,6 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
    CPPUNIT_TEST(testConfiguratorMongo);
    CPPUNIT_TEST(testForbiddenCharacters);
    CPPUNIT_TEST(testSpaceURI);
- */
 
   CPPUNIT_TEST(testRetriesRegisterManager);
 

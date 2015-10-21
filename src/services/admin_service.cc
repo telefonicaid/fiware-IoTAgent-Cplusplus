@@ -248,8 +248,16 @@ void iota::AdminService::start() {
     if (tz_file.IsString()) {
       set_timezone_database(tz_file.GetString());
     }
+
   } catch (std::exception& e) {
     IOTA_LOG_DEBUG(m_log, "Timezone database is not configured");
+  }
+
+  try {
+    _timeout_retries =
+        iota::Configurator::instance()->get("time-retry").GetInt64();
+  } catch (std::exception& e) {
+    _timeout_retries = 5;  // default
   }
 
   add_oauth_media_filters();
@@ -2213,7 +2221,7 @@ void iota::AdminService::set_register_retries(bool enable) {
       _timer_register.reset(new boost::asio::deadline_timer(
           (iota::Process::get_process().get_io_service())));
       _timer_register->expires_from_now(
-          boost::posix_time::seconds(4));  // random figure
+          boost::posix_time::seconds(_timeout_retries));  // random figure
       _timer_register->async_wait(
           boost::bind(&iota::AdminService::timeout_register_iota_manager, this,
                       boost::asio::placeholders::error));

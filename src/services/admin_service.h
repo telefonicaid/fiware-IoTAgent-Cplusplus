@@ -464,6 +464,7 @@ class AdminService : public iota::RestHandle {
 
   std::string _class_name;
 
+  unsigned short _timeout_retries;
   bool retries_set;
   boost::shared_ptr<boost::asio::deadline_timer> _timer_register;
 };
