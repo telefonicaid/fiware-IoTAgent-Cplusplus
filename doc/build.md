@@ -137,6 +137,7 @@ options explication:
 -o/--option <OPTION=VALUE>   options for web server.
 -v/--verbose <LOG_LEVEL> log level (DEBUG, INFO, WARNING, ERROR, FATAL).
 -s/--ssl <ssl_pem_file> start ssl interface.
+-t/--threads <num threads> start so threads as num threads, by default 8.
 -I/--identifier <UNIQUE_IDENTIFIER> identifier used with iota manager.
 ```
 

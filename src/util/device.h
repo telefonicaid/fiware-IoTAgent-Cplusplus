@@ -173,7 +173,7 @@ struct Device : public virtual Timer {
 
   std::string unique_entity() const {
     return _service + ":" + _service_path + ":" + _entity_name + ":" +
-           _entity_type;
+           _entity_type + ":" + _protocol;
   }
 
   std::string unique_name() const { return _name; }

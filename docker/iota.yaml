@@ -21,7 +21,7 @@ orion:
         - "1026"
     
 iotacpp:
-    build: .
+    image: telefonicaiot/iotacpp
     links:
         - mongodb
         - orion

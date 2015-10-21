@@ -1237,6 +1237,94 @@ void AdminTest::testPostService2() {
   std::cout << "END@UT@ testPostService2" << std::endl;
 }
 
+void AdminTest::testPostDeviceSameEntity() {
+  srand(time(NULL));
+  std::cout << "START @UT@START testPostDeviceSameEntity" << std::endl;
+  std::string service = "testpostdevicesameentity";
+  service.append(boost::lexical_cast<std::string>(rand()));
+  std::string servicepath = "/t";
+  std::map<std::string, std::string> headers;
+  std::string response;
+  const std::string POST_DEVICEping(
+      "{\"devices\": "
+      "[{\"device_id\": \"devicese1\",\"protocol\": "
+      "\"PDI-IoTA-UltraLight\",\"entity_name\": "
+      "\"entity_name\",\"entity_type\": "
+      "\"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": "
+      "\"America/Santiago\","
+      "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": "
+      "\"device_id@ping|%s\" }]"
+      "}]}");
+
+  const std::string POST_DEVICEping2(
+      "{\"devices\": "
+      "[{\"device_id\": \"devicese2\",\"protocol\": "
+      "\"PDI-IoTA-UltraLight\",\"entity_name\": "
+      "\"entity_name\",\"entity_type\": "
+      "\"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": "
+      "\"America/Santiago\","
+      "\"commands\": [{\"name\": \"ping2\",\"type\": \"command\",\"value\": "
+      "\"device_id@ping|%s\" }]"
+      "}]}");
+
+  const std::string POST_DEVICEping3(
+      "{\"devices\": "
+      "[{\"device_id\": \"devicese3\",\"protocol\": "
+      "\"PDI-IoTA-UltraLight\",\"entity_name\": "
+      "\"entity_name\",\"entity_type\": "
+      "\"entity_type\",\"endpoint\": \"htp://device_endpoint\",\"timezone\": "
+      "\"America/Santiago\","
+      "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": "
+      "\"device_id@ping|%s\" }]"
+      "}]}");
+
+  std::cout << "@UT@POST SERVICE" << std::endl;
+  int code_res =
+      http_test(URI_SERVICE2, "POST", service, servicepath, "application/json",
+                POST_SERVICE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == POST_RESPONSE_CODE);
+
+  // POST device
+  std::cout << "@UT@POST DEVICE ping" << std::endl;
+  code_res =
+      http_test("/TestAdmin/devices", "POST", service, servicepath,
+                "application/json", POST_DEVICEping, headers, "", response);
+  std::cout << "@UT@5RESPONSEPOST: " << code_res << " " << response
+            << std::endl;
+  IOTASSERT(code_res == 201);
+
+  // POST device
+  std::cout << "@UT@POST DEVICE ping2" << std::endl;
+  code_res =
+      http_test("/TestAdmin/devices", "POST", service, servicepath,
+                "application/json", POST_DEVICEping2, headers, "", response);
+  std::cout << "@UT@5RESPONSEPOST: " << code_res << " " << response
+            << std::endl;
+  IOTASSERT(code_res == 201);
+
+  // POST device
+  std::cout << "@UT@POST DEVICE ping same entity and command" << std::endl;
+  code_res =
+      http_test("/TestAdmin/devices", "POST", service, servicepath,
+                "application/json", POST_DEVICEping3, headers, "", response);
+  std::cout << "@UT@5RESPONSEPOST: " << code_res << " " << response
+            << std::endl;
+  IOTASSERT(code_res == 409);
+  IOTASSERT(response.find("\"reason\":\"There are conflicts, entity with this "
+                          "command, already exists\"") != std::string::npos);
+
+  std::cout << "@UT@DELETE " << service << std::endl;
+  std::string queryparam = "resource=/iot/d&device=true";
+  code_res =
+      http_test(URI_SERVICE2 + "/" + service, "DELETE", service, servicepath,
+                "application/json", "", headers, queryparam, response);
+  std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == DELETE_RESPONSE_CODE);
+
+  std::cout << "END @UT@START testPostDeviceSameEntity" << std::endl;
+}
+
 void AdminTest::testBADPostDevice() {
   srand(static_cast<unsigned int>(time(0)));
   std::cout << "START @UT@START testBADPostDevice" << std::endl;
@@ -1389,8 +1477,8 @@ void AdminTest::testBADPostDevice() {
   std::cout << "@UT@6RESPONSEPOST: " << code_res << " " << response
             << std::endl;
   IOTASSERT(code_res == 409);
-  IOTASSERT(response.find("{\"reason\":\"There are conflicts, object already exists")
-             != std::string::npos);
+  IOTASSERT(response.find("{\"reason\":\"There are conflicts, entity with this "
+                          "command, already exists") != std::string::npos);
 
   // GET bad parameter limit
   std::cout << "@UT@6BAD Limit" << std::endl;
