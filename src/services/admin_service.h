@@ -384,6 +384,8 @@ class AdminService : public iota::RestHandle {
 
   void set_register_retries(bool enable);
 
+  iota::ProtocolData get_protocol_data();
+
  protected:
   virtual std::string get_class_name();
   virtual std::string get_role() { return ""; };

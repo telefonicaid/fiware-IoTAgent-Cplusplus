@@ -63,7 +63,8 @@ int main(int argc, char* argv[]) {
   // Mock
   MockService* mock = new MockService();
   // Add to http server
-  process.add_service("/mock", mock);
+  http_server->add_service("/mock", mock);
+  adm->add_service("/mock", mock);
 
   TestPlugin* plugin = new TestPlugin();
   plugin->set_resource("/TestAdmin/d");

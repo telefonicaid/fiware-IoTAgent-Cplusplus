@@ -60,7 +60,7 @@
   CPPUNIT_ASSERT(y)
 
 #define ASYNC_TIME_WAIT \
-  boost::this_thread::sleep(boost::posix_time::milliseconds(2000));
+  boost::this_thread::sleep(boost::posix_time::milliseconds(5000));
 
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminTest);
 iota::AdminService* AdminService_ptr;
@@ -2339,14 +2339,16 @@ void AdminTest::testRetriesRegisterManager() {
   std::cout << "START@UT@ testRetriesRegisterManager" << std::endl;
 
   // 1. setup a mock as IoT Manager
-
+  iota::AdminService* adm;
   unsigned int port = iota::Process::get_process().get_http_port();
   MockService* cb_mock =
       (MockService*)iota::Process::get_process().get_service("/mock");
+
   std::string mock_port = boost::lexical_cast<std::string>(port);
 
-  // cb_mock->set_response(
-  //     "/mock/TestSample/protocols", 404, "");
+  cb_mock->set_response("/mock", 404, "");
+
+  cb_mock->set_response("/mock", 200, "{}");
 
   adm = iota::Process::get_process().get_admin_service();
 
@@ -2355,27 +2357,23 @@ void AdminTest::testRetriesRegisterManager() {
       (iota::RestHandle*)iota::Process::get_process().get_service(
           "/TestAdmin/d");
 
-  spserv->set_iota_manager_endpoint(manager + mock_port +
-                                    "/mock/TestAdmin/protocols");
+  spserv->set_iota_manager_endpoint(manager + mock_port + "/mock");
 
   std::cout << "@UT@ protocol: " << spserv->get_protocol_data().description
             << std::endl;
 
-  spserv->register_iota_manager();
-
-  adm->add_service("/TestAdmin/d", spserv);
   std::cout << "Timer SET" << std::endl;
   // 2. setup timer to be launched
-  // adm->set_register_retries(true);
+
+  adm->set_register_retries(true);
 
   // 3. wait some secs...
   ASYNC_TIME_WAIT
   // 4. check register has been done to iot manager.
   std::cout << "Timer fired " << std::endl;
 
-  std::string r_1 = cb_mock->get_last("/mock/TestAdmin/protocols");  // a null?
+  std::string r_1 = cb_mock->get_last("/mock");
   std::cout << "@UT@register:" << r_1 << std::endl;
-  // NOW Insert assert.
 
   std::cout << "END@UT@ testRetriesRegisterManager" << std::endl;
 }
