@@ -289,7 +289,8 @@ const std::string types::HELP_MESSAGE_OPS(
     "usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE\n"
     "         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE\n"
     "options: [-m] [-4] [-6] [-i IP] [-p PORT] [-u URL_BASE] [-n "
-    "IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]\n");
+    "IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] "
+    "[-t NUM_THREADS] [-I IDENTIFIER] [-v LOG_LEVEL]\n");
 const std::string types::HELP_MESSAGE(
     "options explication:\n"
     "-c/--config_file <CONFIG_FILE> starts all RESOURCE configured in "
@@ -312,6 +313,8 @@ const std::string types::HELP_MESSAGE(
     "-o/--option <OPTION=VALUE>   options for web server.\n"
     "-v/--verbose <LOG_LEVEL> log level (DEBUG, INFO, WARNING, ERROR, FATAL).\n"
     "-s/--ssl <ssl_pem_file> start ssl interface.\n"
+    "-t/--threads <num threads> start so threads as num threads, by default "
+    "8.\n"
     "-I/--identifier <UNIQUE_IDENTIFIER> identifier used with iota manager.");
 
 const std::string types::HELP_MESSAGE_ERR_CONFIG(
