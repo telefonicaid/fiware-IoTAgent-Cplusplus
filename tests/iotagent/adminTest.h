@@ -73,7 +73,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
    CPPUNIT_TEST(testConfiguratorMongo);
    CPPUNIT_TEST(testForbiddenCharacters);
    CPPUNIT_TEST(testSpaceURI);
-
+   CPPUNIT_TEST(testPostDeviceSameEntity);
   CPPUNIT_TEST(testRetriesRegisterManager);
 
   CPPUNIT_TEST_SUITE_END();
@@ -209,6 +209,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
   void testSpaceURI();
 
   void testRetriesRegisterManager();
+  void testPostDeviceSameEntity();
 
   pion::http::plugin_server_ptr wserver;
   pion::one_to_one_scheduler scheduler;
