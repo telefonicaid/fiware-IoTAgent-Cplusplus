@@ -33,6 +33,7 @@ iota::Arguments::Arguments() {
   port = DEFAULT_PORT;
   ZERO_IP = "0.0.0.0";
   prov_ip = ZERO_IP;
+  num_threads = 8;
 }
 
 bool iota::Arguments::check_parameter(const char short_param,
@@ -106,8 +107,11 @@ std::string iota::Arguments::parser(int argc, const char* argv[]) {
       // help
       return iota::types::HELP_MESSAGE_OPS + iota::types::HELP_MESSAGE;
     } else if (check_parameter('I', "--identifier", argnum, argc, argv)) {
-      // help
+      // identifier
       identifier.assign(argv[++argnum]);
+    } else if (check_parameter('t', "--threads", argnum, argc, argv)) {
+      // num threads
+      num_threads = atoi(argv[++argnum]);
     } else if (argv[argnum][0] == '-') {
       return iota::types::HELP_MESSAGE_ERR_BAD_PARAM + argument_error();
     } else if (argnum + 2 == argc) {

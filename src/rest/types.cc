@@ -312,6 +312,8 @@ const std::string types::HELP_MESSAGE(
     "-o/--option <OPTION=VALUE>   options for web server.\n"
     "-v/--verbose <LOG_LEVEL> log level (DEBUG, INFO, WARNING, ERROR, FATAL).\n"
     "-s/--ssl <ssl_pem_file> start ssl interface.\n"
+    "-t/--threads <num threads> start so threads as num threads, by default "
+    "8.\n"
     "-I/--identifier <UNIQUE_IDENTIFIER> identifier used with iota manager.");
 
 const std::string types::HELP_MESSAGE_ERR_CONFIG(

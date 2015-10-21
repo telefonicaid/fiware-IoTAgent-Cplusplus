@@ -52,8 +52,8 @@ int main(int argc, const char* argv[]) {
   }
 
   /* Process initialization */
-  iota::Process& process =
-      iota::Process::initialize(arguments.get_url_base(), 8);
+  iota::Process& process = iota::Process::initialize(
+      arguments.get_url_base(), arguments.get_num_threads());
 
   try {
     pion::plugin::add_plugin_directory(arguments.get_plugin_directory());
