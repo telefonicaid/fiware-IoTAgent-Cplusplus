@@ -35,6 +35,7 @@
 #include "util/common.h"
 #include "util/arguments.h"
 #include "services/admin_mgmt_service.h"
+#include "version.h"
 
 void config_error(const std::string& err) {
   std::cerr << "ERROR" << err << std::endl;
@@ -180,6 +181,19 @@ int main(int argc, const char* argv[]) {
       IOTA_LOG_INFO(main_log, "======== IoTAgent Manager StartingWebServer: "
                                   << http_server->get_address() << " ========");
     }
+    std::ostringstream ss;
+    ss << "Welcome to IoTAgents ";
+    ss << " identifier:";
+    ss << arguments.get_iotagent_identifier();
+    ss << "  ";
+    ss << gV_GIT;
+    ss << " commit ";
+    ss << gV_COMMIT;
+    ss << " in ";
+    ss << __DATE__;
+    ss << " threads: ";
+    ss << arguments.get_num_threads();
+    IOTA_LOG_INFO(main_log, ss.str());
 
     // static service
     iota::AdminService* AdminService_ptr;

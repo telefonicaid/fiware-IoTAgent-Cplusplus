@@ -111,7 +111,11 @@ std::string iota::Arguments::parser(int argc, const char* argv[]) {
       identifier.assign(argv[++argnum]);
     } else if (check_parameter('t', "--threads", argnum, argc, argv)) {
       // num threads
-      num_threads = atoi(argv[++argnum]);
+      ++argnum;
+      num_threads = strtoul(argv[argnum], 0, 10);
+      if (num_threads == 0) {
+        num_threads = 8;
+      }
     } else if (argv[argnum][0] == '-') {
       return iota::types::HELP_MESSAGE_ERR_BAD_PARAM + argument_error();
     } else if (argnum + 2 == argc) {

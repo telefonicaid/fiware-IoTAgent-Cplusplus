@@ -870,6 +870,8 @@ void UtilFunctionTest::testCommandLine() {
                          "8080",
                          "-d",
                          "/home/develop/GH/lib/Debug",
+                         "-t",
+                         "10",
                          "-c",
                          "/home/iotagent/config_iot.json"};
   result = arguments.parser(13, argv6);

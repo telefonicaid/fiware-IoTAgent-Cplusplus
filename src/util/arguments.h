@@ -90,6 +90,8 @@ class Arguments {
 
   std::string get_iotagent_identifier() const { return identifier; }
 
+  int get_num_threads() const { return num_threads; }
+
   unsigned int get_DEFAULT_PORT() { return DEFAULT_PORT; }
 
   std::vector<std::pair<std::string, std::string> > get_service_options()
@@ -136,6 +138,8 @@ class Arguments {
   std::string prov_ip;
   /** identifier for iota manager */
   std::string identifier;
+  /** number oh threads for Proccess */
+  int num_threads;
 
   std::string ZERO_IP;
 

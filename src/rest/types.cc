@@ -289,7 +289,8 @@ const std::string types::HELP_MESSAGE_OPS(
     "usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE\n"
     "         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE\n"
     "options: [-m] [-4] [-6] [-i IP] [-p PORT] [-u URL_BASE] [-n "
-    "IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]\n");
+    "IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] "
+    "[-t NUM_THREADS] [-I IDENTIFIER] [-v LOG_LEVEL]\n");
 const std::string types::HELP_MESSAGE(
     "options explication:\n"
     "-c/--config_file <CONFIG_FILE> starts all RESOURCE configured in "
