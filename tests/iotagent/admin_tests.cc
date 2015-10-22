@@ -60,6 +60,12 @@ int main(int argc, char* argv[]) {
   adm->add_url(iota::ADMIN_SERVICE_AGENTS + "/<agent>/services" + "/<service>",
                filters, REST_HANDLE(&iota::AdminService::service), adm);
 
+  // Mock
+  MockService* mock = new MockService();
+  // Add to http server
+  http_server->add_service("/mock", mock);
+  adm->add_service("/mock", mock);
+
   TestPlugin* plugin = new TestPlugin();
   plugin->set_resource("/TestAdmin/d");
   adm->add_service("/TestAdmin/d", plugin);

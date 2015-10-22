@@ -404,6 +404,10 @@ class AdminService : public iota::RestHandle {
 
   void set_log_file(std::string& log_file);
 
+  void set_register_retries(bool enable);
+
+  iota::ProtocolData get_protocol_data();
+
  protected:
   virtual std::string get_class_name();
   virtual std::string get_role() { return ""; };
@@ -417,6 +421,8 @@ class AdminService : public iota::RestHandle {
   static std::string _POST_DEVICE_SCHEMA;
   static std::string _PUT_SERVICE_SCHEMA;
   static std::string _POST_SERVICE_SCHEMA;
+
+  void timeout_register_iota_manager(const boost::system::error_code& ec);
 
  private:
   virtual void check_required_put_parameters(
@@ -479,6 +485,10 @@ class AdminService : public iota::RestHandle {
   std::string _log_file;
 
   std::string _class_name;
+
+  unsigned short _timeout_retries;
+  bool retries_set;
+  boost::shared_ptr<boost::asio::deadline_timer> _timer_register;
 };
 
 }  // end namespace iota
