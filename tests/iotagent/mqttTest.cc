@@ -1113,6 +1113,25 @@ void MqttTest::testCommandsWithJSONFormat() {
   std::cout << "TEST: testCommandsWithJSONFormat DONE  " << std::endl;
 }
 
+void MqttTest::testSendAllRegistrationsWithCommands() {
+  std::cout << "START@UT@ testSendAllRegistrationsWithCommands" << std::endl;
+
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestMqtt/mqtt");
+
+  test_setup.add_device("dev1", mqttService->get_protocol_data().protocol);
+
+  test_setup.add_device("dev_mqtt_push",
+                        mqttService->get_protocol_data().protocol);
+
+  mqttService->send_all_registrations_from_mongo();
+
+  //  cb_mock.get_last()
+}
+
 int MqttTest::stubReadClient(int id, char* buffer, int len) {
   if (buffer == NULL) {
     return 0;

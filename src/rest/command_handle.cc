@@ -472,10 +472,24 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
                                           << " service_path:" << service_path
                                           << " protocol:" << protocol);
 
-      Device dev_find("", srv);
-      dev_find._protocol = protocol;
-      dev_find._service_path = service_path;
-      dev_table.findd(dev_find);
+      /*      Device dev_find("", srv);
+            dev_find._protocol = protocol;
+            dev_find._service_path = service_path;
+      */
+      // dev_table.findd(dev_find);// DGF: modify this to include the attribute
+      // command.
+
+      mongo::BSONObj query =
+          BSON(iota::store::types::SERVICE
+               << srv << iota::store::types::SERVICE_PATH << service_path
+               << iota::store::types::PROTOCOL << protocol
+               << iota::store::types::COMMANDS << BSON("$exists"
+                                                       << "true"));
+
+      int res = dev_table.find(query);
+      if (res == 0) {
+        IOTA_LOG_DEBUG(m_logger, "Found some devices with commands");
+      }
 
       while (dev_table.more()) {
         Device dev_resu = dev_table.nextd();
