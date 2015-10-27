@@ -1127,9 +1127,36 @@ void MqttTest::testSendAllRegistrationsWithCommands() {
   test_setup.add_device("dev_mqtt_push",
                         mqttService->get_protocol_data().protocol);
 
+  test_setup.add_device("dev_no_cmd",
+                        mqttService->get_protocol_data().protocol);
+
+  // SET Responses:
+  cb_mock->set_response(
+      "/mock/" + get_service_name(__FUNCTION__) + "/NGSI9/registerContext", 200,
+      "{\"duration\":\"P1M\",\"registrationId\":\"5234234ab4cdef32234\"}");
+  cb_mock->set_response(
+      "/mock/" + get_service_name(__FUNCTION__) + "/NGSI9/registerContext", 200,
+      "{\"duration\":\"P1M\",\"registrationId\":\"5234234ab42344456664\"}");
+
   mqttService->send_all_registrations_from_mongo();
 
+  int size_res = cb_mock->size("/mock/" + get_service_name(__FUNCTION__) +
+                               "/NGSI9/registerContext");
   //  cb_mock.get_last()
+  std::cout << "RECEIVED: " << size_res << " REQUESTS" << std::endl;
+
+  CPPUNIT_ASSERT(cb_mock->size("/mock/" + get_service_name(__FUNCTION__) +
+                               "/NGSI9/registerContext") == 4);
+
+  std::string response;
+  for (int i = 0; i < size_res; i++) {
+    response.assign(cb_mock->get_last(
+        "/mock/" + get_service_name(__FUNCTION__) + "/NGSI9/registerContext"));
+
+    std::cout << "REQ RECEIVED: " << response << std::endl;
+
+    CPPUNIT_ASSERT(response.find("\"type\":\"command\"") != std::string::npos);
+  }
 }
 
 int MqttTest::stubReadClient(int id, char* buffer, int len) {
