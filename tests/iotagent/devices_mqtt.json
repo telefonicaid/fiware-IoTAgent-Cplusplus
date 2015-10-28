@@ -92,6 +92,17 @@
                    "name":"position"
                 }
             ]
+        },{
+            "device_id": "dev_no_cmd",
+            "endpoint": "http://127.0.0.1:9999/device",
+            "entity_name": "room_uttest",
+	    "attributes": [
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ]
         }
       ]
 }

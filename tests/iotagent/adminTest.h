@@ -42,6 +42,7 @@ class TestPlugin : public iota::RestHandle {
 
 class AdminTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(AdminTest);
+
   CPPUNIT_TEST(testGetConf);
    CPPUNIT_TEST(testGetAgents);
    CPPUNIT_TEST(testTimezones);
@@ -210,6 +211,8 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
 
   void testRetriesRegisterManager();
   void testPostDeviceSameEntity();
+
+  void testSendAllRegistrationsWithCommands();
 
   pion::http::plugin_server_ptr wserver;
   pion::one_to_one_scheduler scheduler;
