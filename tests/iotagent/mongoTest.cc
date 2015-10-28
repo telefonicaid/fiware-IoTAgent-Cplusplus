@@ -318,7 +318,7 @@ void MongoTest::testNoMongo() {
 
   iota::Configurator::initialize(PATH_CONFIG);
 
-  // TODO no se quita la alarma porque el endpoint es distinto, pero funciona
+  // no se quita la alarma porque el endpoint es distinto, pero funciona
   std::cout << "testGenericCollection22" << std::endl;
   iota::Collection table1("PRUEBA");
   std::cout << "num alarms:" << iota::Alarm::instance()->size() << std::endl;

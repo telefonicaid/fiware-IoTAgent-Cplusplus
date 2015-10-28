@@ -33,14 +33,14 @@ iota::tt::TTCBPublisher::~TTCBPublisher() {
 
 std::string iota::tt::TTCBPublisher::publishContextBroker(
     ::iota::ContextElement& cElement, std::vector<std::string>& vJsons,
-    boost::property_tree::ptree& pt, iota::RiotISO8601& time) {
+    boost::shared_ptr<Service>& pt, iota::RiotISO8601& time) {
   std::string url = buildcbURL(pt);
   return doPublishContextBroker(cElement, vJsons, url, pt, time);
 }
 
 std::string iota::tt::TTCBPublisher::doPublishContextBroker(
     ::iota::ContextElement& cElement, std::vector<std::string>& vJsons,
-    std::string& cb_url, boost::property_tree::ptree& pt_cb,
+    std::string& cb_url, boost::shared_ptr<Service>& pt_cb,
     iota::RiotISO8601& time) {
   std::string strTimestamp = time.toUTC().toString();
   std::string cb_response;
@@ -91,13 +91,13 @@ bool iota::tt::TTCBPublisher::checkTimeInstantPresent(
 }
 
 std::string iota::tt::TTCBPublisher::buildcbURL(
-    const boost::property_tree::ptree& pt) {
+    const boost::shared_ptr<Service>& pt) {
   std::string cb_url;
 
-  cb_url.assign(pt.get<std::string>("cbroker", ""));
+  cb_url.assign(pt->get("cbroker"));
 
   if (!cb_url.empty()) {
-    std::string updateContex = pt.get<std::string>("updateContex", "");
+    std::string updateContex = pt->get("updateContex");
     if (!updateContex.empty()) {
       cb_url.append(updateContex);
     } else {

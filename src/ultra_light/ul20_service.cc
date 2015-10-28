@@ -142,7 +142,8 @@ void iota::UL20Service::service(
   std::string device;
   bool get_cmd = false;
   bool command_resp = false;
-  boost::property_tree::ptree service_ptree;
+  // create an empty service,if it is not found returns ""
+  boost::shared_ptr<Service> service_ptree(new Service());
   std::string entity_type, new_endpoint;
   boost::shared_ptr<Device> dev;
 
@@ -196,16 +197,11 @@ void iota::UL20Service::service(
     get_service_by_apiKey(service_ptree, apikey);
 
     // check if device exists
-    dev = get_device(
-        device, service_ptree.get<std::string>(iota::store::types::SERVICE, ""),
-        service_ptree.get<std::string>(
-            iota::store::types::SERVICE_PATH,
-            iota::types::FIWARE_SERVICEPATH_DEFAULT));
+    dev = get_device(device, service_ptree->get_service(),
+                     service_ptree->get_service_path());
     if (dev.get() == NULL) {
-      dev.reset(new Device(device, service_ptree.get<std::string>(
-                                       iota::store::types::SERVICE, "")));
-      dev->_service_path =
-          service_ptree.get<std::string>(iota::store::types::SERVICE_PATH, "");
+      dev.reset(new Device(device, service_ptree->get_service()));
+      dev->_service_path = service_ptree->get_service_path();
 
       IOTA_LOG_DEBUG(m_logger, "Device "
                                    << device << " is not registered;"
@@ -259,7 +255,7 @@ void iota::UL20Service::service(
       std::string command_http_response_translate, id_command;
       if (isCommandResp(content, 2000, command_http_response_translate,
                         id_command) == -1) {
-        std::string srv = service_ptree.get<std::string>("service", "");
+        std::string srv = service_ptree->get_service();
 
         io_ul_idas.translate(content, dev, service_ptree, querySBC, cb_eltos,
                              0);
@@ -275,10 +271,8 @@ void iota::UL20Service::service(
                                      << command_http_response_translate);
         command_resp = true;
 
-        std::string srv =
-            service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-        std::string srv_path = service_ptree.get<std::string>(
-            iota::store::types::SERVICE_PATH, "");
+        std::string srv = service_ptree->get_service();
+        std::string srv_path = service_ptree->get_service_path();
         std::string command;
         CommandPtr commandPtr = get_command(id_command, srv, srv_path);
         if (commandPtr.get() == NULL) {
@@ -482,7 +476,7 @@ int iota::UL20Service::execute_command(
     const std::string& destino, const std::string& command_id,
     const boost::property_tree::ptree& command_ptree, int timeout,
     const boost::shared_ptr<Device>& item_dev,
-    const boost::property_tree::ptree& service, std::string& response,
+    const boost::shared_ptr<Service>& service, std::string& response,
     iota::HttpClient::application_callback_t callback) {
   int codigo_respuesta = pion::http::types::RESPONSE_CODE_OK;
   int size_respuesta = 0;
@@ -505,11 +499,8 @@ int iota::UL20Service::execute_command(
   timeout_plugin = timeout;
 
   // Proxy and outgoing_route
-  std::string outgoing_route =
-      service.get<std::string>(iota::store::types::OUTGOING_ROUTE, "");
-  std::string proxy =
-      service.get<std::string>(iota::types::CONF_FILE_PROXY, "");
-  ;
+  std::string outgoing_route = service->get(iota::store::types::OUTGOING_ROUTE);
+  std::string proxy = service->get(iota::types::CONF_FILE_PROXY);
 
   std::string content_resp;
   int code_resp =
@@ -601,10 +592,9 @@ void iota::UL20Service::send_optional_registration(std::string device,
         }
 
         context_registrations.push_back(cr);
-        boost::property_tree::ptree service_ptree;
+        boost::shared_ptr<Service> service_ptree;
         get_service_by_name(service_ptree, service);
 
-        // TODO
         send_register(context_registrations, service_ptree, item_dev, reg_id,
                       cb_response);
 
@@ -632,7 +622,7 @@ void iota::UL20Service::transform_command(
     const std::string& command_name, const std::string& a_command_value,
     const std::string& a_updateCommand_value, const std::string& sequence_id,
     const boost::shared_ptr<Device>& item_dev,
-    const boost::property_tree::ptree& service, std::string& command_id,
+    const boost::shared_ptr<Service>& service, std::string& command_id,
     boost::property_tree::ptree& command_line) {
   std::string command_http_response_translate, result;
   std::string key = "|";

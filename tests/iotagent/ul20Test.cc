@@ -905,9 +905,9 @@ void Ul20Test::testMongoGET() {
 
   std::string cb_last;
 
-  boost::property_tree::ptree srv_ptree;
+  boost::shared_ptr<iota::Service> srv_ptree(new iota::Service());
   std::cout << "get_service_by_apiKey" << std::endl;
-  // TODO ul20serv.get_service_by_apiKey(srv_ptree, "ddd");
+  ul20serv->get_service_by_apiKey(srv_ptree, "ddd");
 
   // fecha  + temperatura
   std::string querySTR = "i=unitTest_dev1_endpoint&k=" +
@@ -1468,8 +1468,7 @@ void Ul20Test::testRiotISO8601() {
 void Ul20Test::testTranslate() {
   boost::shared_ptr<iota::Device> dev;
   std::cout << "START testTranslate " << std::endl;
-  ;
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
 
   iota::ULInsertObservation io_ul_idas;
 
@@ -1548,12 +1547,11 @@ void Ul20Test::testGetAllCommand() {
     std::string sequence;
     int status = 0;
     std::string apikey = test_setup.get_apikey();
-    boost::property_tree::ptree service_ptree;
+
+    boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
     ul20serv->get_service_by_apiKey(service_ptree, apikey);
-    std::string service =
-        service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-    std::string service_path =
-        service_ptree.get<std::string>(iota::store::types::SERVICE_PATH, "");
+    std::string service = service_ptree->get_service();
+    std::string service_path = service_ptree->get_service_path();
 
     boost::shared_ptr<iota::Device> dev;
     dev.reset(new iota::Device(item_dev_name, service));
@@ -1656,7 +1654,7 @@ void Ul20Test::testTransformCommand() {
   std::string command_name = "PING";
   std::string sequence_id;
   boost::shared_ptr<iota::Device> item_dev(new iota::Device("dev1", "service"));
-  const boost::property_tree::ptree ptreeservice;
+  boost::shared_ptr<iota::Service> ptreeservice(new iota::Service());
   std::string command_id;
   std::string command_line;
 
@@ -1808,7 +1806,7 @@ void Ul20Test::testCommand() {
   TestSetup test_setup(get_service_name(__FUNCTION__), "/TestUL/d");
   std::string service = get_service_name(__FUNCTION__);
   std::string apikey = test_setup.get_apikey();
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
 
   ul20serv->get_service_by_apiKey(service_ptree, apikey);
 
@@ -1856,7 +1854,7 @@ void Ul20Test::testSendUnRegister() {
 
   ul20serv->set_myProvidingApp("http://myApp");
 
-  boost::property_tree::ptree pt_cb;
+  boost::shared_ptr<iota::Service> pt_cb(new iota::Service());
   try {
     ul20serv->get_service_by_name(pt_cb, test_setup.get_service(),
                                   test_setup.get_service_path());
@@ -1866,7 +1864,7 @@ void Ul20Test::testSendUnRegister() {
   }
 
   ul20serv->get_service_by_name(pt_cb, test_setup.get_service(), "");
-  std::string uri_cb = pt_cb.get<std::string>("cbroker", "");
+  std::string uri_cb = pt_cb->get("cbroker");
   std::cout << "uri_cb:" << uri_cb << std::endl;
 
   std::vector<iota::ContextRegistration> context_registrations;
@@ -1904,7 +1902,7 @@ void Ul20Test::testSendRegister() {
   unsigned int port = iota::Process::get_process().get_http_port();
   TestSetup test_setup(get_service_name(__FUNCTION__), "/TestUL/d");
 
-  boost::property_tree::ptree pt_cb;
+  boost::shared_ptr<iota::Service> pt_cb(new iota::Service());
   try {
     ul20serv->get_service_by_name(pt_cb, test_setup.get_service(),
                                   test_setup.get_service_path());
@@ -1914,7 +1912,7 @@ void Ul20Test::testSendRegister() {
   }
 
   ul20serv->get_service_by_name(pt_cb, test_setup.get_service(), "");
-  std::string uri_cb = pt_cb.get<std::string>("cbroker", "");
+  std::string uri_cb = pt_cb->get("cbroker");
   std::cout << "uri_cb:" << uri_cb << std::endl;
 
   std::vector<iota::ContextRegistration> context_registrations;
@@ -2144,15 +2142,17 @@ void Ul20Test::testPUSHCommand() {
   test_setup.add_device("unitTest_dev1_endpoint",
                         ul20serv->get_protocol_data().protocol, true);
 
-  // updateContext
+  // updateContext  with santander data
   std::string querySTR = "";
   std::string bodySTR = "{\"updateAction\":\"UPDATE\",";
   bodySTR.append(
-      "\"contextElements\":[{\"id\":\"room_ut1\",\"type\":\"type2\","
+      "\"contextElements\":[{\"id\":\"urn:x-iot:smartsantander:u7jcfa:fixed:"
+      "testactuator1\",\"type\":\"santander:actuator\","
       "\"isPattern\":\"false\",");
   bodySTR.append(
       "\"attributes\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":"
-      "\"unitTest_dev1_endpoint@PING|22\",");
+      "\"urn:x-iot:smartsantander:u7jcfa:fixed:testactuator1@RawCommand1|{"
+      "object_id:t,name:temperature,type:int}\",");
   bodySTR.append(
       "\"metadatas\":[{\"name\":\"TimeInstant\",\"type\":\"ISO8601\",\"value\":"
       "\"2014-11-23T17:33:36.341305Z\"}]}");
@@ -2778,13 +2778,13 @@ void Ul20Test::testCommandHandle() {
 
   test_setup.add_device("unitTest_dev1_endpoint",
                         ul20serv->get_protocol_data().protocol, true);
-  boost::property_tree::ptree pt;
-  pt.put("timeout", 1);
-  pt.put("service", get_service_name(__FUNCTION__));
-  pt.put("service_path", "/" + get_service_name(__FUNCTION__));
-  pt.put("cbroker", "cbroker");
-  pt.put("token", "token");
-  pt.put("entity_type", "entity_type");
+  boost::shared_ptr<iota::Service> pt(new iota::Service());
+  pt->put("timeout", 1);
+  pt->put("service", get_service_name(__FUNCTION__));
+  pt->put("service_path", "/" + get_service_name(__FUNCTION__));
+  pt->put("cbroker", "cbroker");
+  pt->put("token", "token");
+  pt->put("entity_type", "entity_type");
   boost::shared_ptr<iota::Device> dev(
       new iota::Device("item_dev_name", get_service_name(__FUNCTION__)));
   boost::property_tree::ptree ptcommand;
@@ -3447,7 +3447,7 @@ void Ul20Test::testQueryContext() {
       "{\"name\":\"PING\",\"type\":\"command\",\"value\":\"@@RAW@@\"},{"
       "\"name\":\"RAW\",\"type\":\"command\",\"value\":\"@@RAW@@\"}]}}]}");
 
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
   ul20serv->get_service_by_name(service_ptree, test_setup.get_service(),
                                 test_setup.get_service_path());
 
@@ -3856,9 +3856,8 @@ void Ul20Test::test_register_iota_manager12() {
 
     ul20serv.register_iota_manager();
 
-    // TODO check_last_contains(cb_mock, "\"identifier\" :
-    // \"myIotaIdentifier:80\"",
-    // TODO                     "", 1);
+    // TODOcheck_last_contains(cb_mock, "\"identifier\" :
+    // \"myIotaIdentifier:80\"",  "", 1);
   }
 
   {
@@ -3872,8 +3871,7 @@ void Ul20Test::test_register_iota_manager12() {
     ul20serv2.register_iota_manager();
 
     // TODOcheck_last_contains(cb_mock, "\"identifier\" :
-    // \"iotagent_identifier2:80\"",
-    // TODO                    "", 1);
+    // \"iotagent_identifier2:80\"",  "", 1);
   }
 
   std::cout << "@UT@END test_register_iota_manager12 " << std::endl;
@@ -3907,11 +3905,10 @@ void Ul20Test::test_register_iota_manager34() {
     ul20serv3.register_iota_manager();
 
     ASYNC_TIME_WAIT
-    /*
-        check_last_contains(cb_mock,
-                     "\"identifier\" : \"public_ip:80\"",
-                     "", 1);
-    */
+
+    // TODOcheck_last_contains(cb_mock,
+    // TODO                 "\"identifier\" : \"public_ip:80\"",
+    // TODO                 "", 1);
   }
 
   {
@@ -3922,11 +3919,10 @@ void Ul20Test::test_register_iota_manager34() {
     iota::Configurator::instance()->set_iotagent_identifier("");
 
     ul20serv4.register_iota_manager();
-    /*
-        check_last_contains(cb_mock,
-                           "\"identifier\" : \"iotagent_name3:80\"",
-                           "", 1);
-    */
+
+    // TODOcheck_last_contains(cb_mock,
+    // TODO                       "\"identifier\" : \"iotagent_name3:80\"",
+    // TODO                       "", 1);
   }
 
   std::cout << "@UT@END test_register_iota_manager34 " << std::endl;

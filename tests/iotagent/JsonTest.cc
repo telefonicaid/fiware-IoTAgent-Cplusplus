@@ -29,11 +29,16 @@
 #include "ngsi/Entity.h"
 #include "ngsi/SubscribeContext.h"
 #include "ngsi/SubscribeResponse.h"
-#include "util/json_util.h"
 #include "util/common.h"
+#include "util/service.h"
 #include "services/admin_service.h"
 #include <stdexcept>
 #include <boost/property_tree/json_parser.hpp>
+
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/filestream.h>
+#include <rapidjson/prettywriter.h>
 
 CPPUNIT_TEST_SUITE_REGISTRATION(JsonTest);
 
@@ -42,20 +47,15 @@ void JsonTest::testContextElement() {
   std::string service = "service2";
   std::string op = "UPDATE";
 
-  boost::property_tree::ptree pt;
-  pt.put("timeout", "10");
-  pt.put("service", service);
-  pt.put("service_path", "service_path");
-  pt.put("cbroker", "cbroker");
-  pt.put("token", "token");
-  pt.put("entity_type", "entity_type_service");
-  boost::property_tree::ptree attributes;
-  boost::property_tree::ptree att;
-  att.put("name", "natt");
-  att.put("type", "");
-  att.put("value", "vatt");
-  attributes.push_back(std::make_pair("", att));
-  pt.add_child("attributes", attributes);
+  boost::shared_ptr<iota::Service> pt(new iota::Service());
+  pt->put("timeout", "10");
+  pt->put("service", service);
+  pt->put("service_path", "service_path");
+  pt->put("cbroker", "cbroker");
+  pt->put("token", "token");
+  pt->put("entity_type", "entity_type_service");
+  // TODO  pt->add_json("attributes",
+  // TODO    "{\"name\": \"natt\, \"type\", \"\", \"value\": \"vatt\"}" );
 
   {
     boost::shared_ptr<iota::Device> dev;
@@ -113,241 +113,244 @@ void JsonTest::testContextElement() {
 
 void JsonTest::testContext() {
   std::cout << "@UT@START testContext " << std::endl;
-  boost::property_tree::ptree pt;
-  pt.put("timeout", "10");
-  pt.put("service", "service");
-  pt.put("service_path", "service_path");
-  pt.put("cbroker", "cbroker");
-  pt.put("token", "token");
-  pt.put("entity_type", "entity_type_service");
-  boost::property_tree::ptree ptree_att;
-  boost::property_tree::ptree att;
-  att.put("name", "mappedatt");
-  att.put("type", "");
-  att.put("object_id", "originalatt");
-  ptree_att.push_back(std::make_pair("", att));
-  pt.add_child("attributes", ptree_att);
+  // TODO
+  /* boost::property_tree::ptree pt;
+   pt.put("timeout", "10");
+   pt.put("service", "service");
+   pt.put("service_path", "service_path");
+   pt.put("cbroker", "cbroker");
+   pt.put("token", "token");
+   pt.put("entity_type", "entity_type_service");
+   boost::property_tree::ptree ptree_att;
+   boost::property_tree::ptree att;
+   att.put("name", "mappedatt");
+   att.put("type", "");
+   att.put("object_id", "originalatt");
+   ptree_att.push_back(std::make_pair("", att));
+   pt.add_child("attributes", ptree_att);
 
-  boost::property_tree::ptree ptree_satt;
-  boost::property_tree::ptree satt;
-  satt.put("name", "snatt");
-  satt.put("type", "");
-  satt.put("value", "svatt");
+   boost::property_tree::ptree ptree_satt;
+   boost::property_tree::ptree satt;
+   satt.put("name", "snatt");
+   satt.put("type", "");
+   satt.put("value", "svatt");
 
-  boost::property_tree::ptree meta_static;
-  boost::property_tree::ptree ptree_meta;
-  meta_static.put("name", "metaname");
-  meta_static.put("type", "metatype");
-  meta_static.put("value", "http://localhost:89/hello");
-  ptree_meta.push_back(std::make_pair("", meta_static));
-  satt.add_child("metadatas", ptree_meta);
-  ptree_satt.push_back(std::make_pair("", satt));
-  pt.add_child("static_attributes", ptree_satt);
+   boost::property_tree::ptree meta_static;
+   boost::property_tree::ptree ptree_meta;
+   meta_static.put("name", "metaname");
+   meta_static.put("type", "metatype");
+   meta_static.put("value", "http://localhost:89/hello");
+   ptree_meta.push_back(std::make_pair("", meta_static));
+   satt.add_child("metadatas", ptree_meta);
+   ptree_satt.push_back(std::make_pair("", satt));
+   pt.add_child("static_attributes", ptree_satt);
 
-  iota::Attribute attribute("name", "type", "value");
-  iota::Attribute metadata("name", "typecheck", "valor");
-  iota::Attribute metadata1("name1", "type1", "value1");
-  attribute.add_metadata(metadata1);
-  attribute.add_metadata(metadata);
+   iota::Attribute attribute("name", "type", "value");
+   iota::Attribute metadata("name", "typecheck", "valor");
+   iota::Attribute metadata1("name1", "type1", "value1");
+   attribute.add_metadata(metadata1);
+   attribute.add_metadata(metadata);
 
-  iota::ContextElement context_element("id", "type", "is_pattern");
-  boost::shared_ptr<iota::Device> dev;
-  context_element.set_env_info(pt, dev);
+   iota::ContextElement context_element("id", "type", "is_pattern");
+   boost::shared_ptr<iota::Device> dev;
+   context_element.set_env_info(pt, dev);
 
-  // Attribute to map
-  iota::Attribute mapped_att("originalatt", "string", "originalatt");
-  context_element.add_attribute(mapped_att);
-  context_element.add_attribute(attribute);
-  CPPUNIT_ASSERT_MESSAGE("Attribute + static attribute",
-                         context_element.get_attributes().size() == 3);
+   // Attribute to map
+   iota::Attribute mapped_att("originalatt", "string", "originalatt");
+   context_element.add_attribute(mapped_att);
+   context_element.add_attribute(attribute);
+   CPPUNIT_ASSERT_MESSAGE("Attribute + static attribute",
+                          context_element.get_attributes().size() == 3);
 
-  iota::UpdateContext operation(std::string("UPDATE"));
-  operation.add_context_element(context_element);
+   iota::UpdateContext operation(std::string("UPDATE"));
+   operation.add_context_element(context_element);
 
-  std::istringstream is(attribute.get_string());
-  iota::Attribute obj_attribute(is);
-  CPPUNIT_ASSERT(obj_attribute.get_name().compare("name") == 0);
-  CPPUNIT_ASSERT(obj_attribute.get_type().compare("type") == 0);
-  CPPUNIT_ASSERT(obj_attribute.get_value().compare("value") == 0);
-  std::vector<iota::Attribute> metadatas = obj_attribute.get_metadatas();
-  CPPUNIT_ASSERT(metadatas.size() == 2);
-  CPPUNIT_ASSERT(metadatas[0].get_name().compare("name1") == 0);
-  CPPUNIT_ASSERT(metadatas[1].get_type().compare("typecheck") == 0);
+   std::istringstream is(attribute.get_string());
+   iota::Attribute obj_attribute(is);
+   CPPUNIT_ASSERT(obj_attribute.get_name().compare("name") == 0);
+   CPPUNIT_ASSERT(obj_attribute.get_type().compare("type") == 0);
+   CPPUNIT_ASSERT(obj_attribute.get_value().compare("value") == 0);
+   std::vector<iota::Attribute> metadatas = obj_attribute.get_metadatas();
+   CPPUNIT_ASSERT(metadatas.size() == 2);
+   CPPUNIT_ASSERT(metadatas[0].get_name().compare("name1") == 0);
+   CPPUNIT_ASSERT(metadatas[1].get_type().compare("typecheck") == 0);
 
-  std::string ceSTR = context_element.get_string();
-  std::cout << "@UT@" << ceSTR << std::endl;
-  std::istringstream is_ce(context_element.get_string());
-  iota::ContextElement obj_ce(is_ce);
-  CPPUNIT_ASSERT(obj_ce.get_id().compare("id") == 0);
-  CPPUNIT_ASSERT(obj_ce.get_type().compare("type") == 0);
-  CPPUNIT_ASSERT(obj_ce.get_is_pattern().compare("is_pattern") == 0);
-  std::vector<iota::Attribute> attributes = obj_ce.get_attributes();
-  CPPUNIT_ASSERT(attributes.size() == 3);
+   std::string ceSTR = context_element.get_string();
+   std::cout << "@UT@" << ceSTR << std::endl;
+   std::istringstream is_ce(context_element.get_string());
+   iota::ContextElement obj_ce(is_ce);
+   CPPUNIT_ASSERT(obj_ce.get_id().compare("id") == 0);
+   CPPUNIT_ASSERT(obj_ce.get_type().compare("type") == 0);
+   CPPUNIT_ASSERT(obj_ce.get_is_pattern().compare("is_pattern") == 0);
+   std::vector<iota::Attribute> attributes = obj_ce.get_attributes();
+   CPPUNIT_ASSERT(attributes.size() == 3);
 
-  CPPUNIT_ASSERT_MESSAGE("Attributes ",
-                         attributes[0].get_name().compare("name") == 0 ||
-                             attributes[0].get_name().compare("snatt") == 0 ||
-                             attributes[0].get_name().compare("mappedatt"));
-  CPPUNIT_ASSERT_MESSAGE(
-      "Attributes ", attributes[1].get_name().compare("snatt") == 0 ||
-                         attributes[1].get_name().compare("name") == 0 ||
-                         attributes[1].get_name().compare("mappedatt") == 0);
-  CPPUNIT_ASSERT_MESSAGE(
-      "Attributes ", attributes[2].get_name().compare("snatt") == 0 ||
-                         attributes[2].get_name().compare("name") == 0 ||
-                         attributes[2].get_name().compare("mappedatt") == 0);
+   CPPUNIT_ASSERT_MESSAGE("Attributes ",
+                          attributes[0].get_name().compare("name") == 0 ||
+                              attributes[0].get_name().compare("snatt") == 0 ||
+                              attributes[0].get_name().compare("mappedatt"));
+   CPPUNIT_ASSERT_MESSAGE(
+       "Attributes ", attributes[1].get_name().compare("snatt") == 0 ||
+                          attributes[1].get_name().compare("name") == 0 ||
+                          attributes[1].get_name().compare("mappedatt") == 0);
+   CPPUNIT_ASSERT_MESSAGE(
+       "Attributes ", attributes[2].get_name().compare("snatt") == 0 ||
+                          attributes[2].get_name().compare("name") == 0 ||
+                          attributes[2].get_name().compare("mappedatt") == 0);
 
-  // Check if static attributes has TimeInstant and metadatas from service
-  bool timeinstant_exists = false;
-  bool metadata_static_service = false;
-  for (int i = 0; i < attributes.size(); i++) {
-    if (attributes[i].get_name().compare("snatt") == 0) {
-      std::vector<iota::Attribute> metadatas = attributes[i].get_metadatas();
-      CPPUNIT_ASSERT_MESSAGE("Checking static metadatas ",
-                             metadatas.size() == 2);
-      for (int j = 0; j < metadatas.size(); j++) {
-        iota::Attribute metadata = metadatas[j];
-        if (metadata.get_name().compare("TimeInstant") == 0) {
-          timeinstant_exists = true;
-        }
-        if (metadata.get_name().compare("metaname") == 0) {
-          metadata_static_service = true;
-        }
-      }
-    }
-  }
-  CPPUNIT_ASSERT_MESSAGE("Checking TimeInstant ", timeinstant_exists);
-  CPPUNIT_ASSERT_MESSAGE("Checking metadata static from service ",
-                         metadata_static_service);
-  std::istringstream is_op(operation.get_string());
-  iota::UpdateContext obj_operation(is_op);
-  CPPUNIT_ASSERT(obj_operation.get_action().compare("UPDATE") == 0);
-  std::vector<iota::ContextElement> contexts =
-      obj_operation.get_context_elements();
-  CPPUNIT_ASSERT(contexts.size() == 1);
+   // Check if static attributes has TimeInstant and metadatas from service
+   bool timeinstant_exists = false;
+   bool metadata_static_service = false;
+   for (int i = 0; i < attributes.size(); i++) {
+     if (attributes[i].get_name().compare("snatt") == 0) {
+       std::vector<iota::Attribute> metadatas = attributes[i].get_metadatas();
+       CPPUNIT_ASSERT_MESSAGE("Checking static metadatas ",
+                              metadatas.size() == 2);
+       for (int j = 0; j < metadatas.size(); j++) {
+         iota::Attribute metadata = metadatas[j];
+         if (metadata.get_name().compare("TimeInstant") == 0) {
+           timeinstant_exists = true;
+         }
+         if (metadata.get_name().compare("metaname") == 0) {
+           metadata_static_service = true;
+         }
+       }
+     }
+   }
+   CPPUNIT_ASSERT_MESSAGE("Checking TimeInstant ", timeinstant_exists);
+   CPPUNIT_ASSERT_MESSAGE("Checking metadata static from service ",
+                          metadata_static_service);
+   std::istringstream is_op(operation.get_string());
+   iota::UpdateContext obj_operation(is_op);
+   CPPUNIT_ASSERT(obj_operation.get_action().compare("UPDATE") == 0);
+   std::vector<iota::ContextElement> contexts =
+       obj_operation.get_context_elements();
+   CPPUNIT_ASSERT(contexts.size() == 1);
 
-  // Malformed
-  std::istringstream is_malformed("Malformed JSON");
-  CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
-                       std::runtime_error);
+   // Malformed
+   std::istringstream is_malformed("Malformed JSON");
+   CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
+                        std::runtime_error);
 
-  // Test set
-  iota::ContextElement ct("id", "type", "false");
-  CPPUNIT_ASSERT(ct.get_is_pattern().compare("false") == 0);
+   // Test set
+   iota::ContextElement ct("id", "type", "false");
+   CPPUNIT_ASSERT(ct.get_is_pattern().compare("false") == 0);
 
-  rapidjson::Document d;
-  if (!d.Parse<0>(operation.get_string().c_str()).HasParseError()) {
-    iota::UpdateContext o(d);
-    CPPUNIT_ASSERT(o.get_action().compare("UPDATE") == 0);
-  } else {
-    CPPUNIT_ASSERT(false);
-  }
+   rapidjson::Document d;
+   if (!d.Parse<0>(operation.get_string().c_str()).HasParseError()) {
+     iota::UpdateContext o(d);
+     CPPUNIT_ASSERT(o.get_action().compare("UPDATE") == 0);
+   } else {
+     CPPUNIT_ASSERT(false);
+   }
 
-  is_malformed.clear();
-  is_malformed.str("{}");
-  CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
-                       std::runtime_error);
+   is_malformed.clear();
+   is_malformed.str("{}");
+   CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
+                        std::runtime_error);
 
-  is_malformed.clear();
-  is_malformed.str(
-      "{\"updateAction\": \"APPEND\", \"contextElements\": \"badfield\"}");
-  CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
-                       std::runtime_error);
+   is_malformed.clear();
+   is_malformed.str(
+       "{\"updateAction\": \"APPEND\", \"contextElements\": \"badfield\"}");
+   CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
+                        std::runtime_error);
 
-  is_malformed.clear();
-  is_malformed.str("{\"updateAction\": \"APPEND\"}");
-  CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
-                       std::runtime_error);
+   is_malformed.clear();
+   is_malformed.str("{\"updateAction\": \"APPEND\"}");
+   CPPUNIT_ASSERT_THROW(new iota::UpdateContext(is_malformed),
+                        std::runtime_error);
 
-  rapidjson::Value v(10);
-  CPPUNIT_ASSERT_THROW(new iota::UpdateContext(v), std::runtime_error);
+   rapidjson::Value v(10);
+   CPPUNIT_ASSERT_THROW(new iota::UpdateContext(v), std::runtime_error);
 
-  rapidjson::Document o;
-  o.SetObject();
-  CPPUNIT_ASSERT_THROW(new iota::UpdateContext(o), std::runtime_error);
-  rapidjson::Value vo;
-  vo.SetString("UPDATE");
-  o.AddMember("updateAction", vo, o.GetAllocator());
-  CPPUNIT_ASSERT_THROW(new iota::UpdateContext(o), std::runtime_error);
+   rapidjson::Document o;
+   o.SetObject();
+   CPPUNIT_ASSERT_THROW(new iota::UpdateContext(o), std::runtime_error);
+   rapidjson::Value vo;
+   vo.SetString("UPDATE");
+   o.AddMember("updateAction", vo, o.GetAllocator());
+   CPPUNIT_ASSERT_THROW(new iota::UpdateContext(o), std::runtime_error);
 
-  // Add attribute no value
-  iota::Attribute attribute_novalue("name", "type", "");
+   // Add attribute no value
+   iota::Attribute attribute_novalue("name", "type", "");
 
-  int num_attributes = context_element.get_attributes().size();
-  // now if no_value we add a space
-  context_element.add_attribute(attribute_novalue);
-  CPPUNIT_ASSERT(context_element.get_attributes().size() ==
-                 (num_attributes + 1));
+   int num_attributes = context_element.get_attributes().size();
+   // now if no_value we add a space
+   context_element.add_attribute(attribute_novalue);
+   CPPUNIT_ASSERT(context_element.get_attributes().size() ==
+                  (num_attributes + 1));
 
-  // Static attributes form device
-  boost::shared_ptr<iota::Device> device(new iota::Device("dev1", "serv1"));
-  std::map<std::string, std::string> static_a;
-  iota::Attribute st_att("stname", "sttype", "stvalue");
-  static_a["stname"] = st_att.get_string();
+   // Static attributes form device
+   boost::shared_ptr<iota::Device> device(new iota::Device("dev1", "serv1"));
+   std::map<std::string, std::string> static_a;
+   iota::Attribute st_att("stname", "sttype", "stvalue");
+   static_a["stname"] = st_att.get_string();
 
-  // With metadatas
-  device->_attributes["OldName"] =
-      "{\"object_id\":\"OldName\", \"name\": \"NewName\", \"type\": "
-      "\"string\", \"metadatas\": [{\"name\": \"unit\", \"type\": \"string\", "
-      "\"value\": \"celsius\"}]}";
-  device->_attributes["MapWithMeta"] =
-      "{\"object_id\":\"MapWithMeta\", \"name\": \"NewNameMeta\", \"type\": "
-      "\"string\", \"metadatas\": [{\"name\": \"unit\", \"type\": \"string\", "
-      "\"value\": \"celsius\"}]}";
-  device->_static_attributes = static_a;
-  boost::property_tree::ptree p_env;
-  p_env.put("entity_type", "EntityType");
+   // With metadatas
+   device->_attributes["OldName"] =
+       "{\"object_id\":\"OldName\", \"name\": \"NewName\", \"type\": "
+       "\"string\", \"metadatas\": [{\"name\": \"unit\", \"type\": \"string\", "
+       "\"value\": \"celsius\"}]}";
+   device->_attributes["MapWithMeta"] =
+       "{\"object_id\":\"MapWithMeta\", \"name\": \"NewNameMeta\", \"type\": "
+       "\"string\", \"metadatas\": [{\"name\": \"unit\", \"type\": \"string\", "
+       "\"value\": \"celsius\"}]}";
+   device->_static_attributes = static_a;
+   boost::property_tree::ptree p_env;
+   p_env.put("entity_type", "EntityType");
 
-  // Add mapping for attribute
-  iota::Attribute map_att("OldName", "Mtype", "value_att");
-  iota::Attribute map_attr_1("MapWithMeta", "Mtype", "value_att");
-  iota::ContextElement ce_with_static_att("idst", "", "false");
-  ce_with_static_att.set_env_info(p_env, device);
-  // and attribute for mapping
-  ce_with_static_att.add_attribute(map_att);
-  ce_with_static_att.add_attribute(map_attr_1);
+   // Add mapping for attribute
+   iota::Attribute map_att("OldName", "Mtype", "value_att");
+   iota::Attribute map_attr_1("MapWithMeta", "Mtype", "value_att");
+   iota::ContextElement ce_with_static_att("idst", "", "false");
+   ce_with_static_att.set_env_info(p_env, device);
+   // and attribute for mapping
+   ce_with_static_att.add_attribute(map_att);
+   ce_with_static_att.add_attribute(map_attr_1);
 
-  CPPUNIT_ASSERT_MESSAGE("Context element with static attributes",
-                         ce_with_static_att.get_attributes().size() == 3);
+   CPPUNIT_ASSERT_MESSAGE("Context element with static attributes",
+                          ce_with_static_att.get_attributes().size() == 3);
 
-  // Serialize and check final values
-  std::string str_ce = ce_with_static_att.get_string();
-  CPPUNIT_ASSERT_MESSAGE(
-      "Checking if after serialize type and id are updated",
-      ce_with_static_att.get_id().compare("EntityType:dev1") == 0);
-  std::istringstream is_ce_a(str_ce);
-  iota::ContextElement ce_total(is_ce_a);
-  CPPUNIT_ASSERT_MESSAGE("Context element total",
-                         ce_total.get_attributes().size() == 3);
-  CPPUNIT_ASSERT_MESSAGE(
-      "Static attribute ",
-      ce_total.get_attributes()[0].get_name().compare("stname") == 0);
-  CPPUNIT_ASSERT_MESSAGE(
-      "Mapped attribute ",
-      ce_total.get_attributes()[1].get_name().compare("NewName") == 0);
-  CPPUNIT_ASSERT_MESSAGE(
-      "Mapped attribute ",
-      ce_total.get_attributes()[2].get_name().compare("NewNameMeta") == 0);
-  // Metadata is included
-  iota::Attribute mapped_attribute = ce_total.get_attributes()[2];
+   // Serialize and check final values
+   std::string str_ce = ce_with_static_att.get_string();
+   CPPUNIT_ASSERT_MESSAGE(
+       "Checking if after serialize type and id are updated",
+       ce_with_static_att.get_id().compare("EntityType:dev1") == 0);
+   std::istringstream is_ce_a(str_ce);
+   iota::ContextElement ce_total(is_ce_a);
+   CPPUNIT_ASSERT_MESSAGE("Context element total",
+                          ce_total.get_attributes().size() == 3);
+   CPPUNIT_ASSERT_MESSAGE(
+       "Static attribute ",
+       ce_total.get_attributes()[0].get_name().compare("stname") == 0);
+   CPPUNIT_ASSERT_MESSAGE(
+       "Mapped attribute ",
+       ce_total.get_attributes()[1].get_name().compare("NewName") == 0);
+   CPPUNIT_ASSERT_MESSAGE(
+       "Mapped attribute ",
+       ce_total.get_attributes()[2].get_name().compare("NewNameMeta") == 0);
+   // Metadata is included
+   iota::Attribute mapped_attribute = ce_total.get_attributes()[2];
 
-  std::cout << ce_total.get_attributes()[1].get_metadatas().size() << " **** "
-            << mapped_attribute.get_string() << std::endl;
-  CPPUNIT_ASSERT_MESSAGE(
-      "Number of metadatas in mapped attribute ",
-      ce_total.get_attributes()[2].get_metadatas().size() == 1);
-  iota::Attribute meta_mapped_attribute =
-      ce_total.get_attributes()[2].get_metadatas()[0];
-  CPPUNIT_ASSERT_MESSAGE("Checking metadata in mapped attribute ",
-                         meta_mapped_attribute.get_name().compare("unit") == 0);
+   std::cout << ce_total.get_attributes()[1].get_metadatas().size() << " **** "
+             << mapped_attribute.get_string() << std::endl;
+   CPPUNIT_ASSERT_MESSAGE(
+       "Number of metadatas in mapped attribute ",
+       ce_total.get_attributes()[2].get_metadatas().size() == 1);
+   iota::Attribute meta_mapped_attribute =
+       ce_total.get_attributes()[2].get_metadatas()[0];
+   CPPUNIT_ASSERT_MESSAGE("Checking metadata in mapped attribute ",
+                          meta_mapped_attribute.get_name().compare("unit") ==
+   0);
 
-  CPPUNIT_ASSERT_MESSAGE(
-      "Mapped attribute ",
-      ce_total.get_attributes()[1].get_type().compare("string") == 0);
-  CPPUNIT_ASSERT_MESSAGE("Context element default entity type",
-                         ce_total.get_type().compare("EntityType") == 0);
-  CPPUNIT_ASSERT_MESSAGE("Context element default entity name",
-                         ce_total.get_id().compare("EntityType:dev1") == 0);
+   CPPUNIT_ASSERT_MESSAGE(
+       "Mapped attribute ",
+       ce_total.get_attributes()[1].get_type().compare("string") == 0);
+   CPPUNIT_ASSERT_MESSAGE("Context element default entity type",
+                          ce_total.get_type().compare("EntityType") == 0);
+   CPPUNIT_ASSERT_MESSAGE("Context element default entity name",
+                          ce_total.get_id().compare("EntityType:dev1") == 0);
+                          */
 }
 
 void JsonTest::testResponse() {
@@ -1018,4 +1021,122 @@ void JsonTest::testConversion() {
   iota::JsonValue jvsi("21");
   CPPUNIT_ASSERT_MESSAGE("Conversion to int from string",
                          iota::get_value_from_rapidjson<int>(jvsi) == 21);
+}
+
+void JsonTest::testService() {
+  std::cout << "@UT@START testService" << std::endl;
+
+  _document.SetObject();
+
+  iota::JsonValue object;
+  object.SetObject();
+
+  put("timeout", 22);
+  put("service", "ss");
+  put("service_path", "service_path");
+  put("cbroker", "micbroker");
+
+  std::string res = toString();
+  std::cout << res << std::endl;
+
+  /*
+    boost::shared_ptr<iota::Service> service(new iota::Service());
+
+    service->set_service("service");
+    service->set_service_path("service_path");
+    service->put("cbroker", "micbroker");
+    service->put("timeout", 22);
+
+    std::string res = service->toString();
+    std::cout << "@UT@toString " << res << std::endl;
+
+    CPPUNIT_ASSERT_MESSAGE("bad service name",
+                           service->get_service().compare("service") == 0);
+
+    CPPUNIT_ASSERT_MESSAGE("bad service_path",
+                           service->get_service_path().compare("service_path")
+    == 0);
+
+    std::string cbro = service->get("cbroker");
+    std::cout << "@UT@cbroker: " << cbro << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("bad cbroker",
+                           service->get("cbroker").compare("micbroker") == 0);
+
+    CPPUNIT_ASSERT_MESSAGE("bad timeout",
+                           service->get("timeout", 0) == 22);
+
+    CPPUNIT_ASSERT_MESSAGE("bad nofield",
+                           service->get("nofield").empty());
+
+
+    CPPUNIT_ASSERT_MESSAGE("bad toString",
+                           res.compare("{}") == 0);
+  */
+  std::cout << "@UT@END testService" << std::endl;
+}
+
+void JsonTest::put(const std::string& field, const std::string& value,
+                   iota::JsonValue obj) {
+  iota::JsonValue v;
+  v.SetString(value.c_str(), value.size(), _document.GetAllocator());
+  if (obj.IsNull()) {
+    _document.AddMember(field.c_str(), v, _document.GetAllocator());
+  } else {
+    obj.AddMember(field.c_str(), v, _document.GetAllocator());
+  }
+}
+void JsonTest::put(const std::string& field, int value, iota::JsonValue obj) {
+  iota::JsonValue v;
+  v.SetInt(value);
+  if (obj.IsNull()) {
+    _document.AddMember(field.c_str(), v, _document.GetAllocator());
+  } else {
+    obj.AddMember(field.c_str(), v, _document.GetAllocator());
+  }
+}
+
+void JsonTest::add(iota::JsonValue data, iota::JsonValue& obj) {
+  obj.PushBack(data, _document.GetAllocator());
+}
+
+iota::JsonValue JsonTest::newObject() {
+  iota::JsonValue object(rapidjson::kObjectType);
+  return object;
+}
+
+iota::JsonValue JsonTest::newArray() {
+  iota::JsonValue res_array(rapidjson::kArrayType);
+  return res_array;
+}
+
+std::string JsonTest::toString() const {
+  if (!_document.IsNull()) {
+    rapidjson::StringBuffer buffer_doc;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer_doc(buffer_doc);
+    _document.Accept(writer_doc);
+    return buffer_doc.GetString();
+  }
+}
+
+int JsonTest::get(const std::string& field, int default_value) {
+  int result;
+  if (_document.HasMember(field.c_str())) {
+    result = _document[field.c_str()].GetInt();
+  } else {
+    result = default_value;
+  }
+
+  return result;
+}
+
+std::string JsonTest::get(const std::string& field,
+                          const std::string& default_value) {
+  std::string result;
+  if (_document.HasMember(field.c_str())) {
+    result.assign(_document[field.c_str()].GetString());
+  } else {
+    result.assign(default_value);
+  }
+
+  return result;
 }

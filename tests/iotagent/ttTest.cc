@@ -149,11 +149,11 @@ void TTTest::testSearchResponses() {
 
     CPPUNIT_ASSERT_EQUAL(device_id, std::string("8934075379000039321"));
 
-    boost::property_tree::ptree pb_tree;
+    boost::shared_ptr<iota::Service> pb_tree(new iota::Service());
     ttService->get_service_by_apiKey(pb_tree, get_service_name(__FUNCTION__));
 
     iota::esp::tt::QueryContextWrapper* queryC =
-        new iota::esp::tt::QueryContextWrapper(&pb_tree);
+        new iota::esp::tt::QueryContextWrapper(pb_tree);
 
     response.assign(seeker->searchTTResponse(myResult.attresults, device_id,
                                              get_service_name(__FUNCTION__),
@@ -488,7 +488,7 @@ void TTTest::testTTCBPublisher() {
 
   std::string expected = "";
 
-  boost::property_tree::ptree pb_tree;
+  boost::shared_ptr<iota::Service> pb_tree(new iota::Service());
   ttService->get_service_by_apiKey(pb_tree, get_service_name(__FUNCTION__));
 
   iota::RiotISO8601 timeInstant;
@@ -926,11 +926,11 @@ void TTTest::testSearchResponsesGPS() {
 
     CPPUNIT_ASSERT_EQUAL(device_id, std::string("8934075379000039321"));
 
-    boost::property_tree::ptree pb_tree;
+    boost::shared_ptr<iota::Service> pb_tree(new iota::Service());
     ttService->get_service_by_apiKey(pb_tree, get_service_name(__FUNCTION__));
 
     iota::esp::tt::QueryContextWrapper* queryC =
-        new iota::esp::tt::QueryContextWrapper(&pb_tree);
+        new iota::esp::tt::QueryContextWrapper(pb_tree);
 
     response.assign(seeker->searchTTResponse(myResult.attresults, device_id,
                                              "thing", queryC));
@@ -1013,11 +1013,11 @@ void TTTest::testSearchResponseOnBug_IDAS20201() {
 
     CPPUNIT_ASSERT_EQUAL(device_id, std::string("8934075379000039321"));
 
-    boost::property_tree::ptree pb_tree;
+    boost::shared_ptr<iota::Service> pb_tree(new iota::Service());
     ttService->get_service_by_apiKey(pb_tree, get_service_name(__FUNCTION__));
 
     iota::esp::tt::QueryContextWrapper* queryC =
-        new iota::esp::tt::QueryContextWrapper(&pb_tree);
+        new iota::esp::tt::QueryContextWrapper(pb_tree);
 
     response.assign(seeker->searchTTResponse(myResult.attresults, device_id,
                                              "thing", queryC));
@@ -1051,7 +1051,7 @@ void TTTest::testTTCBPublisherP1BOnBug_IDAS20202() {
 
   std::string expected = "";
 
-  boost::property_tree::ptree pb_tree;
+  boost::shared_ptr<iota::Service> pb_tree(new iota::Service());
   ttService->get_service_by_apiKey(pb_tree, get_service_name(__FUNCTION__));
 
   iota::RiotISO8601 timeInstant;  // I tried
@@ -1146,7 +1146,7 @@ void TTTest::testTTCBPublisherGMOnBug_IDAS20202() {
 
   std::string expected = "";
 
-  boost::property_tree::ptree pb_tree;
+  boost::shared_ptr<iota::Service> pb_tree(new iota::Service());
   ttService->get_service_by_apiKey(pb_tree, get_service_name(__FUNCTION__));
 
   iota::RiotISO8601 timeInstant;  // I tried

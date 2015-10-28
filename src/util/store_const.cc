@@ -106,7 +106,6 @@ const std::string types::USER("user");
 const std::string types::PWD("pwd");
 const std::string types::DBNAME("dbname");
 const std::string types::MONGODB("mongodb");
-// TODO añadir propiedades configurables de mongo
 
 const std::string types::INACTIVE("inactive");
 const std::string types::ACTIVE("active");

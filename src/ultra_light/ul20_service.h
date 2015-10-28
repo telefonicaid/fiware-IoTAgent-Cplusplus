@@ -27,6 +27,7 @@
 #include <rest/command_handle.h>
 #include <ngsi/ContextElement.h>
 #include <boost/property_tree/ptree.hpp>
+#include <util/Service.h>
 #include <ngsi/RegisterContext.h>
 #include <util/http_client.h>
 #include <util/timer.h>
@@ -78,7 +79,7 @@ class UL20Service : public iota::CommandHandle, public virtual Timer {
   int execute_command(const std::string& destino, const std::string& command_id,
                       const boost::property_tree::ptree& command_to_send,
                       int timeout, const boost::shared_ptr<Device>& item_dev,
-                      const boost::property_tree::ptree& service,
+                      const boost::shared_ptr<Service>& service,
                       std::string& response,
                       iota::HttpClient::application_callback_t callback = NULL);
 
@@ -119,7 +120,7 @@ class UL20Service : public iota::CommandHandle, public virtual Timer {
                          const std::string& updateCommand_value,
                          const std::string& sequence_id,
                          const boost::shared_ptr<Device>& item_dev,
-                         const boost::property_tree::ptree& service,
+                         const boost::shared_ptr<Service>& service,
                          std::string& command_id,
                          boost::property_tree::ptree& command_line);
 

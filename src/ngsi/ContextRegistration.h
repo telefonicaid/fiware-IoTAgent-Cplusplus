@@ -28,7 +28,7 @@
 #include <vector>
 #include <string>
 #include "util/device.h"
-#include <boost/property_tree/ptree.hpp>
+#include "util/service.h"
 
 namespace iota {
 
@@ -48,7 +48,7 @@ class ContextRegistration {
 
   std::string& get_provider() { return _provider; };
 
-  void set_env_info(boost::property_tree::ptree service_info,
+  void set_env_info(boost::shared_ptr<Service> service_info,
                     boost::shared_ptr<Device> device);
 
   template <typename Writer>
@@ -78,7 +78,7 @@ class ContextRegistration {
   std::vector<Entity> _entities;
   std::vector<AttributeRegister> _attributes;
   std::string _provider;
-  boost::property_tree::ptree _service_info;
+  boost::shared_ptr<Service> _service_info;
   boost::shared_ptr<Device> _device_info;
 };
 }

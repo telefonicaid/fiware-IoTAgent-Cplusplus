@@ -24,7 +24,7 @@
 
 #include <ngsi/Attribute.h>
 #include <rapidjson/rapidjson.h>
-#include <boost/property_tree/ptree.hpp>
+#include "util/service.h"
 #include "util/device.h"
 #include <vector>
 #include <string>
@@ -50,7 +50,7 @@ class ContextElement {
 
   // Convenience function to set device properties and service properties
   // This information has precedence over user info.
-  void set_env_info(boost::property_tree::ptree service_info,
+  void set_env_info(boost::shared_ptr<Service> service_info,
                     boost::shared_ptr<Device> device);
 
   template <typename Writer>
@@ -81,7 +81,7 @@ class ContextElement {
   mutable std::string _type;
   std::string _is_pattern;
   std::vector<Attribute> _attributes;
-  boost::property_tree::ptree _service_info;
+  boost::shared_ptr<Service> _service_info;
   boost::shared_ptr<Device> _device_info;
   bool exists(std::string& name);
 

@@ -40,7 +40,7 @@ iota::ULInsertObservation::ULInsertObservation()
 
 void iota::ULInsertObservation::translate(
     std::string str_io, const boost::shared_ptr<Device>& dev,
-    const boost::property_tree::ptree& service_ptree, std::vector<KVP>& query,
+    const boost::shared_ptr<Service>& service_ptree, std::vector<KVP>& query,
     std::vector<iota::ContextElement>& cb_eltos, unsigned short protocol) {
   // Es necesario disponer de dos separadores, uno a nivel de medida y otro
   // a nivel de campo dentro de una medida, para que sea posible recibir en un

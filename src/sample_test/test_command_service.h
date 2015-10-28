@@ -105,7 +105,7 @@ class TestCommandService : public iota::CommandHandle {
                       const boost::property_tree::ptree& command_to_send,
                       int timeout,
                       const boost::shared_ptr<iota::Device>& item_dev,
-                      const boost::property_tree::ptree& service,
+                      const boost::shared_ptr<Service>& service,
                       std::string& response,
                       iota::HttpClient::application_callback_t callback = NULL);
 

@@ -1384,7 +1384,7 @@ void AdminManagerTest::testPutProtocolDevice() {
                        "application/json", PUT_DEVICE, headers, query_string,
                        response);
   std::cout << "@UT@1RESPONSE: " << code_res << " " << response << std::endl;
-  // TODO  IOTASSERT(code_res == 200);
+  IOTASSERT(code_res == 200);
   CPPUNIT_ASSERT_MESSAGE(
       "Checking error ",
       response.find("Connection refused") != std::string::npos);

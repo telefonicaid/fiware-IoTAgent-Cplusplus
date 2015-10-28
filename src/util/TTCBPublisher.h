@@ -26,8 +26,6 @@
 #include "ngsi/UpdateContext.h"
 #include "rest/iot_cb_comm.h"
 #include <pion/http/response_writer.hpp>
-#include <boost/property_tree/xml_parser.hpp>
-#include <boost/property_tree/json_parser.hpp>
 
 #include "util/RiotISO8601.h"
 #define OP_STRING "APPEND"
@@ -40,7 +38,7 @@ class TTCBPublisher {
   TTCBPublisher();
   std::string publishContextBroker(iota::ContextElement& cElement,
                                    std::vector<std::string>& vJsons,
-                                   boost::property_tree::ptree&,
+                                   boost::shared_ptr<Service>&,
                                    iota::RiotISO8601& time);
 
   virtual ~TTCBPublisher();
@@ -51,12 +49,12 @@ class TTCBPublisher {
   virtual std::string doPublishContextBroker(iota::ContextElement& cElement,
                                              std::vector<std::string>& vJsons,
                                              std::string& url,
-                                             boost::property_tree::ptree&,
+                                             boost::shared_ptr<Service>&,
                                              iota::RiotISO8601& time);
   virtual bool checkTimeInstantPresent(
       std::vector<std::string>&);  // For future use, in case a device already
                                    // sends its timestamp.
-  virtual std::string buildcbURL(const boost::property_tree::ptree& pt);
+  virtual std::string buildcbURL(const boost::shared_ptr<Service>& pt);
 };
 }
 }

@@ -55,7 +55,7 @@ class CommandHandle : public iota::RestHandle {
     int timeout;
     boost::shared_ptr<iota::Device> item_dev;
     std::string entity_type;
-    boost::property_tree::ptree service;
+    boost::shared_ptr<iota::Service> service;
 
   } CommandData;
 
@@ -66,11 +66,11 @@ class CommandHandle : public iota::RestHandle {
   void make_registrations(void);
 
   int queryContext(iota::QueryContext& queryContext,
-                   const boost::property_tree::ptree& service_ptree,
+                   const boost::shared_ptr<iota::Service>& service_ptree,
                    iota::ContextResponses& context_responses);
 
   int updateContext(iota::UpdateContext& updateContext,
-                    const boost::property_tree::ptree& service,
+                    const boost::shared_ptr<iota::Service>& service,
                     const std::string& sequence,
                     iota::ContextResponses& response);
 
@@ -90,7 +90,7 @@ class CommandHandle : public iota::RestHandle {
                       const std::string& updateCommand_value,
                       const std::string& sequence_id,
                       const boost::shared_ptr<Device>& item_dev,
-                      const boost::property_tree::ptree& service,
+                      const boost::shared_ptr<iota::Service>& service,
                       std::string& command_id,
                       boost::property_tree::ptree& command_line);
 
@@ -139,7 +139,7 @@ class CommandHandle : public iota::RestHandle {
                      boost::shared_ptr<Device> device,
                      const std::string& entity_type,
                      const std::string& sequence,
-                     const boost::property_tree::ptree& service);
+                     const boost::shared_ptr<iota::Service>& service);
 
   void send_all_registrations(void);
   void send_all_registrations_from_mongo();
@@ -151,7 +151,7 @@ class CommandHandle : public iota::RestHandle {
 
   int send_register(
       std::vector<iota::ContextRegistration> context_registrations,
-      boost::property_tree::ptree& service,
+      boost::shared_ptr<iota::Service>& service,
       const boost::shared_ptr<Device> device, const std::string& regId,
       std::string& cb_response);
 
@@ -168,12 +168,12 @@ class CommandHandle : public iota::RestHandle {
     *
     *
     */
-  int send_unregister(boost::property_tree::ptree& service,
+  int send_unregister(boost::shared_ptr<iota::Service>& service,
                       const boost::shared_ptr<Device> device,
                       const std::string& regId, std::string& cb_response);
 
   int send(iota::ContextElement ngsi_context_element, const std::string& opSTR,
-           const boost::property_tree::ptree& service,
+           const boost::shared_ptr<iota::Service>& service,
            std::string& cb_response);
 
   /**
@@ -198,7 +198,7 @@ class CommandHandle : public iota::RestHandle {
                          const std::string& command_att,
                          const std::string& type, const std::string& value,
                          const boost::shared_ptr<Device>& item_dev,
-                         const boost::property_tree::ptree& service,
+                         const boost::shared_ptr<iota::Service>& service,
                          const std::string& opSTR);
 
   int send_updateContext(const std::string& command_name,
@@ -207,7 +207,7 @@ class CommandHandle : public iota::RestHandle {
                          const std::string& command_att2,
                          const std::string& type2, const std::string& value2,
                          const boost::shared_ptr<Device>& item_dev,
-                         const boost::property_tree::ptree& service,
+                         const boost::shared_ptr<iota::Service>& service,
                          const std::string& opSTR);
 
   /**
@@ -235,7 +235,7 @@ class CommandHandle : public iota::RestHandle {
       const std::string& endpoint, const std::string& command_id,
       const boost::property_tree::ptree& command_to_send, int timeout,
       const boost::shared_ptr<Device>& item_dev,
-      const boost::property_tree::ptree& service, std::string& response,
+      const boost::shared_ptr<iota::Service>& service, std::string& response,
       iota::HttpClient::application_callback_t callback = NULL) = 0;
 
   void receive_command_response(CommandData cmd_data,
@@ -275,14 +275,12 @@ class CommandHandle : public iota::RestHandle {
   *
   *
   */
-  virtual void transform_command(const std::string& command_name,
-                                 const std::string& command_value,
-                                 const std::string& updateCommand_value,
-                                 const std::string& sequence_id,
-                                 const boost::shared_ptr<Device>& item_dev,
-                                 const boost::property_tree::ptree& service,
-                                 std::string& command_id,
-                                 boost::property_tree::ptree& command_line);
+  virtual void transform_command(
+      const std::string& command_name, const std::string& command_value,
+      const std::string& updateCommand_value, const std::string& sequence_id,
+      const boost::shared_ptr<Device>& item_dev,
+      const boost::shared_ptr<iota::Service>& service, std::string& command_id,
+      boost::property_tree::ptree& command_line);
 
   /**
   * @name    transform_response
@@ -328,7 +326,7 @@ class CommandHandle : public iota::RestHandle {
                     const boost::property_tree::ptree& command_to_send,
                     const boost::shared_ptr<Device>& item_dev,
                     const std::string& entity_type, const std::string& endpoint,
-                    const boost::property_tree::ptree& service_ptree,
+                    const boost::shared_ptr<iota::Service>& service_ptree,
                     const std::string& sequence, int status);
 
   /**
@@ -344,7 +342,7 @@ class CommandHandle : public iota::RestHandle {
   *
   */
   CommandVect get_all_command(const boost::shared_ptr<Device>& device,
-                              const boost::property_tree::ptree& service);
+                              const boost::shared_ptr<iota::Service>& service);
 
   CommandVect get_all_command(const std::string& device_id,
                               const std::string& apikey);
@@ -392,7 +390,7 @@ class CommandHandle : public iota::RestHandle {
   void response_command(const std::string& id_command,
                         const std::string& response,
                         const boost::shared_ptr<Device>& device,
-                        const boost::property_tree::ptree& service);
+                        const boost::shared_ptr<iota::Service>& service);
 
   std::string create_ngsi_response(int code, const std::string& reason,
                                    const std::string& details);

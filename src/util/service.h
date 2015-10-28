@@ -25,13 +25,17 @@
 #include "timer.h"
 #include <boost/functional/hash.hpp>
 #include <boost/shared_ptr.hpp>
+#include "common.h"
 
 namespace iota {
 
-struct Service : public virtual Timer {
-  explicit Service(std::string service) : Timer(), _service(service){};
+class Service : public virtual Timer {
+ public:
+  Service();
 
-  virtual ~Service(){};
+  Service(const std::string& service);
+
+  virtual ~Service();
 
   bool operator==(const Service& a) const {
     if (_service.compare(a._service) == 0) {
@@ -64,50 +68,68 @@ struct Service : public virtual Timer {
     std::size_t seed = 0;
     boost::hash_combine(seed, item->_service);
     return seed;
-  }
+    }
 
-  friend std::size_t hash_value(Service const& item) {
-    std::size_t seed = 0;
-    boost::hash_combine(seed, item._service);
-    return seed;
-  }
+    friend std::size_t hash_value(Service const& item) {
+      std::size_t seed = 0;
+      boost::hash_combine(seed, item._service);
+      return seed;
+    }
 
-  std::string get_resource() { return _resource; };
+    std::string get(const std::string& field,
+                    const std::string& default_value = std::string());
 
-  void set_resource(const std::string& resource) { _resource = resource; }
+    void put(const std::string& field, const std::string& value);
 
-  std::string get_token() { return _token; };
+    int get(const std::string& field, int default_value);
 
-  void set_token(const std::string& token) { _token = token; }
+    void put(const std::string& field, int value);
 
-  std::string get_service_path() { return _service_path; };
+    void add_json(std::string resource_name, std::string json,
+                  std::string& error);
 
-  void set_service_path(const std::string& service_path) {
-    _service_path = service_path;
-  }
+    std::string get_resource();
 
-  int get_timeout() { return _timeout; };
+    void set_resource(const std::string& resource);
 
-  void set_timeout(int timeout) { _timeout = timeout; }
+    std::string get_token();
 
-  std::string get_service() { return _service; };
+    void set_token(const std::string& token);
 
-  void set_service(const std::string& service) { _service = service; }
+    std::string get_service_path();
 
-  std::string get_cbroker() { return _cbroker; };
+    void set_service_path(const std::string& service_path);
 
-  void set_cbroker(const std::string& cbroker) { _cbroker = cbroker; }
+    int get_timeout();
 
-  std::string get_real_name() const { return _service; }
+    void set_timeout(int timeout);
 
- protected:
- private:
-  int _timeout;
-  std::string _service;
-  std::string _service_path;
-  std::string _cbroker;
-  std::string _token;
-  std::string _resource;
+    std::string get_service();
+
+    void set_service(const std::string& service);
+
+    std::string get_cbroker();
+
+    void set_cbroker(const std::string& cbroker);
+
+    std::string get_real_name() const;
+
+    void read_xml_file(const std::string& file_path);
+
+    std::string read_json(std::stringstream& _is);
+
+    std::string toString() const;
+
+   protected:
+   private:
+    int _timeout;
+    std::string _service;
+    std::string _service_path;
+    std::string _cbroker;
+    std::string _token;
+    std::string _resource;
+
+    JsonDocument _document;
 };
 };
 

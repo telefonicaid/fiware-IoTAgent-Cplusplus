@@ -136,7 +136,7 @@ int iota::TestService::send_update_context(const std::string& dev,
                                            const std::string& apikey,
                                            const std::string& content,
                                            std::string& cb_response) {
-  boost::property_tree::ptree pt_cb;
+  boost::shared_ptr<Service> pt_cb(new Service());
   std::string cb_url;
   std::string entity_name;
   std::string entity_type("thing");
@@ -144,8 +144,8 @@ int iota::TestService::send_update_context(const std::string& dev,
   // Getting service information associated to received apikey
   try {
     get_service_by_apiKey(pt_cb, apikey);
-    cb_url.assign(pt_cb.get<std::string>("cbroker", ""));
-    entity_type.assign(pt_cb.get<std::string>("entity_type", ""));
+    cb_url.assign(pt_cb->get("cbroker"));
+    entity_type.assign(pt_cb->get("entity_type"));
 
   } catch (std::exception& e) {
     IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());

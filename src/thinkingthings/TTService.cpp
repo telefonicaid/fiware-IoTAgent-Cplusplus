@@ -104,15 +104,16 @@ void iota::esp::TTService::set_option(const std::string& name,
     IOTA_LOG_DEBUG(m_logger, "Reading Config File: " << value);
 
     try {
-      read_xml(value, _service_configuration,
-               boost::property_tree::xml_parser::no_comments);
+      // TODO read_xml(value, _service_configuration,
+      // boost::property_tree::xml_parser::no_comments);
+      _service_configuration->read_xml_file(value);
       IOTA_LOG_DEBUG(m_logger, "XML READ");
 
-      std::string sensors = _service_configuration.get<std::string>("Sensors");
+      std::string sensors = _service_configuration->get("Sensors");
       IOTA_LOG_DEBUG(m_logger, "Sensors: " << sensors);
 
       // Set LogPath
-      std::string logpath = _service_configuration.get<std::string>("LogPath");
+      std::string logpath = _service_configuration->get("LogPath");
 
       idSensor = initESPLib(logpath, sensors);
 
@@ -153,7 +154,7 @@ void iota::esp::TTService::service(
   std::string keyword("cadena");
 
   std::string apikey;
-  boost::property_tree::ptree pt_cb;
+  boost::shared_ptr<Service> pt_cb;
   std::string cb_url;
 
   std::string strResponse;
@@ -205,7 +206,7 @@ void iota::esp::TTService::service(
                 // file, how could I get it?
 
     if (device_id != "") {
-      boost::property_tree::ptree pt_cb;
+      boost::shared_ptr<Service> pt_cb;
 
       // add_info(pt_cb, get_resource(), "");
       IOTA_LOG_DEBUG(m_logger, "TTService: Getting searching device : ["
@@ -236,7 +237,7 @@ void iota::esp::TTService::service(
 
       iota::esp::tt::SearchResponse seeker = iota::esp::tt::SearchResponse();
       iota::esp::tt::QueryContextWrapper* queryC =
-          new iota::esp::tt::QueryContextWrapper(&pt_cb);
+          new iota::esp::tt::QueryContextWrapper(pt_cb);
 
       IOTA_LOG_DEBUG(m_logger,
                      "TTService: Creating entity to be published: Service: ["
@@ -406,25 +407,25 @@ void iota::esp::TTService::service(
   }
 }
 
-void iota::esp::TTService::add_info(boost::property_tree::ptree& pt,
+void iota::esp::TTService::add_info(boost::shared_ptr<Service>& pt,
                                     const std::string& iotService,
                                     const std::string& apiKey) {
   try {
     get_service_by_apiKey(pt,
                           apiKey);  // TODO: this has to change, as it's not
                                     // going to work anymore.
-    std::string timeoutSTR = pt.get<std::string>("timeout", "0");
+    std::string timeoutSTR = pt->get("timeout", "0");
     int timeout = boost::lexical_cast<int>(timeoutSTR);
-    std::string service = pt.get<std::string>("service", "");
-    std::string service_path = pt.get<std::string>("service_path", "");
-    std::string token = pt.get<std::string>("token", "");
+    std::string service = pt->get_service();
+    std::string service_path = pt->get_service_path();
+    std::string token = pt->get("token", "");
 
     IOTA_LOG_DEBUG(m_logger, "Config retrieved: token: "
                                  << token << " service_path: " << service_path);
 
-    pt.put("timeout", timeout);
-    pt.put("service", service);
-    pt.put("service_path", service_path);
+    pt->put("timeout", timeout);
+    pt->put("service", service);
+    pt->put("service_path", service_path);
 
   } catch (std::exception& e) {
     IOTA_LOG_ERROR(m_logger, "Configuration error for service: "

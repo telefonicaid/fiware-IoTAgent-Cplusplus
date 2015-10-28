@@ -23,10 +23,13 @@
 #define SRC_TESTS_IOTAGENT_JSONTEST_H_
 
 #include <cppunit/extensions/HelperMacros.h>
+#include "util/json_util.h"
 
 class JsonTest : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(JsonTest);
 
+  CPPUNIT_TEST(testService);
+  /*
   CPPUNIT_TEST(testConversionUpdateContext);
   CPPUNIT_TEST(testContextElement);
   CPPUNIT_TEST(testContext);
@@ -41,11 +44,15 @@ class JsonTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAttrCompound);
   CPPUNIT_TEST(testConversion);
   CPPUNIT_TEST(testAttributeJSONCommand);
-  CPPUNIT_TEST_SUITE_END();
+  */ CPPUNIT_TEST_SUITE_END();
 
  public:
   void setUp(){};
   void tearDown(){};
+
+  iota::JsonValue newObject();
+
+  iota::JsonValue newArray();
 
  protected:
   void testConversionUpdateContext();
@@ -62,5 +69,23 @@ class JsonTest : public CppUnit::TestFixture {
   void testAttrCompound();
   void testConversion();
   void testAttributeJSONCommand();
+
+  /**
+    * @name    testService
+    * @brief   Create an empty service, put values, read values, copy to string
+    */
+  void testService();
+
+  void put(const std::string& field, const std::string& value,
+           iota::JsonValue obj = iota::JsonValue());
+  void put(const std::string& field, int value,
+           iota::JsonValue obj = iota::JsonValue());
+  void add(iota::JsonValue data, iota::JsonValue& obj);
+  std::string toString() const;
+
+  int get(const std::string& field, int default_value);
+  std::string get(const std::string& field, const std::string& default_value);
+
+  iota::JsonDocument _document;
 };
 #endif

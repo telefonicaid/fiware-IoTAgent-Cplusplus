@@ -36,7 +36,7 @@ namespace esp {
 namespace tt {
 class QueryContextWrapper {
  public:
-  QueryContextWrapper(boost::property_tree::ptree*);
+  QueryContextWrapper(boost::shared_ptr<Service>&);
 
   ::iota::ContextResponses queryContext(
       ::iota::QueryContext& qContext);  // maybe something else is needed.
@@ -48,7 +48,7 @@ class QueryContextWrapper {
   pion::logger m_logger;
   std::string cb_url;
   std::string cb_response;
-  boost::property_tree::ptree* pt_cb;
+  boost::shared_ptr<Service> pt_cb;
 
   iota::ContextBrokerCommunicator cb_communicator;
 
