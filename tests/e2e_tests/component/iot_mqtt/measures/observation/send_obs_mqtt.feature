@@ -32,7 +32,7 @@ Feature: MQTT Measure Deliver
 			| temperature	|servicemqtt	|IoTMqtt	| Quantity	| 			| t		| 35	| device_id	|					|
 			| presence		|servicemqtt	|IoTMqtt	| Boolean	| mqtt16	| 		| false	| alias		|					|
 			| location		|servicemqtt	|IoTMqtt	| Location	| mqtt17	| l		| 		| payload	|					|
-			| temperature	|servicemqtt	|IoTMqtt	| Quantity	| mqtt19	| t		| 90	| topic		|					|
+#			| temperature	|servicemqtt	|IoTMqtt	| Quantity	| mqtt19	| t		| 90	| topic		|					|
 
 	
 	@iot_mqtt @IDAS-18329	

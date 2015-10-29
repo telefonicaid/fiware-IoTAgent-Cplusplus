@@ -536,12 +536,6 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
     response = req.json()
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
-#    contextElement = response['contextElements'][0]
-#    assetElement = contextElement['id']
-#    typeElement = contextElement['type']
-#    for contextElement in response['contextElements']:
-#    assetElement = contextElement['id']
-#    typeElement = contextElement['type']
     for measures_dict in step.hashes:
         measures = measures_dict['generated_measures']
         count_measure=0
@@ -563,7 +557,6 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
                                 d2 = dict([measure_value.split('/')])
                                 measure_value=str(d2.items()[0][0])
                                 metadata_value=str(d2.items()[0][1])
-                        print 'ENTRO'
                         attr_matches=False
                         for attr in contextElement['attributes']:
                             if str(measure_name) == attr['name']:
@@ -595,7 +588,6 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
                         if attr ['name'] == "TimeInstant":
                             print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
                             if timestamp:
-#                                timestamps = timestamp.split('#')
                                 if len(timestamp.split('#'))>1:
                                     print timestamp.split('#')[count_measure]
                                     timest=timestamp.split('#')[count_measure]
@@ -617,7 +609,6 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
                 break
         if (len(step.hashes)>2) & (attr_matches):
             assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
-            print 'ME SALGO'
             break
 
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received or NOT by context broker')
