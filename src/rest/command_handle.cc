@@ -1879,7 +1879,10 @@ void iota::CommandHandle::find_devices_with_commands(
            << iota::store::types::COMMANDS << BSON("$exists"
                                                    << "true"));
 
-  int res = dev_table.find(query);
+  // int res = dev_table.find(query);
+  mongo::BSONObjBuilder fieldsToReturn;
+
+  int res = dev_table.find(INT_MIN, query, fieldsToReturn);
   if (res == 0) {
     IOTA_LOG_DEBUG(
         m_logger,
