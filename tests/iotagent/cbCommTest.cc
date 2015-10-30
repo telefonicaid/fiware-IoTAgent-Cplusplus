@@ -79,20 +79,18 @@ void cbCommTest::testSend() {
   iota::ContextBrokerCommunicator cb;
 
   std::string url = "http://127.0.0.1:" + mock_port + "/mock/testSend";
-  // TODO
-  /*
-  boost::shared_ptr<Service> pt1(new Service());
+
+  boost::shared_ptr<iota::Service> pt1(new iota::Service());
   pt1->put("service", "service");
-  boost::property_tree::ptree c1;
-  c1.put("timeout", 10);
-  pt1.add_child("config.cbroker", c1);
+  pt1->put("config.cbroker.timeout", 10);
+
   std::string response = cb.send(url, operation.get_string(), pt1);
   std::cout << "Received:" << response << std::endl;
   std::istringstream is(response);
   iota::ContextResponses responses(is);
   CPPUNIT_ASSERT(responses.get_context_responses().size() == 1);
   CPPUNIT_ASSERT(
-      responses.get_context_responses()[0].get_code().compare("200") == 0);*/
+      responses.get_context_responses()[0].get_code().compare("200") == 0);
 }
 
 void cbCommTest::testSynchSendTimeout() {
@@ -115,17 +113,16 @@ void cbCommTest::testAsynchSendTimeout() {
 
   // std::string url("http://10.95.168.57:1026/NGSI10/updateContext");
   std::string url = "http://192.0.0.1:9001/mock/testAsyncSendTimeout";
-  /*  boost::shared_ptr<Service> pt1(new Service());
+  boost::shared_ptr<Service> pt1(new Service());
     pt1->set_service("service", "service");
-    boost::property_tree::ptree c1;
-    c1.put("timeout", 10);
-    pt1.add_child("config.cbroker", c1);
+    pt1->put("config.cbroker.timeout", 10);
+
     std::cout << "Async send" << std::endl;
     cb->async_send(url, "UPDATE", pt1, boost::bind(handler_function, _1, _2));
     while (!handler_invoked) {
       sleep(1);
     }
-    CPPUNIT_ASSERT_MESSAGE("Handler invoked ", handler_invoked);*/
+    CPPUNIT_ASSERT_MESSAGE("Handler invoked ", handler_invoked);
   std::cout << "END testAsyncSend2" << std::endl;
 }
 
@@ -167,23 +164,23 @@ void cbCommTest::testAsyncSend() {
           iota::Process::get_process().get_io_service()));
 
   std::string url = "http://127.0.0.1:" + mock_port + "/mock/testAsyncSend";
-  // TODO
-  /*boost::property_tree::ptree pt1;
-  pt1.put("service", "service");
-  boost::property_tree::ptree c1;
-  c1.put("timeout", 10);
-  c1.put("token", "MyToken");
-  c1.put("oauth.on_behalf_trust_url", "http://127.0.0.1/auth");
-  c1.put("oauth.on_behalf_user", "iotagent");
-  c1.put("oauth.on_behalf_password", "iotagent");
-  pt1.add_child("config.cbroker", c1);
+
+  boost::shared_ptr<iota::Service> pt1(new iota::Service());
+  pt1->put("service", "service");
+
+  pt1->put("config.cbroker.timeout", 10);
+  pt1->put("config.cbroker.token", "MyToken");
+  pt1->put("config.cbroker.oauth.on_behalf_trust_url", "http://127.0.0.1/auth");
+  pt1->put("config.cbroker.oauth.on_behalf_user", "iotagent");
+  pt1->put("config.cbroker.oauth.on_behalf_password", "iotagent");
+
   std::cout << "Async send" << std::endl;
   cb->async_send(url, operation.get_string(), pt1,
                  boost::bind(handler_function, _1, _2));
   while (!handler_invoked) {
     sleep(1);
   }
-  CPPUNIT_ASSERT_MESSAGE("Handler invoked ", handler_invoked);*/
+  CPPUNIT_ASSERT_MESSAGE("Handler invoked ", handler_invoked);
   std::cout << "END testAsyncSend" << std::endl;
 }
 

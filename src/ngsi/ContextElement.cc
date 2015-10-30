@@ -207,28 +207,22 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
     if (_device_info.get() != NULL) {
       attr_mapping = _device_info->get_attribute(attribute.get_name());
     }
-    // TODO
-    /*
+
     if (attr_mapping.empty()) {
       try {
-        boost::property_tree::ptree::const_iterator it =
-            _service_info.get_child(iota::store::types::ATTRIBUTES).begin();
-        while (
-            attr_mapping.empty() &&
-            it !=
-                _service_info.get_child(iota::store::types::ATTRIBUTES).end()) {
-          if (it->second.get<std::string>(iota::store::types::ATTRIBUTE_ID, "")
+        JsonValue& arr = _service_info.get(iota::store::types::ATTRIBUTES);
+        for (JsonValue::ConstValueIterator it = arr.Begin(); itr != arr.End();
+             ++itr) {
+          if (_service_info.get(iota::store::types::ATTRIBUTE_ID, "", *it)
                   .compare(attribute.get_name()) == 0) {
-            std::stringstream os_json;
-            iota::property_tree::json_parser::write_json(os_json, it->second);
-            attr_mapping = os_json.str();
+            attr_mapping = it->toString();
           }
           ++it;
         }
       } catch (boost::property_tree::ptree_bad_path& e) {
         // Nothing
       }
-    } */
+    }
     if (!attr_mapping.empty()) {
       rapidjson::Document d;
 
@@ -305,24 +299,22 @@ void iota::ContextElement::set_env_info(boost::shared_ptr<Service> service_info,
       ++it;
     }
   }
-  // TODO
-  /*
+
     try {
-      BOOST_FOREACH (
-          boost::property_tree::ptree::value_type& v,
-          _service_info.get_child(iota::store::types::STATIC_ATTRIBUTES)) {
-        std::string a_name = v.second.get<std::string>(iota::ngsi::NGSI_NAME,
-    "");
+      JsonValue& arr = _service_info.get(iota::store::types::STATIC_ATTRIBUTES);
+      for (JsonValue::ConstValueIterator it = arr.Begin(); itr != arr.End();
+           ++itr) {
+        std::string a_name = _service_info.get(iota::ngsi::NGSI_NAME, "", it);
         if (!a_name.empty() && !exists(a_name)) {
           // Add attribute.
 
           std::string a_type =
-              v.second.get<std::string>(iota::ngsi::NGSI_TYPE, "string");
+              _service_info.get(iota::ngsi::NGSI_TYPE, "string", it);
           std::string a_value =
-              v.second.get<std::string>(iota::ngsi::NGSI_VALUE, "");
+              _service_info.get(iota::ngsi::NGSI_VALUE, "", it);
           if (!a_value.empty()) {
             std::stringstream os_json;
-            iota::property_tree::json_parser::write_json(os_json, v.second);
+            iota::property_tree::json_parser::write_json(os_json, a_value);
             rapidjson::Document d;
             if (!d.Parse<0>(os_json.str().c_str()).HasParseError()) {
               iota::Attribute att(d);
@@ -335,7 +327,7 @@ void iota::ContextElement::set_env_info(boost::shared_ptr<Service> service_info,
       }
     } catch (boost::property_tree::ptree_bad_path& e) {
       // Nothing
-    }*/
+    }
 }
 
 bool iota::ContextElement::exists(std::string& name) {

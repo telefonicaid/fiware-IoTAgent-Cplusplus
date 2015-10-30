@@ -125,8 +125,8 @@ void iota::CommandHandle::set_async_commands() { _callback = true; }
 void iota::CommandHandle::handle_updateContext(const std::string& url,
                                                std::string response,
                                                int status) {
-  // TODO IOTA_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response
-  // << " " << status);
+  IOTA_LOG_DEBUG(m_logger, "handle_updateContext: |response:" << response << " "
+                                                              << status);
 
   if (status == 200) {
     iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
@@ -1851,7 +1851,7 @@ std::string iota::CommandHandle::json_value_to_ul(
         new_value.append("=");
         new_value.append(itr->value.GetString());
         if (itr + 1 != document.MemberEnd()) {
-          new_value.append("|");  // TODO: replace with constants.
+          new_value.append("|");
         }
       }
     }

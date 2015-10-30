@@ -84,7 +84,7 @@ class MqttService : public iota::esp::ngsi::IotaMqttCommands {
       const std::string& endpoint, const std::string& command_id,
       const boost::property_tree::ptree& command_to_send, int timeout,
       const boost::shared_ptr<iota::Device>& item_dev,
-      const boost::property_tree::ptree& service, std::string& response,
+      const boost::shared_ptr<Service>& service, std::string& response,
       iota::HttpClient::application_callback_t callback = NULL);
 
   bool is_push_type_of_command(boost::shared_ptr<Device> device);

@@ -127,32 +127,6 @@ void iota::esp::ngsi::IotaMqttServiceImpl::processCommandResponse(
   }
 }
 
-/**
-*/
-void iota::esp::ngsi::IotaMqttServiceImpl::add_info(
-    boost::property_tree::ptree& pt, const std::string& apiKey) {
-  try {
-    resthandle_ptr_->get_service_by_apiKey(pt, apiKey);
-    std::string timeoutSTR = pt.get<std::string>("timeout", "0");
-    int timeout = boost::lexical_cast<int>(timeoutSTR);
-    std::string service = pt.get<std::string>("service", "");
-    std::string service_path = pt.get<std::string>("service_path", "");
-    std::string token = pt.get<std::string>("token", "");
-
-    IOTA_LOG_DEBUG(m_logger, "Config retrieved: token: "
-                                 << token << " service_path: " << service_path);
-
-    pt.put("timeout", timeout);
-    pt.put("service", service);
-    pt.put("service_path", service_path);
-
-  } catch (std::exception& e) {
-    IOTA_LOG_ERROR(m_logger, "Configuration error for service: "
-                                 << iotService << " [" << e.what() << "] ");
-    throw e;
-  }
-}
-
 std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
     std::string& apikey, std::string& idDevice, std::string& json) {
   if (apikey == "") {
@@ -176,11 +150,11 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
                                << json << " apikey: " << apikey
                                << " device: " << idDevice);
 
-  boost::property_tree::ptree pt_cb;
+  boost::shared_ptr<Service> pt_cb(new Service());
 
   try {
-    add_info(pt_cb, apikey);
-    std::string serviceMQTT = pt_cb.get<std::string>("service", "");
+    resthandle_ptr_->get_service_by_apiKey(pt_cb, apikey);
+    std::string serviceMQTT = pt_cb->get_service());
 
     boost::shared_ptr<iota::Device> dev =
         resthandle_ptr_->get_device(idDevice, serviceMQTT);

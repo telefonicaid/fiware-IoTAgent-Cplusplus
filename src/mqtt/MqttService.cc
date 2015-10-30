@@ -242,15 +242,13 @@ void iota::esp::MqttService::respond_mqtt_command(std::string apikey,
                                                   std::string command_id) {
   std::string command;
 
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<Service> service_ptree(new Service());
   boost::shared_ptr<iota::Device> dev;
 
   get_service_by_apiKey(service_ptree, apikey);
 
-  std::string srv =
-      service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-  std::string srv_path =
-      service_ptree.get<std::string>(iota::store::types::SERVICE_PATH, "");
+  std::string srv = service_ptree->get_service();
+  std::string srv_path = service_ptree->get_service_path();
 
   dev = get_device(device, srv, srv_path);
 
@@ -279,7 +277,7 @@ int iota::esp::MqttService::execute_command(
     const std::string& endpoint, const std::string& command_id,
     const boost::property_tree::ptree& command_to_send, int timeout,
     const boost::shared_ptr<iota::Device>& item_dev,
-    const boost::property_tree::ptree& service, std::string& response,
+    const boost::shared_ptr<Service>& service, std::string& response,
     iota::HttpClient::application_callback_t callback) {
   // deserialize the message
   std::string apikey;
@@ -289,11 +287,10 @@ int iota::esp::MqttService::execute_command(
 
   // TODO: obtain apikey, from ptree,
 
-  std::string srv = service.get<std::string>(iota::store::types::SERVICE, "");
-  std::string srv_path =
-      service.get<std::string>(iota::store::types::SERVICE_PATH, "");
+  std::string srv = service->get_service();
+  std::string srv_path = service->get_service_path();
 
-  apikey = service.get<std::string>(iota::store::types::APIKEY, "");
+  apikey = service->get(iota::store::types::APIKEY, "");
 
   iddevice.assign(item_dev->unique_name());
   cmdPayload = command_to_send.get<std::string>(iota::store::types::BODY, "");

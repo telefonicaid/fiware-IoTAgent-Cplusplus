@@ -37,6 +37,8 @@ class Service : public virtual Timer {
 
   virtual ~Service();
 
+  boost::shared_ptr<JsonDocument> get_document();
+
   bool operator==(const Service& a) const {
     if (_service.compare(a._service) == 0) {
       return true;
@@ -76,17 +78,42 @@ class Service : public virtual Timer {
       return seed;
     }
 
+    void put_metadata(const std::string& value, const std::string& type,
+                      const std::string& name);
+
+    void put_static_attribute(const std::string& value, const std::string& type,
+                              const std::string& name);
+
+    void put_attribute(const std::string& value, const std::string& type,
+                       const std::string& name);
+
     std::string get(const std::string& field,
                     const std::string& default_value = std::string());
 
+    int get(const std::string& field, int default_value);
+
+    std::string get(const std::string& field, const std::string& default_value,
+                    const iota::JsonValue& obj);
+
+    int get(const std::string& field, int default_value,
+            const iota::JsonValue& obj);
+
+    iota::JsonValue& getObject(const std::string& field);
+
+    iota::JsonValue& getObject(const std::string& field, iota::JsonValue& obj);
+
     void put(const std::string& field, const std::string& value);
 
-    int get(const std::string& field, int default_value);
+    void put(const std::string& field, const std::string& value,
+             iota::JsonValue& obj);
 
     void put(const std::string& field, int value);
 
-    void add_json(std::string resource_name, std::string json,
-                  std::string& error);
+    void put(const std::string& field, int value, iota::JsonValue& obj);
+
+    void putObject(const std::string& resource_name);
+
+    void putObject(const std::string& resource_name, iota::JsonValue& obj);
 
     std::string get_resource();
 
@@ -120,6 +147,8 @@ class Service : public virtual Timer {
 
     std::string toString() const;
 
+    std::string toString(const iota::JsonValue& obj) const;
+
    protected:
    private:
     int _timeout;
@@ -129,7 +158,7 @@ class Service : public virtual Timer {
     std::string _token;
     std::string _resource;
 
-    JsonDocument _document;
+    boost::shared_ptr<JsonDocument> _document;
 };
 };
 

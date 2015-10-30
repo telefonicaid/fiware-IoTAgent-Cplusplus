@@ -27,7 +27,7 @@
 #include <rest/command_handle.h>
 #include <ngsi/ContextElement.h>
 #include <boost/property_tree/ptree.hpp>
-#include <util/Service.h>
+#include <util/service.h>
 #include <ngsi/RegisterContext.h>
 #include <util/http_client.h>
 #include <util/timer.h>

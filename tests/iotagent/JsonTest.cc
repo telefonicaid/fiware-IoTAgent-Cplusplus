@@ -54,8 +54,8 @@ void JsonTest::testContextElement() {
   pt->put("cbroker", "cbroker");
   pt->put("token", "token");
   pt->put("entity_type", "entity_type_service");
-  // TODO  pt->add_json("attributes",
-  // TODO    "{\"name\": \"natt\, \"type\", \"\", \"value\": \"vatt\"}" );
+  pt->put_attribute("natt", "", "vatt");
+  std::cout << "@UT@service: " << pt->toString() << std::endl;
 
   {
     boost::shared_ptr<iota::Device> dev;
@@ -113,37 +113,20 @@ void JsonTest::testContextElement() {
 
 void JsonTest::testContext() {
   std::cout << "@UT@START testContext " << std::endl;
-  // TODO
-  /* boost::property_tree::ptree pt;
-   pt.put("timeout", "10");
-   pt.put("service", "service");
-   pt.put("service_path", "service_path");
-   pt.put("cbroker", "cbroker");
-   pt.put("token", "token");
-   pt.put("entity_type", "entity_type_service");
-   boost::property_tree::ptree ptree_att;
-   boost::property_tree::ptree att;
-   att.put("name", "mappedatt");
-   att.put("type", "");
-   att.put("object_id", "originalatt");
-   ptree_att.push_back(std::make_pair("", att));
-   pt.add_child("attributes", ptree_att);
 
-   boost::property_tree::ptree ptree_satt;
-   boost::property_tree::ptree satt;
-   satt.put("name", "snatt");
-   satt.put("type", "");
-   satt.put("value", "svatt");
+  boost::shared_ptr<iota::Service> pt(new iota::Service());
+  pt->put("timeout", "10");
+  pt->put("service", "service");
+  pt->put("service_path", "service_path");
+  pt->put("cbroker", "cbroker");
+  pt->put("token", "token");
+  pt->put("entity_type", "entity_type_service");
 
-   boost::property_tree::ptree meta_static;
-   boost::property_tree::ptree ptree_meta;
-   meta_static.put("name", "metaname");
-   meta_static.put("type", "metatype");
-   meta_static.put("value", "http://localhost:89/hello");
-   ptree_meta.push_back(std::make_pair("", meta_static));
-   satt.add_child("metadatas", ptree_meta);
-   ptree_satt.push_back(std::make_pair("", satt));
-   pt.add_child("static_attributes", ptree_satt);
+  pt->put_attribute("mappedatt", "", "originalatt");
+  pt->put_static_attribute("snatt", "", "svatt");
+  pt->put_metadata("metaname", "metatype", "http://localhost:89/hello");
+
+  std::cout << "service:" << pt->toString() << std::endl;
 
    iota::Attribute attribute("name", "type", "value");
    iota::Attribute metadata("name", "typecheck", "valor");
@@ -296,8 +279,8 @@ void JsonTest::testContext() {
        "\"string\", \"metadatas\": [{\"name\": \"unit\", \"type\": \"string\", "
        "\"value\": \"celsius\"}]}";
    device->_static_attributes = static_a;
-   boost::property_tree::ptree p_env;
-   p_env.put("entity_type", "EntityType");
+   boost::shared_ptr<iota::Service> p_env(new iota::Service());
+   p_env->put("entity_type", "EntityType");
 
    // Add mapping for attribute
    iota::Attribute map_att("OldName", "Mtype", "value_att");
@@ -350,7 +333,6 @@ void JsonTest::testContext() {
                           ce_total.get_type().compare("EntityType") == 0);
    CPPUNIT_ASSERT_MESSAGE("Context element default entity name",
                           ce_total.get_id().compare("EntityType:dev1") == 0);
-                          */
 }
 
 void JsonTest::testResponse() {
@@ -1026,29 +1008,47 @@ void JsonTest::testConversion() {
 void JsonTest::testService() {
   std::cout << "@UT@START testService" << std::endl;
 
-  _document.SetObject();
+  std::stringstream ss;
+  ss << "{";
+  ss << "\"myjson\" : { \"pru\" : \"33\" },";
+  ss << "\"arr\" : [{ \"name\" : \"nam\" }]";
+  ss << "}";
 
-  iota::JsonValue object;
-  object.SetObject();
-
-  put("timeout", 22);
-  put("service", "ss");
-  put("service_path", "service_path");
-  put("cbroker", "micbroker");
-
-  std::string res = toString();
-  std::cout << res << std::endl;
-
-  /*
     boost::shared_ptr<iota::Service> service(new iota::Service());
-
+    service->read_json(ss);
+    std::cout << "@UT@toString0 " << service->toString() << std::endl;
     service->set_service("service");
     service->set_service_path("service_path");
     service->put("cbroker", "micbroker");
     service->put("timeout", 22);
+    // service->put("config.cbroker.timeout", 22);
 
     std::string res = service->toString();
     std::cout << "@UT@toString " << res << std::endl;
+
+    iota::JsonValue& arr = service->getObject("arr");
+    for (iota::JsonValue::ConstValueIterator it = arr.Begin(); it != arr.End();
+         ++it) {
+      std::string name = service->get("name", "", *it);
+      std::cout << it->toString() << std::endl;
+    }
+    // std::string k = service->get("myjson.pru");
+    std::string k = (*service->get_document())["myjson"]["pru"].GetString();
+    std::cout << "@UT@tt: " << k << std::endl;
+    iota::JsonValue& it = (*service->get_document())["myjson"];
+    std::cout << "@UT@tt22" << std::endl;
+
+    if (it.HasMember("pru")) {
+      std::cout << "@UT@ tiene myjson" << it["pru"].GetString() << std::endl;
+    }
+    service->put("vv", 333, it);
+    std::cout << "@UT@toString2 " << service->toString() << std::endl;
+    service->putObject("newfield");
+    iota::JsonValue& it2 = service->getObject("newfield");
+    service->putObject("campo", it2);
+    iota::JsonValue& it3 = service->getObject("campo", it2);
+    service->put("data", 333, it3);
+    std::cout << "@UT@toString3 " << service->toString() << std::endl;
 
     CPPUNIT_ASSERT_MESSAGE("bad service name",
                            service->get_service().compare("service") == 0);
@@ -1068,45 +1068,36 @@ void JsonTest::testService() {
     CPPUNIT_ASSERT_MESSAGE("bad nofield",
                            service->get("nofield").empty());
 
-
-    CPPUNIT_ASSERT_MESSAGE("bad toString",
-                           res.compare("{}") == 0);
-  */
   std::cout << "@UT@END testService" << std::endl;
 }
 
-void JsonTest::put(const std::string& field, const std::string& value,
-                   iota::JsonValue obj) {
+void JsonTest::put(const std::string& field, const std::string& value) {
   iota::JsonValue v;
   v.SetString(value.c_str(), value.size(), _document.GetAllocator());
+  iota::JsonValue k;
+  k.SetString(field.c_str(), field.size(), _document.GetAllocator());
+
   if (obj.IsNull()) {
-    _document.AddMember(field.c_str(), v, _document.GetAllocator());
+    _document.AddMember(k, v, _document.GetAllocator());
   } else {
-    obj.AddMember(field.c_str(), v, _document.GetAllocator());
+    obj.AddMember(k, v, _document.GetAllocator());
   }
 }
-void JsonTest::put(const std::string& field, int value, iota::JsonValue obj) {
+void JsonTest::put(const std::string& field, int value) {
   iota::JsonValue v;
   v.SetInt(value);
+  iota::JsonValue k;
+  k.SetString(field.c_str(), field.size(), _document.GetAllocator());
+
   if (obj.IsNull()) {
-    _document.AddMember(field.c_str(), v, _document.GetAllocator());
+    _document.AddMember(k, v, _document.GetAllocator());
   } else {
-    obj.AddMember(field.c_str(), v, _document.GetAllocator());
+    obj.AddMember(k, v, _document.GetAllocator());
   }
 }
 
 void JsonTest::add(iota::JsonValue data, iota::JsonValue& obj) {
   obj.PushBack(data, _document.GetAllocator());
-}
-
-iota::JsonValue JsonTest::newObject() {
-  iota::JsonValue object(rapidjson::kObjectType);
-  return object;
-}
-
-iota::JsonValue JsonTest::newArray() {
-  iota::JsonValue res_array(rapidjson::kArrayType);
-  return res_array;
 }
 
 std::string JsonTest::toString() const {

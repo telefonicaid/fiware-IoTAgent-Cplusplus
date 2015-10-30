@@ -25,21 +25,128 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/filestream.h>
 #include <rapidjson/prettywriter.h>
+#include <boost/algorithm/string.hpp>
 
-iota::Service::Service() : Timer() { _document.SetObject(); }
+iota::Service::Service() : Timer() {
+  _document.reset(new JsonDocument());
+  _document->SetObject();
+}
 
 iota::Service::Service(const std::string& service) : Timer() {
-  _document.SetObject();
+  _document.reset(new JsonDocument());
+  _document->SetObject();
   set_service(service);
 }
 
 iota::Service::~Service(void) {}
 
+boost::shared_ptr<iota::JsonDocument> iota::Service::get_document() {
+  return _document;
+}
+
+void iota::Service::put_attribute(const std::string& object_id,
+                                  const std::string& type,
+                                  const std::string& name) {
+  iota::JsonValue nameH(rapidjson::kObjectType);
+  nameH.SetString("name");
+  iota::JsonValue nameV(rapidjson::kObjectType);
+  nameV.SetString(name.c_str(), name.size(), _document->GetAllocator());
+  iota::JsonValue typeH(rapidjson::kObjectType);
+  typeH.SetString("type");
+  iota::JsonValue typeV(rapidjson::kObjectType);
+  typeV.SetString(type.c_str(), type.size(), _document->GetAllocator());
+  iota::JsonValue object_idH(rapidjson::kObjectType);
+  object_idH.SetString("object_id");
+  iota::JsonValue object_idV(rapidjson::kObjectType);
+  object_idV.SetString(object_id.c_str(), object_id.size(),
+                       _document->GetAllocator());
+
+  iota::JsonValue tupla(rapidjson::kObjectType);
+  tupla.AddMember(nameH, nameV, _document->GetAllocator());
+  tupla.AddMember(typeH, typeV, _document->GetAllocator());
+  tupla.AddMember(object_idH, object_idV, _document->GetAllocator());
+
+  if (_document->HasMember("attributes")) {
+    (*_document)["attributes"].PushBack(tupla, _document->GetAllocator());
+  } else {
+    iota::JsonValue arr(rapidjson::kArrayType);
+    arr.PushBack(tupla, _document->GetAllocator());
+    iota::JsonValue attH(rapidjson::kObjectType);
+    attH.SetString("attributes");
+    _document->AddMember(attH, arr, _document->GetAllocator());
+  }
+}
+
+void iota::Service::put_static_attribute(const std::string& name,
+                                         const std::string& type,
+                                         const std::string& value) {
+  iota::JsonValue nameH(rapidjson::kObjectType);
+  nameH.SetString("name");
+  iota::JsonValue nameV(rapidjson::kObjectType);
+  nameV.SetString(name.c_str(), name.size(), _document->GetAllocator());
+  iota::JsonValue typeH(rapidjson::kObjectType);
+  typeH.SetString("type");
+  iota::JsonValue typeV(rapidjson::kObjectType);
+  typeV.SetString(type.c_str(), type.size(), _document->GetAllocator());
+  iota::JsonValue valueH(rapidjson::kObjectType);
+  valueH.SetString("value");
+  iota::JsonValue valueV(rapidjson::kObjectType);
+  valueV.SetString(value.c_str(), value.size(), _document->GetAllocator());
+
+  iota::JsonValue tupla(rapidjson::kObjectType);
+  tupla.AddMember(nameH, nameV, _document->GetAllocator());
+  tupla.AddMember(typeH, typeV, _document->GetAllocator());
+  tupla.AddMember(valueH, valueV, _document->GetAllocator());
+
+  if (_document->HasMember("static_attributes")) {
+    (*_document)["static_attributes"].PushBack(tupla,
+                                               _document->GetAllocator());
+  } else {
+    iota::JsonValue arr(rapidjson::kArrayType);
+    arr.PushBack(tupla, _document->GetAllocator());
+    iota::JsonValue attH(rapidjson::kObjectType);
+    attH.SetString("static_attributes");
+    _document->AddMember(attH, arr, _document->GetAllocator());
+  }
+}
+
+void iota::Service::put_metadata(const std::string& name,
+                                 const std::string& type,
+                                 const std::string& value) {
+  iota::JsonValue nameH(rapidjson::kObjectType);
+  nameH.SetString("name");
+  iota::JsonValue nameV(rapidjson::kObjectType);
+  nameV.SetString(name.c_str(), name.size(), _document->GetAllocator());
+  iota::JsonValue typeH(rapidjson::kObjectType);
+  typeH.SetString("type");
+  iota::JsonValue typeV(rapidjson::kObjectType);
+  typeV.SetString(type.c_str(), type.size(), _document->GetAllocator());
+  iota::JsonValue valueH(rapidjson::kObjectType);
+  valueH.SetString("value");
+  iota::JsonValue valueV(rapidjson::kObjectType);
+  valueV.SetString(value.c_str(), value.size(), _document->GetAllocator());
+
+  iota::JsonValue tupla(rapidjson::kObjectType);
+  tupla.AddMember(nameH, nameV, _document->GetAllocator());
+  tupla.AddMember(typeH, typeV, _document->GetAllocator());
+  tupla.AddMember(valueH, valueV, _document->GetAllocator());
+
+  if (_document->HasMember("metadatas")) {
+    (*_document)["metadatas"].PushBack(tupla, _document->GetAllocator());
+  } else {
+    iota::JsonValue arr(rapidjson::kArrayType);
+    arr.PushBack(tupla, _document->GetAllocator());
+    iota::JsonValue attH(rapidjson::kObjectType);
+    attH.SetString("metadatas");
+    _document->AddMember(attH, arr, _document->GetAllocator());
+  }
+}
+
 std::string iota::Service::get(const std::string& field,
                                const std::string& default_value) {
   std::string result;
-  if (_document.HasMember(field.c_str())) {
-    result.assign(_document[field.c_str()].GetString());
+  if (_document->HasMember(field.c_str())) {
+    result.assign((*_document)[field.c_str()].GetString());
   } else {
     result.assign(default_value);
   }
@@ -47,41 +154,10 @@ std::string iota::Service::get(const std::string& field,
   return result;
 }
 
-// TODO
-// añade el json a un campo array indicado por resource_name
-void iota::Service::add_json(std::string resource_name, std::string json,
-                             std::string& error) {
-  /* iota::JsonValue contact(kObject);
-   contact.AddMember("name", "Milo", document.GetAllocator());
-
-   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex_document);
-   boost::shared_ptr<JsonDocument> d(new JsonDocument());
-   d->SetObject();
-   (*d).Parse<0>(json.c_str());
-   if ((*d).HasParseError()) {
-     error.assign((*d).GetParseError());
-     return;
-   }
-   if (!(*d).HasMember(iota::types::CONF_FILE_RESOURCE.c_str())) {
-     iota::JsonValue v;
-     v.SetString(resource_name.c_str(), resource_name.size(),
-                 (*d).GetAllocator());
-     (*d).AddMember(iota::types::CONF_FILE_RESOURCE.c_str(), v,
-                    (*d).GetAllocator());
-   }*/
-}
-
-void iota::Service::put(const std::string& resource_name,
-                        const std::string& value) {
-  iota::JsonValue v;
-  v.SetString(value.c_str(), value.size(), _document.GetAllocator());
-  _document.AddMember(resource_name.c_str(), v, _document.GetAllocator());
-}
-
 int iota::Service::get(const std::string& field, int default_value) {
   int result;
-  if (_document.HasMember(field.c_str())) {
-    result = _document[field.c_str()].GetInt();
+  if (_document->HasMember(field.c_str())) {
+    result = (*_document)[field.c_str()].GetInt();
   } else {
     result = default_value;
   }
@@ -89,10 +165,114 @@ int iota::Service::get(const std::string& field, int default_value) {
   return result;
 }
 
+std::string iota::Service::get(const std::string& field,
+                               const std::string& default_value,
+                               const iota::JsonValue& obj) {
+  std::string result;
+  if (obj.IsObject() && obj.HasMember(field.c_str())) {
+    result.assign(obj[field.c_str()].GetString());
+  } else {
+    result.assign(default_value);
+  }
+
+  return result;
+}
+
+int iota::Service::get(const std::string& field, int default_value,
+                       const iota::JsonValue& obj) {
+  int result;
+  if (obj.IsObject() && obj.HasMember(field.c_str())) {
+    result = obj[field.c_str()].GetInt();
+  } else {
+    result = default_value;
+  }
+
+  return result;
+}
+
+iota::JsonValue& iota::Service::getObject(const std::string& field) {
+  int result;
+  if (_document->HasMember(field.c_str())) {
+    return (*_document)[field.c_str()];
+  } else {
+    static iota::JsonValue nullValue;
+    return nullValue;
+  }
+}
+
+iota::JsonValue& iota::Service::getObject(const std::string& field,
+                                          iota::JsonValue& obj) {
+  int result;
+  if (obj.HasMember(field.c_str())) {
+    return obj[field.c_str()];
+  } else {
+    static iota::JsonValue nullValue;
+    return nullValue;
+  }
+}
+
+void iota::Service::put(const std::string& resource_name,
+                        const std::string& value, iota::JsonValue& obj) {
+  iota::JsonValue v;
+  v.SetString(value.c_str(), value.size(), _document->GetAllocator());
+  iota::JsonValue k;
+  k.SetString(resource_name.c_str(), resource_name.size(),
+              _document->GetAllocator());
+  if (obj.IsObject()) {
+    obj.AddMember(k, v, _document->GetAllocator());
+  }
+}
+
+void iota::Service::put(const std::string& resource_name,
+                        const std::string& value) {
+  iota::JsonValue v;
+  v.SetString(value.c_str(), value.size(), _document->GetAllocator());
+  iota::JsonValue k;
+  k.SetString(resource_name.c_str(), resource_name.size(),
+              _document->GetAllocator());
+  _document->AddMember(k, v, _document->GetAllocator());
+}
+
 void iota::Service::put(const std::string& resource_name, int value) {
   iota::JsonValue v;
   v.SetInt(value);
-  _document.AddMember(resource_name.c_str(), v, _document.GetAllocator());
+  iota::JsonValue k;
+  k.SetString(resource_name.c_str(), resource_name.size(),
+              _document->GetAllocator());
+  _document->AddMember(k, v, _document->GetAllocator());
+}
+
+void iota::Service::put(const std::string& resource_name, int value,
+                        iota::JsonValue& obj) {
+  iota::JsonValue v;
+  v.SetInt(value);
+  iota::JsonValue k;
+  k.SetString(resource_name.c_str(), resource_name.size(),
+              _document->GetAllocator());
+  if (obj.IsObject()) {
+    obj.AddMember(k, v, _document->GetAllocator());
+  }
+}
+
+void iota::Service::putObject(const std::string& resource_name) {
+  iota::JsonValue v;
+  v.SetObject();
+  iota::JsonValue k;
+  k.SetString(resource_name.c_str(), resource_name.size(),
+              _document->GetAllocator());
+  _document->AddMember(k, v, _document->GetAllocator());
+}
+
+void iota::Service::putObject(const std::string& resource_name,
+                              iota::JsonValue& obj) {
+  iota::JsonValue v;
+  v.SetObject();
+  iota::JsonValue k;
+  k.SetString(resource_name.c_str(), resource_name.size(),
+              _document->GetAllocator());
+  if (obj.IsObject()) {
+    obj.AddMember(k, v, _document->GetAllocator());
+  }
 }
 
 std::string iota::Service::get_resource() { return _resource; };
@@ -134,22 +314,31 @@ std::string iota::Service::get_real_name() const { return _service; }
 void iota::Service::read_xml_file(const std::string& file_path) {}
 
 std::string iota::Service::toString() const {
-  if (!_document.IsNull()) {
+  if (!_document->IsNull()) {
     rapidjson::StringBuffer buffer_doc;
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer_doc(buffer_doc);
-    _document.Accept(writer_doc);
+    _document->Accept(writer_doc);
+    return buffer_doc.GetString();
+  }
+}
+
+std::string toString(const iota::JsonValue& obj) const {
+  if (!obj.IsNull()) {
+    rapidjson::StringBuffer buffer_doc;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer_doc(buffer_doc);
+    obj.Accept(writer_doc);
     return buffer_doc.GetString();
   }
 }
 
 std::string iota::Service::read_json(std::stringstream& _is) {
   std::string error;
-  if (_document.Parse<0>(_is.str().c_str()).HasParseError()) {
+  if (_document->Parse<0>(_is.str().c_str()).HasParseError()) {
     std::ostringstream what;
     what << "Configurator: ";
-    what << _document.GetParseError();
+    what << _document->GetParseError();
     what << "[";
-    what << _document.GetErrorOffset();
+    what << _document->GetErrorOffset();
     what << "]";
     error = what.str();
   }

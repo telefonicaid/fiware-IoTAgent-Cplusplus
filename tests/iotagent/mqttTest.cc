@@ -32,6 +32,7 @@
 
 #include "mqtt/MqttService.h"
 #include "util/iota_exception.h"
+#include "util/service.h"
 #include "../mocks/util_functions.h"
 
 using ::testing::Return;
@@ -91,13 +92,12 @@ void MqttTest::testCBPublisher() {
 
   std::string expected = "";
 
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
 
   mqttService->get_service_by_apiKey(service_ptree,
                                      get_service_name(__FUNCTION__));
 
-  entity_type.assign(
-      service_ptree.get<std::string>(iota::store::types::ENTITY_TYPE, ""));
+  entity_type.assign(service_ptree->get(iota::store::types::ENTITY_TYPE));
 
   expected.append("{\"updateAction\":\"APPEND\",\"contextElements\":");
   expected.append("[{\"id\":\"");
@@ -231,13 +231,12 @@ void MqttTest::testBadEntityType() {
 
   std::string expected = "";
 
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
 
   mqttService->get_service_by_apiKey(service_ptree,
                                      get_service_name(__FUNCTION__));
   std::string entity_type;
-  entity_type.assign(
-      service_ptree.get<std::string>(iota::store::types::ENTITY_TYPE, ""));
+  entity_type.assign(service_ptree->get(iota::store::types::ENTITY_TYPE));
 
   expected.append("{\"updateAction\":\"APPEND\",\"contextElements\":");
   expected.append("[{\"id\":\"");
@@ -665,16 +664,14 @@ void MqttTest::testPushCommandExecution() {
 
   // Checking command just inserted
 
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
   std::string apikey("testpushcommandexecution");
   std::string device("dev_mqtt_push");
 
   mqttService->get_service_by_apiKey(service_ptree, apikey);
 
-  std::string srv =
-      service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-  std::string srv_path =
-      service_ptree.get<std::string>(iota::store::types::SERVICE_PATH, "");
+  std::string srv = service_ptree->get_service();
+  std::string srv_path = service_ptree->get_service_path();
 
   boost::shared_ptr<iota::Device> dev =
       mqttService->get_device(device, srv, srv_path);
@@ -724,14 +721,12 @@ void MqttTest::testPushCommandResponse() {
   std::string apikey("testpushcommandresponse");
   std::string device("dev_mqtt_push");
 
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
 
   mqttService->get_service_by_apiKey(service_ptree, apikey);
 
-  std::string srv =
-      service_ptree.get<std::string>(iota::store::types::SERVICE, "");
-  std::string srv_path =
-      service_ptree.get<std::string>(iota::store::types::SERVICE_PATH, "");
+  std::string srv = service_ptree->get_service();
+  std::string srv_path = service_ptree->get_service_path();
 
   boost::shared_ptr<iota::Device> dev =
       mqttService->get_device(device, srv, srv_path);
@@ -870,13 +865,12 @@ void MqttTest::testLocationContextBroker() {
 
   std::string expected = "";
   std::string entity_type;
-  boost::property_tree::ptree service_ptree;
+  boost::shared_ptr<iota::Service> service_ptree(new iota::Service());
 
   mqttService->get_service_by_apiKey(service_ptree,
                                      get_service_name(__FUNCTION__));
 
-  entity_type.assign(
-      service_ptree.get<std::string>(iota::store::types::ENTITY_TYPE, ""));
+  entity_type.assign(service_ptree->get(iota::store::types::ENTITY_TYPE, ""));
 
   expected.append("{\"updateAction\":\"APPEND\",\"contextElements\":");
   expected.append("[{\"id\":\"");
