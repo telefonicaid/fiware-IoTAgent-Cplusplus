@@ -31,7 +31,7 @@ Feature: MQTT Measure Deliver
 			| temperature	|servicemqtt	|IoTMqtt	| Quantity	| mqtt15	| t		| 5		| apikey	|					|
 			| temperature	|servicemqtt	|IoTMqtt	| Quantity	| 			| t		| 35	| device_id	|					|
 			| presence		|servicemqtt	|IoTMqtt	| Boolean	| mqtt16	| 		| false	| alias		|					|
-			| location		|servicemqtt	|IoTMqtt	| Location	| mqtt17	| l		| 		| payload	|					|
+			| location		|servicemqtt	|IoTMqtt	| Location	| mqtt17	| l		| 		| payload	|<alias>:void		|
 #			| temperature	|servicemqtt	|IoTMqtt	| Quantity	| mqtt19	| t		| 90	| topic		|					|
 
 	

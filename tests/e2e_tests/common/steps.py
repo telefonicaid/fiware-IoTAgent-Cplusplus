@@ -642,6 +642,8 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
                 attr_matches=False
                 for attr in contextElement['attributes']:
                     if str(measure_name) == attr['name']:
+                        if str(measure_value) == "void":
+                            measure_value = ' '
                         print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
                         attr_matches=True
                         assert attr['value'] == str(measure_value), 'ERROR: value: ' + str(measure_value) + " not found in: " + str(attr)
@@ -649,14 +651,14 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
                             assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
                             assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
                         assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
-                        if (world.field == "timestamp"):
+                        if (world.field == "timestamp") | (world.field == "payload"):
                             assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
                         else:
                             assert str(world.st) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
                         break
                 assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
-        if world.field == "payload":
-            assert len(contextElement['attributes']) == 1, 'ERROR: Atribute ' + str(contextElement['attributes'][0]) + " found in: " + str(contextElement['attributes'])
+#        if world.field == "payload":
+#            assert len(contextElement['attributes']) == 1, 'ERROR: Atribute ' + str(contextElement['attributes'][0]) + " found in: " + str(contextElement['attributes'])
         is_timestamp=False
         for attr in contextElement['attributes']:
             if attr ['name'] == "TimeInstant":
