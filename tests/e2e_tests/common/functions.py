@@ -1,5 +1,5 @@
 from iotqautils.iota_utils import Rest_Utils_IoTA
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,PATH_UL20_SIMULATOR,DEF_TYPE
+from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,PATH_UL20_SIMULATOR,DEF_TYPE,TIMESTAMP
 from lettuce import world
 import time, datetime, requests
 
@@ -598,28 +598,13 @@ class Functions(object):
                 assert resp['statusCode']['reasonPhrase'] == response, 'ERROR: text error expected ' + response + " received " + resp['statusCode']['reasonPhrase']
     
     def check_timestamp (self, timestamp):
-        #st = datetime.datetime.utcfromtimestamp(world.ts).strftime('%Y-%m-%dT%H:%M:%S')
-        st = datetime.datetime.utcfromtimestamp(world.ts)
-        my_timestamp = datetime.datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%S.%fZ')
-        diff_ts = st - my_timestamp
-        if abs(diff_ts.total_seconds()) < 10:
-            return True
-        else:
-            return False 
-        ''' 
-        if st in timestamp:
-            return True
-        else:
-            st = datetime.datetime.utcfromtimestamp(world.ts+1).strftime('%Y-%m-%dT%H:%M:%S')
+        threshold=-TIMESTAMP
+        while (threshold<=TIMESTAMP):
+            st = datetime.datetime.utcfromtimestamp(world.ts+threshold).strftime('%Y-%m-%dT%H:%M:%S')
             if st in timestamp:
                 return True
-            else:
-                st = datetime.datetime.utcfromtimestamp(world.ts-1).strftime('%Y-%m-%dT%H:%M:%S')
-                if st in timestamp:
-                    return True
-                else:
-                    return False        
-        '''
+            threshold+=1
+        return False 
     
     def check_attribute (self, contextElement, name, typ, value):
         attr_matches=False

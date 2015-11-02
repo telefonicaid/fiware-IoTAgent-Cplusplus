@@ -536,57 +536,80 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
     response = req.json()
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
-    contextElement = response['contextElements'][0]
-    assetElement = contextElement['id']
-    typeElement = contextElement['type']
     for measures_dict in step.hashes:
         measures = measures_dict['generated_measures']
-        print measures
-        for i in measures.split('#'):
-            if i:
-                d = dict([i.split(':')])
+        count_measure=0
+        for j in measures.split('@'):
+            if j:
+                for i in j.split('#'):
+                    if i:
+                        d = dict([i.split(':')])
+                    else:
+                        break 
+                    for contextElement in response['contextElements']:
+                        assetElement = contextElement['id']
+                        typeElement = contextElement['type']
+                        measure_name=str(d.items()[0][0])
+                        measure_value=str(d.items()[0][1])
+                        metadata_value=""
+                        if  "/" in measure_value:
+                            if not measure_name=='l':
+                                d2 = dict([measure_value.split('/')])
+                                measure_value=str(d2.items()[0][0])
+                                metadata_value=str(d2.items()[0][1])
+                        attr_matches=False
+                        for attr in contextElement['attributes']:
+                            if str(measure_name) == attr['name']:
+                                if str(attr['value']) == str(measure_value):
+                                    print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
+                                    attr_matches=True
+                                    if metadata_value:
+                                        assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
+                                        assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
+                                    assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
+                                    if timestamp:
+                                        if len(timestamp.split('#'))>1:
+                                            print timestamp.split('#')[count_measure]
+                                            timest=timestamp.split('#')[count_measure]
+                                        else:
+                                            timest=timestamp.split('#')[0]
+#                                        assert str(timest) == attr['value'], 'ERROR: timestamp: ' + str(timest) + " not found in: " + str(attr)
+                                        assert str(timest) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timest) + " not found in: " + str(attr['metadatas'][0])
+                                    else:
+                                        assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+                                    break
+                        if attr_matches:
+                            break
+                    if len(step.hashes)<=2:
+                        assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
+                    is_timestamp=False
+                if attr_matches:
+                    for attr in contextElement['attributes']:
+                        if attr ['name'] == "TimeInstant":
+                            print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
+                            if timestamp:
+                                if len(timestamp.split('#'))>1:
+                                    print timestamp.split('#')[count_measure]
+                                    timest=timestamp.split('#')[count_measure]
+                                else:
+                                    timest=timestamp.split('#')[0]
+                                assert str(timest) == attr['value'], 'ERROR: timestamp: ' + str(timest) + " not found in: " + str(attr)
+                            else:
+                                assert functions.check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
+                            is_timestamp=True
+                            break
+                    assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
+                    if world.def_entity:
+                        asset_name = DEF_ENTITY_TYPE + ':' + asset_name
+                        world.thing = DEF_ENTITY_TYPE
+                    assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
+                    assert typeElement == "{}".format(world.thing), 'ERROR: type: ' + str(world.thing) + " not found in: " + str(contextElement)
+                count_measure+=1
             else:
-                break 
-            measure_name=str(d.items()[0][0])
-            measure_value=str(d.items()[0][1])
-            metadata_value=""
-            if  "/" in measure_value:
-                if not measure_name=='l':
-                    d2 = dict([measure_value.split('/')])
-                    measure_value=str(d2.items()[0][0])
-                    metadata_value=str(d2.items()[0][1])
-            attr_matches=False
-            for attr in contextElement['attributes']:
-                if str(measure_name) in attr['name']:
-                    if str(attr['value']) == str(measure_value):
-                        print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
-                        attr_matches=True
-                        if metadata_value:
-                            assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
-                            assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
-                        assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
-                        if timestamp:
-                            assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
-                        else:
-                            assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
-                        break
-    assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
-    is_timestamp=False
-    for attr in contextElement['attributes']:
-        if attr ['name'] == "TimeInstant":
-            print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
-            if timestamp:
-                assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
-            else:
-                assert functions.check_timestamp(str(attr['value'])), 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
-            is_timestamp=True
+                break
+        if (len(step.hashes)>2) & (attr_matches):
+            assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
             break
-    assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
-    if world.def_entity:
-        asset_name = DEF_ENTITY_TYPE + ':' + asset_name
-        world.thing = DEF_ENTITY_TYPE
-    assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
-    assert typeElement == "{}".format(world.thing), 'ERROR: type: ' + str(world.thing) + " not found in: " + str(contextElement)
 
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received or NOT by context broker')
 def check_NOT_measure_cbroker(step, asset_name, measures):
@@ -618,7 +641,9 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
                     metadata_value=str(d2.items()[0][1])
                 attr_matches=False
                 for attr in contextElement['attributes']:
-                    if str(measure_name) in attr['name']:
+                    if str(measure_name) == attr['name']:
+                        if str(measure_value) == "void":
+                            measure_value = ' '
                         print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
                         attr_matches=True
                         assert attr['value'] == str(measure_value), 'ERROR: value: ' + str(measure_value) + " not found in: " + str(attr)
@@ -626,14 +651,14 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
                             assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
                             assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
                         assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
-                        if (world.field == "timestamp"):
+                        if (world.field == "timestamp") | (world.field == "payload"):
                             assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
                         else:
                             assert str(world.st) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
                         break
                 assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
-        if world.field == "payload":
-            assert len(contextElement['attributes']) == 1, 'ERROR: Atribute ' + str(contextElement['attributes'][1]) + " found in: " + str(contextElement['attributes'])
+#        if world.field == "payload":
+#            assert len(contextElement['attributes']) == 1, 'ERROR: Atribute ' + str(contextElement['attributes'][0]) + " found in: " + str(contextElement['attributes'])
         is_timestamp=False
         for attr in contextElement['attributes']:
             if attr ['name'] == "TimeInstant":
@@ -672,64 +697,81 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
     if int(num_measures)>0:
         measures_dict=step.hashes[0]
         measures = measures_dict['generated_measures']
-        print measures
-        for i in measures.split('#'):
-            #print i
-            d = dict([i.split(':')]) 
-            measure_name=str(d.items()[0][0])
-            measure_value=str(d.items()[0][1])
-            metadata_value=""
-            if  "/" in measure_value:
-                d2 = dict([measure_value.split('/')])
-                measure_value=str(d2.items()[0][0])
-                metadata_value=str(d2.items()[0][1])
-            attr_matches=False
-            for attr in contextElement['attributes']:
-                if str(measure_name) in attr['name']:
-                    print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
-                    if str(attr['value']) == str(measure_value):
-                        attr_matches=True
-                        if metadata_value:
-                            assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
-                            assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
-                        assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
-                        if not timestamp:
-                            timestamp=world.st
-                        assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
-                        break
-            assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
+        for j in measures.split('@'):
+            if j:
+                for i in j.split('#'):
+                    if i:
+                        d = dict([i.split(':')])
+                    else:
+                        break 
+                    for contextElement in response['contextElements']:
+                        assetElement = contextElement['id']
+                        typeElement = contextElement['type']
+                        measure_name=str(d.items()[0][0])
+                        measure_value=str(d.items()[0][1])
+                        metadata_value=""
+                        if  "/" in measure_value:
+                            d2 = dict([measure_value.split('/')])
+                            measure_value=str(d2.items()[0][0])
+                            metadata_value=str(d2.items()[0][1])
+                        attr_matches=False
+                        for attr in contextElement['attributes']:
+                            if str(measure_name) == attr['name']:
+                                print 'Compruebo atributo {} y {} en {}'.format(measure_name,measure_value,attr)
+                                if str(attr['value']) == str(measure_value):
+                                    attr_matches=True
+                                    if metadata_value:
+                                        assert attr['metadatas'][1]['name'] == "uom", 'ERROR: ' + str(attr['metadatas'][1])
+                                        assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
+                                    assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
+                                    if not timestamp:
+                                        timestamp=world.st
+                                    assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+                                    break
+                        if attr_matches:
+                            break
+                    assert attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " not found in: " + str(contextElement['attributes'])
+                    is_timestamp=False                   
+                if attr_matches:
+                    for attr in contextElement['attributes']:
+                        if attr ['name'] == "TimeInstant":
+                            print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
+                            if not timestamp:
+                                timestamp=world.st
+                            assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
+                            is_timestamp=True
+                            break
+                    assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
+            assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
+            assert typeElement == "{}".format(world.thing), 'ERROR: type: ' + str(world.thing) + " not found in: " + str(contextElement)
         if len(step.hashes)==2:
             measures_dict=step.hashes[1]
             measures = measures_dict['generated_measures']
             print measures
             for i in measures.split('#'):
                 d = dict([i.split(':')]) 
-                measure_name=str(d.items()[0][0])
-                measure_value=str(d.items()[0][1])
-                metadata_value=""
-                if  "/" in measure_value:
-                    d2 = dict([measure_value.split('/')])
-                    measure_value=str(d2.items()[0][0])
-                    metadata_value=str(d2.items()[0][1])
-                attr_matches=True
-                attr_exists=False
-                for attr in contextElement['attributes']:
-                    if str(measure_name) in attr['name']:
-                        attr_exists=True
-                        print 'Compruebo no existencia del atributo {} y {} en {}'.format(measure_name,measure_value,attr)
-                        if str(attr['value']) != str(measure_value):
-                            attr_matches=False
-                            break
-                if not attr_exists:
-                    attr_matches=False
+                for contextElement in response['contextElements']:
+                    assetElement = contextElement['id']
+                    typeElement = contextElement['type']
+                    measure_name=str(d.items()[0][0])
+                    measure_value=str(d.items()[0][1])
+                    metadata_value=""
+                    if  "/" in measure_value:
+                        d2 = dict([measure_value.split('/')])
+                        measure_value=str(d2.items()[0][0])
+                        metadata_value=str(d2.items()[0][1])
+                    attr_matches=True
+                    attr_exists=False
+                    for attr in contextElement['attributes']:
+                        if str(measure_name) == attr['name']:
+                            attr_exists=True
+                            print 'Compruebo no existencia del atributo {} y {} en {}'.format(measure_name,measure_value,attr)
+                            if str(attr['value']) != str(measure_value):
+                                attr_matches=False
+                                break
+                    if not attr_exists:
+                        attr_matches=False
                 assert not attr_matches, 'ERROR: attr:' + str(measure_name) + ' value: ' + str(measure_value) + " found in: " + str(contextElement['attributes'])
-        print 'Compruebo atributo TimeInstant y {} en {}'.format(contextElement['attributes'][0]['value'],str(contextElement['attributes'][0]))
-        assert contextElement['attributes'][0]['name'] == "TimeInstant", 'ERROR: ' + str(contextElement['attributes'][0])
-        if not timestamp:
-            timestamp=world.st
-        assert str(timestamp) == contextElement['attributes'][0]['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(contextElement['attributes'][0])
-        assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
-        assert typeElement == "{}".format(world.thing), 'ERROR: type: ' + str(world.thing) + " not found in: " + str(contextElement)
     else:
         assert assetElement != "{}".format(asset_name), 'ERROR: device: ' + str(asset_name) + " found in: " + str(contextElement)
         print "Measures are NOT received"
