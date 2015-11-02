@@ -60,6 +60,9 @@ class Modbus {
   bool finished() { return _finished; };
   void finish() { _finished = true; };
 
+  // Manage no complete frames
+  bool completed() { return _completed;};
+
   void set_time_instant(std::time_t timestamp);
   std::time_t get_time_instant();
 
@@ -67,12 +70,15 @@ class Modbus {
  private:
   std::string _app_operation;
   std::vector<unsigned char> _modbus_frame;
+  //Response when no complete
+  std::vector<unsigned char> _modbus_frame_response;
   unsigned char _slave_address;
   iota::Modbus::FunctionCode _function_code;
   unsigned short _address_data;
   unsigned short _number_of_or_value;
   std::map<unsigned short, unsigned short> _values;
   bool _finished;
+  bool _completed;
 
   // To store timestamp
   std::time_t _time_instant;
@@ -82,6 +88,9 @@ class Modbus {
 
   // Check received crc
   bool check_crc(const std::vector<unsigned char>& frame);
+
+  // Check if frame is completed
+  bool check_completed(const std::vector<unsigned char>& mb_msg);
 };
 }
 #endif
