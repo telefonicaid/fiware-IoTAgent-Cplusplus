@@ -34,6 +34,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <util/command_cache.h>
 
+#include "util/device_collection.h"
 #include <ngsi/ContextElement.h>
 #include <ngsi/RegisterContext.h>
 
@@ -367,6 +368,11 @@ class CommandHandle : public iota::RestHandle {
   void set_async_commands();
 
   void set_myProvidingApp(const std::string& myapp) { _myProvidingApp = myapp; }
+
+  void find_devices_with_commands(iota::DeviceCollection& dev_table,
+                                  const std::string& service,
+                                  const std::string& service_path,
+                                  const std::string& protocol);
 
  protected:
   void enable_ngsi_service(

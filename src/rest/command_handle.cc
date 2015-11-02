@@ -44,7 +44,6 @@
 #include "ngsi/RegisterContext.h"
 #include "ngsi/RegisterResponse.h"
 
-#include "util/device_collection.h"
 #include "util/service_collection.h"
 #include "util/store_const.h"
 #include "util/command_collection.h"
@@ -472,10 +471,7 @@ void iota::CommandHandle::send_all_registrations_from_mongo() {
                                           << " service_path:" << service_path
                                           << " protocol:" << protocol);
 
-      Device dev_find("", srv);
-      dev_find._protocol = protocol;
-      dev_find._service_path = service_path;
-      dev_table.findd(dev_find);
+      find_devices_with_commands(dev_table, srv, service_path, protocol);
 
       while (dev_table.more()) {
         Device dev_resu = dev_table.nextd();
@@ -1871,4 +1867,24 @@ std::string iota::CommandHandle::json_value_to_ul(
     }
   }
   return new_value;
+}
+
+void iota::CommandHandle::find_devices_with_commands(
+    iota::DeviceCollection& dev_table, const std::string& srv,
+    const std::string& service_path, const std::string& protocol) {
+  mongo::BSONObj query =
+      BSON(iota::store::types::SERVICE
+           << srv << iota::store::types::SERVICE_PATH << service_path
+           << iota::store::types::PROTOCOL << protocol
+           << iota::store::types::COMMANDS << BSON("$exists"
+                                                   << "true"));
+
+  mongo::BSONObjBuilder fieldsToReturn;
+
+  int res = dev_table.find(INT_MIN, query, fieldsToReturn);
+  if (res == 0) {
+    IOTA_LOG_DEBUG(
+        m_logger,
+        "find_devices_with_commands: Found some devices with commands");
+  }
 }

@@ -109,6 +109,11 @@ iota::AdminService::~AdminService() {
   if (_timer.get() != NULL) {
     _timer->cancel();
   }
+
+  if (_timer_register.get() != NULL) {
+    _timer_register->cancel();
+  }
+
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   _service_manager.clear();
   lock.unlock();
@@ -243,8 +248,16 @@ void iota::AdminService::start() {
     if (tz_file.IsString()) {
       set_timezone_database(tz_file.GetString());
     }
+
   } catch (std::exception& e) {
     IOTA_LOG_DEBUG(m_log, "Timezone database is not configured");
+  }
+
+  try {
+    _timeout_retries =
+        iota::Configurator::instance()->get("time-retry").GetInt64();
+  } catch (std::exception& e) {
+    _timeout_retries = 5;  // default
   }
 
   add_oauth_media_filters();
@@ -2083,12 +2096,16 @@ void iota::AdminService::register_iota_manager() {
   boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
   std::map<std::string, iota::RestHandle*>::const_iterator it =
       _service_manager.begin();
+  IOTA_LOG_DEBUG(m_log, "register_iota_manager : iterating...");
   while (it != _service_manager.end()) {
     try {
       iota::RestHandle* rest_handle =
           dynamic_cast<iota::RestHandle*>(it->second);
       if (rest_handle != NULL) {
-        rest_handle->register_iota_manager();
+        // check if it's a real plugin.
+        if (rest_handle->get_protocol_data().description != "") {
+          rest_handle->register_iota_manager();
+        }
       }
     } catch (std::exception& e) {
       IOTA_LOG_DEBUG(m_log, e.what());
@@ -2263,6 +2280,46 @@ bool iota::AdminService::check_device_protocol(
 
   IOTA_LOG_DEBUG(m_log, "no exists plugin:" << protocol_name);
   return false;
+}
+
+void iota::AdminService::timeout_register_iota_manager(
+    const boost::system::error_code& ec) {
+  if (!ec || ec != boost::asio::error::operation_aborted) {
+    IOTA_LOG_DEBUG(m_log, "timeout_register_iota_manager : timer fired");
+    set_register_retries(false);
+    register_iota_manager();
+  }
+}
+
+void iota::AdminService::set_register_retries(bool enable) {
+  boost::mutex::scoped_lock lock(iota::AdminService::m_sm);
+  if (enable) {
+    if (retries_set) {
+      return;
+    } else {
+      retries_set = true;
+      _timer_register.reset(new boost::asio::deadline_timer(
+          (iota::Process::get_process().get_io_service())));
+      _timer_register->expires_from_now(
+          boost::posix_time::seconds(_timeout_retries));  // random figure
+      _timer_register->async_wait(
+          boost::bind(&iota::AdminService::timeout_register_iota_manager, this,
+                      boost::asio::placeholders::error));
+    }
+  } else {
+    if (retries_set) {
+      retries_set = false;
+      _timer_register->cancel();
+    }
+  }
+}
+
+iota::ProtocolData iota::AdminService::get_protocol_data() {
+  iota::ProtocolData protocol;
+  protocol.description = "";
+  protocol.protocol = "";
+
+  return protocol;
 }
 
 std::string iota::AdminService::get_class_name() { return _class_name; }

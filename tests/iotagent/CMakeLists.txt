@@ -31,7 +31,8 @@ target_link_libraries(tcp_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
 ### Administration APIs
 # API reference for IotAgent adminitration
 add_executable(admin_tests adminTest.cc admin_tests.cc)
-target_link_libraries(admin_tests iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
+target_link_libraries(admin_tests iotmock iota_a ${IOTAGENT_LIBS} ${TEST_LIBS})
+
 # API reference for Iot Manager adminitration
 add_executable(admin_manager_tests adminManagerTest.cc admin_mgmt_test.cc baseTest.cc)
 target_link_libraries(admin_manager_tests iotmock sul20 iota_a ${IOTAGENT_LIBS}

@@ -45,26 +45,29 @@
 class MqttTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(MqttTest);
 
-  CPPUNIT_TEST(testCBPublisher);
-  CPPUNIT_TEST(testCBPublisherMissingApikey);
-  CPPUNIT_TEST(testCBPublisherMissingIDdevice);
-  CPPUNIT_TEST(testReceivedMqtt);
-  CPPUNIT_TEST(testBadXMLConfigOutputIoT);
-  CPPUNIT_TEST(testLongAliasesNotWorking);
-  CPPUNIT_TEST(testBadEntityType);
-  CPPUNIT_TEST(testNotInitCBPublisher);
-  CPPUNIT_TEST(testMultipleMeasures);
+    CPPUNIT_TEST(testCBPublisher);
+    CPPUNIT_TEST(testCBPublisherMissingApikey);
+    CPPUNIT_TEST(testCBPublisherMissingIDdevice);
+    CPPUNIT_TEST(testReceivedMqtt);
+    CPPUNIT_TEST(testBadXMLConfigOutputIoT);
+    CPPUNIT_TEST(testLongAliasesNotWorking);
+    CPPUNIT_TEST(testBadEntityType);
+    CPPUNIT_TEST(testNotInitCBPublisher);
+    CPPUNIT_TEST(testMultipleMeasures);
 
-  CPPUNIT_TEST(testExtractingCmdId);
+    CPPUNIT_TEST(testExtractingCmdId);
 
-  CPPUNIT_TEST(testPushCommandExecution);
-  CPPUNIT_TEST(testPushCommandResponse);
-  CPPUNIT_TEST(testPostprocessorJSON_IoTOutput_cmd);
+    CPPUNIT_TEST(testPushCommandExecution);
+    CPPUNIT_TEST(testPushCommandResponse);
+    CPPUNIT_TEST(testPostprocessorJSON_IoTOutput_cmd);
 
-  CPPUNIT_TEST(testLocationContextBroker);
+    CPPUNIT_TEST(testLocationContextBroker);
 
-  CPPUNIT_TEST(testCommandsBody_BUG);
-  CPPUNIT_TEST(testCommandsWithJSONFormat);
+    CPPUNIT_TEST(testCommandsBody_BUG);
+    CPPUNIT_TEST(testCommandsWithJSONFormat);
+
+  CPPUNIT_TEST(testSendAllRegistrationsWithCommands);
+
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -99,6 +102,8 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
   void testCommandsBody_BUG();
 
   void testCommandsWithJSONFormat();
+
+  void testSendAllRegistrationsWithCommands();
 
  private:
   std::string mqtt_alias;

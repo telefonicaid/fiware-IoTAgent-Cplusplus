@@ -218,11 +218,14 @@ const unsigned int types::RESPONSE_CODE_FORBIDDEN_CHARACTERS = 1002;
 const unsigned int types::ALARM_CODE_NO_MONGO = 100;
 const unsigned int types::ALARM_CODE_NO_CB = 200;
 const unsigned int types::ALARM_CODE_NO_IOTA = 300;
+const unsigned int types::ALARM_CODE_NO_IOTA_MANAGER = 400;
 
 const std::string types::ALARM_MESSAGE_NO_MONGO("couldn't connect to mongo ");
 const std::string types::ALARM_MESSAGE_NO_CB(
     "couldn't connect to context broker ");
 const std::string types::ALARM_MESSAGE_NO_IOTA("couldn't connect to IoTA ");
+const std::string types::ALARM_MESSAGE_NO_IOTA_MANAGER(
+    "couldn't connect to IoTA Manager");
 
 const std::string types::ERROR_DELIMITER = "@@ERROR_DELIMITER@@";
 const std::string types::ERROR_BAD_REQUEST = "@@ERROR_BAD_REQUEST@@";
@@ -289,7 +292,8 @@ const std::string types::HELP_MESSAGE_OPS(
     "usage:   iotagent [OPTIONS] -f CONFIG_FILE RESOURCE WEBSERVICE\n"
     "         iotagent [OPTIONS (except -o)] -c SERVICE_CONFIG_FILE\n"
     "options: [-m] [-4] [-6] [-i IP] [-p PORT] [-u URL_BASE] [-n "
-    "IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] [-v LOG_LEVEL]\n");
+    "IOTAGENT_NAME] [-d PLUGINS_DIR] [-o OPTION=VALUE] "
+    "[-t NUM_THREADS] [-I IDENTIFIER] [-v LOG_LEVEL]\n");
 const std::string types::HELP_MESSAGE(
     "options explication:\n"
     "-c/--config_file <CONFIG_FILE> starts all RESOURCE configured in "
@@ -312,6 +316,8 @@ const std::string types::HELP_MESSAGE(
     "-o/--option <OPTION=VALUE>   options for web server.\n"
     "-v/--verbose <LOG_LEVEL> log level (DEBUG, INFO, WARNING, ERROR, FATAL).\n"
     "-s/--ssl <ssl_pem_file> start ssl interface.\n"
+    "-t/--threads <num threads> start so threads as num threads, by default "
+    "8.\n"
     "-I/--identifier <UNIQUE_IDENTIFIER> identifier used with iota manager.");
 
 const std::string types::HELP_MESSAGE_ERR_CONFIG(

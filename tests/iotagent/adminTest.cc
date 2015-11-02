@@ -59,6 +59,9 @@
   std::cout << "@" << __LINE__ << "@" << std::endl; \
   CPPUNIT_ASSERT(y)
 
+#define ASYNC_TIME_WAIT \
+  boost::this_thread::sleep(boost::posix_time::milliseconds(8000));
+
 CPPUNIT_TEST_SUITE_REGISTRATION(AdminTest);
 iota::AdminService* AdminService_ptr;
 namespace iota {
@@ -2418,4 +2421,45 @@ void AdminTest::testSpaceURI() {
             std::string::npos);
 
   std::cout << "END@UT@ testSpaceURI" << std::endl;
+}
+
+void AdminTest::testRetriesRegisterManager() {
+  std::cout << "START@UT@ testRetriesRegisterManager" << std::endl;
+
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestAdmin/d");
+
+  iota::AdminService* adm;
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+
+  std::string mock_port = boost::lexical_cast<std::string>(port);
+
+  adm = iota::Process::get_process().get_admin_service();
+
+  std::string manager("http://127.0.0.1:");
+  iota::RestHandle* spserv =
+      (iota::RestHandle*)iota::Process::get_process().get_service(
+          "/TestAdmin/d");
+
+  std::cout << "Timer SET" << std::endl;
+  // 1. setup timer to be launched
+
+  adm->set_register_retries(true);
+  // 2. setup a mock as IoT Manager
+  spserv->set_iota_manager_endpoint(manager + mock_port + "/mock");
+
+  // 3. wait some secs...
+  ASYNC_TIME_WAIT
+  // 4. check register has been done to iot manager.
+
+  std::string result = cb_mock->get_last("/mock");
+  std::cout << "@UT@register:" << result << std::endl;
+  CPPUNIT_ASSERT(
+      result.find(" \"protocol\" : \"PDI-IoTA-UltraLight\","
+                  " \"description\" : \"Ultra Light Propietary Protocol\","
+                  " \"iotagent\" : \"http://127.0.0.1/TestAdmin\"") !=
+      std::string::npos);
+
+  std::cout << "END@UT@ testRetriesRegisterManager" << std::endl;
 }
