@@ -85,6 +85,7 @@ iota::Modbus::Modbus(unsigned char slave_addr,
       _number_of_or_value(number_of),
       _app_operation(app_operation),
       _finished(false),
+      _completed(false),
       _time_instant(-1),
       m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   _modbus_frame.push_back(_slave_address);
@@ -109,74 +110,95 @@ void iota::Modbus::set_time_instant(std::time_t timestamp) {
 }
 
 std::time_t iota::Modbus::get_time_instant() { return _time_instant; }
+
 bool iota::Modbus::receive_modbus_frame(
     const std::vector<unsigned char>& mb_msg) {
   // Reading
   bool frame_ok = true;
 
-  // here, if this operation receive a response (bad or good), operation finish.
-  _finished = true;
   std::string str_frame = iota::str_to_hex(mb_msg);
   IOTA_LOG_DEBUG(m_logger, str_frame);
   std::string error_frame;
-  if ((_modbus_frame.size() == 0) || !check_crc(mb_msg)) {
-    // No request or bad CRC
+  if (_modbus_frame.size() == 0) {
+    // No request
     frame_ok = false;
-    error_frame = "Bad modbus crc or not associated request";
+    error_frame = "Empty modbus frame";
+
   } else {
     try {
+/*
       if (mb_msg.at(0) != _slave_address ||
           ((iota::Modbus::FunctionCode)mb_msg.at(1)) != _function_code) {
         frame_ok = false;
         error_frame =
             "Bad modbus slave address or function code are not requested";
       } else {
-        if (_function_code == iota::Modbus::READ_HOLDING_REGISTERS) {
-          unsigned short bytes = mb_msg.at(2);
-          unsigned short num_reg = 0;
-          int i = 3;
-          IOTA_LOG_DEBUG(m_logger,
-                         "Reading " + boost::lexical_cast<std::string>(bytes) +
-                             " bytes from position " +
-                             boost::lexical_cast<std::string>(_address_data));
-          // Additional check
-          // Last byte must be before CRC
-          if (mb_msg.size() - 2 != bytes + 3) {
-            IOTA_LOG_INFO(m_logger, "Bad frame?");
-            error_frame = "Modbus read holding registers incomplete";
+*/
+        IOTA_LOG_DEBUG(m_logger, "Checking if completed");
+        _completed = check_completed(mb_msg);
+        if (_completed) {
+          _finished = true;
+
+          // Check CRC in completed frame
+          if (_modbus_frame_response.at(0) != _slave_address ||
+              ((iota::Modbus::FunctionCode)_modbus_frame_response.at(1)) != _function_code ||
+              !check_crc(_modbus_frame_response)) {
             frame_ok = false;
-          }
-          while (frame_ok == true && i < bytes + 3) {
-            unsigned short value = (mb_msg.at(i) << 8) | mb_msg.at(i + 1);
-            ++num_reg;
+            error_frame = "Bad modbus frame";
+          } else if (_function_code == iota::Modbus::READ_HOLDING_REGISTERS) {
+
+            unsigned short bytes = _modbus_frame_response.at(2);
+            unsigned short num_reg = 0;
+            int i = 3;
+            IOTA_LOG_DEBUG(
+                m_logger, "Reading " + boost::lexical_cast<std::string>(bytes) +
+                              " bytes from position " +
+                              boost::lexical_cast<std::string>(_address_data));
+            // Additional check
+            // Last byte must be before CRC
+            if (_modbus_frame_response.size() - 2 != bytes + 3) {
+              IOTA_LOG_INFO(m_logger, "Bad frame?");
+              error_frame = "Modbus read holding registers incomplete";
+              frame_ok = false;
+            }
+            while (frame_ok == true && i < bytes + 3) {
+              unsigned short value = (_modbus_frame_response.at(i) << 8) | _modbus_frame_response.at(i + 1);
+              ++num_reg;
+              IOTA_LOG_DEBUG(m_logger,
+                             "Read value [" + boost::lexical_cast<std::string>(
+                                                  _address_data + num_reg) +
+                                     "] "
+                                 << boost::lexical_cast<std::string>(value));
+              _values.insert(std::pair<unsigned short, unsigned short>(
+                  _address_data + num_reg, value));
+              i += 2;
+            }
             IOTA_LOG_DEBUG(m_logger,
-                           "Read value [" + boost::lexical_cast<std::string>(
-                                                _address_data + num_reg) +
-                                   "] "
-                               << boost::lexical_cast<std::string>(value));
-            _values.insert(std::pair<unsigned short, unsigned short>(
-                _address_data + num_reg, value));
-            i += 2;
-          }
-          IOTA_LOG_DEBUG(m_logger,
-                         "Read " + boost::lexical_cast<std::string>(num_reg) +
-                             " registers");
-        } else if (_function_code == iota::Modbus::PRESET_SINGLE_REGISTER) {
-          unsigned short addr_response = (mb_msg.at(2) << 8) | mb_msg.at(3);
-          unsigned short value = (mb_msg.at(4) << 8) | mb_msg.at(5);
-          if (addr_response != _address_data || value != _number_of_or_value) {
-            frame_ok = false;
-            error_frame =
-                "Modbus preset single register response is not request echo";
+                           "Read " + boost::lexical_cast<std::string>(num_reg) +
+                               " registers");
+
+          } else if (_function_code == iota::Modbus::PRESET_SINGLE_REGISTER) {
+            unsigned short addr_response = (_modbus_frame_response.at(2) << 8) | _modbus_frame_response.at(3);
+            unsigned short value = (_modbus_frame_response.at(4) << 8) | _modbus_frame_response.at(5);
+            if (addr_response != _address_data ||
+                value != _number_of_or_value) {
+              frame_ok = false;
+              error_frame =
+                  "Modbus preset single register response is not request echo";
+            }
           }
         }
-      }
+      //}
     } catch (std::exception& e) {
       // Bad frame
       frame_ok = false;
       error_frame = "Modbus internal error ";
       error_frame.append(e.what());
     }
+  }
+  if (!frame_ok) {
+    _finished = true;
+    _completed = true;
   }
   if (!error_frame.empty()) {
     error_frame += " ";
@@ -200,6 +222,30 @@ bool iota::Modbus::check_crc(const std::vector<unsigned char>& frame) {
     c_ok = false;
   }
   return c_ok;
+}
+
+bool iota::Modbus::check_completed(const std::vector<unsigned char>& frame) {
+  bool completed = false;
+  _modbus_frame_response.insert(_modbus_frame_response.end(), frame.begin(), frame.end());
+  std::string str_frame = iota::str_to_hex(_modbus_frame_response);
+  IOTA_LOG_DEBUG(m_logger, "Checkin if completed " + str_frame);
+  if (_function_code == iota::Modbus::READ_HOLDING_REGISTERS) {
+    if (_modbus_frame_response.size() >= 3) {
+      unsigned short bytes = _modbus_frame_response.at(2);
+      if (_modbus_frame_response.size() - 2 == bytes + 3) {
+        completed = true;
+      }
+    }
+  }
+  else if (_function_code == iota::Modbus::PRESET_SINGLE_REGISTER) {
+    // Echo request, same size
+    if (_modbus_frame_response.size() == _modbus_frame.size()) {
+      completed = true;
+    }
+  }
+
+  IOTA_LOG_DEBUG(m_logger, "Modbus frame completed " + boost::lexical_cast<std::string>(completed));
+  return completed;
 }
 
 unsigned short iota::Modbus::crc(std::vector<unsigned char>& frame) {
