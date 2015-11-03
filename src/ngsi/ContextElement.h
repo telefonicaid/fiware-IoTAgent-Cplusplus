@@ -50,8 +50,8 @@ class ContextElement {
 
   // Convenience function to set device properties and service properties
   // This information has precedence over user info.
-  void set_env_info(boost::shared_ptr<Service> service_info,
-                    boost::shared_ptr<Device> device);
+  void set_env_info(const boost::shared_ptr<Service> &service_info,
+                    const boost::shared_ptr<Device> &device);
 
   template <typename Writer>
   void Serialize(Writer& writer) const {

@@ -139,8 +139,11 @@ void iota::ContextElement::format() const {
   // If device info has entity_type, this info is taken.
   // If device info has not entity_type, service entity_type is taken.
   // If _type is defined in constructor, does not follow default.
-  std::string service_entity_type = _service_info->get(
+  std::string service_entity_type;
+  if (_service_info.get() != NULL){
+    service_entity_type = _service_info->get(
       iota::store::types::ENTITY + "_" + iota::store::types::TYPE);
+  }
 
   std::string entity_type("thing");
   std::string entity_id(_id);
@@ -208,20 +211,17 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
       attr_mapping = _device_info->get_attribute(attribute.get_name());
     }
 
-    if (attr_mapping.empty()) {
-      try {
-        JsonValue& arr = _service_info.get(iota::store::types::ATTRIBUTES);
-        for (JsonValue::ConstValueIterator it = arr.Begin(); itr != arr.End();
-             ++itr) {
-          if (_service_info.get(iota::store::types::ATTRIBUTE_ID, "", *it)
-                  .compare(attribute.get_name()) == 0) {
-            attr_mapping = it->toString();
+    if (attr_mapping.empty() && _service_info.get() != NULL) {
+        JsonValue& arr = _service_info->getObject(iota::store::types::ATTRIBUTES);
+        if (!arr.IsNull()){
+          for (JsonValue::ConstValueIterator it = arr.Begin(); it != arr.End();
+               ++it) {
+            if (_service_info->get(iota::store::types::ATTRIBUTE_ID, "", *it)
+                    .compare(attribute.get_name()) == 0) {
+              attr_mapping = _service_info->toString(*it);
+            }
           }
-          ++it;
         }
-      } catch (boost::property_tree::ptree_bad_path& e) {
-        // Nothing
-      }
     }
     if (!attr_mapping.empty()) {
       rapidjson::Document d;
@@ -274,8 +274,8 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
   }
 };
 
-void iota::ContextElement::set_env_info(boost::shared_ptr<Service> service_info,
-                                        boost::shared_ptr<Device> device) {
+void iota::ContextElement::set_env_info(const boost::shared_ptr<Service> &service_info,
+                                        const boost::shared_ptr<Device> &device) {
   _service_info = service_info;
   _device_info = device;
   // Format type and id
@@ -299,35 +299,35 @@ void iota::ContextElement::set_env_info(boost::shared_ptr<Service> service_info,
       ++it;
     }
   }
+  
+std::cout << "_service_infooooo" << std::endl;
+  if (_service_info.get() != NULL){
+      JsonValue& arr = _service_info->getObject(iota::store::types::STATIC_ATTRIBUTES);
+      if (!arr.IsNull()){
+        for (JsonValue::ConstValueIterator it = arr.Begin(); it != arr.End();
+            ++it) {
+         std::string a_name = _service_info->get(iota::ngsi::NGSI_NAME, "", it);
+          if (!a_name.empty() && !exists(a_name)) {
+            // Add attribute.
 
-    try {
-      JsonValue& arr = _service_info.get(iota::store::types::STATIC_ATTRIBUTES);
-      for (JsonValue::ConstValueIterator it = arr.Begin(); itr != arr.End();
-           ++itr) {
-        std::string a_name = _service_info.get(iota::ngsi::NGSI_NAME, "", it);
-        if (!a_name.empty() && !exists(a_name)) {
-          // Add attribute.
-
-          std::string a_type =
-              _service_info.get(iota::ngsi::NGSI_TYPE, "string", it);
-          std::string a_value =
-              _service_info.get(iota::ngsi::NGSI_VALUE, "", it);
-          if (!a_value.empty()) {
-            std::stringstream os_json;
-            iota::property_tree::json_parser::write_json(os_json, a_value);
-            rapidjson::Document d;
-            if (!d.Parse<0>(os_json.str().c_str()).HasParseError()) {
-              iota::Attribute att(d);
-              iota::Attribute metadata("TimeInstant", "ISO8601", timestamp);
-              att.add_metadata(metadata);
-              add_attribute(att);
+            std::string a_type =
+                _service_info->get(iota::ngsi::NGSI_TYPE, "string", *it);
+            std::string a_value =
+                _service_info->get(iota::ngsi::NGSI_VALUE, "", *it);
+            if (!a_value.empty()) {
+              rapidjson::Document d;
+              if (!d.Parse<0>(a_value.c_str()).HasParseError()) {
+                iota::Attribute att(d);
+                iota::Attribute metadata("TimeInstant", "ISO8601", timestamp);
+                att.add_metadata(metadata);
+std::cout << "add_attribute(attttt);" << std::endl;
+                add_attribute(att);
+              }
             }
           }
         }
       }
-    } catch (boost::property_tree::ptree_bad_path& e) {
-      // Nothing
-    }
+  }
 }
 
 bool iota::ContextElement::exists(std::string& name) {

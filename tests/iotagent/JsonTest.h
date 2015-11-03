@@ -33,7 +33,8 @@ class JsonTest : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(JsonTest);
 
   CPPUNIT_TEST(testService);
-  /*
+  CPPUNIT_TEST(testBADService);
+  
   CPPUNIT_TEST(testConversionUpdateContext);
   CPPUNIT_TEST(testContextElement);
   CPPUNIT_TEST(testContext);
@@ -48,7 +49,8 @@ class JsonTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAttrCompound);
   CPPUNIT_TEST(testConversion);
   CPPUNIT_TEST(testAttributeJSONCommand);
-  */ CPPUNIT_TEST_SUITE_END();
+ 
+ CPPUNIT_TEST_SUITE_END();
 
  public:
   void setUp(){};
@@ -75,6 +77,11 @@ class JsonTest : public CppUnit::TestFixture {
     * @brief   Create an empty service, put values, read values, copy to string
     */
   void testService();
+  /**
+    * @name    testBADService
+    * @brief   same operations as testService but with bad data and exceptions
+    */
+  void testBADService();
 
 };
 #endif

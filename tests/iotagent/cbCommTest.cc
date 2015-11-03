@@ -113,9 +113,13 @@ void cbCommTest::testAsynchSendTimeout() {
 
   // std::string url("http://10.95.168.57:1026/NGSI10/updateContext");
   std::string url = "http://192.0.0.1:9001/mock/testAsyncSendTimeout";
-  boost::shared_ptr<Service> pt1(new Service());
-    pt1->set_service("service", "service");
-    pt1->put("config.cbroker.timeout", 10);
+  boost::shared_ptr<iota::Service> pt1(new iota::Service());
+    pt1->set_service("service");
+    pt1->putObject("config");
+    iota::JsonValue &itconf = pt1->getObject("config");
+    pt1->putObject("cbroker", itconf);
+    iota::JsonValue &itcbroker = pt1->getObject("cbroker", itconf);
+    pt1->put("timeout", 10, itcbroker);
 
     std::cout << "Async send" << std::endl;
     cb->async_send(url, "UPDATE", pt1, boost::bind(handler_function, _1, _2));

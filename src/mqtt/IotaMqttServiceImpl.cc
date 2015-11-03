@@ -154,7 +154,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
 
   try {
     resthandle_ptr_->get_service_by_apiKey(pt_cb, apikey);
-    std::string serviceMQTT = pt_cb->get_service());
+    std::string serviceMQTT = pt_cb->get_service();
 
     boost::shared_ptr<iota::Device> dev =
         resthandle_ptr_->get_device(idDevice, serviceMQTT);

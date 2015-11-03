@@ -36,8 +36,8 @@ void iota::get_map_from_rapidjson(const JsonValue& value,
 
 void iota::bson_to_ptree(const mongo::BSONObj& bson,
                          boost::shared_ptr<Service>& p_tree) {
-  std::istringstream ss(bson.jsonString(mongo::Strict));
-  p_tree.read_json(ss);
+  std::stringstream ss(bson.jsonString(mongo::Strict));
+  p_tree->read_json(ss);
 }
 
 std::string iota::get_str_value(const rapidjson::Value& data) {
