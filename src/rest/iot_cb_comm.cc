@@ -81,8 +81,9 @@ void iota::ContextBrokerCommunicator::receive_event(
     if (_callback) {
       _callback("", (-1) * error.value());
     }
+
     iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
-                       additional_info iota::types::ERROR, error.message());
+                       additional_info, iota::types::ERROR, error.message());
   }
 
   remove_connection(connection);
@@ -225,8 +226,8 @@ std::string iota::ContextBrokerCommunicator::send(
         additional_info.get<std::string>("timeout", "5"));
     std::string proxy = additional_info.get<std::string>("proxy", "");
     response = http_client->send(request, timeout, proxy);
-    cb_response =
-        process_response(url, http_client, response, http_client->get_error());
+    cb_response = process_response(url, http_client, response, content,
+                                   additional_info, http_client->get_error());
   } catch (std::exception& e) {
     IOTA_LOG_ERROR(m_logger, e.what());
     iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
