@@ -27,6 +27,7 @@
 #include "util/iota_logger.h"
 #include "rest/process.h"
 #include <boost/thread/recursive_mutex.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 namespace iota {
 
@@ -37,17 +38,33 @@ class Alarm {
   static void error(int code, const std::string& endpoint,
                     const std::string& status, const std::string& text);
 
+  static void error(int code, const std::string& endpoint,
+                    const std::string &content,
+                    const boost::property_tree::ptree &additional_info,
+                    const std::string& status, const std::string& text);
+
   static void info(int code, const std::string& endpoint,
                    const std::string& status, const std::string& text);
 
   void put(int code, const std::string& endpoint, const std::string& status,
            const std::string& text);
 
+  void put(int code, const std::string& endpoint,
+           const std::string &content,
+           const boost::property_tree::ptree &additional_info,
+           const std::string& status, const std::string& text);
+
   void remove(int code, const std::string& endpoint, const std::string& status,
               const std::string& text);
 
   std::string message(int code, const std::string& endpoint,
                       const std::string& status, const std::string& text);
+
+  std::string message(int code, const std::string& endpoint,
+                      const std::string &content,
+                      const boost::property_tree::ptree &servicept,
+                      const std::string& status,
+                      const std::string& text);
 
   int size();
 

@@ -39,6 +39,13 @@ void iota::Alarm::error(int code, const std::string& endpoint,
   instance()->put(code, endpoint, status, text);
 }
 
+void iota::Alarm::error(int code, const std::string& endpoint,
+                    const std::string &content,
+                    const boost::property_tree::ptree &additional_info,
+                    const std::string& status, const std::string& text) {
+  instance()->put(code, endpoint, content, additional_info, status, text);
+}
+
 void iota::Alarm::info(int code, const std::string& endpoint,
                        const std::string& status, const std::string& text) {
   instance()->remove(code, endpoint, status, text);
@@ -50,7 +57,7 @@ std::string iota::Alarm::message(int code, const std::string& endpoint,
   std::string message;
   message.append(" code=");
   message.append(boost::lexical_cast<std::string>(code));
-  message.append(" origin=");
+  message.append(" to=");
   message.append(endpoint);
   message.append(" info=");
   message.append(text);
@@ -58,11 +65,50 @@ std::string iota::Alarm::message(int code, const std::string& endpoint,
   return message;
 }
 
+
+std::string iota::Alarm::message(int code, const std::string& endpoint,
+                                 const std::string &content,
+                                 const boost::property_tree::ptree &servicept,
+                                 const std::string& status,
+                                 const std::string& text) {
+
+
+  std::string message;
+  message.append(" code=");
+  message.append(boost::lexical_cast<std::string>(code));
+  message.append(" to=");
+  message.append(endpoint);
+  message.append(" service=");
+  message.append(servicept.get<std::string>("service", ""));
+  message.append(" service_path=");
+  message.append(servicept.get<std::string>("service_path", "/"));
+  message.append(" content=");
+  message.append(content);
+  message.append(" info=");
+  message.append(text);
+
+  return message;
+}
+
+
 void iota::Alarm::put(int code, const std::string& endpoint,
                       const std::string& status, const std::string& text) {
   boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
   std::string errorSTR = " event=ALARM";
   errorSTR.append(message(code, endpoint, status, text));
+
+  IOTA_LOG_ERROR(m_log, errorSTR);
+  _alarms.insert(std::pair<std::string, std::string>(
+      get_key(code, endpoint, status), errorSTR));
+}
+
+void iota::Alarm::put(int code, const std::string& endpoint,
+                      const std::string &content,
+                      const boost::property_tree::ptree &additional_info,
+                      const std::string& status, const std::string& text) {
+  boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+  std::string errorSTR = " event=ALARM";
+  errorSTR.append(message(code, endpoint, content, additional_info, status, text));
 
   IOTA_LOG_ERROR(m_log, errorSTR);
   _alarms.insert(std::pair<std::string, std::string>(

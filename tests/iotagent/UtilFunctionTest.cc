@@ -677,6 +677,24 @@ void UtilFunctionTest::testAlarm() {
   iota::Alarm::info(22, "endpoint", "status", "text");
 
   CPPUNIT_ASSERT_MESSAGE("alarms clean ", palarm->size() == 0);
+
+  std::cout << "@UT@Perdida de medida" << std::endl;
+  boost::property_tree::ptree ptin;
+  ptin.put("cbroker", "http://127.0.0.1:8888/iotagent/ngsi90");
+  ptin.put("service", "myservice");
+  ptin.put("service_path", "myservice_path");
+  ptin.put("timeout", 10);
+  ptin.put("active", false);
+
+  std::stringstream ss;
+  iota::property_tree::json_parser::write_json(ss, ptin);
+
+  iota::Alarm::error(22, "endpoint", "{updateContext:22}", ptin, "status", "text");
+  CPPUNIT_ASSERT_MESSAGE("alarms one2 ", palarm->size() == 1);
+
+  iota::Alarm::info(22, "endpoint", "status", "text");
+  CPPUNIT_ASSERT_MESSAGE("alarms clean2 ", palarm->size() == 0);
+
 }
 
 void UtilFunctionTest::testPtree2String() {

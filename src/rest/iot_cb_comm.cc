@@ -154,7 +154,8 @@ bool iota::ContextBrokerCommunicator::async_send(
 
   } catch (std::exception& e) {
     result = false;
-    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, 
+                       content, additional_info, iota::types::ERROR,
                        e.what());
   }
 }
