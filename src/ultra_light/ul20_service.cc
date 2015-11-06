@@ -28,6 +28,7 @@
 #include "util/iota_exception.h"
 #include "util/KVP.h"
 #include "util/FuncUtil.h"
+#include "util/alarm.h"
 
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
@@ -299,6 +300,20 @@ void iota::UL20Service::service(
         }
       }
     }
+  } catch (iota::IotaException& e) {
+    boost::property_tree::ptree additional_info;
+    std::string content("{\"apikey\":\"");
+    content.append(apikey);
+    content.append("\",\"device\":\"");
+    content.append(device);
+    content.append("\"}");
+    std::string reason = e.reason();
+    if (reason.compare(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR) == 0) {
+      iota::Alarm::error(iota::types::ALARM_CODE_NO_CB,
+                         MongoConnection::instance()->get_endpoint(), content,
+                         additional_info, iota::types::ERROR, e.reason());
+    }
+    code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;
   } catch (std::runtime_error& e) {
     IOTA_LOG_ERROR(m_logger, "translate error runtime_error" << e.what());
     code_resp = pion::http::types::RESPONSE_CODE_BAD_REQUEST;

@@ -220,6 +220,12 @@ const unsigned int types::ALARM_CODE_NO_CB = 200;
 const unsigned int types::ALARM_CODE_NO_IOTA = 300;
 const unsigned int types::ALARM_CODE_NO_IOTA_MANAGER = 400;
 
+/** this error produces a measure lost */
+const unsigned int types::ALARM_CODE_LOST_MEASURE = 1000;
+/** this error produces a an API manager command error */
+const unsigned int types::ALARM_CODE_LOST_API = 1100;
+
+
 const std::string types::ALARM_MESSAGE_NO_MONGO("couldn't connect to mongo ");
 const std::string types::ALARM_MESSAGE_NO_CB(
     "couldn't connect to context broker ");
