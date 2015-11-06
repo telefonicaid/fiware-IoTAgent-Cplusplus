@@ -35,14 +35,28 @@ class ModbusOperationProcessor {
   ModbusOperationProcessor(std::stringstream& json_operations);
   virtual ~ModbusOperationProcessor(){};
   void read_operations(std::string modbus_operation_file);
+  // void read_commands(std::string modbus_operation_file);
+
   boost::property_tree::ptree& get_operation(std::string operation);
   std::vector<std::string>& get_mapped_labels(std::string operation);
+
+  boost::property_tree::ptree& get_command(std::string command);
+
+  std::vector<std::string> get_mapped_parameters(std::string command);
+  int get_base_address(std::string command);
 
  protected:
  private:
   std::map<std::string, boost::property_tree::ptree> _operations;
+
   std::map<std::string, std::vector<std::string> > _position_map;
+
+  std::map<std::string, boost::property_tree::ptree> _commands;
+  std::map<std::string, std::map<int, std::string> > _ordered_parameters_map;
+
   void read(std::stringstream& json_operations);
+
+  void read_commands(std::stringstream& json_commands);
 };
 }
 
