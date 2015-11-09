@@ -158,3 +158,29 @@ void ModbusTest::testCrc() {
   std::vector<unsigned char> o1 = iota::hex_str_to_vector(t);
   std::cout << modbus.crc(o1) << std::endl;
 }
+
+void ModbusTest::testProcessorCommandsFile() {
+  iota::ModbusOperationProcessor processor;
+  processor.read_operations("../../tests/iotagent/modbus_config.json");
+
+  int base_addr = processor.get_base_address("installation_num_cmd");
+
+  CPPUNIT_ASSERT_MESSAGE("Base address  installation_num_cmd ", base_addr == 0);
+
+  base_addr = processor.get_base_address("test_command");
+  CPPUNIT_ASSERT_MESSAGE("Base address  test_command ", base_addr == 20);
+
+  std::vector<std::string> names_ordered =
+      processor.get_mapped_parameters("test_command");
+
+  std::string first_element = names_ordered[0];
+
+  CPPUNIT_ASSERT_MESSAGE("Ordered parameters  test_command ",
+                         first_element == "high_level_tank_alarm");
+
+  boost::property_tree::ptree op_1 =
+      processor.get_command("installation_num_cmd");
+  CPPUNIT_ASSERT_MESSAGE(
+      "Command as property ",
+      op_1.get<std::string>("name") == "installation_num_cmd");
+}
