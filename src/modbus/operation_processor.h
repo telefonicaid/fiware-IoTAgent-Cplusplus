@@ -29,6 +29,9 @@
 #include <map>
 
 namespace iota {
+
+typedef std::map<int, std::string> ParamsMap;
+
 class ModbusOperationProcessor {
  public:
   ModbusOperationProcessor(){};
@@ -42,7 +45,19 @@ class ModbusOperationProcessor {
 
   boost::property_tree::ptree& get_command(std::string command);
 
+  /**
+  * @name get_mapped_parameters
+  * @brief It returns a vector with the ordered names of parameters for that
+  * command
+  * @return vector of std::string in ordered based on their base address. Each
+  * parameter takes one position
+  */
   std::vector<std::string> get_mapped_parameters(std::string command);
+
+  /**
+  * @name get_base_address
+  * @return The base address of the command
+  */
   int get_base_address(std::string command);
 
  protected:
@@ -52,7 +67,7 @@ class ModbusOperationProcessor {
   std::map<std::string, std::vector<std::string> > _position_map;
 
   std::map<std::string, boost::property_tree::ptree> _commands;
-  std::map<std::string, std::map<int, std::string> > _ordered_parameters_map;
+  std::map<std::string, ParamsMap> _ordered_parameters_map;
 
   void read(std::stringstream& json_operations);
 

@@ -68,7 +68,7 @@ void iota::ModbusOperationProcessor::read_commands(
       std::string op = v.second.get<std::string>("name");
       _commands.insert(
           std::pair<std::string, boost::property_tree::ptree>(op, v.second));
-      std::map<int, std::string> names_map;
+      iota::ParamsMap names_map;
       try {
         BOOST_FOREACH (boost::property_tree::ptree::value_type& v_p,
                        v.second.get_child("parameters")) {
@@ -77,9 +77,8 @@ void iota::ModbusOperationProcessor::read_commands(
           names_map.insert(std::pair<int, std::string>(address, name));
         }
         if (names_map.size() > 0) {
-          _position_map.insert(
-              std::pair<std::string, std::map<int, std::string> >(op,
-                                                                  names_map));
+          _ordered_parameters_map.insert(
+              std::pair<std::string, iota::ParamsMap>(op, names_map));
           names_map.clear();
         }
       } catch (boost::exception& e) {
@@ -100,10 +99,14 @@ void iota::ModbusOperationProcessor::read_operations(
   f.open(modbus_operation_file.c_str(), std::ios::binary);
   if (f.good()) {
     f.rdbuf();
-    std::stringstream ss;
+    std::stringstream ss, ss1;
     ss << f.rdbuf();
     read(ss);
-    read_commands(ss);
+
+    // f.seekg(0,f.beg);
+    f.seekg(0);
+    ss1 << f.rdbuf();
+    read_commands(ss1);
 
   } else {
     std::cout << "does not exists " << modbus_operation_file << std::endl;
@@ -130,20 +133,29 @@ std::vector<std::string> iota::ModbusOperationProcessor::get_mapped_parameters(
     std::string command) {
   std::vector<std::string> ordered_parameters;
   // Try
-  std::map<int, std::string> names_map = _ordered_parameters_map[command];
-  std::map<int, string>::iterator itr;
-  for (itr = names_map.begin(); itr != names_map.end(); itr++) {
-    ordered_parameters.push_back(itr->second);
+  try {
+    iota::ParamsMap names_map = _ordered_parameters_map[command];
+    iota::ParamsMap::iterator itr;
+
+    for (itr = names_map.begin(); itr != names_map.end(); itr++) {
+      ordered_parameters.push_back(itr->second);
+    }
+
+  } catch (std::exception& e) {
   }
+
   return ordered_parameters;
 }
 
 int iota::ModbusOperationProcessor::get_base_address(std::string command) {
-  std::map<int, std::string> names_map = _ordered_parameters_map[command];
-  std::map<int, string>::iterator itr;
+  iota::ParamsMap names_map = _ordered_parameters_map[command];
+  iota::ParamsMap::iterator itr;
   // Try
   itr = names_map.begin();
-  // if not null
 
-  return itr->first;
+  if (itr != names_map.end()) {
+    return itr->first;
+  } else {
+    return -1;
+  }
 }
