@@ -29,20 +29,49 @@
 #include <map>
 
 namespace iota {
+
+typedef std::map<int, std::string> ParamsMap;
+
 class ModbusOperationProcessor {
  public:
   ModbusOperationProcessor(){};
   ModbusOperationProcessor(std::stringstream& json_operations);
   virtual ~ModbusOperationProcessor(){};
   void read_operations(std::string modbus_operation_file);
+  // void read_commands(std::string modbus_operation_file);
+
   boost::property_tree::ptree& get_operation(std::string operation);
   std::vector<std::string>& get_mapped_labels(std::string operation);
+
+  boost::property_tree::ptree& get_command(std::string command);
+
+  /**
+  * @name get_mapped_parameters
+  * @brief It returns a vector with the ordered names of parameters for that
+  * command
+  * @return vector of std::string in ordered based on their base address. Each
+  * parameter takes one position
+  */
+  std::vector<std::string> get_mapped_parameters(std::string command);
+
+  /**
+  * @name get_base_address
+  * @return The base address of the command
+  */
+  int get_base_address(std::string command);
 
  protected:
  private:
   std::map<std::string, boost::property_tree::ptree> _operations;
+
   std::map<std::string, std::vector<std::string> > _position_map;
+
+  std::map<std::string, boost::property_tree::ptree> _commands;
+  std::map<std::string, ParamsMap> _ordered_parameters_map;
+
   void read(std::stringstream& json_operations);
+
+  void read_commands(std::stringstream& json_commands);
 };
 }
 
