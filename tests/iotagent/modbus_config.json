@@ -52,19 +52,19 @@
 	"name" : "test_command",
 	"parameters" : [
 	 {
-	   "name":"stay_on_alarm_time",
+	   "name":"second",
 	   "address": 21
 	 },
 	 {
-	   "name":"high_level_alarm",
+	   "name":"third",
 	   "address": 22
 	 },
 	 {
-	   "name":"histeresys",
+	   "name":"fourth",
 	   "address": 23
 	 },
 	 {
-	   "name":"high_level_tank_alarm",
+	   "name":"first",
 	   "address": 20
 	 }	
 	]
