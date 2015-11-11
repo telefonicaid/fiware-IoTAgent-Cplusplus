@@ -224,29 +224,31 @@ void ModbusTest::testProcessorCommandsFile() {
       "Command as property ",
       op_1.get<std::string>("name") == "installation_num_cmd");
 
-  std::cout << "@UT@check get_protocol_commands"
+  std::cout << "@UT@check get_protocol_commands";
 
-      std::string pcommands = processor.get_protocol_commands();
+  std::string pcommands = processor.get_protocol_commands();
 
   std::cout << "@UT@RES:" << pcommands << std::endl;
 
-  IOTASSERT_MESSAGE(
+  CPPUNIT_ASSERT_MESSAGE(
       "no installation_num_cmd",
-      cb_last.find("{\"installation_num_cmd\"") != std::string::npos);
+      pcommands.find("\"installation_num_cmd\"") != std::string::npos);
 
-  IOTASSERT_MESSAGE("no tanks_num_cmd",
-                    cb_last.find("{\"tanks_num_cmd\"") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE(
+      "no tanks_num_cmd",
+      pcommands.find("\"tanks_num_cmd\"") != std::string::npos);
 
-  IOTASSERT_MESSAGE(
+  CPPUNIT_ASSERT_MESSAGE(
       "no adquisition_time_cmd",
-      cb_last.find("{\"adquisition_time_cmd\"") != std::string::npos);
+      pcommands.find("\"adquisition_time_cmd\"") != std::string::npos);
 
-  IOTASSERT_MESSAGE(
+  CPPUNIT_ASSERT_MESSAGE(
       "no max_filllevel_alarm_cmd",
-      cb_last.find("{\"max_filllevel_alarm_cmd\"") != std::string::npos);
+      pcommands.find("\"max_filllevel_alarm_cmd\"") != std::string::npos);
 
-  IOTASSERT_MESSAGE("no test_command",
-                    cb_last.find("{\"test_command\"") != std::string::npos);
+  CPPUNIT_ASSERT_MESSAGE(
+      "no test_command",
+      pcommands.find("\"test_command\"") != std::string::npos);
 
-  std::cout << "@UT@END check testProcessorCommandsFile"
+  std::cout << "@UT@END check testProcessorCommandsFile";
 }
