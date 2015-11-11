@@ -711,7 +711,7 @@ void AdminTest::testPostDevice() {
   std::string device_post_device(
       "{\"devices\": "
       "[{\"device_id\": \"testpostdevice\",\"protocol\": "
-      "\"PDI-IoTA-UltraLight\",\"entity_name\": "
+      "\"PDI-IoTA-test\",\"entity_name\": "
       "\"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": "
       "\"htp://device_endpoint\",\"timezone\": \"America/Santiago\","
       "\"commands\": [{\"name\": \"ping\",\"type\": \"command\",\"value\": "
