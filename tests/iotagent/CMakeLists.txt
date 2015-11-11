@@ -40,7 +40,7 @@ target_link_libraries(admin_manager_tests iotmock sul20 iota_a ${IOTAGENT_LIBS}
 
 ###  PROTOCOLS
 # Tutorial basic sample protocol
-add_executable(sample_tests sampleTest.cc sample_test.cc)
+add_executable(sample_tests sampleTest.cc sample_test.cc baseTest.cc)
 target_link_libraries(sample_tests stestsrv iotmock iota_a ${IOTAGENT_LIBS}
         ${TEST_LIBS})
 

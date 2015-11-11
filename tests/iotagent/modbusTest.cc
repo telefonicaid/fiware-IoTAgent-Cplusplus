@@ -49,6 +49,18 @@ void ModbusTest::testBuildFrame() {
                          expected_fc06.compare(str_frame_fc06) == 0);
   CPPUNIT_ASSERT_MESSAGE(
       "AppOperation", frame_fc06.get_operation().compare("AppOperation") == 0);
+
+  // FC_0x10
+  std::string expected_fc16 = "11 10 00 01 00 02 04 00 0A 01 02 C6 F0";
+  std::vector<unsigned short> values;
+  values.push_back(10);
+  values.push_back(258);
+  iota::Modbus frame_fc16(0x11, iota::Modbus::PRESET_MULTIPLE_REGISTER, 1, values,
+                          "AppOperation", false);
+  std::string str_frame_fc16 = iota::str_to_hex(frame_fc16.get_modbus_frame());
+  CPPUNIT_ASSERT_MESSAGE(expected_fc16, expected_fc16.compare(str_frame_fc16) == 0);
+  CPPUNIT_ASSERT_MESSAGE(
+      "AppOperation", frame_fc16.get_operation().compare("AppOperation") == 0);
 }
 
 void ModbusTest::testDecodeFrame() {
@@ -61,6 +73,7 @@ void ModbusTest::testDecodeFrame() {
                          frame_fc06.receive_modbus_frame(data));
   CPPUNIT_ASSERT_MESSAGE("Checking no values ",
                          frame_fc06.get_values().size() == 0);
+  CPPUNIT_ASSERT_MESSAGE("Checking if completed ", frame_fc06.completed());
 
   // Read holding registers
   std::string expected_fc03 = "01 03 09 C4 00 19 C6 61";
@@ -82,6 +95,33 @@ void ModbusTest::testDecodeFrame() {
   CPPUNIT_ASSERT_MESSAGE("First value ", values.begin()->second == 0x0001);
   CPPUNIT_ASSERT_MESSAGE("Fith register ", values[2505] == 0x4552);
   CPPUNIT_ASSERT_MESSAGE("Last register ", values[2525] == 0x0000);
+  CPPUNIT_ASSERT_MESSAGE("Checking if completed ", frame_fc03.completed());
+
+  std::vector<unsigned short> values_to_write;
+  values_to_write.push_back(10);
+  values_to_write.push_back(258);
+  iota::Modbus frame_fc16(0x11, iota::Modbus::PRESET_MULTIPLE_REGISTER, 1, values_to_write,
+                          "AppOperation", false);
+  std::string received_fc16 = "11 10 00 01 00 02 12 98";
+  boost::erase_all(received_fc16, " ");
+  std::vector<unsigned char> data16 = iota::hex_str_to_vector(received_fc16);
+  CPPUNIT_ASSERT_MESSAGE("Checking received frame ",
+                         frame_fc16.receive_modbus_frame(data16));
+  CPPUNIT_ASSERT_MESSAGE("Checking no values ",
+                         frame_fc16.get_values().size() == 0);
+
+  // Frame with confirmation
+  iota::Modbus frame_fc16_conf(0x11, iota::Modbus::PRESET_MULTIPLE_REGISTER, 1, values_to_write,
+                          "AppOperation", true);
+  std::string expected_fc16_conf = "11 10 00 01 00 02 04 00 0A 01 02 C6 F0";
+  boost::erase_all(expected_fc16_conf, " ");
+  std::vector<unsigned char> data16_conf = iota::hex_str_to_vector(expected_fc16_conf);
+  CPPUNIT_ASSERT_MESSAGE("Checking received frame ",
+                         frame_fc16_conf.receive_modbus_frame(data16_conf));
+  CPPUNIT_ASSERT_MESSAGE("Checking received frame ",
+                         frame_fc16_conf.receive_modbus_frame(data16));
+  CPPUNIT_ASSERT_MESSAGE("Checking if completed ", frame_fc16_conf.completed());
+
 }
 
 void ModbusTest::testProcessor() {
@@ -183,4 +223,32 @@ void ModbusTest::testProcessorCommandsFile() {
   CPPUNIT_ASSERT_MESSAGE(
       "Command as property ",
       op_1.get<std::string>("name") == "installation_num_cmd");
+
+  std::cout << "@UT@check get_protocol_commands";
+
+  std::string pcommands = processor.get_protocol_commands();
+
+  std::cout << "@UT@RES:" << pcommands << std::endl;
+
+  CPPUNIT_ASSERT_MESSAGE(
+      "no installation_num_cmd",
+      pcommands.find("\"installation_num_cmd\"") != std::string::npos);
+
+  CPPUNIT_ASSERT_MESSAGE(
+      "no tanks_num_cmd",
+      pcommands.find("\"tanks_num_cmd\"") != std::string::npos);
+
+  CPPUNIT_ASSERT_MESSAGE(
+      "no adquisition_time_cmd",
+      pcommands.find("\"adquisition_time_cmd\"") != std::string::npos);
+
+  CPPUNIT_ASSERT_MESSAGE(
+      "no max_filllevel_alarm_cmd",
+      pcommands.find("\"max_filllevel_alarm_cmd\"") != std::string::npos);
+
+  CPPUNIT_ASSERT_MESSAGE(
+      "no test_command",
+      pcommands.find("\"test_command\"") != std::string::npos);
+
+  std::cout << "@UT@END check testProcessorCommandsFile";
 }

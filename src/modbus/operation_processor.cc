@@ -168,3 +168,29 @@ int iota::ModbusOperationProcessor::get_base_address(std::string command) {
     return -1;
   }
 }
+
+std::string iota::ModbusOperationProcessor::get_protocol_commands() {
+  std::string res("{\"commands\":[");
+  std::string k;
+  int i = 0;
+  for (std::map<std::string, boost::property_tree::ptree>::iterator iter =
+           _commands.begin();
+       iter != _commands.end(); ++iter) {
+    k = iter->first;
+    if (i > 0) {
+      res.append(",");
+    }
+    res.append("{\"name\": \"");
+    res.append(k);
+    res.append("\", \"type\": \"command\", \"value\": \"\"}");
+    i++;
+  }
+
+  if (i == 0) {
+    return "";
+  } else {
+    res.append("]}");
+  }
+
+  return res;
+}

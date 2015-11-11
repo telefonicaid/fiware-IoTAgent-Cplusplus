@@ -46,6 +46,15 @@ iota::ProtocolData iota::TestCommandService::get_protocol_data() {
   return protocol_data;
 }
 
+std::string iota::TestCommandService::get_protocol_commands() {
+  return "{ \"myfield\":\"tcommand\", \"commands\": [{\"name\": \"tcs_1\", \"type\": \"command\", \"value\": \"\"} ] }";
+}
+
+int iota::TestCommandService::get_timeout_commands() {
+  return 13;
+}
+
+
 void iota::TestCommandService::start() {
   IOTA_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
 

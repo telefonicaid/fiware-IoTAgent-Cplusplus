@@ -41,6 +41,8 @@ class MongoTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST(testServiceMgmtCollection);
 
   CPPUNIT_TEST(testNoMongo);
+  CPPUNIT_TEST(testArray);
+
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -49,6 +51,10 @@ class MongoTest : public CPPUNIT_NS::TestFixture {
   void setUp();
 
  private:
+
+  std::string testjoinCommands(const std::string &obj1,
+                               const std::string &obj2);
+
   void testGenericCollection();
   void testCommandCollection();
   void testDeviceCollection();
@@ -59,6 +65,8 @@ class MongoTest : public CPPUNIT_NS::TestFixture {
   void testReplica();
   void testMongoAlone();
   void testException();
+
+  void testArray();
 
   static void workerFunc();
 };

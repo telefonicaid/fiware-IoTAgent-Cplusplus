@@ -67,6 +67,15 @@ class ModbusOperationProcessor {
   */
   int get_base_address(std::string command);
 
+  /**
+  * @name get_protocol_commands
+  * @brief implements virtual function get_protocol_commands
+  *     to add  special data and commands for a post device of modbus protocol
+  *
+  * @return a completed device json (for mongo) with protocol commands
+  */
+  std::string get_protocol_commands();
+
  protected:
  private:
   std::map<std::string, boost::property_tree::ptree> _operations;

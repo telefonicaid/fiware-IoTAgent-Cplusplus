@@ -45,6 +45,11 @@ iota::ProtocolData iota::TestService::get_protocol_data() {
   return protocol_data;
 }
 
+std::string iota::TestService::get_protocol_commands() {
+  return "{\"commands\":[{\"name\": \"tcs_1\", \"type\": \"command\", \"value\": \"\"},{\"name\":\"PING\",\"type\":\"command\",\"value\" : \"44\"}]}";
+}
+
+
 void iota::TestService::start() {
   IOTA_LOG_DEBUG(m_logger, "START SAMPLE PLUGIN");
 

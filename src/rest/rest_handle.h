@@ -168,6 +168,24 @@ class RestHandle : public pion::http::plugin_service,
   **/
   virtual iota::ProtocolData get_protocol_data();
 
+ /**
+  * @name get_protocol_commands
+  * @brief some protocols have special commands for all devices
+  *        post_device_json call this function when create a device
+  *
+  * @return "[{"name": "attr_1_dev_1", "type": "command", "value": ""},... ]"
+  **/
+  virtual std::string get_protocol_commands();
+
+ /**
+  * @name get_timeout_commands
+  * @brief some protocols have special timeout for commands
+  *        by default it it config.json  timeout
+  *
+  * @return timeout
+  **/
+  virtual int get_timeout_commands();
+
   /**
   * @name get_iota_manager_endpoint
   * @brief get manager endpoint to register protocols.
