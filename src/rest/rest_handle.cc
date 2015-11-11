@@ -1231,6 +1231,22 @@ iota::ProtocolData iota::RestHandle::get_protocol_data() {
   return _protocol_data;
 }
 
+std::string iota::RestHandle::get_protocol_commands() {
+  return "";
+}
+
+int iota::RestHandle::get_timeout_commands() {
+  int timeout = 0;
+  const JsonValue& timeoutJSON =
+      iota::Configurator::instance()->get(iota::types::CONF_FILE_TIMEOUT);
+  if (timeoutJSON.IsNumber()) {
+    timeout = timeoutJSON.GetInt();
+  }
+  IOTA_LOG_DEBUG(m_logger, "timeout from config.json: " << timeout);
+  return timeout;
+}
+
+
 void iota::RestHandle::set_protocol_data(iota::ProtocolData p_data) {
   if (!p_data.description.empty()) {
     _protocol_data.description = p_data.description;

@@ -115,10 +115,12 @@ int BaseTest::http_test(const std::string& uri, const std::string& method,
                         const std::map<std::string, std::string>& headers,
                         const std::string& query_string,
                         std::string& response) {
-  pion::tcp::connection tcp_conn(scheduler.get_io_service());
+
+  unsigned int port = iota::Process::get_process().get_http_port();
+  pion::tcp::connection tcp_conn(iota::Process::get_process().get_io_service());
   boost::system::error_code error_code;
-  error_code = tcp_conn.connect(boost::asio::ip::address::from_string(HOST),
-                                wserver->get_port());
+  error_code =
+      tcp_conn.connect(boost::asio::ip::address::from_string(HOST), port);
 
   pion::http::request http_request(uri);
   http_request.set_method(method);
