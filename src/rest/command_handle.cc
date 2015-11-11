@@ -860,14 +860,8 @@ void iota::CommandHandle::updateCommand(
 
   IOTA_LOG_DEBUG(m_logger, "command_id: " << command_id);
 
-  int timeout = 0;
-  const JsonValue& timeoutJSON =
-      iota::Configurator::instance()->get(iota::types::CONF_FILE_TIMEOUT);
-  if (timeoutJSON.IsNumber()) {
-    timeout = timeoutJSON.GetInt();
-  }
-  IOTA_LOG_DEBUG(m_logger, "timeout by now is in config.json: " << timeout);
-
+  int timeout = get_timeout_commands();
+  
   std::string resp_cmd;
   CommandData cmd_data;
   cmd_data.command_name = command_name;

@@ -54,6 +54,8 @@ class TestService : public iota::RestHandle {
 
   virtual iota::ProtocolData get_protocol_data();
 
+  virtual std::string get_protocol_commands();
+
  private:
   pion::logger m_logger;
 };
