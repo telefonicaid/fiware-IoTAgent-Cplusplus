@@ -210,18 +210,33 @@ void ModbusTest::testProcessorCommandsFile() {
   base_addr = processor.get_base_address("test_command");
   CPPUNIT_ASSERT_MESSAGE("Base address  test_command ", base_addr == 20);
 
-  std::vector<std::string> names_ordered =
+  std::vector<iota::CommandParameter> names_ordered =
       processor.get_mapped_parameters("test_command");
 
-  std::string first_element = names_ordered[0];
+  std::string first_element = names_ordered[0].name;
 
-  CPPUNIT_ASSERT_MESSAGE("Ordered parameters  test_command ",
-                         first_element == "high_level_tank_alarm");
+  CPPUNIT_ASSERT_MESSAGE("not ordered parameters  test_command ",
+                         first_element == "first");
+
+  CPPUNIT_ASSERT_MESSAGE("no first parameter  test_command ",
+                         names_ordered[0].name == "first");
+
+  CPPUNIT_ASSERT_MESSAGE("no second parameter  test_command ",
+                         names_ordered[1].name == "second");
+
+  CPPUNIT_ASSERT_MESSAGE("no thrid parameter  test_command ",
+                         names_ordered[2].name == "third");
+
+  CPPUNIT_ASSERT_MESSAGE("no fourth parameter  test_command ",
+                         names_ordered[3].name == "fourth");
+
+  CPPUNIT_ASSERT_MESSAGE("not the default number of positions per parameter ",
+                         names_ordered[0].num_positions == 1);
 
   boost::property_tree::ptree op_1 =
       processor.get_command("installation_num_cmd");
   CPPUNIT_ASSERT_MESSAGE(
-      "Command as property ",
+      "wrong parameter name ",
       op_1.get<std::string>("name") == "installation_num_cmd");
 
   std::cout << "@UT@check get_protocol_commands";
@@ -249,6 +264,15 @@ void ModbusTest::testProcessorCommandsFile() {
   CPPUNIT_ASSERT_MESSAGE(
       "no test_command",
       pcommands.find("\"test_command\"") != std::string::npos);
+
+  names_ordered = processor.get_mapped_parameters("test_numeric_command");
+
+  first_element = names_ordered[0].name;
+  unsigned short positions = names_ordered[0].num_positions;
+
+  CPPUNIT_ASSERT_MESSAGE("wrong number of positions", positions == 5);
+
+  CPPUNIT_ASSERT_MESSAGE("wrong parameter", first_element == "test_param");
 
   std::cout << "@UT@END check testProcessorCommandsFile";
 }

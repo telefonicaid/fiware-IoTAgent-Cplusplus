@@ -73,8 +73,17 @@ void iota::ModbusOperationProcessor::read_commands(
         BOOST_FOREACH (boost::property_tree::ptree::value_type& v_p,
                        v.second.get_child("parameters")) {
           int address = v_p.second.get<int>("address");
+
+          iota::CommandParameter read_param;
+
+          read_param.name = v_p.second.get<std::string>("name");
+          read_param.num_positions =
+              v_p.second.get<unsigned short>("positions", 1);
+          read_param.base_address = address;
+
           std::string name = v_p.second.get<std::string>("name");
-          names_map.insert(std::pair<int, std::string>(address, name));
+          names_map.insert(
+              std::pair<int, iota::CommandParameter>(address, read_param));
         }
         if (names_map.size() > 0) {
           _ordered_parameters_map.insert(
@@ -129,9 +138,9 @@ boost::property_tree::ptree& iota::ModbusOperationProcessor::get_command(
   return _commands[command];
 }
 
-std::vector<std::string> iota::ModbusOperationProcessor::get_mapped_parameters(
-    std::string command) {
-  std::vector<std::string> ordered_parameters;
+std::vector<iota::CommandParameter>
+iota::ModbusOperationProcessor::get_mapped_parameters(std::string command) {
+  std::vector<iota::CommandParameter> ordered_parameters;
   // Try
   try {
     iota::ParamsMap names_map = _ordered_parameters_map[command];
