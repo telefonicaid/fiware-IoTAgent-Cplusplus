@@ -30,7 +30,13 @@
 
 namespace iota {
 
-typedef std::map<int, std::string> ParamsMap;
+typedef struct internal_parameter {
+  int base_address;
+  unsigned short num_positions;
+  std::string name;
+} CommandParameter;
+
+typedef std::map<int, CommandParameter> ParamsMap;
 
 class ModbusOperationProcessor {
  public:
@@ -49,10 +55,11 @@ class ModbusOperationProcessor {
   * @name get_mapped_parameters
   * @brief It returns a vector with the ordered names of parameters for that
   * command
-  * @return vector of std::string in ordered based on their base address. Each
-  * parameter takes one position
+  * @return vector of iota::CommandParameter in ordered based on their base
+  * address. Each
+  * parameter may take more than one position.
   */
-  std::vector<std::string> get_mapped_parameters(std::string command);
+  std::vector<CommandParameter> get_mapped_parameters(std::string command);
 
   /**
   * @name get_base_address
