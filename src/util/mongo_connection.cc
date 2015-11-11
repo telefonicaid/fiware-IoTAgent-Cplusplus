@@ -175,44 +175,54 @@ void iota::MongoConnection::reconnect() {
 mongo::DBClientBase* iota::MongoConnection::createConnection() {
   mongo::DBClientBase* res = NULL;
 
-  if (!_replica.empty()) {
-    IOTA_LOG_DEBUG(m_logger, "Replica is defined " << _replica);
-    std::vector<mongo::HostAndPort> hosts;
+  try {
+    if (!_replica.empty()) {
+      IOTA_LOG_DEBUG(m_logger, "Replica is defined " << _replica);
+      std::vector<mongo::HostAndPort> hosts;
 
-    boost::char_separator<char> sep(",");
-    boost::tokenizer<boost::char_separator<char> > tokens(_host, sep);
-    BOOST_FOREACH (const std::string& t, tokens) {
-      IOTA_LOG_DEBUG(m_logger, t);
-      hosts.push_back(mongo::HostAndPort(t));
-    }
+      boost::char_separator<char> sep(",");
+      boost::tokenizer<boost::char_separator<char> > tokens(_host, sep);
+      BOOST_FOREACH (const std::string& t, tokens) {
+        IOTA_LOG_DEBUG(m_logger, t);
+        hosts.push_back(mongo::HostAndPort(t));
+      }
 
-    IOTA_LOG_DEBUG(m_logger, "Conex Mongo Replica set "
-                                 << _host << ":"
-                                 << "/" << _database << " " << _usuario
-                                 << "timeout in seconds:" << _timeout);
-    mongo::DBClientReplicaSet* rpSet =
-        new mongo::DBClientReplicaSet(_replica, hosts, _timeout);
-    rpSet->connect();
-    res = rpSet;
-  } else {
-    IOTA_LOG_DEBUG(m_logger, "Conex Mongo DBClientConnection "
-                                 << _host << "/" << _database << " " << _usuario
-                                 << "timeout in seconds:" << _timeout);
-
-    mongo::DBClientConnection* conn =
-        new mongo::DBClientConnection(true, 0, _timeout);
-    conn->connect(_host);
-    res = conn;
-  }
-
-  if (!_usuario.empty()) {
-    std::string errmsg;
-    if (res->auth(_database, _usuario, _password, errmsg)) {
-      IOTA_LOG_ERROR(m_logger, " Mongodb auth ok user: " << _usuario);
+      IOTA_LOG_DEBUG(m_logger, "Conex Mongo Replica set "
+                                   << _host << ":"
+                                   << "/" << _database << " " << _usuario
+                                   << "timeout in seconds:" << _timeout);
+      mongo::DBClientReplicaSet* rpSet =
+          new mongo::DBClientReplicaSet(_replica, hosts, _timeout);
+      rpSet->connect();
+      res = rpSet;
     } else {
-      IOTA_LOG_ERROR(m_logger, "Error in authenticate Conexion MongoDB "
-                                   << errmsg);
+      IOTA_LOG_DEBUG(m_logger, "Conex Mongo DBClientConnection "
+                                   << _host << "/" << _database << " "
+                                   << _usuario
+                                   << "timeout in seconds:" << _timeout);
+
+      mongo::DBClientConnection* conn =
+          new mongo::DBClientConnection(true, 0, _timeout);
+      conn->connect(_host);
+      res = conn;
     }
+
+    if (!_usuario.empty()) {
+      std::string errmsg;
+      if (res->auth(_database, _usuario, _password, errmsg)) {
+        IOTA_LOG_ERROR(m_logger, " Mongodb auth ok user: " << _usuario);
+      } else {
+        IOTA_LOG_ERROR(m_logger, "Error in authenticate Conexion MongoDB "
+                                     << errmsg);
+      }
+    }
+  } catch (mongo::DBException& e) {
+    std::string errorSTR = "DBException ";
+    errorSTR.append(e.what());
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
+                       errorSTR);
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+                              errorSTR, 500);
   }
 
   return res;

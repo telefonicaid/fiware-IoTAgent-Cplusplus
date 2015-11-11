@@ -1,4 +1,75 @@
 {
+  "commands": [
+    {
+	"name":"installation_num_cmd",
+	"parameters": [
+	 {
+	   "name":"installation_number",
+	   "address": 0
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "tanks_num_cmd",
+	"parameters" : [
+	 {
+	   "name":"tanks_number",
+	   "address": 1
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "adquisition_time_cmd",
+	"parameters" : [
+	 {
+	   "name":"acquisition_time",
+	   "address": 2
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "max_filllevel_alarm_cmd",
+	"parameters" : [
+	 {
+	   "name":"high_level_tank_alarm",
+	   "address": 14
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 15
+	 },
+	 {
+	   "name":"high_level_alarm",
+	   "address": 16
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 17
+	 }	
+	]
+    },
+    {
+	"name" : "test_command",
+	"parameters" : [
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 21
+	 },
+	 {
+	   "name":"high_level_alarm",
+	   "address": 22
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 23
+	 },
+	 {
+	   "name":"high_level_tank_alarm",
+	   "address": 20
+	 }	
+	]
+    }
+   ],
    "operations": [
      {
        "operation": "GetSAPCode",

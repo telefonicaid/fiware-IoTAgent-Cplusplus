@@ -58,17 +58,56 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
   }
 }
 
+void iota::ModbusOperationProcessor::read_commands(
+    std::stringstream& json_commands) {
+  boost::property_tree::ptree pt_commands;
+  try {
+    boost::property_tree::read_json(json_commands, pt_commands);
+    BOOST_FOREACH (boost::property_tree::ptree::value_type& v,
+                   pt_commands.get_child("commands")) {
+      std::string op = v.second.get<std::string>("name");
+      _commands.insert(
+          std::pair<std::string, boost::property_tree::ptree>(op, v.second));
+      iota::ParamsMap names_map;
+      try {
+        BOOST_FOREACH (boost::property_tree::ptree::value_type& v_p,
+                       v.second.get_child("parameters")) {
+          int address = v_p.second.get<int>("address");
+          std::string name = v_p.second.get<std::string>("name");
+          names_map.insert(std::pair<int, std::string>(address, name));
+        }
+        if (names_map.size() > 0) {
+          _ordered_parameters_map.insert(
+              std::pair<std::string, iota::ParamsMap>(op, names_map));
+          names_map.clear();
+        }
+      } catch (boost::exception& e) {
+        // No names
+      }
+    }
+  } catch (boost::exception& e) {
+    // TODO to IotaException
+    std::cout << boost::diagnostic_information(e) << std::endl;
+  }
+}
+
 void iota::ModbusOperationProcessor::read_operations(
     std::string modbus_operation_file) {
   std::stringstream ss;
   std::ifstream f;
-  ;
+
   f.open(modbus_operation_file.c_str(), std::ios::binary);
   if (f.good()) {
     f.rdbuf();
-    std::stringstream ss;
+    std::stringstream ss, ss1;
     ss << f.rdbuf();
     read(ss);
+
+    // f.seekg(0,f.beg);
+    f.seekg(0);
+    ss1 << f.rdbuf();
+    read_commands(ss1);
+
   } else {
     std::cout << "does not exists " << modbus_operation_file << std::endl;
   }
@@ -84,3 +123,39 @@ std::vector<std::string>& iota::ModbusOperationProcessor::get_mapped_labels(
     std::string operation) {
   return _position_map[operation];
 };
+
+boost::property_tree::ptree& iota::ModbusOperationProcessor::get_command(
+    std::string command) {
+  return _commands[command];
+}
+
+std::vector<std::string> iota::ModbusOperationProcessor::get_mapped_parameters(
+    std::string command) {
+  std::vector<std::string> ordered_parameters;
+  // Try
+  try {
+    iota::ParamsMap names_map = _ordered_parameters_map[command];
+    iota::ParamsMap::iterator itr;
+
+    for (itr = names_map.begin(); itr != names_map.end(); itr++) {
+      ordered_parameters.push_back(itr->second);
+    }
+
+  } catch (std::exception& e) {
+  }
+
+  return ordered_parameters;
+}
+
+int iota::ModbusOperationProcessor::get_base_address(std::string command) {
+  iota::ParamsMap names_map = _ordered_parameters_map[command];
+  iota::ParamsMap::iterator itr;
+  // Try
+  itr = names_map.begin();
+
+  if (itr != names_map.end()) {
+    return itr->first;
+  } else {
+    return -1;
+  }
+}

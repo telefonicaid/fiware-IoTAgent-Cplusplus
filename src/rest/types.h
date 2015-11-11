@@ -177,6 +177,9 @@ struct types {
   static const unsigned int ALARM_CODE_NO_IOTA;
   static const unsigned int ALARM_CODE_NO_IOTA_MANAGER;
 
+  static const unsigned int ALARM_CODE_LOST_MEASURE;
+  static const unsigned int ALARM_CODE_LOST_API;
+
   static const std::string ALARM_MESSAGE_NO_MONGO;
   static const std::string ALARM_MESSAGE_NO_CB;
   static const std::string ALARM_MESSAGE_NO_IOTA;

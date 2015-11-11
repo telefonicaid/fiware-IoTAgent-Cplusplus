@@ -100,10 +100,11 @@ class ContextBrokerCommunicator
       std::string& server, std::string& resource, std::string& content,
       std::string& query, boost::property_tree::ptree& additional_info);
 
-  std::string process_response(const std::string& url,
-                               boost::shared_ptr<iota::HttpClient> connection,
-                               pion::http::response_ptr resp,
-                               const boost::system::error_code& error);
+  std::string process_response(
+      const std::string& url, boost::shared_ptr<iota::HttpClient> connection,
+      pion::http::response_ptr resp, const std::string& content,
+      const boost::property_tree::ptree& additional_info,
+      const boost::system::error_code& error);
   app_callback_t _callback;
 
   static const std::string NUMBER_OF_TRIES;
