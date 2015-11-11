@@ -68,7 +68,17 @@
 	   "address": 20
 	 }	
 	]
+    },
+    {
+	"name" : "test_numeric_command",
+	"parameters" : [
+	 {
+	   "name":"test_param",
+	   "positions" : 5,
+	   "address": 21
+	 }]
     }
+
    ],
    "operations": [
      {
