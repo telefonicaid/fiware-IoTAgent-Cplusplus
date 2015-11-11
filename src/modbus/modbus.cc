@@ -295,7 +295,7 @@ bool iota::Modbus::check_completed(const std::vector<unsigned char>& frame) {
     }
   }
 
-  IOTA_LOG_DEBUG(m_logger, "Modbus frame completed? " + boost::lexical_cast<std::string>(completed));
+  IOTA_LOG_DEBUG(m_logger, "Modbus frame completed/confirmed? " + boost::lexical_cast<std::string>(completed));
   return completed;
 }
 

@@ -69,6 +69,9 @@ class Modbus {
   // Manage no complete frames
   bool completed() { return _completed;};
 
+  // Check if frame need confirmation.
+  bool need_be_confirmed() { return _need_be_confirmed;};
+
   void set_time_instant(std::time_t timestamp);
   std::time_t get_time_instant();
 
