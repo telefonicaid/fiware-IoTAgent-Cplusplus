@@ -155,6 +155,7 @@ void MongoTest::testCommandCollection() {
 
   boost::property_tree::ptree pt;
   pt.put("body", "command");
+  pt.put("kkdlvaca", "kkdlvaca");
 
   iota::Command p("nodo", "service", "/");
   p.set_command(pt);
@@ -187,7 +188,11 @@ void MongoTest::testCommandCollection() {
   std::string name = r1.get_name();
   std::cout << "name:" << name << std::endl;
   CPPUNIT_ASSERT_MESSAGE("no inserted data", name.compare("name") == 0);
-
+  boost::property_tree::ptree ptcommand = r1.get_command();
+  std::string body =   ptcommand.get<std::string>("body", "");
+  CPPUNIT_ASSERT_MESSAGE("no inserted data", body.compare("command") == 0);
+  std::string body2 =   ptcommand.get<std::string>("kkdlvaca", "");
+  CPPUNIT_ASSERT_MESSAGE("no inserted data", body2.compare("kkdlvaca") == 0);
   CPPUNIT_ASSERT_MESSAGE("more data", table2.more() == false);
 
   table1.remove(p2);
