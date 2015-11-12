@@ -43,6 +43,7 @@
 #include <iostream>
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
+#include <boost/property_tree/json_parser.hpp>
 
 #define PATH_CONFIG "../../tests/iotagent/config_mongo.json"
 #define PATH_BAD_CONFIG "../../tests/iotagent/config_bad_mongo.json"
@@ -144,17 +145,19 @@ void MongoTest::testGenericCollection() {
 }
 
 void MongoTest::testCommandCollection() {
-  std::cout << "START testCommandCollection" << std::endl;
+  std::cout << "@UT@START testCommandCollection" << std::endl;
   iota::Configurator::initialize(PATH_CONFIG);
   iota::CommandCollection table1;
 
   table1.createTableAndIndex();
 
+  std::cout << "@UT@remove all" << std::endl;
   iota::Command all("", "", "");
   table1.remove(all);
 
   boost::property_tree::ptree pt;
   pt.put("body", "command");
+  pt.put("kkdlvaca", "kkdlvaca");
 
   iota::Command p("nodo", "service", "/");
   p.set_command(pt);
@@ -165,6 +168,7 @@ void MongoTest::testCommandCollection() {
   p.set_status(0);
   p.set_timeout(22);
   p.set_uri_resp("uri_resp");
+  std::cout << "@UT@insert1" << std::endl;
   table1.insert(p);
 
   iota::Command p2("nodo2", "service2", "/");
@@ -176,6 +180,7 @@ void MongoTest::testCommandCollection() {
   p2.set_status(0);
   p2.set_timeout(22);
   p2.set_uri_resp("uri_resp");
+  std::cout << "@UT@insert2" << std::endl;
   table1.insert(p2);
 
   iota::CommandCollection table2;
@@ -187,9 +192,17 @@ void MongoTest::testCommandCollection() {
   std::string name = r1.get_name();
   std::cout << "name:" << name << std::endl;
   CPPUNIT_ASSERT_MESSAGE("no inserted data", name.compare("name") == 0);
+  std::cout << "@UT@check get_command" << std::endl;
+  boost::property_tree::ptree ptcommand = r1.get_command();
 
+  boost::property_tree::json_parser::write_json(std::cout, ptcommand);
+  std::string body =   ptcommand.get<std::string>("body", "");
+  CPPUNIT_ASSERT_MESSAGE("no inserted data", body.compare("command") == 0);
+  std::string body2 =   ptcommand.get<std::string>("kkdlvaca", "");
+  CPPUNIT_ASSERT_MESSAGE("no inserted data", body2.compare("kkdlvaca") == 0);
   CPPUNIT_ASSERT_MESSAGE("more data", table2.more() == false);
 
+  std::cout << "@UT@remove" << std::endl;
   table1.remove(p2);
   table1.remove(p);
 
