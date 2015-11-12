@@ -34,6 +34,7 @@ typedef struct internal_parameter {
   int base_address;
   unsigned short num_positions;
   std::string name;
+  std::string type;
 } CommandParameter;
 
 typedef std::map<int, CommandParameter> ParamsMap;

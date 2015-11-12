@@ -74,7 +74,18 @@
 	"parameters" : [
 	 {
 	   "name":"test_param",
+	   "type" : "numeric",
 	   "positions" : 5,
+	   "address": 21
+	 }]
+    },
+    {
+	"name" : "test_string_command",
+	"parameters" : [
+	 {
+	   "name":"test_param",
+	   "type": "string",
+	   "positions" : 25,
 	   "address": 21
 	 }]
     }
