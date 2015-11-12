@@ -80,8 +80,8 @@ void iota::ModbusOperationProcessor::read_commands(
           read_param.num_positions =
               v_p.second.get<unsigned short>("positions", 1);
           read_param.base_address = address;
+          read_param.type = v_p.second.get<std::string>("type", "numeric");
 
-          std::string name = v_p.second.get<std::string>("name");
           names_map.insert(
               std::pair<int, iota::CommandParameter>(address, read_param));
         }

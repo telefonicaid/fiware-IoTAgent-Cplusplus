@@ -1,0 +1,292 @@
+{
+  "commands": [
+    {
+	"name":"installation_num",
+	"parameters": [
+	 {
+	   "name":"installation_number",
+	   "address": 0
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "tanks_num",
+	"parameters" : [
+	 {
+	   "name":"tanks_number",
+	   "address": 1
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "adquisition_time",
+	"parameters" : [
+	 {
+	   "name":"acquisition_time",
+	   "address": 2
+	 }	
+	 ]
+    }, 
+    {
+	"name":"retry_num",
+	"parameters": [
+	 {
+	   "name":"retries",
+	   "address": 9
+	 }	
+	 ]
+    }, 
+    {
+	"name":"retry_period",
+	"parameters": [
+	 {
+	   "name":"time",
+	   "address": 10
+	 }	
+	 ]
+    }, 
+  {
+	"name":"modem_type",
+	"parameters": [
+	 {
+	   "name":"type",
+	   "address": 11
+	 }	
+	 ]
+    }, 
+    {
+	"name":"filllevel_range",
+	"parameters": [
+	 {
+	   "name":"min_range",
+	   "address": 12
+	 },
+	 {
+	    "name" : "max_range",
+	    "address" : 13
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "max_filllevel_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_level_tank_alarm",
+	   "address": 14
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 15
+	 },
+	 {
+	   "name":"high_level_alarm",
+	   "address": 16
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 17
+	 }	
+	]
+     },
+
+max_filllevel_alarm	0014	high_level_tank_alarm
+	0015	stay_on_alarm_time
+	0016	high_level_alarm
+	0017	histeresys
+min_filllevel_alarm	0018	low_level_tank_alarm
+	0019	stay_on_alarm_time
+	0020	low_level_alarm
+	0021	histeresys
+min_tankpressure_range	0022	min_range
+max_tankpressure_range	0023	max_range
+max_tankpressure_alarm	0024	high_pressure_tank_alarm
+	0025	stay_on_alarm_time
+	0026	high_pressure_alarm
+	0027	histeresis
+min_tankpressure_alarm	0028	low_pressure_tank_alarm
+	0029	stay_on_alarm_time
+	0030	low_level_alarm
+	0031	histeresys
+min_servicepressure_range	0032	min_range
+max_servicepressure_range	0033	max_range
+max_servicepressure_alarm	0034	high_pressure_service_alarm
+	0035	stay_on_alarm_time
+	0036	high_pressure_alarm
+	0037	histeresys
+min_servicepressure_alarm	0038	low_pressure_service_alarm
+	0039	stay_on_alarm_time
+	0040	low_pressure_alarm
+	0041	histeresys
+min_servicetemperature_range	0042	min_range
+max_servicetemperature_range	0043	max_range
+max_servicetemperature_alarm	0044	high_temperature_service_alarm
+	0045	stay_on_alarm_time
+	0046	high_temperature_alarm
+	0047	histeresys
+min_servicetemperature_alarm	0048	low_temperature_service_alarm
+	0049	stay_on_alarm_time
+	0050	low_temperature_alarm
+	0051	histeresys
+min_impulsetemperature_range	0052	min_range
+max_impulsetemperature_range	0053	max_range
+max_impulsetemperature_alarm	0054	high_impulse_temperature_alarm
+	0055	stay_on_alarm_time
+	0056	high_temperatue_alarm
+	0057	histeresys
+min_impulsetemperature_alarm	0058	low_impulse_temperature_alarm
+	0059	stay_on_alarm_time
+	0060	low_temperature_alarm
+	0061	histeresys
+return_temperature_range	0062	min_range
+	0063	max_range
+high_return_temperature_alarm	0064	high_return_temperature_alarm
+	0065	stay_on_alarm_time
+	0066	high_temperature_alarm
+	0067	histeresys
+low_return_temperature_alarm	0068	low_return_tempreature_alarm
+	0069	stay_on_alarm_time
+	0070	low_temperature_alarm
+	0071	histeresys
+ambient_temperature_sensor_range	0072	min_range
+	0073	max_range
+high_ambient_temperature_alarm	0074	high_ambient_temperature_alarm
+	0075	stay_on_alarm_time
+	0076	high_tempreature_alarm
+	0077	histeresys
+low_ambient_temperature_alarm	0078	low_ambient_temperature_alarm
+	0079	stay_on_alarm_time
+	0080	low_temperature_alarm
+	0081	histeresys
+open_access_alarm	0082	open_access_alarm
+	0083	stay_on_alarm_time
+	0084	unauthorized_access_alarm
+	0085	stay_on_alarm_time
+control_room_gas_detection	0086	control_room_gas_alarm
+	0087	stay_on_alarm_time
+boiler_room_gas_detection	0088	boiler_room_gas_alarm
+	0089	stay_on_alarm_time
+supply_network_failure	0090	supply_network_failure_alarm
+	0091	stay_on_alarm_time
+protection_failure_alarm	0092	protection_network_failure_alarm
+	0093	stay_on_alarm_time
+ups_discharge_alarm	0094	UPS_discharge_alarm
+	0095	stay_on_alarm_time
+ups_low_battery_alarm	0096	UPS_low_battery_alarm
+	0097	stay_on_alarm_time
+propane_alarm	0098	Propane_alarm
+	0099	stay_on_alarm_time
+	0100	
+	0101	
+	0102	
+	0103	
+	0104	
+	0105	
+	0106	
+no_alarm_time_check_in	0107	time
+liquid_detection_alarm	0108	liquid_detection_alarm
+	0109	stay_on_alarm_time
+reset_time_modems_cmd	0110	time
+ups_type_cmd	0111	type
+gas_sensor_range	0112	min_range
+	0113	max_range
+high_gas_control_alarm	0114	detection_gas_alarm
+	0115	histeresys
+	0116	
+	0117	
+
+
+    {
+	"name" : "test_command",
+	"parameters" : [
+	 {
+	   "name":"second",
+	   "address": 21
+	 },
+	 {
+	   "name":"third",
+	   "address": 22
+	 },
+	 {
+	   "name":"fourth",
+	   "address": 23
+	 },
+	 {
+	   "name":"first",
+	   "address": 20
+	 }	
+	]
+    },
+    {
+	"name" : "test_numeric_command",
+	"parameters" : [
+	 {
+	   "name":"test_param",
+	   "positions" : 5,
+	   "address": 21
+	 }]
+    }
+
+   ],
+   "operations": [
+     {
+       "operation": "GetSAPCode",
+       "modbusOperation": 3,
+       "modbusAddress": 200,
+       "modbusNumberOfPositions": 4,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "SetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 1
+     },
+     {
+       "operation": "GetNumberOfTanks",
+       "modbusOperation": 3,
+       "modbusAddress": 1,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "TimeOfDataAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 2,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "LastTimeOfAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 731,
+       "modbusNumberOfPositions": 3,
+       "modbusNumberOfRegisters": 1,
+       "positions": [
+         "DDMM", "AAHH", "MMSS"
+         ]
+     },
+     {
+       "operation": "GetDataHistory",
+       "modbusOperation": 3,
+       "modbusAddress": 800,
+       "modbusNumberOfPositions": 22,
+       "modbusNumberOfRegisters": 75,
+       "positions": [
+         "blockNumber", "servicePressure", "serviceTemp", "environmentTemp", "impulsionTemp",
+         "returnTemp", "", "fillLevel1", "pressure1", "fillLevel2", "pressure2",
+         "fillLevel3", "pressure3", "fillLevel4", "pressure4", "fillLevel5",
+         "pressure5", "fillLevel6", "pressure6", "", "", ""
+         ]
+     },
+     {
+       "operation": "UnsetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 0
+     }
+    ]
+}

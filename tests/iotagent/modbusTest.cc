@@ -233,6 +233,9 @@ void ModbusTest::testProcessorCommandsFile() {
   CPPUNIT_ASSERT_MESSAGE("not the default number of positions per parameter ",
                          names_ordered[0].num_positions == 1);
 
+  CPPUNIT_ASSERT_MESSAGE("not the default type of parameter",
+                         names_ordered[0].type == "numeric");
+
   boost::property_tree::ptree op_1 =
       processor.get_command("installation_num_cmd");
   CPPUNIT_ASSERT_MESSAGE(
@@ -269,10 +272,21 @@ void ModbusTest::testProcessorCommandsFile() {
 
   first_element = names_ordered[0].name;
   unsigned short positions = names_ordered[0].num_positions;
+  std::string type = names_ordered[0].type;
 
   CPPUNIT_ASSERT_MESSAGE("wrong number of positions", positions == 5);
 
   CPPUNIT_ASSERT_MESSAGE("wrong parameter", first_element == "test_param");
+
+  CPPUNIT_ASSERT_MESSAGE("numeric type of parameter expected",
+                         type == "numeric");
+
+  names_ordered = processor.get_mapped_parameters("test_string_command");
+
+  first_element = names_ordered[0].name;
+  type = names_ordered[0].type;
+
+  CPPUNIT_ASSERT_MESSAGE("string type of parameter expected", type == "string");
 
   std::cout << "@UT@END check testProcessorCommandsFile";
 }
