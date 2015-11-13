@@ -247,6 +247,10 @@ std::vector<unsigned char>& iota::Modbus::get_modbus_frame() {
   return _modbus_frame;
 }
 
+std::vector<unsigned char>& iota::Modbus::get_modbus_frame_response() {
+  return _modbus_frame_response;
+}
+
 bool iota::Modbus::check_crc(const std::vector<unsigned char>& frame) {
   bool c_ok = true;
   std::vector<unsigned char> f(frame.begin(), frame.end() - 2);

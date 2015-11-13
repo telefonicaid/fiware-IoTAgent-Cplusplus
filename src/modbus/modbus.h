@@ -52,6 +52,7 @@ class Modbus {
   // Modbus(std::vector<unsigned char>& mb_msg);
   virtual ~Modbus(){};
   std::vector<unsigned char>& get_modbus_frame();
+  std::vector<unsigned char>& get_modbus_frame_response();
   unsigned char get_slave_address() { return _slave_address; };
   FunctionCode get_function_code() { return _function_code; };
   unsigned short get_address_data() { return _address_data; };
