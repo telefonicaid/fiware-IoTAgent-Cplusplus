@@ -153,7 +153,8 @@ void ModbusTest::testProcessor() {
       "Labels ", processor.get_mapped_labels("operation_name").size() == 3);
   CPPUNIT_ASSERT_MESSAGE(
       "Label label_1 ",
-      processor.get_mapped_labels("operation_name")[2].compare("label_3") == 0);
+      processor.get_mapped_labels("operation_name")[2].name.compare(
+          "label_3") == 0);
 
   // Frame
   boost::property_tree::ptree op = processor.get_operation("operation_name");
@@ -313,4 +314,19 @@ void ModbusTest::testAllCommandsConfigFile() {
   CPPUNIT_ASSERT_MESSAGE("wrong type on c3_phone_number parameter",
                          ordered_params[0].type == "string");
   std::cout << "@UT@END check testAllCommandsConfigFile" << std::endl;
+}
+
+void ModbusTest::testOperationsWithFloat() {
+  iota::ModbusOperationProcessor processor;
+  std::cout << "@UT@START check testOperationsWithFloat" << std::endl;
+  processor.read_operations("../../tests/iotagent/modbus_config.json");
+
+  std::vector<iota::FloatPosition> positions =
+      processor.get_mapped_labels("GetDataHistory");
+
+  CPPUNIT_ASSERT_MESSAGE("servicePressure",
+                         positions[1].name == "servicePressure");
+  CPPUNIT_ASSERT_MESSAGE("factor 0.01 ", positions[1].factor == 0.01F);
+
+  std::cout << "@UT@END check testOperationsWithFloat" << std::endl;
 }

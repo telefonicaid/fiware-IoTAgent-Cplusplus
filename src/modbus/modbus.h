@@ -26,6 +26,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "operation_processor.h"
 
 namespace iota {
 
@@ -60,7 +61,7 @@ class Modbus {
   bool receive_modbus_frame(const std::vector<unsigned char>& mb_msg);
   std::map<unsigned short, unsigned short> get_values();
   std::map<std::string, unsigned short> get_mapped_values(
-      std::vector<std::string>& mapped_fields);
+      std::vector<iota::FloatPosition>& mapped_fields);
   unsigned short crc(std::vector<unsigned char>& frame);
   std::string get_operation() { return _app_operation; };
 

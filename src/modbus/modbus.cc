@@ -325,7 +325,7 @@ std::map<unsigned short, unsigned short> iota::Modbus::get_values() {
 }
 
 std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
-    std::vector<std::string>& mapped_fields) {
+    std::vector<iota::FloatPosition>& mapped_fields) {
   // Original values are map but unsigned short and ordered.
   std::map<std::string, unsigned short> mapped_values;
   std::map<unsigned short, unsigned short>::iterator it_values =
@@ -345,8 +345,8 @@ std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
       std::stringstream ss;
       ss << it_values->first;
       std::string str_field = ss.str();
-      if (!mapped_fields.at(i).empty()) {
-        str_field = mapped_fields.at(i);
+      if (!mapped_fields.at(i).name.empty()) {
+        str_field = mapped_fields.at(i).name;
         mapped_values.insert(std::pair<std::string, unsigned short>(
             str_field, it_values->second));
       }
