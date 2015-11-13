@@ -288,5 +288,29 @@ void ModbusTest::testProcessorCommandsFile() {
 
   CPPUNIT_ASSERT_MESSAGE("string type of parameter expected", type == "string");
 
-  std::cout << "@UT@END check testProcessorCommandsFile";
+  std::cout << "@UT@END check testProcessorCommandsFile" << std::endl;
+}
+
+void ModbusTest::testAllCommandsConfigFile() {
+  iota::ModbusOperationProcessor processor;
+  std::cout << "@UT@START check testAllCommandsConfigFile" << std::endl;
+  processor.read_operations("../../tests/iotagent/modbus_config_base.json");
+
+  std::vector<iota::CommandParameter> ordered_params =
+      processor.get_mapped_parameters("gas_sensor_range");
+
+  CPPUNIT_ASSERT_MESSAGE("no gas_sensor_range command and parameter",
+                         ordered_params[0].name == "min_range");
+  CPPUNIT_ASSERT_MESSAGE("wrong type on gas_sensor_range parameter",
+                         ordered_params[0].type == "numeric");
+
+  ordered_params = processor.get_mapped_parameters("c3_phone_number");
+
+  CPPUNIT_ASSERT_MESSAGE("no c3_phone_number command and parameter",
+                         ordered_params[0].name == "c3_phone_number");
+  CPPUNIT_ASSERT_MESSAGE("wrong positions c3_phone_number parameter",
+                         ordered_params[0].num_positions == 10);
+  CPPUNIT_ASSERT_MESSAGE("wrong type on c3_phone_number parameter",
+                         ordered_params[0].type == "string");
+  std::cout << "@UT@END check testAllCommandsConfigFile" << std::endl;
 }
