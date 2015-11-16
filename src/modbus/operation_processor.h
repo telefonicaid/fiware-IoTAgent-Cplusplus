@@ -51,6 +51,7 @@ class ModbusOperationProcessor {
   std::vector<std::string>& get_mapped_labels(std::string operation);
 
   boost::property_tree::ptree& get_command(std::string command);
+  boost::property_tree::ptree& get_config();
 
   /**
   * @name get_mapped_parameters
@@ -85,6 +86,8 @@ class ModbusOperationProcessor {
 
   std::map<std::string, boost::property_tree::ptree> _commands;
   std::map<std::string, ParamsMap> _ordered_parameters_map;
+
+  boost::property_tree::ptree _config;
 
   void read(std::stringstream& json_operations);
 

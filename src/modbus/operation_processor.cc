@@ -52,10 +52,16 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
         // No labels
       }
     }
+    try {
+      _config = pt_operations.get_child("config");
+    } catch (boost::exception& e) {
+    }
+
   } catch (boost::exception& e) {
     // TODO to IotaException
     std::cout << boost::diagnostic_information(e) << std::endl;
   }
+  
 }
 
 void iota::ModbusOperationProcessor::read_commands(
@@ -127,6 +133,11 @@ boost::property_tree::ptree& iota::ModbusOperationProcessor::get_operation(
     std::string operation) {
   return _operations[operation];
 };
+
+boost::property_tree::ptree& iota::ModbusOperationProcessor::get_config(){
+  return _config;
+};
+
 
 std::vector<std::string>& iota::ModbusOperationProcessor::get_mapped_labels(
     std::string operation) {
