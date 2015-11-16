@@ -147,79 +147,82 @@
          },
          {
 	    "name" : "serviceTemp",
-	    "factor" : 0.01
+	    "factor" : 0.1
 	 },
 	 {
 	    "name" : "environmentTemp",
-	    "factor" : 0.01
+	    "factor" : 0.1
 	 },
 	 {
 	    "name" : "impulsionTemp",
-	    "factor" : 0.01
+	    "factor" : 0.1
  	 },
 	 {
             "name" :"returnTemp",
-	    "factor" : 0.01
+	    "factor" : 0.1
 	 },
 	 {
 	     "name" : ""
 	 },
 	 {
 	     "name" : "fillLevel1",
-	     "factor" : 0.01
+	     "factor" : 1
 	 },
 	 {
 	     "name" : "pressure1",
-	     "factor" : 0.01
+	     "factor" : 0.1
 	 },
 	 {
 	     "name" : "fillLevel2",
-	     "factor" : 0.01
+	     "factor" : 1
 	 },
 	 { 
 	     "name" : "pressure2",
-	     "factor" : 0.01
+	     "factor" : 0.1
 	 },
 	 {
 	     "name" : "fillLevel3",
-	     "factor" : 0.01
+	     "factor" : 1
   	 },
 	 {
 	     "name" : "pressure3",
-	     "factor" : 0.01
+	     "factor" : 0.1
 	 },
 	 {
 	     "name" :  "fillLevel4",
-	     "factor" : 0.01
+	     "factor" : 1
          },
 	{ 
 	     "name" : "pressure4",
-	     "factor" : 0.01
+	     "factor" : 0.1
 	},
 	{
 	     "name" : "fillLevel5",
-	     "factor" : 0.01
+	     "factor" : 1
     	}, 
 	{
 	     "name" :  "pressure5",
-	     "factor" : 0.01
+	     "factor" : 0.1
         },
 	{ 
 	     "name" : "fillLevel6",
-	     "factor" : 0.01
+	     "factor" : 1
 	},
 	{
 	     "name" : "pressure6",
-	     "factor" : 0.01
+	     "factor" : 0.1
     	},
 	{
-	     "name" : ""
+	     "name" : "",
+	     "factor" : 0.1
 	},
  	{
 	     "name" : ""
+	     "factor" : 0.1
 	},
 	{
 	     "name" : ""
+	     "factor" : 0.1
 	}
         ]
      },
