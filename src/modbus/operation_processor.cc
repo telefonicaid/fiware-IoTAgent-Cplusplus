@@ -21,6 +21,8 @@
 */
 
 #include "operation_processor.h"
+#include "util/alarm.h"
+#include "rest/types.h"
 #include <boost/foreach.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 iota::ModbusOperationProcessor::ModbusOperationProcessor(
@@ -63,10 +65,16 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
         // No labels
       }
     }
-  } catch (boost::exception& e) {
+    try {
+      _config = pt_operations.get_child("config");
+    } catch (boost::exception& e) {
+    }
+
+  } catch (std::exception& e) {
     // TODO to IotaException
-    std::cout << boost::diagnostic_information(e) << std::endl;
+    iota::Alarm::error(iota::types::ALARM_CODE_BAD_CONFIGURATION, "Modbus operations", "Modbus configuration", e.what());
   }
+
 }
 
 void iota::ModbusOperationProcessor::read_commands(
@@ -105,9 +113,9 @@ void iota::ModbusOperationProcessor::read_commands(
         // No names
       }
     }
-  } catch (boost::exception& e) {
+  } catch (std::exception& e) {
     // TODO to IotaException
-    std::cout << boost::diagnostic_information(e) << std::endl;
+    iota::Alarm::error(iota::types::ALARM_CODE_BAD_CONFIGURATION, "Modbus commands", "Modbus configuration", e.what());
   }
 }
 
@@ -135,6 +143,10 @@ void iota::ModbusOperationProcessor::read_operations(
 boost::property_tree::ptree& iota::ModbusOperationProcessor::get_operation(
     std::string operation) {
   return _operations[operation];
+};
+
+boost::property_tree::ptree& iota::ModbusOperationProcessor::get_config(){
+  return _config;
 };
 
 std::vector<iota::FloatPosition>&
