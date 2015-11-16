@@ -324,16 +324,16 @@ std::map<unsigned short, unsigned short> iota::Modbus::get_values() {
   return _values;
 }
 
-std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
+std::map<std::string, double> iota::Modbus::get_mapped_values(
     std::vector<iota::FloatPosition>& mapped_fields) {
   // Original values are map but unsigned short and ordered.
-  std::map<std::string, unsigned short> mapped_values;
+  std::map<std::string, double> mapped_values;
   std::map<unsigned short, unsigned short>::iterator it_values =
       _values.begin();
   if (mapped_fields.size() == 0) {
     // Set labels to key in values map
     while (it_values != _values.end()) {
-      mapped_values.insert(std::pair<std::string, unsigned short>(
+      mapped_values.insert(std::pair<std::string, double>(
           boost::lexical_cast<std::string>(it_values->first),
           it_values->second));
       ++it_values;
@@ -347,8 +347,13 @@ std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
       std::string str_field = ss.str();
       if (!mapped_fields.at(i).name.empty()) {
         str_field = mapped_fields.at(i).name;
-        mapped_values.insert(std::pair<std::string, unsigned short>(
-            str_field, it_values->second));
+        double factor = mapped_fields.at(i).factor;
+        if (factor < 0.0001) {
+          factor = 1;
+          IOTA_LOG_WARN(m_logger, "a factor under 0.00001 in" + str_field);
+        }
+        mapped_values.insert(std::pair<std::string, double>(
+            str_field, factor * it_values->second));
       }
       ++it_values;
     }
