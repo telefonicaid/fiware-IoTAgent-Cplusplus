@@ -29,20 +29,69 @@
 #include <map>
 
 namespace iota {
+
+typedef struct internal_parameter {
+  int base_address;
+  unsigned short num_positions;
+  std::string name;
+  std::string type;
+} CommandParameter;
+
+typedef std::map<int, CommandParameter> ParamsMap;
+
 class ModbusOperationProcessor {
  public:
   ModbusOperationProcessor(){};
   ModbusOperationProcessor(std::stringstream& json_operations);
   virtual ~ModbusOperationProcessor(){};
   void read_operations(std::string modbus_operation_file);
+  // void read_commands(std::string modbus_operation_file);
+
   boost::property_tree::ptree& get_operation(std::string operation);
   std::vector<std::string>& get_mapped_labels(std::string operation);
+
+  boost::property_tree::ptree& get_command(std::string command);
+  boost::property_tree::ptree& get_config();
+
+  /**
+  * @name get_mapped_parameters
+  * @brief It returns a vector with the ordered names of parameters for that
+  * command
+  * @return vector of iota::CommandParameter in ordered based on their base
+  * address. Each
+  * parameter may take more than one position.
+  */
+  std::vector<CommandParameter> get_mapped_parameters(std::string command);
+
+  /**
+  * @name get_base_address
+  * @return The base address of the command
+  */
+  int get_base_address(std::string command);
+
+  /**
+  * @name get_protocol_commands
+  * @brief implements virtual function get_protocol_commands
+  *     to add  special data and commands for a post device of modbus protocol
+  *
+  * @return a completed device json (for mongo) with protocol commands
+  */
+  std::string get_protocol_commands();
 
  protected:
  private:
   std::map<std::string, boost::property_tree::ptree> _operations;
+
   std::map<std::string, std::vector<std::string> > _position_map;
+
+  std::map<std::string, boost::property_tree::ptree> _commands;
+  std::map<std::string, ParamsMap> _ordered_parameters_map;
+
+  boost::property_tree::ptree _config;
+
   void read(std::stringstream& json_operations);
+
+  void read_commands(std::stringstream& json_commands);
 };
 }
 

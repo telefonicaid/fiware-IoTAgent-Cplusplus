@@ -134,6 +134,45 @@ void SampleTest::start_cbmock(boost::shared_ptr<HttpMock>& cb_mock,
 }
 */
 
+
+void SampleTest::testProvisionProtocolCommands() {
+  std::cout << "@UT@START testProvisionProtocolCommands" << std::endl;
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestSample/test");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+
+  std::string response;
+  std::map<std::string, std::string> headers;
+  std::string post_device = "{\"devices\":[{\"device_id\":\"sensor_ts\""
+      ",\"protocol\":\"PDI-IoTA-test\", "
+      "\"commands\": [{\"name\": \"PING\",\"type\": \"command\",\"value\": \"\" }]}]}";
+
+  int code_res = http_test("/TestSample/devices", "POST", 
+            test_setup.get_service(), 
+            test_setup.get_service_path(), 
+                       "application/json",
+                       post_device, headers,
+                       "", response);
+
+  std::cout << "@UT@RES1 " << code_res << ":" << response << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("201 ", code_res==201);
+
+  code_res = http_test("/TestSample/devices/sensor_ts", "GET", 
+            test_setup.get_service(), 
+            test_setup.get_service_path(), 
+                       "application/json",
+                       "", headers,
+                       "", response);
+
+  std::cout << "@UT@RES2 " << code_res << ":" << response << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("200 ", code_res==200);
+
+  CPPUNIT_ASSERT(response.find("tcs_1") != std::string::npos);
+
+  std::cout << "@UT@END testProvisionProtocolCommands" << std::endl;
+}
+
 /***
   *  POST
   *http://10.95.26.51:8002/d?i=Device_UL2_0_RESTv2&k=4orh3jl3h40qkd7fk2qrc52ggb

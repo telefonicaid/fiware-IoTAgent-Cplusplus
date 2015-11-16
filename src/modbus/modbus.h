@@ -37,15 +37,22 @@ class Modbus {
     READ_HOLDING_REGISTERS = 0x03,
     // READ_INPUT_REGISTERS = 0x04,
     // FORCE_SINGLE_COIL = 0x05,
-    PRESET_SINGLE_REGISTER = 0x06
+    PRESET_SINGLE_REGISTER = 0x06,
+    PRESET_MULTIPLE_REGISTER = 0x010
   } FunctionCode;
   Modbus(){};
   Modbus(unsigned char slave_addr, iota::Modbus::FunctionCode function_code,
          unsigned short address_data, unsigned short number_of_or_value,
          std::string app_operation);
+
+  // This constructor is for writting multiple registers
+  Modbus(unsigned char slave_addr, iota::Modbus::FunctionCode function_code,
+         unsigned short address_data, std::vector<unsigned short> values,
+         std::string app_operation, bool confirmed);
   // Modbus(std::vector<unsigned char>& mb_msg);
   virtual ~Modbus(){};
   std::vector<unsigned char>& get_modbus_frame();
+  std::vector<unsigned char>& get_modbus_frame_response();
   unsigned char get_slave_address() { return _slave_address; };
   FunctionCode get_function_code() { return _function_code; };
   unsigned short get_address_data() { return _address_data; };
@@ -63,6 +70,9 @@ class Modbus {
   // Manage no complete frames
   bool completed() { return _completed;};
 
+  // Check if frame need confirmation.
+  bool need_be_confirmed() { return _need_be_confirmed;};
+
   void set_time_instant(std::time_t timestamp);
   std::time_t get_time_instant();
 
@@ -76,9 +86,14 @@ class Modbus {
   iota::Modbus::FunctionCode _function_code;
   unsigned short _address_data;
   unsigned short _number_of_or_value;
+  std::vector<unsigned short> _values_to_write;
   std::map<unsigned short, unsigned short> _values;
   bool _finished;
   bool _completed;
+
+  // In some implementations, MULTIPLE_REGISTER are confirmed with echo
+  bool _confirmed;
+  bool _need_be_confirmed;
 
   // To store timestamp
   std::time_t _time_instant;

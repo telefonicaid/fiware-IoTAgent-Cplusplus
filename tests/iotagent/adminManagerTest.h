@@ -109,11 +109,6 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
   static const std::string PUT_DEVICE2;
 
  protected:
-  int http_test(const std::string& uri, const std::string& method,
-                const std::string& service, const std::string& service_path,
-                const std::string& content_type, const std::string& body,
-                const std::map<std::string, std::string>& headers,
-                const std::string& query_string, std::string& response);
 
   void testDeviceToBeAdded();
   void testGetEndpointsFromDevices();

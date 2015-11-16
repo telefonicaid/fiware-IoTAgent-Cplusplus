@@ -701,3 +701,139 @@ void MongoTest::testServiceMgmtCollection() {
 
   std::cout << "END testServiceMgmtCollection " << std::endl;
 }
+
+std::string MongoTest::testjoinCommands(const std::string &obj1,
+                                        const std::string &obj2) {
+  std::string res;
+
+  std::string resobj2;
+  std::string::size_type commandit2 =  obj2.find("\"commands\"", 0);
+  std::string::size_type commanditfin2, commanditini2;
+  bool obj2_commands = commandit2 != std::string::npos;
+  if (obj2_commands){
+     commanditfin2 =  obj2.find("]", commandit2);
+     commanditini2 =  obj2.find("{");     
+  }else{
+     commanditini2 =  obj2.find("{");
+     commanditfin2 =  obj2.find_last_of("}");
+  }
+  if (commanditini2 != std::string::npos && commanditfin2 != std::string::npos){
+     resobj2.append(obj2.substr(commanditini2+1, commanditfin2 - commanditini2 -1));
+  }
+
+  std::string::size_type commandit =  obj1.find("\"commands\"", 0);
+  if (commandit != std::string::npos){
+     std::cout << "@UT@ have commands" << std::endl;
+     std::string::size_type commanditf =  obj1.find("[", commandit);
+     if (commanditf != std::string::npos){
+        res = obj1.substr(0, commandit);
+        if (!resobj2.empty()){
+          res.append(resobj2);
+          res.append(",");
+        }
+        res.append(obj1.substr(commanditf+1));
+     }
+  }else {
+    // no tiene comandos , cerramos el corchete de comandos
+    if (obj2_commands){
+       resobj2.append("]");
+    } 
+    std::cout << "@UT@ no have commands" << std::endl;
+    commandit =  obj1.find("{", 0);
+    res.append("{");
+    if (!resobj2.empty()){
+       res.append(resobj2);
+       res.append(",");
+    }
+    res.append(obj1.substr(commandit+1));    
+  }
+
+  return res;
+}
+
+void MongoTest::testArray() {
+  std::cout << "@UT@START testArray" << std::endl;
+
+  {
+    std::cout << "@UT@commands in two" << std::endl;
+    std::string cmd1 = "{\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\",\"commands\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"\"}]}";
+    std::string cmd2 = "{\"myfield\":\"myfield1\",\"commands\":[{\"name\":\"PING2\",\"type\":\"command\",\"value\":\"\"}]}";
+
+    std::string res = testjoinCommands(cmd1, cmd2);
+    std::cout << "@UT@RES1: " << res << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\"") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"name\":\"PING\",\"type\":\"command\",\"value\":\"\"}]}") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"name\":\"PING2\",\"type\":\"command\",\"value\":\"\"") != std::string::npos);
+    mongo::BSONObj objProtocol1 = mongo::fromjson(res);
+    std::cout << "@UT@SERV1:" << objProtocol1.jsonString() << std::endl;
+  }
+
+  {
+    std::cout << "@UT@same commands in two, commands duyplicated" << std::endl;
+    std::string cmd1 = "{\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\",\"commands\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"\"}]}";
+    std::string cmd2 = "{\"myfield\":\"myfield1\",\"commands\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"44\"}]}";
+
+    std::string res = testjoinCommands(cmd1, cmd2);
+    std::cout << "@UT@RES2: " << res << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\"") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"name\":\"PING\",\"type\":\"command\",\"value\":\"\"}]}") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"name\":\"PING\",\"type\":\"command\",\"value\":\"44\"") != std::string::npos);
+
+    mongo::BSONObj objProtocol1 = mongo::fromjson(res);
+    std::cout << "@UT@SERV2:" << objProtocol1.jsonString() << std::endl;
+  }
+
+  {
+    std::cout << "@UT@same no commands in two" << std::endl;
+    std::string cmd1 = "{\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\"}";
+    std::string cmd2 = "{\"myfield\":\"myfield1\"}";
+
+    std::string res = testjoinCommands(cmd1, cmd2);
+    std::cout << "@UT@RES3: " << res << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"myfield\":\"myfield1\"") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\"}") != std::string::npos);
+    mongo::BSONObj objProtocol1 = mongo::fromjson(res);
+    std::cout << "@UT@SERV3:" << objProtocol1.jsonString() << std::endl;
+  }
+
+  {
+    std::cout << "@UT@commands in device" << std::endl;
+    std::string cmd1 = "{\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\"}";
+    std::string cmd2 = "{\"myfield\":\"myfield1\",\"commands\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"44\"}]}";
+
+    std::string res = testjoinCommands(cmd1, cmd2);
+    std::cout << "@UT@RES4: " << res << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("{\"myfield\":\"myfield1\",\"commands\":[{\"name\":\"PING\",\"type\":\"command\",\"value\":\"44\"}") != std::string::npos);
+    CPPUNIT_ASSERT_MESSAGE("no commands in device",
+                         res.find("\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\"") != std::string::npos);
+    mongo::BSONObj objProtocol1 = mongo::fromjson(res);
+    std::cout << "@UT@SERV4:" << objProtocol1.jsonString() << std::endl;
+  }
+
+  {
+    std::cout << "@UT@same commands in device" << std::endl;
+    std::string cmd1 = "{\"device_id\":\"sensor_ts\",\"protocol\":\"PDI-IoTA-test\"}";
+    std::string cmd2 = "";
+
+    std::string res = testjoinCommands(cmd1, cmd2);
+    std::cout << "@UT@RES5: " << res << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("no found device",
+                         res.find(cmd1) != std::string::npos);
+
+    mongo::BSONObj objProtocol1 = mongo::fromjson(res);
+    std::cout << "@UT@SERV5:" << objProtocol1.jsonString() << std::endl;
+  }
+
+  std::cout << "@UT@END testArray" << std::endl;
+}
+
+

@@ -287,8 +287,6 @@ int iota::esp::MqttService::execute_command(
   std::string cmdname;
   std::string cmdPayload;
 
-  // TODO: obtain apikey, from ptree,
-
   std::string srv = service.get<std::string>(iota::store::types::SERVICE, "");
   std::string srv_path =
       service.get<std::string>(iota::store::types::SERVICE_PATH, "");

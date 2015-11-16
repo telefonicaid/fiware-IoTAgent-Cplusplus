@@ -1,0 +1,1031 @@
+{
+  "commands": [
+    {
+	"name":"installation_num",
+	"parameters": [
+	 {
+	   "name":"installation_number",
+	   "address": 0
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "tanks_num",
+	"parameters" : [
+	 {
+	   "name":"tanks_number",
+	   "address": 1
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "adquisition_time",
+	"parameters" : [
+	 {
+	   "name":"acquisition_time",
+	   "address": 2
+	 }	
+	 ]
+    }, 
+    {
+	"name":"retry_num",
+	"parameters": [
+	 {
+	   "name":"retries",
+	   "address": 9
+	 }	
+	 ]
+    }, 
+    {
+	"name":"retry_period",
+	"parameters": [
+	 {
+	   "name":"time",
+	   "address": 10
+	 }	
+	 ]
+    }, 
+  {
+	"name":"modem_type",
+	"parameters": [
+	 {
+	   "name":"type",
+	   "address": 11
+	 }	
+	 ]
+    }, 
+    {
+	"name":"filllevel_range",
+	"parameters": [
+	 {
+	   "name":"min_range",
+	   "address": 12
+	 },
+	 {
+	    "name" : "max_range",
+	    "address" : 13
+	 }	
+	 ]
+    }, 
+    {
+	"name" : "max_filllevel_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_level_tank_alarm",
+	   "address": 14
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 15
+	 },
+	 {
+	   "name":"high_level_alarm",
+	   "address": 16
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 17
+	 }	
+	]
+     },
+     {
+	"name" : "min_filllevel_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_level_tank_alarm",
+	   "address": 18
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 19
+	 },
+	 {
+	   "name":"low_level_alarm",
+	   "address": 20
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 21
+	 }	
+	]
+     },
+     {
+	"name" : "min_filllevel_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_level_tank_alarm",
+	   "address": 18
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 19
+	 },
+	 {
+	   "name":"low_level_alarm",
+	   "address": 20
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 21
+	 }	
+	]
+     },
+     {
+	"name" : "tankpressure_range",
+	"parameters" : [
+	 {
+	   "name":"min_range",
+	   "address": 22
+	 },	
+	 {
+	   "name":"max_range",
+	   "address": 23
+	 }	
+	]
+     },
+     {
+	"name" : "max_tankpressure_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_tank_pressure_alarm",
+	   "address": 24
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 25
+	 },
+	 {
+	   "name":"high_pressure_alarm",
+	   "address": 26
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 27
+	 }	
+	]
+     },
+     {
+	"name" : "min_tankpressure_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_tank_pressure_alarm",
+	   "address": 28
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 29
+	 },
+	 {
+	   "name":"low_pressure_alarm",
+	   "address": 30
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 31
+	 }	
+	]
+     }, 
+     {
+	"name" : "serviceressure_range",
+	"parameters" : [
+	 {
+	   "name":"min_range",
+	   "address": 32
+	 },	
+	 {
+	   "name":"max_range",
+	   "address": 33
+	 }	
+	]
+     },
+     {
+	"name" : "max_servicepressure_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_service_pressure_alarm",
+	   "address": 34
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 35
+	 },
+	 {
+	   "name":"high_pressure_alarm",
+	   "address": 36
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 37
+	 }	
+	]
+     },
+     {
+	"name" : "min_servicepressure_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_service_pressure_alarm",
+	   "address": 38
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 39
+	 },
+	 {
+	   "name":"low_pressure_alarm",
+	   "address": 40
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 41
+	 }	
+	]
+     },
+     {
+	"name" : "servicetemperature_range",
+	"parameters" : [
+	 {
+	   "name":"min_range",
+	   "address": 42
+	 },	
+	 {
+	   "name":"max_range",
+	   "address": 43
+	 }	
+	]
+     },
+     {
+	"name" : "max_servicetemperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_service_temperature_alarm",
+	   "address": 44
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 45
+	 },
+	 {
+	   "name":"high_temperature_alarm",
+	   "address": 46
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 47
+	 }	
+	]
+     },
+    {
+	"name" : "min_servicetemperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_service_temperature_alarm",
+	   "address": 48
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 49
+	 },
+	 {
+	   "name":"low_pressure_alarm",
+	   "address": 50
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 51
+	 }	
+	]
+     },
+     {
+	"name" : "impulsetemperature_range",
+	"parameters" : [
+	 {
+	   "name":"min_range",
+	   "address": 52
+	 },	
+	 {
+	   "name":"max_range",
+	   "address": 53
+	 }	
+	]
+     },
+    {
+	"name" : "max_impulsetemperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_impulse_temperature_alarm",
+	   "address": 54
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 55
+	 },
+	 {
+	   "name":"high_temperature_alarm",
+	   "address": 56
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 57
+	 }	
+	]
+     },
+    {
+	"name" : "min_impulsetemperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_impulse_temperature_alarm",
+	   "address": 58
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 59
+	 },
+	 {
+	   "name":"low_temperature_alarm",
+	   "address": 60
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 61
+	 }	
+	]
+     },
+     {
+	"name" : "returntemperature_range",
+	"parameters" : [
+	 {
+	   "name":"min_range",
+	   "address": 62
+	 },	
+	 {
+	   "name":"max_range",
+	   "address": 63
+	 }	
+	]
+     },
+    {
+	"name" : "max_returntemperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_return_temperature_alarm",
+	   "address": 64
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 65
+	 },
+	 {
+	   "name":"high_temperature_alarm",
+	   "address": 66
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 67
+	 }	
+	]
+     },
+    {
+	"name" : "min_returntemperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_return_temperature_alarm",
+	   "address": 68
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 69
+	 },
+	 {
+	   "name":"low_temperature_alarm",
+	   "address": 70
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 71
+	 }	
+	]
+     },
+     {
+	"name" : "ambient_temperature_range",
+	"parameters" : [
+	 {
+	   "name":"min_range",
+	   "address": 72
+	 },	
+	 {
+	   "name":"max_range",
+	   "address": 73
+	 }	
+	]
+     },
+    {
+	"name" : "max_ambient_temperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"high_ambient_temperature_alarm",
+	   "address": 74
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 75
+	 },
+	 {
+	   "name":"high_temperature_alarm",
+	   "address": 76
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 77
+	 }	
+	]
+     },
+    {
+	"name" : "min_ambient_temperature_alarm",
+	"parameters" : [
+	 {
+	   "name":"low_ambient_temperature_alarm",
+	   "address": 78
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 79
+	 },
+	 {
+	   "name":"low_temperature_alarm",
+	   "address": 80
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 81
+	 }	
+	]
+     },
+    {
+	"name" : "open_access_alarm",
+	"parameters" : [
+	 {
+	   "name":"open_access_alarm",
+	   "address": 82
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 83
+	 }
+	]
+     },
+     {
+	"name" : "unauthorized_access_alarm",
+	"parameters" : [	
+	 {
+	   "name":"unauthorized_access_alarm",
+	   "address": 84
+	 },
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 85
+	 }	
+	]
+     },
+    {
+	"name" : "control_room_gas_detection",
+	"parameters" : [
+	 {
+	   "name":"control_room_gas_alarm",
+	   "address": 86
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 87
+	 }
+	]
+     },
+    {
+	"name" : "boiler_room_gas_detection",
+	"parameters" : [
+	 {
+	   "name":"boiler_room_gas_alarm",
+	   "address": 88
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 89
+	 }
+	]
+     },  
+    {
+	"name" : "supply_network_failure",
+	"parameters" : [
+	 {
+	   "name":"supply_network_failure_alarm",
+	   "address": 90
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 91
+	 }
+	]
+     },
+    {
+	"name" : "protection_failure_alarm",
+	"parameters" : [
+	 {
+	   "name":"protection_network_failure_alarm",
+	   "address": 92
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 93
+	 }
+	]
+     },
+     {
+	"name" : "ups_discharge_alarm",
+	"parameters" : [
+	 {
+	   "name":"ups_discharge_alarm",
+	   "address": 94
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 95
+	 }
+	]
+     },
+     {
+	"name" : "ups_low_battery_alarm",
+	"parameters" : [
+	 {
+	   "name":"ups_low_battery_alarm",
+	   "address": 96
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 97
+	 }
+	]
+     },
+    {
+	"name" : "propane_alarm",
+	"parameters" : [
+	 {
+	   "name":"propane_alarm",
+	   "address": 98
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 99
+	 }
+	]
+     },
+     {
+	"name" : "no_alarm_time_check_in",
+	"parameters" : [
+	 {
+	   "name":"time",
+	   "address": 107
+	 }	
+	
+	]
+     },
+     {
+	"name" : "liquid_detection_alarm",
+	"parameters" : [
+	 {
+	   "name":"liquid_detectionalarm",
+	   "address": 108
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 109
+	 }
+	]
+     },
+     {
+	"name" : "propane_alarm",
+	"parameters" : [
+	 {
+	   "name":"propane_alarm",
+	   "address": 98
+	 },	
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 99
+	 }
+	]
+     },
+     {
+	"name" : "reset_time_modems",
+	"parameters" : [
+	 {
+	   "name":"time",
+	   "address": 110
+	 }
+	]
+     },
+     {
+	"name" : "ups_type",
+	"parameters" : [
+	 {
+	   "name":"type",
+	   "address": 111
+	 }
+	]
+     },
+     {
+	"name" : "gas_sensor_range",
+	"parameters" : [
+	 {
+	   "name":"min_range",
+	   "address": 112
+	 },	
+	 {
+	   "name":"max_range",
+	   "address": 113
+	 }	
+	]
+     },
+     {
+	"name" : "high_control_gas_alarm",
+	"parameters" : [
+	 {
+	   "name":"detection_gas_alarm",
+	   "address": 114
+	 },	
+	 {
+	   "name":"histeresys",
+	   "address": 115
+	 }	
+	]
+     },
+     {
+	"name" : "sap_code",
+	"parameters" : [
+	 {
+	   "name":"sap_code",
+	   "positions" : 4,
+	   "address": 200,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "c1_phone_number",
+	"parameters" : [
+	 {
+	   "name":"c1_phone_number",
+	   "positions" : 7,
+	   "address": 204,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "c2_phone_number",
+	"parameters" : [
+	 {
+	   "name":"c2_phone_number",
+	   "positions" : 7,
+	   "address": 212,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "high_level_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"high_level_alarm_dsc",
+	   "positions" : 14,
+	   "address": 219,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "low_level_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"low_level_alarm_dsc",
+	   "positions" : 14,
+	   "address": 233,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "high_tank_pressure_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"high_tank_pressure_alarm_dsc",
+	   "positions" : 14,
+	   "address": 247,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "low_tank_pressure_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"low_tank_pressure_alarm_dsc",
+	   "positions" : 14,
+	   "address": 261,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "high_service_pressure_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"high_service_pressure_alarm_dsc",
+	   "positions" : 14,
+	   "address": 275,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "low_service_pressure_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"low_service_pressure_alarm_dsc",
+	   "positions" : 14,
+	   "address": 289,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "high_temperature_service_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"high_temperature_service_alarm_dsc",
+	   "positions" : 14,
+	   "address": 303,
+	   "type" : "string"
+	 }	
+	]
+     }, 
+     {
+	"name" : "low_temperature_service_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"low_temperature_service_alarm_dsc",
+	   "positions" : 14,
+	   "address": 317,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "high_impulse_temperature_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"high_impulse_temperature_alarm_dsc",
+	   "positions" : 14,
+	   "address": 331,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "low_impulse_temperature_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"low_impulse_temperature_alarm_dsc",
+	   "positions" : 14,
+	   "address": 345,
+	   "type" : "string"
+	 }	
+	]
+     },
+    {
+	"name" : "high_return_temperature_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"high_return_temperature_alarm_dsc",
+	   "positions" : 14,
+	   "address": 359,
+	   "type" : "string"
+	 }	
+	]
+     },
+    {
+	"name" : "low_return_temperature_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"low_return_temperature_alarm_dsc",
+	   "positions" : 14,
+	   "address": 373,
+	   "type" : "string"
+	 }	
+	]
+     },
+    {
+	"name" : "high_ambient_temperature_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"high_ambient_temperature_alarm_dsc",
+	   "positions" : 14,
+	   "address": 387,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "low_ambient_temperature_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"low_ambient_temperature_alarm_dsc",
+	   "positions" : 14,
+	   "address": 401,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "open_acess_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"open_acess_alarm_dsc",
+	   "positions" : 14,
+	   "address": 415,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "unauthorized_access_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"unauthorized_access_alarm_dsc",
+	   "positions" : 14,
+	   "address": 429,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "control_room_gas_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"control_room_gas_alarm_dsc",
+	   "positions" : 14,
+	   "address": 443,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "boiler_room_gas_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"boiler_room_gas_alarm_dsc",
+	   "positions" : 14,
+	   "address": 457,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "supply_network_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"supply_network_alarm_dsc",
+	   "positions" : 14,
+	   "address": 471,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "protection_failure_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"protection_failure_alarm_dsc",
+	   "positions" : 14,
+	   "address": 485,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "ups_discharge_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"ups_discharge_alarm_dsc",
+	   "positions" : 14,
+	   "address": 499,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "ups_low_battery_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"ups_low_battery_alarm_dsc",
+	   "positions" : 14,
+	   "address": 513,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "propane_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"propane_alarm_dsc",
+	   "positions" : 14,
+	   "address": 527,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "liquid_alarm_dsc",
+	"parameters" : [
+	 {
+	   "name":"liquid_alarm_dsc",
+	   "positions" : 14,
+	   "address": 541,
+	   "type" : "string"
+	 }	
+	]
+     },
+     {
+	"name" : "c3_phone_number",
+	"parameters" : [
+	 {
+	   "name":"c3_phone_number",
+	   "positions" : 10,
+	   "address": 541,
+	   "type" : "string"
+	 }	
+	]
+     }
+   ],
+   "operations": [
+     {
+       "operation": "GetSAPCode",
+       "modbusOperation": 3,
+       "modbusAddress": 200,
+       "modbusNumberOfPositions": 4,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "SetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 1
+     },
+     {
+       "operation": "GetNumberOfTanks",
+       "modbusOperation": 3,
+       "modbusAddress": 1,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "TimeOfDataAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 2,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "LastTimeOfAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 731,
+       "modbusNumberOfPositions": 3,
+       "modbusNumberOfRegisters": 1,
+       "positions": [
+         "DDMM", "AAHH", "MMSS"
+         ]
+     },
+     {
+       "operation": "GetDataHistory",
+       "modbusOperation": 3,
+       "modbusAddress": 800,
+       "modbusNumberOfPositions": 22,
+       "modbusNumberOfRegisters": 75,
+       "positions": [
+         "blockNumber", "servicePressure", "serviceTemp", "environmentTemp", "impulsionTemp",
+         "returnTemp", "", "fillLevel1", "pressure1", "fillLevel2", "pressure2",
+         "fillLevel3", "pressure3", "fillLevel4", "pressure4", "fillLevel5",
+         "pressure5", "fillLevel6", "pressure6", "", "", ""
+         ]
+     },
+     {
+       "operation": "UnsetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 0
+     }
+    ]
+}

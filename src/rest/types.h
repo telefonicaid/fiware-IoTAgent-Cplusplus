@@ -172,6 +172,7 @@ struct types {
   static const unsigned int RESPONSE_CODE_FORBIDDEN_CHARACTERS;
 
   /// ALARMS
+  static const unsigned int ALARM_CODE_BAD_CONFIGURATION;
   static const unsigned int ALARM_CODE_NO_MONGO;
   static const unsigned int ALARM_CODE_NO_CB;
   static const unsigned int ALARM_CODE_NO_IOTA;
