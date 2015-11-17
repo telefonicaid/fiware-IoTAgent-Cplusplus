@@ -606,6 +606,7 @@ def check_measures(step, measures, asset_name, timestamp={}):
                             is_timestamp=True
                             break
                     assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
+                    device_name=asset_name
                     if world.def_entity:
                         device_name = DEF_ENTITY_TYPE + ':' + asset_name
                         world.thing = DEF_ENTITY_TYPE
@@ -636,6 +637,7 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
     assetElement = contextElement['id']
     typeElement = contextElement['type']
     if (world.field == "timestamp") | (world.field == "sens_type") | (world.field == "payload"):
+        device_name=asset_name
         if world.def_entity:
             device_name = DEF_ENTITY_TYPE + ':' + asset_name
             world.thing = DEF_ENTITY_TYPE
@@ -762,6 +764,7 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
                             is_timestamp=True
                             break
                     assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
+            device_name=asset_name
             if world.def_entity:
                 device_name = DEF_ENTITY_TYPE + ':' + asset_name
                 world.thing = DEF_ENTITY_TYPE
