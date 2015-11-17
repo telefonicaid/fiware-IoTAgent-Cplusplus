@@ -9,6 +9,7 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot', cbroker=C
 URLTypes = {
     "IoTUL2": "/iot/d",
     "IoTRepsol": "/iot/repsol",
+    "IoTModbus": "/iot/tgrepsol",
     "IoTEvadts": "/iot/evadts",
     "IoTTT": "/iot/tt",
     "IoTMqtt": "/iot/mqtt"
@@ -17,6 +18,7 @@ URLTypes = {
 ProtocolTypes = {
     "IoTUL2": "PDI-IoTA-UltraLight",
     "IoTTT": "PDI-IoTA-ThinkingThings",
+    "IoTModbus": "PDI-MODBUS-REPSOL",
     "IoTMqtt": "PDI-IoTA-MQTT-UltraLight"
 }
 
