@@ -1,0 +1,163 @@
+{
+  "commands": [
+    {
+	"name":"installation_num_cmd",
+	"parameters": [
+	 {
+	   "name":"installation_number",
+	   "address": 0
+	 }
+	 ]
+    },
+    {
+	"name" : "tanks_num_cmd",
+	"parameters" : [
+	 {
+	   "name":"tanks_number",
+	   "address": 1
+	 }
+	 ]
+    },
+    {
+	"name" : "adquisition_time_cmd",
+	"parameters" : [
+	 {
+	   "name":"acquisition_time",
+	   "address": 2
+	 }
+	 ]
+    },
+    {
+	"name" : "max_filllevel_alarm_cmd",
+	"parameters" : [
+	 {
+	   "name":"high_level_tank_alarm",
+	   "address": 14
+	 },
+	 {
+	   "name":"stay_on_alarm_time",
+	   "address": 15
+	 },
+	 {
+	   "name":"high_level_alarm",
+	   "address": 16
+	 },
+	 {
+	   "name":"histeresys",
+	   "address": 17
+	 }
+	]
+    },
+    {
+	"name" : "test_command",
+	"parameters" : [
+	 {
+	   "name":"second",
+	   "address": 21
+	 },
+	 {
+	   "name":"third",
+	   "address": 22
+	 },
+	 {
+	   "name":"fourth",
+	   "address": 23
+	 },
+	 {
+	   "name":"first",
+	   "address": 20
+	 }
+	]
+    },
+    {
+	"name" : "test_numeric_command",
+	"parameters" : [
+	 {
+	   "name":"test_param",
+	   "type" : "numeric",
+	   "positions" : 5,
+	   "address": 21
+	 }]
+    },
+    {
+	"name" : "test_string_command",
+	"parameters" : [
+	 {
+	   "name":"test_param",
+	   "type": "string",
+	   "positions" : 25,
+	   "address": 21
+	 }]
+    }
+
+   ],
+   "operations": [
+     {
+       "operation": "GetSAPCode",
+       "modbusOperation": 3,
+       "modbusAddress": 200,
+       "modbusNumberOfPositions": 4,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "SetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 1
+     },
+     {
+       "operation": "GetNumberOfTanks",
+       "modbusOperation": 3,
+       "modbusAddress": 1,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "TimeOfDataAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 2,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1
+     },
+     {
+       "operation": "LastTimeOfAcquisition",
+       "modbusOperation": 3,
+       "modbusAddress": 731,
+       "modbusNumberOfPositions": 3,
+       "modbusNumberOfRegisters": 1,
+       "positions": [
+         "DDMM", "AAHH", "MMSS"
+         ]
+     },
+     {
+       "operation": "GetDataHistory",
+       "modbusOperation": 3,
+       "modbusAddress": 800,
+       "modbusNumberOfPositions": 3,
+       "modbusNumberOfRegisters": 75,
+       "positions": [
+         {
+	     "name" : "blockNumber"
+	 },
+	 {
+	    "name" : "servicePressure",
+	    "factor" : 0.01
+         },
+         {
+	    "name" : "serviceTemp",
+	    "factor" : 0.01
+	 }
+        ]
+     },
+     {
+       "operation": "UnsetUpdateDataHistory",
+       "modbusOperation": 6,
+       "modbusAddress": 734,
+       "modbusNumberOfPositions": 1,
+       "modbusNumberOfRegisters": 1,
+       "modbusValue": 0
+     }
+    ]
+}
