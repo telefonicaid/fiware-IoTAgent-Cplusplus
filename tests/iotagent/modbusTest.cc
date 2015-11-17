@@ -170,14 +170,16 @@ void ModbusTest::testProcessor() {
   std::vector<unsigned char> data_fc03 = iota::hex_str_to_vector(received_fc03);
   CPPUNIT_ASSERT_MESSAGE("Checking received frame with labels ",
                          frame_to_map.receive_modbus_frame(data_fc03));
-  std::map<std::string, double> mapped_values = frame_to_map.get_mapped_values(
-      processor.get_mapped_labels("operation_name"));
+  std::map<std::string, std::string> mapped_values =
+      frame_to_map.get_mapped_values(
+          processor.get_mapped_labels("operation_name"));
   CPPUNIT_ASSERT_MESSAGE("Checking number of mapped values ",
                          mapped_values.size() == 2);
-  std::map<std::string, double>::iterator i = mapped_values.begin();
-  CPPUNIT_ASSERT_MESSAGE("Checking label 1", mapped_values["label_1"] == 1);
+  std::map<std::string, std::string>::iterator i = mapped_values.begin();
+  CPPUNIT_ASSERT_MESSAGE("Checking label 1", mapped_values["label_1"] == "1");
   // CPPUNIT_ASSERT_MESSAGE("Checking label 2", mapped_values["102"] == 12305);
-  CPPUNIT_ASSERT_MESSAGE("Checking label 3", mapped_values["label_3"] == 2321);
+  CPPUNIT_ASSERT_MESSAGE("Checking label 3",
+                         mapped_values["label_3"] == "2321");
 }
 
 void ModbusTest::testProcessorFile() {
@@ -349,14 +351,14 @@ void ModbusTest::testCheckFactor() {
   CPPUNIT_ASSERT_MESSAGE("Checking received frame with labels ",
                          frame_to_map.receive_modbus_frame(data_fc03));
   std::cout << "@UT@get_mapped_values" << std::endl;
-  std::map<std::string, double> mapped_values = frame_to_map.get_mapped_values(
-      processor.get_mapped_labels("GetDataHistory"));
+  std::map<std::string, std::string> mapped_values =
+      frame_to_map.get_mapped_values(
+          processor.get_mapped_labels("GetDataHistory"));
 
   std::cout << "@UT@servicePressure:" << mapped_values["servicePressure"]
             << std::endl;
-  CPPUNIT_ASSERT_MESSAGE(
-      "servicePressure 123.05 ",
-      std::abs(mapped_values["servicePressure"] - 123.05) < 0.0001);
+  CPPUNIT_ASSERT_MESSAGE("servicePressure 123.05 ",
+                         mapped_values["servicePressure"] == "123.05");
 
   std::cout << "@UT@END check testCheckFactor" << std::endl;
 }

@@ -112,7 +112,10 @@
        "modbusOperation": 3,
        "modbusAddress": 1,
        "modbusNumberOfPositions": 1,
-       "modbusNumberOfRegisters": 1
+       "modbusNumberOfRegisters": 1,
+       "positions": [
+           "tanksNumber"
+         ]
      },
      {
        "operation": "TimeOfDataAcquisition",

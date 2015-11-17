@@ -40,6 +40,7 @@ typedef struct internal_parameter {
 typedef struct internal_position {
   std::string name;
   float factor;
+  short precision;
 } FloatPosition;
 
 typedef std::map<int, CommandParameter> ParamsMap;

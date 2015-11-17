@@ -431,3 +431,14 @@ std::string iota::http2string(pion::http::response& req) {
   }
   return os.str();
 }
+
+int iota::number_of_decimals(const std::string& str) {
+  std::string decimals;
+  int pos = str.find(".");
+  if (pos == std::string::npos) {
+    return 0;
+  } else {
+    decimals = str.substr(pos + 1);
+    return decimals.length();
+  }
+}

@@ -73,6 +73,8 @@ std::string http2string(pion::http::request& req);
 std::string http2string(pion::http::response& req);
 void writeDictionaryTerm(std::ostringstream& os,
                          const pion::ihash_multimap::value_type& val);
+
+int number_of_decimals(const std::string& str);
 };
 
 #endif

@@ -60,7 +60,8 @@ class Modbus {
   unsigned short get_number_of_or_value() { return _number_of_or_value; };
   bool receive_modbus_frame(const std::vector<unsigned char>& mb_msg);
   std::map<unsigned short, unsigned short> get_values();
-  std::map<std::string, double> get_mapped_values(
+
+  std::map<std::string, std::string> get_mapped_values(
       std::vector<iota::FloatPosition>& mapped_fields);
   unsigned short crc(std::vector<unsigned char>& frame);
   std::string get_operation() { return _app_operation; };

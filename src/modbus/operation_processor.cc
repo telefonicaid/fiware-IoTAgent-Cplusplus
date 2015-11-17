@@ -25,6 +25,8 @@
 #include "rest/types.h"
 #include <boost/foreach.hpp>
 #include <boost/exception/diagnostic_information.hpp>
+#include "util/FuncUtil.h"
+
 iota::ModbusOperationProcessor::ModbusOperationProcessor(
     std::stringstream& json_operations) {
   read(json_operations);
@@ -49,8 +51,14 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
           if (!position.name.empty()) {
             position.factor = v_p.second.get<float>("factor", 1);
 
+            std::string precision = v_p.second.get<std::string>("factor", "1");
+
+            position.precision = (short)iota::number_of_decimals(precision);
+
           } else {
             position.name = v_p.second.data();
+            position.factor = 1;
+            position.precision = 0;
           }
 
           labels_with_factor.push_back(position);
