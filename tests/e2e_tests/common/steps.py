@@ -745,7 +745,7 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
                                         assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
                                     assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
                                     if not timestamp:
-                                        assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
+                                        assert functions.check_timestamp(str(attr['metadatas'][0]['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
                                     else:
                                         assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
                                     break
@@ -758,7 +758,7 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
                         if attr ['name'] == "TimeInstant":
                             print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
                             if not timestamp:
-                                assert functions.check_timestamp(attr['metadatas'][0]['value']), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
+                                assert functions.check_timestamp(str(attr['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
                             else:
                                 assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(timestamp) + " not found in: " + str(attr)
                             is_timestamp=True
