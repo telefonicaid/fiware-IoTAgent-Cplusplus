@@ -1,7 +1,7 @@
 from lettuce import step, world
 from iotqautils.iota_utils import Rest_Utils_IoTA
 from common.functions import Functions, URLTypes, ProtocolTypes
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
+from common.gw_configuration import CBROKER_URL,CBROKER_URL_TLG,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
 import time, requests
 
 iotagent = Rest_Utils_IoTA(server_root=IOT_SERVER_ROOT+'/iot')
@@ -530,10 +530,14 @@ def check_measures_cbroker_timestamp(step, num_measures, asset_name, timestamp):
 
 def check_measures(step, measures, asset_name, timestamp={}):
     time.sleep(1)
-    measures_count =  requests.get(CBROKER_URL+"/countMeasure")
+    if world.device=='TelegestionModel':
+        cbroker_url = CBROKER_URL_TLG
+    else:
+        cbroker_url = CBROKER_URL
+    measures_count =  requests.get(cbroker_url+"/countMeasure")
     num_measures = measures.split('/')[0]
     assert measures_count.text == str(num_measures), 'ERROR: ' + str(num_measures) + ' measures expected, ' + measures_count.text + ' received'
-    req =  requests.get(CBROKER_URL+"/last")
+    req =  requests.get(cbroker_url+"/last")
     response = req.json()
     if len(measures.split('/'))>1:
         assert str(len(response['contextElements'])) == measures.split('/')[1], 'ERROR: ' + str(measures.split('/')[1]) + ' contexElements expected, ' + str(len(response['contextElements'])) + ' received'
@@ -619,8 +623,11 @@ def check_measures(step, measures, asset_name, timestamp={}):
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received or NOT by context broker')
 def check_NOT_measure_cbroker(step, asset_name, measures):
     time.sleep(1)
-    print measures
-    req =  requests.get(CBROKER_URL+"/last")
+    if world.device=='TelegestionModel':
+        cbroker_url = CBROKER_URL_TLG
+    else:
+        cbroker_url = CBROKER_URL
+    req =  requests.get(cbroker_url+"/last")
     response = req.json()
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
@@ -691,9 +698,13 @@ def check_NOT_measures_cbroker_timestamp(step, num_measures, asset_name, timesta
 
 def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
     time.sleep(1)
-    measures_count =  requests.get(CBROKER_URL+"/countMeasure")
+    if world.device=='TelegestionModel':
+        cbroker_url = CBROKER_URL_TLG
+    else:
+        cbroker_url = CBROKER_URL
+    measures_count =  requests.get(cbroker_url+"/countMeasure")
     assert measures_count.text == str(num_measures), 'ERROR: ' + str(num_measures) + ' measures expected, ' + measures_count.text + ' received'
-    req =  requests.get(CBROKER_URL+"/last")
+    req =  requests.get(cbroker_url+"/last")
     response = req.json()
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
