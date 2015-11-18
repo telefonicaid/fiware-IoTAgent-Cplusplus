@@ -15,6 +15,7 @@ world.are_measures=False
 world.multidata=False
 world.measure=''
 world.measure2=''
+world.device={}
 
 @step('I send a measure to the GW with name "([^"]*)", protocol "([^"]*)", type "([^"]*)" and value "([^"]*)"')
 def send_measure(step, device_id, protocol, obs_type, value):

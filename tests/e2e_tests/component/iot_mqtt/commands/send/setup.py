@@ -7,6 +7,7 @@ from threading import Thread
 from common.gw_configuration import GW_HOSTNAME,IOT_PORT,PATH_MQTT_COMMAND,DEF_ENTITY_TYPE
 
 cb = CBUtils(instance=GW_HOSTNAME,port=IOT_PORT,path_update=PATH_MQTT_COMMAND)
+world.device={}
 
 def envia_comando(service, entityData):
     time.sleep(3)

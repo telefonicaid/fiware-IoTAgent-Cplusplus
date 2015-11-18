@@ -9,7 +9,7 @@ import time,datetime
 cb = CBUtils(instance=GW_HOSTNAME,port=IOT_PORT,path_update=PATH_UL20_COMMAND)
 gw = Gw_Measures_Utils(server_root=IOT_SERVER_ROOT)
 functions = Functions()
-
+world.device={}
 
 @step('I send a command to the IoTAgent with service "([^"]*)", device "([^"]*)", command "([^"]*)", entity_type "([^"]*)" and value "([^"]*)"')
 def send_command(step, service, device_id, cmd_name, entity_type, value):
