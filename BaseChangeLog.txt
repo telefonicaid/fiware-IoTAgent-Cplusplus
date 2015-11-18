@@ -1,3 +1,9 @@
+* Mon Nov 30 2015 Agustin Gonzalez <lucas@tid.es> 1.3.0
+- FEATURE DM-674: Support Cross-IoTA generic command parameters.
+- FEATURE DM-208: Support Modbus frames.
+- FEATURE DM-706: Add service and subservice to alarm information.
+- FEATURE DM-714: Alarm (error) when agent does not get token as PEP.
+
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.
 - FIX IDAS-20575: Unregister device from Context Broker when device is deleted.

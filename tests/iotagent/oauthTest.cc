@@ -223,6 +223,8 @@ void OAuthTest::testValidateToken() {
   oauth->set_identity(OAUTH_PEP, username, password);
   oauth->set_domain("SmartValencia");
   oauth->set_project("Electricidad");
+
+
   std::string my_token = oauth->get_token();
 
   CPPUNIT_ASSERT(my_token.compare("x-auth-token") == 0);
@@ -243,7 +245,9 @@ void OAuthTest::testValidateToken() {
       oauth->validate_user_token(user_token);
 
   CPPUNIT_ASSERT_MESSAGE("Checking user ", pt_response.size() > 0);
-  std::cout << "ENF testValidateToken" << std::endl;
+
+
+  std::cout << "END testValidateToken" << std::endl;
 }
 
 void OAuthTest::testGetUserRoles() {
