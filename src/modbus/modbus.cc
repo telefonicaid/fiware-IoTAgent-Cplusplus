@@ -352,8 +352,12 @@ std::map<std::string, std::string> iota::Modbus::get_mapped_values(
 
         std::stringstream ss_value;
         double temp = factor * it_values->second;
-        ss_value << std::setprecision(mapped_fields.at(i).precision + 1)
-                 << temp;
+        IOTA_LOG_DEBUG(m_logger,
+                       "get_mapped_values: " << temp << " precision:  "
+                                             << mapped_fields.at(i).precision);
+
+        ss_value << std::fixed
+                 << std::setprecision(mapped_fields.at(i).precision) << temp;
 
         mapped_values.insert(
             std::pair<std::string, std::string>(str_field, ss_value.str()));

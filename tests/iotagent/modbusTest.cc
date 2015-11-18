@@ -178,6 +178,9 @@ void ModbusTest::testProcessor() {
   std::map<std::string, std::string>::iterator i = mapped_values.begin();
   CPPUNIT_ASSERT_MESSAGE("Checking label 1", mapped_values["label_1"] == "1");
   // CPPUNIT_ASSERT_MESSAGE("Checking label 2", mapped_values["102"] == 12305);
+
+  std::cout << "testProcessor label_3, value: " << mapped_values["label_3"]
+            << std::endl;
   CPPUNIT_ASSERT_MESSAGE("Checking label 3",
                          mapped_values["label_3"] == "2321");
 }
@@ -315,6 +318,43 @@ void ModbusTest::testAllCommandsConfigFile() {
   CPPUNIT_ASSERT_MESSAGE("wrong type on c3_phone_number parameter",
                          ordered_params[0].type == "string");
   std::cout << "@UT@END check testAllCommandsConfigFile" << std::endl;
+}
+
+void ModbusTest::testConversionDecimals() {
+  std::cout << "@UT@START testConversionDecimals" << std::endl;
+
+  std::string decimals_2 = "0.01";
+  std::string decimals_1 = "0.1";
+  std::string natural = "1";
+
+  std::string wrong = "1.";
+  double number = 233;
+  iota::Modbus modbus;
+
+  int test = iota::number_of_decimals(decimals_1);
+
+  CPPUNIT_ASSERT_MESSAGE("one decimal", test == 1);
+
+  std::cout << " value one decimal: " << std::fixed << std::setprecision(test)
+            << number << std::endl;
+
+  test = iota::number_of_decimals(decimals_2);
+
+  CPPUNIT_ASSERT_MESSAGE("two decimals", test == 2);
+  std::cout << " value two decimals: " << std::setprecision(test) << number
+            << std::endl;
+
+  test = iota::number_of_decimals(natural);
+  CPPUNIT_ASSERT_MESSAGE("natural number", test == 0);
+  std::cout << " value 0 decimals: " << std::setprecision(test) << number
+            << std::endl;
+
+  test = iota::number_of_decimals(wrong);
+  CPPUNIT_ASSERT_MESSAGE("natural number", test == 0);
+  std::cout << " value 0 decimals: " << std::setprecision(test) << number
+            << std::endl;
+
+  std::cout << "@UT@END testConversionDecimals" << std::endl;
 }
 
 void ModbusTest::testOperationsWithFloat() {
