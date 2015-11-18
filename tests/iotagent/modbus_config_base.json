@@ -1013,11 +1013,93 @@
        "modbusNumberOfPositions": 22,
        "modbusNumberOfRegisters": 75,
        "positions": [
-         "blockNumber", "servicePressure", "serviceTemp", "environmentTemp", "impulsionTemp",
-         "returnTemp", "", "fillLevel1", "pressure1", "fillLevel2", "pressure2",
-         "fillLevel3", "pressure3", "fillLevel4", "pressure4", "fillLevel5",
-         "pressure5", "fillLevel6", "pressure6", "", "", ""
-         ]
+         { 
+	     "name" : "blockNumber"
+	 },
+	 {
+	    "name" : "servicePressure",
+	    "factor" : 0.01
+         },
+         {
+	    "name" : "serviceTemp",
+	    "factor" : 0.1
+	 },
+	 {
+	    "name" : "environmentTemp",
+	    "factor" : 0.1
+	 },
+	 {
+	    "name" : "impulsionTemp",
+	    "factor" : 0.1
+ 	 },
+	 {
+            "name" :"returnTemp",
+	    "factor" : 0.1
+	 },
+	 {
+	     "name" : ""
+	 },
+	 {
+	     "name" : "fillLevel1",
+	     "factor" : 1
+	 },
+	 {
+	     "name" : "pressure1",
+	     "factor" : 0.1
+	 },
+	 {
+	     "name" : "fillLevel2",
+	     "factor" : 1
+	 },
+	 { 
+	     "name" : "pressure2",
+	     "factor" : 0.1
+	 },
+	 {
+	     "name" : "fillLevel3",
+	     "factor" : 1
+  	 },
+	 {
+	     "name" : "pressure3",
+	     "factor" : 0.1
+	 },
+	 {
+	     "name" :  "fillLevel4",
+	     "factor" : 1
+         },
+	{ 
+	     "name" : "pressure4",
+	     "factor" : 0.1
+	},
+	{
+	     "name" : "fillLevel5",
+	     "factor" : 1
+    	}, 
+	{
+	     "name" :  "pressure5",
+	     "factor" : 0.1
+        },
+	{ 
+	     "name" : "fillLevel6",
+	     "factor" : 1
+	},
+	{
+	     "name" : "pressure6",
+	     "factor" : 0.1
+    	},
+	{
+	     "name" : "",
+	     "factor" : 0.1
+	},
+ 	{
+	     "name" : "",
+	     "factor" : 0.1
+	},
+	{
+	     "name" : "",
+	     "factor" : 0.1
+	}
+        ]
      },
      {
        "operation": "UnsetUpdateDataHistory",

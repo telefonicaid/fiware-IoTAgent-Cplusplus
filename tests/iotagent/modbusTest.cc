@@ -153,7 +153,8 @@ void ModbusTest::testProcessor() {
       "Labels ", processor.get_mapped_labels("operation_name").size() == 3);
   CPPUNIT_ASSERT_MESSAGE(
       "Label label_1 ",
-      processor.get_mapped_labels("operation_name")[2].compare("label_3") == 0);
+      processor.get_mapped_labels("operation_name")[2].name.compare(
+          "label_3") == 0);
 
   // Frame
   boost::property_tree::ptree op = processor.get_operation("operation_name");
@@ -169,15 +170,19 @@ void ModbusTest::testProcessor() {
   std::vector<unsigned char> data_fc03 = iota::hex_str_to_vector(received_fc03);
   CPPUNIT_ASSERT_MESSAGE("Checking received frame with labels ",
                          frame_to_map.receive_modbus_frame(data_fc03));
-  std::map<std::string, unsigned short> mapped_values =
+  std::map<std::string, std::string> mapped_values =
       frame_to_map.get_mapped_values(
           processor.get_mapped_labels("operation_name"));
   CPPUNIT_ASSERT_MESSAGE("Checking number of mapped values ",
                          mapped_values.size() == 2);
-  std::map<std::string, unsigned short>::iterator i = mapped_values.begin();
-  CPPUNIT_ASSERT_MESSAGE("Checking label 1", mapped_values["label_1"] == 1);
+  std::map<std::string, std::string>::iterator i = mapped_values.begin();
+  CPPUNIT_ASSERT_MESSAGE("Checking label 1", mapped_values["label_1"] == "1");
   // CPPUNIT_ASSERT_MESSAGE("Checking label 2", mapped_values["102"] == 12305);
-  CPPUNIT_ASSERT_MESSAGE("Checking label 3", mapped_values["label_3"] == 2321);
+
+  std::cout << "testProcessor label_3, value: " << mapped_values["label_3"]
+            << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("Checking label 3",
+                         mapped_values["label_3"] == "2321");
 }
 
 void ModbusTest::testProcessorFile() {
@@ -313,4 +318,87 @@ void ModbusTest::testAllCommandsConfigFile() {
   CPPUNIT_ASSERT_MESSAGE("wrong type on c3_phone_number parameter",
                          ordered_params[0].type == "string");
   std::cout << "@UT@END check testAllCommandsConfigFile" << std::endl;
+}
+
+void ModbusTest::testConversionDecimals() {
+  std::cout << "@UT@START testConversionDecimals" << std::endl;
+
+  std::string decimals_2 = "0.01";
+  std::string decimals_1 = "0.1";
+  std::string natural = "1";
+
+  std::string wrong = "1.";
+  double number = 233;
+  iota::Modbus modbus;
+
+  int test = iota::number_of_decimals(decimals_1);
+
+  CPPUNIT_ASSERT_MESSAGE("one decimal", test == 1);
+
+  std::cout << " value one decimal: " << std::fixed << std::setprecision(test)
+            << number << std::endl;
+
+  test = iota::number_of_decimals(decimals_2);
+
+  CPPUNIT_ASSERT_MESSAGE("two decimals", test == 2);
+  std::cout << " value two decimals: " << std::setprecision(test) << number
+            << std::endl;
+
+  test = iota::number_of_decimals(natural);
+  CPPUNIT_ASSERT_MESSAGE("natural number", test == 0);
+  std::cout << " value 0 decimals: " << std::setprecision(test) << number
+            << std::endl;
+
+  test = iota::number_of_decimals(wrong);
+  CPPUNIT_ASSERT_MESSAGE("natural number", test == 0);
+  std::cout << " value 0 decimals: " << std::setprecision(test) << number
+            << std::endl;
+
+  std::cout << "@UT@END testConversionDecimals" << std::endl;
+}
+
+void ModbusTest::testOperationsWithFloat() {
+  iota::ModbusOperationProcessor processor;
+  std::cout << "@UT@START check testOperationsWithFloat" << std::endl;
+  processor.read_operations("../../tests/iotagent/modbus_config.json");
+
+  std::vector<iota::FloatPosition> positions =
+      processor.get_mapped_labels("GetDataHistory");
+
+  CPPUNIT_ASSERT_MESSAGE("servicePressure",
+                         positions[1].name == "servicePressure");
+  CPPUNIT_ASSERT_MESSAGE("factor 0.01 ", positions[1].factor == 0.01F);
+
+  std::cout << "@UT@END check testOperationsWithFloat" << std::endl;
+}
+
+void ModbusTest::testCheckFactor() {
+  iota::ModbusOperationProcessor processor;
+  std::cout << "@UT@START check testCheckFactor" << std::endl;
+  processor.read_operations("../../tests/iotagent/modbus_configF.json");
+
+  boost::property_tree::ptree op = processor.get_operation("GetDataHistory");
+  std::cout << "@UT@1" << std::endl;
+  iota::Modbus frame_to_map(
+      0x01,
+      (iota::Modbus::FunctionCode)op.get<unsigned short>("modbusOperation"),
+      op.get<unsigned short>("modbusAddress"),
+      op.get<unsigned short>("modbusNumberOfPositions"), "AppOperation");
+  std::string received_fc03 = "01 03 06 00 01 30 11 09 11 85 EC";
+
+  std::vector<unsigned char> data_fc03 = iota::hex_str_to_vector(received_fc03);
+  std::cout << "@UT@receive_modbus_frame" << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("Checking received frame with labels ",
+                         frame_to_map.receive_modbus_frame(data_fc03));
+  std::cout << "@UT@get_mapped_values" << std::endl;
+  std::map<std::string, std::string> mapped_values =
+      frame_to_map.get_mapped_values(
+          processor.get_mapped_labels("GetDataHistory"));
+
+  std::cout << "@UT@servicePressure:" << mapped_values["servicePressure"]
+            << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("servicePressure 123.05 ",
+                         mapped_values["servicePressure"] == "123.05");
+
+  std::cout << "@UT@END check testCheckFactor" << std::endl;
 }
