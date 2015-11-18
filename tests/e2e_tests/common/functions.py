@@ -28,10 +28,10 @@ class Functions(object):
     world.device_exists = False
     world.check_manager = False
 
-    def service_precond(self, service_name, protocol, attributes={}, static_attributes={}):
+    def service_precond(self, service_name, protocol, attributes={}, static_attributes={}, cbroker={}):
         world.service_name = service_name
         if not iotagent.service_created(service_name):
-            service = iotagent.create_service(service_name, protocol, attributes, static_attributes)
+            service = iotagent.create_service(service_name, protocol, attributes, static_attributes, cbroker)
             assert service.status_code == 201, 'Error al crear el servicio {} '.format(service_name)
             print 'Servicio {} creado '.format(service_name)
         else:

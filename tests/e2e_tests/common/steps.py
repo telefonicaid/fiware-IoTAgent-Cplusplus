@@ -14,7 +14,10 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot')
 def service_created_precond(step, service_name, protocol):
     if protocol:
         world.protocol = protocol
-        functions.service_precond(service_name, protocol)
+        if world.device == 'TelegestionModel':
+            functions.service_precond(service_name, protocol, {}, {}, CBROKER_URL_TLG)
+        else:
+            functions.service_precond(service_name, protocol)
 
 @step('a Service with name "([^"]*)", path "([^"]*)" and protocol "([^"]*)" created')
 def service_with_path_created_precond(step, service_name, service_path, protocol):
@@ -745,8 +748,9 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
                                         assert str(metadata_value) in attr['metadatas'][1]['value'], 'ERROR: metadata: ' + str(metadata_value) + " not found in: " + str(attr['metadatas'][1])
                                     assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
                                     if not timestamp:
-                                        assert functions.check_timestamp(str(attr['metadatas'][0]['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
-                                    else:
+                                        timestamp=world.st
+#                                        assert functions.check_timestamp(str(attr['metadatas'][0]['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
+#                                    else:
                                         assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
                                     break
                         if attr_matches:
@@ -758,8 +762,9 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
                         if attr ['name'] == "TimeInstant":
                             print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
                             if not timestamp:
-                                assert functions.check_timestamp(str(attr['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
-                            else:
+                                timestamp=world.st
+#                                assert functions.check_timestamp(str(attr['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
+#                            else:
                                 assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(timestamp) + " not found in: " + str(attr)
                             is_timestamp=True
                             break
