@@ -324,18 +324,19 @@ std::map<unsigned short, unsigned short> iota::Modbus::get_values() {
   return _values;
 }
 
-std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
-    std::vector<std::string>& mapped_fields) {
+std::map<std::string, std::string> iota::Modbus::get_mapped_values(
+    std::vector<iota::FloatPosition>& mapped_fields) {
   // Original values are map but unsigned short and ordered.
-  std::map<std::string, unsigned short> mapped_values;
+  std::map<std::string, std::string> mapped_values;
+
   std::map<unsigned short, unsigned short>::iterator it_values =
       _values.begin();
   if (mapped_fields.size() == 0) {
     // Set labels to key in values map
     while (it_values != _values.end()) {
-      mapped_values.insert(std::pair<std::string, unsigned short>(
+      mapped_values.insert(std::pair<std::string, std::string>(
           boost::lexical_cast<std::string>(it_values->first),
-          it_values->second));
+          boost::lexical_cast<std::string>(it_values->second)));
       ++it_values;
     }
   } else if (mapped_fields.size() > 0 &&
@@ -345,10 +346,17 @@ std::map<std::string, unsigned short> iota::Modbus::get_mapped_values(
       std::stringstream ss;
       ss << it_values->first;
       std::string str_field = ss.str();
-      if (!mapped_fields.at(i).empty()) {
-        str_field = mapped_fields.at(i);
-        mapped_values.insert(std::pair<std::string, unsigned short>(
-            str_field, it_values->second));
+      if (!mapped_fields.at(i).name.empty()) {
+        str_field = mapped_fields.at(i).name;
+        double factor = mapped_fields.at(i).factor;
+
+        std::stringstream ss_value;
+        double temp = factor * it_values->second;
+        ss_value << std::fixed
+                 << std::setprecision(mapped_fields.at(i).precision) << temp;
+
+        mapped_values.insert(
+            std::pair<std::string, std::string>(str_field, ss_value.str()));
       }
       ++it_values;
     }

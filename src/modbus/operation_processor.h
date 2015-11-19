@@ -37,6 +37,12 @@ typedef struct internal_parameter {
   std::string type;
 } CommandParameter;
 
+typedef struct internal_position {
+  std::string name;
+  float factor;
+  short precision;
+} FloatPosition;
+
 typedef std::map<int, CommandParameter> ParamsMap;
 
 class ModbusOperationProcessor {
@@ -48,7 +54,7 @@ class ModbusOperationProcessor {
   // void read_commands(std::string modbus_operation_file);
 
   boost::property_tree::ptree& get_operation(std::string operation);
-  std::vector<std::string>& get_mapped_labels(std::string operation);
+  std::vector<FloatPosition>& get_mapped_labels(std::string operation);
 
   boost::property_tree::ptree& get_command(std::string command);
   boost::property_tree::ptree& get_config();
@@ -82,7 +88,7 @@ class ModbusOperationProcessor {
  private:
   std::map<std::string, boost::property_tree::ptree> _operations;
 
-  std::map<std::string, std::vector<std::string> > _position_map;
+  std::map<std::string, std::vector<FloatPosition> > _position_map;
 
   std::map<std::string, boost::property_tree::ptree> _commands;
   std::map<std::string, ParamsMap> _ordered_parameters_map;

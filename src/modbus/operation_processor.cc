@@ -25,6 +25,8 @@
 #include "rest/types.h"
 #include <boost/foreach.hpp>
 #include <boost/exception/diagnostic_information.hpp>
+#include "util/FuncUtil.h"
+
 iota::ModbusOperationProcessor::ModbusOperationProcessor(
     std::stringstream& json_operations) {
   read(json_operations);
@@ -39,16 +41,33 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
       std::string op = v.second.get<std::string>("operation");
       _operations.insert(
           std::pair<std::string, boost::property_tree::ptree>(op, v.second));
-      std::vector<std::string> labels;
+      std::vector<iota::FloatPosition> labels_with_factor;
       try {
         BOOST_FOREACH (boost::property_tree::ptree::value_type& v_p,
                        v.second.get_child("positions")) {
-          labels.push_back(v_p.second.data());
+          iota::FloatPosition position;
+
+          position.name = v_p.second.get<std::string>("name", "");
+          if (!position.name.empty()) {
+            position.factor = v_p.second.get<float>("factor", 1);
+
+            std::string precision = v_p.second.get<std::string>("factor", "1");
+
+            position.precision = (short)iota::number_of_decimals(precision);
+
+          } else {
+            position.name = v_p.second.data();
+            position.factor = 1;
+            position.precision = 0;
+          }
+
+          labels_with_factor.push_back(position);
         }
-        if (labels.size() > 0) {
+        if (labels_with_factor.size() > 0) {
           _position_map.insert(
-              std::pair<std::string, std::vector<std::string> >(op, labels));
-          labels.clear();
+              std::pair<std::string, std::vector<iota::FloatPosition> >(
+                  op, labels_with_factor));
+          labels_with_factor.clear();
         }
       } catch (boost::exception& e) {
         // No labels
@@ -63,7 +82,7 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
     // TODO to IotaException
     iota::Alarm::error(iota::types::ALARM_CODE_BAD_CONFIGURATION, "Modbus operations", "Modbus configuration", e.what());
   }
-  
+
 }
 
 void iota::ModbusOperationProcessor::read_commands(
@@ -119,8 +138,6 @@ void iota::ModbusOperationProcessor::read_operations(
     std::stringstream ss, ss1;
     ss << f.rdbuf();
     read(ss);
-
-    // f.seekg(0,f.beg);
     f.seekg(0);
     ss1 << f.rdbuf();
     read_commands(ss1);
@@ -140,9 +157,8 @@ boost::property_tree::ptree& iota::ModbusOperationProcessor::get_config(){
   return _config;
 };
 
-
-std::vector<std::string>& iota::ModbusOperationProcessor::get_mapped_labels(
-    std::string operation) {
+std::vector<iota::FloatPosition>&
+iota::ModbusOperationProcessor::get_mapped_labels(std::string operation) {
   return _position_map[operation];
 };
 
