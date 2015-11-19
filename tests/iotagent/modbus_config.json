@@ -1,7 +1,7 @@
 {
   "commands": [
     {
-	"name":"installation_num_cmd",
+	"name":"installation_num",
 	"parameters": [
 	 {
 	   "name":"installation_number",
@@ -10,7 +10,7 @@
 	 ]
     }, 
     {
-	"name" : "tanks_num_cmd",
+	"name" : "tanks_num",
 	"parameters" : [
 	 {
 	   "name":"tanks_number",
@@ -19,7 +19,7 @@
 	 ]
     }, 
     {
-	"name" : "adquisition_time_cmd",
+	"name" : "adquisition_time",
 	"parameters" : [
 	 {
 	   "name":"acquisition_time",
@@ -28,7 +28,7 @@
 	 ]
     }, 
     {
-	"name" : "max_filllevel_alarm_cmd",
+	"name" : "max_filllevel_alarm",
 	"parameters" : [
 	 {
 	   "name":"high_level_tank_alarm",
