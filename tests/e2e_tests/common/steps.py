@@ -14,7 +14,7 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot')
 def service_created_precond(step, service_name, protocol):
     if protocol:
         world.protocol = protocol
-        if world.device == 'TelegestionModel':
+        if protocol == 'IoTModbus':
             functions.service_precond(service_name, protocol, {}, {}, CBROKER_URL_TLG)
         else:
             functions.service_precond(service_name, protocol)
@@ -25,13 +25,19 @@ def service_with_path_created_precond(step, service_name, service_path, protocol
     world.srv_path = service_path
     if (service_name == 'void'):
         return
+    world.protocol=protocol
     resource = URLTypes.get(protocol)
     world.resource = resource
     prot = ProtocolTypes.get(protocol)
     world.prot = prot
-    apikey='apikey_' + str(service_name)    
-    world.apikey = apikey
     world.cbroker= 'http://myurl:80'    
+    if (protocol == 'IoTRepsol') | (protocol == 'IoTModbus'):
+        apikey = ''      
+    else:
+        apikey='apikey_' + str(service_name)    
+    world.apikey = apikey
+    if protocol == 'IoTModbus':
+        world.cbroker= CBROKER_URL_TLG    
     functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
 
 @step('a Service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
@@ -533,7 +539,7 @@ def check_measures_cbroker_timestamp(step, num_measures, asset_name, timestamp):
 
 def check_measures(step, measures, asset_name, timestamp={}):
     time.sleep(1)
-    if world.device=='TelegestionModel':
+    if world.protocol == 'IoTModbus':
         cbroker_url = CBROKER_URL_TLG
     else:
         cbroker_url = CBROKER_URL
@@ -627,7 +633,7 @@ def check_measures(step, measures, asset_name, timestamp={}):
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received or NOT by context broker')
 def check_NOT_measure_cbroker(step, asset_name, measures):
     time.sleep(1)
-    if world.device=='TelegestionModel':
+    if world.protocol == 'IoTModbus':
         cbroker_url = CBROKER_URL_TLG
     else:
         cbroker_url = CBROKER_URL
@@ -703,7 +709,7 @@ def check_NOT_measures_cbroker_timestamp(step, num_measures, asset_name, timesta
 
 def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
     time.sleep(1)
-    if world.device=='TelegestionModel':
+    if world.protocol == 'IoTModbus':
         cbroker_url = CBROKER_URL_TLG
     else:
         cbroker_url = CBROKER_URL
