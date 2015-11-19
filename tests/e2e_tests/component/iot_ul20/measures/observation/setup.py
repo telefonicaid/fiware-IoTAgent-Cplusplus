@@ -6,6 +6,7 @@ import requests
 import time,datetime
 
 gw = Gw_Measures_Utils(server_root=IOT_SERVER_ROOT)
+world.device={}
 
 @step('I send a measure to the GW with apikey, id "([^"]*)", protocol "([^"]*)", alias "([^"]*)", timestamp "([^"]*)" and value "([^"]*)"')
 def send_measure(step, device_id, protocol, alias, timestamp, value):

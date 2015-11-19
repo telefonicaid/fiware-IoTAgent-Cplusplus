@@ -6,6 +6,7 @@ from common.gw_configuration import MQTT_BROKER_HOSTNAME,MQTT_BROKER_PORT,CBROKE
 
 mqtt = Gw_MQTT_Utils(mqtt_host=MQTT_BROKER_HOSTNAME,mqtt_port=MQTT_BROKER_PORT)
 world.def_entity=True
+world.device={}
 
 # Steps
 

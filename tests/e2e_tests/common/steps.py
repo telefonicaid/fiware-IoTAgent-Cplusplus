@@ -1,7 +1,7 @@
 from lettuce import step, world
 from iotqautils.iota_utils import Rest_Utils_IoTA
 from common.functions import Functions, URLTypes, ProtocolTypes
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
+from common.gw_configuration import CBROKER_URL,CBROKER_URL_TLG,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
 import time, requests
 
 iotagent = Rest_Utils_IoTA(server_root=IOT_SERVER_ROOT+'/iot')
@@ -14,7 +14,10 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot')
 def service_created_precond(step, service_name, protocol):
     if protocol:
         world.protocol = protocol
-        functions.service_precond(service_name, protocol)
+        if world.device == 'TelegestionModel':
+            functions.service_precond(service_name, protocol, {}, {}, CBROKER_URL_TLG)
+        else:
+            functions.service_precond(service_name, protocol)
 
 @step('a Service with name "([^"]*)", path "([^"]*)" and protocol "([^"]*)" created')
 def service_with_path_created_precond(step, service_name, service_path, protocol):
@@ -528,12 +531,19 @@ def check_measures_cbroker(step, num_measures, asset_name):
 def check_measures_cbroker_timestamp(step, num_measures, asset_name, timestamp):
     check_measures(step, num_measures, asset_name, timestamp)
 
-def check_measures(step, num_measures, asset_name, timestamp={}):
+def check_measures(step, measures, asset_name, timestamp={}):
     time.sleep(1)
-    measures_count =  requests.get(CBROKER_URL+"/countMeasure")
+    if world.device=='TelegestionModel':
+        cbroker_url = CBROKER_URL_TLG
+    else:
+        cbroker_url = CBROKER_URL
+    measures_count =  requests.get(cbroker_url+"/countMeasure")
+    num_measures = measures.split('/')[0]
     assert measures_count.text == str(num_measures), 'ERROR: ' + str(num_measures) + ' measures expected, ' + measures_count.text + ' received'
-    req =  requests.get(CBROKER_URL+"/last")
+    req =  requests.get(cbroker_url+"/last")
     response = req.json()
+    if len(measures.split('/'))>1:
+        assert str(len(response['contextElements'])) == measures.split('/')[1], 'ERROR: ' + str(measures.split('/')[1]) + ' contexElements expected, ' + str(len(response['contextElements'])) + ' received'
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
     for measures_dict in step.hashes:
@@ -599,10 +609,13 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
                             is_timestamp=True
                             break
                     assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
+                    device_name=asset_name
                     if world.def_entity:
-                        asset_name = DEF_ENTITY_TYPE + ':' + asset_name
+                        device_name = DEF_ENTITY_TYPE + ':' + asset_name
                         world.thing = DEF_ENTITY_TYPE
-                    assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
+                    if world.device:
+                        device_name = world.device + '.' + asset_name
+                    assert assetElement == "{}".format(device_name), 'ERROR: id: ' + str(device_name) + " not found in: " + str(contextElement)
                     assert typeElement == "{}".format(world.thing), 'ERROR: type: ' + str(world.thing) + " not found in: " + str(contextElement)
                 count_measure+=1
             else:
@@ -614,8 +627,11 @@ def check_measures(step, num_measures, asset_name, timestamp={}):
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received or NOT by context broker')
 def check_NOT_measure_cbroker(step, asset_name, measures):
     time.sleep(1)
-    print measures
-    req =  requests.get(CBROKER_URL+"/last")
+    if world.device=='TelegestionModel':
+        cbroker_url = CBROKER_URL_TLG
+    else:
+        cbroker_url = CBROKER_URL
+    req =  requests.get(cbroker_url+"/last")
     response = req.json()
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
@@ -624,10 +640,13 @@ def check_NOT_measure_cbroker(step, asset_name, measures):
     assetElement = contextElement['id']
     typeElement = contextElement['type']
     if (world.field == "timestamp") | (world.field == "sens_type") | (world.field == "payload"):
+        device_name=asset_name
         if world.def_entity:
-            asset_name = DEF_ENTITY_TYPE + ':' + asset_name
+            device_name = DEF_ENTITY_TYPE + ':' + asset_name
             world.thing = DEF_ENTITY_TYPE
-        assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
+        if world.device:
+            device_name = world.device + '.' + asset_name
+        assert assetElement == "{}".format(device_name), 'ERROR: id: ' + str(device_name) + " not found in: " + str(contextElement)
         assert typeElement == "{}".format(world.thing), 'ERROR: type: ' + str(world.thing) + " not found in: " + str(contextElement)
         if measures:
             for i in measures.split('#'):
@@ -684,9 +703,13 @@ def check_NOT_measures_cbroker_timestamp(step, num_measures, asset_name, timesta
 
 def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
     time.sleep(1)
-    measures_count =  requests.get(CBROKER_URL+"/countMeasure")
+    if world.device=='TelegestionModel':
+        cbroker_url = CBROKER_URL_TLG
+    else:
+        cbroker_url = CBROKER_URL
+    measures_count =  requests.get(cbroker_url+"/countMeasure")
     assert measures_count.text == str(num_measures), 'ERROR: ' + str(num_measures) + ' measures expected, ' + measures_count.text + ' received'
-    req =  requests.get(CBROKER_URL+"/last")
+    req =  requests.get(cbroker_url+"/last")
     response = req.json()
     assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
     print 'Compruebo la cabecera {} con valor {}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
@@ -726,7 +749,9 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
                                     assert attr['metadatas'][0]['name'] == "TimeInstant", 'ERROR: ' + str(attr['metadatas'][0])
                                     if not timestamp:
                                         timestamp=world.st
-                                    assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])
+#                                        assert functions.check_timestamp(str(attr['metadatas'][0]['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
+#                                    else:
+                                        assert str(timestamp) == attr['metadatas'][0]['value'], 'ERROR: metadata: ' + str(timestamp) + " not found in: " + str(attr['metadatas'][0])
                                     break
                         if attr_matches:
                             break
@@ -738,11 +763,19 @@ def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
                             print 'Compruebo atributo TimeInstant y {} en {}'.format(attr['value'],str(attr))
                             if not timestamp:
                                 timestamp=world.st
-                            assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(world.st) + " not found in: " + str(attr)
+#                                assert functions.check_timestamp(str(attr['value'])), 'ERROR: metadata: ' + str(world.st) + " not found in: " + str(attr['metadatas'][0])   
+#                            else:
+                                assert str(timestamp) == attr['value'], 'ERROR: timestamp: ' + str(timestamp) + " not found in: " + str(attr)
                             is_timestamp=True
                             break
                     assert is_timestamp, 'ERROR: TimeInstant not found in' + str(contextElement['attributes'])
-            assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
+            device_name=asset_name
+            if world.def_entity:
+                device_name = DEF_ENTITY_TYPE + ':' + asset_name
+                world.thing = DEF_ENTITY_TYPE
+            if world.device:
+                device_name = world.device + '.' + asset_name
+            assert assetElement == "{}".format(device_name), 'ERROR: id: ' + str(device_name) + " not found in: " + str(contextElement)
             assert typeElement == "{}".format(world.thing), 'ERROR: type: ' + str(world.thing) + " not found in: " + str(contextElement)
         if len(step.hashes)==2:
             measures_dict=step.hashes[1]

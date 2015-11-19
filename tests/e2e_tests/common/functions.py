@@ -9,6 +9,7 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot', cbroker=C
 URLTypes = {
     "IoTUL2": "/iot/d",
     "IoTRepsol": "/iot/repsol",
+    "IoTModbus": "/iot/tgrepsol",
     "IoTEvadts": "/iot/evadts",
     "IoTTT": "/iot/tt",
     "IoTMqtt": "/iot/mqtt"
@@ -17,6 +18,7 @@ URLTypes = {
 ProtocolTypes = {
     "IoTUL2": "PDI-IoTA-UltraLight",
     "IoTTT": "PDI-IoTA-ThinkingThings",
+    "IoTModbus": "PDI-MODBUS-REPSOL",
     "IoTMqtt": "PDI-IoTA-MQTT-UltraLight"
 }
 
@@ -26,10 +28,10 @@ class Functions(object):
     world.device_exists = False
     world.check_manager = False
 
-    def service_precond(self, service_name, protocol, attributes={}, static_attributes={}):
+    def service_precond(self, service_name, protocol, attributes={}, static_attributes={}, cbroker={}):
         world.service_name = service_name
         if not iotagent.service_created(service_name):
-            service = iotagent.create_service(service_name, protocol, attributes, static_attributes)
+            service = iotagent.create_service(service_name, protocol, attributes, static_attributes, cbroker)
             assert service.status_code == 201, 'Error al crear el servicio {} '.format(service_name)
             print 'Servicio {} creado '.format(service_name)
         else:
