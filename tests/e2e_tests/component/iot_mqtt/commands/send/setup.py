@@ -12,7 +12,7 @@ world.device={}
 def envia_comando(service, entityData):
     time.sleep(3)
     print 'sending command ' + str(entityData)
-    req = cb.entity_update(service, entityData, 'path_'+service)
+    req = cb.entity_update(service, entityData)
     assert req.ok, 'ERROR: ' + req.text
     world.req_text=req.json()
 
@@ -52,7 +52,7 @@ def send_command(step, service, device_id, cmd_name, cmd_type, value):
         th.join(1)
     else:
         print 'sending pull command ' + str(entityData)
-        req = cb.entity_update(service, entityData, 'path_'+service)
+        req = cb.entity_update(service, entityData)
         assert req.ok, 'ERROR: ' + req.text
         world.req_text=req.json()
 
