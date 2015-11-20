@@ -54,7 +54,7 @@ Feature: UL20 Command Send
 		Examples:
             |device_id	|device_name |service		|protocol	|command	|value		|cmd_value	|endpoint														|status		|wrong_field			|response																			|
             |dev2		|room2		 |serviceul20	|IoTUL2		|ping2		|ping2		|			|http://10.95.213.159:5371/simulaClient/lightCommand			|OK			|simulator_type			|no ul20 response command:															|
-            |dev3		|room3		 |serviceul20	|IoTUL2		|ping3		|ping3		|			|http://192.168.1.1:9001										|error		|nonexist_destination	|http://192.168.1.1:9001/  [No route to host]										|
+            |dev3		|room3		 |serviceul20	|IoTUL2		|ping3		|ping3		|			|http://192.0.3.1:9001											|error		|nonexist_destination	|http://192.0.3.1:9001/  [No route to host]											|
             |dev2		|room2	 	 |serviceul20	|IoTUL2		|ping2_1	|ping2_1	|			|																|fail		|nonexistent_command	|the device does not have implemented this command									|         
             |dev11		|room11	 	 |serviceul20	|IoTUL2		|ping11		|ping11		|fail		|																|fail		|nonexistent_device		|The device does not exist															| 
             |dev5		|room5		 |serviceMqtt	|			|ping5		|ping5		|fail		|																|fail		|nonexistent_service	|Fiware-Service not accepted														|        
