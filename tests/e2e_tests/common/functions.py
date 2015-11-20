@@ -931,8 +931,9 @@ class Functions(object):
                         if dirty[srv][path].__contains__('resource'):
                             for resource in dirty[srv][path]['resource']:
                                 for apikey in dirty[srv][path]['resource'][resource]:
-                                    if (world.protocol == 'IoTRepsol') | (world.protocol == 'IoTModbus'):
-                                        break                                    
+                                    if world.protocol:
+                                        if (world.protocol == 'IoTRepsol') | (world.protocol == 'IoTModbus'):
+                                            break                                    
                                     req_service = iotagent.delete_service_with_params(srv, path, resource, apikey)
                                     if req_service.status_code == 204:
                                         print 'Se ha borrado el servicio:{} path:{} resource:{} y apikey:{}'.format(srv,path,resource,apikey)
@@ -945,8 +946,8 @@ class Functions(object):
                             apikey=''
                         else:
                             apikey='apikey_' + str(srv)
-                    if (world.protocol == 'IoTRepsol') | (world.protocol == 'IoTModbus'):
-                        return                                    
+                        if (world.protocol == 'IoTRepsol') | (world.protocol == 'IoTModbus'):
+                            return                                    
                     req_service = iotagent.delete_service_with_params(srv, {}, resource2, apikey)
                     if req_service.status_code == 204:
                         print 'Se ha borrado el servicio ' + srv
