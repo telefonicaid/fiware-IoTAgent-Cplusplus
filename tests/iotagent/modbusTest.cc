@@ -208,9 +208,9 @@ void ModbusTest::testProcessorCommandsFile() {
   iota::ModbusOperationProcessor processor;
   processor.read_operations("../../tests/iotagent/modbus_config.json");
 
-  int base_addr = processor.get_base_address("installation_num_cmd");
+  int base_addr = processor.get_base_address("installation_num");
 
-  CPPUNIT_ASSERT_MESSAGE("Base address  installation_num_cmd ", base_addr == 0);
+  CPPUNIT_ASSERT_MESSAGE("Base address  installation_num ", base_addr == 0);
 
   base_addr = processor.get_base_address("test_command");
   CPPUNIT_ASSERT_MESSAGE("Base address  test_command ", base_addr == 20);
@@ -241,11 +241,9 @@ void ModbusTest::testProcessorCommandsFile() {
   CPPUNIT_ASSERT_MESSAGE("not the default type of parameter",
                          names_ordered[0].type == "numeric");
 
-  boost::property_tree::ptree op_1 =
-      processor.get_command("installation_num_cmd");
-  CPPUNIT_ASSERT_MESSAGE(
-      "wrong parameter name ",
-      op_1.get<std::string>("name") == "installation_num_cmd");
+  boost::property_tree::ptree op_1 = processor.get_command("installation_num");
+  CPPUNIT_ASSERT_MESSAGE("wrong parameter name ",
+                         op_1.get<std::string>("name") == "installation_num");
 
   std::cout << "@UT@check get_protocol_commands";
 
@@ -254,20 +252,19 @@ void ModbusTest::testProcessorCommandsFile() {
   std::cout << "@UT@RES:" << pcommands << std::endl;
 
   CPPUNIT_ASSERT_MESSAGE(
-      "no installation_num_cmd",
-      pcommands.find("\"installation_num_cmd\"") != std::string::npos);
+      "no installation_num",
+      pcommands.find("\"installation_num\"") != std::string::npos);
+
+  CPPUNIT_ASSERT_MESSAGE("no tanks_num_cmd",
+                         pcommands.find("\"tanks_num\"") != std::string::npos);
 
   CPPUNIT_ASSERT_MESSAGE(
-      "no tanks_num_cmd",
-      pcommands.find("\"tanks_num_cmd\"") != std::string::npos);
+      "no adquisition_time",
+      pcommands.find("\"adquisition_time\"") != std::string::npos);
 
   CPPUNIT_ASSERT_MESSAGE(
-      "no adquisition_time_cmd",
-      pcommands.find("\"adquisition_time_cmd\"") != std::string::npos);
-
-  CPPUNIT_ASSERT_MESSAGE(
-      "no max_filllevel_alarm_cmd",
-      pcommands.find("\"max_filllevel_alarm_cmd\"") != std::string::npos);
+      "no max_filllevel_alarm",
+      pcommands.find("\"max_filllevel_alarm\"") != std::string::npos);
 
   CPPUNIT_ASSERT_MESSAGE(
       "no test_command",
@@ -314,7 +311,7 @@ void ModbusTest::testAllCommandsConfigFile() {
   CPPUNIT_ASSERT_MESSAGE("no c3_phone_number command and parameter",
                          ordered_params[0].name == "c3_phone_number");
   CPPUNIT_ASSERT_MESSAGE("wrong positions c3_phone_number parameter",
-                         ordered_params[0].num_positions == 10);
+                         ordered_params[0].num_positions == 7);
   CPPUNIT_ASSERT_MESSAGE("wrong type on c3_phone_number parameter",
                          ordered_params[0].type == "string");
   std::cout << "@UT@END check testAllCommandsConfigFile" << std::endl;
