@@ -18,6 +18,7 @@ URLTypes = {
 ProtocolTypes = {
     "IoTUL2": "PDI-IoTA-UltraLight",
     "IoTTT": "PDI-IoTA-ThinkingThings",
+    "IoTRepsol": "PDI-SMS-REPSOL",
     "IoTModbus": "PDI-MODBUS-REPSOL",
     "IoTMqtt": "PDI-IoTA-MQTT-UltraLight"
 }
@@ -41,7 +42,6 @@ class Functions(object):
         world.service_exists = True
 
     def service_with_params_precond(self, service_name, service_path, resource, apikey, cbroker={}, entity_type={}, token={}, attributes={}, static_attributes={}):
-#        world.protocol={}
         world.service_name = service_name
         if not iotagent.service_created(service_name, service_path, resource):
             service = iotagent.create_service_with_params(service_name, service_path, resource, apikey, cbroker, entity_type, token, attributes, static_attributes)
@@ -931,6 +931,9 @@ class Functions(object):
                         if dirty[srv][path].__contains__('resource'):
                             for resource in dirty[srv][path]['resource']:
                                 for apikey in dirty[srv][path]['resource'][resource]:
+                                    if world.protocol:
+                                        if (world.protocol == 'IoTRepsol') | (world.protocol == 'IoTModbus'):
+                                            break                                    
                                     req_service = iotagent.delete_service_with_params(srv, path, resource, apikey)
                                     if req_service.status_code == 204:
                                         print 'Se ha borrado el servicio:{} path:{} resource:{} y apikey:{}'.format(srv,path,resource,apikey)
@@ -943,6 +946,8 @@ class Functions(object):
                             apikey=''
                         else:
                             apikey='apikey_' + str(srv)
+                        if (world.protocol == 'IoTRepsol') | (world.protocol == 'IoTModbus'):
+                            return                                    
                     req_service = iotagent.delete_service_with_params(srv, {}, resource2, apikey)
                     if req_service.status_code == 204:
                         print 'Se ha borrado el servicio ' + srv

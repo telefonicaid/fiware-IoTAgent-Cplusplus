@@ -45,7 +45,7 @@ def send_command(step, service, device_id, cmd_name, entity_type, value):
     world.st=st
     world.ts=ts
     print st
-    req = cb.entity_update(service,entityData,'path_'+world.service_name)
+    req = cb.entity_update(service,entityData)
     #print req.status_code + req.ok
     assert req.ok, 'ERROR: ' + req.text
     world.req_text=req.json()
@@ -73,7 +73,7 @@ def send_wrong_command(step, service, device_id, cmd_name, value, field):
     entityData['ent_id'] = str(device_id)
     entityData['attributes'] = commands
     print "Comando: " + str(entityData)
-    req = cb.entity_update(service,entityData,'path_'+world.service_name)
+    req = cb.entity_update(service,entityData)
     if field == 'unreachable_dest':
         time.sleep(TIMEOUT_COMMAND)
     ts = time.time()

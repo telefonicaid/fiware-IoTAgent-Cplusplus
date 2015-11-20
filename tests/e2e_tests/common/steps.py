@@ -14,7 +14,7 @@ iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot')
 def service_created_precond(step, service_name, protocol):
     if protocol:
         world.protocol = protocol
-        if world.device == 'TelegestionModel':
+        if protocol == 'IoTModbus':
             functions.service_precond(service_name, protocol, {}, {}, CBROKER_URL_TLG)
         else:
             functions.service_precond(service_name, protocol)
@@ -25,13 +25,19 @@ def service_with_path_created_precond(step, service_name, service_path, protocol
     world.srv_path = service_path
     if (service_name == 'void'):
         return
+    world.protocol=protocol
     resource = URLTypes.get(protocol)
     world.resource = resource
     prot = ProtocolTypes.get(protocol)
     world.prot = prot
-    apikey='apikey_' + str(service_name)    
-    world.apikey = apikey
     world.cbroker= 'http://myurl:80'    
+    if (protocol == 'IoTRepsol') | (protocol == 'IoTModbus'):
+        apikey = ''      
+    else:
+        apikey='apikey_' + str(service_name)    
+    world.apikey = apikey
+    if protocol == 'IoTModbus':
+        world.cbroker= CBROKER_URL_TLG    
     functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
 
 @step('a Service with name "([^"]*)", protocol "([^"]*)" and atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
@@ -61,6 +67,7 @@ def service_with_params_precond(step, service_name, service_path, resource, apik
     world.token = {}
     world.typ1 = {}
     world.typ2 = {}
+    world.protocol={}
     functions.service_with_params_precond(service_name, service_path, resource, apikey, world.cbroker)
 
 @step('two Services with name "([^"]*)", paths "([^"]*)" and "([^"]*)", protocols "([^"]*)" and "([^"]*)" and apikey "([^"]*)" created')
@@ -68,11 +75,13 @@ def services_with_params_precond(step, service_name, service_path, service_path2
     world.apikey = apikey
     world.cbroker= 'http://myurl:80'
     if service_path2:
+        world.protocol=protocol2
         world.srv_path2 = service_path2
         resource2 = URLTypes.get(protocol2)
         world.resource2 = resource2
         functions.service_with_params_precond(service_name, service_path2, resource2, apikey, world.cbroker)
     if service_path:
+        world.protocol=protocol
         world.srv_path = service_path
         resource = URLTypes.get(protocol)
         world.resource = resource
@@ -89,6 +98,7 @@ def service_with_all_params_precond(step, service_name, service_path, resource, 
     world.token = token
     world.typ1 = {}
     world.typ2 = {}
+    world.protocol={}
     functions.service_with_params_precond(service_name, service_path, resource, apikey, cbroker, entity_type, token)
 
 @step('a Service with name "([^"]*)", path "([^"]*)", resource "([^"]*)", apikey "([^"]*)", cbroker "([^"]*)" and atribute "([^"]*)", with name "([^"]*)", type "([^"]*)" and value "([^"]*)" created')
@@ -102,6 +112,7 @@ def service_with_attribute_created_precond(step, service_name, service_path, res
     world.token = {}
     world.attributes=[]
     world.st_attributes=[]
+    world.protocol={}
     functions.fill_attributes(typ, name, type1, value)
     functions.service_with_params_precond(service_name,service_path,resource,apikey,cbroker,{},{},world.attributes,world.st_attributes)
 
@@ -111,6 +122,7 @@ def service_with_params_manager_precond(step, service_name, service_path, protoc
     world.srv_path = service_path
     resource = URLTypes.get(protocol)
     world.resource = resource
+    world.protocol = protocol
     world.apikey = apikey
     prot = ProtocolTypes.get(protocol)
     world.prot = prot
@@ -173,6 +185,7 @@ def create_service_manager(step,srv_name,srv_path,protocol,apikey,cbroker,entity
     world.srv_path = srv_path
     resource = URLTypes.get(protocol)
     world.resource = resource
+    world.protocol = protocol
     world.apikey = apikey
     world.cbroker = cbroker
     world.entity_type = entity_type
@@ -193,6 +206,7 @@ def create_service_with_attrs(step,srv_name,srv_path,resource,apikey,cbroker,typ
     world.typ2 = {}
     world.attributes=[]
     world.st_attributes=[]
+    world.protocol = {}
     functions.fill_attributes(typ1, name1, type1, value1, typ2, name2, type2, value2)
     service=functions.create_service_with_params(srv_name,srv_path,resource,apikey,cbroker,{},{},world.attributes,world.st_attributes)
     assert service.status_code == 201, 'ERROR: ' + service.text + "El servicio {} no se ha creado correctamente".format(srv_name)
@@ -203,6 +217,7 @@ def create_service_with_attrs_manager(step, srv_name, srv_path, protocol, apikey
     world.srv_path = srv_path
     resource = URLTypes.get(protocol)
     world.resource = resource
+    world.protocol = protocol
     world.apikey = apikey
     world.cbroker = cbroker
     world.entity_type = {}
@@ -533,7 +548,7 @@ def check_measures_cbroker_timestamp(step, num_measures, asset_name, timestamp):
 
 def check_measures(step, measures, asset_name, timestamp={}):
     time.sleep(1)
-    if world.device=='TelegestionModel':
+    if world.protocol == 'IoTModbus':
         cbroker_url = CBROKER_URL_TLG
     else:
         cbroker_url = CBROKER_URL
@@ -627,7 +642,7 @@ def check_measures(step, measures, asset_name, timestamp={}):
 @step('the measure of asset "([^"]*)" with measures "([^"]*)" is received or NOT by context broker')
 def check_NOT_measure_cbroker(step, asset_name, measures):
     time.sleep(1)
-    if world.device=='TelegestionModel':
+    if world.protocol == 'IoTModbus':
         cbroker_url = CBROKER_URL_TLG
     else:
         cbroker_url = CBROKER_URL
@@ -703,7 +718,7 @@ def check_NOT_measures_cbroker_timestamp(step, num_measures, asset_name, timesta
 
 def check_NOT_measures(step, num_measures, asset_name, timestamp={}):
     time.sleep(1)
-    if world.device=='TelegestionModel':
+    if world.protocol == 'IoTModbus':
         cbroker_url = CBROKER_URL_TLG
     else:
         cbroker_url = CBROKER_URL
