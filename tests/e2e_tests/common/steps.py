@@ -832,8 +832,8 @@ def check_status_info(step, asset_name, response, status):
     else:
         if response:
             world.response=status
-            functions.check_command_cbroker(asset_name, status)
-            functions.check_NOT_command_cbroker(asset_name, response, "Info")
+        functions.check_command_cbroker(asset_name, status)
+        functions.check_NOT_command_cbroker(asset_name, response, "Info")
 
 @step('the command of device "([^"]*)" with response "([^"]*)" and status "([^"]*)" is received or NOT by context broker')
 def check_wrong_status_info(step, asset_name, response, status):

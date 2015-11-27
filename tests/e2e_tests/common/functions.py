@@ -1,5 +1,5 @@
 from iotqautils.iota_utils import Rest_Utils_IoTA
-from common.gw_configuration import CBROKER_URL,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,PATH_UL20_SIMULATOR,DEF_TYPE,TIMESTAMP
+from common.gw_configuration import CBROKER_URL,CBROKER_URL_TLG,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,PATH_UL20_SIMULATOR,DEF_TYPE,TIMESTAMP
 from lettuce import world
 import time, datetime, requests
 
@@ -245,11 +245,15 @@ class Functions(object):
     def device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
         if not iotagent.device_created(world.service_name, device_id):
+            if entity_name:
+                world.device_name=entity_name
             prot = ProtocolTypes.get(protocol)
             device = iotagent.create_device(world.service_name, device_id, {}, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
             assert device.status_code == 201, 'Error al crear el device {} '.format(device_id)
             print 'Device {} creado '.format(device_id)
         else:
+            if entity_name:
+                world.device_name=entity_name
             print 'El device {} existe '.format(device_id)
         world.remember[world.service_name].setdefault('device', set())
         world.remember[world.service_name]['device'].add(device_id)
@@ -538,7 +542,12 @@ class Functions(object):
             }
             for kreplace in replaces:
                 response = response.replace(kreplace,replaces[kreplace])
-        req =  requests.get(CBROKER_URL+"/last")
+        if world.protocol == 'IoTModbus':
+            cbroker_url = CBROKER_URL_TLG
+            req =  requests.get(cbroker_url+"/lastStatus")
+        else:
+            cbroker_url = CBROKER_URL
+            req =  requests.get(cbroker_url+"/last")
         cmd_name=str(world.cmd_name)+"_status"
         print "Voy a comprobar el STATUS del Comando: " + str(cmd_name)
         resp = req.json()
@@ -576,10 +585,14 @@ class Functions(object):
     
     def check_NOT_command_cbroker(self, asset_name, response, cmd_type):
         time.sleep(1)
-        if cmd_type == "Status":
-            req =  requests.get(CBROKER_URL+"/lastStatus")
+        if world.protocol == 'IoTModbus':
+            cbroker_url = CBROKER_URL_TLG
         else:
-            req =  requests.get(CBROKER_URL+"/lastInfo")
+            cbroker_url = CBROKER_URL
+        if cmd_type == "Status":
+            req =  requests.get(cbroker_url+"/lastStatus")
+        else:
+            req =  requests.get(cbroker_url+"/lastInfo")
         resp = req.json()
         assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
         print 'Compruebo la cabecera {} con valor {} en last{}'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER],cmd_type)
@@ -603,6 +616,7 @@ class Functions(object):
         threshold=-TIMESTAMP
         while (threshold<=TIMESTAMP):
             st = datetime.datetime.utcfromtimestamp(world.ts+threshold).strftime('%Y-%m-%dT%H:%M:%S')
+            print st
             if st in timestamp:
                 return True
             threshold+=1
