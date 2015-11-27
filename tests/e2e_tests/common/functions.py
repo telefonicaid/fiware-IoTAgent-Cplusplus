@@ -616,7 +616,6 @@ class Functions(object):
         threshold=-TIMESTAMP
         while (threshold<=TIMESTAMP):
             st = datetime.datetime.utcfromtimestamp(world.ts+threshold).strftime('%Y-%m-%dT%H:%M:%S')
-            print st
             if st in timestamp:
                 return True
             threshold+=1
