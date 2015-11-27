@@ -44,7 +44,7 @@ Feature: MQTT Command Send
 		And a Device with id "<device_id>", name "<device_name>", endpoint "<cmdURL>", protocol "<protocol>", command name "<command>" and command value "<cmd_value>" created
 		When I send a command to the IoTAgent with service "<service>", device "<device_name>", command "<command>", cmd_type "<cmd_type>" and value "<cmd_name>" 
 		And I wait the command timeout "<timeout>" for "<cmd_type>"
-		Then the command of device "<device_name>" with response "<response>" and status "<status>" is received by context broker
+		Then the command of device "<device_name>" with response "" and status "<status>" is received by context broker
 		
 		Examples:
 			|device_id	|device_name |service		|protocol	|command	|cmd_name	|cmd_value	|cmd_type 		|cmdURL				|status							|timeout |
