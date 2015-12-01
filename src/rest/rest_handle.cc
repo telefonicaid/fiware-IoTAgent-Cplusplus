@@ -879,6 +879,9 @@ bool iota::RestHandle::get_service_by_name(boost::property_tree::ptree& pt,
     get_service_by_name_file(pt, item_name, service_path);
   }
 
+  // Add information from plugin
+  complete_info(pt);
+
   return true;
 }
 
@@ -1233,6 +1236,10 @@ iota::ProtocolData iota::RestHandle::get_protocol_data() {
 
 std::string iota::RestHandle::get_protocol_commands() {
   return "";
+}
+ 
+void iota::RestHandle::complete_info(boost::property_tree::ptree& pt) {
+  return;
 }
 
 int iota::RestHandle::get_timeout_commands() {
