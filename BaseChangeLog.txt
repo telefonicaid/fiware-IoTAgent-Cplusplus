@@ -5,6 +5,7 @@
 - FEATURE DM-714: Alarm (error) when agent does not get token as PEP.
 - FEATURE DM-628: Modbus: Repsol Telegestion supports Modbus commands.
 - FEATURE DM-717: Modbus: Historic data processing, interpret numeric data with decimals
+- FIX DM-1066: Add method to complete service information based on plugin.
 
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.
