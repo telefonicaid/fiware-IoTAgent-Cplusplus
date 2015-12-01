@@ -160,14 +160,14 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
     what << "Mandatory field missing: ";
     what << "[apikey]";
 
-    throw std::runtime_error(what.str());
+    throw iota::IotaException(what.str(), "", 400);
   }
 
   if (idDevice == "") {
     std::ostringstream what;
     what << "Mandatory field missing: ";
     what << "[idDevice]";
-    throw std::runtime_error(what.str());
+    throw iota::IotaException(what.str(), "", 400);
   }
 
   std::string cb_response;
