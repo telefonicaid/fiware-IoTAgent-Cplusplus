@@ -21,6 +21,7 @@
 */
 
 #include "IotaMqttService.h"
+#include "../util/iota_exception.h"
 
 /**
 TODO: this service has some methods for handling  pull commands, but as a new
@@ -47,18 +48,27 @@ std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(
 void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
     std::string& apikey, std::string& idDevice, std::string& payload,
     std::string& type) {
-  if (MQTT_COMMAND_RESPONSE == type) {
-    return processCommandResponse(apikey, idDevice, payload);
-  }
+  try {
+    if (MQTT_COMMAND_RESPONSE == type) {
+      return processCommandResponse(apikey, idDevice, payload);
+    }
 
-  if (MQTT_COMMAND_IGNORE == type) {  // This is for when "cmd" is echoed back
-                                      // to us. This is nasty, but a limitation
-                                      // of MQTT broker.
-    return;
-  }
+    if (MQTT_COMMAND_IGNORE == type) {  // This is for when "cmd" is echoed back
+      // to us. This is nasty, but a limitation
+      // of MQTT broker.
+      return;
+    }
 
-  if (payload != "") {
-    // when type is not either "cmdget" or "cmdexe", payload is an actual JSON
-    publishContextBroker(payload, apikey, idDevice);
+    if (payload != "") {
+      // when type is not either "cmdget" or "cmdexe", payload is an actual JSON
+      publishContextBroker(payload, apikey, idDevice);
+    }
+
+  } catch (iota::IotaException& ex) {
+    IOTA_LOG_ERROR(m_logger, "Error while processing mqtt message"
+                                 << ex.what() << " payload: " << payload
+                                 << " apikey: [" << apikey << "] device: ["
+                                 << idDevice << "]");
+  } catch (...) {
   }
 }

@@ -95,18 +95,19 @@ bool ESP_Output_IoT::execute(CC_AttributesType* attributes,
   ESP_Attribute* type_attr =
       ESP_Attribute::searchAttributeRefByName(attributes, typeAttribute);
 
-  if (apikeyattr != NULL) {
+  if (apikeyattr != NULL && !apikeyattr->getValueAsString().empty()) {
     apikey = apikeyattr->getValueAsString();
   } else {
     CC_Logger::getSingleton()->logError(
         "FATAL: apikey not found in received message.NO VALID OUTPUT WILL BE "
         "GENERATED. (Is the config file correct?) ");
   }
-  if (idDeviceAttr != NULL) {
+  if (idDeviceAttr != NULL && !idDeviceAttr->getValueAsString().empty()) {
     idDevice = idDeviceAttr->getValueAsString();
   } else {
     CC_Logger::getSingleton()->logError(
-        "FATAL: sensorID not found in received message.NO VALID OUTPUT WILL BE "
+        "FATAL: device id not found in received message.NO VALID OUTPUT WILL "
+        "BE "
         "GENERATED. (Is the config file correct?) ");
   }
 

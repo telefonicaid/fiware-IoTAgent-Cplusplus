@@ -39,6 +39,7 @@ using ::testing::NotNull;
 using ::testing::StrEq;
 using ::testing::_;
 using ::testing::Invoke;
+using ::testing::Throw;
 
 // iota::AdminService* AdminService_ptr = new iota::AdminService();
 
@@ -146,9 +147,22 @@ void MqttTest::testCBPublisherMissingApikey() {
   std::string apikey;
   std::string jsonMqtt = "";
 
-  CPPUNIT_ASSERT_THROW(
-      actual.assign(cbPublish->publishContextBroker(jsonMqtt, apikey, device)),
-      std::runtime_error);
+  try {
+    cbPublish->publishContextBroker(jsonMqtt, apikey, device);
+    CPPUNIT_ASSERT_MESSAGE("iota::IotaException not thrown for missing apikey",
+                           false);
+  } catch (iota::IotaException& ex) {
+    CPPUNIT_ASSERT(true);
+  }
+
+  apikey = "";
+  try {
+    cbPublish->publishContextBroker(jsonMqtt, apikey, device);
+    CPPUNIT_ASSERT_MESSAGE("iota::IotaException not thrown for missing apikey",
+                           false);
+  } catch (iota::IotaException& ex) {
+    CPPUNIT_ASSERT(true);
+  }
   std::cout << "Test MqttService missing apikey" << std::endl;
 }
 
@@ -158,9 +172,23 @@ void MqttTest::testCBPublisherMissingIDdevice() {
   std::string device;
   std::string jsonMqtt = "";
 
-  CPPUNIT_ASSERT_THROW(
-      actual.assign(cbPublish->publishContextBroker(jsonMqtt, apikey, device)),
-      std::runtime_error);
+  try {
+    cbPublish->publishContextBroker(jsonMqtt, apikey, device);
+    CPPUNIT_ASSERT_MESSAGE("iota::IotaException not thrown for missing device",
+                           false);
+  } catch (iota::IotaException& ex) {
+    CPPUNIT_ASSERT(true);
+  }
+
+  device = "";
+  try {
+    cbPublish->publishContextBroker(jsonMqtt, apikey, device);
+    CPPUNIT_ASSERT_MESSAGE("iota::IotaException not thrown for missing device",
+                           false);
+  } catch (iota::IotaException& ex) {
+    CPPUNIT_ASSERT(true);
+  }
+
   std::cout << "Test MqttService missing ID Device" << std::endl;
 }
 
@@ -212,10 +240,9 @@ void MqttTest::testReceivedMqtt() {
   iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
   std::cout << "Sensor Stopping... " << std::endl;
 
+  delete mockPublisher;
   CPPUNIT_ASSERT(idsensor > 0);
   std::cout << "Test Receive MQTT message completed!" << std::endl;
-  // delete mqttService;
-  delete mockPublisher;
 }
 
 void MqttTest::testBadEntityType() {
@@ -1157,6 +1184,116 @@ void MqttTest::testSendAllRegistrationsWithCommands() {
 
     CPPUNIT_ASSERT(response.find("\"type\":\"command\"") != std::string::npos);
   }
+}
+
+void MqttTest::testEmptyDeviceEmptyApikey_BUG_DM1069() {
+  std::cout << "START@UT@ testEmptyDeviceEmptyApikey_BUG_DM1069" << std::endl;
+
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+
+  std::string jsonMqtt;
+  // Test mqtt message is built at stubLoopToOnMessage method
+  mqtt_alias.assign("te");
+  mqtt_payload.assign("23");
+  mqtt_apikey.assign("1234");
+  mqtt_device.assign("");
+
+  // Expected
+  jsonMqtt.append(std::string("{\"name\" : \""));
+  jsonMqtt.append(mqtt_alias);
+  jsonMqtt.append("\",\"type\":\"string\",");
+  jsonMqtt.append(std::string("\"value\" : \""));
+  jsonMqtt.append(mqtt_payload);
+  jsonMqtt.append(std::string("\"}"));
+
+  mockMosquitto = new MockMosquitto();
+
+  mockPublisher = new MockIotaMqttService();
+
+  defineExpectationsMqttt();
+
+  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
+                                          StrEq(mqtt_device), StrEq(jsonMqtt)))
+      .WillOnce(Throw(iota::IotaException("Error", "", 400)));
+
+  std::string sensorfile("../../tests/iotagent/sensormqtt-json.xml");
+  std::string logPath("./");
+
+  // TEST
+  mqttService->initESPLib(logPath, sensorfile);
+  delete cbPublish;
+
+  mqttService->setIotaMqttService(mockPublisher);
+
+  mqttService->startESP();
+
+  std::cout << "Sensor Started" << std::endl;
+  int idsensor = mqttService->idsensor;
+
+  // Finishing
+  SLEEP(100);
+  iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
+  std::cout << "Sensor Stopping... " << std::endl;
+
+  CPPUNIT_ASSERT(idsensor > 0);
+
+  delete mockPublisher;
+  std::cout << "END@UT@ testEmptyDeviceEmptyApikey_BUG_DM1069" << std::endl;
+}
+
+void MqttTest::testNotProvisionedApikey() {
+  std::cout << "START@UT@ testNotProvisionedApikey" << std::endl;
+
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestMqtt/mqtt");
+
+  test_setup.set_apikey(get_service_name(__FUNCTION__));
+
+  std::string jsonMqtt;
+  // Test mqtt message is built at stubLoopToOnMessage method
+  mqtt_alias.assign("te");
+  mqtt_payload.assign("23");
+  mqtt_apikey.assign("1234");
+  mqtt_device.assign("device01");
+
+  // Expected
+  jsonMqtt.append(std::string("{\"name\" : \""));
+  jsonMqtt.append(mqtt_alias);
+  jsonMqtt.append("\",\"type\":\"string\",");
+  jsonMqtt.append(std::string("\"value\" : \""));
+  jsonMqtt.append(mqtt_payload);
+  jsonMqtt.append(std::string("\"}"));
+
+  mockMosquitto = new MockMosquitto();
+
+  defineExpectationsMqttt();
+
+  std::string sensorfile("../../tests/iotagent/sensormqtt-json.xml");
+  std::string logPath("./");
+
+  // TEST
+  mqttService->initESPLib(logPath, sensorfile);
+
+  mqttService->setIotaMqttService(cbPublish);
+
+  mqttService->startESP();
+
+  std::cout << "Sensor Started" << std::endl;
+  int idsensor = mqttService->idsensor;
+
+  // Finishing
+  SLEEP(100);
+  iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
+  std::cout << "Sensor Stopping... " << std::endl;
+
+  CPPUNIT_ASSERT(idsensor > 0);
+
+  std::cout << "END@UT@ testNotProvisionedApikey" << std::endl;
 }
 
 int MqttTest::stubReadClient(int id, char* buffer, int len) {

@@ -68,6 +68,9 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   CPPUNIT_TEST(testSendAllRegistrationsWithCommands);
 
+  CPPUNIT_TEST(testEmptyDeviceEmptyApikey_BUG_DM1069);
+  CPPUNIT_TEST(testNotProvisionedApikey);
+
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -104,6 +107,10 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
   void testCommandsWithJSONFormat();
 
   void testSendAllRegistrationsWithCommands();
+
+  void testEmptyDeviceEmptyApikey_BUG_DM1069();
+
+  void testNotProvisionedApikey();
 
  private:
   std::string mqtt_alias;
