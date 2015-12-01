@@ -194,6 +194,46 @@ TestSetup::TestSetup(std::string service, std::string resource,
       ->post_service_json(col, service, service_path, post_service, http_r, r,
                           _apikey, _service);
 }
+TestSetup::TestSetup(std::string service, std::string resource,
+                     bool empty_apikey, std::string entity_name) {
+  if (empty_apikey) {
+    _apikey = "";
+  } else {
+    _apikey = service;
+  }
+  std::transform(service.begin(), service.end(), service.begin(), ::tolower);
+  std::string service_path("/");
+  service_path.append(service);
+  _service = service;
+  _service_path = service_path;
+  _resource = resource;
+
+  unsigned int port = iota::Process::get_process().get_http_port();
+  std::string cbroker_url("http://127.0.0.1:");
+  cbroker_url.append(boost::lexical_cast<std::string>(port));
+  cbroker_url.append("/mock/" + _service);
+
+  std::string post_service(
+      "{\"services\": [{"
+      "\"apikey\": \"" +
+      _apikey + "\",\"token\": \"" + _apikey +
+      "\","
+      "\"cbroker\": \"" +
+      cbroker_url + "\",\"entity_type\": \"" + entity_name +
+      "\",\"resource\": \"" + resource + "\"}]}");
+
+  boost::shared_ptr<iota::ServiceCollection> col(new iota::ServiceCollection());
+  pion::http::response http_r;
+  std::string r;
+  ((iota::AdminService*)iota::Process::get_process().get_service(
+       iota::Process::get_url_base()))
+      ->delete_service_json(col, service, service_path, service, _apikey,
+                            _resource, true, http_r, r, _service, _service);
+  ((iota::AdminService*)iota::Process::get_process().get_service(
+       iota::Process::get_url_base()))
+      ->post_service_json(col, service, service_path, post_service, http_r, r,
+                          _apikey, _service);
+}
 TestSetup::~TestSetup() {
   int i = 0;
   for (i = 0; i < _devices.size(); i++) {

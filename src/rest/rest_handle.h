@@ -177,6 +177,8 @@ class RestHandle : public pion::http::plugin_service,
   **/
   virtual std::string get_protocol_commands();
 
+  virtual void complete_info(boost::property_tree::ptree& pt);
+
  /**
   * @name get_timeout_commands
   * @brief some protocols have special timeout for commands
