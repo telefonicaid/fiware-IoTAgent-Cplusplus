@@ -81,8 +81,9 @@ void iota::ContextBrokerCommunicator::receive_event(
     if (_callback) {
       _callback("", (-1) * error.value());
     }
-    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                       error.message());
+
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
+                       additional_info, iota::types::ERROR, error.message());
   }
 
   remove_connection(connection);
@@ -154,8 +155,8 @@ bool iota::ContextBrokerCommunicator::async_send(
 
   } catch (std::exception& e) {
     result = false;
-    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                       e.what());
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
+                       additional_info, iota::types::ERROR, e.what());
   }
 }
 
@@ -225,12 +226,12 @@ std::string iota::ContextBrokerCommunicator::send(
         additional_info.get<std::string>("timeout", "5"));
     std::string proxy = additional_info.get<std::string>("proxy", "");
     response = http_client->send(request, timeout, proxy);
-    cb_response =
-        process_response(url, http_client, response, http_client->get_error());
+    cb_response = process_response(url, http_client, response, content,
+                                   additional_info, http_client->get_error());
   } catch (std::exception& e) {
     IOTA_LOG_ERROR(m_logger, e.what());
-    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                       e.what());
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
+                       additional_info, iota::types::ERROR, e.what());
   }
   // TODO check remove (sync)
   // remove_connection(http_client);
@@ -420,7 +421,9 @@ void iota::ContextBrokerCommunicator::remove_connection(
 
 std::string iota::ContextBrokerCommunicator::process_response(
     const std::string& url, boost::shared_ptr<iota::HttpClient> connection,
-    pion::http::response_ptr resp, const boost::system::error_code& error) {
+    pion::http::response_ptr resp, const std::string& content,
+    const boost::property_tree::ptree& additional_info,
+    const boost::system::error_code& error) {
   std::string response;
   if ((!error) && (resp.get() != NULL)) {
     response = resp->get_content();
@@ -433,8 +436,8 @@ std::string iota::ContextBrokerCommunicator::process_response(
     ss << connection->getRemoteEndpoint();
     ss << ": ";
     ss << error.message();
-    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                       ss.str());
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
+                       additional_info, iota::types::ERROR, ss.str());
   }
   return response;
 }

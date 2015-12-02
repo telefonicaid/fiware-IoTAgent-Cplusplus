@@ -22,6 +22,8 @@
 #include "oauth_comm.h"
 #include "util/iot_url.h"
 #include "util/FuncUtil.h"
+#include "util/alarm.h"
+#include "rest/types.h"
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
@@ -174,6 +176,11 @@ void iota::OAuth::receive_event_renew_token(
                        << " subject-token=" << _data._subject_token.empty());
   }
 
+  // If subject token is empty, that means bad configuration:
+  // - As PEP, user/paswword is incorrect.
+  if (is_pep() && _data._subject_token.empty()) {
+    iota::Alarm::error(iota::types::ALARM_CODE_BAD_CONFIGURATION, connection->getRemoteEndpoint(), iota::types::RESPONSE_MESSAGE_BAD_CONFIG, "No token as PEP user");
+  }
   if (is_pep() && !_sync) {
     if (_data._subject_token.empty()) {
       if (_application_callback != NULL) {

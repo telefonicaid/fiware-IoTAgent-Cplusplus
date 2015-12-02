@@ -27,8 +27,9 @@
 #include "services/ngsi_service.h"
 #include "sample_test/test_service.h"
 #include "../mocks/http_mock.h"
+#include "baseTest.h"
 
-class SampleTest : public CPPUNIT_NS::TestFixture {
+class SampleTest : public CPPUNIT_NS::TestFixture, public BaseTest {
   CPPUNIT_TEST_SUITE(SampleTest);
 
   CPPUNIT_TEST(testNormalPOST);
@@ -41,6 +42,8 @@ class SampleTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST(testGetDevice);
 
   CPPUNIT_TEST(testRegisterIoTA);
+  CPPUNIT_TEST(testProvisionProtocolCommands);
+
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -66,6 +69,8 @@ class SampleTest : public CPPUNIT_NS::TestFixture {
   void testFilter();
   void testGetDevice();
   void testRegisterIoTA();
+
+  void testProvisionProtocolCommands();
   /*
       pion::http::plugin_server_ptr wserver;
       pion::one_to_one_scheduler scheduler;

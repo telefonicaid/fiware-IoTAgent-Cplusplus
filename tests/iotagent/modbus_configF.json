@@ -1,39 +1,39 @@
 {
   "commands": [
     {
-	"name":"installation_num",
+	"name":"installation_num_cmd",
 	"parameters": [
 	 {
 	   "name":"installation_number",
 	   "address": 0
-	 }	
+	 }
 	 ]
-    }, 
+    },
     {
-	"name" : "tanks_num",
+	"name" : "tanks_num_cmd",
 	"parameters" : [
 	 {
 	   "name":"tanks_number",
 	   "address": 1
-	 }	
+	 }
 	 ]
-    }, 
+    },
     {
-	"name" : "adquisition_time",
+	"name" : "adquisition_time_cmd",
 	"parameters" : [
 	 {
 	   "name":"acquisition_time",
 	   "address": 2
-	 }	
+	 }
 	 ]
-    }, 
+    },
     {
-	"name" : "max_filllevel_alarm",
+	"name" : "max_filllevel_alarm_cmd",
 	"parameters" : [
 	 {
 	   "name":"high_level_tank_alarm",
 	   "address": 14
-	 },	
+	 },
 	 {
 	   "name":"stay_on_alarm_time",
 	   "address": 15
@@ -45,7 +45,7 @@
 	 {
 	   "name":"histeresys",
 	   "address": 17
-	 }	
+	 }
 	]
     },
     {
@@ -66,7 +66,7 @@
 	 {
 	   "name":"first",
 	   "address": 20
-	 }	
+	 }
 	]
     },
     {
@@ -112,10 +112,7 @@
        "modbusOperation": 3,
        "modbusAddress": 1,
        "modbusNumberOfPositions": 1,
-       "modbusNumberOfRegisters": 1,
-       "positions": [
-           "tanksNumber"
-         ]
+       "modbusNumberOfRegisters": 1
      },
      {
        "operation": "TimeOfDataAcquisition",
@@ -138,10 +135,10 @@
        "operation": "GetDataHistory",
        "modbusOperation": 3,
        "modbusAddress": 800,
-       "modbusNumberOfPositions": 22,
+       "modbusNumberOfPositions": 3,
        "modbusNumberOfRegisters": 75,
        "positions": [
-         { 
+         {
 	     "name" : "blockNumber"
 	 },
 	 {
@@ -150,83 +147,8 @@
          },
          {
 	    "name" : "serviceTemp",
-	    "factor" : 0.1
-	 },
-	 {
-	    "name" : "environmentTemp",
-	    "factor" : 0.1
-	 },
-	 {
-	    "name" : "impulsionTemp",
-	    "factor" : 0.1
- 	 },
-	 {
-            "name" :"returnTemp",
-	    "factor" : 0.1
-	 },
-	 {
-	     "name" : ""
-	 },
-	 {
-	     "name" : "fillLevel1",
-	     "factor" : 1
-	 },
-	 {
-	     "name" : "pressure1",
-	     "factor" : 0.1
-	 },
-	 {
-	     "name" : "fillLevel2",
-	     "factor" : 1
-	 },
-	 { 
-	     "name" : "pressure2",
-	     "factor" : 0.1
-	 },
-	 {
-	     "name" : "fillLevel3",
-	     "factor" : 1
-  	 },
-	 {
-	     "name" : "pressure3",
-	     "factor" : 0.1
-	 },
-	 {
-	     "name" :  "fillLevel4",
-	     "factor" : 1
-         },
-	{ 
-	     "name" : "pressure4",
-	     "factor" : 0.1
-	},
-	{
-	     "name" : "fillLevel5",
-	     "factor" : 1
-    	}, 
-	{
-	     "name" :  "pressure5",
-	     "factor" : 0.1
-        },
-	{ 
-	     "name" : "fillLevel6",
-	     "factor" : 1
-	},
-	{
-	     "name" : "pressure6",
-	     "factor" : 0.1
-    	},
-	{
-	     "name" : "",
-	     "factor" : 0.1
-	},
- 	{
-	     "name" : "",
-	     "factor" : 0.1
-	},
-	{
-	     "name" : "",
-	     "factor" : 0.1
-	}
+	    "factor" : 0.01
+	 }
         ]
      },
      {

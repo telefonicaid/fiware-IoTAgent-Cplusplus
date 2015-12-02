@@ -80,10 +80,22 @@ iota::Command iota::CommandCollection::BSON2Obj(const mongo::BSONObj& obj) {
   // TODO bool _expired;
 
   // Si el comando se recupera por polling, debe almacenarse
-  std::string body = obj.getStringField(iota::store::types::COMMAND);
+  mongo::BSONObj body = obj.getObjectField(iota::store::types::COMMAND);
   boost::property_tree::ptree pt;
-  pt.put("body", body);
-  result.set_command(pt);
+  std::set<std::string> fields;
+  body.getFieldNames(fields);
+  std::string nname, value;
+  int num = 0;
+  for (std::set<std::string>::iterator it = fields.begin(); it != fields.end();
+       ++it) {
+    nname = *it;
+    value = body.getStringField(nname);
+    pt.put(nname, value);
+    num++;
+  }
+  if (num > 0) {
+    result.set_command(pt);
+  }
 
   // estado del comando
   int _status = obj.getIntField(iota::store::types::STATUS);
@@ -140,6 +152,18 @@ mongo::BSONObj iota::CommandCollection::Obj2BSON(const Command& command,
   }
   if (!command.get_uri_resp().empty()) {
     obj.append(iota::store::types::URI_RESP, command.get_uri_resp());
+  }
+
+  boost::property_tree::ptree pt = command.get_command();
+  mongo::BSONObjBuilder objCommand;
+  int num = 0;
+  for (boost::property_tree::ptree::iterator pos = pt.begin(); pos != pt.end();
+       ++pos) {
+    objCommand.append(pos->first, pos->second.data());
+    num++;
+  }
+  if (num > 0) {
+    obj.append(iota::store::types::COMMAND, objCommand.obj());
   }
 
   return obj.obj();

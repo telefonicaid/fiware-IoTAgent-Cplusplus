@@ -1,3 +1,6 @@
+* Mon Nov 30 2015 Agustin Gonzalez <lucas@tid.es> 1.3.0
+- FIXED DM-1069: IotAgent MQTT crashes if apikey or device-id are empty on mqtt message. 
+
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20562: Commandas are always PUSH type.
 - FEATURE IDAS-20577: Update to use mosquitto 1.4.4.

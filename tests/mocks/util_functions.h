@@ -34,6 +34,7 @@ class TestSetup {
   TestSetup(std::string service, std::string resource,
             std::string my_post_service = std::string());
   TestSetup(std::string service, std::string resource, bool empty_apikey);
+  TestSetup(std::string service, std::string resource, bool empty_apikey, std::string entity_type);
   ~TestSetup();
   std::string get_service() { return _service; };
   void set_service_path(std::string service_path) {

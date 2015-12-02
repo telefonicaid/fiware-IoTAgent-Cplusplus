@@ -879,6 +879,9 @@ bool iota::RestHandle::get_service_by_name(boost::property_tree::ptree& pt,
     get_service_by_name_file(pt, item_name, service_path);
   }
 
+  // Add information from plugin
+  complete_info(pt);
+
   return true;
 }
 
@@ -892,6 +895,10 @@ bool iota::RestHandle::get_service_by_apiKey(boost::property_tree::ptree& pt,
   if (code == ERROR_NO_SERVICE) {
     get_service_by_apiKey_file(pt, apiKey);
   }
+
+  // Add information from plugin
+  complete_info(pt);
+
   return true;
 }
 
@@ -1230,6 +1237,26 @@ void iota::RestHandle::set_iota_manager_endpoint(std::string manager_endpoint) {
 iota::ProtocolData iota::RestHandle::get_protocol_data() {
   return _protocol_data;
 }
+
+std::string iota::RestHandle::get_protocol_commands() {
+  return "";
+}
+ 
+void iota::RestHandle::complete_info(boost::property_tree::ptree& pt) {
+  return;
+}
+
+int iota::RestHandle::get_timeout_commands() {
+  int timeout = 0;
+  const JsonValue& timeoutJSON =
+      iota::Configurator::instance()->get(iota::types::CONF_FILE_TIMEOUT);
+  if (timeoutJSON.IsNumber()) {
+    timeout = timeoutJSON.GetInt();
+  }
+  IOTA_LOG_DEBUG(m_logger, "timeout from config.json: " << timeout);
+  return timeout;
+}
+
 
 void iota::RestHandle::set_protocol_data(iota::ProtocolData p_data) {
   if (!p_data.description.empty()) {

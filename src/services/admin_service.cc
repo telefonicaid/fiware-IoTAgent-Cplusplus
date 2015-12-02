@@ -1426,6 +1426,56 @@ void iota::AdminService::print_services() {
   }
 }
 
+
+std::string iota::AdminService::joinCommands(const std::string &obj1,
+                                        const std::string &obj2) {
+  std::string res;
+
+  std::string resobj2;
+  std::string::size_type commandit2 =  obj2.find("\"commands\"", 0);
+  std::string::size_type commanditfin2, commanditini2;
+  bool obj2_commands = commandit2 != std::string::npos;
+  if (obj2_commands){
+     commanditfin2 =  obj2.find("]", commandit2);
+     commanditini2 =  obj2.find("{");     
+  }else{
+     commanditini2 =  obj2.find("{");
+     commanditfin2 =  obj2.find_last_of("}");
+  }
+  if (commanditini2 != std::string::npos && commanditfin2 != std::string::npos){
+     resobj2.append(obj2.substr(commanditini2+1, commanditfin2 - commanditini2 -1));
+  }
+
+  std::string::size_type commandit =  obj1.find("\"commands\"", 0);
+  if (commandit != std::string::npos){
+     std::cout << "@UT@ have commands" << std::endl;
+     std::string::size_type commanditf =  obj1.find("[", commandit);
+     if (commanditf != std::string::npos){
+        res = obj1.substr(0, commandit);
+        if (!resobj2.empty()){
+          res.append(resobj2);
+          res.append(",");
+        }
+        res.append(obj1.substr(commanditf+1));
+     }
+  }else {
+    // no tiene comandos , cerramos el corchete de comandos
+    if (obj2_commands){
+       resobj2.append("]");
+    } 
+    std::cout << "@UT@ no have commands" << std::endl;
+    commandit =  obj1.find("{", 0);
+    res.append("{");
+    if (!resobj2.empty()){
+       res.append(resobj2);
+       res.append(",");
+    }
+    res.append(obj1.substr(commandit+1));    
+  }
+
+  return res;
+}
+
 int iota::AdminService::post_device_json(const std::string& service,
                                          const std::string& service_path,
                                          const std::string& body,
@@ -1458,11 +1508,30 @@ int iota::AdminService::post_device_json(const std::string& service,
     code = types::RESPONSE_CODE_NO_SERVICE;
   } else if (validate_json_schema(body, iota::AdminService::_POST_DEVICE_SCHEMA,
                                   error_details)) {
+
     mongo::BSONObj obj = mongo::fromjson(body);
     std::vector<mongo::BSONElement> be =
         obj.getField(iota::store::types::DEVICES).Array();
     for (unsigned int i = 0; i < be.size(); i++) {
       mongo::BSONObj bo = be[i].embeddedObject();
+      std::string protocol_name =
+          bo.getStringField(store::types::PROTOCOL_NAME);
+
+      iota::RestHandle* plugin = get_device_protocol(protocol_name, service, service_path, table);
+      if (plugin == NULL) {
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
+                                  " [ protocol: " + protocol_name + "]",
+                                  iota::types::RESPONSE_CODE_BAD_REQUEST);
+      }
+
+
+      std::string commands_plugin = plugin->get_protocol_commands();
+      if (!commands_plugin.empty()){
+         IOTA_LOG_DEBUG(m_log, "there are specials commands for protocol:  " << commands_plugin);
+         std::string body2 = joinCommands(bo.jsonString(), commands_plugin);
+         bo = mongo::fromjson(body2);
+      }
+
       mongo::BSONObjBuilder builder;
       builder.appendElements(bo);
       builder.append(iota::store::types::SERVICE, service);
@@ -1472,15 +1541,6 @@ int iota::AdminService::post_device_json(const std::string& service,
       IOTA_LOG_DEBUG(m_log, "device:  " << device_to_post);
 
       mongo::BSONObj insertObj = builder.obj();
-
-      std::string protocol_name =
-          insertObj.getStringField(store::types::PROTOCOL_NAME);
-      if (!check_device_protocol(protocol_name, service, service_path, table)) {
-        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
-                                  " [ protocol: " + protocol_name + "]",
-                                  iota::types::RESPONSE_CODE_BAD_REQUEST);
-      }
-
       if (!check_device_commands_duplicate(protocol_name, service, service_path,
                                            insertObj, devTable)) {
         throw iota::IotaException(
@@ -2246,19 +2306,19 @@ bool iota::AdminService::check_device_commands_duplicate(
   return true;
 }
 
-bool iota::AdminService::check_device_protocol(
+iota::RestHandle* iota::AdminService::get_device_protocol(
     const std::string& protocol_name, const std::string& service_name,
     const std::string& service_path,
     const boost::shared_ptr<iota::ServiceCollection>& table) {
   IOTA_LOG_DEBUG(m_log, "check_device_protocol " << protocol_name);
 
   if (protocol_name.empty()) {
-    return false;
+    return NULL;
   }
 
   std::vector<std::string> resources;
   std::string resource;
-  iota::RestHandle* plugin;
+  iota::RestHandle* plugin = NULL;
   table->fill_all_resources(service_name, service_path, resources);
   IOTA_LOG_DEBUG(m_log, "Number of elements in resources:" << resources.size());
   for (std::vector<std::string>::iterator it = resources.begin();
@@ -2271,7 +2331,7 @@ bool iota::AdminService::check_device_protocol(
       IOTA_LOG_DEBUG(m_log, "pro.protocol plugin " << pro.protocol);
       if (protocol_name.compare(pro.protocol) == 0) {
         IOTA_LOG_DEBUG(m_log, "exists plugin:" << protocol_name);
-        return true;
+        return plugin;
       }
     } else {
       IOTA_LOG_ERROR(m_log, "Plugin NULL checking resource " << resource);
@@ -2279,7 +2339,7 @@ bool iota::AdminService::check_device_protocol(
   }
 
   IOTA_LOG_DEBUG(m_log, "no exists plugin:" << protocol_name);
-  return false;
+  return NULL;
 }
 
 void iota::AdminService::timeout_register_iota_manager(

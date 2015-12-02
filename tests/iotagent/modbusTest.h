@@ -31,6 +31,12 @@ class ModbusTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST(testProcessor);
   CPPUNIT_TEST(testProcessorFile);
   CPPUNIT_TEST(testCrc);
+  CPPUNIT_TEST(testProcessorCommandsFile);
+  CPPUNIT_TEST(testAllCommandsConfigFile);
+  CPPUNIT_TEST(testOperationsWithFloat);
+  CPPUNIT_TEST(testCheckFactor);
+  CPPUNIT_TEST(testConversionDecimals);
+
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -43,6 +49,16 @@ class ModbusTest : public CPPUNIT_NS::TestFixture {
   void testProcessor();
   void testProcessorFile();
   void testCrc();
+
+  void testProcessorCommandsFile();
+
+  void testAllCommandsConfigFile();
+
+  void testOperationsWithFloat();
+
+  void testCheckFactor();
+
+  void testConversionDecimals();
 };
 
 #endif

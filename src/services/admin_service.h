@@ -235,8 +235,8 @@ class AdminService : public iota::RestHandle {
                                  const std::string& protocol = "");
 
   /**
-     * @name    check_device_protocol
-     * @brief   check if service and service_path has a resource (plugin)
+     * @name    get_device_protocol
+     * @brief   return handle if service and service_path has a resource (plugin)
      *          with this protocol
      *
      *
@@ -246,10 +246,10 @@ class AdminService : public iota::RestHandle {
      * @endcode
      *
      * <h2>Return values</h2>
-     * @return true if there is a plugin.
+     * @return handle of pluin if there is a plugin, NULL  if there ins't
      *
      */
-  bool check_device_protocol(
+  iota::RestHandle* get_device_protocol(
       const std::string& protocol_name, const std::string& service_name,
       const std::string& service_path,
       const boost::shared_ptr<iota::ServiceCollection>& table);
@@ -469,6 +469,9 @@ class AdminService : public iota::RestHandle {
       const std::string& service, const std::string& service_path);
 
   bool is_mongo_active();
+
+  std::string joinCommands(const std::string &obj1,
+                           const std::string &obj2);
 
   void deploy_device(Device& device);
   void undeploy_device(const boost::shared_ptr<Device> device);
