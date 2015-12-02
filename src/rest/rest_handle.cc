@@ -895,6 +895,10 @@ bool iota::RestHandle::get_service_by_apiKey(boost::property_tree::ptree& pt,
   if (code == ERROR_NO_SERVICE) {
     get_service_by_apiKey_file(pt, apiKey);
   }
+
+  // Add information from plugin
+  complete_info(pt);
+
   return true;
 }
 
