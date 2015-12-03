@@ -206,9 +206,9 @@ const std::string AdminTest::POST_SERVICE(
     "\"/TestAdmin/d\"}]}");
 const std::string AdminTest::POST_SERVICE2(
     "{\"services\": [{"
-    "\"apikey\": \"apikey\",\"token\": \"token\","
+    "\"apikey\": \"apikey2\",\"token\": \"token\","
     "\"outgoing_route\": \"gretunnel\","
-    "\"entity_type\": \"thing\",\"resource\": \"/TestAdmin/d2\"}]}");
+    "\"entity_type\": \"thing\",\"resource\": \"/TestAdmin/d\"}]}");
 const std::string AdminTest::BAD_POST_SERVICE1(
     "{\"services\": [{"
     "\"apikey\": \"apikey\",\"token\": \"token\","
@@ -944,17 +944,19 @@ void AdminTest::testPostService() {
   IOTASSERT_MESSAGE("query parameter resource does not work",
                     response.compare("{ \"count\": 0,\"services\": []}") == 0);
 
+  std::string service_2("testpostservice_2");
   std::cout << "@UT@POST" << std::endl;
   code_res =
-      http_test("/TestAdmin/services", "POST", service, "", "application/json",
-                POST_SERVICE2, headers, "", response);
+      http_test("/TestAdmin/services", "POST", service_2, "",
+                "application/json", POST_SERVICE2, headers, "", response);
   std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
-  IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>(code_res),
-                    code_res == POST_RESPONSE_CODE);
+  IOTASSERT_MESSAGE(
+      service_2 + "|" + boost::lexical_cast<std::string>(code_res),
+      code_res == POST_RESPONSE_CODE);
   std::cout << "@UT@GET" << std::endl;
-  code_res = http_test("/TestAdmin/services", "GET", service, "",
+  code_res = http_test("/TestAdmin/services", "GET", service_2, "",
                        "application/json", "", headers, "", response);
-  IOTASSERT_MESSAGE(service + "|outgoing_route" + response,
+  IOTASSERT_MESSAGE(service_2 + "|outgoing_route" + response,
                     response.find("outgoing_route") != std::string::npos);
 
   std::cout << "@UT@PUTBAD" << std::endl;
@@ -975,6 +977,10 @@ void AdminTest::testPostService() {
   std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
   IOTASSERT_MESSAGE(service + "|" + boost::lexical_cast<std::string>(code_res),
                     code_res == DELETE_RESPONSE_CODE);
+
+  std::cout << "@UT@DELETE " << service_2 << std::endl;
+  code_res = http_test("/TestAdmin/services", "DELETE", service_2, "/*",
+                       "application/json", "", headers, query_string, response);
 
   std::cout << "@UT@GET" << std::endl;
   code_res = http_test("/TestAdmin/services", "GET", service, "/*",

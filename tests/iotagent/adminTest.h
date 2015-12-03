@@ -44,16 +44,17 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(AdminTest);
 
   CPPUNIT_TEST(testGetConf);
-   CPPUNIT_TEST(testGetAgents);
-   CPPUNIT_TEST(testTimezones);
-   // CPPUNIT_TEST(testCsvProvision);
-   CPPUNIT_TEST(testPostConf);
-   // TODO se comenta para que no este cam,biando el ficherode conf todo el rato
-   // CPPUNIT_TEST(testReload);
-   CPPUNIT_TEST(testValidationSchema);
-   CPPUNIT_TEST(testPostBadContentType);
-   CPPUNIT_TEST(testPostDevice);
-   CPPUNIT_TEST(testPostService);
+  /*  CPPUNIT_TEST(testGetAgents);
+    CPPUNIT_TEST(testTimezones);
+    // CPPUNIT_TEST(testCsvProvision);
+    CPPUNIT_TEST(testPostConf);
+    // TODO se comenta para que no este cam,biando el ficherode conf todo el
+    rato
+    // CPPUNIT_TEST(testReload);
+    CPPUNIT_TEST(testValidationSchema);
+    CPPUNIT_TEST(testPostBadContentType);
+    CPPUNIT_TEST(testPostDevice);*/
+  CPPUNIT_TEST(testPostService); /*
    CPPUNIT_TEST(testPostService2);
    CPPUNIT_TEST(testNoRestApiService);
 
@@ -77,7 +78,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
    CPPUNIT_TEST(testPostDeviceSameEntity);
   CPPUNIT_TEST(testRetriesRegisterManager);
   CPPUNIT_TEST(testPostServiceWrongResource);
-
+*/
   CPPUNIT_TEST_SUITE_END();
 
  public:
