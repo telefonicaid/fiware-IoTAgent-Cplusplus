@@ -76,6 +76,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
    CPPUNIT_TEST(testSpaceURI);
    CPPUNIT_TEST(testPostDeviceSameEntity);
   CPPUNIT_TEST(testRetriesRegisterManager);
+  CPPUNIT_TEST(testPostServiceWrongResource);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -131,6 +132,8 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
 
   static const std::string BAD_POST_SERVICE1;
   static const std::string BAD_POST_SERVICE2;
+
+  static const std::string POST_SERVICE_WRONG_RESOURCE;
 
   // GET ALL empty
   static const std::string GET_EMPTY_RESPONSE_SERVICES;
@@ -212,7 +215,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
   void testRetriesRegisterManager();
   void testPostDeviceSameEntity();
 
-  void testSendAllRegistrationsWithCommands();
+  void testPostServiceWrongResource();
 
   pion::http::plugin_server_ptr wserver;
   pion::one_to_one_scheduler scheduler;

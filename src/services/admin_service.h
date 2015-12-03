@@ -408,6 +408,8 @@ class AdminService : public iota::RestHandle {
 
   iota::ProtocolData get_protocol_data();
 
+  void check_existing_resource(const std::string& resource);
+
  protected:
   virtual std::string get_class_name();
   virtual std::string get_role() { return ""; };

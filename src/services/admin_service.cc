@@ -1437,7 +1437,7 @@ std::string iota::AdminService::joinCommands(const std::string &obj1,
   bool obj2_commands = commandit2 != std::string::npos;
   if (obj2_commands){
      commanditfin2 =  obj2.find("]", commandit2);
-     commanditini2 =  obj2.find("{");     
+     commanditini2 = obj2.find("{");
   }else{
      commanditini2 =  obj2.find("{");
      commanditfin2 =  obj2.find_last_of("}");
@@ -1462,7 +1462,7 @@ std::string iota::AdminService::joinCommands(const std::string &obj1,
     // no tiene comandos , cerramos el corchete de comandos
     if (obj2_commands){
        resobj2.append("]");
-    } 
+    }
     std::cout << "@UT@ no have commands" << std::endl;
     commandit =  obj1.find("{", 0);
     res.append("{");
@@ -1470,7 +1470,7 @@ std::string iota::AdminService::joinCommands(const std::string &obj1,
        res.append(resobj2);
        res.append(",");
     }
-    res.append(obj1.substr(commandit+1));    
+    res.append(obj1.substr(commandit + 1));
   }
 
   return res;
@@ -1841,6 +1841,14 @@ int iota::AdminService::post_service_json(
       std::string cbroker = insObj.getStringField(iota::store::types::CBROKER);
       if (!cbroker.empty()) {
         check_uri(cbroker);
+      }
+
+      // TODO: Check that Resource exists.
+
+      std::string resource =
+          insObj.getStringField(iota::store::types::RESOURCE);
+      if (!resource.empty()) {
+        check_existing_resource(resource);
       }
 
       table->insert(insObj);
@@ -2380,6 +2388,13 @@ iota::ProtocolData iota::AdminService::get_protocol_data() {
   protocol.protocol = "";
 
   return protocol;
+}
+
+void iota::AdminService::check_existing_resource(const std::string& resource) {
+  iota::RestHandle* test_resource = get_service(resource);
+  if (NULL == test_resource) {
+    throw iota::IotaException("Resource does not exist", "", 400);
+  }
 }
 
 std::string iota::AdminService::get_class_name() { return _class_name; }

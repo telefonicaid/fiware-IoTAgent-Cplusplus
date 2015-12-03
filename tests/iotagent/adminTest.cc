@@ -322,6 +322,12 @@ const std::string AdminTest::POST_SERVICE_MANAGEMENT2(
 const std::string AdminTest::GET_SERVICE_MANAGEMENT_RESPONSE(
     "{ \"count\": 0,\"devices\": []}");
 
+const std::string AdminTest::POST_SERVICE_WRONG_RESOURCE(
+    "{\"services\": [{"
+    "\"apikey\": \"apikey\",\"token\": \"token\","
+    "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": "
+    "\"/TestAdmin/dummy\"}]}");
+
 ////////////////////
 ////  DEVICE _MANAGEMENT
 const std::string AdminTest::URI_DEVICES_MANAGEMEMT("/TestAdmin/devices");
@@ -2462,4 +2468,27 @@ void AdminTest::testRetriesRegisterManager() {
       std::string::npos);
 
   std::cout << "END@UT@ testRetriesRegisterManager" << std::endl;
+}
+
+void AdminTest::testPostServiceWrongResource() {
+  std::cout << "START@UT@ testPostServiceWrongResource" << std::endl;
+
+  std::map<std::string, std::string> headers;
+
+  pion::logger pion_logger(PION_GET_LOGGER("main"));
+  PION_LOG_SETLEVEL_DEBUG(pion_logger);
+  PION_LOG_CONFIG_BASIC;
+  iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
+
+  std::string response;
+  std::string service = "service";
+  service.append(boost::lexical_cast<std::string>(rand()));
+  std::cout << "@UT@service " << service << std::endl;
+
+  std::cout << "@UT@POST" << std::endl;
+  int code_res = http_test(URI_SERVICE, "POST", service, "", "application/json",
+                           POST_SERVICE_WRONG_RESOURCE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+  std::cout << "END@UT@ testPostServiceWrongResource" << std::endl;
 }
