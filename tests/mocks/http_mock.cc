@@ -48,6 +48,12 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
   static const std::string USER_INFO_TEXT("[USER Info]");
 
   std::string test_function(http_request_ptr->get_resource());
+
+  if (http_request_ptr->get_method().compare("GET") == 0) {
+   writer-->writer_no_copy(get_last(test_function)); 
+   writer->send();
+   return;
+  }
   /*
   std::string resource = get_resource();
   std::size_t pos = resource.find_last_of("/");

@@ -32,15 +32,20 @@ const std::string iota::ContextBrokerCommunicator::NUMBER_OF_TRIES =
     "number_of_tries";
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator()
     : _io_service(iota::Process::get_process().get_io_service()),
+      _method(pion::http::types::REQUEST_METHOD_POST),
       m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {}
 
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator(
     boost::asio::io_service& io_service)
     : _io_service(io_service),
+      _method(pion::http::types::REQUEST_METHOD_POST),
       m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {}
 
 iota::ContextBrokerCommunicator::~ContextBrokerCommunicator(){};
 
+void iota::ContextBrokerCommunicator::method(std::string http_method) {
+  _method = http_method;
+}
 
 void iota::ContextBrokerCommunicator::receive_event(
     std::string url, std::string content,
@@ -347,7 +352,7 @@ pion::http::request_ptr iota::ContextBrokerCommunicator::create_request(
     std::string& server, std::string& resource, std::string& content,
     std::string& query, boost::property_tree::ptree& additional_info) {
   pion::http::request_ptr request(new pion::http::request());
-  request->set_method(pion::http::types::REQUEST_METHOD_POST);
+  request->set_method(_method);
   request->set_resource(resource);
   request->set_content(content);
   request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
