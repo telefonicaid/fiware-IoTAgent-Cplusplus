@@ -121,18 +121,33 @@ iota::CommandHandle::~CommandHandle() {
 
 void iota::CommandHandle::set_async_commands() { _callback = true; }
 
-void iota::CommandHandle::handle_updateContext(const std::string& url,
+void iota::CommandHandle::handle_updateContext(const std::string& data,
                                                std::string response,
                                                int status) {
-  // TODO IOTA_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response
-  // << " " << status);
+
+  std::string url;
+  std::string service;
+  std::string servicepath;
+
+  std::size_t found = data.find(";");
+  if (found!=std::string::npos){
+    url = data.substr(0, found);
+    std::size_t found2 = data.find(";", found+1);
+    if (found2!=std::string::npos){
+      service = data.substr(found+1, found2-found-1);
+      servicepath = data.substr(found2+1);
+    }
+  }
 
   if (status == 200) {
     iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
                       response);
   } else {
-    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                       response);
+    boost::property_tree::ptree ptin;
+    ptin.put("service", service);
+    ptin.put("service_path", servicepath);
+    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, "", ptin,
+        iota::types::ERROR, response);
   }
 }
 
@@ -861,7 +876,7 @@ void iota::CommandHandle::updateCommand(
   IOTA_LOG_DEBUG(m_logger, "command_id: " << command_id);
 
   int timeout = get_timeout_commands();
-  
+
   std::string resp_cmd;
   CommandData cmd_data;
   cmd_data.command_name = command_name;
@@ -1233,6 +1248,11 @@ int iota::CommandHandle::send(iota::ContextElement ngsi_context_element,
 
   std::string toCV = op.get_string();
   IOTA_LOG_DEBUG(m_logger, ":send2CB:" << cb_url << ":body:" << toCV);
+  cb_url.append(";");
+  cb_url.append(service.get<std::string>(iota::store::types::SERVICE, ""));
+  cb_url.append(";");
+  cb_url.append(service.get<std::string>(iota::store::types::SERVICE_PATH, ""));
+
   return cb_comm->async_send(
       cb_url, toCV, service,
       boost::bind(&iota::CommandHandle::handle_updateContext, this, cb_url, _1,
