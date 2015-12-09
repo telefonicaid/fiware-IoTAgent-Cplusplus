@@ -124,16 +124,6 @@ void iota::CommandHandle::set_async_commands() { _callback = true; }
 void iota::CommandHandle::handle_updateContext(const std::string& url,
                                                std::string response,
                                                int status) {
-  // TODO IOTA_LOG_DEBUG(m_logger, "handle_updateContext: |response:" <<response
-  // << " " << status);
-
-  if (status == 200) {
-    iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                      response);
-  } else {
-    iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                       response);
-  }
 }
 
 boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
@@ -861,7 +851,7 @@ void iota::CommandHandle::updateCommand(
   IOTA_LOG_DEBUG(m_logger, "command_id: " << command_id);
 
   int timeout = get_timeout_commands();
-  
+
   std::string resp_cmd;
   CommandData cmd_data;
   cmd_data.command_name = command_name;

@@ -21,12 +21,14 @@
 */
 #include "oauthTest.h"
 #include "util/oauth_comm.h"
+#include "../mocks/util_functions.h"
 #include "util/access_control.h"
 #include "rest/oauth_filter.h"
 #include "services/admin_service.h"
 #include "../mocks/http_mock.h"
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
+#include "util/alarm.h"
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OAuthTest);
 namespace iota {
@@ -501,4 +503,45 @@ void OAuthTest::testActions() {
   CPPUNIT_ASSERT_MESSAGE("Action for queryContext ",
                          oauth_filter.get_action("POST", "/ngsi/d/queryContext")
                                  .compare("smile") == 0);
+}
+
+void OAuthTest::test502() {
+  std::cout << "Start test502" << std::endl;
+  unsigned int port = iota::Process::get_process().get_http_port();
+
+  MockService* http_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+  std::string mock_port = boost::lexical_cast<std::string>(port);
+  std::string oauth_resource("/mock/testGetUserRoles");
+  std::string endpoint("http://0.0.0.0:" + mock_port + oauth_resource);
+  std::string username("pep");
+  std::string password("pep");
+  std::map<std::string, std::string> h;
+
+  iota::Alarm* palarm = iota::Alarm::instance();
+  palarm->reset();
+
+  h["X-Subject-Token"] = "x-auth-token";
+  http_mock->set_response(oauth_resource + OAUTH_VALIDATE_TOKEN_URL, 502,
+                          "Bad Gateway", h);
+  boost::shared_ptr<iota::OAuth> oauth(
+      new iota::OAuth(iota::Process::get_process().get_io_service()));
+  oauth->set_timeout(10);
+  oauth->set_sync_service();
+  oauth->set_oauth_validate(endpoint + OAUTH_VALIDATE_TOKEN_URL);
+  oauth->set_oauth_roles(endpoint + OAUTH_ROLES_URL);
+  oauth->set_oauth_projects(endpoint + OAUTH_PROJECTS_URL);
+  oauth->set_identity(OAUTH_PEP, username, password);
+  oauth->set_domain("SmartValencia");
+  oauth->set_project("Electricidad");
+  oauth->get_token();
+  std::string domain("f7a5b8e303ec43e8a912fe26fa79dc02");
+  std::string subservicio("c6851f8ef57c4b91b567ab62ca3d0aef");
+  std::string badG("Bad Gateway");
+  http_mock->set_response(oauth_resource + OAUTH_PROJECTS_URL, 502, badG, h);
+
+  std::cout << "@UT@alarms <-->" << palarm->size() << std::endl;
+  CPPUNIT_ASSERT_MESSAGE("alarms one2 ", palarm->size() == 1);
+
+  std::cout << "End test502" << std::endl;
 }
