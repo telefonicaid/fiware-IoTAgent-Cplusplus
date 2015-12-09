@@ -1,4 +1,4 @@
-* Mon Dic 07 2015 Agustin Gonzalez <lucas@tid.es> 1.3.0
+* Mon Dec 07 2015 Agustin Gonzalez <lucas@tid.es> 1.3.0
 - FIX DM-1115: if ContextBroker response 502, ul2, respsol, modbus must create an alarm with service, subservice
 
 * Mon Nov 30 2015 Agustin Gonzalez <lucas@tid.es> 1.3.0
