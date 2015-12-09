@@ -21,6 +21,7 @@
 */
 #include "oauthTest.h"
 #include "util/oauth_comm.h"
+#include "../mocks/util_functions.h"
 #include "util/access_control.h"
 #include "rest/oauth_filter.h"
 #include "services/admin_service.h"
@@ -507,6 +508,7 @@ void OAuthTest::testActions() {
 void OAuthTest::test502() {
   std::cout << "Start test502" << std::endl;
   unsigned int port = iota::Process::get_process().get_http_port();
+
   MockService* http_mock =
       (MockService*)iota::Process::get_process().get_service("/mock");
   std::string mock_port = boost::lexical_cast<std::string>(port);
@@ -515,6 +517,10 @@ void OAuthTest::test502() {
   std::string username("pep");
   std::string password("pep");
   std::map<std::string, std::string> h;
+
+  iota::Alarm* palarm = iota::Alarm::instance();
+  palarm->reset();
+
   h["X-Subject-Token"] = "x-auth-token";
   http_mock->set_response(oauth_resource + OAUTH_VALIDATE_TOKEN_URL, 502, "Bad Gateway",
                           h);
@@ -535,16 +541,8 @@ void OAuthTest::test502() {
   http_mock->set_response(oauth_resource + OAUTH_PROJECTS_URL, 502, badG,
                           h);
 
-  iota::Alarm* palarm = iota::Alarm::instance();
   std::cout << "@UT@alarms <-->" << palarm->size() << std::endl;
   CPPUNIT_ASSERT_MESSAGE("alarms one2 ", palarm->size() == 1);
-  std::cout << "@UT@alarmsmessage <-->" << palarm->get_last() << std::endl;
-  CPPUNIT_ASSERT_MESSAGE(
-        "service subservice in alarm",
-        palarm->get_last().find(
-            get_service_name(__FUNCTION__)) !=
-            std::string::npos);
-
 
   std::cout << "End test502" << std::endl;
 }

@@ -134,7 +134,7 @@ void iota::Alarm::reset(){
   _alarms.clear();
 }
 
-void iota::Alarm::get_last(){
+const std::string& iota::Alarm::get_last(){
   return _alarms.begin()->second;
 }
 

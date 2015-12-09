@@ -71,7 +71,7 @@ class Alarm {
   void reset();
 
   /** return the message of the first alarm */
-  void get_last();
+  const std::string& get_last();
 
  protected:
   std::string get_key(int code, const std::string& endpoint,
