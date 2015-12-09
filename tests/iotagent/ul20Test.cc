@@ -21,6 +21,7 @@
 */
 #include "util/device_collection.h"
 #include "../mocks/util_functions.h"
+#include "util/alarm.h"
 #include "ul20Test.h"
 #include "util/FuncUtil.h"
 #include "util/KVP.h"
@@ -3930,4 +3931,77 @@ void Ul20Test::test_register_iota_manager34() {
   }
 
   std::cout << "@UT@END test_register_iota_manager34 " << std::endl;
+}
+
+void Ul20Test::testPOST502() {
+  std::cout << "START testPOST502" << std::endl;
+
+  std::string cb_last;
+  std::map<std::string, std::string> h;
+
+  iota::UL20Service* ul20serv =
+      (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestUL/d");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  std::string service(get_service_name(__FUNCTION__));
+
+  iota::Alarm* palarm = iota::Alarm::instance();
+  palarm->reset();
+
+  // error for updateContentext
+  cb_mock->set_response(
+      "/mock/" + get_service_name(__FUNCTION__) + "/NGSI10/updateContext", 502,
+      "Bad gateway");
+  //error for register
+  cb_mock->set_response(
+      "/mock/" + get_service_name(__FUNCTION__) + "/NGSI10/updateContext", 502,
+      "Bad gateway");
+
+  // fecha  + temperatura
+  std::string i_device = "unitTest_dev1_endpoint";
+  test_setup.add_device("unitTest_dev1_endpoint",
+                        ul20serv->get_protocol_data().protocol);
+
+  std::string querySTR = "i=" + i_device + "&k=" + test_setup.get_apikey();
+  std::string bodySTR = "2014-02-18T16:41:20Z|t|23";
+  std::cout << "@UT@284 " << querySTR << "<-->" << bodySTR << std::endl;
+  {
+    pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR);
+    http_request->add_header(iota::types::FIWARE_SERVICE,
+                             test_setup.get_service());
+    http_request->add_header(iota::types::FIWARE_SERVICEPATH,
+                             test_setup.get_service_path());
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(std::pair<std::string, std::string>("i", i_device));
+    query_parameters.insert(
+        std::pair<std::string, std::string>("k", test_setup.get_apikey()));
+    pion::http::response http_response;
+    std::string response;
+    ul20serv->service(http_request, url_args, query_parameters, http_response,
+                      response);
+
+    std::cout << "POST fecha + temperatura " << http_response.get_status_code()
+              << response << std::endl;
+    IOTASSERT_MESSAGE("response code not is 200",
+                      http_response.get_status_code() == RESPONSE_CODE_NGSI);
+
+    std::cout << "@UT@alarms " << querySTR << "<-->" << palarm->size() << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("alarms one2 ", palarm->size() == 1);
+    std::cout << "@UT@alarmsmessage <-->" << palarm->get_last() << std::endl;
+    IOTASSERT_MESSAGE(
+        "service subservice in alarm",
+        palarm->get_last().find(
+            get_service_name(__FUNCTION__)) !=
+            std::string::npos);
+
+  }
+
+  std::cout << "END testPOST502 " << std::endl;
 }
