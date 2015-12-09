@@ -249,7 +249,6 @@ std::string iota::ContextBrokerCommunicator::send(
     cb_response = send(url, content, additional_info,
                        pion::http::types::RESPONSE_CODE_UNAUTHORIZED);
   }
-  IOTA_LOG_DEBUG(m_logger, "Ref to http_client " << http_client.use_count());
   return cb_response;
 }
 
@@ -433,7 +432,7 @@ std::string iota::ContextBrokerCommunicator::process_response(
   if ((!error) && (resp.get() != NULL)) {
     response = resp->get_content();
     iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                      "send ok");
+                      "send ok " + response);
   } else {
     std::stringstream ss;
     ss << "Response error ";

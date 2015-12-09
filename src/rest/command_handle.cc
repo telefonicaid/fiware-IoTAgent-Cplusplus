@@ -1243,11 +1243,13 @@ std::string iota::CommandHandle::get_ngsi_operation(
     const std::string& operation) {
   std::string op("/NGSI10/");
   op.append(operation);
-
+  IOTA_LOG_DEBUG(m_logger, "Search for " + operation + " uri");
   try {
     const JsonValue& ngsi_url = iota::Configurator::instance()->get("ngsi_url");
-    std::string op_url = ngsi_url[operation.c_str()].GetString();
-    op.assign(op_url);
+    if (ngsi_url.HasMember(operation.c_str())) {
+      std::string op_url = ngsi_url[operation.c_str()].GetString();
+      op.assign(op_url);
+    }
   } catch (std::exception& e) {
     IOTA_LOG_ERROR(m_logger, "Configuration error " << e.what());
   }
