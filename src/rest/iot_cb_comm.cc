@@ -55,6 +55,8 @@ void iota::ContextBrokerCommunicator::receive_event(
   pion::http::response_ptr response = connection->get_response();
   if ((!error) && (response.get() != NULL)) {
     std::string cb_response = response->get_content();
+    IOTA_LOG_DEBUG(m_logger, "res_code=" << response->get_status_code()
+                             << " text=" << cb_response);
     if (response->get_status_code() ==
             pion::http::types::RESPONSE_CODE_UNAUTHORIZED &&
         number_of_tries < 1) {
