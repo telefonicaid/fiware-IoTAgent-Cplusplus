@@ -35,6 +35,7 @@ class OAuthTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAccessControl);
   CPPUNIT_TEST(testValidateAsync);
   CPPUNIT_TEST(testActions);
+  CPPUNIT_TEST(test502);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -52,5 +53,6 @@ class OAuthTest : public CppUnit::TestFixture {
   void testAccessControl();
   void testValidateAsync();
   void testActions();
+  void test502();
 };
 #endif

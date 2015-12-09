@@ -105,12 +105,10 @@ def update(threadName, updatePayload):
              event_value = attr_list [i] ["value"]
          elif ( attr_list [i] ["name"].endswith ('_status')):
              status_value = attr_list [i] ["value"]
-             #lastStatus = status_value
-             lastStatus = lastM
+             lastStatus = updatePayload
          elif ( attr_list [i] ["name"].endswith ('_info')):
              info_value = attr_list [i] ["value"]
-             #lastInfo = info_value
-             lastInfo = lastM
+             lastInfo = updatePayload
 
     if verbose:
         print event_value

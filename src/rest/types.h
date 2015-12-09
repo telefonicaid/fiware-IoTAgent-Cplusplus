@@ -118,6 +118,7 @@ struct types {
   static const std::string RESPONSE_MESSAGE_NO_COMMAND;
   static const std::string RESPONSE_MESSAGE_NO_DEVICE_NO_COMMAND;
   static const std::string RESPONSE_MESSAGE_INTERNAL_ERROR;
+  static const std::string RESPONSE_MESSAGE_BAD_GATEWAY;
   static const std::string RESPONSE_MESSAGE_DATABASE_ERROR;
   static const std::string RESPONSE_MESSAGE_BAD_CONFIG;
   static const std::string RESPONSE_MESSAGE_DEVICE_NO_ACTIVE;
@@ -162,6 +163,7 @@ struct types {
   static const unsigned int RESPONSE_CODE_NO_COMMAND;
   static const unsigned int RESPONSE_CODE_NO_DEVICE_NO_COMMAND;
   static const unsigned int RESPONSE_CODE_BAD_CONFIG;
+  static const unsigned int RESPONSE_CODE_BAD_GATEWAY;
   static const unsigned int RESPONSE_CODE_DEVICE_NO_ACTIVE;
   static const unsigned int RESPONSE_CODE_ENTITY_ALREADY_EXISTS;
   static const unsigned int RESPONSE_CODE_DATA_NOT_FOUND;
