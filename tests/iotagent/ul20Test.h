@@ -81,6 +81,8 @@ class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
   CPPUNIT_TEST(test_register_iota_manager12);
   CPPUNIT_TEST(test_register_iota_manager34);
 
+  CPPUNIT_TEST(testPOST502);
+
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -168,6 +170,8 @@ class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
 
   void test_register_iota_manager12();
   void test_register_iota_manager34();
+
+  void testPOST502();
 
   void populate_command_attributes(
       const boost::shared_ptr<iota::Device>& device,
