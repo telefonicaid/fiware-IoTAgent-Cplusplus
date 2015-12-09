@@ -129,6 +129,15 @@ void iota::Alarm::remove(int code, const std::string& endpoint,
   }
 }
 
+void iota::Alarm::reset(){
+  boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+  _alarms.clear();
+}
+
+void iota::Alarm::get_last(){
+  return _alarms.begin()->second;
+}
+
 std::string iota::Alarm::get_key(int code, const std::string& endpoint,
                                  const std::string& status) {
   std::string key;

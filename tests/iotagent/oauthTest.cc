@@ -538,6 +538,12 @@ void OAuthTest::test502() {
   iota::Alarm* palarm = iota::Alarm::instance();
   std::cout << "@UT@alarms <-->" << palarm->size() << std::endl;
   CPPUNIT_ASSERT_MESSAGE("alarms one2 ", palarm->size() == 1);
+  std::cout << "@UT@alarmsmessage <-->" << palarm->get_last() << std::endl;
+  CPPUNIT_ASSERT_MESSAGE(
+        "service subservice in alarm",
+        palarm->get_last().find(
+            get_service_name(__FUNCTION__)) !=
+            std::string::npos);
 
 
   std::cout << "End test502" << std::endl;
