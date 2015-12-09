@@ -206,7 +206,7 @@ const std::string AdminTest::POST_SERVICE(
     "\"/TestAdmin/d\"}]}");
 const std::string AdminTest::POST_SERVICE2(
     "{\"services\": [{"
-    "\"apikey\": \"apikey2\",\"token\": \"token\","
+    "\"apikey\": \"apikey\",\"token\": \"token\","
     "\"outgoing_route\": \"gretunnel\","
     "\"entity_type\": \"thing\",\"resource\": \"/TestAdmin/d\"}]}");
 const std::string AdminTest::BAD_POST_SERVICE1(
@@ -327,6 +327,18 @@ const std::string AdminTest::POST_SERVICE_WRONG_RESOURCE(
     "\"apikey\": \"apikey\",\"token\": \"token\","
     "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": "
     "\"/TestAdmin/dummy\"}]}");
+
+const std::string AdminTest::POST_SERVICE_INVALID_RESOURCE(
+    "{\"services\": [{"
+    "\"apikey\": \"apikey\",\"token\": \"token\","
+    "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": "
+    "\"<script>alert(ok)</script>\"}]}");
+
+const std::string AdminTest::POST_SERVICE_INVALID_APIKEY(
+    "{\"services\": [{"
+    "\"apikey\": \"<script>alert(ok)</script>\",\"token\": \"token\","
+    "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\",\"resource\": "
+    "\"/TestAdmin/d\"}]}");
 
 ////////////////////
 ////  DEVICE _MANAGEMENT
@@ -959,9 +971,9 @@ void AdminTest::testPostService() {
   IOTASSERT_MESSAGE(service_2 + "|outgoing_route" + response,
                     response.find("outgoing_route") != std::string::npos);
 
-  std::cout << "@UT@PUTBAD" << std::endl;
+  /*std::cout << "@UT@PUTBAD" << std::endl;
   // PUT no apikey, no resource 400
-  code_res = http_test("/TestAdmin/services/" + service, "PUT", service, "",
+  code_res = http_test("/TestAdmin/services/" + service_2, "PUT", service_2, "",
                        "application/json", "{\"resource\":\"/TestAdmin/d2\"}",
                        headers, query_string, response);
   std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
@@ -970,6 +982,7 @@ void AdminTest::testPostService() {
                     response.find("\"reason\":\"There are conflicts, object "
                                   "already exists\",\"details\":\"duplicate "
                                   "key: iotest.SERVICE") != std::string::npos);
+*/
 
   std::cout << "@UT@DELETE " << service << std::endl;
   code_res = http_test("/TestAdmin/services", "DELETE", service, "/*",
@@ -2496,5 +2509,18 @@ void AdminTest::testPostServiceWrongResource() {
                            POST_SERVICE_WRONG_RESOURCE, headers, "", response);
   std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
   IOTASSERT(code_res == 400);
+
+  std::cout << "@UT@POST INVALID RESOURCE" << std::endl;
+  code_res = http_test(URI_SERVICE, "POST", service, "", "application/json",
+                       POST_SERVICE_INVALID_RESOURCE, headers, "", response);
+  std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+
+  std::cout << "@UT@POST INVALID APIKEY" << std::endl;
+  code_res = http_test(URI_SERVICE, "POST", service, "", "application/json",
+                       POST_SERVICE_INVALID_APIKEY, headers, "", response);
+  std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+
   std::cout << "END@UT@ testPostServiceWrongResource" << std::endl;
 }
