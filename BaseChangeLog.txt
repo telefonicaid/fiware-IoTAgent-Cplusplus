@@ -10,6 +10,7 @@
 - FEATURE DM-717: Modbus: Historic data processing, interpret numeric data with decimals
 - FIX DM-1066: Add method to complete service information based on plugin.
 - FIX DM-1115: if ContextBroker response 502, ul2, respsol, modbus must create an alarm with service, subservice
+- FIX DM-1120: Check if command is full confirmed (echo response).
 
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.
@@ -95,4 +96,3 @@
 - FIX IDAS-20518: Manager crashes when agent refuses connection.
 - FIX IDAS-20513: Command expired send updateContext with wrong entity name.
 - FIX IDAS-20516: New device does not use service path.
-

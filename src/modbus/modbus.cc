@@ -213,13 +213,19 @@ bool iota::Modbus::receive_modbus_frame(
                   "Modbus preset single register response is not request echo";
             }
           } else if (_function_code == iota::Modbus::PRESET_MULTIPLE_REGISTER) {
-            unsigned short addr_response = (_modbus_frame_response.at(2) << 8) | _modbus_frame_response.at(3);
-            unsigned short values = (_modbus_frame_response.at(4) << 8) | _modbus_frame_response.at(5);
-            if (addr_response != _address_data ||
-                values != _values_to_write.size()) {
+            if (!_confirmed) {
               frame_ok = false;
               error_frame =
-                  "Modbus preset multiple register response is not request echo";
+                  "Modbus preset multiple register response is not confirmed with request echo";
+            } else {
+              unsigned short addr_response = (_modbus_frame_response.at(2) << 8) | _modbus_frame_response.at(3);
+              unsigned short values = (_modbus_frame_response.at(4) << 8) | _modbus_frame_response.at(5);
+              if (addr_response != _address_data ||
+                  values != _values_to_write.size()) {
+                frame_ok = false;
+                error_frame =
+                      "Modbus preset multiple register response is a bad frame";
+              }
             }
           }
         }
@@ -293,8 +299,15 @@ bool iota::Modbus::check_completed(const std::vector<unsigned char>& frame) {
     if (_need_be_confirmed && !_confirmed) {
       IOTA_LOG_DEBUG(m_logger, "Frame need be confirmed " + str_frame);
       if (_modbus_frame_response.size() == _modbus_frame.size()) {
-        _confirmed = true;
-        _modbus_frame_response.clear();
+        if (std::equal(_modbus_frame_response.begin(),
+                       _modbus_frame_response.end(),
+                       _modbus_frame.begin())) {
+          _confirmed = true;
+          _modbus_frame_response.clear();
+        } else {
+          // This frame does not receive echo. This operation is completed.
+          completed = true;
+        }
       }
     }
   }
