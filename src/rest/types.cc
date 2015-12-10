@@ -120,8 +120,7 @@ const std::string types::RESPONSE_MESSAGE_RECEIVER_INTERNAL_ERROR(
     "An unknown error at the receiver has occurred");
 const std::string types::RESPONSE_MESSAGE_NOT_IMPLEMENTED(
     "The given operation is not implemented");
-const std::string types::RESPONSE_MESSAGE_BAD_GATEWAY(
-    "Bad Gateway");
+const std::string types::RESPONSE_MESSAGE_BAD_GATEWAY("Bad Gateway");
 const std::string types::RESPONSE_MESSAGE_NO_REGISTERED_DEVICE(
     "The given device is not registered in IotAgent");
 const std::string types::RESPONSE_MESSAGE_NO_COMMAND(

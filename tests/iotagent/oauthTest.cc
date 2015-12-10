@@ -522,8 +522,8 @@ void OAuthTest::test502() {
   palarm->reset();
 
   h["X-Subject-Token"] = "x-auth-token";
-  http_mock->set_response(oauth_resource + OAUTH_VALIDATE_TOKEN_URL, 502, "Bad Gateway",
-                          h);
+  http_mock->set_response(oauth_resource + OAUTH_VALIDATE_TOKEN_URL, 502,
+                          "Bad Gateway", h);
   boost::shared_ptr<iota::OAuth> oauth(
       new iota::OAuth(iota::Process::get_process().get_io_service()));
   oauth->set_timeout(10);
@@ -538,8 +538,7 @@ void OAuthTest::test502() {
   std::string domain("f7a5b8e303ec43e8a912fe26fa79dc02");
   std::string subservicio("c6851f8ef57c4b91b567ab62ca3d0aef");
   std::string badG("Bad Gateway");
-  http_mock->set_response(oauth_resource + OAUTH_PROJECTS_URL, 502, badG,
-                          h);
+  http_mock->set_response(oauth_resource + OAUTH_PROJECTS_URL, 502, badG, h);
 
   std::cout << "@UT@alarms <-->" << palarm->size() << std::endl;
   CPPUNIT_ASSERT_MESSAGE("alarms one2 ", palarm->size() == 1);

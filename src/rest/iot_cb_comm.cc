@@ -61,7 +61,7 @@ void iota::ContextBrokerCommunicator::receive_event(
   if ((!error) && (response.get() != NULL)) {
     std::string cb_response = response->get_content();
     IOTA_LOG_DEBUG(m_logger, "res_code=" << response->get_status_code()
-                             << " text=" << cb_response);
+                                         << " text=" << cb_response);
     if (response->get_status_code() ==
             pion::http::types::RESPONSE_CODE_UNAUTHORIZED &&
         number_of_tries < 1) {
@@ -69,15 +69,15 @@ void iota::ContextBrokerCommunicator::receive_event(
                           ++number_of_tries);
       bool sending = async_send(url, content, additional_info, _callback,
                                 pion::http::types::RESPONSE_CODE_UNAUTHORIZED);
-    }else if (response->get_status_code() ==
-                iota::types::RESPONSE_CODE_BAD_GATEWAY ){
+    } else if (response->get_status_code() ==
+               iota::types::RESPONSE_CODE_BAD_GATEWAY) {
       iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
-                       additional_info, iota::types::ERROR,
-                       iota::types::RESPONSE_MESSAGE_BAD_GATEWAY);
+                         additional_info, iota::types::ERROR,
+                         iota::types::RESPONSE_MESSAGE_BAD_GATEWAY);
 
     } else {
       iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                      "send ok");
+                        "send ok");
       if (_callback) {
         _callback(cb_response, response->get_status_code());
       }

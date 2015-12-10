@@ -3954,7 +3954,7 @@ void Ul20Test::testPOST502() {
   cb_mock->set_response(
       "/mock/" + get_service_name(__FUNCTION__) + "/NGSI10/updateContext", 502,
       "Bad gateway");
-  //error for register
+  // error for register
   cb_mock->set_response(
       "/mock/" + get_service_name(__FUNCTION__) + "/NGSI10/updateContext", 502,
       "Bad gateway");
@@ -3992,15 +3992,13 @@ void Ul20Test::testPOST502() {
     IOTASSERT_MESSAGE("response code not is 200",
                       http_response.get_status_code() == RESPONSE_CODE_NGSI);
 
-    std::cout << "@UT@alarms " << querySTR << "<-->" << palarm->size() << std::endl;
+    std::cout << "@UT@alarms " << querySTR << "<-->" << palarm->size()
+              << std::endl;
     CPPUNIT_ASSERT_MESSAGE("alarms one2 ", palarm->size() == 1);
     std::cout << "@UT@alarmsmessage <-->" << palarm->get_last() << std::endl;
-    IOTASSERT_MESSAGE(
-        "service subservice in alarm",
-        palarm->get_last().find(
-            get_service_name(__FUNCTION__)) !=
-            std::string::npos);
-
+    IOTASSERT_MESSAGE("service subservice in alarm",
+                      palarm->get_last().find(get_service_name(__FUNCTION__)) !=
+                          std::string::npos);
   }
 
   std::cout << "END testPOST502 " << std::endl;

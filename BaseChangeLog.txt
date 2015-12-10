@@ -7,6 +7,7 @@
 - FEATURE DM-717: Modbus: Historic data processing, interpret numeric data with decimals
 - FIX DM-1066: Add method to complete service information based on plugin.
 - FIX DM-1115: if ContextBroker response 502, ul2, respsol, modbus must create an alarm with service, subservice
+- FEATURE DM-581: Cross Site Scripting prevention: non-existing resources will not be allowed.
 
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.

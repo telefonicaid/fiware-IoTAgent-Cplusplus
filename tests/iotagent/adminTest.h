@@ -44,16 +44,17 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(AdminTest);
 
   CPPUNIT_TEST(testGetConf);
-   CPPUNIT_TEST(testGetAgents);
-   CPPUNIT_TEST(testTimezones);
-   // CPPUNIT_TEST(testCsvProvision);
-   CPPUNIT_TEST(testPostConf);
-   // TODO se comenta para que no este cam,biando el ficherode conf todo el rato
-   // CPPUNIT_TEST(testReload);
-   CPPUNIT_TEST(testValidationSchema);
-   CPPUNIT_TEST(testPostBadContentType);
-   CPPUNIT_TEST(testPostDevice);
-   CPPUNIT_TEST(testPostService);
+  CPPUNIT_TEST(testGetAgents);
+    CPPUNIT_TEST(testTimezones);
+    // CPPUNIT_TEST(testCsvProvision);
+    CPPUNIT_TEST(testPostConf);
+    // TODO se comenta para que no este cam,biando el ficherode conf todo el
+    // rato
+    // CPPUNIT_TEST(testReload);
+    CPPUNIT_TEST(testValidationSchema);
+    CPPUNIT_TEST(testPostBadContentType);
+    CPPUNIT_TEST(testPostDevice);
+    CPPUNIT_TEST(testPostService);
    CPPUNIT_TEST(testPostService2);
    CPPUNIT_TEST(testNoRestApiService);
 
@@ -76,6 +77,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
    CPPUNIT_TEST(testSpaceURI);
    CPPUNIT_TEST(testPostDeviceSameEntity);
   CPPUNIT_TEST(testRetriesRegisterManager);
+  CPPUNIT_TEST(testPostServiceWrongResource);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -131,6 +133,10 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
 
   static const std::string BAD_POST_SERVICE1;
   static const std::string BAD_POST_SERVICE2;
+
+  static const std::string POST_SERVICE_WRONG_RESOURCE;
+  static const std::string POST_SERVICE_INVALID_RESOURCE;
+  static const std::string POST_SERVICE_INVALID_APIKEY;
 
   // GET ALL empty
   static const std::string GET_EMPTY_RESPONSE_SERVICES;
@@ -212,7 +218,7 @@ class AdminTest : public CPPUNIT_NS::TestFixture {
   void testRetriesRegisterManager();
   void testPostDeviceSameEntity();
 
-  void testSendAllRegistrationsWithCommands();
+  void testPostServiceWrongResource();
 
   pion::http::plugin_server_ptr wserver;
   pion::one_to_one_scheduler scheduler;
