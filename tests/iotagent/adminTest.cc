@@ -1579,8 +1579,9 @@ void AdminTest::testBADPostDevice() {
                 "/badservice", "application/json", "", headers, "", response);
   std::cout << "@UT@response " << response << std::endl;
   IOTASSERT(code_res == 400);
-  IOTASSERT(response.compare("{\"reason\":\"The request is not well "
-                             "formed\",\"details\":\"empty body\"}") == 0);
+  IOTASSERT(response.compare(
+                "{\"reason\":\"The request is not well "
+                "formed\",\"details\":\"Resource does not exist\"}") == 0);
 
   std::cout << "@UT@10POST  body empty" << std::endl;
   code_res =
@@ -1606,8 +1607,9 @@ void AdminTest::testBADPostDevice() {
                 "/badservice", "application/json", "{}", headers, "", response);
   std::cout << "@UT@response " << response << std::endl;
   IOTASSERT(code_res == 400);
-  IOTASSERT(response.compare("{\"reason\":\"The request is not well "
-                             "formed\",\"details\":\"empty body\"}") == 0);
+  IOTASSERT(response.compare(
+                "{\"reason\":\"The request is not well "
+                "formed\",\"details\":\"Resource does not exist\"}") == 0);
 
   std::cout << "@UT@11GET  negative offset " << std::endl;
   code_res = http_test("/TestAdmin/services", "GET", "service2", "/ssrv2",
@@ -2498,7 +2500,7 @@ void AdminTest::testPostServiceWrongResource() {
   PION_LOG_SETLEVEL_DEBUG(pion_logger);
   PION_LOG_CONFIG_BASIC;
   iota::Configurator* conf = iota::Configurator::initialize(PATH_CONFIG);
-
+  std::string query_string("apikey=apikey&resource=/TestAdmin/d");
   std::string response;
   std::string service = "service";
   service.append(boost::lexical_cast<std::string>(rand()));
@@ -2521,6 +2523,30 @@ void AdminTest::testPostServiceWrongResource() {
                        POST_SERVICE_INVALID_APIKEY, headers, "", response);
   std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
   IOTASSERT(code_res == 400);
+
+  code_res = http_test(URI_SERVICE, "POST", service, "", "application/json",
+                       POST_SERVICE, headers, "", response);
+
+  std::cout << "@UT@PUT UNKNOWN RESOURCE" << std::endl;
+  code_res = http_test("/TestAdmin/services/" + service, "PUT", service, "",
+                       "application/json", "{\"resource\":\"/nanan\"}", headers,
+                       query_string, response);
+  std::cout << "@UT@PUT RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE("PUT with invalid resource 400 error expected",
+                    code_res == 400);
+
+  std::cout << "@UT@PUT INVALID RESOURCE" << std::endl;
+  code_res = http_test("/TestAdmin/services/" + service, "PUT", service, "",
+                       "application/json",
+                       "{\"resource\":\"<script>alert('ok')</script>\"}",
+                       headers, query_string, response);
+  std::cout << "@UT@PUT RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT_MESSAGE("PUT with invalid resource 400 error expected",
+                    code_res == 400);
+  IOTASSERT_MESSAGE("Pattern must be checked",
+                    response.find("{\"reason\":\"The request is not well "
+                                  "formed\",\"details\":\"String does not "
+                                  "match pattern ") != std::string::npos);
 
   std::cout << "END@UT@ testPostServiceWrongResource" << std::endl;
 }

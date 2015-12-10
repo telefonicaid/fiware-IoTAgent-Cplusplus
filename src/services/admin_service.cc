@@ -1890,6 +1890,8 @@ int iota::AdminService::put_service_json(
         iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
         "resource parameter is mandatory in PUT operation",
         iota::types::RESPONSE_CODE_BAD_REQUEST);
+  } else {
+    check_existing_resource(resource);
   }
 
   if (body.empty()) {
@@ -1916,9 +1918,15 @@ int iota::AdminService::put_service_json(
         check_uri(cbroker);
       }
 
+      std::string inner_resource =
+          setbo.getStringField(iota::store::types::RESOURCE);
+      if (!inner_resource.empty()) {
+        check_existing_resource(inner_resource);
+      }
+
       int count = table->update(query, setbo, false);
       if (count == 0) {
-        IOTA_LOG_INFO(m_log, "put_service_json no device "
+        IOTA_LOG_INFO(m_log, "put_service_json no service found:  "
                                  << " service=" << service << " service_path="
                                  << service_path << " content=" << body);
         throw iota::IotaException(iota::types::RESPONSE_MESSAGE_NO_SERVICE,
@@ -2393,7 +2401,9 @@ iota::ProtocolData iota::AdminService::get_protocol_data() {
 void iota::AdminService::check_existing_resource(const std::string& resource) {
   iota::RestHandle* test_resource = get_service(resource);
   if (NULL == test_resource) {
-    throw iota::IotaException("Resource does not exist", "", 400);
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                              "Resource does not exist",
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 }
 
