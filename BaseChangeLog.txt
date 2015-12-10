@@ -1,3 +1,6 @@
+* Mon Jan 11 2015 Agustin Gonzalez <lucas@tid.es> 1.3.1
+- FEATURE DM-581: Cross Site Scripting prevention: non-existing resources will not be allowed.
+
 * Mon Nov 30 2015 Agustin Gonzalez <lucas@tid.es> 1.3.0
 - FEATURE DM-674: Support Cross-IoTA generic command parameters.
 - FEATURE DM-208: Support Modbus frames.
@@ -7,7 +10,6 @@
 - FEATURE DM-717: Modbus: Historic data processing, interpret numeric data with decimals
 - FIX DM-1066: Add method to complete service information based on plugin.
 - FIX DM-1115: if ContextBroker response 502, ul2, respsol, modbus must create an alarm with service, subservice
-- FEATURE DM-581: Cross Site Scripting prevention: non-existing resources will not be allowed.
 - FIX DM-1120: Check if command is full confirmed (echo response).
 
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
