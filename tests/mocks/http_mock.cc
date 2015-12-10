@@ -48,6 +48,16 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
   static const std::string USER_INFO_TEXT("[USER Info]");
 
   std::string test_function(http_request_ptr->get_resource());
+
+  if (http_request_ptr->get_method().compare("GET") == 0) {
+/*
+   std::string resp_get(get_last(test_function));
+   std::cout << "GET received and responds" << test_function << " " << resp_get << std::endl;
+   writer->write(resp_get);
+   writer->send();
+   return;
+*/
+  }
   /*
   std::string resource = get_resource();
   std::size_t pos = resource.find_last_of("/");
@@ -153,7 +163,7 @@ void MockService::operator()(pion::http::request_ptr& http_request_ptr,
 void MockService::set_response(std::string test_function, int status_code,
                                std::string content,
                                std::map<std::string, std::string> headers) {
-  std::cout << "Setting response for " << test_function << " " << status_code
+  std::cout << "Setting response for " << test_function << " " << content << " " << status_code
             << std::endl;
   std::map<std::string, int>::iterator i_sc = _sc.begin();
   i_sc = _sc.find(test_function);

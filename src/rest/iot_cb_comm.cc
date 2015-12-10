@@ -32,15 +32,20 @@ const std::string iota::ContextBrokerCommunicator::NUMBER_OF_TRIES =
     "number_of_tries";
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator()
     : _io_service(iota::Process::get_process().get_io_service()),
+      _method(pion::http::types::REQUEST_METHOD_POST),
       m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {}
 
 iota::ContextBrokerCommunicator::ContextBrokerCommunicator(
     boost::asio::io_service& io_service)
     : _io_service(io_service),
+      _method(pion::http::types::REQUEST_METHOD_POST),
       m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {}
 
 iota::ContextBrokerCommunicator::~ContextBrokerCommunicator(){};
 
+void iota::ContextBrokerCommunicator::method(std::string http_method) {
+  _method = http_method;
+}
 
 void iota::ContextBrokerCommunicator::receive_event(
     std::string url, std::string content,
@@ -251,7 +256,6 @@ std::string iota::ContextBrokerCommunicator::send(
     cb_response = send(url, content, additional_info,
                        pion::http::types::RESPONSE_CODE_UNAUTHORIZED);
   }
-  IOTA_LOG_DEBUG(m_logger, "Ref to http_client " << http_client.use_count());
   return cb_response;
 }
 
@@ -354,7 +358,7 @@ pion::http::request_ptr iota::ContextBrokerCommunicator::create_request(
     std::string& server, std::string& resource, std::string& content,
     std::string& query, boost::property_tree::ptree& additional_info) {
   pion::http::request_ptr request(new pion::http::request());
-  request->set_method(pion::http::types::REQUEST_METHOD_POST);
+  request->set_method(_method);
   request->set_resource(resource);
   request->set_content(content);
   request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
@@ -435,7 +439,7 @@ std::string iota::ContextBrokerCommunicator::process_response(
   if ((!error) && (resp.get() != NULL)) {
     response = resp->get_content();
     iota::Alarm::info(iota::types::ALARM_CODE_NO_CB, url, iota::types::ERROR,
-                      "send ok");
+                      "send ok " + response);
   } else {
     std::stringstream ss;
     ss << "Response error ";

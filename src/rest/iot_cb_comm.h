@@ -76,6 +76,9 @@ class ContextBrokerCommunicator
 
   std::string get_ngsi_operation(const std::string& operation);
 
+  // Default method is POST
+  void method(std::string http_method);
+
  protected:
  private:
   //
@@ -108,6 +111,8 @@ class ContextBrokerCommunicator
   app_callback_t _callback;
 
   static const std::string NUMBER_OF_TRIES;
+
+  std::string _method;
 };
 };
 #endif
