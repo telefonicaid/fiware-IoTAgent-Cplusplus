@@ -309,6 +309,9 @@ bool iota::Modbus::check_completed(const std::vector<unsigned char>& frame) {
           // This frame does not receive echo. This operation is completed.
           completed = true;
         }
+      } else if (_modbus_frame_response.size() > _modbus_frame.size()) {
+        // This frame does not receive echo. This operation is completed.
+        completed = true;
       }
     }
   }
