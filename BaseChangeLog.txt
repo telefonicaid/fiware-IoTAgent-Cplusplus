@@ -11,6 +11,7 @@
 - FIX DM-1066: Add method to complete service information based on plugin.
 - FIX DM-1115: if ContextBroker response 502, ul2, respsol, modbus must create an alarm with service, subservice
 - FIX DM-1120: Check if command is full confirmed (echo response).
+- FIX DM-1123: Command response must have length 8 (strictly).
 
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.
