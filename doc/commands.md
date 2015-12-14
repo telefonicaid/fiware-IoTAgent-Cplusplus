@@ -33,11 +33,21 @@ A command has different parts:
 | ------------- |:-------------:           |
 | name   | identifier command for users     |
 | type  | command      |
-| value | result of transformation, protocol dependent   |
+| value | View note below   |
 
 - specific command data (when you send a single command, you can send specified data in the value of attribute)
 
 This data can be the entire text send to device, or parameters used as a part of this.
+
+**Note: From version 1.3.0, a common format for value attribute has been defined. This format consists of a JSON object with every field is a command parameter. This parameter will be processed by every protocol instance building command to send. This format is recommended and other defined formats are deprecated.**
+```
+{
+  "parameter_1": value_1,
+  "parameter_2": "value_2"
+}
+```
+ 
+
  [More information](#def-sendCommand)
 
 ![IoT Agent architecture](imgs/regDevice.png)
@@ -50,17 +60,18 @@ A user can provision a device with commands. IotAgent registers the device and t
 ![IoT Agent architecture](imgs/synccommands.png)
 
 
-Example: execute the command PING with data 22
+Example: execute the command PING with data 22.
 ```
 curl -X POST http://$CB:$PORT/iot/ngsi/updateContext \
      -i \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: TestServiceF" \
 -H "Fiware-ServicePath: /TestSubserviceF" \
--d ' {"updateAction":"UPDATE","contextElements":[{"id":"entity_name","type":"entity_type","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22" } ]} ]}'
+-d ' {"updateAction":"UPDATE","contextElements":[{"id":"entity_name","type":"entity_type","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"{\"data\": \"22\"}" } ]} ]}'
 ```
 
-Context broker sends the updateContext to Iotagent, Iotagent check provisoned device and  send to the device "device_id@ping6|22", in the same http, the device returns the result.
+Context broker sends the updateContext to Iotagent, Iotagent check provisoned device and  send to the device "device_id@ping6|data=22", in the same http, the device returns the result.
+
 
 There are two type of commands
 
@@ -72,7 +83,7 @@ user can subscribe or consult this.
 
 ![IoT Agent architecture](imgs/pollingccommands.png)
 
-[more information about polling commans](#def-polling)
+[more information about polling commands](#def-polling)
 
 <a name="def-prerequisites"></a>
 ## 2. Provisioning commands
@@ -110,7 +121,7 @@ You must send an updateCommand via http to the Context Broker, where the iot age
 
 You must use te entity name of the device, and the command name. An example with the before command.
 
-updateCommand sned to Context Broker
+updateCommand send to Context Broker
 
 ```
 curl -X POST http://$HOST:$PORT/v1/updateContext \
@@ -118,22 +129,22 @@ curl -X POST http://$HOST:$PORT/v1/updateContext \
 -H "Content-Type: application/json" \
 -H "Fiware-Service: TestService" \
 -H "Fiware-ServicePath: /TestSubservice" \
--d ' {"updateAction":"UPDATE","contextElements":[{"id":"entity_name","type":"entity_type","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"22" } ]} ]}'
+-d ' {"updateAction":"UPDATE","contextElements":[{"id":"entity_name","type":"entity_type","isPattern":"false","attributes":[{"name":"PING","type":"command","value":"{\"data\": \"22"}" } ]} ]}'
 ``` 
 
 Context Broker redirect this updateContext command to iotagent. If you have permissions for this operation, Iotagent transforms this command to 
 
 ```
-device_id@ping6|22
+device_id@PING|data=22
 ```
-This example is ul20, the iotagent fills "device_id@ping6" with the protocol information (device_name@comand_name)  and appends the parameter value fills in the updateContext command (in the example 22).
+This example is ul20, the iotagent fills "device_id@PING" with the protocol information (device_name@comand_name)  and appends the parameter value fills in the updateContext command (in the example 22).
 
 This text is sent to device.
 
 The device can respond this command, this is an example using ul20 protocol.
 
 ```
-device_id@ping6|Ping OK
+device_id@PING|Ping OK
 ``` 
 
 If you remembered, the provisioned data for device was
@@ -142,57 +153,22 @@ If you remembered, the provisioned data for device was
 { "name": "PING", "type": "command", "value": ""}
 ```
 
-###You  can use several parameters.
+###You can use several parameters.
 
 the provision of device is the same
 
 ```
 {"name": "SET","type": "command","value": ""}
 ```
-updateContext with value separated with |
+updateContext with value as JSON object
 ```
-{"name": "SET","type": "command","value": "DATE=2015-07-15|TIME=06:48:15"}
+{"name": "SET","type": "command", "value": "{\"DATE\":\"2015-07-15\", \"TIME\": \"06:48:15\"}"}
 ```
-data sent to device
+data sent to device (this transformation is an example)
 ```
 device_id@SET|DATE=2015-07-15|TIME=06:48:15
 ```
 
-###You  can use a raw command
-
-Only for experienced users, There is a way to define the exact text to be sent to the device, raw command.
-
-In provisioned data for the device, in the value you must put exactly @@RAW@@, this means that what is put in the UpdateCommand  value is exactly send to the device.
-```
-{"name": "NAME_COMMAND","type": "command","value": "@@RAW@@"}
-```
-updateContext with value separated with |
-```
-{"name": "NAME_COMMAND","type": "command","value": "device_id@ping6|params"}
-```
-data sent to device
-```
-device_id@ping6|params
-```
-
-###You can specify the format of the command
-
-Only for experienced users and backward compatibility, there is a way to define the format of the command.
-
-In provisioned data for the device, in the value you must put exactly
-```
-{"name": "PING","type": "command","value": "device_id@ping6|%s-%s-%s"}
-```
-Every %s is replaced with a param value in the updateCommand  value
-updateContext  separated with | the differents parameters
-
-```
-{"name": "NAME_COMMAND","type": "command","value": "param1|param2|param3"}
-```
-data sent to device
-```
-device_id@ping6|param1-param2-param3
-```
 
 ###Information about status and result commands
 
@@ -206,7 +182,7 @@ Every command has two special attributes
 In this example, this attributes are.
 
 PING_status:  OK
-PING_info:   device_id@ping6|Ping OK
+PING_info:   device_id@PING|Ping OK
 
 In PUSH command like this example it can be two status 
 
