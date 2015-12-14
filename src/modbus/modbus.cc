@@ -221,7 +221,8 @@ bool iota::Modbus::receive_modbus_frame(
               unsigned short addr_response = (_modbus_frame_response.at(2) << 8) | _modbus_frame_response.at(3);
               unsigned short values = (_modbus_frame_response.at(4) << 8) | _modbus_frame_response.at(5);
               if (addr_response != _address_data ||
-                  values != _values_to_write.size()) {
+                  values != _values_to_write.size() ||
+                  _modbus_frame_response.size() != 8) {
                 frame_ok = false;
                 error_frame =
                       "Modbus preset multiple register response is a bad frame";
