@@ -488,6 +488,34 @@
                    "name":"position"
                 }
             ]
+        },{
+            "device_id": "unitTest_dev1_change_endpoint",
+            "endpoint": "http://127.0.0.1:9999/device",
+            "entity_name": "room_uttest",
+            "commands": [
+                {
+                    "name": "PING",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                },
+                {
+                    "name": "RAW",
+                    "type": "command",
+                    "value": "@@RAW@@"
+                }
+            ],
+            "attributes": [
+                {
+                   "object_id":"attr_name",
+                   "name":"temperature"
+                },
+                {
+                   "object_id":"l",
+                   "type": "coords",
+                   "name":"position"
+                }
+            ]
         }
+
       ]
 }

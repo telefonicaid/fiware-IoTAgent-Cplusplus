@@ -214,6 +214,19 @@ void iota::UL20Service::service(
                                    << apikey << " service: " << dev->_service
                                    << " service_path: " << dev->_service_path);
     } else if (url_update) {
+      if (iota::check_forbidden_characters(
+              iota::types::IOTA_FORBIDDEN_CHARACTERS, new_endpoint)) {
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                                  "Invalid Characters",
+                                  iota::types::RESPONSE_CODE_BAD_REQUEST);
+      }
+      iota::IoTUrl endpoint = iota::IoTUrl(new_endpoint);
+      if (endpoint.getHost().empty() || endpoint.getProtocol().empty()) {
+        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_REQUEST,
+                                  "Not a valid IP",
+                                  iota::types::RESPONSE_CODE_BAD_REQUEST);
+      }
+
       std::string old_endpoint = dev->_endpoint;
       if (!old_endpoint.empty() && old_endpoint.compare(new_endpoint) != 0) {
         IOTA_LOG_DEBUG(m_logger, " Device " << device << " has a new endpoint "
