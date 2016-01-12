@@ -19,6 +19,7 @@ orion:
         - mongodb
     expose:
         - "1026"
+    command: -dbhost mongodb
     
 iotacpp:
     image: telefonicaiot/iotacpp
