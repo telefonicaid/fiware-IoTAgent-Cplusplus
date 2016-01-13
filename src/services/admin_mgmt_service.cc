@@ -573,7 +573,7 @@ int iota::AdminManagerService::delete_multiple_devices(
     // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
     url_endpoint.append("/");
-    url_endpoint.append(device_id);
+    url_endpoint.append(pion::algorithm::url_encode(device_id);
 
     std::string content;
     std::string temp_res;
@@ -766,7 +766,7 @@ int iota::AdminManagerService::put_multiple_devices(
     // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
     url_endpoint.append("/");
-    url_endpoint.append(device_id);
+    url_endpoint.append(pion::algorithm::url_encode(device_id);
 
     int code_i = operation_device_iotagent(
         url_endpoint, dev.get_device_json(), service, sub_service, x_auth_token,

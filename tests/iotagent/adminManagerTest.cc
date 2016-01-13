@@ -1344,6 +1344,47 @@ void AdminManagerTest::testPutProtocolDevice() {
   std::cout << "END@UT@ testPutProtocolDevice" << std::endl;
 }
 
+void AdminManagerTest::testBadCharactersDevice_DM1179() {
+  std::cout << "START @UT@START testBadCharactersDevice_DM1179" << std::endl;
+  unsigned int port = iota::Process::get_process().get_http_port();
+  std::map<std::string, std::string> headers;
+  std::string query_string("");
+  std::string POST_DEVICE_BAD_NAME(
+    "{\"devices\": "
+    "[{\"device_id\": \"device id\",\"entity_name\": "
+    "\"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": "
+    "\"http://device_endpoint\",\"timezone\": \"America/Santiago\""
+    "}]}");
+
+  int code_res;
+  std::string response;
+  std::string service = "testmanagerservice";
+  std::cout << "@UT@service " << service << std::endl;
+
+  std::string uri_query(URI_DEVICES_MANAGEMEMT);
+
+  // missing protocol in query
+  std::cout << "@UT@1POST" << std::endl;
+  code_res = http_test(uri_query, "POST", service, "", "application/json",
+                       POST_DEVICE_BAD_NAME, headers, query_string, response);
+  std::cout << "@UT@1RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 201);
+
+  pion::http::response http_response;
+
+
+  // DELETE Device
+  code_res = http_test("/iotagent/devices", "DELETE", "testmanagerservice",
+                       "/testmanagersubservice", "application/json",
+                       "", headers, "", response);
+
+  std::cout << "@UT@2RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 204);
+
+  std::cout << "END@UT@ testBadCharactersDevice_DM1179" << std::endl;
+}
+
+
 void AdminManagerTest::testPostJSONDeviceErrorHandling() {
   std::cout << "START @UT@START testPostJSONDeviceErrorHandling" << std::endl;
   std::map<std::string, std::string> headers;
