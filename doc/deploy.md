@@ -652,6 +652,7 @@ Every alarm has a code to identify it.
 
 | code     |description               |
 | ------------- |:-------------:           |
+| 999   | Bad configuration     |
 | 100   | No comunication with mongo database     |
 | 200 | No comunication with Context broker     |
 | 300 | No comunication with IoT Agent (IoT Agent Manager throws this alarm)     |
