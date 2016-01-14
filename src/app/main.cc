@@ -150,7 +150,7 @@ int main(int argc, const char* argv[]) {
 
   log4cplus::tstring pattern =
 
-      LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%5p | comp=" +
+      LOG4CPLUS_TEXT("time=%D{%Y-%m-%dT%H:%M:%S,%Q%Z} | lvl=%-5p | comp=" +
                      arguments.get_component_name() + " %m %n");
   // LOG4CPLUS_TEXT("%-5p %D{%d-%m-%y %H:%M:%S,%Q %Z} [%t][%b] - %m %n");
 
