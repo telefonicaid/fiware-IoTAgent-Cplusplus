@@ -1344,6 +1344,104 @@ void AdminManagerTest::testPutProtocolDevice() {
   std::cout << "END@UT@ testPutProtocolDevice" << std::endl;
 }
 
+void AdminManagerTest::testBadCharactersDeviceDM1179() {
+  std::cout << "START @UT@START testBadCharactersDevice_DM1179" << std::endl;
+  MockService* http_mock =
+     (MockService*)iota::Process::get_process().get_service("/mock");
+  unsigned int port = iota::Process::get_process().get_http_port();
+  std::string response;
+
+  iota::AdminManagerService manager_service;
+  manager_service.set_timeout(5);
+  std::cout << "testAddDevicesToEndpoints: STARTING... " << std::endl;
+  std::map<std::string, std::string> h;
+  http_mock->set_response("testAddDevicesToEndpoints", 201, "{}", h);
+  http_mock->set_response("testAddDevicesToEndpoints", 201, "{}", h);
+
+  std::string endpoint("http://127.0.0.1:" +
+  boost::lexical_cast<std::string>(port) +
+     "/mock/testBadCharactersDeviceDM1179");
+
+  std::map<std::string, std::string> headers;
+  std::string query_string("");
+  std::string POST_DEVICE_BAD_NAME(
+   "{\"devices\": "
+   "[{\"device_id\": \"device id\",\"entity_name\": "
+   "\"entity_name\",\"entity_type\": \"entity_type\",\"endpoint\": "
+   "\"http://device_endpoint\",\"timezone\": \"America/Santiago\","
+   "\"protocol\": \"PDI-IoTA-UltraLight\""
+   "}]}");
+
+  const std::string POST_SERVICE_MANAGEMENT_BAD_NAME(
+     "{\"services\": [{"
+     "\"protocol\": [\"UL20\"],"
+     "\"apikey\": \"apikey\",\"token\": \"token\","
+     "\"cbroker\": \"http://cbroker\",\"entity_type\": \"thing\""
+     "}]}");
+
+  pion::http::response http_response;
+  int code_res;
+  std::string service = "testmanagerservice22";
+
+  std::string service_path = "/";
+    std::cout << "@UT@service " << service << std::endl;
+
+    std::string uri_query(URI_DEVICES_MANAGEMEMT);
+
+    std::string body1("{\"iotagent\": \"");
+    body1 += endpoint;
+    body1 += "\",\"identifier\": \"id:80\",";
+    body1 += "\"resource\": \"/iot/d\",";
+    body1 += "\"protocol\": \"UL20\",";
+    body1 += "\"services\": []}";
+
+    int code_res1 = manager_service.post_protocol_json(
+          service, service_path, body1, http_response, response);
+    std::cout << "@UT@1RESPONSE: " << code_res1 << " " << response << std::endl;
+
+    if (code_res1 == 500){
+         IOTASSERT(response.compare("\"code\": \"200\"") == 0);
+    }else {
+         IOTASSERT(code_res1 == 201);
+    }
+
+    // create service
+    std::cout << "@UT@1POST SERVICE" << std::endl;
+    code_res = http_test("/TestManager/services", "POST", service, "", "application/json",
+           POST_SERVICE_MANAGEMENT_BAD_NAME, headers, query_string, response);
+    std::cout << "@UT@2RESPONSE: " << code_res << " " << response << std::endl;
+
+    if (code_res1 == 500){
+        IOTASSERT(response.compare("\"code\": \"201\"") == 0);
+    }else {
+        IOTASSERT(code_res1 == 201);
+    }
+    // create device
+    std::cout << "@UT@1POST" << std::endl;
+    code_res = http_test(uri_query, "POST", service, "", "application/json",
+                POST_DEVICE_BAD_NAME, headers, query_string, response);
+    std::cout << "@UT@3RESPONSE: " << code_res << " " << response << std::endl;
+    if (code_res1 == 500){
+        IOTASSERT(response.compare("\"code\": \"201\"") == 0);
+    }else {
+        IOTASSERT(code_res1 == 201);
+    }
+    
+    // DELETE Device
+    code_res = http_test("/iotagent/devices/device+id", "DELETE", "testmanagerservice",
+                   "/testmanagersubservice", "application/json",
+                   "", headers, "", response);
+			
+    std::cout << "@UT@22RESPONSE: " << code_res << " " << response << std::endl;
+    if (code_res == 500){
+        IOTASSERT(response.compare("\"code\": \"204\"") == 0);
+    }else {
+        IOTASSERT(code_res == 204);
+    }
+
+    std::cout << "END@UT@ testBadCharactersDevice_DM1179" << std::endl;
+}
+
 void AdminManagerTest::testPostJSONDeviceErrorHandling() {
   std::cout << "START @UT@START testPostJSONDeviceErrorHandling" << std::endl;
   std::map<std::string, std::string> headers;
