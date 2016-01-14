@@ -31,56 +31,58 @@
 
 class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
   CPPUNIT_TEST_SUITE(Ul20Test);
-  CPPUNIT_TEST(testTransformCommand);
-  CPPUNIT_TEST(testFileGET);
-  CPPUNIT_TEST(testMongoGET);
-  CPPUNIT_TEST(testNormalPOST);
-  CPPUNIT_TEST(testTimePOST);
-  CPPUNIT_TEST(testBadPost);
-  CPPUNIT_TEST(testNoDevicePost);
-  CPPUNIT_TEST(testRiotISO8601);
-  CPPUNIT_TEST(testTranslate);
-  CPPUNIT_TEST(testCommand);
-  CPPUNIT_TEST(testGetAllCommand);
-  CPPUNIT_TEST(testDevices);
-  CPPUNIT_TEST(testisCommandResponse);
-  CPPUNIT_TEST(testFindService);
-  CPPUNIT_TEST(testSendRegister);
-  CPPUNIT_TEST(testSendUnRegister);
-  CPPUNIT_TEST(testDevicesConfig);
-  CPPUNIT_TEST(testNoDeviceFile);
-  CPPUNIT_TEST(testRegisterDuration);
-  CPPUNIT_TEST(testKVP);
-  CPPUNIT_TEST(testCacheMongoGet);
-  CPPUNIT_TEST(testCacheMongoGetNotFound);
-  CPPUNIT_TEST(testPUSHCommand);
-  CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
-  CPPUNIT_TEST(testPUSHCommandAsync);
-  CPPUNIT_TEST(testBADPUSHCommand);
+  /* CPPUNIT_TEST(testTransformCommand);
+   CPPUNIT_TEST(testFileGET);
+   CPPUNIT_TEST(testMongoGET);
+   CPPUNIT_TEST(testNormalPOST);
+   CPPUNIT_TEST(testTimePOST);
+   CPPUNIT_TEST(testBadPost);
+   CPPUNIT_TEST(testNoDevicePost);
+   CPPUNIT_TEST(testRiotISO8601);
+   CPPUNIT_TEST(testTranslate);
+   CPPUNIT_TEST(testCommand);
+   CPPUNIT_TEST(testGetAllCommand);
+   CPPUNIT_TEST(testDevices);
+   CPPUNIT_TEST(testisCommandResponse);
+   CPPUNIT_TEST(testFindService);
+   CPPUNIT_TEST(testSendRegister);
+   CPPUNIT_TEST(testSendUnRegister);
+   CPPUNIT_TEST(testDevicesConfig);
+   CPPUNIT_TEST(testNoDeviceFile);
+   CPPUNIT_TEST(testRegisterDuration);
+   CPPUNIT_TEST(testKVP);
+   CPPUNIT_TEST(testCacheMongoGet);
+   CPPUNIT_TEST(testCacheMongoGetNotFound);
+   CPPUNIT_TEST(testPUSHCommand);
+   CPPUNIT_TEST(testPUSHCommandProxyAndOutgoingRoute);
+   CPPUNIT_TEST(testPUSHCommandAsync);
+   CPPUNIT_TEST(testBADPUSHCommand);
 
-  CPPUNIT_TEST(testPollingCommandTimeout);
-  CPPUNIT_TEST(testCommandNOUL);
+   CPPUNIT_TEST(testPollingCommandTimeout);
+   CPPUNIT_TEST(testCommandNOUL);
 
-  CPPUNIT_TEST(testPUSHCommandParam);
+   CPPUNIT_TEST(testPUSHCommandParam);
 
-  CPPUNIT_TEST(testPUSHCommand_MONGO);
-  CPPUNIT_TEST(testPollingCommand_MONGO_CON);
-  CPPUNIT_TEST(testPollingCommand_MONGO_SIN_ENTITY_NAME);
-  CPPUNIT_TEST(testPollingCommand_MONGO_SIN_ENTITY_TYPE);
-  CPPUNIT_TEST(testPollingCommand_MONGO_SIN);
-  CPPUNIT_TEST(testBAD_PUSHCommand_MONGO);
+   CPPUNIT_TEST(testPUSHCommand_MONGO);
+   CPPUNIT_TEST(testPollingCommand_MONGO_CON);
+   CPPUNIT_TEST(testPollingCommand_MONGO_SIN_ENTITY_NAME);
+   CPPUNIT_TEST(testPollingCommand_MONGO_SIN_ENTITY_TYPE);
+   CPPUNIT_TEST(testPollingCommand_MONGO_SIN);
+   CPPUNIT_TEST(testBAD_PUSHCommand_MONGO);
 
-  CPPUNIT_TEST(testCommandHandle);
+   CPPUNIT_TEST(testCommandHandle);
 
-  CPPUNIT_TEST(testQueryContext);
-  CPPUNIT_TEST(testQueryContextAPI);
+   CPPUNIT_TEST(testQueryContext);
+   CPPUNIT_TEST(testQueryContextAPI);
 
-  CPPUNIT_TEST(testChangeIPDevice);
-  CPPUNIT_TEST(testChangeIPDevice_empty);
+   CPPUNIT_TEST(testChangeIPDevice);
+   CPPUNIT_TEST(testChangeIPDevice_empty);
 
-  CPPUNIT_TEST(test_register_iota_manager12);
-  CPPUNIT_TEST(test_register_iota_manager34);
-  CPPUNIT_TEST(testPOST502);
+   CPPUNIT_TEST(test_register_iota_manager12);
+   CPPUNIT_TEST(test_register_iota_manager34);
+   CPPUNIT_TEST(testPOST502);
+ */
+  CPPUNIT_TEST(testBadIPChangeDevice);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -171,6 +173,8 @@ class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
   void test_register_iota_manager34();
 
   void testPOST502();
+
+  void testBadIPChangeDevice();
 
   void populate_command_attributes(
       const boost::shared_ptr<iota::Device>& device,

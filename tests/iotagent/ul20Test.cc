@@ -3650,6 +3650,93 @@ void Ul20Test::testChangeIPDevice() {
   std::cout << "END testChangeIPDevice " << std::endl;
 }
 
+void Ul20Test::testBadIPChangeDevice() {
+  /*
+
+    */
+  std::cout << "START testBadIPChangeDevice" << std::endl;
+  iota::UL20Service* ul20serv =
+      (iota::UL20Service*)iota::Process::get_process().get_service("/TestUL/d");
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+  std::string mock_port = boost::lexical_cast<std::string>(
+      iota::Process::get_process().get_http_port());
+  std::string dev_name = "unitTest_dev1_endpoint";
+  std::string service = get_service_name(__FUNCTION__);
+  std::string subservice("/" + service);
+  std::string apikey = service;
+  std::string new_endpoint = "<script>alert(ok)</script>";
+
+  TestSetup test_setup(get_service_name(__FUNCTION__), "/TestUL/d");
+  test_setup.add_device(dev_name, ul20serv->get_protocol_data().protocol);
+  std::string response;
+  pion::http::response http_response;
+  int code_res;
+
+  {
+    std::string encoded_endpoint = new_endpoint;
+    std::string querySTR =
+        "i=" + dev_name + "&k=" + apikey + "&ip=" + encoded_endpoint;
+    pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content("");
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(std::pair<std::string, std::string>("i", dev_name));
+    query_parameters.insert(std::pair<std::string, std::string>("k", apikey));
+    // include the IP parameter to change it
+    query_parameters.insert(
+        std::pair<std::string, std::string>("ip", new_endpoint));
+
+    ul20serv->service(http_request, url_args, query_parameters, http_response,
+                      response);
+  }
+
+  std::cout << "@UT@CODE RESPONSE: " << http_response.get_status_code()
+            << std::endl;
+
+  IOTASSERT_MESSAGE("Invalid characters are not allowed",
+                    http_response.get_status_code() == 400);
+
+  std::cout << "RESPONSE: " << http_response.get_status_message() << std::endl;
+  IOTASSERT_MESSAGE("Bad request", http_response.get_status_message().find(
+                                       "Bad Request") != std::string::npos);
+
+  {
+    std::string encoded_endpoint = "nanana";
+    std::string querySTR =
+        "i=" + dev_name + "&k=" + apikey + "&ip=" + encoded_endpoint;
+    pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content("");
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(std::pair<std::string, std::string>("i", dev_name));
+    query_parameters.insert(std::pair<std::string, std::string>("k", apikey));
+    // include the IP parameter to change it
+    query_parameters.insert(
+        std::pair<std::string, std::string>("ip", new_endpoint));
+
+    ul20serv->service(http_request, url_args, query_parameters, http_response,
+                      response);
+  }
+
+  std::cout << "@UT@CODE RESPONSE: " << http_response.get_status_code()
+            << std::endl;
+
+  IOTASSERT_MESSAGE("Not a valid URL", http_response.get_status_code() == 400);
+
+  std::cout << "RESPONSE: " << http_response.get_status_message() << std::endl;
+  IOTASSERT_MESSAGE("Bad request", http_response.get_status_message().find(
+                                       "Bad Request") != std::string::npos);
+
+  std::cout << "END testBadIPChangeDevice " << std::endl;
+}
+
 void Ul20Test::testChangeIPDevice_empty() {
   /*
   This test covers the opposite scenario to the previous one, so in this case,
