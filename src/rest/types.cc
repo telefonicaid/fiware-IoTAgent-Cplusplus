@@ -218,7 +218,7 @@ const unsigned int types::RESPONSE_CODE_FIWARE_SERVICE_PATH_ERROR = 1001;
 const unsigned int types::RESPONSE_CODE_FORBIDDEN_CHARACTERS = 1002;
 
 /// ALARMS
-const unsigned int types::ALARM_CODE_BAD_CONFIGURATION = 1;
+const unsigned int types::ALARM_CODE_BAD_CONFIGURATION = 999;
 const unsigned int types::ALARM_CODE_NO_MONGO = 100;
 const unsigned int types::ALARM_CODE_NO_CB = 200;
 const unsigned int types::ALARM_CODE_NO_IOTA = 300;
