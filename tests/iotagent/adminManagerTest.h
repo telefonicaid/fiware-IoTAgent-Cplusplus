@@ -61,7 +61,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
   CPPUNIT_TEST(testReregistration_changing_ip);
   CPPUNIT_TEST(testReregistration_changing_identifier);
 
-  CPPUNIT_TEST(testBadCharactersDevice_DM1179);
+  CPPUNIT_TEST(testBadCharactersDeviceDM1179);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -182,7 +182,7 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
        to iotagents, but manager must httpencode the query string to work well.
   Iotagent works ok.
     **/
-  void testBadCharactersDevice_DM1179();
+  void testBadCharactersDeviceDM1179();
 
 
  private:
