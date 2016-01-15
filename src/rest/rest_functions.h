@@ -35,6 +35,15 @@ bool restResourceParse(std::string& regex,
 void format_pattern(std::string& url,
                     std::map<std::string, std::string>& filters,
                     std::string& url_regex, std::vector<std::string>& url_args);
+
+ /**  escapes URL-encoded strings (a%20value+with%20spaces)
+   *  same function in  escapes URL-encoded strings (a%20value+with%20spaces)
+   *  without decode + to space, only decode %..
+   *
+   * @param str - a string
+   * @return the same string with percent escapes
+   */
+ static std::string url_decode(const std::string& str);
 };
 
 #endif

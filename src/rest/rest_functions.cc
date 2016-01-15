@@ -41,7 +41,7 @@ bool iota::restResourceParse(std::string& regex,
       // Only store placeholders if provided.
       if (url_placeholders.size() > 0) {
         data = m[i];
-        datad = pion::algorithm::url_decode(data);
+        datad = iota::url_decode(data);
         resources.insert(std::make_pair<std::string, std::string>(
             url_placeholders.at(i - 1), datad));
       }
@@ -117,4 +117,33 @@ void iota::format_pattern(std::string& url,
   } else {
     url_regex.insert(0, filters["method"]);
   }
+}
+
+std::string iota::url_decode(const std::string& str)
+{
+    char decode_buf[3];
+    std::string result;
+    result.reserve(str.size());
+
+    for (std::string::size_type pos = 0; pos < str.size(); ++pos) {
+        switch(str[pos]) {
+        case '%':
+            // decode hexidecimal value
+            if (pos + 2 < str.size()) {
+                decode_buf[0] = str[++pos];
+                decode_buf[1] = str[++pos];
+                decode_buf[2] = '\0';
+                result += static_cast<char>( strtol(decode_buf, 0, 16) );
+            } else {
+                // recover from error by not decoding character
+                result += '%';
+            }
+            break;
+        default:
+            // character does not need to be escaped
+            result += str[pos];
+        }
+    };
+
+    return result;
 }
