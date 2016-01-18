@@ -21,7 +21,7 @@
 */
 #include <boost/regex.hpp>
 #include <pion/http/types.hpp>
-#include <pion/algorithm.hpp>
+#include "util/FuncUtil.h"
 
 #include "rest/rest_functions.h"
 
@@ -41,7 +41,7 @@ bool iota::restResourceParse(std::string& regex,
       // Only store placeholders if provided.
       if (url_placeholders.size() > 0) {
         data = m[i];
-        datad = pion::algorithm::url_decode(data);
+        datad = url_decode(data);
         resources.insert(std::make_pair<std::string, std::string>(
             url_placeholders.at(i - 1), datad));
       }
@@ -118,3 +118,4 @@ void iota::format_pattern(std::string& url,
     url_regex.insert(0, filters["method"]);
   }
 }
+

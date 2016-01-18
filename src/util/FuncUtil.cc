@@ -31,6 +31,7 @@
 #include "FuncUtil.h"
 #include "RiotISO8601.h"
 #include "rest/types.h"
+#include "rest/rest_functions.h"
 #include "util/iota_exception.h"
 #include <boost/tokenizer.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -106,7 +107,7 @@ bool iota::riot_getQueryParams(std::string q_str,
     return false;
   }
 
-  std::string m_query = pion::algorithm::url_decode(q_str);
+  std::string m_query = q_str;
   enum QueryParseState {
     QUERY_PARSE_NAME,
     QUERY_PARSE_VALUE
@@ -441,4 +442,33 @@ int iota::number_of_decimals(const std::string& str) {
     decimals = str.substr(pos + 1);
     return decimals.length();
   }
+}
+
+std::string iota::url_decode(const std::string& str)
+{
+    char decode_buf[3];
+    std::string result;
+    result.reserve(str.size());
+
+    for (std::string::size_type pos = 0; pos < str.size(); ++pos) {
+        switch(str[pos]) {
+        case '%':
+            // decode hexidecimal value
+            if (pos + 2 < str.size()) {
+                decode_buf[0] = str[++pos];
+                decode_buf[1] = str[++pos];
+                decode_buf[2] = '\0';
+                result += static_cast<char>( strtol(decode_buf, 0, 16) );
+            } else {
+                // recover from error by not decoding character
+                result += '%';
+            }
+            break;
+        default:
+            // character does not need to be escaped
+            result += str[pos];
+        }
+    };
+
+    return result;
 }

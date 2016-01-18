@@ -35,6 +35,7 @@ bool restResourceParse(std::string& regex,
 void format_pattern(std::string& url,
                     std::map<std::string, std::string>& filters,
                     std::string& url_regex, std::vector<std::string>& url_args);
+
 };
 
 #endif

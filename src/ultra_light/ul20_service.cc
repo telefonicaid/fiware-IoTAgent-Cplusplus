@@ -34,6 +34,7 @@
 #include <rapidjson/document.h>
 #include "ngsi/UpdateContext.h"
 #include "rest/iot_cb_comm.h"
+#include "rest/rest_functions.h"
 #include <pion/http/response_writer.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/xml_parser.hpp>
@@ -134,7 +135,7 @@ void iota::UL20Service::service(
 
   std::vector<std::string> str_peticiones;
 
-  std::string s_query = http_request_ptr->get_query_string();
+  std::string s_query = iota::url_decode(http_request_ptr->get_query_string());
   std::vector<KVP> query;
   bool hay_p = riot_getQueryParams(s_query, query);
   std::vector<KVP> querySBC;
@@ -471,7 +472,7 @@ int iota::UL20Service::sendHTTP(
         if ((response_ptr->get_content_length() != 0) &&
             (response_ptr->get_content() != NULL)) {
           response.assign(
-              pion::algorithm::url_decode(response_ptr->get_content()));
+              iota::url_decode(response_ptr->get_content()));
           boost::trim(response);
           boost::erase_all(response, "\n");
           boost::erase_all(response, "\r");
@@ -719,7 +720,7 @@ int iota::UL20Service::transform_response(const std::string& str_command_resp,
                                           std::string& id_command) {
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string response;
-  response.assign(pion::algorithm::url_decode(str_command_resp));
+  response.assign(iota::url_decode(str_command_resp));
   boost::trim(response);
   boost::erase_all(response, "\n");
   boost::erase_all(response, "\r");
