@@ -75,6 +75,16 @@ void writeDictionaryTerm(std::ostringstream& os,
                          const pion::ihash_multimap::value_type& val);
 
 int number_of_decimals(const std::string& str);
+
+ /**  escapes URL-encoded strings (a%20value+with%20spaces)
+   *  same function in  escapes URL-encoded strings (a%20value+with%20spaces)
+   *  without decode + to space, only decode %..
+   *
+   * @param str - a string
+   * @return the same string with percent escapes
+   */
+std::string url_decode(const std::string& str);
+
 };
 
 #endif
