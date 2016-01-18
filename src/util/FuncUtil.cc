@@ -107,7 +107,7 @@ bool iota::riot_getQueryParams(std::string q_str,
     return false;
   }
 
-  std::string m_query = iota::url_decode(q_str);
+  std::string m_query = q_str;
   enum QueryParseState {
     QUERY_PARSE_NAME,
     QUERY_PARSE_VALUE

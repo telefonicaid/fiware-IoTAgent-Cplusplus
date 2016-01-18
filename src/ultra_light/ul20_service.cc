@@ -135,7 +135,7 @@ void iota::UL20Service::service(
 
   std::vector<std::string> str_peticiones;
 
-  std::string s_query = http_request_ptr->get_query_string();
+  std::string s_query = iota::url_decode(http_request_ptr->get_query_string());
   std::vector<KVP> query;
   bool hay_p = riot_getQueryParams(s_query, query);
   std::vector<KVP> querySBC;
