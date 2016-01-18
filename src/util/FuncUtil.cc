@@ -31,6 +31,7 @@
 #include "FuncUtil.h"
 #include "RiotISO8601.h"
 #include "rest/types.h"
+#include "rest/rest_functions.h"
 #include "util/iota_exception.h"
 #include <boost/tokenizer.hpp>
 #include <boost/uuid/uuid_generators.hpp>
@@ -106,7 +107,7 @@ bool iota::riot_getQueryParams(std::string q_str,
     return false;
   }
 
-  std::string m_query = pion::algorithm::url_decode(q_str);
+  std::string m_query = iota::url_decode(q_str);
   enum QueryParseState {
     QUERY_PARSE_NAME,
     QUERY_PARSE_VALUE

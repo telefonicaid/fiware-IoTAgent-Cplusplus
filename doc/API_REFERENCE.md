@@ -49,6 +49,11 @@ Anyway, this API needs two headers in order to manage requests:
 - `Fiware-Service`: a service string must not be longer than 50 characters and may only contain underscores and alphanumeric characters and lowercases.
 - `Fiware-ServicePath`: a service path string must only contain underscores and alphanumeric characters and starts with character /. Maximum length is 51 characters (with /).
 
+## URL Encode/Decode characters
+URL encoding stands for encoding certain characters in a URL by replacing them with one or more character triplets that consist of the percent character "%" followed by two hexadecimal digits. The two hexadecimal digits of the triplet(s) represent the numeric value of the replaced character.
+Iot Agent API accepts encoded uri to understand reserved characters in names, except the translation of space for +, to avoid misunderstanding.
+
+
 ## API Access
 All URIs are relative to an specific url, where IoT Agent is raised. For example, `http://127.0.0.1:8080/iot/`.
 
