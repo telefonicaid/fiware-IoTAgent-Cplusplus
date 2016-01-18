@@ -458,7 +458,7 @@ int iota::UL20Service::sendHTTP(
         if ((response_ptr->get_content_length() != 0) &&
             (response_ptr->get_content() != NULL)) {
           response.assign(
-              pion::algorithm::url_decode(response_ptr->get_content()));
+              iota::url_decode(response_ptr->get_content()));
           boost::trim(response);
           boost::erase_all(response, "\n");
           boost::erase_all(response, "\r");
@@ -706,7 +706,7 @@ int iota::UL20Service::transform_response(const std::string& str_command_resp,
                                           std::string& id_command) {
   int code = pion::http::types::RESPONSE_CODE_OK;
   std::string response;
-  response.assign(pion::algorithm::url_decode(str_command_resp));
+  response.assign(iota::url_decode(str_command_resp));
   boost::trim(response);
   boost::erase_all(response, "\n");
   boost::erase_all(response, "\r");
