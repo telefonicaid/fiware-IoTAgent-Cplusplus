@@ -1241,9 +1241,13 @@ iota::ProtocolData iota::RestHandle::get_protocol_data() {
 std::string iota::RestHandle::get_protocol_commands() {
   return "";
 }
- 
+
 void iota::RestHandle::complete_info(boost::property_tree::ptree& pt) {
   return;
+}
+
+int iota::RestHandle::check_provisioned_data(const std::string& data, std::string& error_str) {
+  return iota::types::RESPONSE_CODE_NONE;
 }
 
 int iota::RestHandle::get_timeout_commands() {

@@ -176,8 +176,8 @@ class AdminManagerService : public iota::AdminService {
   */
   int put_multiple_devices(std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
                            const std::string& idDevice, std::string service,
-                           std::string sub_service, std::string x_auth_token,
-                           std::string&);
+                           std::string sub_service, const std::string& protocol,
+                           std::string x_auth_token, std::string& response);
 
   int delete_multiple_devices(
       std::vector<DeviceToBeAdded>& v_devices_endpoint_in,

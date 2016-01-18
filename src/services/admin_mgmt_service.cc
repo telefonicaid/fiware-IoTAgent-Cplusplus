@@ -182,7 +182,7 @@ int iota::AdminManagerService::operation_device_iotagent(
     pion::http::request_ptr request(new pion::http::request());
     request->set_method(method);
     request->set_resource(resource);
-
+    request->set_query_string(query);
     request->set_content(body);
     request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
 
@@ -307,7 +307,7 @@ int iota::AdminManagerService::get_all_devices_json(
         }
         if (offsetI > 0) {
           if (offsetI > countI) {
-            // hay más offset que elementos
+            // hay mï¿½s offset que elementos
             offsetI = offsetI - countI;
           } else {
             // en countI dejamos los elemtos que se han devuelto en device
@@ -573,7 +573,7 @@ int iota::AdminManagerService::delete_multiple_devices(
     // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
     url_endpoint.append("/");
-    url_endpoint.append(device_id);
+    url_endpoint.append(pion::algorithm::url_encode(device_id));
 
     std::string content;
     std::string temp_res;
@@ -735,7 +735,7 @@ int iota::AdminManagerService::put_device_json(
                               << v_endpoints_put.size() << " endpoints");
 
     code = put_multiple_devices(v_endpoints_put, device_id, service,
-                                service_path, token, response);
+                                service_path, protocol, token, response);
     http_response.set_status_code(code);
 
   } else {
@@ -750,7 +750,8 @@ int iota::AdminManagerService::put_device_json(
 int iota::AdminManagerService::put_multiple_devices(
     std::vector<DeviceToBeAdded>& v_devices_endpoint_in,
     const std::string& device_id, std::string service, std::string sub_service,
-    std::string x_auth_token, std::string& response) {
+    const std::string& protocol, std::string x_auth_token,
+    std::string& response) {
   std::string log_message(" service=" + service + " sub_service=" +
                           sub_service);
   IOTA_LOG_DEBUG(m_log, log_message);
@@ -766,7 +767,10 @@ int iota::AdminManagerService::put_multiple_devices(
     // url_endpoint.append("/");
     url_endpoint.append(iota::ADMIN_SERVICE_DEVICES);
     url_endpoint.append("/");
-    url_endpoint.append(device_id);
+    url_endpoint.append(pion::algorithm::url_encode(device_id));
+    if (!protocol.empty()) {
+      url_endpoint.append("?protocol=" + pion::algorithm::url_encode(protocol));
+    }
 
     int code_i = operation_device_iotagent(
         url_endpoint, dev.get_device_json(), service, sub_service, x_auth_token,
@@ -1575,7 +1579,7 @@ int iota::AdminManagerService::get_protocols_json(
   IOTA_LOG_DEBUG(m_log, param_request);
   Collection table(iota::store::types::PROTOCOL_TABLE);
   mongo::BSONObj elto;
-
+  
   mongo::BSONObjBuilder bson_sort;
   // se ordena de manera ascendente por nombre device
   bson_sort.append(store::types::PROTOCOL_NAME, 1);
