@@ -83,7 +83,7 @@ int number_of_decimals(const std::string& str);
    * @param str - a string
    * @return the same string with percent escapes
    */
- static std::string url_decode(const std::string& str);
+std::string url_decode(const std::string& str);
 
 };
 
