@@ -40,6 +40,7 @@
 #include <boost/bind.hpp>
 #include <sstream>
 #include <algorithm>
+#include <pion/algorithm.hpp>
 
 namespace iota {
 boost::uuids::random_generator RandomGenerator;
