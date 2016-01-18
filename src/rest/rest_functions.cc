@@ -21,7 +21,7 @@
 */
 #include <boost/regex.hpp>
 #include <pion/http/types.hpp>
-#include <pion/algorithm.hpp>
+#include "util/FuncUtil.h"
 
 #include "rest/rest_functions.h"
 
@@ -119,31 +119,3 @@ void iota::format_pattern(std::string& url,
   }
 }
 
-std::string iota::url_decode(const std::string& str)
-{
-    char decode_buf[3];
-    std::string result;
-    result.reserve(str.size());
-
-    for (std::string::size_type pos = 0; pos < str.size(); ++pos) {
-        switch(str[pos]) {
-        case '%':
-            // decode hexidecimal value
-            if (pos + 2 < str.size()) {
-                decode_buf[0] = str[++pos];
-                decode_buf[1] = str[++pos];
-                decode_buf[2] = '\0';
-                result += static_cast<char>( strtol(decode_buf, 0, 16) );
-            } else {
-                // recover from error by not decoding character
-                result += '%';
-            }
-            break;
-        default:
-            // character does not need to be escaped
-            result += str[pos];
-        }
-    };
-
-    return result;
-}
