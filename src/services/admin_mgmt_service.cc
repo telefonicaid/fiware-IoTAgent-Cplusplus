@@ -1579,7 +1579,7 @@ int iota::AdminManagerService::get_protocols_json(
   IOTA_LOG_DEBUG(m_log, param_request);
   Collection table(iota::store::types::PROTOCOL_TABLE);
   mongo::BSONObj elto;
-  
+
   mongo::BSONObjBuilder bson_sort;
   // se ordena de manera ascendente por nombre device
   bson_sort.append(store::types::PROTOCOL_NAME, 1);

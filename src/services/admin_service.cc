@@ -1527,8 +1527,8 @@ int iota::AdminService::post_device_json(const std::string& service,
       // Check plugin/protocol private restrictions
       IOTA_LOG_DEBUG(m_log, "Checking protocol restrictions " + protocol_name);
       std::string error_provisioned_data;
-      int error_check =
-          plugin->check_provisioned_data(bo.jsonString(), error_provisioned_data);
+      int error_check = plugin->check_provisioned_data(bo.jsonString(),
+                                                       error_provisioned_data);
       std::string response_message;
       // Any error in POST is important.
       if (error_check == iota::types::RESPONSE_CODE_INVALID_PARAMETER) {
@@ -1620,36 +1620,60 @@ int iota::AdminService::put_device_json(
       reason.assign(types::RESPONSE_MESSAGE_BAD_REQUEST);
       code = types::RESPONSE_CODE_BAD_REQUEST;
     } else {
-      mongo::BSONObj query =
-          BSON(iota::store::types::SERVICE
-               << service << iota::store::types::SERVICE_PATH << service_path
-               << iota::store::types::DEVICE_ID << device_id);
-
+      mongo::BSONObjBuilder query_builder;
+      query_builder.append(iota::store::types::SERVICE, service);
+      query_builder.append(iota::store::types::SERVICE_PATH, service_path);
+      query_builder.append(iota::store::types::DEVICE_ID, device_id);
+      if (!protocol.empty()) {
+        query_builder.append(iota::store::types::PROTOCOL, protocol);
+      }
+      mongo::BSONObj query = query_builder.obj();
+      
       std::string entity_name = setbo.getStringField(store::types::ENTITY_NAME);
-
-      iota::RestHandle* plugin =
-          get_device_protocol(protocol, service, service_path, table);
-      if (plugin == NULL) {
-        throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
-                                  " [ protocol: " + protocol + "]",
-                                  iota::types::RESPONSE_CODE_BAD_REQUEST);
+      // Number of devices to update
+      int number_of_devices = devTable->count(query);
+      IOTA_LOG_DEBUG(m_log,
+                     "Number of devices to update " +
+                         boost::lexical_cast<std::string>(number_of_devices));
+      if (number_of_devices > 1) {
+        throw iota::IotaException(
+            iota::types::RESPONSE_MESSAGE_MISSING_PARAMETER,
+            "This operation needs protocol parameter",
+            iota::types::RESPONSE_CODE_BAD_REQUEST);
       }
 
-      // Check plugin/protocol private restrictions
-      std::string error_provisioned_data;
-      int error_check =
-          plugin->check_provisioned_data(body, error_provisioned_data);
-      // Only a malformed error in PUT is important.
-      if (error_check == iota::types::RESPONSE_CODE_INVALID_PARAMETER) {
-        throw iota::IotaException(
-            iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
-            " [ " + error_provisioned_data + "]",
-            iota::types::RESPONSE_CODE_BAD_REQUEST);
+      mongo::BSONObjBuilder returnFields_before_update;
+      returnFields_before_update.append(iota::store::types::PROTOCOL, 1);
+      devTable->find(query, returnFields_before_update);
+      std::string protocol_name(protocol);
+      if (devTable->more()) {
+        mongo::BSONObj objDev = devTable->next();
+        protocol_name = objDev.getStringField(iota::store::types::PROTOCOL);
+
+        iota::RestHandle* plugin =
+            get_device_protocol(protocol_name, service, service_path, table);
+        if (plugin == NULL) {
+          throw iota::IotaException(iota::types::RESPONSE_MESSAGE_BAD_PROTOCOL,
+                                    " [ protocol: " + protocol + "]",
+                                    iota::types::RESPONSE_CODE_BAD_REQUEST);
+        }
+
+        // Check plugin/protocol private restrictions
+        std::string error_provisioned_data;
+        int error_check =
+            plugin->check_provisioned_data(body, error_provisioned_data);
+        // Only a malformed error in PUT is important.
+        if (error_check == iota::types::RESPONSE_CODE_INVALID_PARAMETER) {
+          throw iota::IotaException(
+              iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
+              " [ " + error_provisioned_data + "]",
+              iota::types::RESPONSE_CODE_BAD_REQUEST);
+        }
       }
 
       // Protocol cannot be modified. Remove this field.
       setbo.removeField(iota::store::types::PROTOCOL);
-      if (!check_device_commands_duplicate(protocol, service, service_path,
+      if (!check_device_commands_duplicate(protocol_name, service, service_path,
                                            setbo, devTable)) {
         throw iota::IotaException(
             iota::types::RESPONSE_MESSAGE_ENTITY_COMMANDS_ALREADY_EXISTS,
@@ -1680,7 +1704,6 @@ int iota::AdminService::put_device_json(
         mongo::BSONObjBuilder returnFields;
         returnFields.append(iota::store::types::PROTOCOL, 1);
         devTable->find(query, returnFields);
-        std::string protocol_name;
         Device dev(device_id, service);
         dev._service_path = service_path;
         if (devTable->more()) {

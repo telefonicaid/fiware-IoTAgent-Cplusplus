@@ -61,6 +61,8 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
   CPPUNIT_TEST(testReregistration_changing_ip);
   CPPUNIT_TEST(testReregistration_changing_identifier);
 
+  CPPUNIT_TEST(testBadCharactersDeviceDM1179);
+
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -171,6 +173,17 @@ class AdminManagerTest : public CPPUNIT_NS::TestFixture, public BaseTest {
   inserted
     **/
   void testReregistration_changing_identifier();
+
+  /**
+  @DM-1179
+  Problem in iota manager when delete a device with no recomended characters like device+36
+
+  Iota manager make the http decode to read query parameters, afer that resend the operation
+       to iotagents, but manager must httpencode the query string to work well.
+  Iotagent works ok.
+    **/
+  void testBadCharactersDeviceDM1179();
+
 
  private:
   void cleanDB();

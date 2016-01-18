@@ -387,7 +387,7 @@ When service does not exist:
             }
 
 ### Update a device [PUT]
-If you want modify only a field, you can do it, except field `protocol` (this field, if provided it is removed from request).
+If you want modify only a field, you can do it, except field `protocol` (this field, if provided it is removed from request). In order to apply some format rules from a module (e.g, a module fix entity name format), we need to know device protocol. In this case, how API works?. When your send a PUT request without `protocol` parameter and there are more than one device, request is rejected. 
 
 + Request (application/json)
 
@@ -415,8 +415,3 @@ If specific device is not found, we work as deleted.
             Fiware-ServicePath: /TestSubservice
 
 + Response 204
-
-
-
-
-
