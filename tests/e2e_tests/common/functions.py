@@ -35,7 +35,11 @@ class Functions(object):
     def service_precond(self, service_name, protocol, attributes={}, static_attributes={}, cbroker={}):
         world.service_name = service_name
         world.srv_path = '/'
-        if not iotagent.service_created(service_name):
+        if protocol:
+            resource = URLTypes.get(protocol)
+        else:
+            resource= {}
+        if not iotagent.service_created(service_name, {}, resource):
             service = iotagent.create_service(service_name, protocol, attributes, static_attributes, cbroker)
             assert service.status_code == 201, 'Error al crear el servicio {} '.format(service_name)
             print 'Servicio {} creado '.format(service_name)
