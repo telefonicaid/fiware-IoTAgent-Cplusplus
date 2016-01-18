@@ -41,7 +41,7 @@ bool iota::restResourceParse(std::string& regex,
       // Only store placeholders if provided.
       if (url_placeholders.size() > 0) {
         data = m[i];
-        datad = iota::url_decode(data);
+        datad = url_decode(data);
         resources.insert(std::make_pair<std::string, std::string>(
             url_placeholders.at(i - 1), datad));
       }
