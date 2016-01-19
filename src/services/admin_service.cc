@@ -1374,8 +1374,9 @@ bool iota::AdminService::validate_json_schema(const std::string& json_str,
   IOTA_LOG_DEBUG(m_log, "json:" << json_str);
 
   try {
-    libvariant::Variant data = libvariant::DeserializeGuess(json_str);
-    libvariant::Variant schema_data = libvariant::DeserializeGuess(schema);
+    libvariant::Variant data = libvariant::DeserializeJSON(json_str);
+    IOTA_LOG_DEBUG(m_log, "schema:" );
+    libvariant::Variant schema_data = libvariant::DeserializeJSON(schema);
     libvariant::AdvSchemaLoader loader5;
     libvariant::SchemaResult result =
         libvariant::SchemaValidate(schema_data, data, &loader5);
