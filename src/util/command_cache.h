@@ -160,6 +160,7 @@ class CommandCache {
         // TODO la funcion _get_entity_function solo devuelve uno
         const boost::shared_ptr<Command> new_item = _get_entity_function(key);
         if (new_item.get() != NULL) {
+          new_item->set_status(new_status);
           insert(new_item);
           result.push_back(new_item);
         }

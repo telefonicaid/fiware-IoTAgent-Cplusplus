@@ -37,6 +37,8 @@ void iota::CommandCache::insert(const boost::shared_ptr<Command>& item) {
       p = _list.push_front(item);
       if (item->get_timeout() > 0) {
         // timeout is in seconds  for this *1000
+        IOTA_LOG_INFO(m_logger, "commandtimeout" << item->get_id() <<
+                      " status: " << item->get_status() << " tout:" <<  item->get_timeout());
         boost::shared_ptr<boost::asio::deadline_timer> t = item->start(
             iota::Process::get_process().get_io_service(), item->get_timeout());
         t->async_wait(boost::bind(&CommandCache::item_timeout, this, item,
@@ -56,6 +58,8 @@ void iota::CommandCache::insert(const boost::shared_ptr<Command>& item) {
           _list.relocate(_list.end(), p.first);
         }
         if (item->get_timeout() > 0) {
+          IOTA_LOG_INFO(m_logger, "commandtimeout" << item->get_id() <<
+                      " status: " << item->get_status() << " tout:" <<  item->get_timeout());
           boost::shared_ptr<boost::asio::deadline_timer> t = item->start(
               iota::Process::get_process().get_io_service(), item->get_timeout());
           t->async_wait(boost::bind(&CommandCache::item_timeout, this, item,
