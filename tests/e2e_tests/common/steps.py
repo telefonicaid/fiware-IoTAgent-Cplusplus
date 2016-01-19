@@ -1,5 +1,5 @@
 from lettuce import step, world
-from iotqautils.iota_utils import Rest_Utils_IoTA
+from iotqatools.iota_utils import Rest_Utils_IoTA
 from common.functions import Functions, URLTypes, ProtocolTypes
 from common.gw_configuration import CBROKER_URL,CBROKER_URL_TLG,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,SMPP_URL,SMPP_FROM
 import time, requests
@@ -350,7 +350,10 @@ def device_not_created_precond(step, device_name, service_path):
 
 @step('a Device with name "([^"]*)", protocol "([^"]*)", entity type "([^"]*)" and entity name "([^"]*)" created')
 def device_with_entity_values_created_precond(step, device_id, protocol, ent_type, ent_name):
-    functions.device_precond(device_id, {}, protocol, {}, ent_name, ent_type)
+    if not ent_type=="fail":
+        functions.device_precond(device_id, {}, protocol, {}, ent_name, ent_type)
+    else:
+        world.device_id=device_id
 
 @step('a Device with name "([^"]*)", protocol "([^"]*)", atributes "([^"]*)" and "([^"]*)", with names "([^"]*)" and "([^"]*)", types "([^"]*)" and "([^"]*)" and values "([^"]*)" and "([^"]*)" created')
 def device_with_attributes_created_precond(step, device_id, protocol, typ1, typ2, name1, name2, type1, type2, value1, value2):
@@ -544,10 +547,18 @@ def check_measures_cbroker(step, num_measures, asset_name):
 
 @step('"([^"]*)" measures of asset "([^"]*)" with timestamp "([^"]*)" are received by context broker')
 def check_measures_cbroker_timestamp(step, num_measures, asset_name, timestamp):
+    if not asset_name:
+        asset_name=world.device_id
+    if world.entity_type:
+        world.device={}
+        world.thing=world.entity_type
+    if world.entity_name:
+        world.device={}
+    print asset_name
     check_measures(step, num_measures, asset_name, timestamp)
 
 def check_measures(step, measures, asset_name, timestamp={}):
-    time.sleep(1)
+    time.sleep(2)
     if world.protocol == 'IoTModbus':
         cbroker_url = CBROKER_URL_TLG
     else:
@@ -628,6 +639,10 @@ def check_measures(step, measures, asset_name, timestamp={}):
                     if world.def_entity:
                         device_name = DEF_ENTITY_TYPE + ':' + asset_name
                         world.thing = DEF_ENTITY_TYPE
+                    else:
+                        if world.entity_type:
+                            if not world.entity_name:
+                                device_name = world.thing + ':' + asset_name
                     if world.device:
                         device_name = world.device + '.' + asset_name
                     assert assetElement == "{}".format(device_name), 'ERROR: id: ' + str(device_name) + " not found in: " + str(contextElement)
@@ -839,7 +854,10 @@ def check_status_info(step, asset_name, response, status):
 def check_wrong_status_info(step, asset_name, response, status):
     world.response={}
     if status != "fail":
-        functions.check_command_cbroker(asset_name, status, response)
+        if ('not_send' in response) | ("length" in response):
+            functions.check_command_cbroker(asset_name, status)
+        else:
+            functions.check_command_cbroker(asset_name, status, response)
     else:
         functions.check_NOT_command_cbroker(asset_name, response, "Status")
         functions.check_NOT_command_cbroker(asset_name, response, "Info")
@@ -852,7 +870,10 @@ def check_status_entity_info(step, asset, response, entity_type, status):
         if entity_type:
             asset_name = entity_type + ":" + world.device_id
         else:
-            asset_name = DEF_ENTITY_TYPE + ":" + world.device_id
+            if world.thing:
+                asset_name = world.thing + ":" + world.device_id
+            else:
+                asset_name = DEF_ENTITY_TYPE + ":" + world.device_id
     if entity_type:
         functions.check_command_cbroker(asset_name, status, response, entity_type)
     else:
