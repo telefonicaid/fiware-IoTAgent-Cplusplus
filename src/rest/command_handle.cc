@@ -82,7 +82,7 @@ boost::shared_ptr<iota::Command> command_from_mongo(
 
 iota::CommandHandle::CommandHandle()
     : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())),
-      m_asyncCommands(iota::types::MAX_SIZE_CACHE, false) {
+      m_asyncCommands(0, false) {
   IOTA_LOG_DEBUG(m_logger, "iota::CommandHandle::CommandHandle");
   m_asyncCommands.set_timeout_function(
       boost::bind(&iota::CommandHandle::timeout_f, this, _1));
@@ -151,23 +151,32 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
 
     get_service_by_name(service_ptree, item->get_service(),
                         item->get_service_path());
-    // look for command in cache
-    int c = remove_command(item->get_id(), item->get_service(),
+
+    //for HA, it is necessary to check if the new state is bigger
+    // then don't do anything, because the other iotagent has done things
+    iota::CommandPtr itemBBDD= get_command(item->get_id(), item->get_service(),
                            item->get_service_path());
 
-    if (c > 0) {
-      // ha saltado algun timeout, hay que enviar el nuevo estado del comando
-      send_updateContext(item->get_name(), iota::types::STATUS,
-                         iota::types::STATUS_TYPE, statusSTR, dev,
-                         service_ptree, iota::types::STATUS_OP);
-    } else {
-      IOTA_LOG_ERROR(
-          m_logger,
-          "timeout command:command_id"
-              << item->get_id()
-              << " timeout but no command in cache, no sended data to CB");
-    }
+    if (itemBBDD.get() == NULL || status < itemBBDD->get_status()) {
+        IOTA_LOG_INFO(m_logger, "HA, CommandHandle::timeout_f refused because command status is bigger, other iotagent has incremented");
+    }else{
+        // look for command in cache
+        int c = remove_command(item->get_id(), item->get_service(),
+                               item->get_service_path());
 
+        if (c > 0) {
+          // ha saltado algun timeout, hay que enviar el nuevo estado del comando
+          send_updateContext(item->get_name(), iota::types::STATUS,
+                             iota::types::STATUS_TYPE, statusSTR, dev,
+                             service_ptree, iota::types::STATUS_OP);
+        } else {
+          IOTA_LOG_ERROR(
+              m_logger,
+              "timeout command:command_id"
+                  << item->get_id()
+                  << " timeout but no command in cache, no sended data to CB");
+        }
+    }
   } catch (iota::IotaException& e) {
     IOTA_LOG_ERROR(m_logger, "IotaException in timeout function: " << e.what());
   } catch (...) {
