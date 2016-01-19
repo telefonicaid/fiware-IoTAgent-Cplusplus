@@ -151,23 +151,31 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
 
     get_service_by_name(service_ptree, item->get_service(),
                         item->get_service_path());
-    // look for command in cache
-    int c = remove_command(item->get_id(), item->get_service(),
+     //for HA, it is necessary to check if the new state is bigger
+    // then don't do anything, because the other iotagent has done things
+    iota::CommandPtr itemBBDD= get_command_from_mongo(item->get_id(), item->get_service(),
                            item->get_service_path());
+    IOTA_LOG_DEBUG(m_logger, "coompare status" << status << "  <  " << itemBBDD->get_status());
+    if (itemBBDD.get() == NULL || status < itemBBDD->get_status()) {
+        IOTA_LOG_INFO(m_logger, "HA, CommandHandle::timeout_f refused because command status is bigger, other iotagent has incremented");
+    }else{
+        // look for command in cache
+        int c = remove_command(item->get_id(), item->get_service(),
+                               item->get_service_path());
 
-    if (c > 0) {
-      // ha saltado algun timeout, hay que enviar el nuevo estado del comando
-      send_updateContext(item->get_name(), iota::types::STATUS,
-                         iota::types::STATUS_TYPE, statusSTR, dev,
-                         service_ptree, iota::types::STATUS_OP);
-    } else {
-      IOTA_LOG_ERROR(
-          m_logger,
-          "timeout command:command_id"
-              << item->get_id()
-              << " timeout but no command in cache, no sended data to CB");
+        if (c > 0) {
+          // ha saltado algun timeout, hay que enviar el nuevo estado del comando
+          send_updateContext(item->get_name(), iota::types::STATUS,
+                             iota::types::STATUS_TYPE, statusSTR, dev,
+                             service_ptree, iota::types::STATUS_OP);
+        } else {
+          IOTA_LOG_ERROR(
+              m_logger,
+              "timeout command:command_id"
+                  << item->get_id()
+                  << " timeout but no command in cache, no sended data to CB");
+        }
     }
-
   } catch (iota::IotaException& e) {
     IOTA_LOG_ERROR(m_logger, "IotaException in timeout function: " << e.what());
   } catch (...) {
@@ -176,6 +184,7 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
 
   return item;
 }
+
 
 int iota::CommandHandle::get_duration_seconds(std::string data) {
   int result = DEFAULT_REG_TIMEOUT;
@@ -1533,6 +1542,21 @@ iota::CommandPtr iota::CommandHandle::get_command(
 
   // change command status to DELIVERED
   CommandPtr res = m_asyncCommands.get_by_id(item);
+
+  return res;
+}
+
+iota::CommandPtr iota::CommandHandle::get_command_from_mongo(
+    const std::string& command_id, const std::string& service,
+    const std::string& service_path) {
+  IOTA_LOG_DEBUG(m_logger, "get_command: " << command_id << " service:"
+                                           << service << " " << service_path);
+
+  boost::shared_ptr<Command> item(new Command("", service, service_path));
+  item->set_id(command_id);
+
+  // change command status to DELIVERED
+  CommandPtr res = m_asyncCommands.get_by_id_from_mongo(item);
 
   return res;
 }
