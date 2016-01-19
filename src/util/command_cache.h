@@ -191,6 +191,16 @@ class CommandCache {
     return item;
   }
 
+  boost::shared_ptr<Command> get_by_id_from_mongo(boost::shared_ptr<Command> key) {
+    boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);
+    boost::shared_ptr<Command> item;
+    if (_get_function != NULL) {
+        const boost::shared_ptr<Command> new_item = _get_id_function(key);
+        return new_item;
+    }
+    return item;
+  }
+
   CommandVect get_by_idV(boost::shared_ptr<Command> key) {
     CommandVect result;
     boost::unique_lock<boost::recursive_mutex> scoped_lock(m_mutex);

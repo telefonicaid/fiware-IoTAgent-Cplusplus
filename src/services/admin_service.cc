@@ -99,9 +99,11 @@ void iota::AdminService::read_schema(std::string file_name,
         "No schema to validate requests [" + schema_path + "]",
         iota::types::RESPONSE_CODE_BAD_CONFIG);
   } else {
+    IOTA_LOG_DEBUG(m_log, "schema path: " << schema_path);
     std::string s((std::istreambuf_iterator<char>(schema_file)),
                   std::istreambuf_iterator<char>());
     schema.assign(s);
+    IOTA_LOG_DEBUG(m_log, "value: " << s);
   }
 }
 
@@ -1401,6 +1403,8 @@ bool iota::AdminService::validate_json_schema(const std::string& json_str,
   } catch (const std::exception& exc) {
     IOTA_LOG_ERROR(m_log, "error validating the json: " << exc.what());
     response.assign(exc.what());
+    IOTA_LOG_ERROR(m_log, "json error: " << json_str);
+    IOTA_LOG_ERROR(m_log, "schema error : " << schema);
     res = false;
   }
 
