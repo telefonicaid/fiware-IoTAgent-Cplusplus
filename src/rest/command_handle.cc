@@ -82,7 +82,7 @@ boost::shared_ptr<iota::Command> command_from_mongo(
 
 iota::CommandHandle::CommandHandle()
     : m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())),
-      m_asyncCommands(0, false) {
+      m_asyncCommands(iota::types::MAX_SIZE_CACHE, false) {
   IOTA_LOG_DEBUG(m_logger, "iota::CommandHandle::CommandHandle");
   m_asyncCommands.set_timeout_function(
       boost::bind(&iota::CommandHandle::timeout_f, this, _1));
@@ -154,9 +154,9 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
 
     //for HA, it is necessary to check if the new state is bigger
     // then don't do anything, because the other iotagent has done things
-    iota::CommandPtr itemBBDD= get_command(item->get_id(), item->get_service(),
+    iota::CommandPtr itemBBDD= get_command_from_mongo(item->get_id(), item->get_service(),
                            item->get_service_path());
-
+IOTA_LOG_INFO(m_logger, "coompare status" << status << "  <  " << itemBBDD->get_status());
     if (itemBBDD.get() == NULL || status < itemBBDD->get_status()) {
         IOTA_LOG_INFO(m_logger, "HA, CommandHandle::timeout_f refused because command status is bigger, other iotagent has incremented");
     }else{
@@ -1544,6 +1544,21 @@ iota::CommandPtr iota::CommandHandle::get_command(
 
   // change command status to DELIVERED
   CommandPtr res = m_asyncCommands.get_by_id(item);
+
+  return res;
+}
+
+iota::CommandPtr iota::CommandHandle::get_command_from_mongo(
+    const std::string& command_id, const std::string& service,
+    const std::string& service_path) {
+  IOTA_LOG_DEBUG(m_logger, "get_command: " << command_id << " service:"
+                                           << service << " " << service_path);
+
+  boost::shared_ptr<Command> item(new Command("", service, service_path));
+  item->set_id(command_id);
+
+  // change command status to DELIVERED
+  CommandPtr res = m_asyncCommands.get_by_id_from_mongo(item);
 
   return res;
 }

@@ -98,7 +98,7 @@ iota::Command iota::CommandCollection::BSON2Obj(const mongo::BSONObj& obj) {
   }
 
   // estado del comando
-  int _status = obj.getIntField(iota::store::types::STATUS);
+  result.set_status (obj.getIntField(iota::store::types::STATUS));
 
   // estado del comando
   result.set_service(obj.getStringField(iota::store::types::SERVICE));
