@@ -359,6 +359,10 @@ class CommandHandle : public iota::RestHandle {
                          const std::string& service,
                          const std::string& service_path);
 
+  CommandPtr get_command_from_mongo(const std::string& command_id,
+                         const std::string& service,
+                         const std::string& service_path);
+
   int get_cache_size();
 
   /**
