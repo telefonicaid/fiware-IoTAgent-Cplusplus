@@ -156,7 +156,7 @@ boost::shared_ptr<iota::Command> iota::CommandHandle::timeout_f(
     // then don't do anything, because the other iotagent has done things
     iota::CommandPtr itemBBDD= get_command_from_mongo(item->get_id(), item->get_service(),
                            item->get_service_path());
-IOTA_LOG_INFO(m_logger, "coompare status" << status << "  <  " << itemBBDD->get_status());
+    IOTA_LOG_DEBUG(m_logger, "coompare status" << status << "  <  " << itemBBDD->get_status());
     if (itemBBDD.get() == NULL || status < itemBBDD->get_status()) {
         IOTA_LOG_INFO(m_logger, "HA, CommandHandle::timeout_f refused because command status is bigger, other iotagent has incremented");
     }else{

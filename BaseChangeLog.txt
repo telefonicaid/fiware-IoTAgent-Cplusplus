@@ -3,6 +3,7 @@
 - FIX DM-1179: Problem in iota manager when delete a device with no recommended characters like device+36
 - FIX DM-1218: Space in log level INFO and code 1 is changed by 999.
 - FIX DM-1146: Only one device can be modify (PUT). This allows to apply format rules in every module/protocol.
+- FIX DM-1226: bad command state when iotagents in HA 
 
 * Mon Nov 30 2015 Agustin Gonzalez <lucas@tid.es> 1.3.0
 - FEATURE DM-674: Support Cross-IoTA generic command parameters.
