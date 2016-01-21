@@ -1,10 +1,13 @@
-from iotqautils.iota_utils import Rest_Utils_IoTA
-from common.gw_configuration import CBROKER_URL,CBROKER_URL_TLG,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,PATH_UL20_SIMULATOR,DEF_TYPE,TIMESTAMP
+from iotqatools.iota_utils import Rest_Utils_IoTA
+from common.gw_configuration import CBROKER_URL,CBROKER_URL_TLG,CBROKER_HEADER,CBROKER_PATH_HEADER,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,MANAGER_SERVER_ROOT,PATH_UL20_SIMULATOR,DEF_TYPE,TIMESTAMP,KS_USER,KS_DOMAIN,KS_PASSWD,KS_IP,KS_PORT
 from lettuce import world
 import time, datetime, requests
+from iotqatools.ks_utils import KeystoneCrud
 
-iotagent = Rest_Utils_IoTA(server_root=IOT_SERVER_ROOT+'/iot', cbroker=CBROKER_URL)
-iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot', cbroker=CBROKER_URL)
+ks = KeystoneCrud(username=KS_USER,password=KS_PASSWD,domain=KS_DOMAIN,ip=KS_IP,port=KS_PORT)
+token = ks.get_token()
+iotagent = Rest_Utils_IoTA(server_root=IOT_SERVER_ROOT+'/iot', server_root_secure=IOT_SERVER_ROOT+'/iot', cbroker=CBROKER_URL, token=token)
+iota_manager = Rest_Utils_IoTA(server_root=MANAGER_SERVER_ROOT+'/iot', server_root_secure=IOT_SERVER_ROOT+'/iot', cbroker=CBROKER_URL, token=token)
 
 URLTypes = {
     "IoTUL2": "/iot/d",
@@ -31,7 +34,12 @@ class Functions(object):
 
     def service_precond(self, service_name, protocol, attributes={}, static_attributes={}, cbroker={}):
         world.service_name = service_name
-        if not iotagent.service_created(service_name):
+        world.srv_path = '/'
+        if protocol:
+            resource = URLTypes.get(protocol)
+        else:
+            resource= {}
+        if not iotagent.service_created(service_name, {}, resource):
             service = iotagent.create_service(service_name, protocol, attributes, static_attributes, cbroker)
             assert service.status_code == 201, 'Error al crear el servicio {} '.format(service_name)
             print 'Servicio {} creado '.format(service_name)
@@ -244,17 +252,28 @@ class Functions(object):
 
     def device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
         world.device_id = device_id
+        world.device_type={}
         if not iotagent.device_created(world.service_name, device_id):
-            if entity_name:
-                world.device_name=entity_name
             prot = ProtocolTypes.get(protocol)
             device = iotagent.create_device(world.service_name, device_id, {}, endpoint, commands, entity_name, entity_type, attributes, static_attributes, prot)
             assert device.status_code == 201, 'Error al crear el device {} '.format(device_id)
             print 'Device {} creado '.format(device_id)
+            world.device_created=True
         else:
-            if entity_name:
-                world.device_name=entity_name
             print 'El device {} existe '.format(device_id)
+            world.device_created=False
+        if entity_name:
+            world.device_name=entity_name
+        else:
+            if entity_type:
+                world.device_name = entity_type + ":" + device_id
+            else:
+                if world.thing:
+                    world.device_name = world.thing + ":" + device_id
+                else:
+                    world.device_name = DEF_ENTITY_TYPE + ":" + device_id
+        if entity_type:
+            world.device_type=entity_type
         world.remember[world.service_name].setdefault('device', set())
         world.remember[world.service_name]['device'].add(device_id)
         world.device_exists = True
@@ -283,7 +302,6 @@ class Functions(object):
                       }
                      ]
             self.device_precond(device_id, endpoint, protocol, command, device_name, ent_type)
-            world.device_name=device_name
         else:
             world.device_id=device_id
     def not_device_precond(self, device_id, endpoint={}, protocol={}, commands={}, entity_name={}, entity_type={}, attributes={}, static_attributes={}):
@@ -337,8 +355,12 @@ class Functions(object):
                 service_path2='/'
             else:
                 service_path2=service_path
-            world.remember[service_name][service_path2].setdefault('device', set())
-            world.remember[service_name][service_path2]['device'].add(device_id)
+            if world.service_path_exists:
+                world.remember[service_name][service_path2].setdefault('device', set())
+                world.remember[service_name][service_path2]['device'].add(device_id)
+            else:
+                world.remember[service_name].setdefault('device', set())
+                world.remember[service_name]['device'].add(device_id)                
             world.device_exists = True
         return device
 
@@ -384,7 +406,7 @@ class Functions(object):
                 world.remember[service_name][service_path]['device'].remove(device_name)
         return req
 
-    def check_device_data(self, dev_name, manager=False, detailed='on', attribute={}, value={}):
+    def check_device_data(self, dev_name, manager=False, detailed='on', attribute={}, value={}, commands={}):
         res = world.req.json()
         if manager:
             assert len(res['devices']) == 1, 'Error: 1 devices expected, ' + str(len(res['devices'])) + ' received'
@@ -408,7 +430,11 @@ class Functions(object):
                 assert response['endpoint'] == world.endpoint, 'Expected Result: ' + world.endpoint + '\nObtained Result: ' + response['endpoint']
         if world.prot:
             assert response['protocol'] == world.prot, 'Expected Result: ' + world.prot + '\nObtained Result: ' + response['protocol']
-        self.check_attributes(attribute, value, response)
+        if attribute:
+            self.check_attributes(attribute, value, response)
+        if commands:
+            for i in commands.split('/'):
+                self.check_command(response, i)
     
     def check_devices_data(self, num_devices, data):
         entity_name={}
@@ -544,25 +570,28 @@ class Functions(object):
                 response = response.replace(kreplace,replaces[kreplace])
         if world.protocol == 'IoTModbus':
             cbroker_url = CBROKER_URL_TLG
-            req =  requests.get(cbroker_url+"/lastStatus")
         else:
             cbroker_url = CBROKER_URL
-            req =  requests.get(cbroker_url+"/last")
+        req =  requests.get(cbroker_url+"/lastStatus")
         cmd_name=str(world.cmd_name)+"_status"
         print "Voy a comprobar el STATUS del Comando: " + str(cmd_name)
         resp = req.json()
         assert req.headers[CBROKER_HEADER] == world.service_name, 'ERROR de Cabecera: ' + world.service_name + ' esperada ' + str(req.headers[CBROKER_HEADER]) + ' recibida'
-        print 'Compruebo la cabecera {} con valor {} en last'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
+        print 'Compruebo la cabecera {} con valor {} en lastStatus'.format(CBROKER_HEADER,req.headers[CBROKER_HEADER])
         contextElement = resp['contextElements'][0]
         assetElement = contextElement['id']
         valueElement = contextElement['attributes'][0]['value']
         nameElement = contextElement['attributes'][0]['name']
         assert assetElement == "{}".format(asset_name), 'ERROR: id: ' + str(asset_name) + " not found in: " + str(contextElement)
+        print 'ID: ' + str(assetElement)
         typeElement = contextElement['type']
         if entity_type:
             ent_type = entity_type
         else:
-            ent_type = DEF_ENTITY_TYPE
+            if world.thing:
+                ent_type = world.thing
+            else:
+                ent_type = DEF_ENTITY_TYPE
         assert typeElement == ent_type, 'ERROR: ' + ent_type + ' type expected, ' + typeElement + ' received'
         print 'TYPE: ' + str(typeElement)
         assert nameElement == cmd_name, 'ERROR: ' + cmd_name + ' name expected, ' + nameElement + ' received'
@@ -633,6 +662,17 @@ class Functions(object):
                 attr_matches=True
                 break
         assert attr_matches, 'ERROR: attribute: ' + str(name) + " not found in: " + str(contextElement['attributes'])
+
+    def check_command (self, contextElement, name):
+        cmd_matches=False
+        for cmd in contextElement['commands']:
+            if str(name) == cmd['name']:
+                print 'Compruebo comando {} en {}'.format(name,cmd)
+                assert cmd['type'] == "command", 'ERROR: type command not found in: ' + str(cmd)
+                assert cmd['value'] == "", 'ERROR: empty value not found in: ' + str(cmd)
+                cmd_matches=True
+                break
+        assert cmd_matches, 'ERROR: command: ' + str(name) + " not found in: " + str(contextElement['commands'])
 
     def fill_attributes(self, typ1, name1, type1, value1, typ2={}, name2={}, type2={}, value2={}, service=True):
         world.attributes=[]
