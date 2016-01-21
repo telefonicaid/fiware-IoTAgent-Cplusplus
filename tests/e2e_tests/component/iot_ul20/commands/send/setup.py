@@ -2,14 +2,15 @@ from lettuce import step, world
 from common.steps import service_created_precond,device_with_commands_created_precond,device_with_endpoint_created_precond,device_with_cmds_entity_values_created_precond,check_status_info,check_wrong_status_info,check_status_entity_info
 from iotqautils.cb_utils import CBUtils
 from iotqautils.gtwMeasures import Gw_Measures_Utils
-from common.gw_configuration import GW_HOSTNAME,IOT_PORT,PATH_UL20_COMMAND,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,TIMEOUT_COMMAND
+from common.gw_configuration import IOT_HOSTNAME,IOT_PORT,PATH_UL20_COMMAND,IOT_SERVER_ROOT,DEF_ENTITY_TYPE,TIMEOUT_COMMAND
 from common.functions import Functions
 import time,datetime
 
-cb = CBUtils(instance=GW_HOSTNAME,port=IOT_PORT,path_update=PATH_UL20_COMMAND)
+cb = CBUtils(instance=IOT_HOSTNAME,port=IOT_PORT,path_update=PATH_UL20_COMMAND)
 gw = Gw_Measures_Utils(server_root=IOT_SERVER_ROOT)
 functions = Functions()
 world.device={}
+world.thing={}
 
 @step('I send a command to the IoTAgent with service "([^"]*)", device "([^"]*)", command "([^"]*)", entity_type "([^"]*)" and value "([^"]*)"')
 def send_command(step, service, device_id, cmd_name, entity_type, value):
@@ -143,7 +144,7 @@ def send_response(step, response, device_id):
             print str(req.text)
             ts = time.time()
             if 'expired' in response:
-                ts=ts-2
+                ts=ts-3
             st = datetime.datetime.utcfromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
             world.st=st
             world.ts=ts
