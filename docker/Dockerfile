@@ -61,6 +61,9 @@ RUN yum -y remove autoconf automake bzip2-devel \
 
 RUN chkconfig mosquitto on
 
+
+RUN chmod +x ${GIT_PATH_IOTACPP}/scripts/*.sh
+
 COPY config.json /etc/iot/
 RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json
 
