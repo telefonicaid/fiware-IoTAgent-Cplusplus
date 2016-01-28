@@ -11,12 +11,16 @@ if [[ ${ORION_PORT} =~ ^tcp://(.*):(.*)+$ ]] ; then
     export ORION_HOSTNAME=${BASH_REMATCH[1]}
 fi
 
-echo $PUBLIC_PROXY_PORT
-echo $PUBLIC_IP_PORT
-echo $MONGODB_HOSTNAME
-echo $MONGODB_PORT
-echo $ORION_HOSTNAME
-echo $ORION_PORT
+export HOST_IP=`awk 'NR==1{print $1}' /etc/hosts`
+
+echo "HOST IP: $HOST_IP"
+echo "PROXY : $PUBLIC_PROXY_PORT"
+echo "PUBLIC IP : $PUBLIC_IP_PORT"
+echo "MONGODB HOST: $MONGODB_HOSTNAME"
+echo "MONGODB PORT: $MONGODB_PORT"
+echo "ORION CB HOST: $ORION_HOSTNAME"
+echo "ORION CB PORT: $ORION_PORT"
+
 
 sed -i /etc/init.d/mosquitto \
     -e "s|etc/mosquitto/mosquitto.conf|etc/iot/mosquitto.conf|g"
@@ -31,6 +35,14 @@ sed -i /etc/iot/config.json \
     -e "s|MONGODB_PORT|${MONGODB_PORT}|g" \
     -e "s|PUBLIC_PROXY_PORT|${PUBLIC_PROXY_PORT}|g" \
     -e "s|PUBLIC_IP_PORT|${PUBLIC_IP_PORT}|g"
+
+sed -i /usr/local/iot/config/iotagent_protocol.conf \
+	-e "s|IOTAGENT_HOST|${HOST_IP}|g"
+
+sed -i /usr/local/iot/config/iotagent_manager.conf \
+	-e "s|IOTAGENT_HOST|${HOST_IP}|g"
+	
+
 
 #cat /etc/iot/config.json
 
