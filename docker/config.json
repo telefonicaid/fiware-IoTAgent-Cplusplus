@@ -5,6 +5,7 @@
         "registerContext": "/NGSI9/registerContext",
         "queryContext": "/NGSI10/queryContext"
     },
+    "iota_manager" : "http://127.0.0.1:8081/iot/protocols",
     "timeout": 10,
     "http_proxy": "PUBLIC_PROXY_PORT",
     "public_ip": "PUBLIC_IP_PORT",

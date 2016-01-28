@@ -61,8 +61,17 @@ RUN yum -y remove autoconf automake bzip2-devel \
 
 RUN chkconfig mosquitto on
 
+
+RUN chmod +x ${GIT_PATH_IOTACPP}/scripts/*.sh
+
 COPY config.json /etc/iot/
 RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json
+
+COPY iotagent_manager.conf /usr/local/iot/config/
+RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_manager.conf
+
+COPY iotagent_protocol.conf /usr/local/iot/config/
+RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_protocol.conf
 
 COPY docker-entrypoint.sh /
 RUN chmod +x /docker-entrypoint.sh
