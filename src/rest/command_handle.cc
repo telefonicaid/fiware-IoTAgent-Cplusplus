@@ -1052,6 +1052,7 @@ void iota::CommandHandle::default_op_ngsi(
                                 context_response);
 
       response = context_response.get_string();
+      boost::erase_all(response, "\\\"");
       iresponse = 200;
     } else {
       IOTA_LOG_ERROR(m_logger, "you need a header with "
@@ -1867,7 +1868,12 @@ std::string iota::CommandHandle::json_value_to_ul(
            itr != document.MemberEnd(); ++itr) {
         new_value.append(itr->name.GetString());
         new_value.append("=");
-        new_value.append(itr->value.GetString());
+        if (itr->value.IsString()) {
+            new_value.append(itr->value.GetString());
+        }else{
+            throw iota::IotaException(iota::types::RESPONSE_MESSAGE_COMMAND_BAD,json_value,
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+        }
         if (itr + 1 != document.MemberEnd()) {
           new_value.append("|");  // TODO: replace with constants.
         }
