@@ -11,7 +11,8 @@
 - FIX DM-1123: Command response must have length 8 (strictly).
 - FIX DM-1218: Log with level INFO is malformed and alarm code "1" is not supported by O&M (changed to 999).
 - FIX DM-1179: Problem in iota manager when delete a device with no recomended characters like device+36
-- FIX DM-1226: bad command state when iotagents in HA 
+- FIX DM-1226: bad command state when iotagents in HA
+- FIX DM-1311: Escaped double quotes in Repsol Telegestion command response
 
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.
