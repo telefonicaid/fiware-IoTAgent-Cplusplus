@@ -103,7 +103,7 @@ set(MONGODB_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver)
 ExternalProject_Add(mongo-driver PREFIX
 		${CMAKE_CURRENT_BINARY_DIR}/third_party/mongo-driver
 		GIT_REPOSITORY git@github.com:mongodb/mongo-cxx-driver.git
-		GIT_TAG legacy-1.0.1
+		GIT_TAG legacy-1.1.0
 	CONFIGURE_COMMAND ""
 	BUILD_IN_SOURCE 1
 	BUILD_COMMAND scons
