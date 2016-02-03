@@ -13,6 +13,7 @@
 - FIX DM-1179: Problem in iota manager when delete a device with no recomended characters like device+36
 - FIX DM-1226: bad command state when iotagents in HA
 - FIX DM-1311: Escaped double quotes in Repsol Telegestion command response
+- FIX DM-1343:  HA: iotmanager does not reconnect to mongo primary again
 
 * Wed Sep 30 2015 Agustin Gonzalez <lucas@tid.es> 1.2.1
 - FEATURE IDAS-20527: New identifier for IoTAgent if dynamic address is a problem.
