@@ -54,7 +54,13 @@ iota::MongoConnection::MongoConnection()
 void iota::MongoConnection::reconnect() {
   boost::mutex::scoped_lock lock(_m);
   std::string db_info;
-  IOTA_LOG_DEBUG(m_logger, "MongoConnection::reconnect");
+  IOTA_LOG_DEBUG(m_logger, "MongoConnection::reconnect, remove old connections");
+  mongo::DBClientBase* conToDelete;
+  while (_conex_pool.pop(conToDelete)) {
+    if (conToDelete != NULL) {
+      delete conToDelete;
+    }
+  }
   try {
     const JsonValue& storage =
         iota::Configurator::instance()->get(iota::store::types::STORAGE);
