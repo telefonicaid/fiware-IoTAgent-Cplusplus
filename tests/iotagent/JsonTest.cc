@@ -69,8 +69,9 @@ void JsonTest::testContextElement() {
     std::cout << "@UT@1" << str << std::endl;
     CPPUNIT_ASSERT_MESSAGE(
         "@UT@1, entity or entity_type in not correct",
-        str.find("\"id\":\"entity_type_service:dev_no_entity\",\"type\":"
-                 "\"entity_type_service\"") != std::string::npos);
+        str.find(
+            "\"id\":\"entity_type_service:dev_no_entity\",\"type\":"
+            "\"entity_type_service\"") != std::string::npos);
   }
 
   {
@@ -373,6 +374,17 @@ void JsonTest::testResponse() {
   iota::ContextElement cr_ce = cr.get_context_element();
   CPPUNIT_ASSERT(cr_ce.get_id().compare("iden") == 0);
 
+  // Test contextResponse with json in details
+  iota::ContextResponse response_with_error(
+      "409", "There are conflicts, object already exists");
+  response_with_error.set_details(
+      "duplicate key: iot.COMMAND { id: \"myEdison@ledr\", name: \"SET\", "
+      "service: \"smartcity\", service_path: \"/team1\", node: \"myEdison\", "
+      "entity_type: \"edison\", expired: 0, sequence: "
+      "\"71de8b81-354b-409e-97ed-490c0cea2550\", status: 0, timeout: 10, "
+      "value: { body: \"myEdison@ledr|off\" } }");
+  std::cout << "No double quotes in details "
+            << response_with_error.get_string() << std::endl;
   std::cout << "START testResponse " << std::endl;
 }
 
@@ -935,24 +947,25 @@ void JsonTest::testConversionUpdateContext() {
 
 void JsonTest::testAttributeJSONCommand() {
   {
-  std::string ATTRIBUTE(
-      "{\"name\":\"PING\",\"type\":\"command\",\"value\":"
-      "{\"param1\":\"value1\",\"param2\":\"value2\"}"
-      "}");
+    std::string ATTRIBUTE(
+        "{\"name\":\"PING\",\"type\":\"command\",\"value\":"
+        "{\"param1\":\"value1\",\"param2\":\"value2\"}"
+        "}");
 
-  std::cout << "@START@ testAttributeJSONCommand" << std::endl;
-  std::istringstream ss(ATTRIBUTE);
-  iota::Attribute att(ss);
+    std::cout << "@START@ testAttributeJSONCommand" << std::endl;
+    std::istringstream ss(ATTRIBUTE);
+    iota::Attribute att(ss);
 
-  std::string name = att.get_name();
-  std::string type = att.get_type();
-  std::string value = att.get_value();
-  std::cout << "attribute:" << name << " " << type << " " << value << std::endl;
-  CPPUNIT_ASSERT_MESSAGE("name", name.compare("PING") == 0);
-  CPPUNIT_ASSERT_MESSAGE("type", type.compare("command") == 0);
-  CPPUNIT_ASSERT_MESSAGE(
-      "value",
-      value.compare("{\"param1\":\"value1\",\"param2\":\"value2\"}") == 0);
+    std::string name = att.get_name();
+    std::string type = att.get_type();
+    std::string value = att.get_value();
+    std::cout << "attribute:" << name << " " << type << " " << value
+              << std::endl;
+    CPPUNIT_ASSERT_MESSAGE("name", name.compare("PING") == 0);
+    CPPUNIT_ASSERT_MESSAGE("type", type.compare("command") == 0);
+    CPPUNIT_ASSERT_MESSAGE(
+        "value",
+        value.compare("{\"param1\":\"value1\",\"param2\":\"value2\"}") == 0);
   }
 }
 

@@ -32,10 +32,9 @@ iota::ContextResponse::ContextResponse() {
 }
 
 iota::ContextResponse::ContextResponse(
-    const std::istringstream& str_context_response) {
+    const std::istringstream &str_context_response) {
   rapidjson::Document document;
   char buffer[str_context_response.str().length()];
-  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_context_response.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;
@@ -51,39 +50,35 @@ iota::ContextResponse::ContextResponse(
       !document[iota::ngsi::NGSI_STATUSCODE.c_str()].HasMember(
           iota::ngsi::NGSI_CODE.c_str()) ||
       !document[iota::ngsi::NGSI_STATUSCODE.c_str()][iota::ngsi::NGSI_CODE
-                                                         .c_str()]
-           .IsString()) {
+                                                         .c_str()].IsString()) {
     std::ostringstream what;
     what << "ContextResponse: ";
     what << "invalid or missing field [" << iota::ngsi::NGSI_STATUSCODE << "]";
     throw std::runtime_error(what.str());
   }
-  _code.assign(document[iota::ngsi::NGSI_STATUSCODE
-                            .c_str()][iota::ngsi::NGSI_CODE.c_str()]
-                   .GetString());
+  _code.assign(
+      document[iota::ngsi::NGSI_STATUSCODE.c_str()][iota::ngsi::NGSI_CODE
+                                                        .c_str()].GetString());
 
   if (document[iota::ngsi::NGSI_STATUSCODE.c_str()].HasMember(
           iota::ngsi::NGSI_REASONPHRASE.c_str()) &&
-      document[iota::ngsi::NGSI_STATUSCODE
-                   .c_str()][iota::ngsi::NGSI_REASONPHRASE.c_str()]
-          .IsString()) {
-    _reason.assign(document[iota::ngsi::NGSI_STATUSCODE
-                                .c_str()][iota::ngsi::NGSI_REASONPHRASE.c_str()]
-                       .GetString());
+      document[iota::ngsi::NGSI_STATUSCODE.c_str()]
+              [iota::ngsi::NGSI_REASONPHRASE.c_str()].IsString()) {
+    _reason.assign(document[iota::ngsi::NGSI_STATUSCODE.c_str()]
+                           [iota::ngsi::NGSI_REASONPHRASE.c_str()].GetString());
   }
   if (document[iota::ngsi::NGSI_STATUSCODE.c_str()].HasMember(
           iota::ngsi::NGSI_DETAILS.c_str()) &&
       document[iota::ngsi::NGSI_STATUSCODE.c_str()][iota::ngsi::NGSI_DETAILS
-                                                        .c_str()]
-          .IsString()) {
-    _details.assign(document[iota::ngsi::NGSI_STATUSCODE
-                                 .c_str()][iota::ngsi::NGSI_DETAILS.c_str()]
-                        .GetString());
+                                                        .c_str()].IsString()) {
+    _details.assign(
+        document[iota::ngsi::NGSI_STATUSCODE
+                     .c_str()][iota::ngsi::NGSI_DETAILS.c_str()].GetString());
   }
 
   if (document.HasMember(iota::ngsi::NGSI_CONTEXTELEMENT.c_str()) &&
       document[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()].IsObject()) {
-    const rapidjson::Value& ce_value =
+    const rapidjson::Value &ce_value =
         document[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()];
     iota::ContextElement context_element(ce_value);
     _context_element = context_element;
@@ -91,47 +86,41 @@ iota::ContextResponse::ContextResponse(
 }
 
 iota::ContextResponse::ContextResponse(
-    const rapidjson::Value& context_response) {
+    const rapidjson::Value &context_response) {
   if (!context_response.HasMember(iota::ngsi::NGSI_STATUSCODE.c_str()) ||
       !context_response[iota::ngsi::NGSI_STATUSCODE.c_str()].IsObject() ||
       !context_response[iota::ngsi::NGSI_STATUSCODE.c_str()].HasMember(
           iota::ngsi::NGSI_CODE.c_str()) ||
-      !context_response[iota::ngsi::NGSI_STATUSCODE
-                            .c_str()][iota::ngsi::NGSI_CODE.c_str()]
-           .IsString()) {
+      !context_response[iota::ngsi::NGSI_STATUSCODE.c_str()]
+                       [iota::ngsi::NGSI_CODE.c_str()].IsString()) {
     std::ostringstream what;
     what << "ContextResponse: ";
     what << "invalid or missing field [" << iota::ngsi::NGSI_STATUSCODE << "]";
     throw std::runtime_error(what.str());
   }
-  _code.assign(context_response[iota::ngsi::NGSI_STATUSCODE
-                                    .c_str()][iota::ngsi::NGSI_CODE.c_str()]
-                   .GetString());
+  _code.assign(context_response[iota::ngsi::NGSI_STATUSCODE.c_str()]
+                               [iota::ngsi::NGSI_CODE.c_str()].GetString());
 
   if (context_response[iota::ngsi::NGSI_STATUSCODE.c_str()].HasMember(
           iota::ngsi::NGSI_REASONPHRASE.c_str()) &&
-      context_response[iota::ngsi::NGSI_STATUSCODE
-                           .c_str()][iota::ngsi::NGSI_REASONPHRASE.c_str()]
-          .IsString()) {
+      context_response[iota::ngsi::NGSI_STATUSCODE.c_str()]
+                      [iota::ngsi::NGSI_REASONPHRASE.c_str()].IsString()) {
     _reason.assign(
-        context_response[iota::ngsi::NGSI_STATUSCODE
-                             .c_str()][iota::ngsi::NGSI_REASONPHRASE.c_str()]
-            .GetString());
+        context_response[iota::ngsi::NGSI_STATUSCODE.c_str()]
+                        [iota::ngsi::NGSI_REASONPHRASE.c_str()].GetString());
   }
   if (context_response[iota::ngsi::NGSI_STATUSCODE.c_str()].HasMember(
           iota::ngsi::NGSI_DETAILS.c_str()) &&
-      context_response[iota::ngsi::NGSI_STATUSCODE
-                           .c_str()][iota::ngsi::NGSI_DETAILS.c_str()]
-          .IsString()) {
+      context_response[iota::ngsi::NGSI_STATUSCODE.c_str()]
+                      [iota::ngsi::NGSI_DETAILS.c_str()].IsString()) {
     _details.assign(
-        context_response[iota::ngsi::NGSI_STATUSCODE
-                             .c_str()][iota::ngsi::NGSI_DETAILS.c_str()]
-            .GetString());
+        context_response[iota::ngsi::NGSI_STATUSCODE.c_str()]
+                        [iota::ngsi::NGSI_DETAILS.c_str()].GetString());
   }
 
   if (context_response.HasMember(iota::ngsi::NGSI_CONTEXTELEMENT.c_str()) &&
       context_response[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()].IsObject()) {
-    const rapidjson::Value& ce_value =
+    const rapidjson::Value &ce_value =
         context_response[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()];
     iota::ContextElement context_element(ce_value);
     _context_element = context_element;
@@ -145,7 +134,7 @@ std::string iota::ContextResponse::get_string() {
 };
 
 void iota::ContextResponse::add_context_element(
-    const iota::ContextElement& context_element) {
+    const iota::ContextElement &context_element) {
   iota::ContextElement ce(context_element);
   _context_element = ce;
 };
