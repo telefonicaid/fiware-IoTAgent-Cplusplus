@@ -32,7 +32,7 @@ iota::ContextResponse::ContextResponse() {
 }
 
 iota::ContextResponse::ContextResponse(
-    const std::istringstream &str_context_response) {
+    const std::istringstream& str_context_response) {
   rapidjson::Document document;
   char buffer[str_context_response.str().length()];
   strcpy(buffer, str_context_response.str().c_str());
@@ -78,7 +78,7 @@ iota::ContextResponse::ContextResponse(
 
   if (document.HasMember(iota::ngsi::NGSI_CONTEXTELEMENT.c_str()) &&
       document[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()].IsObject()) {
-    const rapidjson::Value &ce_value =
+    const rapidjson::Value& ce_value =
         document[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()];
     iota::ContextElement context_element(ce_value);
     _context_element = context_element;
@@ -86,7 +86,7 @@ iota::ContextResponse::ContextResponse(
 }
 
 iota::ContextResponse::ContextResponse(
-    const rapidjson::Value &context_response) {
+    const rapidjson::Value& context_response) {
   if (!context_response.HasMember(iota::ngsi::NGSI_STATUSCODE.c_str()) ||
       !context_response[iota::ngsi::NGSI_STATUSCODE.c_str()].IsObject() ||
       !context_response[iota::ngsi::NGSI_STATUSCODE.c_str()].HasMember(
@@ -120,7 +120,7 @@ iota::ContextResponse::ContextResponse(
 
   if (context_response.HasMember(iota::ngsi::NGSI_CONTEXTELEMENT.c_str()) &&
       context_response[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()].IsObject()) {
-    const rapidjson::Value &ce_value =
+    const rapidjson::Value& ce_value =
         context_response[iota::ngsi::NGSI_CONTEXTELEMENT.c_str()];
     iota::ContextElement context_element(ce_value);
     _context_element = context_element;
@@ -134,7 +134,7 @@ std::string iota::ContextResponse::get_string() {
 };
 
 void iota::ContextResponse::add_context_element(
-    const iota::ContextElement &context_element) {
+    const iota::ContextElement& context_element) {
   iota::ContextElement ce(context_element);
   _context_element = ce;
 };
