@@ -329,7 +329,7 @@ void MongoTest::testNoMongo() {
                            iota::Alarm::instance()->size() == 1);
   }
 
-  iota::Configurator::initialize(PATH_CONFIG);
+ /* iota::Configurator::initialize(PATH_CONFIG);
 
   // TODO no se quita la alarma porque el endpoint es distinto, pero funciona
   std::cout << "testGenericCollection22" << std::endl;
@@ -337,7 +337,7 @@ void MongoTest::testNoMongo() {
   std::cout << "num alarms:" << iota::Alarm::instance()->size() << std::endl;
   CPPUNIT_ASSERT_MESSAGE("alarm not found",
                          iota::Alarm::instance()->size() == 1);
-
+*/
   std::cout << "END testNoMongo " << std::endl;
 }
 
@@ -712,7 +712,7 @@ std::string MongoTest::testjoinCommands(const std::string &obj1,
   bool obj2_commands = commandit2 != std::string::npos;
   if (obj2_commands){
      commanditfin2 =  obj2.find("]", commandit2);
-     commanditini2 =  obj2.find("{");     
+     commanditini2 =  obj2.find("{");
   }else{
      commanditini2 =  obj2.find("{");
      commanditfin2 =  obj2.find_last_of("}");
@@ -737,7 +737,7 @@ std::string MongoTest::testjoinCommands(const std::string &obj1,
     // no tiene comandos , cerramos el corchete de comandos
     if (obj2_commands){
        resobj2.append("]");
-    } 
+    }
     std::cout << "@UT@ no have commands" << std::endl;
     commandit =  obj1.find("{", 0);
     res.append("{");
@@ -745,7 +745,7 @@ std::string MongoTest::testjoinCommands(const std::string &obj1,
        res.append(resobj2);
        res.append(",");
     }
-    res.append(obj1.substr(commandit+1));    
+    res.append(obj1.substr(commandit+1));
   }
 
   return res;
