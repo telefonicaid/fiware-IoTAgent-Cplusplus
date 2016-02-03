@@ -98,7 +98,7 @@ int iota::ServiceCollection::createTableAndIndex() {
   // db.SERVICE.ensureIndex({"apikey":1, resource:1},{"unique":1})
   mongo::BSONObj indexUni1 =
       BSON("apikey" << 1 << "resource" << 1);
-  createIndex(indexUni, true);
+  createIndex(indexUni1, true);
 
   // db.SERVICE.ensureIndex({"service":1, service_path:1,
   // resource:1},{"unique":1})
