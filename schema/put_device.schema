@@ -8,8 +8,9 @@
     "device_id": {
       "description": "The unique identifier by service for a device",
       "type": "string",
-      "pattern": "^([^<>();'=\"]+)+$",
-      "minLength": 1
+      "pattern": "^([^<>();'=\"/?#& ]+)+$",
+      "minLength": 1,
+      "maxLength": 256
     },
     "protocol": {
       "description": "protocol name, protocol implemented by device",
@@ -19,13 +20,15 @@
     },
     "entity_name": {
       "description": "Name of the entity, if it does not exits use device_id",
-      "pattern": "^([^<>();'=\"]+)*$",
-      "type": "string"
+      "pattern": "^([^<>();'=\"/?#& ]+)*$",
+      "type": "string",
+      "maxLength": 256
     },
     "entity_type": {
       "description": "type of the entity",
-      "pattern": "^([^<>();'=\"]+)*$",
-      "type": "string"
+      "pattern": "^([^<>();'=\"/?#& ]+)*$",
+      "type": "string",
+      "maxLength": 256
     },
     "endpoint": {
       "description": "uri to send command device",
@@ -53,17 +56,19 @@
           "name": {
             "description": "The unique identifier for a command",
             "type": "string",
-            "pattern": "^([^<>();'=\"]+)+$",
-            "minLength": 1
+            "pattern": "^([^<>();'=\"/?#& ]+)+$",
+            "minLength": 1,
+            "maxLength": 256
           },
           "type": {
             "description": "it is command",
             "type": "string",
-            "pattern": "^([^<>();'=\"]+)+$",
+            "pattern": "^([^<>();'=\"/?#& ]+)+$",
             "enum": [
-              "command"
+                "command"
             ],
-            "minLength": 1
+           "minLength": 1,
+          "maxLength": 256
           },
           "value": {
             "description": "parameters in commands",
@@ -94,15 +99,17 @@
           },
           "name": {
             "description": "Name of the entity, if it does not exits use device_id",
+            "pattern": "^([^<>();'=\"/?#& ]+)+$",
             "type": "string",
-            "pattern": "^([^<>();'=\"]+)+$",
-            "minLength": 1
+            "minLength": 1,
+            "maxLength": 256
           },
           "type": {
             "description": "type of the entity",
             "type": "string",
-            "pattern": "^([^<>();'=\"]+)+$",
-            "minLength": 1
+            "pattern": "^([^<>();'=\"/?#& ]+)+$",
+            "minLength": 1,
+            "maxLength": 256
           },
           "metadatas": {
             "type": "array",
@@ -121,14 +128,16 @@
                 "name": {
                   "description": "Name of metadata",
                   "type": "string",
-                  "pattern": "^([^<>();'=\"]+)+$",
-                  "minLength": 1
+                  "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                  "minLength": 1,
+                  "maxLength": 256
                 },
                 "type": {
                   "description": "type of metadata",
                   "type": "string",
-                  "pattern": "^([^<>();'=\"]+)+$",
-                  "minLength": 1
+                  "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                  "minLength": 1,
+                  "maxLength": 256
                 }
               },
               "required": [
@@ -163,14 +172,16 @@
           "name": {
             "description": "Name of the entity, if it does not exits use device_id",
             "type": "string",
-            "pattern": "^([^<>();'=\"]+)+$",
-            "minLength": 1
+            "pattern": "^([^<>();'=\"/?#& ]+)+$",
+            "minLength": 1,
+            "maxLength": 256
           },
           "type": {
             "description": "type of the entity",
             "type": "string",
-            "pattern": "^([^<>();'=\"]+)+$",
-            "minLength": 1
+            "pattern": "^([^<>();'=\"/?#& ]+)+$",
+            "minLength": 1,
+            "maxLength": 256
           },
           "metadatas": {
             "type": "array",
@@ -195,8 +206,9 @@
                 "type": {
                   "description": "type of metadata",
                   "type": "string",
-                  "pattern": "^([^<>();'=\"]+)+$",
-                  "minLength": 1
+                  "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                  "minLength": 1,
+                  "maxLength": 256
                 }
               },
               "required": [

@@ -24,8 +24,9 @@
           },
           "entity_type": {
             "description": "default entity_type, if a device has not got entity_type uses this",
-            "pattern": "^([^<>();'=\"]+)*$",
-            "type": "string"
+            "pattern": "^([^<>();'=\"/?#& ]+)*$",
+            "type": "string",
+            "maxLength": 256
           },
           "apikey": {
             "description": "apikey",
@@ -64,13 +65,15 @@
                 },
                 "name": {
                   "description": "Name of the entity, if it does not exits use device_id",
-                  "pattern": "^([^<>();'=\"]+)+$",
-                  "type": "string"
+                  "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                  "type": "string",
+                  "maxLength": 256
                 },
                 "type": {
                   "description": "type of the entity",
-                  "pattern": "^([^<>();'=\"]+)+$",
-                  "type": "string"
+                  "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                  "type": "string",
+                  "maxLength": 256
                 },
                 "metadatas": {
                   "type": "array",
@@ -88,15 +91,17 @@
                       },
                       "name": {
                         "description": "Name of metadata",
+                        "pattern": "^([^<>();'=\"/?#& ]+)+$",
                         "type": "string",
-                        "pattern": "^([^<>();'=\"]+)+$",
+                        "maxLength": 256,
                         "minLength": 1
                       },
                       "type": {
                         "description": "type of metadata",
                         "type": "string",
-                        "pattern": "^([^<>();'=\"]+)+$",
-                        "minLength": 1
+                        "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                        "minLength": 1,
+                        "maxLength": 256
                       }
                     },
                     "required": [
@@ -129,13 +134,15 @@
                 },
                 "name": {
                   "description": "Name of the entity, if it does not exits use device_id",
-                  "pattern": "^([^<>();'=\"]+)+$",
-                  "type": "string"
+                  "type": "string",
+                  "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                  "maxLength": 256
                 },
                 "type": {
                   "description": "type of the entity",
-                  "pattern": "^([^<>();'=\"]+)+$",
-                  "type": "string"
+                  "type": "string",
+                  "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                  "maxLength": 256
                 },
                 "metadatas": {
                   "type": "array",
@@ -154,13 +161,15 @@
                       "name": {
                         "description": "Name of metadata",
                         "type": "string",
-                        "pattern": "^([^<>();'=\"]+)+$",
+                        "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                        "maxLength": 256,
                         "minLength": 1
                       },
                       "type": {
                         "description": "type of metadata",
                         "type": "string",
-                        "pattern": "^([^<>();'=\"]+)+$",
+                        "pattern": "^([^<>();'=\"/?#& ]+)+$",
+                        "maxLength": 256,
                         "minLength": 1
                       }
                     },
