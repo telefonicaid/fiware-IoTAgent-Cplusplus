@@ -49,10 +49,14 @@ class ContextResponse {
   };
 
   std::string& get_reason() { return _reason; };
-  void set_reason(const std::string& reason) { _reason = reason; };
+  void set_reason(const std::string& reason) {
+    _reason = boost::erase_all_copy(reason, "\"");
+  };
 
   std::string& get__details() { return _details; };
-  void set_details(const std::string& details) { _details = details; };
+  void set_details(const std::string& details) {
+    _details = boost::erase_all_copy(details, "\"");
+  };
 
   ContextElement& get_context_element() { return _context_element; };
 
