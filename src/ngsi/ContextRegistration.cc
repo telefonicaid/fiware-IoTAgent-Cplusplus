@@ -148,7 +148,7 @@ void iota::ContextRegistration::set_env_info(
   }
 
   iota::Entity ent(_device_info.get()->_entity_name,
-                   _device_info.get()->_entity_name, "false");
+                   _device_info.get()->_entity_type, "false");
 
   // Check service info
   // If device info, this information is taken.
