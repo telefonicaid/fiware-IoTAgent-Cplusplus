@@ -916,6 +916,8 @@ void iota::RestHandle::fill_service_with_bson(const mongo::BSONObj& bson,
     pt.put(iota::store::types::TIMEOUT, default_timeout);
   }
   pt.put(iota::types::CONF_FILE_PROXY, http_proxy);
+  // add protocol default data
+  complete_info(pt);
 }
 
 int iota::RestHandle::get_service_by_name_bbdd(
@@ -1241,7 +1243,7 @@ iota::ProtocolData iota::RestHandle::get_protocol_data() {
 std::string iota::RestHandle::get_protocol_commands() {
   return "";
 }
- 
+
 void iota::RestHandle::complete_info(boost::property_tree::ptree& pt) {
   return;
 }
