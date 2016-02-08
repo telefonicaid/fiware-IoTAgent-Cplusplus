@@ -34,9 +34,8 @@ iota::ContextElement::ContextElement(
     const std::istringstream& str_context_element) {
   rapidjson::Document document;
   char buffer[str_context_element.str().length()];
-  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_context_element.str().c_str());
-  if (document.ParseInsitu<0>(buffer).HasParseError()) {
+  if (document.Parse<0>(buffer).HasParseError()) {
     std::ostringstream what;
     what << "ContextElement: ";
     what << document.GetParseError();
@@ -55,11 +54,11 @@ iota::ContextElement::ContextElement(
   }
 
   if (document[iota::ngsi::NGSI_ID.c_str()].IsString()) {
-    _id.assign(document[iota::ngsi::NGSI_ID.c_str()].GetString());
+    _id.assign(iota::render_identifier(document[iota::ngsi::NGSI_ID.c_str()].GetString()));
   }
   if ((document.HasMember(iota::ngsi::NGSI_TYPE.c_str())) &&
       (document[iota::ngsi::NGSI_TYPE.c_str()].IsString())) {
-    _type.assign(document[iota::ngsi::NGSI_TYPE.c_str()].GetString());
+    _type.assign(iota::render_identifier(document[iota::ngsi::NGSI_TYPE.c_str()].GetString()));
   }
   if ((document.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str())) &&
       (document[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString())) {
@@ -99,11 +98,11 @@ iota::ContextElement::ContextElement(const rapidjson::Value& context_element) {
   }
 
   if (context_element[iota::ngsi::NGSI_ID.c_str()].IsString()) {
-    _id.assign(context_element[iota::ngsi::NGSI_ID.c_str()].GetString());
+    _id.assign(iota::render_identifier(context_element[iota::ngsi::NGSI_ID.c_str()].GetString()));
   }
   if ((context_element.HasMember(iota::ngsi::NGSI_TYPE.c_str())) &&
       (context_element[iota::ngsi::NGSI_TYPE.c_str()].IsString())) {
-    _type.assign(context_element[iota::ngsi::NGSI_TYPE.c_str()].GetString());
+    _type.assign(iota::render_identifier(context_element[iota::ngsi::NGSI_TYPE.c_str()].GetString()));
   }
   if ((context_element.HasMember(iota::ngsi::NGSI_ISPATTERN.c_str())) &&
       (context_element[iota::ngsi::NGSI_ISPATTERN.c_str()].IsString())) {

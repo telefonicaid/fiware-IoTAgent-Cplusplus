@@ -42,40 +42,36 @@ class TestPlugin : public iota::RestHandle {
 
 class AdminTest : public CPPUNIT_NS::TestFixture {
   CPPUNIT_TEST_SUITE(AdminTest);
-
   CPPUNIT_TEST(testGetConf);
   CPPUNIT_TEST(testGetAgents);
-    CPPUNIT_TEST(testTimezones);
-    // CPPUNIT_TEST(testCsvProvision);
-    CPPUNIT_TEST(testPostConf);
-    // TODO se comenta para que no este cam,biando el ficherode conf todo el
-    // rato
-    // CPPUNIT_TEST(testReload);
-    CPPUNIT_TEST(testValidationSchema);
-    CPPUNIT_TEST(testPostBadContentType);
-    CPPUNIT_TEST(testPostDevice);
-    CPPUNIT_TEST(testPostService);
-   CPPUNIT_TEST(testPostService2);
-   CPPUNIT_TEST(testNoRestApiService);
+  CPPUNIT_TEST(testTimezones);
+  CPPUNIT_TEST(testPostConf);
+  CPPUNIT_TEST(testValidationSchema);
+  CPPUNIT_TEST(testPostBadContentType);
+  CPPUNIT_TEST(testPostDevice);
+  CPPUNIT_TEST(testPostService);
+  CPPUNIT_TEST(testPostService2);
+  CPPUNIT_TEST(testNoRestApiService);
 
-   CPPUNIT_TEST(testBADPostDevice);
+  CPPUNIT_TEST(testBADPostDevice);
 
-   CPPUNIT_TEST(testPtreeWrite);
-   CPPUNIT_TEST(testAttributeService);
+  CPPUNIT_TEST(testPtreeWrite);
+  CPPUNIT_TEST(testAttributeService);
 
-   CPPUNIT_TEST(testAbout);
-   CPPUNIT_TEST(testcheck_device_protocol);
+  CPPUNIT_TEST(testAbout);
+  CPPUNIT_TEST(testcheck_device_protocol);
 
-   CPPUNIT_TEST(testBADConfigurator);
-   CPPUNIT_TEST(testConfigurator);
-   CPPUNIT_TEST(testNgsiOperation);
-   CPPUNIT_TEST(testHttpMessages);
-   CPPUNIT_TEST(testConversionMap);
-   CPPUNIT_TEST(testAuthInfo);
-   CPPUNIT_TEST(testConfiguratorMongo);
-   CPPUNIT_TEST(testForbiddenCharacters);
-   CPPUNIT_TEST(testSpaceURI);
-   CPPUNIT_TEST(testPostDeviceSameEntity);
+  CPPUNIT_TEST(testBADConfigurator);
+  CPPUNIT_TEST(testConfigurator);
+  CPPUNIT_TEST(testNgsiOperation);
+  CPPUNIT_TEST(testHttpMessages);
+  CPPUNIT_TEST(testConversionMap);
+  CPPUNIT_TEST(testAuthInfo);
+  CPPUNIT_TEST(testConfiguratorMongo);
+  CPPUNIT_TEST(testForbiddenCharacters);
+  // This test is not needed. White space is a forbidden character.
+  //CPPUNIT_TEST(testSpaceURI);
+  CPPUNIT_TEST(testPostDeviceSameEntity);
   CPPUNIT_TEST(testRetriesRegisterManager);
   CPPUNIT_TEST(testPostServiceWrongResource);
 

@@ -41,6 +41,7 @@ class JsonTest : public CppUnit::TestFixture {
   CPPUNIT_TEST(testAttrCompound);
   CPPUNIT_TEST(testConversion);
   CPPUNIT_TEST(testAttributeJSONCommand);
+  CPPUNIT_TEST(testUpdateContextIdentifiersTooLong);
   CPPUNIT_TEST_SUITE_END();
 
  public:
@@ -62,5 +63,6 @@ class JsonTest : public CppUnit::TestFixture {
   void testAttrCompound();
   void testConversion();
   void testAttributeJSONCommand();
+  void testUpdateContextIdentifiersTooLong();
 };
 #endif

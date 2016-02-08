@@ -22,6 +22,7 @@
 #ifndef SRC_NGSI_ATTRIBUTE_H_
 #define SRC_NGSI_ATTRIBUTE_H_
 
+#include "util/FuncUtil.h"
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
 #include <vector>
@@ -43,8 +44,8 @@ class Attribute {
   std::string& get_type() { return _type; };
   std::string& get_value() { return _value; };
   void set_value(std::string& value) { _value = value; };
-  void set_name(std::string& name) { _name = name; };
-  void set_type(std::string& type) { _type = type; };
+  void set_name(std::string& name) { _name = iota::render_identifier(name); };
+  void set_type(std::string& type) { _type = iota::render_identifier(type); };
   std::vector<Attribute>& get_metadatas() { return _metadata; };
   void add_metadata(const Attribute& metadata);
   std::vector<Attribute>& get_value_compound() { return _value_compound; };

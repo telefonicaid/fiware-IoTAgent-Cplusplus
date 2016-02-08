@@ -1032,3 +1032,50 @@ void JsonTest::testConversion() {
   CPPUNIT_ASSERT_MESSAGE("Conversion to int from string",
                          iota::get_value_from_rapidjson<int>(jvsi) == 21);
 }
+
+void JsonTest::testUpdateContextIdentifiersTooLong() {
+  std::string str_test("Testin<g eras;;e r#eg\"exp<>();'=\"/?#&");
+  for (int i = 0; i < 256; i++) {
+    str_test.append("a");
+  }
+
+  iota::ContextElement context_element(str_test, str_test, "is_pattern");
+
+  // Attribute to map
+  iota::Attribute mapped_att(str_test, str_test, "originalatt");
+  iota::Attribute meta(str_test, str_test, "metadata");
+  mapped_att.add_metadata(meta);
+  context_element.add_attribute(mapped_att);
+  CPPUNIT_ASSERT_MESSAGE("Attribute",
+                         context_element.get_attributes().size() == 1);
+
+  std::istringstream is_ce(context_element.get_string());
+  iota::ContextElement obj_ce(is_ce);
+  CPPUNIT_ASSERT(obj_ce.get_id().find("Testingeraseregexp") == 0);
+  CPPUNIT_ASSERT(obj_ce.get_type().find("Testingeraseregexp") == 0);
+  CPPUNIT_ASSERT(obj_ce.get_type().length() == 256);
+
+  std::vector<iota::Attribute> attributes = obj_ce.get_attributes();
+  CPPUNIT_ASSERT(attributes.size() == 1);
+
+  CPPUNIT_ASSERT_MESSAGE(
+      "Attributes ", attributes[0].get_name().find("Testingeraseregexp") == 0);
+  CPPUNIT_ASSERT_MESSAGE(
+      "Attributes ", attributes[0].get_type().find("Testingeraseregexp") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Attributes ",
+                         attributes[0].get_type().length() == 256);
+  CPPUNIT_ASSERT_MESSAGE("Attributes ",
+                         attributes[0].get_name().length() == 256);
+  CPPUNIT_ASSERT_MESSAGE("Attributes ",
+                         attributes[0].get_metadatas()[0].get_name().find(
+                             "Testingeraseregexp") == 0);
+  CPPUNIT_ASSERT_MESSAGE("Attributes ",
+                         attributes[0].get_metadatas()[0].get_type().find(
+                             "Testingeraseregexp") == 0);
+  CPPUNIT_ASSERT_MESSAGE(
+      "Attributes ",
+      attributes[0].get_metadatas()[0].get_type().length() == 256);
+  CPPUNIT_ASSERT_MESSAGE(
+      "Attributes ",
+      attributes[0].get_metadatas()[0].get_name().length() == 256);
+}

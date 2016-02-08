@@ -2140,6 +2140,11 @@ void AdminTest::testForbiddenCharacters() {
   forbidden_characters.push_back("=");
   forbidden_characters.push_back("'");
   forbidden_characters.push_back("\\\"");
+  forbidden_characters.push_back("/");
+  forbidden_characters.push_back("?");
+  forbidden_characters.push_back("#");
+  forbidden_characters.push_back("&");
+  forbidden_characters.push_back(" ");
 
   for (int i = 0; i < forbidden_characters.size(); i++) {
     std::string post_str(device_with_forbidden);
@@ -2151,6 +2156,19 @@ void AdminTest::testForbiddenCharacters() {
     std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
     IOTASSERT(code_res == 400);
   }
+
+  // length (256)
+  std::string post_str_length(device_with_forbidden);
+  post_str_length.append(device_forbidden);
+  for (int i = 0; i < 256; i++) {
+   post_str_length.append("a");
+  }
+  post_str_length.append(cont);
+  code_res = http_test("/TestAdmin/devices", "POST", service, "",
+                       "application/json", post_str_length, headers, "", response);
+  std::cout << "@UT@RESPONSE: " << code_res << " " << response << std::endl;
+  IOTASSERT(code_res == 400);
+
   std::string post_str(device_with_forbidden);
   post_str.append(device_forbidden);
   post_str.append(cont);

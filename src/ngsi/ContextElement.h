@@ -26,6 +26,7 @@
 #include <rapidjson/rapidjson.h>
 #include <boost/property_tree/ptree.hpp>
 #include "util/device.h"
+#include "util/FuncUtil.h"
 #include <vector>
 #include <string>
 namespace iota {
@@ -33,7 +34,7 @@ class ContextElement {
  public:
   ContextElement(const std::string& id, const std::string& type,
                  const std::string& is_pattern)
-      : _id(id), _type(type), _is_pattern(is_pattern){};
+      : _id(iota::render_identifier(id)), _type(iota::render_identifier(type)), _is_pattern(is_pattern){};
   ContextElement(const std::istringstream& str_context_element);
   ContextElement(const rapidjson::Value& context_element);
   ContextElement(){};
@@ -41,9 +42,9 @@ class ContextElement {
   std::string get_string();
   void add_attribute(Attribute& attribute);
   std::string& get_id() { return _id; };
-  void set_id(const std::string& a_id) { _id = a_id; };
+  void set_id(const std::string& a_id) { _id = iota::render_identifier(a_id); };
   std::string& get_type() { return _type; };
-  void set_type(const std::string& data) { _type = data; };
+  void set_type(const std::string& data) { _type = iota::render_identifier(data); };
   std::string& get_is_pattern() { return _is_pattern; };
   void set_is_pattern(const std::string& data) { _is_pattern = data; };
   std::vector<Attribute>& get_attributes() { return _attributes; };

@@ -34,10 +34,10 @@ iota::Attribute::Attribute(const std::string name, const std::string& type,
   if (name.empty()) {
     _name = EMPTY_VALUE;
   } else {
-    _name = name;
+    _name = iota::render_identifier(name);
   }
 
-  _type = type;
+  _type = iota::render_identifier(type);
 
   if (value.empty()) {
     _value = EMPTY_VALUE;
@@ -50,18 +50,17 @@ iota::Attribute::Attribute(const std::string name, const std::string& type) {
   if (name.empty()) {
     _name = EMPTY_VALUE;
   } else {
-    _name = name;
+    _name = iota::render_identifier(name);
   }
 
-  _type = type;
+  _type = iota::render_identifier(type);
 }
 
 iota::Attribute::Attribute(const std::istringstream& str_attribute) {
   rapidjson::Document document;
   char buffer[str_attribute.str().length()];
-  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_attribute.str().c_str());
-  if (document.ParseInsitu<0>(buffer).HasParseError()) {
+  if (document.Parse<0>(buffer).HasParseError()) {
     std::ostringstream what;
     what << "Attribute: ";
     what << document.GetParseError();
@@ -77,13 +76,13 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
     what << "name]";
     throw std::runtime_error(what.str());
   }
-  _name.assign(document["name"].GetString());
+  _name.assign(iota::render_identifier(document["name"].GetString()));
   if (_name.empty()) {
     _name = EMPTY_VALUE;
   }
 
   if (document.HasMember("type")) {
-    _type.assign(document["type"].GetString());
+    _type.assign(iota::render_identifier(document["type"].GetString()));
   }
   if (document.HasMember("value")) {
     if (_type == "compound") {
@@ -145,9 +144,9 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
     what << "name]";
     throw std::runtime_error(what.str());
   }
-  _name.assign(attribute["name"].GetString());
+  _name.assign(iota::render_identifier(attribute["name"].GetString()));
   if (attribute.HasMember("type")) {
-    _type.assign(attribute["type"].GetString());
+    _type.assign(iota::render_identifier(attribute["type"].GetString()));
   }
   if (attribute.HasMember("value")) {
     if (_type == "compound") {
