@@ -51,6 +51,9 @@ const boost::uuids::uuid namespace_uuid = {{0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad,
                                             0x4f, 0xd4, 0x30, 0xc8}};
 const int FIWARE_SERVICE_LENGTH = 50;
 
+const std::string REGEX_IDENTIFIER_FORBIDDEN_CHARACTERS = "[<>();'=\"/?#& ]+";
+const int IDENTIFIER_MAX_LENGTH = 256;
+
 std::vector<std::string> riot_tokenizer(std::string& str, std::string& sep);
 std::string riot_uuid(std::string str_key);
 std::string riot_id(std::string& str_key);
@@ -84,6 +87,8 @@ int number_of_decimals(const std::string& str);
    * @return the same string with percent escapes
    */
 std::string url_decode(const std::string& str);
+
+std::string render_identifier(const std::string& str_to_render);
 
 };
 

@@ -38,6 +38,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/format.hpp>
 #include <boost/bind.hpp>
+#include <boost/regex.hpp>
+#include <boost/algorithm/string/regex.hpp>
 #include <sstream>
 #include <algorithm>
 #include <pion/algorithm.hpp>
@@ -444,31 +446,38 @@ int iota::number_of_decimals(const std::string& str) {
   }
 }
 
-std::string iota::url_decode(const std::string& str)
-{
-    char decode_buf[3];
-    std::string result;
-    result.reserve(str.size());
+std::string iota::url_decode(const std::string& str) {
+  char decode_buf[3];
+  std::string result;
+  result.reserve(str.size());
 
-    for (std::string::size_type pos = 0; pos < str.size(); ++pos) {
-        switch(str[pos]) {
-        case '%':
-            // decode hexidecimal value
-            if (pos + 2 < str.size()) {
-                decode_buf[0] = str[++pos];
-                decode_buf[1] = str[++pos];
-                decode_buf[2] = '\0';
-                result += static_cast<char>( strtol(decode_buf, 0, 16) );
-            } else {
-                // recover from error by not decoding character
-                result += '%';
-            }
-            break;
-        default:
-            // character does not need to be escaped
-            result += str[pos];
+  for (std::string::size_type pos = 0; pos < str.size(); ++pos) {
+    switch (str[pos]) {
+      case '%':
+        // decode hexidecimal value
+        if (pos + 2 < str.size()) {
+          decode_buf[0] = str[++pos];
+          decode_buf[1] = str[++pos];
+          decode_buf[2] = '\0';
+          result += static_cast<char>(strtol(decode_buf, 0, 16));
+        } else {
+          // recover from error by not decoding character
+          result += '%';
         }
-    };
+        break;
+      default:
+        // character does not need to be escaped
+        result += str[pos];
+    }
+  };
 
-    return result;
+  return result;
+}
+
+std::string iota::render_identifier(const std::string& str_to_render) {
+  return std::string(
+      boost::erase_all_regex_copy(
+          str_to_render,
+          boost::regex(iota::REGEX_IDENTIFIER_FORBIDDEN_CHARACTERS)),
+      0, iota::IDENTIFIER_MAX_LENGTH);
 }
