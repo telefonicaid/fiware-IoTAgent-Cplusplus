@@ -44,12 +44,10 @@ sed -i /usr/local/iot/config/iotagent_manager.conf \
 	
 
 
-#cat /etc/iot/config.json
 
 exec /sbin/init
 
 
 
 
-#/bin/bash
 
