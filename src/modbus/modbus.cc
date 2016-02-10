@@ -115,6 +115,7 @@ iota::Modbus::Modbus(unsigned char slave_addr,
       _time_instant(-1),
       _confirmed(!confirmed),
       _need_be_confirmed(confirmed),
+      _number_of_or_value(0),
       m_logger(PION_GET_LOGGER(iota::Process::get_logger_name())) {
   _modbus_frame.push_back(_slave_address);
   _modbus_frame.push_back(_function_code);

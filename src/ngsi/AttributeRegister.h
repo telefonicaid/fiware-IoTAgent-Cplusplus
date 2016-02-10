@@ -30,7 +30,7 @@
 namespace iota {
 class AttributeRegister {
  public:
-  AttributeRegister(const std::string name, const std::string& type,
+  AttributeRegister(const std::string& name, const std::string& type,
                     const std::string& is_domain)
       : _name(name), _type(type), _is_domain(is_domain){};
   AttributeRegister(const std::istringstream& str_attribute);

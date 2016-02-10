@@ -48,6 +48,7 @@ iota::IoTStatistic& iota::IoTStatistic::operator=(iota::IoTStatistic& stat) {
   _name = stat.get_name();
   _enabled = stat.get_enable();
   _accumulators_ = stat.get_counters();
+  return *this;
 }
 
 iota::IoTStatistic::iot_accumulator_ptr iota::IoTStatistic::operator[](

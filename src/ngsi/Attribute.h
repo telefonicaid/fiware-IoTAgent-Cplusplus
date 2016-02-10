@@ -31,10 +31,10 @@
 namespace iota {
 class Attribute {
  public:
-  Attribute(const std::string name, const std::string& type,
+  Attribute(const std::string& name, const std::string& type,
             const std::string& value);
   // Constructor without value for compound attributes
-  Attribute(const std::string name, const std::string& type);
+  Attribute(const std::string& name, const std::string& type);
   Attribute(const std::istringstream& str_attribute);
   Attribute(const rapidjson::Value& attribute);
   Attribute(){};

@@ -35,7 +35,7 @@ iota::ProtocolCollection::ProtocolCollection(ProtocolCollection& dc)
 iota::ProtocolCollection::~ProtocolCollection(){};
 
 int iota::ProtocolCollection::createTableAndIndex() {
-  int res = 200;
+
   // db.PROTOCOL.ensureIndex({protocol:1},{"unique":1})
   mongo::BSONObj indexUni = BSON(iota::store::types::PROTOCOL_NAME << 1);
 
@@ -110,7 +110,7 @@ iota::Protocol iota::ProtocolCollection::BSON2Obj(const mongo::BSONObj& obj) {
   mongo::BSONElement oi;
   obj.getObjectID(oi);
   mongo::OID o = oi.__oid();
-  std::string id = o.toString();
+
   std::string name = obj.getStringField(iota::store::types::PROTOCOL_NAME);
   std::string description =
       obj.getStringField(iota::store::types::PROTOCOL_DESCRIPTION);

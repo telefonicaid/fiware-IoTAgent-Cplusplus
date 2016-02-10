@@ -29,7 +29,7 @@
 namespace iota {
 
 struct Service : public virtual Timer {
-  explicit Service(std::string service) : Timer(), _service(service){};
+  explicit Service(std::string service) : Timer(), _service(service), _timeout(0){};
 
   virtual ~Service(){};
 

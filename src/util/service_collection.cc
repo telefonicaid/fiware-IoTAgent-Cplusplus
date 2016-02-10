@@ -93,7 +93,6 @@ int iota::ServiceCollection::fill_all_resources(
 }
 
 int iota::ServiceCollection::createTableAndIndex() {
-  int res = 200;
 
   // db.SERVICE.ensureIndex({"apikey":1, resource:1},{"unique":1})
   mongo::BSONObj indexUni1 =

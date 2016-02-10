@@ -318,7 +318,6 @@ void iota::CommandHandle::make_registrations(void) {
 
 void iota::CommandHandle::start_thread_registrations(void) {
   pthread_t thrid;
-  int i = 0;
   pthread_create(&thrid, NULL, _begin_registrations, this);
 }
 
@@ -776,7 +775,7 @@ void iota::CommandHandle::response_command(
     const std::string& id_command, const std::string& response,
     const boost::shared_ptr<Device>& device,
     const boost::property_tree::ptree& service_ptree) {
-  std::string cb_response;
+
   send_updateContext(id_command, iota::types::STATUS, iota::types::STATUS_TYPE,
                      iota::types::EXECUTED_MESSAGE, iota::types::INFO,
                      iota::types::INFO_TYPE, response, device, service_ptree,
@@ -849,7 +848,6 @@ void iota::CommandHandle::updateCommand(
     const std::string& sequence, const boost::property_tree::ptree& service) {
   IOTA_LOG_DEBUG(m_logger, "updateCommand: " << command_name << "->"
                                              << parameters);
-  int res_code = -1;
 
   std::string command_id;
   boost::property_tree::ptree command_to_send;
@@ -884,6 +882,7 @@ void iota::CommandHandle::updateCommand(
                  iota::types::READY_FOR_READ);
     IOTA_LOG_DEBUG(m_logger, "Device has endpoint, send command to "
                                  << item_dev->_endpoint);
+    int res_code = -1;
     try {
       if (_callback) {
         res_code = execute_command(
@@ -891,7 +890,6 @@ void iota::CommandHandle::updateCommand(
             service, resp_cmd,
             boost::bind(
                 &iota::CommandHandle::receive_command_response,
-                // boost::dynamic_pointer_cast<iota::CommandHandle>(shared_from_this()),
                 this, cmd_data, _1, _2, _3));
       } else {
         res_code =
@@ -1048,34 +1046,33 @@ void iota::CommandHandle::default_op_ngsi(
       // TODO  leer el sequence del updateContext, si deciden que haya sequence
       boost::uuids::uuid uuid = boost::uuids::random_generator()();
       std::string sequence(boost::lexical_cast<std::string>(uuid));
-      iresponse = updateContext(op_updateContext, service_ptree, sequence,
-                                context_response);
+      updateContext(op_updateContext, service_ptree, sequence, context_response);
 
       response = context_response.get_string();
       boost::erase_all(response, "\\\"");
-      iresponse = 200;
+
     } else {
       IOTA_LOG_ERROR(m_logger, "you need a header with "
                                    << iota::types::FIWARE_SERVICEPATH);
-      iresponse = 200;
+
       response =
           create_ngsi_response(types::RESPONSE_CODE_BAD_REQUEST,
                                "you need a header with Fiware-Service", "");
     }
 
-  } catch (iota::IotaException e) {
+  } catch (iota::IotaException& e) {
     IOTA_LOG_ERROR(m_logger, "Capturada: IotaException in default_op_ngsi");
     IOTA_LOG_ERROR(m_logger, e.what());
-    iresponse = 200;
+
     response = create_ngsi_response(e.status(), e.reason(), e.what());
-  } catch (std::runtime_error e) {
-    iresponse = 200;
+  } catch (std::runtime_error& e) {
+
     response = create_ngsi_response(500, e.what(), e.what());
   } catch (std::exception& e) {
-    iresponse = 200;
+
     response = create_ngsi_response(500, e.what(), e.what());
   } catch (...) {
-    iresponse = 200;
+
     response = create_ngsi_response(
         types::RESPONSE_CODE_RECEIVER_INTERNAL_ERROR,
         iota::types::RESPONSE_MESSAGE_INTERNAL_ERROR, " ---");
@@ -1162,12 +1159,12 @@ void iota::CommandHandle::default_queryContext_ngsi(
     }
 
     // write response
-  } catch (iota::IotaException e) {
+  } catch (iota::IotaException& e) {
     IOTA_LOG_ERROR(m_logger, "Capturada: IotaException in default_op_ngsi");
     IOTA_LOG_ERROR(m_logger, e.what());
     iresponse = 200;
     response = create_ngsi_response(e.status(), e.reason(), e.what());
-  } catch (std::runtime_error e) {
+  } catch (std::runtime_error& e) {
     iresponse = 200;
     response = create_ngsi_response(500, e.what(), e.what());
   } catch (std::exception& e) {
