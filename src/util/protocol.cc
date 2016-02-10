@@ -22,15 +22,9 @@
 #include "protocol.h"
 
 iota::Protocol::Protocol() {
-  _description = "";
-  _name = "";
-  _id = "";
 }
 
-iota::Protocol::Protocol(const std::string& name) {
-  _description = "";
-  _name = name;
-  _id = "";
+iota::Protocol::Protocol(const std::string& name):_name(name) {
 }
 
 iota::Protocol::~Protocol(void) {}

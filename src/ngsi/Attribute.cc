@@ -29,7 +29,7 @@
 
 #define EMPTY_VALUE " "
 
-iota::Attribute::Attribute(const std::string name, const std::string& type,
+iota::Attribute::Attribute(const std::string& name, const std::string& type,
                            const std::string& value) {
   if (name.empty()) {
     _name = EMPTY_VALUE;
@@ -46,7 +46,7 @@ iota::Attribute::Attribute(const std::string name, const std::string& type,
   }
 }
 
-iota::Attribute::Attribute(const std::string name, const std::string& type) {
+iota::Attribute::Attribute(const std::string& name, const std::string& type) {
   if (name.empty()) {
     _name = EMPTY_VALUE;
   } else {

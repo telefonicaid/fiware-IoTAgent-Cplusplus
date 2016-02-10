@@ -57,7 +57,7 @@ needed as shardKey");
 }*/
 
 int iota::ServiceMgmtCollection::createTableAndIndex() {
-  int res = 200;
+
   // db.SERVICE_MGMT.ensureIndex({"service":1, service_path:1, iotagent:1,
   // protocol:1},{"unique":1})
   mongo::BSONObj indexUni = BSON(iota::store::types::SERVICE

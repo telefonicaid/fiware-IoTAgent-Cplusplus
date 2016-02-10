@@ -841,12 +841,11 @@ void iota::AdminManagerService::protocols(
   std::string reason;
   std::string error_details;
   int code = pion::http::types::RESPONSE_CODE_OK;
-  std::string service_in_url;
+
   std::string temp, op;
   try {
     check_mongo_config();
-    std::string content_type(
-        http_request_ptr->get_header(pion::http::types::HEADER_CONTENT_TYPE));
+
     std::string service(
         http_request_ptr->get_header(iota::types::FIWARE_SERVICE));
     std::string service_path(

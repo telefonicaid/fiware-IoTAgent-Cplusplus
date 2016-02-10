@@ -30,7 +30,6 @@ iota::AttributeRegister::AttributeRegister(
     const std::istringstream& str_attribute) {
   rapidjson::Document document;
   char buffer[str_attribute.str().length()];
-  // memcpy(buffer, str_attribute.c_str(), str_attribute.length());
   strcpy(buffer, str_attribute.str().c_str());
   if (document.ParseInsitu<0>(buffer).HasParseError()) {
     std::ostringstream what;

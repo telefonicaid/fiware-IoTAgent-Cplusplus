@@ -67,8 +67,8 @@ void iota::ContextBrokerCommunicator::receive_event(
         number_of_tries < 1) {
       additional_info.put(iota::ContextBrokerCommunicator::NUMBER_OF_TRIES,
                           ++number_of_tries);
-      bool sending = async_send(url, content, additional_info, _callback,
-                                pion::http::types::RESPONSE_CODE_UNAUTHORIZED);
+      async_send(url, content, additional_info, _callback,
+                 pion::http::types::RESPONSE_CODE_UNAUTHORIZED);
     } else if (response->get_status_code() ==
                iota::types::RESPONSE_CODE_BAD_GATEWAY) {
       iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
@@ -126,7 +126,7 @@ bool iota::ContextBrokerCommunicator::async_send(
     if (configurator != NULL) {
       try {
         std::map<std::string, std::string> to_map;
-        std::map<std::string, std::string>::iterator it;
+
         configurator->get("oauth", to_map);
         oauth = to_map["on_behalf_trust_url"];
         iotagent_user = to_map["on_behalf_user"];
@@ -166,7 +166,7 @@ bool iota::ContextBrokerCommunicator::async_send(
                     _3));
 
   } catch (std::exception& e) {
-    result = false;
+
     iota::Alarm::error(iota::types::ALARM_CODE_NO_CB, url, content,
                        additional_info, iota::types::ERROR, e.what());
   }
@@ -192,7 +192,7 @@ std::string iota::ContextBrokerCommunicator::send(
   if (configurator != NULL) {
     try {
       std::map<std::string, std::string> to_map;
-      std::map<std::string, std::string>::iterator it;
+
       configurator->get("oauth", to_map);
       oauth = to_map["on_behalf_trust_url"];
       iotagent_user = to_map["on_behalf_user"];

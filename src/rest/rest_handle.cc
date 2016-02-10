@@ -514,7 +514,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
                                << http_request_ptr->get_header(
                                    iota::types::HEADER_TRACE_MESSAGES));
   IOTA_LOG_DEBUG(m_logger, "Proccessing in handle " << get_resource());
-  bool finish = false;
+
   boost::shared_ptr<iota::IoTStatistic> stat =
       get_statistic_counter(iota::types::STAT_TRAFFIC);
   Duration d((*stat)[iota::types::STAT_TRAFFIC_DURATION]);
@@ -561,7 +561,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
       error_response(writer->get_response(),
                      iota::types::RESPONSE_MESSAGE_BAD_REQUEST, "",
                      response_buffer);
-      finish = true;
+
     } else {
       std::string host_header =
           http_request_ptr->get_header(pion::http::types::HEADER_HOST);
@@ -578,7 +578,7 @@ void iota::RestHandle::handle_request(pion::http::request_ptr& http_request_ptr,
     error_response(writer->get_response(),
                    iota::types::RESPONSE_MESSAGE_BAD_REQUEST, e.what(),
                    response_buffer);
-    finish = true;
+
   }
 
   send_http_response(writer, response_buffer);
@@ -657,7 +657,7 @@ std::string iota::RestHandle::get_statistics() {
   boost::mutex::scoped_lock lock(m_mutex_stat);
   IOTA_LOG_DEBUG(m_logger, "Get statistics " << get_resource() << " Counters "
                                              << _statistics.size());
-  int i = 0;
+
   rapidjson::Document stats;
   stats.SetArray();
 
