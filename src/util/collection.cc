@@ -383,7 +383,6 @@ int iota::Collection::update_r(const mongo::BSONObj& query,
     reconnect();
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
-    }
   } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
@@ -467,7 +466,6 @@ int iota::Collection::remove(const mongo::BSONObj& query, int retry) {
     reconnect();
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
-    }
   } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
@@ -713,7 +711,6 @@ int iota::Collection::find(int queryOptions, const mongo::BSONObj& queryObj,
     reconnect();
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
-    }
   } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
@@ -798,8 +795,6 @@ bool iota::Collection::more() {
     IOTA_LOG_ERROR(m_logger, "ConnectException " << e.what());
   } catch (mongo::UserException& e) {
     IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
-    boost::this_thread::sleep(boost::posix_time::milliseconds(500));
-    return (a_cursor.get() != NULL) && (a_cursor->more());
     IOTA_LOG_ERROR(m_logger, "after UserException " << e.what());
   } catch (mongo::AssertionException& e) {
     IOTA_LOG_ERROR(m_logger, "AssertionException " << e.what());
@@ -820,6 +815,8 @@ bool iota::Collection::more() {
     reconnect();
     IOTA_LOG_ERROR(m_logger, "mongo::DBException " << e.what());
   }
+
+  return false;
 };
 
 mongo::BSONObj iota::Collection::next() {
