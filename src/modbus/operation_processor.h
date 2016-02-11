@@ -84,6 +84,8 @@ class ModbusOperationProcessor {
   */
   std::string get_protocol_commands();
 
+  std::map<std::string, boost::property_tree::ptree>& get_commands();
+
  protected:
  private:
   std::map<std::string, boost::property_tree::ptree> _operations;

@@ -223,3 +223,8 @@ std::string iota::ModbusOperationProcessor::get_protocol_commands() {
 
   return res;
 }
+
+std::map<std::string, boost::property_tree::ptree>&
+iota::ModbusOperationProcessor::get_commands() {
+  return _commands;
+}
