@@ -281,21 +281,19 @@ int iota::Collection::insert(const mongo::BSONObj& data, int retry) {
                               errorSTR, ERROR_MONGO);
   } catch (mongo::UserException& e) {
     IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
-    if (retry < MAX_RETRY) {
-      insert(data, retry + 1);
-    } else {
-      std::string errorSTR = "problem with dabaseUSerConnection";
-      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+    std::string errorSTR = "problem with dabaseUSerConnection";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
                          types::ERROR, errorSTR);
-      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+    IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+    reconnect();
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
-    }
   } catch (mongo::AssertionException& e) {
     std::string errorSTR = "AssertionException ";
     IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
     iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(), types::ERROR,
                        errorSTR);
+    reconnect();
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                               errorSTR, ERROR_MONGO);
   } catch (mongo::OperationException& e) {
@@ -378,14 +376,12 @@ int iota::Collection::update_r(const mongo::BSONObj& query,
                               errorSTR, ERROR_MONGO);
   } catch (mongo::UserException& e) {
     IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
-    if (retry < MAX_RETRY) {
-      update(query, setData, upsert, retry + 1);
-    } else {
-      std::string errorSTR = "problem with database UserConnection";
-      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+    std::string errorSTR = "problem with database UserConnection";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
                          types::ERROR, errorSTR);
-      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+    IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+    reconnect();
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
   } catch (mongo::AssertionException& e) {
@@ -464,14 +460,12 @@ int iota::Collection::remove(const mongo::BSONObj& query, int retry) {
                               errorSTR, ERROR_MONGO);
   } catch (mongo::UserException& e) {
     IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
-    if (retry < MAX_RETRY) {
-      remove(query, retry + 1);
-    } else {
-      std::string errorSTR = "problem with database UserConnection";
-      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+    std::string errorSTR = "problem with database UserConnection";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
                          types::ERROR, errorSTR);
-      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+    IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+    reconnect();
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
   } catch (mongo::AssertionException& e) {
@@ -712,15 +706,12 @@ int iota::Collection::find(int queryOptions, const mongo::BSONObj& queryObj,
                               errorSTR, ERROR_MONGO);
   } catch (mongo::UserException& e) {
     IOTA_LOG_ERROR(m_logger, "UserException " << e.what());
-    if (retry < MAX_RETRY) {
-      return find(queryOptions, queryObj, limit, skip, order, fieldsToReturn,
-                  retry + 1);
-    } else {
-      std::string errorSTR = "problem with database UserConnection";
-      iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
+    std::string errorSTR = "problem with database UserConnection";
+    iota::Alarm::error(types::ALARM_CODE_NO_MONGO, get_endpoint(),
                          types::ERROR, errorSTR);
-      IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
-      throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
+    IOTA_LOG_ERROR(m_logger, errorSTR << e.what());
+    reconnect();
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_DATABASE_ERROR,
                                 errorSTR, ERROR_MONGO);
     }
   } catch (mongo::AssertionException& e) {
