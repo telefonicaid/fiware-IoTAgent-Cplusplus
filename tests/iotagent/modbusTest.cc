@@ -399,3 +399,178 @@ void ModbusTest::testCheckFactor() {
 
   std::cout << "@UT@END check testCheckFactor" << std::endl;
 }
+
+void ModbusTest::testCommandsToOperations() {
+  std::cout << "START testCommandsToOperations" << std::endl;
+  iota::ModbusOperationProcessor processor;
+  /**
+   {
+          "name" : "test_command",
+          "parameters" : [
+           {
+             "name":"second",
+             "address": 21
+           },
+           {
+             "name":"third",
+             "address": 22
+           },
+           {
+             "name":"fourth",
+             "address": 23
+           },
+           {
+             "name":"first",
+             "address": 20
+           }
+          ]
+      },
+      {
+          "name" : "test_numeric_command",
+          "parameters" : [
+           {
+             "name":"test_param",
+             "type" : "numeric",
+             "positions" : 5,
+             "address": 21
+           }]
+      },
+      {
+          "name" : "test_string_command",
+          "parameters" : [
+           {
+             "name":"test_param",
+             "type": "string",
+             "positions" : 25,
+             "address": 21
+           }]
+      }
+  */
+  processor.read_operations("../../tests/iotagent/modbus_configF.json");
+
+  // Extract some commands as operations.
+
+  // First scenario
+  {
+    boost::property_tree::ptree& pt_operation =
+        processor.get_operation("test_command");
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusOperation 3",
+        pt_operation.get<unsigned short>("modbusOperation") == 3);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusAddress 20",
+        pt_operation.get<unsigned short>("modbusAddress") == 20);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Labels ", processor.get_mapped_labels("test_command").size() == 4);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Label third ",
+        processor.get_mapped_labels("test_command")[2].name.compare("third") ==
+            0);
+  }
+  // Second scenario: numeric command
+  {
+    boost::property_tree::ptree& pt_operation =
+        processor.get_operation("test_numeric_command");
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusOperation 3",
+        pt_operation.get<unsigned short>("modbusOperation") == 3);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusAddress 21",
+        pt_operation.get<unsigned short>("modbusAddress") == 21);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusNumberOfPositions 5",
+        pt_operation.get<unsigned short>("modbusNumberOfPositions") == 5);
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusNumberOfRegisters 1",
+        pt_operation.get<unsigned short>("modbusNumberOfRegisters") == 1);
+
+    CPPUNIT_ASSERT_MESSAGE("Type of command numeric",
+                           pt_operation.get<std::string>("modbusRegisterType")
+                                   .compare("numeric") == 0);
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Label, only one ",
+        processor.get_mapped_labels("test_numeric_command").size() == 1);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Label test_param ",
+        processor.get_mapped_labels("test_numeric_command")[0].name.compare(
+            "test_param") == 0);
+  }
+  // Third scenario: string command
+  {
+    boost::property_tree::ptree& pt_operation =
+        processor.get_operation("test_string_command");
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusOperation 3",
+        pt_operation.get<unsigned short>("modbusOperation") == 3);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusAddress 21",
+        pt_operation.get<unsigned short>("modbusAddress") == 21);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusNumberOfPositions 25",
+        pt_operation.get<unsigned short>("modbusNumberOfPositions") == 25);
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Value modbusNumberOfRegisters 1",
+        pt_operation.get<unsigned short>("modbusNumberOfRegisters") == 1);
+
+    CPPUNIT_ASSERT_MESSAGE("Type of command numeric",
+                           pt_operation.get<std::string>("modbusRegisterType")
+                                   .compare("string") == 0);
+
+    CPPUNIT_ASSERT_MESSAGE(
+        "Label, only one ",
+        processor.get_mapped_labels("test_string_command").size() == 1);
+    CPPUNIT_ASSERT_MESSAGE(
+        "Label test_param ",
+        processor.get_mapped_labels("test_string_command")[0].name.compare(
+            "test_param") == 0);
+  }
+
+  {
+    boost::property_tree::ptree& pt_operation =
+        processor.get_operation("test_command");
+    iota::Modbus frame_to_map(
+        0x01, (iota::Modbus::FunctionCode)pt_operation.get<unsigned short>(
+                  "modbusOperation"),
+        pt_operation.get<unsigned short>("modbusAddress"),
+        pt_operation.get<unsigned short>("modbusNumberOfPositions"),
+        "test_command");
+    std::string received_frame = "01 03 08 00 01 00 02 00 03 00 04";
+
+    std::vector<unsigned char> v_bytes =
+        iota::hex_str_to_vector(received_frame);
+    unsigned short crc = frame_to_map.crc(v_bytes);
+    v_bytes.push_back((crc >> 8) & 0xFF);
+    v_bytes.push_back(crc & 0xFF);
+    std::cout << "FRAME: " << iota::str_to_hex(v_bytes) << std::endl;
+
+    CPPUNIT_ASSERT_MESSAGE("Checking received frame with labels ",
+                           frame_to_map.receive_modbus_frame(v_bytes));
+
+    std::map<std::string, std::string> mapped_values =
+        frame_to_map.get_mapped_values(
+            processor.get_mapped_labels("test_command"));
+
+    CPPUNIT_ASSERT_MESSAGE("Checking number of mapped values ",
+                           mapped_values.size() == 4);
+    std::map<std::string, std::string>::iterator i = mapped_values.begin();
+    CPPUNIT_ASSERT_MESSAGE("Checking first parameter == 1",
+                           mapped_values["first"] == "1");
+
+    // CPPUNIT_ASSERT_MESSAGE("Checking label 2", mapped_values["102"] ==
+    // 12305);
+
+    std::cout << " second parameter, value: " << mapped_values["second"]
+              << std::endl;
+
+    // CPPUNIT_ASSERT_MESSAGE("Checking label 3",
+    //                       mapped_values["label_3"] == "2321");
+  }
+
+  std::cout << "END testCommandsToOperations" << std::endl;
+}
