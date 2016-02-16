@@ -228,3 +228,38 @@ std::map<std::string, boost::property_tree::ptree>&
 iota::ModbusOperationProcessor::get_commands() {
   return _commands;
 }
+
+void iota::ModbusOperationProcessor::add_command_as_operation(
+    const std::string& command_name) {
+  std::map<std::string, boost::property_tree::ptree>::iterator it_cmd =
+      _commands.find(command_name);
+
+  if (it_cmd != _commands.end()) {
+    boost::property_tree::ptree& pt_command = it_cmd->second;
+
+    boost::property_tree::ptree pt_operation;
+
+    pt_operation.put("operation", command_name);
+    pt_operation.put("modbusOperation", boost::lexical_cast<std::string>(0x03));
+
+    std::map<std::string, iota::ParamsMap>::iterator it_params =
+        _ordered_parameters_map.find(command_name);
+    if (it_params != _ordered_parameters_map.end()) {
+      int num_of_registers =
+          it_params->second.size();  // num of registers = num of params.
+      pt_operation.put("modbusNumberOfPositions",
+                       boost::lexical_cast<std::string>(num_of_registers));
+      pt_operation.put("modbusNumberOfRegisters",
+                       boost::lexical_cast<std::string>(num_of_registers));
+
+      // Base address:
+      int base_address = get_base_address(command_name);
+      pt_operation.put("modbusBaseAddress",
+                       boost::lexical_cast<std::string>(base_address));
+
+      // NOW, the parameters.
+      boost::property_tree::ptree pt_positions;
+
+    }  // Else error
+  }
+}

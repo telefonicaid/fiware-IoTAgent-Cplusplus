@@ -100,6 +100,8 @@ class ModbusOperationProcessor {
   void read(std::stringstream& json_operations);
 
   void read_commands(std::stringstream& json_commands);
+
+  void add_command_as_operation(const std::string& command_name);
 };
 }
 
