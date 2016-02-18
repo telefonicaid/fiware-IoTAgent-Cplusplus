@@ -94,6 +94,11 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
                               data[i]["value"].GetString());
           add_value_compound(val);
         }
+      } else {
+        rapidjson::StringBuffer sb;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+        data.Accept(writer);
+        _value = sb.GetString();
       }
 
     } else if (_type == "command" && document["value"].IsObject()) {
@@ -158,12 +163,16 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
                               data[i]["value"].GetString());
           add_value_compound(val);
         }
+      } else {
+        rapidjson::StringBuffer sb;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
+        data.Accept(writer);
+        _value = sb.GetString();
       }
     } else if (_type == "command" && attribute["value"].IsObject()) {
       rapidjson::StringBuffer sb;
       rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
       attribute["value"].Accept(writer);
-
       _value = sb.GetString();
 
     } else {
@@ -192,10 +201,10 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
     }
   }
 };
-std::string iota::Attribute::get_string() {
+std::string iota::Attribute::get_string(bool compound_object) {
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-  Serialize(writer);
+  Serialize(writer, compound_object);
   return buffer.GetString();
 };
 

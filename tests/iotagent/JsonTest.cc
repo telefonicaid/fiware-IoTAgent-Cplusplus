@@ -717,6 +717,19 @@ void JsonTest::testAttrCompound() {
   std::cout << "END testAttrCompound" << std::cout;
 }
 
+void JsonTest::testAttrCompoundAsObject() {
+  std::cout << "START testAttrCompoundAsObject" << std::cout;
+
+  iota::Attribute attribute("name", "compound");
+  std::string v_a("{}");
+  attribute.set_value(v_a);
+  std::cout << "CC " << attribute.get_string(true) << std::endl;
+  std::istringstream is(attribute.get_string(true));
+  iota::Attribute obj_attribute(is);
+  std::cout << "COMPOUND " << obj_attribute.get_string(true) << std::endl;
+  std::cout << "END testAttrCompoundAsObject" << std::cout;
+}
+
 void JsonTest::testConversionUpdateContext() {
   {
     std::string UPDATE_CONTEXT(
