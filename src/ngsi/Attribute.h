@@ -39,7 +39,7 @@ class Attribute {
   Attribute(const rapidjson::Value& attribute);
   Attribute(){};
   ~Attribute(){};
-  std::string get_string();
+  std::string get_string(bool compound_object = false);
   std::string& get_name() { return _name; };
   std::string& get_type() { return _type; };
   std::string& get_value() { return _value; };
@@ -54,7 +54,7 @@ class Attribute {
   std::vector<Attribute>& get_compound_value() { return _value_compound; };
 
   template <typename Writer>
-  void Serialize(Writer& writer) const {
+  void Serialize(Writer& writer, bool compound_object = false) const {
     writer.StartObject();
     writer.String("name");
     writer.String(_name.c_str(), (rapidjson::SizeType)_name.length());
@@ -64,12 +64,28 @@ class Attribute {
     if (_type != "compound") {
       writer.String(_value.c_str(), (rapidjson::SizeType)_value.length());
     } else {
-      writer.StartArray();
-      for (std::vector<Attribute>::const_iterator it = _value_compound.begin();
-           it != _value_compound.end(); ++it) {
-        it->Serialize(writer);
+      if (compound_object == false) {
+        writer.StartArray();
+        for (std::vector<Attribute>::const_iterator it =
+                 _value_compound.begin();
+             it != _value_compound.end(); ++it) {
+          it->Serialize(writer);
+        }
+        writer.EndArray();
+      } else {
+        std::string v;
+        if (_value.empty()) {
+          v.assign("{}");
+        } else {
+          v.assign(_value);
+        }
+        rapidjson::Document doc_value;
+        char buffer[v.length()];
+        strcpy(buffer, v.c_str());
+        if (!doc_value.Parse<0>(buffer).HasParseError()) {
+          doc_value.Accept(writer);
+        }
       }
-      writer.EndArray();
     }
     if (_metadata.size() != 0) {
       writer.String("metadatas");

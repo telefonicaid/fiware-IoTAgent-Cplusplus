@@ -120,6 +120,8 @@ void iota::ModbusOperationProcessor::read_commands(
       } catch (boost::exception& e) {
         // No names
       }
+
+      add_command_as_operation(op);
     }
   } catch (std::exception& e) {
     // TODO to IotaException
@@ -222,4 +224,86 @@ std::string iota::ModbusOperationProcessor::get_protocol_commands() {
   }
 
   return res;
+}
+
+std::map<std::string, boost::property_tree::ptree>&
+iota::ModbusOperationProcessor::get_commands() {
+  return _commands;
+}
+
+void iota::ModbusOperationProcessor::add_command_as_operation(
+    const std::string& command_name) {
+  std::map<std::string, boost::property_tree::ptree>::iterator it_cmd =
+      _commands.find(command_name);
+
+  if (it_cmd != _commands.end()) {
+    boost::property_tree::ptree& pt_command = it_cmd->second;
+
+    boost::property_tree::ptree pt_operation;
+
+    pt_operation.put("operation", command_name);
+    pt_operation.put("modbusOperation", boost::lexical_cast<std::string>(
+                                            0x03));  // Always a read operation
+
+    std::map<std::string, iota::ParamsMap>::iterator it_params =
+        _ordered_parameters_map.find(command_name);
+    if (it_params != _ordered_parameters_map.end()) {
+      int base_address = get_base_address(command_name);
+      pt_operation.put("modbusAddress",
+                       boost::lexical_cast<std::string>(base_address));
+
+      iota::ParamsMap& params_map = it_params->second;
+
+      int num_of_registers =
+          params_map.size();  // num of registers = num of params.
+
+      std::map<int, iota::CommandParameter>::iterator it_cmd_param;
+
+      int num_of_positions = num_of_registers;  // Default value.
+      it_cmd_param = params_map.begin();
+
+      if (it_cmd_param != params_map.end()) {
+        // ONLY one register for read operations with string/numeric with more
+        // than one position as of now.
+        if (it_cmd_param->second.type.compare("string") == 0 ||
+            it_cmd_param->second.type.compare("numeric") == 0) {
+          pt_operation.put("modbusRegisterType", it_cmd_param->second.type);
+          num_of_positions = it_cmd_param->second.num_positions;
+        }
+
+      } else {
+        // Complain and... throw exception?
+        return;
+      }
+
+      pt_operation.put("modbusNumberOfPositions",
+                       boost::lexical_cast<std::string>(num_of_positions));
+
+      pt_operation.put("modbusNumberOfRegisters",
+                       boost::lexical_cast<std::string>(num_of_registers));
+
+      _operations.insert(std::pair<std::string, boost::property_tree::ptree>(
+          command_name, pt_operation));
+      std::vector<iota::FloatPosition> labels_with_factor;
+
+      for (it_cmd_param = params_map.begin(); it_cmd_param != params_map.end();
+           ++it_cmd_param) {
+        iota::FloatPosition position;
+
+        position.name = it_cmd_param->second.name;
+        position.factor =
+            1;  // this might be specific for commands read operations,
+        // but for simplicity, let's assume the factor for command parameters is
+        // applied
+        // somewhere else.
+        position.precision = 0;
+
+        labels_with_factor.push_back(position);
+      }
+      _position_map.insert(
+          std::pair<std::string, std::vector<iota::FloatPosition> >(
+              command_name, labels_with_factor));
+    }
+
+  }  // Else error
 }
