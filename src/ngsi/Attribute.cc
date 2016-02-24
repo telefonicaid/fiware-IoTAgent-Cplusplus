@@ -30,7 +30,7 @@
 #define EMPTY_VALUE " "
 
 iota::Attribute::Attribute(const std::string& name, const std::string& type,
-                           const std::string& value) {
+                           const std::string& value): _compound_as_object(false) {
   if (name.empty()) {
     _name = EMPTY_VALUE;
   } else {
@@ -46,7 +46,7 @@ iota::Attribute::Attribute(const std::string& name, const std::string& type,
   }
 }
 
-iota::Attribute::Attribute(const std::string& name, const std::string& type) {
+iota::Attribute::Attribute(const std::string& name, const std::string& type):_compound_as_object(false) {
   if (name.empty()) {
     _name = EMPTY_VALUE;
   } else {
@@ -56,7 +56,7 @@ iota::Attribute::Attribute(const std::string& name, const std::string& type) {
   _type = iota::render_identifier(type);
 }
 
-iota::Attribute::Attribute(const std::istringstream& str_attribute) {
+iota::Attribute::Attribute(const std::istringstream& str_attribute):_compound_as_object(false) {
   rapidjson::Document document;
   char buffer[str_attribute.str().length()];
   strcpy(buffer, str_attribute.str().c_str());
@@ -99,6 +99,7 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
         rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
         data.Accept(writer);
         _value = sb.GetString();
+        _compound_as_object = true;
       }
 
     } else if (_type == "command" && document["value"].IsObject()) {
@@ -138,7 +139,7 @@ iota::Attribute::Attribute(const std::istringstream& str_attribute) {
   }
 };
 
-iota::Attribute::Attribute(const rapidjson::Value& attribute) {
+iota::Attribute::Attribute(const rapidjson::Value& attribute):_compound_as_object(false) {
   if (!attribute.IsObject()) {
     throw std::runtime_error("Invalid Object");
   }
@@ -168,6 +169,7 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
         rapidjson::Writer<rapidjson::StringBuffer> writer(sb);
         data.Accept(writer);
         _value = sb.GetString();
+        _compound_as_object = true;
       }
     } else if (_type == "command" && attribute["value"].IsObject()) {
       rapidjson::StringBuffer sb;
@@ -201,10 +203,12 @@ iota::Attribute::Attribute(const rapidjson::Value& attribute) {
     }
   }
 };
-std::string iota::Attribute::get_string(bool compound_object) {
+
+iota::Attribute::Attribute(): _compound_as_object(false) {}
+std::string iota::Attribute::get_string() {
   rapidjson::StringBuffer buffer;
   rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-  Serialize(writer, compound_object);
+  Serialize(writer);
   return buffer.GetString();
 };
 
@@ -212,6 +216,13 @@ void iota::Attribute::add_metadata(const iota::Attribute& metadata) {
   _metadata.push_back(metadata);
 };
 
-void iota::Attribute::add_value_compound(const iota::Attribute& val) {
-  _value_compound.push_back(val);
+void iota::Attribute::add_value_compound(iota::Attribute& val,
+                                         bool compound_object) {
+  if (compound_object == false) {
+    _value_compound.push_back(val);
+  } else {
+    _compound_as_object = true;
+    std::string v(val.get_value());
+    _value.assign(v);
+  }
 };

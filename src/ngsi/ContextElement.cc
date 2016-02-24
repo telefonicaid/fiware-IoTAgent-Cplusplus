@@ -195,7 +195,11 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
   }
 
   if (attribute.get_type().compare("compound") == 0) {
-    empty_value = attribute.get_compound_value().empty();
+    if (attribute.compound_object() == false) {
+      empty_value = attribute.get_compound_value().empty();
+    } else {
+      empty_value = attribute.get_value().empty();
+    }
   } else {
     empty_value = attribute.get_value().empty();
   }
@@ -243,11 +247,16 @@ void iota::ContextElement::add_attribute(iota::Attribute& attribute) {
 
         iota::Attribute mapped_attr(att.get_name(), type, "");
         if (type.compare("compound") == 0) {
-          std::vector<iota::Attribute> compound_value =
+          if (attribute.compound_object() == false) {
+            std::vector<iota::Attribute> compound_value =
               attribute.get_compound_value();
-          for (int i = 0; i < compound_value.size(); i++) {
-            mapped_attr.add_value_compound(compound_value[i]);
+            for (int i = 0; i < compound_value.size(); i++) {
+              mapped_attr.add_value_compound(compound_value[i]);
+            }
+          } else {
+            mapped_attr.set_value(attribute.get_value());
           }
+ 
         } else if (type.compare(iota::store::types::COORDS) == 0) {
           std::string valueSTR = attribute.get_value();
           std::replace(valueSTR.begin(), valueSTR.end(), '/', ',');

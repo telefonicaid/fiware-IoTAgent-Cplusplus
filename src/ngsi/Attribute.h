@@ -37,24 +37,25 @@ class Attribute {
   Attribute(const std::string& name, const std::string& type);
   Attribute(const std::istringstream& str_attribute);
   Attribute(const rapidjson::Value& attribute);
-  Attribute(){};
+  Attribute();
   ~Attribute(){};
-  std::string get_string(bool compound_object = false);
+  std::string get_string();
   std::string& get_name() { return _name; };
   std::string& get_type() { return _type; };
   std::string& get_value() { return _value; };
+  bool compound_object() { return _compound_as_object;};
   void set_value(std::string& value) { _value = value; };
   void set_name(std::string& name) { _name = iota::render_identifier(name); };
   void set_type(std::string& type) { _type = iota::render_identifier(type); };
   std::vector<Attribute>& get_metadatas() { return _metadata; };
   void add_metadata(const Attribute& metadata);
   std::vector<Attribute>& get_value_compound() { return _value_compound; };
-  void add_value_compound(const Attribute& val);
+  void add_value_compound(Attribute& val, bool compound_object = false);
 
   std::vector<Attribute>& get_compound_value() { return _value_compound; };
 
   template <typename Writer>
-  void Serialize(Writer& writer, bool compound_object = false) const {
+  void Serialize(Writer& writer) const {
     writer.StartObject();
     writer.String("name");
     writer.String(_name.c_str(), (rapidjson::SizeType)_name.length());
@@ -64,7 +65,7 @@ class Attribute {
     if (_type != "compound") {
       writer.String(_value.c_str(), (rapidjson::SizeType)_value.length());
     } else {
-      if (compound_object == false) {
+      if (_value_compound.size() > 0) {
         writer.StartArray();
         for (std::vector<Attribute>::const_iterator it =
                  _value_compound.begin();
@@ -105,6 +106,7 @@ class Attribute {
   std::string _value;
   std::vector<Attribute> _metadata;
   std::vector<Attribute> _value_compound;
+  bool _compound_as_object;
 };
 }
 #endif
