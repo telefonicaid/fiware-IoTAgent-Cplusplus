@@ -77,7 +77,9 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
         tcp_conn->get_read_buffer().begin() + bytes_read);
     call_client(tcp_conn, reading_buffer, read_error);
   } else {
-    finish(tcp_conn);
+    const std::vector<unsigned char> b;
+    call_client(tcp_conn, b, read_error);
+    //finish(tcp_conn);
   }
 };
 
