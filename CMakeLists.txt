@@ -234,7 +234,7 @@ add_test(NAME AdminManagerTest COMMAND admin_manager_tests)
 
 ###  PROTOCOLS
 # Tutorial basic sample protocol
-add_test(NAME SampleTest COMMAND sample_tests)
+#add_test(NAME SampleTest COMMAND sample_tests)
 # UltraLight protocol
 add_test(NAME Ul20Test COMMAND ul20_tests)
 # Thinking things protocol
