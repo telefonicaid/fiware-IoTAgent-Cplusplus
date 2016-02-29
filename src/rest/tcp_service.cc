@@ -55,9 +55,9 @@ void iota::TcpService::handle_connection(pion::tcp::connection_ptr& tcp_conn) {
   // Empty buffer in read (start connection)
   // Aplication must use b_read to decide if it is a new connection.
   // Flow dependant
+  add_connection_timeout(tcp_conn);
   const std::vector<unsigned char> b_read;
   call_client(tcp_conn, b_read, boost::system::error_code());
-  add_connection_timeout(tcp_conn);
 }
 
 void iota::TcpService::read(pion::tcp::connection_ptr& tcp_conn) {
@@ -73,11 +73,11 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
   IOTA_LOG_DEBUG(m_logger, " read_error=" << read_error
                                           << " bytes_read=" << bytes_read);
   if (!read_error) {
+    add_connection_timeout(tcp_conn);
     const std::vector<unsigned char> reading_buffer(
         tcp_conn->get_read_buffer().begin(),
         tcp_conn->get_read_buffer().begin() + bytes_read);
     call_client(tcp_conn, reading_buffer, read_error);
-    add_connection_timeout(tcp_conn);
   } else {
     const std::vector<unsigned char> b;
     call_client(tcp_conn, b, read_error);
