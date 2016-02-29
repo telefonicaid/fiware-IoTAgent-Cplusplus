@@ -179,10 +179,10 @@ void iota::TcpService::add_connection_timeout(pion::tcp::connection_ptr& tcp_con
     _keepalives.insert(std::pair<pion::tcp::connection_ptr,
                                pion::tcp::timer_ptr>(tcp_conn, t_to_update));
   }
-
+  IOTA_LOG_DEBUG(m_logger, "Setting connection timeout");
 }
 
-void iota::TcpService::remove_connection_timeout(pion::tcp::tcp_connection& tcp_conn) {
+void iota::TcpService::remove_connection_timeout(pion::tcp::connection_ptr& tcp_conn) {
   boost::mutex::scoped_lock lock(m_mutex);
   std::map<pion::tcp::connection_ptr,
            pion::tcp::timer_ptr>::iterator it_keepalives = _keepalives.begin();
@@ -193,4 +193,5 @@ void iota::TcpService::remove_connection_timeout(pion::tcp::tcp_connection& tcp_
     t_to_remove->cancel();
     _keepalives.erase(it_keepalives);
   }
+  IOTA_LOG_DEBUG(m_logger, "Removing connection timeout");
 }
