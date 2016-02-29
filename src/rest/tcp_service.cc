@@ -57,6 +57,7 @@ void iota::TcpService::handle_connection(pion::tcp::connection_ptr& tcp_conn) {
   // Flow dependant
   const std::vector<unsigned char> b_read;
   call_client(tcp_conn, b_read, boost::system::error_code());
+  add_connection_timeout(tcp_conn);
 }
 
 void iota::TcpService::read(pion::tcp::connection_ptr& tcp_conn) {
@@ -76,6 +77,7 @@ void iota::TcpService::handle_read(pion::tcp::connection_ptr& tcp_conn,
         tcp_conn->get_read_buffer().begin(),
         tcp_conn->get_read_buffer().begin() + bytes_read);
     call_client(tcp_conn, reading_buffer, read_error);
+    add_connection_timeout(tcp_conn);
   } else {
     const std::vector<unsigned char> b;
     call_client(tcp_conn, b, read_error);
@@ -125,6 +127,7 @@ void iota::TcpService::finish(pion::tcp::connection_ptr& tcp_conn) {
   tcp_conn->set_lifecycle(pion::tcp::connection::LIFECYCLE_CLOSE);
   tcp_conn->finish();
   clear_buffer(tcp_conn);
+  remove_connection_timeout(tcp_conn);
   IOTA_LOG_DEBUG(m_logger, "finish connection " << tcp_conn.use_count());
 }
 
@@ -158,5 +161,36 @@ void iota::TcpService::call_client(
       h(tcp_conn, buffer_read, _async_buffers[tcp_conn], error);
     }
     ++it;
+  }
+}
+
+void iota::TcpService::add_connection_timeout(pion::tcp::connection_ptr& tcp_conn) {
+  boost::mutex::scoped_lock lock(m_mutex);
+  std::map<pion::tcp::connection_ptr,
+           pion::tcp::timer_ptr>::iterator it_keepalives = _keepalives.begin();
+  it_keepalives = _keepalives.find(tcp_conn);
+  pion::tcp::timer_ptr t_to_update;
+  if (it_keepalives != _keepalives.end()) {
+    it_keepalives->second->cancel();
+    it_keepalives->second->start(60);
+  } else {
+    t_to_update.reset(new pion::tcp::timer(tcp_conn));
+    t_to_update->start(60);
+    _keepalives.insert(std::pair<pion::tcp::connection_ptr,
+                               pion::tcp::timer_ptr>(tcp_conn, t_to_update));
+  }
+
+}
+
+void iota::TcpService::remove_connection_timeout(pion::tcp::tcp_connection& tcp_conn) {
+  boost::mutex::scoped_lock lock(m_mutex);
+  std::map<pion::tcp::connection_ptr,
+           pion::tcp::timer_ptr>::iterator it_keepalives = _keepalives.begin();
+  it_keepalives = _keepalives.find(tcp_conn);
+  pion::tcp::timer_ptr t_to_remove;
+  if (it_keepalives != _keepalives.end()) {
+    t_to_remove = it_keepalives->second;
+    t_to_remove->cancel();
+    _keepalives.erase(it_keepalives);
   }
 }

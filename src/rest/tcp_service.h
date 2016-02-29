@@ -24,6 +24,7 @@
 #define SRC_REST_TCP_SERVICE_H_
 
 #include <pion/tcp/server.hpp>
+#include <pion/tcp/timer.hpp>
 #include <boost/asio.hpp>
 #include <boost/enable_shared_from_this.hpp>
 namespace iota {
@@ -90,6 +91,11 @@ class TcpService : public pion::tcp::server,
 
   // Clients
   std::map<std::string, iota::TcpService::IotaRequestHandler> c_handlers;
+
+  // Check connection based on send and receive
+  std::map<pion::tcp::connection_ptr, pion::tcp::timer_ptr> _keepalives;
+  void add_connection_timeout(pion::tcp::connection_ptr& tcp_conn);
+  void remove_connection_timeout(pion::tcp::connection_ptr& tcp_conn);
 };
 }
 #endif
