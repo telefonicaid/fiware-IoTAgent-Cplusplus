@@ -604,6 +604,55 @@ void Ul20Test::testNormalPOST() {
         std::string::npos);
   }
 
+  // *******sin fecha dos atributos medida.******
+  bodySTR = "t|23|l|-3.3423/2.345";
+  {
+    pion::http::request_ptr http_request(new pion::http::request("/TestUL/d"));
+    http_request->set_method("POST");
+    http_request->set_query_string(querySTR);
+    http_request->set_content(bodySTR);
+
+    std::map<std::string, std::string> url_args;
+    std::multimap<std::string, std::string> query_parameters;
+    query_parameters.insert(
+        std::pair<std::string, std::string>("i", "unitTest_dev1_endpoint"));
+    query_parameters.insert(
+        std::pair<std::string, std::string>("k", test_setup.get_apikey()));
+    pion::http::response http_response;
+    std::string response;
+    ul20serv->service(http_request, url_args, query_parameters, http_response,
+                      response);
+
+    ASYNC_TIME_WAIT
+    std::cout << "POST sin fecha medida + localizacion "
+              << http_response.get_status_code() << std::endl;
+    IOTASSERT(http_response.get_status_code() == RESPONSE_CODE_NGSI);
+    // updateContext to CB
+    // we don't know the order of meassurements to CB, so we join the two
+    // observations
+    cb_last = cb_mock->get_last("/mock/" + test_setup.get_service() +
+                                "/NGSI10/updateContext");
+    cb_last.append(cb_mock->get_last("/mock/" + test_setup.get_service() +
+                                     "/NGSI10/updateContext"));
+
+    std::cout << "@UT@CB" << cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+              std::string::npos);
+    IOTASSERT(
+        cb_last.find(
+            "\"name\":\"position\",\"type\":\"coords\""
+            ",\"value\":\"-3.3423,2.345\",\"metadatas\":[{\"name\":\"location\""
+            ",\"type\":\"string\",\"value\":\"WGS84\"") != std::string::npos);
+
+    std::cout << "@UT@CB" << cb_last << std::endl;
+    IOTASSERT(cb_last.find("\"id\":\"room_ut1\",\"type\":\"type2\"") !=
+              std::string::npos);
+    IOTASSERT(
+        cb_last.find(
+            "{\"name\":\"temperature\",\"type\":\"string\",\"value\":\"23\"") !=
+        std::string::npos);
+  }
+
   std::cout << "END testNormalPOST " << std::endl;
 }
 

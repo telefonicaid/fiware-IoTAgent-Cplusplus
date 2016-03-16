@@ -30,8 +30,8 @@
 #include "baseTest.h"
 
 class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
-  CPPUNIT_TEST_SUITE(Ul20Test);
-  /* CPPUNIT_TEST(testTransformCommand);
+   CPPUNIT_TEST_SUITE(Ul20Test);
+   CPPUNIT_TEST(testTransformCommand);
    CPPUNIT_TEST(testFileGET);
    CPPUNIT_TEST(testMongoGET);
    CPPUNIT_TEST(testNormalPOST);
@@ -81,9 +81,7 @@ class Ul20Test : public CPPUNIT_NS::TestFixture, public BaseTest {
    CPPUNIT_TEST(test_register_iota_manager12);
    CPPUNIT_TEST(test_register_iota_manager34);
    CPPUNIT_TEST(testPOST502);
- */
   CPPUNIT_TEST(testBadIPChangeDevice);
-
   CPPUNIT_TEST_SUITE_END();
 
  public:
