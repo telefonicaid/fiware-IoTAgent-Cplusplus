@@ -234,7 +234,7 @@ add_test(NAME AdminManagerTest COMMAND admin_manager_tests)
 
 ###  PROTOCOLS
 # Tutorial basic sample protocol
-add_test(NAME SampleTest COMMAND sample_tests)
+#add_test(NAME SampleTest COMMAND sample_tests)
 # UltraLight protocol
 add_test(NAME Ul20Test COMMAND ul20_tests)
 # Thinking things protocol
@@ -243,7 +243,7 @@ if(MOSQUITTO_FOUND)
 # MQTT UltraLight protocol
 add_test(NAME MqttTest COMMAND mqtt_tests)
 endif()
-# Modbus 
+# Modbus
 add_test(NAME ModbusTest COMMAND modbus_tests)
 
 file(READ ${CMAKE_CURRENT_SOURCE_DIR}/BaseChangeLog.txt BASECHANGELOG)

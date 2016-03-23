@@ -97,17 +97,20 @@ void iota::ULInsertObservation::translate(
   std::string date_to_cb;
   for (i = 0; i < tokens_msgs.size(); i++) {
     // Cada medida esta en tokens_msg, por si viene por SBC
+    std::string measure;
     if (protocol == 0) {  // SENSOR_PROTOCOL_SML = 0
-      tokens_msgs[i] =
+      measure =
           contentForSBCProtocol(tokens_msgs[i], samplingTime, device_name);
+    } else {
+      measure = tokens_msgs[i];
     }
 
     std::string separador = UL20_SEPARATOR;
 
     std::vector<std::string> tokens_io =
-        riot_tokenizer(tokens_msgs[i], separador);
+        riot_tokenizer(measure, separador);
     IOTA_LOG_DEBUG(m_logger, "Analisis de la medida " << i << ":"
-                                                      << tokens_msgs[i]);
+                                                      << measure);
     if (tokens_io.size() < NUM_ELEMENTS_ULPROTOCOL) {
       // Lanzar excepcion error de protocolo.
       // Seguramente no se trata de UltraLight Protocol
@@ -298,26 +301,20 @@ void iota::ULInsertObservation::translate(
       IOTA_LOG_DEBUG(m_logger, "observedProperty "
                                    << tokens_io[UL_OBSERVED_PROPERTY]);
 
-      int j = NUM_ELEMENTS_ULPROTOCOL;
+      int j = NUM_ELEMENTS_ULPROTOCOL+1;
       int num_tokens = tokens_io.size();
+      IOTA_LOG_DEBUG(m_logger, "Elementos variables de la medida "
+                                     << tokens_io[NUM_ELEMENTS_ULPROTOCOL]);
+
+      iota::ContextElement cb_elto(device_name, "", "false");
+      cb_elto.set_env_info(service_ptree, dev);
+      iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
+      cb_elto.add_attribute(timeAT);
 
       while (j < num_tokens) {
-        IOTA_LOG_DEBUG(m_logger, "Elementos variables de la medida "
-                                     << tokens_io[j]);
 
-        // Parametros de la medida
-        // Puede que no existan parametros
-
-        if (!tokens_io[j].empty()) {
-          // parametro = recurso->getParameterById(tokens_io[j]);
-          IOTA_LOG_DEBUG(m_logger, "recurso->getParameterById "
-                                       << tokens_io[j]);
-        } else {
-          j++;
-        }
-
-        std::string valueSTR = tokens_io[j + 1];
-        std::string attr_name = tokens_io[j];
+        std::string attr_name = tokens_io.at(j);
+        std::string valueSTR = tokens_io.at(j+1);
 
         IOTA_LOG_DEBUG(m_logger, "Creacion de la medida " << attr_name << ":"
                                                           << valueSTR);
@@ -338,16 +335,17 @@ void iota::ULInsertObservation::translate(
         // iota::Attribute metadata_uom("uom", "string", uom);
         // att.add_metadata(metadata_uom);
 
-        iota::ContextElement cb_elto(device_name, "", "false");
-        cb_elto.set_env_info(service_ptree, dev);
+        //iota::ContextElement cb_elto(device_name, "", "false");
+        //cb_elto.set_env_info(service_ptree, dev);
         cb_elto.add_attribute(att);
 
         // attribute with time
-        iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
-        cb_elto.add_attribute(timeAT);
+        //iota::Attribute timeAT("TimeInstant", "ISO8601", date_to_cb);
+        //cb_elto.add_attribute(timeAT);
 
-        cb_eltos.push_back(cb_elto);
+        //cb_eltos.push_back(cb_elto);
       }
+      cb_eltos.push_back(cb_elto);
     } catch (std::runtime_error& e) {
       IOTA_LOG_ERROR(m_logger, "Error de formato2 " << e.what());
       throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
@@ -377,18 +375,50 @@ iota::ULInsertObservation::~ULInsertObservation(void) {
 std::string iota::ULInsertObservation::contentForSBCProtocol(
     std::string io, const std::string& a_sampling_time,
     const std::string& a_res_query) {
-  IOTA_LOG_DEBUG(m_logger, "CONTENT SBC " << io);
+  IOTA_LOG_DEBUG(m_logger, "CONTENT SBC " << io << " " << a_res_query);
   std::string sampling_time_measure;
-  /*
-     std::size_t found = io.find_last_not_of("\r\n");
-     if (found != std::string::npos) {
-        io.erase(found+1);
-     }
-     else {
-        io.clear();
-     }
-  */
+
+  //Tokens into a measure
+  std::string separador = UL20_SEPARATOR;
+  std::vector<std::string> data_and_parameters = riot_tokenizer(io, separador);
+
+  // Checking sampling time
+  if (data_and_parameters.size() > 2) {
+    // It may contain sampling time
+    if (!data_and_parameters.at(0).empty()) {
+        // If this element has date format it is sampling time.
+        std::string sep_stime(" ");  // Puede ser un rango
+        std::vector<std::string> stime_tokens =
+          riot_tokenizer(data_and_parameters.at(0), sep_stime);
+          try {
+            iota::RiotISO8601 iso(stime_tokens[0]);
+            std::string s_time = iso.toString();
+            sampling_time_measure = data_and_parameters.at(0);
+
+            // First element no information
+            data_and_parameters.erase(data_and_parameters.begin());
+          } catch (std::runtime_error& e) {
+            IOTA_LOG_DEBUG(m_logger, "----_> " << e.what());
+            if (data_and_parameters.size()%2 == 0) {
+              sampling_time_measure = a_sampling_time;
+            } else {
+              sampling_time_measure = data_and_parameters.at(0);
+              data_and_parameters.erase(data_and_parameters.begin());
+            }
+          }
+
+    } else {
+      sampling_time_measure = a_sampling_time;
+      // First element no information
+      data_and_parameters.erase(data_and_parameters.begin());
+    }
+  } else {
+    sampling_time_measure = a_sampling_time;
+  }
+
   std::string io_final;
+
+/*
   std::string alias;
   std::string data;
   // Se mira si el dato contiene el sampling time
@@ -396,11 +426,16 @@ std::string iota::ULInsertObservation::contentForSBCProtocol(
   std::size_t p_pipe_f = io.find_last_of("|");
   if ((p_pipe != std::string::npos) && (p_pipe_f != std::string::npos)) {
     if (p_pipe == p_pipe_f) {
+      std::string io_partial = io.substr(0, p_pipe);
+      data_and_parameters = riot_tokenizer(io_partial, separador);
       alias = io.substr(0, p_pipe);
       data = io;
       sampling_time_measure = a_sampling_time;
     } else {
+
       sampling_time_measure = io.substr(0, p_pipe);
+      std::string io_partial = io.substr(p_pipe + 1);
+      data_and_parameters = riot_tokenizer(io_partial, separador);
       data = io.substr(p_pipe + 1);
       std::size_t p_alias = data.find_first_of("|");
       if (p_alias != std::string::npos) {
@@ -408,6 +443,30 @@ std::string iota::ULInsertObservation::contentForSBCProtocol(
       }
     }
   }
+*/
+  io_final.append("|");
+  io_final.append(a_res_query);
+  io_final.append("|");
+  io_final.append(sampling_time_measure);
+  io_final.append("|");
+  io_final.append(data_and_parameters.at(0));
+  io_final.append("|");
+  if (data_and_parameters.size() > 2) {
+    io_final.append(boost::lexical_cast<std::string>((data_and_parameters.size()-2)/2));
+    io_final.append("|");
+    for (int i = 2; i< data_and_parameters.size(); i++) {
+      io_final.append(data_and_parameters.at(i));
+      io_final.append("|");
+   }
+  } else {
+    io_final.append("0");
+    io_final.append("|");
+  }
+  io_final.append(data_and_parameters.at(0));
+  io_final.append("|");
+  io_final.append(data_and_parameters.at(1));
+
+/*
   io_final.append("|");
   io_final.append(a_res_query);
   io_final.append("|");
@@ -416,5 +475,7 @@ std::string iota::ULInsertObservation::contentForSBCProtocol(
   io_final.append(alias);
   io_final.append("||");
   io_final.append(data);
+*/
+  IOTA_LOG_DEBUG(m_logger, io_final);
   return io_final;
 };

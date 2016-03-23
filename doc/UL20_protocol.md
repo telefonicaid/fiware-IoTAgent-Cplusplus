@@ -38,11 +38,17 @@ Device configuration includes a field _attributes_ used for mapping.
 
 For example, alias "t" will be mapped to "temperature" when measure is published.
 
+You can send more than one attribute in a single observation. In this case,
+      t|10|m|45
+      <alias>|<value>|<aliasN>|<valueN>
+You cannot send the same attribut in the same single observation.
+
 #### Example: several observations
 
     t|10#m|15#gps|12.1/14.2
     <alias>|<value>#<alias>|<value1>/<value2>
 
+(of course, format for a single observation applies).
 In this example, a device sends three measures (t|10, m|15 and gps|12.1/14.2).
 
 Different observations are separated with #
