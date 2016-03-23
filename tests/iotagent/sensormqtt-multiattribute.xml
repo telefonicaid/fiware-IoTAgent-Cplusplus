@@ -31,11 +31,7 @@
         <!-- POSTPROCESSOR -->
         <postprocessors>
 			
-			<postprocessor type="json" name="post-json-multi">
-					<measure ref="measurevalue"/>
-					<alias ref="measurename" />
-					<apikey ref="apikey" />	
-			</postprocessor>	
+			
 			
 			<postprocessor type="json" name="post-json-new-multi"> <!--This is the one that works for multiattribute -->
 				<measure ref="payload"/>
@@ -50,7 +46,7 @@
 
         <!-- OUTPUT -->
         <outputs>
-                <output type="iot" postprocessors="post-json,post-json-multi" name="IoT" apikeyref="apikey" sensoridref="sensorid" typeref="type" />
+                <output type="iot" postprocessors="post-json-new-multi" name="IoT" apikeyref="apikey" sensoridref="sensorid" typeref="type" />
         </outputs>
 
         <!-- COMMANDS -->
@@ -88,15 +84,8 @@
 								<tag type="switch" valueref="type">
 									
 									<tag type="option" operation="equal" valueref="type" valuestring="mul20">
-										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
-										<tag type="loop" iterations="-1" breakonempty="true">
-											<tag type="value" datatype="string" datacode="stringdelim" name="measurename" valuestring="|"/>
-											<tag type="value" datatype="string" datacode="stringdelim" name="measurevalue" valuestring="#"/>
-											<!--tag type="value" datatype="string" datacode="string" nameref="measurename" valueref="measurevalue"/-->
-											<tag type="result"/>
-											
-										</tag>
-										<tag type="clear"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="payload-multi" valuestring="/"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="fullpayload" valuestring="" resetend="true"/>
 									</tag>
 									<tag type="option" valuestring="cmd">
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname" valuestring="//"/>
@@ -111,13 +100,7 @@
 										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdget-payload" valuestring=""/>
 									</tag>
-									<!-- new MultiAttribute -->
-									<tag type="option" valuestring="multi">
-										<tag type="value" datatype="string" datacode="stringdelim" name="payload-multi" valuestring="/"/>
-										<tag type="value" datatype="string" datacode="stringdelim" name="fullpayload" valuestring="" resetend="true"/>
-										
-									</tag>
-
+									
 									<!-- CommandExe -->
 									<tag type="option" valuestring="cmdexe">
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname-res" valuestring="//"/>

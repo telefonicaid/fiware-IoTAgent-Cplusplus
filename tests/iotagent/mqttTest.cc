@@ -483,91 +483,6 @@ void MqttTest::testLongAliasesNotWorking() {
   delete mockPublisher;
 }
 
-void MqttTest::testMultipleMeasures() {
-  /*
-  This test is for a bug that was raised about multi-measures being sent as
-  one single measure with an non-existing alias (mul20), so the thing is that
-  the expected behaviour is:
-  - multi-measures will be decomposed into different and individual CB
-  publications,
-  - Timestamp will be generated per publication, so it may be different on each
-  one.
-  - NOTE: CB doesn't accept same attribute more than once per publication. Hence
-  */
-  unsigned int port = iota::Process::get_process().get_http_port();
-  MockService* cb_mock =
-      (MockService*)iota::Process::get_process().get_service("/mock");
-  std::cout << "TEST: testMultipleMeasures starting... " << std::endl;
-  mqtt_alias.assign("mul20");
-  mqtt_payload.assign("t|23#t|34#pres|23.5#h|55");
-  mqtt_apikey.assign("1234");
-  mqtt_device.assign("dev01");
-
-  mockMosquitto = new MockMosquitto();
-  mockPublisher = new MockIotaMqttService();
-
-  defineExpectationsMqttt();
-
-  std::string jsonMqtt1, jsonMqtt2, jsonMqtt3, jsonMqtt4;
-  // Expected
-  jsonMqtt1.append(std::string("{\"name\" : \"t\""));
-  jsonMqtt1.append(",\"type\":\"string\",");
-  jsonMqtt1.append(std::string("\"value\" : \"23\""));
-  jsonMqtt1.append(std::string("}"));
-
-  jsonMqtt2.append(std::string("{\"name\" : \"t\""));
-  jsonMqtt2.append(",\"type\":\"string\",");
-  jsonMqtt2.append(std::string("\"value\" : \"34\""));
-  jsonMqtt2.append(std::string("}"));
-
-  jsonMqtt3.append(std::string("{\"name\" : \"pres\""));
-  jsonMqtt3.append(",\"type\":\"string\",");
-  jsonMqtt3.append(std::string("\"value\" : \"23.5\""));
-  jsonMqtt3.append(std::string("}"));
-
-  jsonMqtt4.append(std::string("{\"name\" : \"h\""));
-  jsonMqtt4.append(",\"type\":\"string\",");
-  jsonMqtt4.append(std::string("\"value\" : \"55\""));
-  jsonMqtt4.append(std::string("}"));
-
-  // 4 calls need to be made to this service.
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt1)))
-      .WillOnce(Return(std::string("OK")));
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt2)))
-      .WillOnce(Return(std::string("OK")));
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt3)))
-      .WillOnce(Return(std::string("OK")));
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt4)))
-      .WillOnce(Return(std::string("OK")));
-
-  std::string sensorfile("../../tests/iotagent/sensormqtt-json.xml");
-  std::string logPath("./");
-
-  // TEST
-
-  mqttService->initESPLib(logPath, sensorfile);
-
-  std::cout << "TEST: testMultipleMeasures  SENSORFILE LOADED " << std::endl;
-  mqttService->setIotaMqttService(mockPublisher);
-  delete cbPublish;
-
-  mqttService->startESP();
-  std::cout << "Sensor Started" << std::endl;
-  int idsensor = mqttService->idsensor;
-
-  // Finishing
-  SLEEP(100);
-  iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
-  std::cout << "Sensor Stopping... " << std::endl;
-
-  CPPUNIT_ASSERT(idsensor > 0);
-  std::cout << "TEST: testMultipleMeasures DONE " << std::endl;
-  delete mockPublisher;
-}
 
 void MqttTest::testExtractingCmdId() {
   std::string expected_id = "234as329890sfs";
@@ -1499,36 +1414,40 @@ void MqttTest::testMQTTMultiAttribute() {
 
   std::string jsonMqtt1, jsonMqtt2, jsonMqtt3, jsonMqtt4;
   // Expected TWO calls to doPublishMultiCB with individual vectors.
-  std::vector<std::string> v_json_1, v_json_2;
-  jsonMqtt1.append(std::string("{\"name\" : \"t1\""));
-  jsonMqtt1.append(",\"type\":\"string\",");
-  jsonMqtt1.append(std::string("\"value\" : \"23\""));
-  jsonMqtt1.append(std::string("}"));
 
-  v_json_1.push_back(jsonMqtt1);
+  mongo::BSONObj obj1 = BSON("name"
+                             << "t1"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "23");
+  jsonMqtt1.assign(obj1.jsonString());
 
-  jsonMqtt2.append(std::string("{\"name\" : \"t2\""));
-  jsonMqtt2.append(",\"type\":\"string\",");
-  jsonMqtt2.append(std::string("\"value\" : \"34\""));
-  jsonMqtt2.append(std::string("}"));
+  mongo::BSONObj obj2 = BSON("name"
+                             << "t2"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "34");
+  jsonMqtt2.assign(obj2.jsonString());
 
-  v_json_1.push_back(jsonMqtt2);
+  mongo::BSONObj obj3 = BSON("name"
+                             << "pres"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "23.5");
+  jsonMqtt3.assign(obj3.jsonString());
 
-  jsonMqtt3.append(std::string("{\"name\" : \"pres\""));
-  jsonMqtt3.append(",\"type\":\"string\",");
-  jsonMqtt3.append(std::string("\"value\" : \"23.5\""));
-  jsonMqtt3.append(std::string("}"));
+  mongo::BSONObj obj4 = BSON("name"
+                             << "h"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "55");
+  jsonMqtt4.assign(obj4.jsonString());
 
-  v_json_2.push_back(jsonMqtt3);
-
-  jsonMqtt4.append(std::string("{\"name\" : \"h\""));
-  jsonMqtt4.append(",\"type\":\"string\",");
-  jsonMqtt4.append(std::string("\"value\" : \"55\""));
-  jsonMqtt4.append(std::string("}"));
-
-  v_json_2.push_back(jsonMqtt4);
-
-  // 4 calls need to be made to this service.
+  // 2 calls need to be made to this service.
   EXPECT_CALL(*mockPublisher,
               doPublishMultiCB(StrEq(mqtt_apikey), StrEq(mqtt_device),
                                ElementsAre(jsonMqtt1, jsonMqtt2)))
@@ -1560,11 +1479,6 @@ void MqttTest::testMQTTMultiAttribute() {
 
   CPPUNIT_ASSERT(idsensor > 0);
   std::cout << "TEST: testMultipleMeasures DONE " << std::endl;
-  delete mockPublisher;
+  // delete mockPublisher;
 }
 
-std::string MqttTest::stub_doPublishMultiCB(std::string& apikey,
-                                            std::string& device,
-                                            std::vector<std::string>& v_json) {
-  return "";
-}

@@ -93,16 +93,13 @@ void iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
       mongo::BSONObj att_json = BSON("name" << attr_name << "type"
                                             << "string"
                                             << "value" << value_str);
-      IOTA_LOG_INFO(m_logger,"Temporary JSON: "<< att_json.jsonString());
+      IOTA_LOG_INFO(m_logger, "Temporary JSON: " << att_json.jsonString());
       v_jsons.push_back(att_json.jsonString());
-      j = j +2;
+      j = j + 2;
     }
 
     doPublishMultiCB(apikey, idDevice, v_jsons);
-
   }
-
-
 }
 
 void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
@@ -110,18 +107,17 @@ void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
     std::string& type) {
   try {
     if (MQTT_COMMAND_RESPONSE == type) {
-
       processCommandResponse(apikey, idDevice, payload);
 
-    }else if (MQTT_MULTIATTRIBUTE == type) {
-
+    } else if (MQTT_MULTIATTRIBUTE == type) {
       publishMultiAttribute(payload, apikey, idDevice);
 
-    }else if (payload != "") {
+    } else if (payload != "") {
       // when type is not either "cmdget" or "cmdexe", payload is an actual JSON
       publishContextBroker(payload, apikey, idDevice);
 
-    } else if (MQTT_COMMAND_IGNORE == type) {  // This is for when "cmd" is echoed back
+    } else if (MQTT_COMMAND_IGNORE ==
+               type) {  // This is for when "cmd" is echoed back
       // to us. This is nasty, but due to a side effect
       // on MQTT broker.
       return;

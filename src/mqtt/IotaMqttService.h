@@ -29,7 +29,7 @@
 #define MQTT_COMMAND_REQUEST "cmdget"
 #define MQTT_COMMAND_RESPONSE "cmdexe"
 #define MQTT_COMMAND_IGNORE "cmd"
-#define MQTT_MULTIATTRIBUTE "multi"
+#define MQTT_MULTIATTRIBUTE "mul20"
 
 #define UL20_SEPARATOR "|"
 #define UL20_MEASURE_SEPARATOR "#"
@@ -63,8 +63,8 @@ class IotaMqttService {
   std::string publishContextBroker(std::string& jsonMsg, std::string& apikey,
                                    std::string& idDevice);
 
-  void publishMultiAttribute(std::string& multi_payload,
-                                    std::string& apikey, std::string& idDevice);
+  void publishMultiAttribute(std::string& multi_payload, std::string& apikey,
+                             std::string& idDevice);
 
   void handle_mqtt_message(std::string& apikey, std::string& idDevice,
                            std::string& payload, std::string& type);

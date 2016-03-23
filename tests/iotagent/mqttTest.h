@@ -53,7 +53,6 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testLongAliasesNotWorking);
     CPPUNIT_TEST(testBadEntityType);
     CPPUNIT_TEST(testNotInitCBPublisher);
-    CPPUNIT_TEST(testMultipleMeasures);
 
     CPPUNIT_TEST(testExtractingCmdId);
 
@@ -70,6 +69,8 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   CPPUNIT_TEST(testEmptyDeviceEmptyApikey_BUG_DM1069);
   CPPUNIT_TEST(testNotProvisionedApikey);
+
+  CPPUNIT_TEST(testMQTTMultiAttribute);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -90,8 +91,6 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
   void testBadEntityType();
 
   void testNotInitCBPublisher();
-
-  void testMultipleMeasures();
 
   void testExtractingCmdId();
 
@@ -161,9 +160,6 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
                                const void* payload, int qos, bool retain);
 
   std::vector<std::string>* ptr_expected_vector;
-
-  std::string stub_doPublishMultiCB(std::string& apikey, std::string& device,
-                                    std::vector<std::string>& v_json);
 };
 
 #endif /* MQTTTEST_H */
