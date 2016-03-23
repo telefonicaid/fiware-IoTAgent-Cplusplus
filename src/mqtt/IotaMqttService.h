@@ -29,6 +29,10 @@
 #define MQTT_COMMAND_REQUEST "cmdget"
 #define MQTT_COMMAND_RESPONSE "cmdexe"
 #define MQTT_COMMAND_IGNORE "cmd"
+#define MQTT_MULTIATTRIBUTE "multi"
+
+#define UL20_SEPARATOR "|"
+#define UL20_MEASURE_SEPARATOR "#"
 
 // This is the interface known to Output_IoT
 
@@ -59,14 +63,21 @@ class IotaMqttService {
   std::string publishContextBroker(std::string& jsonMsg, std::string& apikey,
                                    std::string& idDevice);
 
+  std::string publishMultiAttribute(std::string& multi_payload,
+                                    std::string& apikey, std::string& idDevice);
+
   void handle_mqtt_message(std::string& apikey, std::string& idDevice,
                            std::string& payload, std::string& type);
 
   virtual ~IotaMqttService();
 
  protected:
-  virtual std::string doPublishCB(std::string& jsonMsg, std::string& apikey,
-                                  std::string& idDevice) = 0;
+  virtual std::string doPublishCB(std::string& apikey, std::string& idDevice,
+                                  std::string& jsonMsg) = 0;
+
+  virtual std::string doPublishMultiCB(std::string& apikey,
+                                       std::string& idDevice,
+                                       std::vector<std::string>& v_json) = 0;
 
   virtual void processCommandResponse(std::string& apikey,
                                       std::string& idDevice,

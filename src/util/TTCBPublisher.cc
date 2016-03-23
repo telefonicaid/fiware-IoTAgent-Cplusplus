@@ -54,6 +54,9 @@ std::string iota::tt::TTCBPublisher::doPublishContextBroker(
   int i;
   for (i = 0; i < vJsons.size(); i++) {
     std::istringstream ss_json(vJsons[i]);
+    IOTA_LOG_INFO(m_logger, "doPublishContext Broker: Adding attribute["
+                                << i << "]:[" << vJsons[i] << "]");
+
     ::iota::Attribute jsonAttribute(ss_json);
     jsonAttribute.add_metadata(metadataTS);  // timeInstant added as metadata.
     cElement.add_attribute(jsonAttribute);

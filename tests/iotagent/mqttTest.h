@@ -112,6 +112,8 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   void testNotProvisionedApikey();
 
+  void testMQTTMultiAttribute();
+
  private:
   std::string mqtt_alias;
   std::string mqtt_payload;
@@ -157,6 +159,11 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   int stubPublishPayloadFormat(int* mid, const char* topic, int payloadLen,
                                const void* payload, int qos, bool retain);
+
+  std::vector<std::string>* ptr_expected_vector;
+
+  std::string stub_doPublishMultiCB(std::string& apikey, std::string& device,
+                                    std::vector<std::string>& v_json);
 };
 
 #endif /* MQTTTEST_H */

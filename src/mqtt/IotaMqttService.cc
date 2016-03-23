@@ -22,6 +22,8 @@
 
 #include "IotaMqttService.h"
 #include "../util/iota_exception.h"
+#include "../util/FuncUtil.h"
+#include "../rest/types.h"
 
 /**
 TODO: this service has some methods for handling  pull commands, but as a new
@@ -45,6 +47,60 @@ std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(
   return doPublishCB(apikey, idDevice, jsonMsg);
 }
 
+std::string iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
+    std::string& multi_payload, std::string& apikey, std::string& idDevice) {
+  std::string sep_medidas = UL20_MEASURE_SEPARATOR;
+
+  std::vector<std::string> tokens_medidas =
+      riot_tokenizer(multi_payload, sep_medidas);
+
+  std::vector<std::string> v_jsons;
+
+  if (tokens_medidas.size() == 0) {
+    // Lanzar excepcion error de protocolo.
+    //
+    std::ostringstream what;
+    what << "Protocol error, no measurements";
+    throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
+                              what.str(),
+                              iota::types::RESPONSE_CODE_BAD_REQUEST);
+  }
+
+  for (int i = 0; i < tokens_medidas.size(); i++) {
+    std::string separador = UL20_SEPARATOR;
+    std::string measure = tokens_medidas[i];
+
+    std::vector<std::string> tokens_io = riot_tokenizer(measure, separador);
+    IOTA_LOG_DEBUG(m_logger, "MQTT MultiAttribute: [" << i << "]:[" << measure
+                                                      << "]");
+
+    int j = 0;
+
+    while (j + 1 < tokens_io.size()) {
+      std::string attr_name = tokens_io.at(j);
+      std::string value_str = tokens_io.at(j + 1);
+
+      if (value_str.empty()) {
+        IOTA_LOG_ERROR(m_logger, "Empty values is not allowed");
+        std::ostringstream what;
+        what << "Protocol error, Empty values is not allowed ";
+        throw iota::IotaException(
+            iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER, what.str(),
+            iota::types::RESPONSE_CODE_BAD_REQUEST);
+      }
+
+      mongo::BSONObj att_json = BSON("name" << attr_name << "type"
+                                            << "string"
+                                            << "value" << value_str);
+
+      v_jsons.push_back(att_json.jsonString());
+      j++;
+    }
+  }
+
+  return doPublishMultiCB(apikey, idDevice, v_jsons);
+}
+
 void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
     std::string& apikey, std::string& idDevice, std::string& payload,
     std::string& type) {
@@ -57,6 +113,10 @@ void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
       // to us. This is nasty, but a limitation
       // of MQTT broker.
       return;
+    }
+
+    if (MQTT_MULTIATTRIBUTE == type) {
+      publishMultiAttribute(payload, apikey, idDevice);
     }
 
     if (payload != "") {

@@ -36,13 +36,13 @@
 					<alias ref="measurename" />
 					<apikey ref="apikey" />	
 			</postprocessor>	
-
-			<postprocessor type="json" name="post-json">
+			
+			<postprocessor type="json" name="post-json-new-multi"> <!--This is the one that works for multiattribute -->
 				<measure ref="payload"/>
 				<alias ref="type"/>
 				<apikey ref="apikey" />	
-				<bypass_cmdexe ref="resultcommand" /> <!-- This is used when processing mqtt command response -->
-				<bypass_cmdget ref="cmdget-payload" /> <!-- This is used for cmdget requests -->
+				<bypass_cmdexe ref="fullpayload" /> <!-- This is used when processing mqtt command response -->
+				<!-- bypass_cmdget ref="cmdget-payload" / --> <!-- This is used for cmdget requests -->
 			</postprocessor>
 
 					
@@ -113,8 +113,8 @@
 									</tag>
 									<!-- new MultiAttribute -->
 									<tag type="option" valuestring="multi">
-										<tag type="value" datatype="string" datacode="stringdelim" name="payload-multi" valuestring="//"/>
-										<tag type="value" datatype="string" datacode="stringdelim" name="resultcommand" valuestring="" resetend="true"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="payload-multi" valuestring="/"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="fullpayload" valuestring="" resetend="true"/>
 										
 									</tag>
 
