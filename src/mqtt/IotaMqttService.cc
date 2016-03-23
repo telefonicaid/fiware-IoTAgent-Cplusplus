@@ -47,7 +47,7 @@ std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(
   return doPublishCB(apikey, idDevice, jsonMsg);
 }
 
-std::string iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
+void iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
     std::string& multi_payload, std::string& apikey, std::string& idDevice) {
   std::string sep_medidas = UL20_MEASURE_SEPARATOR;
 
@@ -74,9 +74,10 @@ std::string iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
     IOTA_LOG_DEBUG(m_logger, "MQTT MultiAttribute: [" << i << "]:[" << measure
                                                       << "]");
 
+    v_jsons.clear();
     int j = 0;
 
-    while (j + 1 < tokens_io.size()) {
+    while (j < tokens_io.size()) {
       std::string attr_name = tokens_io.at(j);
       std::string value_str = tokens_io.at(j + 1);
 
@@ -92,13 +93,16 @@ std::string iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
       mongo::BSONObj att_json = BSON("name" << attr_name << "type"
                                             << "string"
                                             << "value" << value_str);
-
+      IOTA_LOG_INFO(m_logger,"Temporary JSON: "<< att_json.jsonString());
       v_jsons.push_back(att_json.jsonString());
-      j++;
+      j = j +2;
     }
+
+    doPublishMultiCB(apikey, idDevice, v_jsons);
+
   }
 
-  return doPublishMultiCB(apikey, idDevice, v_jsons);
+
 }
 
 void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
@@ -106,22 +110,21 @@ void iota::esp::ngsi::IotaMqttService::handle_mqtt_message(
     std::string& type) {
   try {
     if (MQTT_COMMAND_RESPONSE == type) {
-      return processCommandResponse(apikey, idDevice, payload);
-    }
 
-    if (MQTT_COMMAND_IGNORE == type) {  // This is for when "cmd" is echoed back
-      // to us. This is nasty, but a limitation
-      // of MQTT broker.
-      return;
-    }
+      processCommandResponse(apikey, idDevice, payload);
 
-    if (MQTT_MULTIATTRIBUTE == type) {
+    }else if (MQTT_MULTIATTRIBUTE == type) {
+
       publishMultiAttribute(payload, apikey, idDevice);
-    }
 
-    if (payload != "") {
+    }else if (payload != "") {
       // when type is not either "cmdget" or "cmdexe", payload is an actual JSON
       publishContextBroker(payload, apikey, idDevice);
+
+    } else if (MQTT_COMMAND_IGNORE == type) {  // This is for when "cmd" is echoed back
+      // to us. This is nasty, but due to a side effect
+      // on MQTT broker.
+      return;
     }
 
   } catch (iota::IotaException& ex) {

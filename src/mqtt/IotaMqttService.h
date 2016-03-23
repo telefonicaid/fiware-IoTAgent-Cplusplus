@@ -63,7 +63,7 @@ class IotaMqttService {
   std::string publishContextBroker(std::string& jsonMsg, std::string& apikey,
                                    std::string& idDevice);
 
-  std::string publishMultiAttribute(std::string& multi_payload,
+  void publishMultiAttribute(std::string& multi_payload,
                                     std::string& apikey, std::string& idDevice);
 
   void handle_mqtt_message(std::string& apikey, std::string& idDevice,
