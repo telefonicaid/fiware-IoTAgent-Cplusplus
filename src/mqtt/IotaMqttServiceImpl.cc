@@ -153,9 +153,8 @@ void iota::esp::ngsi::IotaMqttServiceImpl::add_info(
   }
 }
 
-std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
-    std::string& apikey, std::string& idDevice, std::string& json) {
-  // TODO: extract to methods!!
+void iota::esp::ngsi::IotaMqttServiceImpl::field_validation(
+    std::string& apikey, std::string& idDevice) {
   if (apikey == "") {
     std::ostringstream what;
     what << "Mandatory field missing: ";
@@ -170,6 +169,11 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
     what << "[idDevice]";
     throw iota::IotaException(what.str(), "", 400);
   }
+}
+
+std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
+    std::string& apikey, std::string& idDevice, std::string& json) {
+  field_validation(apikey, idDevice);
 
   std::string cb_response;
 
@@ -193,9 +197,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
     IOTA_LOG_DEBUG(m_logger,
                    "MQTTService: Creating entity : ["
                        << ngsi_context_element.get_string()
-                       << "]");  // call to populate internal fields from cache,
-                                 // or by default, etc... not interesated in
-                                 // result
+                       << "]");  // call to populate internal fields from cache
 
     iota::RiotISO8601 timeInstant;
 
@@ -226,20 +228,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
 std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishMultiCB(
     std::string& apikey, std::string& idDevice,
     std::vector<std::string>& v_json) {
-  if (apikey == "") {
-    std::ostringstream what;
-    what << "Mandatory field missing: ";
-    what << "[apikey]";
-
-    throw iota::IotaException(what.str(), "", 400);
-  }
-
-  if (idDevice == "") {
-    std::ostringstream what;
-    what << "Mandatory field missing: ";
-    what << "[idDevice]";
-    throw iota::IotaException(what.str(), "", 400);
-  }
+  field_validation(apikey, idDevice);
 
   std::string cb_response;
 
@@ -264,9 +253,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishMultiCB(
     IOTA_LOG_DEBUG(m_logger,
                    "MQTTService: Creating entity : ["
                        << ngsi_context_element.get_string()
-                       << "]");  // call to populate internal fields from cache,
-                                 // or by default, etc... not interesated in
-                                 // result
+                       << "]");  // call to populate internal fields from cache
 
     iota::RiotISO8601 timeInstant;
 

@@ -25,11 +25,6 @@
 #include "../util/FuncUtil.h"
 #include "../rest/types.h"
 
-/**
-TODO: this service has some methods for handling  pull commands, but as a new
-feture of 1.2.0 version, mqtt will support
-push commands only, so it would make sense to remove some of these commands.
-*/
 
 #include "rest/process.h"
 
@@ -49,28 +44,24 @@ std::string iota::esp::ngsi::IotaMqttService::publishContextBroker(
 
 void iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
     std::string& multi_payload, std::string& apikey, std::string& idDevice) {
-  std::string sep_medidas = UL20_MEASURE_SEPARATOR;
+  std::string token = UL20_MEASURE_SEPARATOR;
 
-  std::vector<std::string> tokens_medidas =
-      riot_tokenizer(multi_payload, sep_medidas);
+  std::vector<std::string> tokens_measures =
+      riot_tokenizer(multi_payload, token);
 
   std::vector<std::string> v_jsons;
 
-  if (tokens_medidas.size() == 0) {
-    // Lanzar excepcion error de protocolo.
-    //
-    std::ostringstream what;
-    what << "Protocol error, no measurements";
+  if (tokens_measures.size() == 0) {
     throw iota::IotaException(iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER,
-                              what.str(),
+                              "Protocol error, no multiple measures",
                               iota::types::RESPONSE_CODE_BAD_REQUEST);
   }
 
-  for (int i = 0; i < tokens_medidas.size(); i++) {
-    std::string separador = UL20_SEPARATOR;
-    std::string measure = tokens_medidas[i];
+  for (int i = 0; i < tokens_measures.size(); i++) {
+    std::string separator = UL20_SEPARATOR;
+    std::string measure = tokens_measures[i];
 
-    std::vector<std::string> tokens_io = riot_tokenizer(measure, separador);
+    std::vector<std::string> tokens_io = riot_tokenizer(measure, separator);
     IOTA_LOG_DEBUG(m_logger, "MQTT MultiAttribute: [" << i << "]:[" << measure
                                                       << "]");
 
@@ -82,9 +73,11 @@ void iota::esp::ngsi::IotaMqttService::publishMultiAttribute(
       std::string value_str = tokens_io.at(j + 1);
 
       if (value_str.empty()) {
-        IOTA_LOG_ERROR(m_logger, "Empty values is not allowed");
         std::ostringstream what;
-        what << "Protocol error, Empty values is not allowed ";
+        what << "Malformed frame :" << multi_payload;
+
+        IOTA_LOG_ERROR(m_logger, what);
+
         throw iota::IotaException(
             iota::types::RESPONSE_MESSAGE_INVALID_PARAMETER, what.str(),
             iota::types::RESPONSE_CODE_BAD_REQUEST);

@@ -96,6 +96,8 @@ class IotaMqttServiceImpl : public IotaMqttService {
                               std::string& payload);
 
   void add_info(boost::property_tree::ptree& pt, const std::string& apiKey);
+
+  void field_validation(std::string& apikey, std::string& idDevice);
 };
 }
 }

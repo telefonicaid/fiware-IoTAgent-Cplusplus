@@ -63,15 +63,43 @@ class IotaMqttService {
   std::string publishContextBroker(std::string& jsonMsg, std::string& apikey,
                                    std::string& idDevice);
 
-  void publishMultiAttribute(std::string& multi_payload, std::string& apikey,
-                             std::string& idDevice);
+  /**
+  @brief This method is the entrypoint for MQTT inner layer calls (caller is
+  ESP)
+  whenever an MQTT message arrives. There are four pieces of relevant
+  information: apikey,
+  device id and type are extracted from "topic" and payload from the message
+  itself. There
+  are three scenarios that are dealt with depending on the type:
+  - cmdexe: This is the response for a MQTT command.
+  - mul20: this is the multi-measure scenario.
+  - any other type (distinct to "cmd"): will be considered as single mesaure
+  where "type" is
+  the name of the attribute and payload is the value.
 
+  "cmd" type is also received as an echo from the MQTT broker, but this message
+  comes from us
+  (it represents an MQTT command to the device), so in this case is just
+  ignored.
+  @param apikey:
+  @param idDevice:
+  @param payload:
+  @param type:
+
+  @return the result of the call of this method should be the publication on
+  ContextBroker of the
+  Entity (in one or several UpdateContext).
+
+  */
   void handle_mqtt_message(std::string& apikey, std::string& idDevice,
                            std::string& payload, std::string& type);
 
   virtual ~IotaMqttService();
 
  protected:
+  void publishMultiAttribute(std::string& multi_payload, std::string& apikey,
+                             std::string& idDevice);
+
   virtual std::string doPublishCB(std::string& apikey, std::string& idDevice,
                                   std::string& jsonMsg) = 0;
 
