@@ -1,5 +1,6 @@
 * Mon Jan 11 2016 Agustin Gonzalez <lucas@tid.es> 1.3.1
 - FIX DM-1134: IP change on devices can take invalid characters and not an URL.
+- FEATURE DM-1587: IOTA HTTP-UL accumulating updates towards CB.
 
 * Thu Apr 30 2015 Agustin Gonzalez <lucas@tid.es> 1.0.1
 - FEATURE IDAS-20368: Add protocol description (IoTA Manager integration).
