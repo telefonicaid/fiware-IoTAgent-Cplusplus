@@ -1,6 +1,6 @@
 FROM centos:6.6
 
-MAINTAINER David 
+MAINTAINER David
 
 ENV GIT_URL_IOTACPP https://github.com/telefonicaid/fiware-IoTAgent-Cplusplus.git
 ENV GIT_REV_IOTACPP develop
@@ -9,7 +9,7 @@ ENV IOTACPP_BUILD_TYPE Release
 ENV IOTACPP_USER iotagent
 
 RUN yum -y install tar gzip unzip file \
-    	   	   cpp gcc gcc-c++ \
+                   cpp gcc gcc-c++ \
            automake autoconf libtool \
            git scons cmake \
            openssl-devel bzip2-devel zlib-devel \
@@ -17,7 +17,7 @@ RUN yum -y install tar gzip unzip file \
     git clone ${GIT_URL_IOTACPP} ${GIT_PATH_IOTACPP} && \
     cd ${GIT_PATH_IOTACPP} && \
     sed -i CMakeLists.txt \
-    	-e 's|^add_test|#add_test|g' \
+        -e 's|^add_test|#add_test|g' \
     -e 's|^add_subdirectory(tests)|#add_subdirectory(tests)|g' \
     -e 's|^enable_testing|#enable_testing|g' \
         -e 's|git@github.com:mongodb/mongo-cxx-driver.git|https://github.com/mongodb/mongo-cxx-driver|g' && \
@@ -25,16 +25,16 @@ RUN yum -y install tar gzip unzip file \
     mkdir -p  build/${IOTACPP_BUILD_TYPE} && \
     cd build/${IOTACPP_BUILD_TYPE} && \
     cmake -DGIT_VERSION=`get_rpm_version_string | cut -d ' ' -f 1` \
-    	  -DGIT_COMMIT=`get_rpm_version_string | cut -d ' ' -f 2` \
+          -DGIT_COMMIT=`get_rpm_version_string | cut -d ' ' -f 2` \
       -DMQTT=ON \
       -DCMAKE_BUILD_TYPE=${IOTACPP_BUILD_TYPE} ../../ && \
     make install && \
     make package && \
-    cd pack/Linux/RPM 
-   
-RUN yum clean all
+    cd pack/Linux/RPM && \
 
-RUN yum -y remove autoconf automake bzip2-devel \
+    yum clean all && \
+
+    yum -y remove autoconf automake bzip2-devel \
           cmake cpp file gcc gcc-c++ git \
          libtool openssl-devel rpm-build \
          scons zlib-devel bzip2 cloog-ppl \
@@ -47,34 +47,32 @@ RUN yum -y remove autoconf automake bzip2-devel \
          perl-Error perl-Git perl-Module-Pluggable \
          perl-Pod-Escapes perl-Pod-Simple \
          perl-libs perl-version  \
-         ppl rsync
-    
-    
- RUN cd ${GIT_PATH_IOTACPP} && \
+         ppl rsync && \
+
+    cd ${GIT_PATH_IOTACPP} && \
     cd build/${IOTACPP_BUILD_TYPE} && \
     cd pack/Linux/RPM && \
     curl -kOL http://download.opensuse.org/repositories/home:/oojah:/mqtt/CentOS_CentOS-6/home:oojah:mqtt.repo && \
     mv home:oojah:mqtt.repo /etc/yum.repos.d/ && \
     yum localinstall -y iot-agent-*.rpm && \
     yum clean all && \
-    chkconfig iotagent on
+    chkconfig iotagent on && \
 
-RUN chkconfig mosquitto on
-
-
-RUN chmod +x ${GIT_PATH_IOTACPP}/scripts/*.sh
+    chkconfig mosquitto on
 
 COPY config.json /etc/iot/
-RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json
-
 COPY iotagent_manager.conf /usr/local/iot/config/
-RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_manager.conf
-
 COPY iotagent_protocol.conf /usr/local/iot/config/
-RUN chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_protocol.conf
-
 COPY docker-entrypoint.sh /
-RUN chmod +x /docker-entrypoint.sh
+
+RUN \
+    chmod +x ${GIT_PATH_IOTACPP}/scripts/*.sh && \
+    chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json && \
+    chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_manager.conf && \
+    chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_protocol.conf && \
+    chmod +x /docker-entrypoint.sh && \
+    rm -rf ${GIT_PATH_IOTACPP}/.git
+
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 EXPOSE 8080
