@@ -70,7 +70,8 @@ RUN \
     chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json && \
     chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_manager.conf && \
     chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_protocol.conf && \
-    chmod +x /docker-entrypoint.sh
+    chmod +x /docker-entrypoint.sh && \
+    rm -rf ${GIT_PATH_IOTACPP}/.git
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
