@@ -17,6 +17,20 @@
         "port": "MONGODB_PORT",
         "dbname": "iot"
     },
+    "oauth": {
+        "on_behalf_trust_url":"http://KEYSTONE_HOSTNAME:KEYSTONE_PORT/v3/auth/tokens",
+        "on_behalf_trust":"http://KEYSTONE_HOSTNAME:KEYSTONE_PORT/v3/auth/tokens",
+        "validate_token_url": "http://KEYSTONE_HOSTNAME:KEYSTONE_PORT/v3/auth/tokens",
+        "get_roles_url": "http://KEYSTONE_HOSTNAME:KEYSTONE_PORT/v3/role_assignments",
+        "retrieve_subservices_url": "http://KEYSTONE_HOSTNAME:KEYSTONE_PORT/v3/projects",
+        "access_control_url": "http://KEYPASS_HOSTNAME:KEYPASS_PORT/pdp/v3/",
+        "pep_user": "pep",
+        "pep_password": "PEP_PASSWORD",
+        "pep_domain": "admin_domain",
+        "on_behalf_user": "iotagent",
+        "on_behalf_password": "IOTAGENT_PASSWORD",
+        "timeout": 5
+    },
    "resources": [
         {
             "resource": "/iot/d",

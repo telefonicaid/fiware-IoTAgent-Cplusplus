@@ -29,19 +29,26 @@ sed -i /etc/iot/mosquitto.conf \
     -e "s|user root|user iotagent|g"
 
 sed -i /etc/iot/config.json \
-	-e "s|ORION_HOSTNAME|${ORION_HOSTNAME}|g" \
-	-e "s|ORION_PORT|${ORION_PORT}|g" \
-	-e "s|MONGODB_HOSTNAME|${MONGODB_HOSTNAME}|g" \
+        -e "s|ORION_HOSTNAME|${ORION_HOSTNAME}|g" \
+        -e "s|ORION_PORT|${ORION_PORT}|g" \
+        -e "s|MONGODB_HOSTNAME|${MONGODB_HOSTNAME}|g" \
     -e "s|MONGODB_PORT|${MONGODB_PORT}|g" \
     -e "s|PUBLIC_PROXY_PORT|${PUBLIC_PROXY_PORT}|g" \
-    -e "s|PUBLIC_IP_PORT|${PUBLIC_IP_PORT}|g"
+    -e "s|PUBLIC_IP_PORT|${PUBLIC_IP_PORT}|g" \
+    -e "s|KEYSTONE_HOSTNAME|${KEYSTONE_HOSTNAME}|g" \
+    -e "s|KEYSTONE_PORT|${KEYSTONE_PORT}|g" \
+    -e "s|KEYPASS_HOSTNAME|${KEYPASS_HOSTNAME}|g" \
+    -e "s|KEYPASS_PORT|${KEYPASS_PORT}|g" \
+    -e "s|PEP_PASSWORD|${PEP_PASSWORD}|g" \
+    -e "s|IOTAGENT_PASSWORD|${IOTAGENT_PASSWORD}|g"
+
+
 
 sed -i /usr/local/iot/config/iotagent_protocol.conf \
-	-e "s|IOTAGENT_HOST|${HOST_IP}|g"
+       -e "s|IOTAGENT_HOST|${HOST_IP}|g"
 
 sed -i /usr/local/iot/config/iotagent_manager.conf \
-	-e "s|IOTAGENT_HOST|${HOST_IP}|g"
-	
+       -e "s|IOTAGENT_HOST|${HOST_IP}|g"
 
 
 #cat /etc/iot/config.json
