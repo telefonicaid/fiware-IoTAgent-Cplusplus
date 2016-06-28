@@ -57,25 +57,22 @@ RUN yum -y install tar gzip unzip file \
     yum localinstall -y iot-agent-*.rpm && \
     yum clean all && \
     chkconfig iotagent on && \
-
     chkconfig mosquitto on
 
 COPY config.json /etc/iot/
 COPY iotagent_manager.conf /usr/local/iot/config/
-COPY iotagent_protocol.conf /usr/local/iot/config/
 COPY docker-entrypoint.sh /
 
 RUN \
     chmod +x ${GIT_PATH_IOTACPP}/scripts/*.sh && \
     chown ${IOTACPP_USER}:${IOTACPP_USER} /etc/iot/config.json && \
     chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_manager.conf && \
-    chown ${IOTACPP_USER}:${IOTACPP_USER} /usr/local/iot/config/iotagent_protocol.conf && \
+    rm -f /usr/local/iot/config/iotagent_protocol.conf && \
     chmod +x /docker-entrypoint.sh && \
     rm -rf ${GIT_PATH_IOTACPP}/.git
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 8080
 EXPOSE 8081
 EXPOSE 1883
 
