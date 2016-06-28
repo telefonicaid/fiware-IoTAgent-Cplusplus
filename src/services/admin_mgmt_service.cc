@@ -534,6 +534,7 @@ int iota::AdminManagerService::post_multiple_devices(
           std::pair<std::string, std::string>(url_endpoint, temp_res));
     } else {
       std::string message(temp_res);
+      IOTA_LOG_DEBUG(m_log, "error in:" << url_endpoint << "->" << temp_res);
       response_from_iotagent_nok.insert(std::pair<std::string, std::string>(
           url_endpoint, error_manager(code_i, message)));
     }
@@ -1659,6 +1660,7 @@ std::string iota::AdminManagerService::error_manager(int code,
   ss << "\": ";
   rapidjson::Document document;
   if (document.Parse<0>(message.c_str()).HasParseError()) {
+    boost::erase_all(message, "\"");
     ss << "\"";
     ss << message;
     ss << "\"";
