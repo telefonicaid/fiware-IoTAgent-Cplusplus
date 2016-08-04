@@ -58,6 +58,7 @@ class ModbusOperationProcessor {
 
   boost::property_tree::ptree& get_command(std::string command);
   boost::property_tree::ptree& get_config();
+  std::vector<std::string> get_operations_with_prefix(std::string operation);
 
   /**
   * @name get_mapped_parameters
