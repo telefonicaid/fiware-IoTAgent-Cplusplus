@@ -254,53 +254,11 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
 
     boost::property_tree::ptree pt_operation;
     std::string full_command_name(command_name);
-/*
-    pt_operation.put("operation", command_name);
-    pt_operation.put("modbusOperation", boost::lexical_cast<std::string>(
-                                            0x03));  // Always a read operation
-*/
+
     std::map<std::string, iota::ParamsMap>::iterator it_params =
         _ordered_parameters_map.find(command_name);
 
     if (it_params != _ordered_parameters_map.end()) {
-        /*
-      int base_address = get_base_address(command_name);
-      pt_operation.put("modbusAddress",
-                       boost::lexical_cast<std::string>(base_address));
-
-      iota::ParamsMap& params_map = it_params->second;
-
-      int num_of_registers =
-          params_map.size();  // num of registers = num of params.
-
-      std::map<int, iota::CommandParameter>::iterator it_cmd_param;
-
-      int num_of_positions = num_of_registers;  // Default value.
-      it_cmd_param = params_map.begin();
-
-      if (it_cmd_param != params_map.end()) {
-        // ONLY one register for read operations with string/numeric with more
-        // than one position as of now.
-        if (it_cmd_param->second.type.compare("string") == 0 ||
-            it_cmd_param->second.type.compare("numeric") == 0) {
-          pt_operation.put("modbusRegisterType", it_cmd_param->second.type);
-          num_of_positions = it_cmd_param->second.num_positions;
-        }
-
-      } else {
-        // Complain and... throw exception?
-        return;
-      }
-
-      pt_operation.put("modbusNumberOfPositions",
-                       boost::lexical_cast<std::string>(num_of_positions));
-
-      pt_operation.put("modbusNumberOfRegisters",
-                       boost::lexical_cast<std::string>(num_of_registers));
-
-      _operations.insert(std::pair<std::string, boost::property_tree::ptree>(
-          command_name, pt_operation));
-          */
 
       boost::property_tree::ptree& pt_command = it_cmd->second;
       boost::property_tree::ptree pt_operation;
@@ -350,12 +308,7 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
         _position_map.insert(
           std::pair<std::string, std::vector<iota::FloatPosition> >(
               full_command_name, labels_with_factor));
-    }
-      /*
-      _position_map.insert(
-          std::pair<std::string, std::vector<iota::FloatPosition> >(
-              command_name, labels_with_factor));
-              */
+      }
     }
 
   }  // Else error
