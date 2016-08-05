@@ -452,8 +452,10 @@ void ModbusTest::testCommandsToOperations() {
 
   // First scenario
   {
+    std::vector<std::string> commands_with_preffix = processor.get_operations_with_prefix("test_command");
+
     boost::property_tree::ptree& pt_operation =
-        processor.get_operation("test_command");
+        processor.get_operation(commands_with_preffix.at(0));
 
     CPPUNIT_ASSERT_MESSAGE(
         "Value modbusOperation 3",
@@ -461,17 +463,12 @@ void ModbusTest::testCommandsToOperations() {
     CPPUNIT_ASSERT_MESSAGE(
         "Value modbusAddress 20",
         pt_operation.get<unsigned short>("modbusAddress") == 20);
-    CPPUNIT_ASSERT_MESSAGE(
-        "Labels ", processor.get_mapped_labels("test_command").size() == 4);
-    CPPUNIT_ASSERT_MESSAGE(
-        "Label third ",
-        processor.get_mapped_labels("test_command")[2].name.compare("third") ==
-            0);
   }
   // Second scenario: numeric command
   {
+    std::vector<std::string> commands_with_preffix = processor.get_operations_with_prefix("test_numeric_command");
     boost::property_tree::ptree& pt_operation =
-        processor.get_operation("test_numeric_command");
+        processor.get_operation(commands_with_preffix.at(0));
 
     CPPUNIT_ASSERT_MESSAGE(
         "Value modbusOperation 3",
@@ -490,19 +487,12 @@ void ModbusTest::testCommandsToOperations() {
     CPPUNIT_ASSERT_MESSAGE("Type of command numeric",
                            pt_operation.get<std::string>("modbusRegisterType")
                                    .compare("numeric") == 0);
-
-    CPPUNIT_ASSERT_MESSAGE(
-        "Label, only one ",
-        processor.get_mapped_labels("test_numeric_command").size() == 1);
-    CPPUNIT_ASSERT_MESSAGE(
-        "Label test_param ",
-        processor.get_mapped_labels("test_numeric_command")[0].name.compare(
-            "test_param") == 0);
   }
   // Third scenario: string command
   {
+    std::vector<std::string> commands_with_preffix = processor.get_operations_with_prefix("test_string_command");
     boost::property_tree::ptree& pt_operation =
-        processor.get_operation("test_string_command");
+        processor.get_operation(commands_with_preffix.at(0));
 
     CPPUNIT_ASSERT_MESSAGE(
         "Value modbusOperation 3",
@@ -521,16 +511,8 @@ void ModbusTest::testCommandsToOperations() {
     CPPUNIT_ASSERT_MESSAGE("Type of command numeric",
                            pt_operation.get<std::string>("modbusRegisterType")
                                    .compare("string") == 0);
-
-    CPPUNIT_ASSERT_MESSAGE(
-        "Label, only one ",
-        processor.get_mapped_labels("test_string_command").size() == 1);
-    CPPUNIT_ASSERT_MESSAGE(
-        "Label test_param ",
-        processor.get_mapped_labels("test_string_command")[0].name.compare(
-            "test_param") == 0);
   }
-
+/*
   {
     boost::property_tree::ptree& pt_operation =
         processor.get_operation("test_command");
@@ -571,6 +553,6 @@ void ModbusTest::testCommandsToOperations() {
     // CPPUNIT_ASSERT_MESSAGE("Checking label 3",
     //                       mapped_values["label_3"] == "2321");
   }
-
+*/
   std::cout << "END testCommandsToOperations" << std::endl;
 }

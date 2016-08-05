@@ -360,8 +360,10 @@ pion::http::request_ptr iota::ContextBrokerCommunicator::create_request(
   pion::http::request_ptr request(new pion::http::request());
   request->set_method(_method);
   request->set_resource(resource);
-  request->set_content(content);
-  request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
+  if (_method.compare("GET") != 0) {
+    request->set_content(content);
+    request->set_content_type(iota::types::IOT_CONTENT_TYPE_JSON);
+  }
   // request->setContentLength(content.size());
 
   if (query.empty() == false) {
