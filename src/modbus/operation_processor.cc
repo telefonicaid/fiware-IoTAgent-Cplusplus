@@ -55,13 +55,13 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
 
             position.precision = (short)iota::number_of_decimals(precision);
 
-            std::string type = v_p.second.get<std::string>("type", "number");
+            std::string type = v_p.second.get<std::string>("type", "numeric");
             position.type = type;
           } else {
             position.name = v_p.second.data();
             position.factor = 1;
             position.precision = 0;
-            position.type = "number";
+            position.type = "numeric";
           }
 
           labels_with_factor.push_back(position);
@@ -298,12 +298,21 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
         iota::FloatPosition position;
 
         position.name = it_cmd_param->second.name;
-        position.factor =
-            1;  // this might be specific for commands read operations,
-        // but for simplicity, let's assume the factor for command parameters is
-        // applied
-        // somewhere else.
-        position.precision = 0;
+        if (!position.name.empty()) {
+          position.factor = it_cmd_param->second.get<float>("factor", 1);
+
+          std::string precision = it_cmd_param->second.get<std::string>("factor", "1");
+
+          position.precision = (short)iota::number_of_decimals(precision);
+
+          std::string type = v_p.second.get<std::string>("type", "numeric");
+          position.type = type;
+        } else {
+          position.factor = 1;
+          position.precision = 0;
+          position.type = "numeric";
+        }
+
         _operations.insert(std::pair<std::string, boost::property_tree::ptree>(
           full_command_name, pt_operation));
 
