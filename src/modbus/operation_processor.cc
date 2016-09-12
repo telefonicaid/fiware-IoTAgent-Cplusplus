@@ -112,7 +112,8 @@ void iota::ModbusOperationProcessor::read_commands(
           read_param.base_address = address;
           read_param.type = v_p.second.get<std::string>("type", "numeric");
 
-          read_param.factor = v_p.second.get<std::string>("factor", "1");
+          read_param.factor = v_p.second.get<float>("factor", 1);
+          std::string precision = v_p.second.get<std::string>("factor", "1");
           read_param.precision = (short)iota::number_of_decimals(precision);
 
           names_map.insert(
@@ -303,14 +304,11 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
 
         position.name = it_cmd_param->second.name;
         if (!position.name.empty()) {
-          position.factor = it_cmd_param->second.get<float>("factor", 1);
+          position.factor = it_cmd_param->second.factor;
 
-          std::string precision = it_cmd_param->second.get<std::string>("factor", "1");
+          position.precision = it_cmd_param->second.precision;
 
-          position.precision = (short)iota::number_of_decimals(precision);
-
-          std::string type = v_p.second.get<std::string>("type", "numeric");
-          position.type = type;
+          position.type = it_cmd_param->second.type;
         } else {
           position.factor = 1;
           position.precision = 0;
