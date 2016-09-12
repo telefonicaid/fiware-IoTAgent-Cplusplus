@@ -112,6 +112,9 @@ void iota::ModbusOperationProcessor::read_commands(
           read_param.base_address = address;
           read_param.type = v_p.second.get<std::string>("type", "numeric");
 
+          read_param.factor = v_p.second.get<std::string>("factor", "1");
+          read_param.precision = (short)iota::number_of_decimals(precision);
+
           names_map.insert(
               std::pair<int, iota::CommandParameter>(address, read_param));
         }
@@ -285,7 +288,8 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
 
         int num_of_positions = 1;
         if (it_cmd_param->second.type.compare("string") == 0 ||
-            it_cmd_param->second.type.compare("numeric") == 0) {
+            it_cmd_param->second.type.compare("numeric") == 0 ||
+            it_cmd_param->second.type.compare("signed") == 0) {
           pt_operation.put("modbusRegisterType", it_cmd_param->second.type);
           num_of_positions = it_cmd_param->second.num_positions;
         }

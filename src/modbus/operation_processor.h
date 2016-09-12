@@ -35,6 +35,8 @@ typedef struct internal_parameter {
   unsigned short num_positions;
   std::string name;
   std::string type;
+  float factor;
+  short precision;
 } CommandParameter;
 
 typedef struct internal_position {
