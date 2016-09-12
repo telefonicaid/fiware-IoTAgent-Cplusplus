@@ -55,10 +55,13 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
 
             position.precision = (short)iota::number_of_decimals(precision);
 
+            std::string type = v_p.second.get<std::string>("type", "number");
+            position.type = type;
           } else {
             position.name = v_p.second.data();
             position.factor = 1;
             position.precision = 0;
+            position.type = "number";
           }
 
           labels_with_factor.push_back(position);
