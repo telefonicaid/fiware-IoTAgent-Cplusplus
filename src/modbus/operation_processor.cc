@@ -319,6 +319,7 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
           full_command_name, pt_operation));
 
         labels_with_factor.push_back(position);
+        std::cout << "XXXXXXX_position_map.insert: " << full_command_name << std::endl;
         _position_map.insert(
           std::pair<std::string, std::vector<iota::FloatPosition> >(
               full_command_name, labels_with_factor));
