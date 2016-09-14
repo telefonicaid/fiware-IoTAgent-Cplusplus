@@ -346,6 +346,7 @@ std::map<std::string, std::string> iota::Modbus::get_mapped_values(
     std::vector<iota::FloatPosition>& mapped_fields) {
   // Original values are map but unsigned short and ordered.
   std::map<std::string, std::string> mapped_values;
+  IOTA_LOG_DEBUG(m_logger, "get_mapped_values" << mapped_fields.size() );
 
   std::map<unsigned short, unsigned short>::iterator it_values =
       _values.begin();
@@ -367,12 +368,18 @@ std::map<std::string, std::string> iota::Modbus::get_mapped_values(
       if (!mapped_fields.at(i).name.empty()) {
         str_field = mapped_fields.at(i).name;
         double factor = mapped_fields.at(i).factor;
-
+        double temp;
+        std::string type = mapped_fields.at(i).type;
+        if (!type.empty() && (type.compare("signed") ==0) ){
+          temp = factor * (short)it_values->second;
+        } else {
+          temp = factor * it_values->second;
+        }
         std::stringstream ss_value;
-        double temp = factor * it_values->second;
         ss_value << std::fixed
                  << std::setprecision(mapped_fields.at(i).precision) << temp;
 
+        IOTA_LOG_DEBUG(m_logger, "mapped_values insert " << str_field << ":" << ss_value.str());
         mapped_values.insert(
             std::pair<std::string, std::string>(str_field, ss_value.str()));
       }

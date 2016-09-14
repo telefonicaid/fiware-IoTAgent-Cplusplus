@@ -35,12 +35,15 @@ typedef struct internal_parameter {
   unsigned short num_positions;
   std::string name;
   std::string type;
+  float factor;
+  short precision;
 } CommandParameter;
 
 typedef struct internal_position {
   std::string name;
   float factor;
   short precision;
+  std::string type;
 } FloatPosition;
 
 typedef std::map<int, CommandParameter> ParamsMap;

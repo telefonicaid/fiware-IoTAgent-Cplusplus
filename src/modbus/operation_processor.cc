@@ -55,10 +55,13 @@ void iota::ModbusOperationProcessor::read(std::stringstream& json_operations) {
 
             position.precision = (short)iota::number_of_decimals(precision);
 
+            std::string type = v_p.second.get<std::string>("type", "numeric");
+            position.type = type;
           } else {
             position.name = v_p.second.data();
             position.factor = 1;
             position.precision = 0;
+            position.type = "numeric";
           }
 
           labels_with_factor.push_back(position);
@@ -108,6 +111,10 @@ void iota::ModbusOperationProcessor::read_commands(
               v_p.second.get<unsigned short>("positions", 1);
           read_param.base_address = address;
           read_param.type = v_p.second.get<std::string>("type", "numeric");
+
+          read_param.factor = v_p.second.get<float>("factor", 1);
+          std::string precision = v_p.second.get<std::string>("factor", "1");
+          read_param.precision = (short)iota::number_of_decimals(precision);
 
           names_map.insert(
               std::pair<int, iota::CommandParameter>(address, read_param));
@@ -282,7 +289,8 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
 
         int num_of_positions = 1;
         if (it_cmd_param->second.type.compare("string") == 0 ||
-            it_cmd_param->second.type.compare("numeric") == 0) {
+            it_cmd_param->second.type.compare("numeric") == 0 ||
+            it_cmd_param->second.type.compare("signed") == 0) {
           pt_operation.put("modbusRegisterType", it_cmd_param->second.type);
           num_of_positions = it_cmd_param->second.num_positions;
         }
@@ -295,12 +303,18 @@ void iota::ModbusOperationProcessor::add_command_as_operation(
         iota::FloatPosition position;
 
         position.name = it_cmd_param->second.name;
-        position.factor =
-            1;  // this might be specific for commands read operations,
-        // but for simplicity, let's assume the factor for command parameters is
-        // applied
-        // somewhere else.
-        position.precision = 0;
+        if (!position.name.empty()) {
+          position.factor = it_cmd_param->second.factor;
+
+          position.precision = it_cmd_param->second.precision;
+
+          position.type = it_cmd_param->second.type;
+        } else {
+          position.factor = 1;
+          position.precision = 0;
+          position.type = "numeric";
+        }
+
         _operations.insert(std::pair<std::string, boost::property_tree::ptree>(
           full_command_name, pt_operation));
 
