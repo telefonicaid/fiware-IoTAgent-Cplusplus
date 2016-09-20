@@ -8,6 +8,7 @@
                 <pluginoutput name="iot"/>
                 <pluginpreprocessor name="lua"/>
 		<pluginpostprocessor name="json"/>
+		<pluginpostprocessor name="ul20"/>
                 
         </plugins>
 
@@ -30,20 +31,14 @@
         <!-- POSTPROCESSOR -->
         <postprocessors>
 			
-			<!-- This postprocessor will bypass whatever comes in the payload to the upper layers -->
-			<postprocessor type="json" name="post-json-multi">
-					<measure ref="payload"/>
-					<alias ref="type"/>
-					<apikey ref="apikey" />	
-					<bypass_cmdexe ref="fullpayload" />
-			</postprocessor>	
-
-			<postprocessor type="json" name="post-json">
+			
+			
+			<postprocessor type="json" name="post-json-new-multi"> <!--This is the one that works for multiattribute -->
 				<measure ref="payload"/>
 				<alias ref="type"/>
 				<apikey ref="apikey" />	
-				<bypass_cmdexe ref="resultcommand" /> <!-- This is used when processing mqtt command response -->
-				<bypass_cmdget ref="cmdget-payload" /> <!-- This is used for cmdget requests -->
+				<bypass_cmdexe ref="fullpayload" /> <!-- This is used when processing mqtt command response -->
+				<!-- bypass_cmdget ref="cmdget-payload" / --> <!-- This is used for cmdget requests -->
 			</postprocessor>
 
 					
@@ -51,7 +46,7 @@
 
         <!-- OUTPUT -->
         <outputs>
-                <output type="iot" postprocessors="post-json,post-json-multi" name="IoT" apikeyref="apikey" sensoridref="sensorid" typeref="type" />
+                <output type="iot" postprocessors="post-json-new-multi" name="IoT" apikeyref="apikey" sensoridref="sensorid" typeref="type" />
         </outputs>
 
         <!-- COMMANDS -->
@@ -92,7 +87,6 @@
 										<tag type="value" datatype="string" datacode="stringdelim" name="payload-multi" valuestring="/"/>
 										<tag type="value" datatype="string" datacode="stringdelim" name="fullpayload" valuestring="" resetend="true"/>
 									</tag>
-
 									<tag type="option" valuestring="cmd">
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname" valuestring="//"/>
 										<tag type="loop" iterations="-1" breakonempty="true">
@@ -106,6 +100,7 @@
 										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdget-payload" valuestring=""/>
 									</tag>
+									
 									<!-- CommandExe -->
 									<tag type="option" valuestring="cmdexe">
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname-res" valuestring="//"/>

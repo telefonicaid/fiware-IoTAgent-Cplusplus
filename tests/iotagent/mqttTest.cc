@@ -40,6 +40,7 @@ using ::testing::StrEq;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Throw;
+using ::testing::ElementsAre;
 
 // iota::AdminService* AdminService_ptr = new iota::AdminService();
 
@@ -482,91 +483,6 @@ void MqttTest::testLongAliasesNotWorking() {
   delete mockPublisher;
 }
 
-void MqttTest::testMultipleMeasures() {
-  /*
-  This test is for a bug that was raised about multi-measures being sent as
-  one single measure with an non-existing alias (mul20), so the thing is that
-  the expected behaviour is:
-  - multi-measures will be decomposed into different and individual CB
-  publications,
-  - Timestamp will be generated per publication, so it may be different on each
-  one.
-  - NOTE: CB doesn't accept same attribute more than once per publication. Hence
-  */
-  unsigned int port = iota::Process::get_process().get_http_port();
-  MockService* cb_mock =
-      (MockService*)iota::Process::get_process().get_service("/mock");
-  std::cout << "TEST: testMultipleMeasures starting... " << std::endl;
-  mqtt_alias.assign("mul20");
-  mqtt_payload.assign("t|23#t|34#pres|23.5#h|55");
-  mqtt_apikey.assign("1234");
-  mqtt_device.assign("dev01");
-
-  mockMosquitto = new MockMosquitto();
-  mockPublisher = new MockIotaMqttService();
-
-  defineExpectationsMqttt();
-
-  std::string jsonMqtt1, jsonMqtt2, jsonMqtt3, jsonMqtt4;
-  // Expected
-  jsonMqtt1.append(std::string("{\"name\" : \"t\""));
-  jsonMqtt1.append(",\"type\":\"string\",");
-  jsonMqtt1.append(std::string("\"value\" : \"23\""));
-  jsonMqtt1.append(std::string("}"));
-
-  jsonMqtt2.append(std::string("{\"name\" : \"t\""));
-  jsonMqtt2.append(",\"type\":\"string\",");
-  jsonMqtt2.append(std::string("\"value\" : \"34\""));
-  jsonMqtt2.append(std::string("}"));
-
-  jsonMqtt3.append(std::string("{\"name\" : \"pres\""));
-  jsonMqtt3.append(",\"type\":\"string\",");
-  jsonMqtt3.append(std::string("\"value\" : \"23.5\""));
-  jsonMqtt3.append(std::string("}"));
-
-  jsonMqtt4.append(std::string("{\"name\" : \"h\""));
-  jsonMqtt4.append(",\"type\":\"string\",");
-  jsonMqtt4.append(std::string("\"value\" : \"55\""));
-  jsonMqtt4.append(std::string("}"));
-
-  // 4 calls need to be made to this service.
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt1)))
-      .WillOnce(Return(std::string("OK")));
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt2)))
-      .WillOnce(Return(std::string("OK")));
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt3)))
-      .WillOnce(Return(std::string("OK")));
-  EXPECT_CALL(*mockPublisher, doPublishCB(StrEq(mqtt_apikey),
-                                          StrEq(mqtt_device), StrEq(jsonMqtt4)))
-      .WillOnce(Return(std::string("OK")));
-
-  std::string sensorfile("../../tests/iotagent/sensormqtt-json.xml");
-  std::string logPath("./");
-
-  // TEST
-
-  mqttService->initESPLib(logPath, sensorfile);
-
-  std::cout << "TEST: testMultipleMeasures  SENSORFILE LOADED " << std::endl;
-  mqttService->setIotaMqttService(mockPublisher);
-  delete cbPublish;
-
-  mqttService->startESP();
-  std::cout << "Sensor Started" << std::endl;
-  int idsensor = mqttService->idsensor;
-
-  // Finishing
-  SLEEP(100);
-  iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
-  std::cout << "Sensor Stopping... " << std::endl;
-
-  CPPUNIT_ASSERT(idsensor > 0);
-  std::cout << "TEST: testMultipleMeasures DONE " << std::endl;
-  delete mockPublisher;
-}
 
 void MqttTest::testExtractingCmdId() {
   std::string expected_id = "234as329890sfs";
@@ -1465,3 +1381,104 @@ int MqttTest::stubPublishPayloadFormat(int* mid, const char* topic,
 
   return 0;
 }
+
+void MqttTest::testMQTTMultiAttribute() {
+  /*
+   NEW BEHAVIOUR as per 23/03/2016:
+   Now we want to have updateContext per # separator, so, one block
+   of measures can be separated by one #.
+
+   Examples:
+     payload:
+   Leq|61.5|MinL|54.0#MinL|54.0|MaxL|73.5#MaxL|73.5#Time|2016-03-22T14:50:00Z#
+     updateContext: 1. Leq|61.5|MinL|54.0
+                    2. MinL|54.0|MaxL|73.5
+                    3. MaxL|73.5
+                    4. Time|2016-03-22T14:50:00Z
+
+
+   */
+  unsigned int port = iota::Process::get_process().get_http_port();
+  MockService* cb_mock =
+      (MockService*)iota::Process::get_process().get_service("/mock");
+  std::cout << "TEST: testMQTTMultiAttribute starting... " << std::endl;
+  mqtt_alias.assign("mul20");
+  mqtt_payload.assign("t1|23|t2|34#pres|23.5|h|55");
+  mqtt_apikey.assign("1234");
+  mqtt_device.assign("dev01");
+
+  mockMosquitto = new MockMosquitto();
+  mockPublisher = new MockIotaMqttService();
+
+  defineExpectationsMqttt();
+
+  std::string jsonMqtt1, jsonMqtt2, jsonMqtt3, jsonMqtt4;
+  // Expected TWO calls to doPublishMultiCB with individual vectors.
+
+  mongo::BSONObj obj1 = BSON("name"
+                             << "t1"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "23");
+  jsonMqtt1.assign(obj1.jsonString());
+
+  mongo::BSONObj obj2 = BSON("name"
+                             << "t2"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "34");
+  jsonMqtt2.assign(obj2.jsonString());
+
+  mongo::BSONObj obj3 = BSON("name"
+                             << "pres"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "23.5");
+  jsonMqtt3.assign(obj3.jsonString());
+
+  mongo::BSONObj obj4 = BSON("name"
+                             << "h"
+                             << "type"
+                             << "string"
+                             << "value"
+                             << "55");
+  jsonMqtt4.assign(obj4.jsonString());
+
+  // 2 calls need to be made to this service.
+  EXPECT_CALL(*mockPublisher,
+              doPublishMultiCB(StrEq(mqtt_apikey), StrEq(mqtt_device),
+                               ElementsAre(jsonMqtt1, jsonMqtt2)))
+      .WillOnce(Return(std::string("OK")));
+  EXPECT_CALL(*mockPublisher,
+              doPublishMultiCB(StrEq(mqtt_apikey), StrEq(mqtt_device),
+                               ElementsAre(jsonMqtt3, jsonMqtt4)))
+      .WillOnce(Return(std::string("OK")));
+
+  std::string sensorfile("../../tests/iotagent/sensormqtt-multiattribute.xml");
+  std::string logPath("./");
+
+  // TEST
+
+  mqttService->initESPLib(logPath, sensorfile);
+
+  std::cout << "TEST: testMQTTMultiAttribute  SENSORFILE LOADED " << std::endl;
+  mqttService->setIotaMqttService(mockPublisher);
+  delete cbPublish;
+
+  mqttService->startESP();
+  std::cout << "Sensor Started" << std::endl;
+  int idsensor = mqttService->idsensor;
+
+  // Finishing
+  SLEEP(100);
+  iota::esp::MqttService::getESPLib()->stopSensor(idsensor);
+  std::cout << "Sensor Stopping... " << std::endl;
+
+  CPPUNIT_ASSERT(idsensor > 0);
+  std::cout << "TEST: testMultipleMeasures DONE " << std::endl;
+  // delete mockPublisher;
+}
+

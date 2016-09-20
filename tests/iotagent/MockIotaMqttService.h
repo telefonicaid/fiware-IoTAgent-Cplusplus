@@ -33,6 +33,10 @@ class MockIotaMqttService : public iota::esp::ngsi::IotaMqttService {
                std::string(std::string& apikey, std::string& device,
                            std::string& json));
 
+  MOCK_METHOD3(doPublishMultiCB,
+               std::string(std::string& apikey, std::string& device,
+                           std::vector<std::string>& v_json));
+
   MOCK_METHOD2(doRequestCommands,
                void(std::string& apikey, std::string& device));
 

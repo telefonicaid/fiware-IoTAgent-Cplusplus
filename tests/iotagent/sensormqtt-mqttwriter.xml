@@ -111,6 +111,13 @@
 										<tag type="constraint" byteoffset="1" datatype="string" valuestring="/" />
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdget-payload" valuestring=""/>
 									</tag>
+									<!-- new MultiAttribute -->
+									<tag type="option" valuestring="multi">
+										<tag type="value" datatype="string" datacode="stringdelim" name="payload-multi" valuestring="//"/>
+										<tag type="value" datatype="string" datacode="stringdelim" name="resultcommand" valuestring="" resetend="true"/>
+										
+									</tag>
+
 									<!-- CommandExe -->
 									<tag type="option" valuestring="cmdexe">
 										<tag type="value" datatype="string" datacode="stringdelim" name="cmdname-res" valuestring="//"/>

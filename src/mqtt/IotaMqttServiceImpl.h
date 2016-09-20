@@ -89,10 +89,15 @@ class IotaMqttServiceImpl : public IotaMqttService {
   std::string doPublishCB(std::string& apikey, std::string& idDevice,
                           std::string& json);
 
+  std::string doPublishMultiCB(std::string& apikey, std::string& idDevice,
+                               std::vector<std::string>& v_json);
+
   void processCommandResponse(std::string& apikey, std::string& idDevice,
                               std::string& payload);
 
   void add_info(boost::property_tree::ptree& pt, const std::string& apiKey);
+
+  void field_validation(std::string& apikey, std::string& idDevice);
 };
 }
 }

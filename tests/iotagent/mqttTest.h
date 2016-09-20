@@ -53,7 +53,6 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
     CPPUNIT_TEST(testLongAliasesNotWorking);
     CPPUNIT_TEST(testBadEntityType);
     CPPUNIT_TEST(testNotInitCBPublisher);
-    CPPUNIT_TEST(testMultipleMeasures);
 
     CPPUNIT_TEST(testExtractingCmdId);
 
@@ -70,6 +69,8 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   CPPUNIT_TEST(testEmptyDeviceEmptyApikey_BUG_DM1069);
   CPPUNIT_TEST(testNotProvisionedApikey);
+
+  CPPUNIT_TEST(testMQTTMultiAttribute);
 
   CPPUNIT_TEST_SUITE_END();
 
@@ -91,8 +92,6 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   void testNotInitCBPublisher();
 
-  void testMultipleMeasures();
-
   void testExtractingCmdId();
 
   void testPushCommandResponse();
@@ -111,6 +110,8 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
   void testEmptyDeviceEmptyApikey_BUG_DM1069();
 
   void testNotProvisionedApikey();
+
+  void testMQTTMultiAttribute();
 
  private:
   std::string mqtt_alias;
@@ -157,6 +158,8 @@ class MqttTest : public CPPUNIT_NS::TestFixture {
 
   int stubPublishPayloadFormat(int* mid, const char* topic, int payloadLen,
                                const void* payload, int qos, bool retain);
+
+  std::vector<std::string>* ptr_expected_vector;
 };
 
 #endif /* MQTTTEST_H */

@@ -153,8 +153,8 @@ void iota::esp::ngsi::IotaMqttServiceImpl::add_info(
   }
 }
 
-std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
-    std::string& apikey, std::string& idDevice, std::string& json) {
+void iota::esp::ngsi::IotaMqttServiceImpl::field_validation(
+    std::string& apikey, std::string& idDevice) {
   if (apikey == "") {
     std::ostringstream what;
     what << "Mandatory field missing: ";
@@ -169,6 +169,11 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
     what << "[idDevice]";
     throw iota::IotaException(what.str(), "", 400);
   }
+}
+
+std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
+    std::string& apikey, std::string& idDevice, std::string& json) {
+  field_validation(apikey, idDevice);
 
   std::string cb_response;
 
@@ -192,9 +197,7 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
     IOTA_LOG_DEBUG(m_logger,
                    "MQTTService: Creating entity : ["
                        << ngsi_context_element.get_string()
-                       << "]");  // call to populate internal fields from cache,
-                                 // or by default, etc... not interesated in
-                                 // result
+                       << "]");  // call to populate internal fields from cache
 
     iota::RiotISO8601 timeInstant;
 
@@ -206,6 +209,56 @@ std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishCB(
 
     cb_response.assign(publisher_ptr->publishContextBroker(
         ngsi_context_element, vJsonTT, pt_cb, timeInstant));
+
+    IOTA_LOG_DEBUG(m_logger, "ContextBroker RESPONSE: " << cb_response);
+
+  } catch (std::exception& e) {
+    IOTA_LOG_ERROR(m_logger, "Configuration error : " << e.what());
+    std::ostringstream what;
+    what << "Can't publish on ContextBroker:";
+    what << e.what();
+    throw iota::IotaException(what.str(), "", 400);
+
+  } catch (...) {
+  }
+
+  return cb_response;
+}
+
+std::string iota::esp::ngsi::IotaMqttServiceImpl::doPublishMultiCB(
+    std::string& apikey, std::string& idDevice,
+    std::vector<std::string>& v_json) {
+  field_validation(apikey, idDevice);
+
+  std::string cb_response;
+
+  IOTA_LOG_DEBUG(
+      m_logger,
+      "IotaMqttServiceImpl, doPublishMultiCB... payload: [VECTOR OF MEASURES]"
+          << " apikey: [ " << apikey << "] device: [" << idDevice << "]");
+
+  boost::property_tree::ptree pt_cb;
+
+  try {
+    add_info(pt_cb, apikey);
+    std::string serviceMQTT = pt_cb.get<std::string>("service", "");
+
+    boost::shared_ptr<iota::Device> dev =
+        resthandle_ptr_->get_device(idDevice, serviceMQTT);
+
+    iota::ContextElement ngsi_context_element(idDevice, "", "false");
+
+    ngsi_context_element.set_env_info(pt_cb, dev);
+
+    IOTA_LOG_DEBUG(m_logger,
+                   "MQTTService: Creating entity : ["
+                       << ngsi_context_element.get_string()
+                       << "]");  // call to populate internal fields from cache
+
+    iota::RiotISO8601 timeInstant;
+
+    cb_response.assign(publisher_ptr->publishContextBroker(
+        ngsi_context_element, v_json, pt_cb, timeInstant));
 
     IOTA_LOG_DEBUG(m_logger, "ContextBroker RESPONSE: " << cb_response);
 
