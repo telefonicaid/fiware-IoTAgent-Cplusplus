@@ -1,5 +1,5 @@
 # Southbound API
-Every module has an identifier and description in order to be identified in applications. Identifier is hard-coded and this information nust not be changed. But `description` field
+Every module has an identifier and description in order to be identified in applications. Identifier is hard-coded and this information must not be changed. But `description` field
 might change if you provide `ProtocolDescription` field as an option in module configuration. For example:
 ```
      {
